@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8e8b3326
+ * @version   1.13.0-beta.1+canary.b80d66f7
  */
 
 (function() {
@@ -4914,7 +4914,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     catalogEntriesByType: function (type) {
       var namespaces = native_array.A(Namespace['default'].NAMESPACES);
       var types = native_array.A();
-      var typeSuffixRegex = new RegExp(string.classify(type) + "$");
+      var typeSuffixRegex = new RegExp("" + string.classify(type) + "$");
 
       namespaces.forEach(function (namespace) {
         if (namespace !== Ember['default']) {
@@ -5009,15 +5009,16 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        @return {Function} Method to call to remove all observers
     */
     watchModelTypes: function (typesAdded, typesUpdated) {
+      var _this = this;
+
       var modelTypes = this.getModelTypes();
-      var self = this;
       var releaseMethods = native_array.A();
       var typesToSend;
 
       typesToSend = modelTypes.map(function (type) {
         var klass = type.klass;
-        var wrapped = self.wrapModelType(klass, type.name);
-        releaseMethods.push(self.observeModelType(klass, typesUpdated));
+        var wrapped = _this.wrapModelType(klass, type.name);
+        releaseMethods.push(_this.observeModelType(klass, typesUpdated));
         return wrapped;
       });
 
@@ -5025,9 +5026,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
       var release = function () {
         releaseMethods.forEach(function (fn) {
-          fn();
+          return fn();
         });
-        self.releaseMethods.removeObject(release);
+        _this.releaseMethods.removeObject(release);
       };
       this.releaseMethods.pushObject(release);
       return release;
@@ -5058,7 +5059,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        @return {Function} Method to call to remove all observers
     */
     watchRecords: function (type, recordsAdded, recordsUpdated, recordsRemoved) {
-      var self = this;
+      var _this = this;
+
       var releaseMethods = native_array.A();
       var records = this.getRecords(type);
       var release;
@@ -5068,15 +5070,15 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       };
 
       var recordsToSend = records.map(function (record) {
-        releaseMethods.push(self.observeRecord(record, recordUpdated));
-        return self.wrapRecord(record);
+        releaseMethods.push(_this.observeRecord(record, recordUpdated));
+        return _this.wrapRecord(record);
       });
 
       var contentDidChange = function (array, idx, removedCount, addedCount) {
         for (var i = idx; i < idx + addedCount; i++) {
           var record = array.objectAt(i);
-          var wrapped = self.wrapRecord(record);
-          releaseMethods.push(self.observeRecord(record, recordUpdated));
+          var wrapped = _this.wrapRecord(record);
+          releaseMethods.push(_this.observeRecord(record, recordUpdated));
           recordsAdded([wrapped]);
         }
 
@@ -5088,14 +5090,14 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       var observer = { didChange: contentDidChange, willChange: function () {
           return this;
         } };
-      records.addArrayObserver(self, observer);
+      records.addArrayObserver(this, observer);
 
       release = function () {
         releaseMethods.forEach(function (fn) {
           fn();
         });
-        records.removeArrayObserver(self, observer);
-        self.releaseMethods.removeObject(release);
+        records.removeArrayObserver(_this, observer);
+        _this.releaseMethods.removeObject(release);
       };
 
       recordsAdded(recordsToSend);
@@ -5152,11 +5154,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     */
 
     observeModelType: function (type, typesUpdated) {
-      var self = this;
+      var _this = this;
+
       var records = this.getRecords(type);
 
       var onChange = function () {
-        typesUpdated([self.wrapModelType(type)]);
+        typesUpdated([_this.wrapModelType(type)]);
       };
       var observer = {
         didChange: function () {
@@ -5170,7 +5173,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       records.addArrayObserver(this, observer);
 
       var release = function () {
-        records.removeArrayObserver(self, observer);
+        records.removeArrayObserver(_this, observer);
       };
 
       return release;
@@ -5213,7 +5216,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       @return {Array} Array of model types
     */
     getModelTypes: function () {
-      var self = this;
+      var _this = this;
+
       var containerDebugAdapter = this.get("containerDebugAdapter");
       var types;
 
@@ -5226,12 +5230,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       // New adapters return strings instead of classes
       types = native_array.A(types).map(function (name) {
         return {
-          klass: self._nameToClass(name),
+          klass: _this._nameToClass(name),
           name: name
         };
       });
       types = native_array.A(types).filter(function (type) {
-        return self.detect(type.klass);
+        return _this.detect(type.klass);
       });
 
       return native_array.A(types);
@@ -5245,9 +5249,10 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       @return {Array} Array of model type strings
     */
     _getObjectsOnNamespaces: function () {
+      var _this = this;
+
       var namespaces = native_array.A(Namespace['default'].NAMESPACES);
       var types = native_array.A();
-      var self = this;
 
       namespaces.forEach(function (namespace) {
         for (var key in namespace) {
@@ -5257,12 +5262,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
           // Even though we will filter again in `getModelTypes`,
           // we should not call `lookupContainer` on non-models
           // (especially when `Ember.MODEL_FACTORY_INJECTIONS` is `true`)
-          if (!self.detect(namespace[key])) {
+          if (!_this.detect(namespace[key])) {
             continue;
           }
           var name = string.dasherize(key);
           if (!(namespace instanceof Application['default']) && namespace.toString()) {
-            name = namespace + "/" + name;
+            name = "" + namespace + "/" + name;
           }
           types.push(name);
         }
@@ -8252,7 +8257,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8300,7 +8305,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8340,7 +8345,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8388,7 +8393,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8437,7 +8442,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+        revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8481,7 +8486,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+          revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8523,7 +8528,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+        revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8567,7 +8572,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+          revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8609,7 +8614,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+        revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8651,7 +8656,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11306,7 +11311,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.8e8b3326
+    @version 1.13.0-beta.1+canary.b80d66f7
   */
 
   if ("undefined" === typeof Ember) {
@@ -11335,10 +11340,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.8e8b3326'
+    @default '1.13.0-beta.1+canary.b80d66f7'
     @static
   */
-  Ember.VERSION = "1.13.0-beta.1+canary.8e8b3326";
+  Ember.VERSION = "1.13.0-beta.1+canary.b80d66f7";
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19933,17 +19938,16 @@ enifed('ember-routing/location/hash_location', ['exports', 'ember-metal/core', '
       @param callback {Function}
     */
     onUpdateURL: function (callback) {
-      var self = this;
       var guid = utils.guidFor(this);
 
       Ember['default'].$(window).on("hashchange.ember-location-" + guid, function () {
         run['default'](function () {
-          var path = self.getURL();
-          if (property_get.get(self, "lastSetURL") === path) {
+          var path = this.getURL();
+          if (property_get.get(this, "lastSetURL") === path) {
             return;
           }
 
-          property_set.set(self, "lastSetURL", null);
+          property_set.set(this, "lastSetURL", null);
 
           callback(path);
         });
@@ -20111,18 +20115,19 @@ enifed('ember-routing/location/history_location', ['exports', 'ember-metal/prope
       @param callback {Function}
     */
     onUpdateURL: function (callback) {
+      var _this = this;
+
       var guid = utils.guidFor(this);
-      var self = this;
 
       jQuery['default'](window).on("popstate.ember-location-" + guid, function (e) {
         // Ignore initial page load popstate event in Chrome
         if (!popstateFired) {
           popstateFired = true;
-          if (self.getURL() === self._previousURL) {
+          if (_this.getURL() === _this._previousURL) {
             return;
           }
         }
-        callback(self.getURL());
+        callback(_this.getURL());
       });
     },
 
@@ -20395,6 +20400,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
 
   DSL.prototype = {
     route: function (name, options, callback) {
+      var dummyErrorRoute = "/_unused_dummy_error_path_route_" + name + "/:error";
       if (arguments.length === 2 && typeof options === "function") {
         callback = options;
         options = {};
@@ -20408,8 +20414,8 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
       
       
         if (this.enableLoadingSubstates) {
-          createRoute(this, name + "_loading", { resetNamespace: options.resetNamespace });
-          createRoute(this, name + "_error", { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
+          createRoute(this, "" + name + "_loading", { resetNamespace: options.resetNamespace });
+          createRoute(this, "" + name + "_error", { path: dummyErrorRoute });
         }
       
 
@@ -20420,7 +20426,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
         });
 
         createRoute(dsl, "loading");
-        createRoute(dsl, "error", { path: "/_unused_dummy_error_path_route_" + name + "/:error" });
+        createRoute(dsl, "error", { path: dummyErrorRoute });
 
         callback.call(dsl);
 
@@ -20475,7 +20481,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
 
   function getFullName(dsl, name, resetNamespace) {
     if (canNest(dsl) && resetNamespace !== true) {
-      return dsl.parent + "." + name;
+      return "" + dsl.parent + "." + name;
     } else {
       return name;
     }
@@ -20647,6 +20653,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        @property _qp
     */
     _qp: computed.computed(function () {
+      var _this = this;
+
       var controllerName = this.controllerName || this.routeName;
       var controllerClass = this.container.lookupFactory("controller:" + controllerName);
 
@@ -20660,7 +20668,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
       var qps = [];
       var map = {};
-      var self = this;
       for (var propName in qpProps) {
         if (!qpProps.hasOwnProperty(propName)) {
           continue;
@@ -20676,7 +20683,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
         var type = utils.typeOf(defaultValue);
         var defaultValueSerialized = this.serializeQueryParam(defaultValue, urlKey, type);
-        var fprop = controllerName + ":" + propName;
+        var fprop = "" + controllerName + ":" + propName;
         var qp = {
           def: defaultValue,
           sdef: defaultValueSerialized,
@@ -20701,13 +20708,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         map: map,
         states: {
           active: function (controller, prop) {
-            return self._activeQPChanged(controller, map[prop]);
+            return _this._activeQPChanged(controller, map[prop]);
           },
           allowOverrides: function (controller, prop) {
-            return self._updatingQPChanged(controller, map[prop]);
+            return _this._updatingQPChanged(controller, map[prop]);
           },
           changingKeys: function (controller, prop) {
-            return self._updateSerializedQPValue(controller, map[prop]);
+            return _this._updateSerializedQPValue(controller, map[prop]);
           }
         }
       };
@@ -20740,7 +20747,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
       var namePaths = new Array(names.length);
       for (var a = 0, nlen = names.length; a < nlen; ++a) {
-        namePaths[a] = handlerInfo.name + "." + names[a];
+        namePaths[a] = "" + handlerInfo.name + "." + names[a];
       }
 
       for (var i = 0; i < len; ++i) {
@@ -21522,13 +21529,17 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @param {...*} args
     */
     send: function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
       if (this.router || !Ember['default'].testing) {
         var _router;
 
-        (_router = this.router).send.apply(_router, arguments);
+        (_router = this.router).send.apply(_router, args);
       } else {
-        var name = arguments[0];
-        var args = slice.call(arguments, 1);
+        var name = args[0];
+        args = slice.call(args, 1);
         var action = this._actions[name];
         if (action) {
           return this._actions[name].apply(this, args);
@@ -22368,6 +22379,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     template = route.container.lookup("template:" + templateName);
     if (!ViewClass && !template) {
             if (LOG_VIEW_LOOKUPS) {
+        var fullName = "template:" + name;
               }
     }
 
@@ -22545,12 +22557,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     },
 
     setupRouter: function (moduleBasedResolver) {
+      var _this = this;
+
       this._initRouterJs(moduleBasedResolver);
       this._setupLocation();
 
       var router = this.router;
       var location = property_get.get(this, "location");
-      var self = this;
 
       // Allow the Location class to cancel the router setup while it refreshes
       // the page
@@ -22561,7 +22574,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       this._setupRouter(router, location);
 
       location.onUpdateURL(function (url) {
-        self.handleURL(url);
+        _this.handleURL(url);
       });
 
       return true;
@@ -22639,7 +22652,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       run['default'].once(this, this.trigger, "willTransition", transition);
 
       if (property_get.get(this, "namespace").LOG_TRANSITIONS) {
-        Ember['default'].Logger.log("Preparing to transition from '" + EmberRouter._routePath(oldInfos) + "' to '" + EmberRouter._routePath(newInfos) + "'");
+        Ember['default'].Logger.log("Preparing to transition from '" + EmberRouter._routePath(oldInfos) + "' to ' " + EmberRouter._routePath(newInfos) + "'");
       }
     },
 
@@ -22826,10 +22839,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     },
 
     _getHandlerFunction: function () {
+      var _this = this;
+
       var seen = create['default'](null);
       var container = this.container;
       var DefaultRoute = container.lookupFactory("route:basic");
-      var self = this;
 
       return function (name) {
         var routeName = "route:" + name;
@@ -22845,7 +22859,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
           container._registry.register(routeName, DefaultRoute.extend());
           handler = container.lookup(routeName);
 
-          if (property_get.get(self, "namespace.LOG_ACTIVE_GENERATION")) {
+          if (property_get.get(_this, "namespace.LOG_ACTIVE_GENERATION")) {
                       }
         }
 
@@ -32833,7 +32847,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+      revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37120,7 +37134,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.13.0-beta.1+canary.8e8b3326",
+    revision: "Ember@1.13.0-beta.1+canary.b80d66f7",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 
