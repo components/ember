@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.d6962481
+ * @version   1.13.0-beta.1+canary.ef7f4f01
  */
 
 (function() {
@@ -7348,7 +7348,28 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
       controller: {
         value: "foo"
       },
-      template: compile['default']("{{#test}}foo{{/test}}")
+      template: compile['default']("{{#test}}{{value}}{{/test}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "foo");
+  });
+
+  QUnit.test("allows usage of the template inverse", function () {
+    expect(1);
+
+    function someHelper(options) {
+      options.inverse();
+    }
+
+    compat__helper.registerHandlebarsCompatibleHelper("test", someHelper);
+
+    view = EmberView['default'].create({
+      controller: {
+        value: "foo"
+      },
+      template: compile['default']("{{#test}}Nothing to see here.{{else}}{{value}}{{/test}}")
     });
 
     utils.runAppend(view);
@@ -17266,7 +17287,8 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
 
   function generateEnv(helpers) {
     return {
-      helpers: helpers ? helpers : {}
+      helpers: helpers ? helpers : {},
+      data: { view: {} }
     };
   }
 
@@ -17353,7 +17375,11 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
     var fakeOptions = {
       morph: { update: function () {} }
     };
-    var fakeEnv = {};
+    var fakeEnv = {
+      data: {
+        view: {}
+      }
+    };
     actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
 
     ok(called, "HTMLBars compatible wrapper is wraping the provided function");
@@ -17751,7 +17777,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.d6962481",
+        revision: "Ember@1.13.0-beta.1+canary.ef7f4f01",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53400,7 +53426,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.d6962481", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.ef7f4f01", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
