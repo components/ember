@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.d80d8876
+ * @version   1.13.0-beta.1+canary.cf3f1d8b
  */
 
 (function() {
@@ -17751,7 +17751,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.d80d8876",
+        revision: "Ember@1.13.0-beta.1+canary.cf3f1d8b",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -32998,6 +32998,41 @@ enifed('ember-routing/tests/location/hash_location_test', ['ember-metal/core', '
 
     // clean up
     Ember['default'].$ = oldJquery;
+  });
+
+  QUnit.test("HashLocation.onUpdateURL callback executes as expected", function () {
+    expect(1);
+
+    createLocation({
+      _location: mockBrowserLocation("/#/foo/bar")
+    });
+
+    var callback = function (param) {
+      equal(param, "/foo/bar", "path is passed as param");
+    };
+
+    location.onUpdateURL(callback);
+
+    Ember['default'].$(window).trigger("hashchange");
+  });
+
+  QUnit.test("HashLocation.onUpdateURL doesnt execute callback if lastSetURL === path", function () {
+    expect(0);
+
+    createLocation({
+      _location: {
+        href: "/#/foo/bar"
+      },
+      lastSetURL: "/foo/bar"
+    });
+
+    var callback = function (param) {
+      ok(false, "callback should not be called");
+    };
+
+    location.onUpdateURL(callback);
+
+    Ember['default'].$(window).trigger("hashchange");
   });
 
   QUnit.test("HashLocation.formatURL() prepends a # to the provided string", function () {
@@ -53365,7 +53400,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.d80d8876", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.cf3f1d8b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
