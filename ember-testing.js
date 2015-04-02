@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.1e9857d0
+ * @version   1.12.0-beta.1.e204ac33
  */
 
 (function() {
@@ -180,8 +180,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
 
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean} test An optional boolean. If falsy, the deprecation
-      will be displayed.
+    @param {Boolean|Function} test An optional boolean. If falsy, the deprecation
+      will be displayed. If this is a function, it will be executed and its return
+      value will be used as condition.
     @param {Object} options An optional object that can be used to pass
       in a `url` to the transition guide on the emberjs.com website.
   */
