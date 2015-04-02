@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.72d2409e
+ * @version   1.11.0.e23ce41c
  */
 
 (function() {
@@ -17357,7 +17357,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0.72d2409e',
+        revision: 'Ember@1.11.0.e23ce41c',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52661,7 +52661,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0.72d2409e', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0.e23ce41c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -57387,6 +57387,25 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     }
   });
 
+  QUnit.test('Collection with style attribute supports changing content', function() {
+    view = CollectionView['default'].create({
+      attributeBindings: ['style'],
+      style: "width: 100px;",
+      content: Ember['default'].A(['foo', 'bar'])
+    });
+
+    run['default'](function() {
+      view.appendTo('#qunit-fixture');
+    });
+
+    equal(view.$().attr('style'), 'width: 100px;', "width is applied to the element");
+
+    run['default'](function() {
+      view.get('content').pushObject('baz');
+    });
+
+  });
+
 });
 enifed('ember-views/tests/views/collection_test.jscs-test', function () {
 
@@ -58453,6 +58472,63 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     container.pushObject(View['default'].create());
     ok(observerFired, 'View pushed, observer fired');
+  });
+
+  QUnit.test('ContainerView supports bound attributes', function() {
+    container = ContainerView['default'].create({
+      attributeBindings: ['width'],
+      width: "100px"
+    });
+
+    run['default'](function() {
+      container.appendTo('#qunit-fixture');
+    });
+
+    equal(container.$().attr('width'), '100px', "width is applied to the element");
+
+    run['default'](function() {
+      container.set('width', '200px');
+    });
+
+    equal(container.$().attr('width'), '200px', "width is applied to the element");
+  });
+
+  QUnit.test('ContainerView supports bound style attribute', function() {
+    container = ContainerView['default'].create({
+      attributeBindings: ['style'],
+      style: "width: 100px;"
+    });
+
+    run['default'](function() {
+      container.appendTo('#qunit-fixture');
+    });
+
+    equal(container.$().attr('style'), 'width: 100px;', "width is applied to the element");
+
+    run['default'](function() {
+      container.set('style', 'width: 200px;');
+    });
+
+    equal(container.$().attr('style'), 'width: 200px;', "width is applied to the element");
+  });
+
+  QUnit.test('ContainerView supports changing children with style attribute', function() {
+    container = ContainerView['default'].create({
+      attributeBindings: ['style'],
+      style: "width: 100px;"
+    });
+
+    run['default'](function() {
+      container.appendTo('#qunit-fixture');
+    });
+
+    equal(container.$().attr('style'), 'width: 100px;', "width is applied to the element");
+
+    view = View['default'].create();
+
+    run['default'](function() {
+      container.pushObject(view);
+    });
   });
 
 });
