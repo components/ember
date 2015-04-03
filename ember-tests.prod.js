@@ -15689,11 +15689,11 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
   var supportsTextContent = ('textContent' in document.createElement('div'));
   var setElementText;
   if (supportsTextContent) {
-    exports.setElementText = setElementText = function setElementText(element, text) {
+    setElementText = function setElementText(element, text) {
       element.textContent = text;
     };
   } else {
-    exports.setElementText = setElementText = function setElementText(element, text) {
+    setElementText = function setElementText(element, text) {
       element.innerText = text;
     };
   }
@@ -15726,6 +15726,8 @@ enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform
     renderer.appendTo(view, document.getElementById('qunit-fixture'));
     return view.element;
   }
+
+  exports.setElementText = setElementText;
 
 });
 enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get'], function (property_get) {
