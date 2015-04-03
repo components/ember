@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.ef7f4f01
+ * @version   1.13.0-beta.1+canary.10b32385
  */
 
 (function() {
@@ -940,9 +940,9 @@ enifed('ember-testing/initializers', ['ember-runtime/system/lazy_load'], functio
 
   'use strict';
 
-  var name = "deferReadiness in `testing` mode";
+  var name = 'deferReadiness in `testing` mode';
 
-  lazy_load.onLoad("Ember.Application", function (Application) {
+  lazy_load.onLoad('Ember.Application', function (Application) {
     if (!Application.initializers[name]) {
       Application.initializer({
         name: name,
