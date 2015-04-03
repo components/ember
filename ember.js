@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.286667a5
+ * @version   1.11.0.2ec768af
  */
 
 (function() {
@@ -7824,8 +7824,8 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   function renderHTMLBarsTemplate(view, buffer, template) {
     Ember['default'].assert(
       'The template being rendered by `' + view + '` was compiled with `' + template.revision +
-      '` which does not match `Ember@1.11.0.286667a5` (this revision).',
-      template.revision === 'Ember@1.11.0.286667a5'
+      '` which does not match `Ember@1.11.0.2ec768af` (this revision).',
+      template.revision === 'Ember@1.11.0.2ec768af'
     );
 
     var contextualElement = buffer.innerContextualElement();
@@ -7865,7 +7865,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.286667a5",
+      revision: "Ember@1.11.0.2ec768af",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7912,7 +7912,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.286667a5",
+      revision: "Ember@1.11.0.2ec768af",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7952,7 +7952,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.286667a5",
+      revision: "Ember@1.11.0.2ec768af",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7999,7 +7999,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.286667a5",
+      revision: "Ember@1.11.0.2ec768af",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8047,7 +8047,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.286667a5",
+        revision: "Ember@1.11.0.2ec768af",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8090,7 +8090,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.286667a5",
+          revision: "Ember@1.11.0.2ec768af",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8130,7 +8130,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.286667a5",
+        revision: "Ember@1.11.0.2ec768af",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8172,7 +8172,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.286667a5",
+          revision: "Ember@1.11.0.2ec768af",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8212,7 +8212,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.286667a5",
+        revision: "Ember@1.11.0.2ec768af",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8252,7 +8252,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.286667a5",
+      revision: "Ember@1.11.0.2ec768af",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11399,7 +11399,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0.286667a5
+    @version 1.11.0.2ec768af
   */
 
   if ('undefined' === typeof Ember) {
@@ -11427,10 +11427,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0.286667a5'
+    @default '1.11.0.2ec768af'
     @static
   */
-  Ember.VERSION = '1.11.0.286667a5';
+  Ember.VERSION = '1.11.0.2ec768af';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -26682,7 +26682,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
         Ember['default'].assert(
           'ArrayController expects `model` to implement the Ember.Array mixin. ' +
           'This can often be fixed by wrapping your model with `Ember.A()`.',
-          EmberArray['default'].detect(value)
+          EmberArray['default'].detect(value) || !value
         );
 
         return value;
@@ -34744,7 +34744,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0.286667a5',
+      revision: 'Ember@1.11.0.2ec768af',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -40495,7 +40495,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.11.0.286667a5',
+    revision: 'Ember@1.11.0.2ec768af',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 

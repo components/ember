@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.286667a5
+ * @version   1.11.0.2ec768af
  */
 
 (function() {
@@ -19410,7 +19410,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.0.286667a5',
+        revision: 'Ember@1.11.0.2ec768af',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -39043,6 +39043,19 @@ enifed('ember-runtime/tests/controllers/array_controller_test', ['ember-metal/co
     }
   });
 
+  QUnit.test('works properly when model is set to `null`', function() {
+    var controller = ArrayController['default'].create();
+
+    property_set.set(controller, 'model', null);
+    equal(property_get.get(controller, 'model'), null, "can set model to `null`");
+
+    property_set.set(controller, 'model', undefined);
+    equal(property_get.get(controller, 'model'), undefined, "can set model to `undefined`");
+
+    property_set.set(controller, 'model', false);
+    equal(property_get.get(controller, 'model'), false, "can set model to `undefined`");
+  });
+
 });
 enifed('ember-runtime/tests/controllers/array_controller_test.jscs-test', function () {
 
@@ -54560,7 +54573,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.0.286667a5', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.0.2ec768af', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
