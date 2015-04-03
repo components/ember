@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.372adee8
+ * @version   1.13.0-beta.1+canary.4ff961e0
  */
 
 (function() {
@@ -12116,7 +12116,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     run['default'](null, property_set.set, view, "controller.someThingNotThere", "foo");
 
-    equal(view.element.childNodes[1].placeholder, "foo", "attribute is present");
+    equal(view.element.childNodes[1].getAttribute("placeholder"), "foo", "attribute is present");
   });
 
   QUnit.test("placeholder attribute bound to null is not present", function () {
@@ -12133,7 +12133,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     run['default'](null, property_set.set, view, "controller.someNullProperty", "foo");
 
-    equal(view.element.childNodes[1].placeholder, "foo", "attribute is present");
+    equal(view.element.childNodes[1].getAttribute("placeholder"), "foo", "attribute is present");
   });
 
 });
@@ -17774,7 +17774,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.372adee8",
+        revision: "Ember@1.13.0-beta.1+canary.4ff961e0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53278,7 +53278,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.372adee8", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.4ff961e0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -57346,6 +57346,42 @@ enifed('ember-views/tests/system/view_utils_test.jshint', function () {
   });
 
 });
+enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = function (element) {
+    var style = element.getAttribute('style');
+    style = style.toUpperCase(); // IE8 keeps this is uppercase, so lets just upcase them all
+
+    if (style !== '' && style.slice(-1) !== ';') {
+      style += ';'; // IE8 drops the trailing so lets add it back
+    }
+
+    return style;
+  }
+
+});
+enifed('ember-views/tests/test-helpers/get-element-style.jscs-test', function () {
+
+  'use strict';
+
+  module('JSCS - ember-views/tests/test-helpers');
+  test('ember-views/tests/test-helpers/get-element-style.js should pass jscs', function () {
+    ok(true, 'ember-views/tests/test-helpers/get-element-style.js should pass jscs.');
+  });
+
+});
+enifed('ember-views/tests/test-helpers/get-element-style.jshint', function () {
+
+  'use strict';
+
+  module('JSHint - ember-views/tests/test-helpers');
+  test('ember-views/tests/test-helpers/get-element-style.js should pass jshint', function () {
+    ok(true, 'ember-views/tests/test-helpers/get-element-style.js should pass jshint.');
+  });
+
+});
 enifed('ember-views/tests/views/checkbox_test', ['ember-views/views/checkbox', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher'], function (Checkbox, property_get, property_set, run, EventDispatcher) {
 
   'use strict';
@@ -57536,7 +57572,7 @@ enifed('ember-views/tests/views/checkbox_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view'], function (Ember, property_set, property_get, run, enumerable_utils, mixin, string, ArrayProxy, ArrayController, jQuery, CollectionView, View) {
+enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/tests/test-helpers/get-element-style'], function (Ember, property_set, property_get, run, enumerable_utils, mixin, string, ArrayProxy, ArrayController, jQuery, CollectionView, View, getElementStyle) {
 
   'use strict';
 
@@ -58293,7 +58329,9 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       view.appendTo("#qunit-fixture");
     });
 
-    equal(view.$().attr("style"), "width: 100px;", "width is applied to the element");
+    var style = getElementStyle['default'](view.element);
+
+    equal(style, "WIDTH: 100PX;", "width is applied to the element");
 
     run['default'](function () {
       view.get("content").pushObject("baz");
@@ -58587,7 +58625,7 @@ enifed('ember-views/tests/views/component_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/streams/utils', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view'], function (property_get, property_set, run, computed, utils, Controller, jQuery, View, ContainerView) {
+enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/streams/utils', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/tests/test-helpers/get-element-style'], function (property_get, property_set, run, computed, utils, Controller, jQuery, View, ContainerView, getElementStyle) {
 
   'use strict';
 
@@ -59401,13 +59439,13 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.appendTo("#qunit-fixture");
     });
 
-    equal(container.$().attr("style"), "width: 100px;", "width is applied to the element");
+    equal(getElementStyle['default'](container.element), "WIDTH: 100PX;", "width is applied to the element");
 
     run['default'](function () {
       container.set("style", "width: 200px;");
     });
 
-    equal(container.$().attr("style"), "width: 200px;", "width is applied to the element");
+    equal(getElementStyle['default'](container.element), "WIDTH: 200PX;", "width is applied to the element");
   });
 
   QUnit.test("ContainerView supports changing children with style attribute", function () {
@@ -59420,7 +59458,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.appendTo("#qunit-fixture");
     });
 
-    equal(container.$().attr("style"), "width: 100px;", "width is applied to the element");
+    equal(getElementStyle['default'](container.element), "WIDTH: 100PX;", "width is applied to the element");
 
     view = View['default'].create();
 
@@ -64880,7 +64918,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['ember-metal/prop
     equal(element.tagName, "BODY", "returns a body element");
     equal(element.firstChild.tagName, "DIV", "renders the view div");
     equal(element.firstChild.firstChild.tagName, "H1", "renders the view div");
-    equal(element.firstChild.firstChild.nextSibling.textContent, " goodbye world", "renders the text node");
+    equal(element.firstChild.firstChild.nextSibling.nodeValue, " goodbye world", "renders the text node");
   });
 
   QUnit.test("should create and render into an element with a provided tagName", function () {
@@ -64897,7 +64935,7 @@ enifed('ember-views/tests/views/view/render_to_element_test', ['ember-metal/prop
     equal(element.tagName, "DIV", "returns a body element");
     equal(element.firstChild.tagName, "DIV", "renders the view div");
     equal(element.firstChild.firstChild.tagName, "H1", "renders the view div");
-    equal(element.firstChild.firstChild.nextSibling.textContent, " goodbye world", "renders the text node");
+    equal(element.firstChild.firstChild.nextSibling.nodeValue, " goodbye world", "renders the text node");
   });
 
 });
