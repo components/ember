@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.610602e5
+ * @version   1.13.0-beta.1+canary.76ab3257
  */
 
 (function() {
@@ -4382,7 +4382,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.610602e5
+    @version 1.13.0-beta.1+canary.76ab3257
   */
 
   if ('undefined' === typeof Ember) {
@@ -4411,10 +4411,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.610602e5'
+    @default '1.13.0-beta.1+canary.76ab3257'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.610602e5';
+  Ember.VERSION = '1.13.0-beta.1+canary.76ab3257';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -4866,6 +4866,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
     environment = {
       hasDOM: true,
       isChrome: !!window.chrome && !window.opera,
+      isFirefox: typeof InstallTrigger !== 'undefined',
       location: window.location,
       history: window.history,
       userAgent: window.navigator.userAgent,
@@ -4875,6 +4876,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
     environment = {
       hasDOM: false,
       isChrome: false,
+      isFirefox: false,
       location: null,
       history: null,
       userAgent: 'Lynx (textmode)',
