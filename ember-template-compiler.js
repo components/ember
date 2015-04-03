@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.76ab3257
+ * @version   1.13.0-beta.1+canary.86dc0983
  */
 
 (function() {
@@ -2610,7 +2610,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.76ab3257
+    @version 1.13.0-beta.1+canary.86dc0983
   */
 
   if ('undefined' === typeof Ember) {
@@ -2639,10 +2639,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.76ab3257'
+    @default '1.13.0-beta.1+canary.86dc0983'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.76ab3257';
+  Ember.VERSION = '1.13.0-beta.1+canary.86dc0983';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9305,8 +9305,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
       if (pluginContext.validate(node)) {
 
         if (node.program && node.program.blockParams.length) {
-          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
+
+        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
 
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -9318,7 +9320,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   };
 
   TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'BlockStatement' && node.sexpr.path.original === 'with' && node.sexpr.params.length === 3 && node.sexpr.params[1].type === 'PathExpression' && node.sexpr.params[1].original === 'as';
+    return node.type === "BlockStatement" && node.sexpr.path.original === "with" && node.sexpr.params.length === 3 && node.sexpr.params[1].type === "PathExpression" && node.sexpr.params[1].original === "as";
   };
 
   exports['default'] = TransformWithAsToHash;
@@ -9369,7 +9371,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
 
       disableComponentGeneration: disableComponentGeneration,
 

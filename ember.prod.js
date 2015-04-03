@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.76ab3257
+ * @version   1.13.0-beta.1+canary.86dc0983
  */
 
 (function() {
@@ -7333,7 +7333,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
 
     NOTE: The alias should not reuse a name from the bound property path.
     For example: `{{#with foo as |foo.bar|}}` is not supported because it attempts to alias using
-    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
+    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
 
     ### `controller` option
 
@@ -7343,7 +7343,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
     This is very similar to using an `itemController` option with the `{{each}}` helper.
 
     ```handlebars
-    {{#with users.posts as posts controller='userBlogPosts'}}
+    {{#with users.posts controller='userBlogPosts' as |posts|}}
       {{!- `posts` is wrapped in our controller instance }}
     {{/with}}
     ```
@@ -8237,7 +8237,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8285,7 +8285,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8325,7 +8325,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8373,7 +8373,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8422,7 +8422,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+        revision: "Ember@1.13.0-beta.1+canary.86dc0983",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8466,7 +8466,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+          revision: "Ember@1.13.0-beta.1+canary.86dc0983",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8508,7 +8508,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+        revision: "Ember@1.13.0-beta.1+canary.86dc0983",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8552,7 +8552,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+          revision: "Ember@1.13.0-beta.1+canary.86dc0983",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8594,7 +8594,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+        revision: "Ember@1.13.0-beta.1+canary.86dc0983",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8636,7 +8636,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11292,7 +11292,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.76ab3257
+    @version 1.13.0-beta.1+canary.86dc0983
   */
 
   if ('undefined' === typeof Ember) {
@@ -11321,10 +11321,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.76ab3257'
+    @default '1.13.0-beta.1+canary.86dc0983'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.76ab3257';
+  Ember.VERSION = '1.13.0-beta.1+canary.86dc0983';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32802,9 +32802,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
       if (pluginContext.validate(node)) {
 
         if (node.program && node.program.blockParams.length) {
-          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
 
+        
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
         node.program.blockParams = [keyword];
@@ -32815,7 +32816,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   };
 
   TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'BlockStatement' && node.sexpr.path.original === 'with' && node.sexpr.params.length === 3 && node.sexpr.params[1].type === 'PathExpression' && node.sexpr.params[1].original === 'as';
+    return node.type === "BlockStatement" && node.sexpr.path.original === "with" && node.sexpr.params.length === 3 && node.sexpr.params[1].type === "PathExpression" && node.sexpr.params[1].original === "as";
   };
 
   exports['default'] = TransformWithAsToHash;
@@ -32866,7 +32867,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     }
 
     return {
-      revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+      revision: "Ember@1.13.0-beta.1+canary.86dc0983",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -37206,7 +37207,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+    revision: "Ember@1.13.0-beta.1+canary.86dc0983",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 

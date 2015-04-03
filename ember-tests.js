@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.76ab3257
+ * @version   1.13.0-beta.1+canary.86dc0983
  */
 
 (function() {
@@ -5406,7 +5406,7 @@ enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', '
       controller: {
         foo: "bar"
       },
-      template: compile("{{#with foo as bar}}{{handlebars-get \"bar\"}}{{/with}}")
+      template: compile("{{#with foo as |bar|}}{{handlebars-get \"bar\"}}{{/with}}")
     });
 
     utils.runAppend(view);
@@ -6620,7 +6620,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind element attributes using {{bind-attr}} inside a block", function () {
-    var template = compile['default']("{{#with view.content as image}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}");
+    var template = compile['default']("{{#with view.content as |image|}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}");
 
     view = EmberView['default'].create({
       template: template,
@@ -12464,13 +12464,22 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   var view, lookup;
   var originalLookup = Ember.lookup;
 
-  function testWithAs(moduleName, templateString) {
+  function testWithAs(moduleName, templateString, deprecated) {
     QUnit.module(moduleName, {
       setup: function () {
         Ember.lookup = lookup = { Ember: Ember };
 
+        var template;
+        if (deprecated) {
+          expectDeprecation(function () {
+            template = compile['default'](templateString);
+          }, "Using {{with}} without block syntax is deprecated. Please use standard block form (`{{#with foo as |bar|}}`) instead.");
+        } else {
+          template = compile['default'](templateString);
+        }
+
         view = EmberView['default'].create({
-          template: compile['default'](templateString),
+          template: template,
           context: {
             title: "Señor Engineer",
             person: { name: "Tom Dale" }
@@ -12519,14 +12528,14 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     });
   }
 
-  testWithAs("ember-htmlbars: {{#with}} helper", "{{#with person as tom}}{{title}}: {{tom.name}}{{/with}}");
+  testWithAs("ember-htmlbars: {{#with}} helper", "{{#with person as tom}}{{title}}: {{tom.name}}{{/with}}", true);
 
   QUnit.module("Multiple Handlebars {{with foo as bar}} helpers", {
     setup: function () {
       Ember.lookup = lookup = { Ember: Ember };
 
       view = EmberView['default'].create({
-        template: compile['default']("Admin: {{#with admin as person}}{{person.name}}{{/with}} User: {{#with user as person}}{{person.name}}{{/with}}"),
+        template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
         context: {
           admin: { name: "Tom Dale" },
           user: { name: "Yehuda Katz" }
@@ -12549,7 +12558,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
   QUnit.test("the scoped variable is not available outside the {{with}} block.", function () {
     run['default'](function () {
-      view.set("template", compile['default']("{{name}}-{{#with other as name}}{{name}}{{/with}}-{{name}}"));
+      view.set("template", compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"));
       view.set("context", {
         name: "Stef",
         other: "Yehuda"
@@ -12561,7 +12570,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
   QUnit.test("nested {{with}} blocks shadow the outer scoped variable properly.", function () {
     run['default'](function () {
-      view.set("template", compile['default']("{{#with first as ring}}{{ring}}-{{#with fifth as ring}}{{ring}}-{{#with ninth as ring}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
+      view.set("template", compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
       view.set("context", {
         first: "Limbo",
         fifth: "Wrath",
@@ -12578,7 +12587,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
       lookup.Foo = { bar: "baz" };
       view = EmberView['default'].create({
-        template: compile['default']("{{#with Foo.bar as qux}}{{qux}}{{/with}}")
+        template: compile['default']("{{#with Foo.bar as |qux|}}{{qux}}{{/with}}")
       });
     },
 
@@ -12602,11 +12611,11 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     equal(view.$().text(), "updated", "should update");
   });
 
-  QUnit.module("Handlebars {{#with keyword as foo}}");
+  QUnit.module("Handlebars {{#with keyword as |foo|}}");
 
   QUnit.test("it should support #with view as foo", function () {
     var view = EmberView['default'].create({
-      template: compile['default']("{{#with view as myView}}{{myView.name}}{{/with}}"),
+      template: compile['default']("{{#with view as |myView|}}{{myView.name}}{{/with}}"),
       name: "Sonics"
     });
 
@@ -12624,7 +12633,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
   QUnit.test("it should support #with name as food, then #with foo as bar", function () {
     var view = EmberView['default'].create({
-      template: compile['default']("{{#with name as foo}}{{#with foo as bar}}{{bar}}{{/with}}{{/with}}"),
+      template: compile['default']("{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}"),
       context: { name: "caterpillar" }
     });
 
@@ -12640,11 +12649,11 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     utils.runDestroy(view);
   });
 
-  QUnit.module("Handlebars {{#with this as foo}}");
+  QUnit.module("Handlebars {{#with this as |foo|}}");
 
   QUnit.test("it should support #with this as qux", function () {
     var view = EmberView['default'].create({
-      template: compile['default']("{{#with this as person}}{{person.name}}{{/with}}"),
+      template: compile['default']("{{#with this as |person|}}{{person.name}}{{/with}}"),
       controller: EmberObject['default'].create({ name: "Los Pivots" })
     });
 
@@ -12775,7 +12784,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
     view = EmberView['default'].create({
       container: container,
-      template: compile['default']("{{#with person as steve controller=\"person\"}}{{name}} - {{steve.name}}{{/with}}"),
+      template: compile['default']("{{#with person controller=\"person\" as |steve|}}{{name}} - {{steve.name}}{{/with}}"),
       controller: parentController
     });
 
@@ -12865,7 +12874,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
     view = EmberView['default'].create({
       container: container,
-      template: compile['default']("{{#with person as steve controller=\"person\"}}{{controllerName}}{{/with}}"),
+      template: compile['default']("{{#with person controller=\"person\" as |steve|}}{{controllerName}}{{/with}}"),
       controller: parentController
     });
 
@@ -12883,7 +12892,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
       Ember.lookup = lookup = { Ember: Ember };
 
       view = EmberView['default'].create({
-        template: compile['default']("We have: {{#with view.thing as fromView}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
+        template: compile['default']("We have: {{#with view.thing as |fromView|}}{{fromView.name}} and {{fromContext.name}}{{/with}}"),
         thing: { name: "this is from the view" },
         context: {
           fromContext: { name: "this is from the context" }
@@ -13111,7 +13120,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
     view = EmberView['default'].create({
       controller: { boundText: "outer", component: component },
-      template: compile['default']("{{#with boundText as item}}{{#view component}}{{item}}{{/view}}{{/with}}")
+      template: compile['default']("{{#with boundText as |item|}}{{#view component}}{{item}}{{/view}}{{/with}}")
     });
 
     utils.runAppend(view);
@@ -13122,7 +13131,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
   QUnit.test("inner keyword doesn't mask yield property", function () {
     var component = Component['default'].extend({
       boundText: "inner",
-      layout: compile['default']("{{#with boundText as item}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}")
+      layout: compile['default']("{{#with boundText as |item|}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}")
     });
 
     view = EmberView['default'].create({
@@ -13143,7 +13152,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
     view = EmberView['default'].create({
       controller: { boundText: "outer", component: component },
-      template: compile['default']("{{#with boundText as item}}{{#view component content=item}}{{item}}{{/view}}{{/with}}")
+      template: compile['default']("{{#with boundText as |item|}}{{#view component content=item}}{{item}}{{/view}}{{/with}}")
     });
 
     utils.runAppend(view);
@@ -14558,7 +14567,7 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop
 
   QUnit.test('child views can be inserted inside a bind block', function () {
     registry.register('template:nester', compile['default']('<h1 id="hello-world">Hello {{world}}</h1>{{view view.bqView}}'));
-    registry.register('template:nested', compile['default']('<div id="child-view">Goodbye {{#with content as thing}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
+    registry.register('template:nested', compile['default']('<div id="child-view">Goodbye {{#with content as |thing|}}{{thing.blah}} {{view view.otherView}}{{/with}} {{world}}</div>'));
     registry.register('template:other', compile['default']('cruel'));
 
     var context = {
@@ -14597,7 +14606,7 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop
   });
 
   QUnit.test('views render their template in the context of the parent view\'s context', function () {
-    registry.register('template:parent', compile['default']('<h1>{{#with content as person}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
+    registry.register('template:parent', compile['default']('<h1>{{#with content as |person|}}{{#view}}{{person.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
     var context = {
       content: {
@@ -14617,7 +14626,7 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop
   });
 
   QUnit.test('views make a view keyword available that allows template to reference view context', function () {
-    registry.register('template:parent', compile['default']('<h1>{{#with view.content as person}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
+    registry.register('template:parent', compile['default']('<h1>{{#with view.content as |person|}}{{#view person.subview}}{{view.firstName}} {{person.lastName}}{{/view}}{{/with}}</h1>'));
 
     view = EmberView['default'].create({
       container: container,
@@ -15334,7 +15343,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.76ab3257",
+        revision: "Ember@1.13.0-beta.1+canary.86dc0983",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -25243,7 +25252,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     ok(eventHandlerWasCalled, "The event handler was called");
   });
 
-  QUnit.test("should work properly in a {{#with foo as bar}} block", function () {
+  QUnit.test("should work properly in a {{#with foo as |bar|}} block", function () {
     var eventHandlerWasCalled = false;
 
     var controller = EmberController['default'].extend({
@@ -25255,7 +25264,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     view = EmberView['default'].create({
       controller: controller,
       something: { ohai: "there" },
-      template: compile['default']("{{#with view.something as somethingElse}}<a href=\"#\" {{action \"edit\"}}>click me</a>{{/with}}")
+      template: compile['default']("{{#with view.something as |somethingElse|}}<a href=\"#\" {{action \"edit\"}}>click me</a>{{/with}}")
     });
 
     utils.runAppend(view);
@@ -43759,7 +43768,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.76ab3257", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.86dc0983", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
