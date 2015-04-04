@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.2ec768af
+ * @version   1.11.0.60e347b6
  */
 
 (function() {
@@ -7824,8 +7824,8 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   function renderHTMLBarsTemplate(view, buffer, template) {
     Ember['default'].assert(
       'The template being rendered by `' + view + '` was compiled with `' + template.revision +
-      '` which does not match `Ember@1.11.0.2ec768af` (this revision).',
-      template.revision === 'Ember@1.11.0.2ec768af'
+      '` which does not match `Ember@1.11.0.60e347b6` (this revision).',
+      template.revision === 'Ember@1.11.0.60e347b6'
     );
 
     var contextualElement = buffer.innerContextualElement();
@@ -7865,7 +7865,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.2ec768af",
+      revision: "Ember@1.11.0.60e347b6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7912,7 +7912,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.2ec768af",
+      revision: "Ember@1.11.0.60e347b6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7952,7 +7952,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.2ec768af",
+      revision: "Ember@1.11.0.60e347b6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7999,7 +7999,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.2ec768af",
+      revision: "Ember@1.11.0.60e347b6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8047,7 +8047,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.2ec768af",
+        revision: "Ember@1.11.0.60e347b6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8090,7 +8090,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.2ec768af",
+          revision: "Ember@1.11.0.60e347b6",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8130,7 +8130,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.2ec768af",
+        revision: "Ember@1.11.0.60e347b6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8172,7 +8172,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.2ec768af",
+          revision: "Ember@1.11.0.60e347b6",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8212,7 +8212,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.2ec768af",
+        revision: "Ember@1.11.0.60e347b6",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8252,7 +8252,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.2ec768af",
+      revision: "Ember@1.11.0.60e347b6",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11399,7 +11399,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0.2ec768af
+    @version 1.11.0.60e347b6
   */
 
   if ('undefined' === typeof Ember) {
@@ -11427,10 +11427,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0.2ec768af'
+    @default '1.11.0.60e347b6'
     @static
   */
-  Ember.VERSION = '1.11.0.2ec768af';
+  Ember.VERSION = '1.11.0.60e347b6';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18793,7 +18793,7 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
   }
 
 });
-enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view', 'ember-metal/platform/create'], function (exports, Ember, EmberError, string, generate_controller, utils, mergeViewBindings, appendTemplatedView, create) {
+enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view', 'ember-metal/platform/create'], function (exports, Ember, property_get, EmberError, string, generate_controller, utils, mergeViewBindings, appendTemplatedView, create) {
 
   'use strict';
 
@@ -18854,6 +18854,9 @@ enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 
     view = container.lookup('view:' + name);
     if (!view) {
       view = container.lookup('view:default');
+    }
+    var viewHasTemplateSpecified = !!property_get.get(view, 'template');
+    if (!viewHasTemplateSpecified) {
       template = template || container.lookup(templateName);
     }
 
@@ -34744,7 +34747,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0.2ec768af',
+      revision: 'Ember@1.11.0.60e347b6',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -40495,7 +40498,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.11.0.2ec768af',
+    revision: 'Ember@1.11.0.60e347b6',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 
