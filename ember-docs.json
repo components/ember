@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.11.0"
+        "version": "1.11.1"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -597,21 +597,8 @@
         "packages/ember-metal/lib/streams/stream.js": {
             "name": "packages/ember-metal/lib/streams/stream.js",
             "modules": {},
-            "classes": {
-                "Ember.stream.Stream": 1
-            },
-            "fors": {},
-            "namespaces": {
-                "Ember.stream": 1
-            }
-        },
-        "packages/ember-metal/lib/streams/utils.js": {
-            "name": "packages/ember-metal/lib/streams/utils.js",
-            "modules": {},
             "classes": {},
-            "fors": {
-                "Ember.stream": 1
-            },
+            "fors": {},
             "namespaces": {}
         },
         "packages/ember-metal/lib/array.js": {
@@ -2286,9 +2273,6 @@
             "submodules": {},
             "classes": {
                 "Ember": 1,
-                "Ember.stream.Stream": 1,
-                "Ember.stream.Ember.stream": 1,
-                "Ember.stream": 1,
                 "Ember.Binding": 1,
                 "Ember.ComputedProperty": 1,
                 "Ember.computed": 1,
@@ -2308,14 +2292,12 @@
                 "Ember.run": 1
             },
             "fors": {
-                "Ember.stream": 1,
                 "Ember": 1,
                 "Ember.computed": 1,
                 "Ember.FEATURES": 1,
                 "Ember.Logger": 1
             },
             "namespaces": {
-                "Ember.stream": 1,
                 "Ember": 1,
                 "Ember.Instrumentation": 1
             },
@@ -2767,44 +2749,6 @@
             "file": "packages/ember-metal/lib/platform/define_property.js",
             "line": 3,
             "static": 1
-        },
-        "Ember.stream.Stream": {
-            "name": "Ember.stream.Stream",
-            "shortname": "Ember.stream.Stream",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember-metal",
-            "namespace": "Ember.stream",
-            "file": "packages/ember-metal/lib/streams/stream.js",
-            "line": 11,
-            "access": "public",
-            "tagname": "",
-            "is_constructor": 1
-        },
-        "Ember.stream.Ember.stream": {
-            "name": "Ember.stream.Ember.stream",
-            "shortname": "Ember.stream",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember-metal",
-            "namespace": "Ember.stream"
-        },
-        "Ember.stream": {
-            "name": "Ember.stream",
-            "shortname": "Ember.stream",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "ember-metal",
-            "namespace": ""
         },
         "Ember.Binding": {
             "name": "Ember.Binding",
@@ -6806,249 +6750,6 @@
             "class": "Ember.platform",
             "module": "ember",
             "namespace": "Ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 3,
-            "description": "Check whether an object is a stream or not",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "isStream",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "object to check whether it is a stream",
-                    "type": "Object|Stream"
-                }
-            ],
-            "return": {
-                "description": "`true` if the object is a stream, `false` otherwise",
-                "type": "Boolean"
-            },
-            "class": "Ember.stream.Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 16,
-            "description": "A method of subscribing to a stream which is safe for use with a non-stream\nobject. If a non-stream object is passed, the function does nothing.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "subscribe",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "object or stream to potentially subscribe to",
-                    "type": "Object|Stream"
-                },
-                {
-                    "name": "callback",
-                    "description": "function to run when stream value changes",
-                    "type": "Function"
-                },
-                {
-                    "name": "context",
-                    "description": "the callback will be executed with this context if it\n                          is provided",
-                    "type": "Object",
-                    "optional": true
-                }
-            ],
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 34,
-            "description": "A method of unsubscribing from a stream which is safe for use with a non-stream\nobject. If a non-stream object is passed, the function does nothing.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "unsubscribe",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "object or stream to potentially unsubscribe from",
-                    "type": "Object|Stream"
-                },
-                {
-                    "name": "callback",
-                    "description": "function originally passed to `subscribe()`",
-                    "type": "Function"
-                },
-                {
-                    "name": "context",
-                    "description": "object originally passed to `subscribe()`",
-                    "type": "Object",
-                    "optional": true
-                }
-            ],
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 51,
-            "description": "Retrieve the value of a stream, or in the case a non-stream object is passed,\nreturn the object itself.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "read",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "object to return the value of",
-                    "type": "Object|Stream"
-                }
-            ],
-            "return": {
-                "description": "the stream's current value, or the non-stream object itself"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 69,
-            "description": "Map an array, replacing any streams with their values.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "readArray",
-            "params": [
-                {
-                    "name": "array",
-                    "description": "The array to read values from",
-                    "type": "Array"
-                }
-            ],
-            "return": {
-                "description": "a new array of the same length with the values of non-stream\n                objects mapped from their original positions untouched, and\n                the values of stream objects retaining their original position\n                and replaced with the stream's current value.",
-                "type": "Array"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 90,
-            "description": "Map a hash, replacing any stream property values with the current value of that\nstream.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "readHash",
-            "params": [
-                {
-                    "name": "object",
-                    "description": "The hash to read keys and values from",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "a new object with the same keys as the passed object. The\n                 property values in the new object are the original values in\n                 the case of non-stream objects, and the streams' current\n                 values in the case of stream objects.",
-                "type": "Object"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 111,
-            "description": "Check whether an array contains any stream values",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "scanArray",
-            "params": [
-                {
-                    "name": "array",
-                    "description": "array given to a handlebars helper",
-                    "type": "Array"
-                }
-            ],
-            "return": {
-                "description": "`true` if the array contains a stream/bound value, `false`\n                  otherwise",
-                "type": "Boolean"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 135,
-            "description": "Check whether a hash has any stream property values",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "scanHash",
-            "params": [
-                {
-                    "name": "hash",
-                    "description": "\"hash\" argument given to a handlebars helper",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "`true` if the object contains a stream/bound value, `false`\n                  otherwise",
-                "type": "Boolean"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 158,
-            "description": "Join an array, with any streams replaced by their current values",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "concat",
-            "params": [
-                {
-                    "name": "array",
-                    "description": "An array containing zero or more stream objects and\n                     zero or more non-stream objects",
-                    "type": "Array"
-                },
-                {
-                    "name": "separator",
-                    "description": "string to be used to join array elements",
-                    "type": "String"
-                }
-            ],
-            "return": {
-                "description": "String with array elements concatenated and joined by the\n                 provided separator, and any stream array members having been\n                 replaced by the current value of the stream",
-                "type": "String"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
-        },
-        {
-            "file": "packages/ember-metal/lib/streams/utils.js",
-            "line": 191,
-            "description": "Generate a new stream by providing a source stream and a function that can\nbe used to transform the stream's value. In the case of a non-stream object,\nreturns the result of the function.\n\nThe value to transform would typically be available to the function you pass\nto `chain()` via scope. For example:\n\n```javascript\n    var source = ...;  // stream returning a number\n                           // or a numeric (non-stream) object\n    var result = chain(source, function() {\n      var currentValue = read(source);\n      return currentValue + 1;\n    });\n```\n\nIn the example, result is a stream if source is a stream, or a number of\nsource was numeric.",
-            "access": "public",
-            "tagname": "",
-            "itemtype": "method",
-            "name": "chain",
-            "params": [
-                {
-                    "name": "value",
-                    "description": "A stream or non-stream object",
-                    "type": "Object|Stream"
-                },
-                {
-                    "name": "fn",
-                    "description": "function to be run when the stream value changes, or to\n                     be run once in the case of a non-stream object",
-                    "type": "Function"
-                }
-            ],
-            "return": {
-                "description": "In the case of a stream `value` parameter, a new\n                        stream that will be updated with the return value of\n                        the provided function `fn`. In the case of a\n                        non-stream object, the return value of the provided\n                        function `fn`.",
-                "type": "Object|Stream"
-            },
-            "class": "Ember.stream",
-            "module": "ember-metal"
         },
         {
             "file": "packages/ember-metal/lib/array.js",
@@ -11053,7 +10754,7 @@
         },
         {
             "file": "packages/ember-routing-htmlbars/lib/helpers/render.js",
-            "line": 18,
+            "line": 19,
             "description": "Calling ``{{render}}`` from within a template will insert another\ntemplate that matches the provided name. The inserted template will\naccess its properties on its own controller (rather than the controller\nof the parent template).\n\nIf a view class with the same name exists, the view class also will be used.\n\nNote: A given controller may only be used *once* in your app in this manner.\nA singleton instance of the controller will be created for you.\n\nExample:\n\n```javascript\nApp.NavigationController = Ember.Controller.extend({\n  who: \"world\"\n});\n```\n\n```handlebars\n<!-- navigation.hbs -->\nHello, {{who}}.\n```\n\n```handlebars\n<!-- application.hbs -->\n<h1>My great app</h1>\n{{render \"navigation\"}}\n```\n\n```html\n<h1>My great app</h1>\n<div class='ember-view'>\n  Hello, world.\n</div>\n```\n\nOptionally you may provide a second argument: a property path\nthat will be bound to the `model` property of the controller.\n\nIf a `model` property path is specified, then a new instance of the\ncontroller will be created and `{{render}}` can be used multiple times\nwith the same name.\n\n For example if you had this `author` template.\n\n ```handlebars\n<div class=\"author\">\nWritten by {{firstName}} {{lastName}}.\nTotal Posts: {{postCount}}\n</div>\n```\n\nYou could render it inside the `post` template using the `render` helper.\n\n```handlebars\n<div class=\"post\">\n<h1>{{title}}</h1>\n<div>{{body}}</div>\n{{render \"author\" author}}\n</div>\n ```",
             "itemtype": "method",
             "name": "render",
@@ -12023,7 +11724,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 32,
+            "line": 33,
             "description": "Used to set state on first call to setURL",
             "access": "private",
             "tagname": "",
@@ -12036,7 +11737,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 43,
+            "line": 50,
             "description": "Will be pre-pended to path upon state change",
             "itemtype": "property",
             "name": "rootURL",
@@ -12048,7 +11749,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 51,
+            "line": 58,
             "description": "Returns the current `location.pathname` without `rootURL` or `baseURL`",
             "access": "private",
             "tagname": "",
@@ -12065,7 +11766,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 76,
+            "line": 83,
             "description": "Uses `history.pushState` to update the url without a page reload.",
             "access": "private",
             "tagname": "",
@@ -12085,7 +11786,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 92,
+            "line": 99,
             "description": "Uses `history.replaceState` to update the url without a page reload\nor history modification.",
             "access": "private",
             "tagname": "",
@@ -12105,7 +11806,24 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 109,
+            "line": 116,
+            "description": "Get the current `history.state`. Checks for if a polyfill is\nrequired and if so fetches this._historyState. The state returned\nfrom getState may be null if an iframe has changed a window's\nhistory.",
+            "access": "private",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "getState",
+            "return": {
+                "description": "state",
+                "type": "Object"
+            },
+            "class": "Ember.HistoryLocation",
+            "module": "ember",
+            "submodule": "ember-routing",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-routing/lib/location/history_location.js",
+            "line": 134,
             "description": "Pushes a new state.",
             "access": "private",
             "tagname": "",
@@ -12125,7 +11843,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 127,
+            "line": 152,
             "description": "Replaces the current state.",
             "access": "private",
             "tagname": "",
@@ -12145,7 +11863,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 144,
+            "line": 169,
             "description": "Register a callback to be invoked whenever the browser\nhistory changes, including using forward and back buttons.",
             "access": "private",
             "tagname": "",
@@ -12165,7 +11883,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 166,
+            "line": 191,
             "description": "Used when using `{{action}}` helper.  The url is always appended to the rootURL.",
             "access": "private",
             "tagname": "",
@@ -12189,7 +11907,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 188,
+            "line": 213,
             "description": "Cleans up the HistoryLocation event listener.",
             "access": "private",
             "tagname": "",
@@ -12202,7 +11920,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/history_location.js",
-            "line": 200,
+            "line": 225,
             "access": "private",
             "tagname": "Returns normalized location.hash",
             "itemtype": "method",
@@ -18800,7 +18518,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/attribute_bindings_support.js",
-            "line": 43,
+            "line": 45,
             "description": "Iterates through the view's attribute bindings, sets up observers for each,\nthen applies the current value of the attributes to the passed render buffer.",
             "itemtype": "method",
             "name": "_applyAttributeBindings",
@@ -18823,7 +18541,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/attribute_bindings_support.js",
-            "line": 90,
+            "line": 92,
             "description": "We're using setUnknownProperty as a hook to setup attributeBinding observers for\nproperties that aren't defined on a view at initialization time.\n\nNote: setUnknownProperty will only be called once for each property.",
             "itemtype": "method",
             "name": "setUnknownProperty",
@@ -20932,46 +20650,6 @@
         }
     ],
     "warnings": [
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:3"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:16"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:34"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:51"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:69"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:90"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:111"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:135"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:158"
-        },
-        {
-            "message": "replacing incorrect tag: function with method",
-            "line": " packages/ember-metal/lib/streams/utils.js:191"
-        },
         {
             "message": "unknown tag: version",
             "line": " packages/ember-metal/lib/core.js:8"
