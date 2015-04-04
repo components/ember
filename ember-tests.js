@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.4bea351d
+ * @version   1.13.0-beta.1+canary.6808d3b0
  */
 
 (function() {
@@ -2279,52 +2279,6 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
           rootElement: "#qunit-fixture"
         });
       });
-    });
-  
-
-  
-    QUnit.test("initializers should throw a deprecation warning when performing a lookup on the registry", function () {
-      expect(1);
-
-      var MyApplication = Application['default'].extend();
-
-      MyApplication.initializer({
-        name: "initializer",
-        initialize: function (registry, application) {
-          registry.lookup("router:main");
-        }
-      });
-
-      expectDeprecation(function () {
-        run['default'](function () {
-          app = MyApplication.create({
-            router: false,
-            rootElement: "#qunit-fixture"
-          });
-        });
-      }, /`lookup` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
-    });
-
-    QUnit.test("initializers should throw a deprecation warning when performing a factory lookup on the registry", function () {
-      expect(1);
-
-      var MyApplication = Application['default'].extend();
-
-      MyApplication.initializer({
-        name: "initializer",
-        initialize: function (registry, application) {
-          registry.lookupFactory("application:controller");
-        }
-      });
-
-      expectDeprecation(function () {
-        run['default'](function () {
-          app = MyApplication.create({
-            router: false,
-            rootElement: "#qunit-fixture"
-          });
-        });
-      }, /`lookupFactory` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
     });
   
 
@@ -15389,7 +15343,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.4bea351d",
+        revision: "Ember@1.13.0-beta.1+canary.6808d3b0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43831,7 +43785,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.4bea351d", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6808d3b0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
