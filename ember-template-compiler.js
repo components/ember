@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.64ab9bd3
+ * @version   1.12.0-beta.1.1bd3af79
  */
 
 (function() {
@@ -1799,7 +1799,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         this._getter = config;
         if (config.__ember_arity > 1) {
           Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
           });
           this._setter = config;
         }
@@ -2590,7 +2590,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.64ab9bd3
+    @version 1.12.0-beta.1.1bd3af79
   */
 
   if ('undefined' === typeof Ember) {
@@ -2619,10 +2619,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.64ab9bd3'
+    @default '1.12.0-beta.1.1bd3af79'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.64ab9bd3';
+  Ember.VERSION = '1.12.0-beta.1.1bd3af79';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9277,8 +9277,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
       if (pluginContext.validate(node)) {
 
         if (node.program && node.program.blockParams.length) {
-          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
+
+        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
 
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -9290,7 +9292,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   };
 
   TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'BlockStatement' && node.sexpr.path.original === 'with' && node.sexpr.params.length === 3 && node.sexpr.params[1].type === 'PathExpression' && node.sexpr.params[1].original === 'as';
+    return node.type === "BlockStatement" && node.sexpr.path.original === "with" && node.sexpr.params.length === 3 && node.sexpr.params[1].type === "PathExpression" && node.sexpr.params[1].original === "as";
   };
 
   exports['default'] = TransformWithAsToHash;
@@ -9338,7 +9340,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
 
       disableComponentGeneration: disableComponentGeneration,
 

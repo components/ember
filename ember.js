@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.64ab9bd3
+ * @version   1.12.0-beta.1.1bd3af79
  */
 
 (function() {
@@ -6580,7 +6580,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-vie
     var helperName = "each";
     var path = params[0] || view.getStream("");
 
-    Ember['default'].assert("If you pass more than one argument to the each helper, " + "it must be in the form #each foo in bar", params.length <= 1);
+    Ember['default'].assert("If you pass more than one argument to the each helper, " + "it must be in the form {{#each foo in bar}}", params.length <= 1);
 
     var blockParams = options.template && options.template.blockParams;
 
@@ -6589,7 +6589,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-vie
       hash.blockParams = blockParams;
     }
 
-    Ember['default'].deprecate("Using the context switching form of {{each}} is deprecated. " + "Please use the keyword form (`{{#each foo in bar}}`) instead.", hash.keyword === true || typeof hash.keyword === "string", { url: "http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope" });
+    Ember['default'].deprecate("Using the context switching form of {{each}} is deprecated. " + "Please use the block param form (`{{#each bar as |foo|}}`) instead.", hash.keyword === true || typeof hash.keyword === "string", { url: "http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope" });
 
     hash.dataSource = path;
     options.helperName = options.helperName || helperName;
@@ -7572,12 +7572,12 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
 
     ```handlebars
     // posts might not be
-    {{#with user.posts as blogPosts}}
+    {{#with user.posts as |blogPosts|}}
       <div class="notice">
         There are {{blogPosts.length}} blog posts written by {{user.name}}.
       </div>
 
-      {{#each post in blogPosts}}
+      {{#each blogPosts as |post|}}
         <li>{{post.title}}</li>
       {{/each}}
     {{/with}}
@@ -7586,8 +7586,8 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
     Without the `as` operator, it would be impossible to reference `user.name` in the example above.
 
     NOTE: The alias should not reuse a name from the bound property path.
-    For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
-    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
+    For example: `{{#with foo as |foo.bar|}}` is not supported because it attempts to alias using
+    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
 
     ### `controller` option
 
@@ -7597,7 +7597,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
     This is very similar to using an `itemController` option with the `{{each}}` helper.
 
     ```handlebars
-    {{#with users.posts as posts controller='userBlogPosts'}}
+    {{#with users.posts controller='userBlogPosts' as |posts|}}
       {{!- `posts` is wrapped in our controller instance }}
     {{/with}}
     ```
@@ -7613,7 +7613,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
     @return {String} HTML string
   */
   function withHelper(params, hash, options, env) {
-    Ember['default'].assert("{{#with foo}} must be called with a single argument or the use the " + "{{#with foo as bar}} syntax", params.length === 1);
+    Ember['default'].assert("{{#with}} must be called with an argument. For example, `{{#with foo as |bar|}}{{/with}}`", params.length === 1);
 
     Ember['default'].assert("The {{#with}} helper must be called with a block", !!options.template);
 
@@ -7623,7 +7623,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
     if (options.template.blockParams) {
       preserveContext = true;
     } else {
-      Ember['default'].deprecate("Using the context switching form of `{{with}}` is deprecated. " + "Please use the keyword form (`{{with foo as bar}}`) instead.", false, { url: "http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope" });
+      Ember['default'].deprecate("Using the context switching form of `{{with}}` is deprecated. " + "Please use the block param form (`{{#with bar as |foo|}}`) instead.", false, { url: "http://emberjs.com/guides/deprecations/#toc_more-consistent-handlebars-scope" });
       preserveContext = false;
     }
 
@@ -8471,7 +8471,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1.64ab9bd3` (this revision).", template.revision === "Ember@1.12.0-beta.1.64ab9bd3");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0-beta.1.1bd3af79` (this revision).", template.revision === "Ember@1.12.0-beta.1.1bd3af79");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8510,7 +8510,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8558,7 +8558,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8598,7 +8598,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8646,7 +8646,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8695,7 +8695,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1.64ab9bd3",
+        revision: "Ember@1.12.0-beta.1.1bd3af79",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8739,7 +8739,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1.64ab9bd3",
+          revision: "Ember@1.12.0-beta.1.1bd3af79",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8781,7 +8781,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1.64ab9bd3",
+        revision: "Ember@1.12.0-beta.1.1bd3af79",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8825,7 +8825,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.1.64ab9bd3",
+          revision: "Ember@1.12.0-beta.1.1bd3af79",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8867,7 +8867,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.1.64ab9bd3",
+        revision: "Ember@1.12.0-beta.1.1bd3af79",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8909,7 +8909,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10773,7 +10773,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         this._getter = config;
         if (config.__ember_arity > 1) {
           Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
           });
           this._setter = config;
         }
@@ -11564,7 +11564,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.64ab9bd3
+    @version 1.12.0-beta.1.1bd3af79
   */
 
   if ('undefined' === typeof Ember) {
@@ -11593,10 +11593,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.64ab9bd3'
+    @default '1.12.0-beta.1.1bd3af79'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.64ab9bd3';
+  Ember.VERSION = '1.12.0-beta.1.1bd3af79';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -18584,7 +18584,7 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
   }
 
 });
-enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view', 'ember-metal/platform/create'], function (exports, Ember, EmberError, string, generateController, utils, mergeViewBindings, appendTemplatedView, create) {
+enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-metal/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-htmlbars/system/append-templated-view', 'ember-metal/platform/create'], function (exports, Ember, property_get, EmberError, string, generateController, utils, mergeViewBindings, appendTemplatedView, create) {
 
   'use strict';
 
@@ -18695,6 +18695,9 @@ enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 
     view = container.lookup("view:" + name);
     if (!view) {
       view = container.lookup("view:default");
+    }
+    var viewHasTemplateSpecified = !!property_get.get(view, "template");
+    if (!viewHasTemplateSpecified) {
       template = template || container.lookup(templateName);
     }
 
@@ -33277,8 +33280,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
       if (pluginContext.validate(node)) {
 
         if (node.program && node.program.blockParams.length) {
-          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
+          throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
+
+        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
 
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -33290,7 +33295,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   };
 
   TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'BlockStatement' && node.sexpr.path.original === 'with' && node.sexpr.params.length === 3 && node.sexpr.params[1].type === 'PathExpression' && node.sexpr.params[1].original === 'as';
+    return node.type === "BlockStatement" && node.sexpr.path.original === "with" && node.sexpr.params.length === 3 && node.sexpr.params[1].type === "PathExpression" && node.sexpr.params[1].original === "as";
   };
 
   exports['default'] = TransformWithAsToHash;
@@ -33338,7 +33343,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: "Ember@1.12.0-beta.1.64ab9bd3",
+      revision: "Ember@1.12.0-beta.1.1bd3af79",
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38824,7 +38829,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: "Ember@1.12.0-beta.1.64ab9bd3",
+    revision: "Ember@1.12.0-beta.1.1bd3af79",
     render: function (context, env, contextualElement) {
       var lazyValue = context.getStream("view.label");
 

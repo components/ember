@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.64ab9bd3
+ * @version   1.12.0-beta.1.1bd3af79
  */
 
 (function() {
@@ -3574,7 +3574,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         this._getter = config;
         if (config.__ember_arity > 1) {
           Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
           });
           this._setter = config;
         }
@@ -4365,7 +4365,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.64ab9bd3
+    @version 1.12.0-beta.1.1bd3af79
   */
 
   if ('undefined' === typeof Ember) {
@@ -4394,10 +4394,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.64ab9bd3'
+    @default '1.12.0-beta.1.1bd3af79'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.64ab9bd3';
+  Ember.VERSION = '1.12.0-beta.1.1bd3af79';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
