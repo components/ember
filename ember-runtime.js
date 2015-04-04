@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.1bd3af79
+ * @version   1.12.0-beta.1.9ac75329
  */
 
 (function() {
@@ -4365,7 +4365,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.1bd3af79
+    @version 1.12.0-beta.1.9ac75329
   */
 
   if ('undefined' === typeof Ember) {
@@ -4394,10 +4394,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.1bd3af79'
+    @default '1.12.0-beta.1.9ac75329'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.1bd3af79';
+  Ember.VERSION = '1.12.0-beta.1.9ac75329';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9384,7 +9384,7 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     }
   };
 
-  /**
+  /*
     @public
     @class Stream
     @namespace Ember.stream
@@ -9635,7 +9635,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   exports.concat = concat;
   exports.chain = chain;
 
-  /**
+  /*
    Check whether an object is a stream or not
 
    @public
