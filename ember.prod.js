@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.0.60e347b6
+ * @version   1.11.0.47a325f9
  */
 
 (function() {
@@ -7431,7 +7431,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.60e347b6",
+      revision: "Ember@1.11.0.47a325f9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7478,7 +7478,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.60e347b6",
+      revision: "Ember@1.11.0.47a325f9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7518,7 +7518,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.60e347b6",
+      revision: "Ember@1.11.0.47a325f9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7565,7 +7565,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function() {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.60e347b6",
+      revision: "Ember@1.11.0.47a325f9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -7613,7 +7613,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function() {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.60e347b6",
+        revision: "Ember@1.11.0.47a325f9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7656,7 +7656,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.60e347b6",
+          revision: "Ember@1.11.0.47a325f9",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7696,7 +7696,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.60e347b6",
+        revision: "Ember@1.11.0.47a325f9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7738,7 +7738,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function() {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.11.0.60e347b6",
+          revision: "Ember@1.11.0.47a325f9",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -7778,7 +7778,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       }());
       return {
         isHTMLBars: true,
-        revision: "Ember@1.11.0.60e347b6",
+        revision: "Ember@1.11.0.47a325f9",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -7818,7 +7818,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     }());
     return {
       isHTMLBars: true,
-      revision: "Ember@1.11.0.60e347b6",
+      revision: "Ember@1.11.0.47a325f9",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10955,7 +10955,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.0.60e347b6
+    @version 1.11.0.47a325f9
   */
 
   if ('undefined' === typeof Ember) {
@@ -10983,10 +10983,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.0.60e347b6'
+    @default '1.11.0.47a325f9'
     @static
   */
-  Ember.VERSION = '1.11.0.60e347b6';
+  Ember.VERSION = '1.11.0.47a325f9';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -16368,7 +16368,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return object && object.isStream;
   }
 
-  /**
+  /*
    A method of subscribing to a stream which is safe for use with a non-stream
    object. If a non-stream object is passed, the function does nothing.
 
@@ -16386,7 +16386,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
-  /**
+  /*
    A method of unsubscribing from a stream which is safe for use with a non-stream
    object. If a non-stream object is passed, the function does nothing.
 
@@ -16403,7 +16403,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
-  /**
+  /*
    Retrieve the value of a stream, or in the case a non-stream object is passed,
    return the object itself.
 
@@ -16421,7 +16421,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
-  /**
+  /*
    Map an array, replacing any streams with their values.
 
    @public
@@ -16442,7 +16442,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return ret;
   }
 
-  /**
+  /*
    Map a hash, replacing any stream property values with the current value of that
    stream.
 
@@ -16463,7 +16463,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return ret;
   }
 
-  /**
+  /*
    Check whether an array contains any stream values
 
    @public
@@ -16487,7 +16487,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return containsStream;
   }
 
-  /**
+  /*
    Check whether a hash has any stream property values
 
    @public
@@ -16510,7 +16510,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return containsStream;
   }
 
-  /**
+  /*
    Join an array, with any streams replaced by their current values
 
    @public
@@ -16543,7 +16543,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
-  /**
+  /*
    Generate a new stream by providing a source stream and a function that can
    be used to transform the stream's value. In the case of a non-stream object,
    returns the result of the function.
@@ -33963,7 +33963,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     var disableComponentGeneration = true;
     
     return {
-      revision: 'Ember@1.11.0.60e347b6',
+      revision: 'Ember@1.11.0.47a325f9',
 
       disableComponentGeneration: disableComponentGeneration,
 
@@ -38415,7 +38415,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
   var selectOptionDefaultTemplate = {
     isHTMLBars: true,
-    revision: 'Ember@1.11.0.60e347b6',
+    revision: 'Ember@1.11.0.47a325f9',
     render: function(context, env, contextualElement) {
       var lazyValue = context.getStream('view.label');
 
