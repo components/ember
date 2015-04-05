@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.36cb6529
+ * @version   1.13.0-beta.1+canary.4f0c5b04
  */
 
 (function() {
@@ -15389,7 +15389,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.36cb6529",
+        revision: "Ember@1.13.0-beta.1+canary.4f0c5b04",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -29359,6 +29359,46 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
     });
 
     deepEqual(property_get.get(obj, "sortedPeople"), [jaime, cersei], "array is sorted correctly");
+  });
+
+  QUnit.test("array observers do not leak", function () {
+    var jaime;
+
+    var daria = EmberObject['default'].create({
+      name: "Daria"
+    });
+
+    var jane = EmberObject['default'].create({
+      name: "Jane"
+    });
+
+    var sisters = Ember['default'].A([jane, daria]);
+    var sortProps;
+
+    run['default'](function () {
+      sortProps = Ember['default'].A(["name"]);
+      jaime = EmberObject['default'].createWithMixins({
+        sisters: sisters,
+        sortedPeople: reduce_computed_macros.sort("sisters", "sortProps"),
+        sortProps: sortProps
+      });
+    });
+
+    run['default'](function () {
+      jaime.get("sortedPeople");
+      jaime.destroy();
+    });
+
+    run['default'](function () {
+      try {
+        sortProps.pushObject({
+          name: "Anna"
+        });
+        ok(true);
+      } catch (e) {
+        ok(false, e);
+      }
+    });
   });
 
   QUnit.test("property paths in sort properties update the sorted array", function () {
@@ -43831,7 +43871,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.36cb6529", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.4f0c5b04", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
