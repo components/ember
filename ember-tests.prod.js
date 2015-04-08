@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.1
+ * @version   1.11.1.849fbe2c
  */
 
 (function() {
@@ -19410,7 +19410,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.1',
+        revision: 'Ember@1.11.1.849fbe2c',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -32791,6 +32791,23 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
 
     equal(view.$().text(), 'HIBYE');
     ok(container.lookup('router:main')._lookupActiveView('home'), 'should register home as active view');
+  });
+
+  QUnit.test("{{render}} helper should render nested helpers", function() {
+    var template = "<h1>HI</h1>{{render 'foo'}}";
+    var controller = controllers__controller["default"].extend({ container: container });
+    view = EmberView['default'].create({
+      controller: controller.create(),
+      template: compile['default'](template)
+    });
+
+    Ember['default'].TEMPLATES['foo'] = compile['default']("<p>FOO</p>{{render 'bar'}}");
+    Ember['default'].TEMPLATES['bar'] = compile['default']("<p>BAR</p>{{render 'baz'}}");
+    Ember['default'].TEMPLATES['baz'] = compile['default']("<p>BAZ</p>");
+
+    tests__utils.runAppend(view);
+
+    equal(view.$().text(), 'HIFOOBARBAZ');
   });
 
   QUnit.test("{{render}} helper should have assertion if neither template nor view exists", function() {
@@ -54590,7 +54607,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.1', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.1.849fbe2c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -73848,6 +73865,60 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
     equal(Ember.$('#qunit-fixture .foo .index').text(), 'other');
     Ember.run(router, 'send', 'disconnect');
     equal(Ember.$('#qunit-fixture .foo .index').text(), '');
+  });
+
+  QUnit.test("Can render({into:...}) nested render helpers", function() {
+    Ember.TEMPLATES.application = compile('{{render "foo"}}');
+    Ember.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');
+    Ember.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');
+    Ember.TEMPLATES.index = compile('other');
+    Ember.TEMPLATES.baz = compile('baz');
+
+    App.IndexRoute = Ember.Route.extend({
+      renderTemplate: function() {
+        this.render({ into: 'bar' });
+      },
+      actions: {
+        changeToBaz: function() {
+          this.disconnectOutlet({
+            parentView: 'bar',
+            outlet: 'main'
+          });
+          this.render('baz', { into: 'bar' });
+        }
+      }
+    });
+
+    bootApplication();
+    equal(Ember.$('#qunit-fixture .bar').text(), 'other');
+    Ember.run(router, 'send', 'changeToBaz');
+    equal(Ember.$('#qunit-fixture .bar').text(), 'baz');
+  });
+
+  QUnit.test("Can disconnect from nested render helpers", function() {
+    Ember.TEMPLATES.application = compile('{{render "foo"}}');
+    Ember.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');
+    Ember.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');
+    Ember.TEMPLATES.index = compile('other');
+
+    App.IndexRoute = Ember.Route.extend({
+      renderTemplate: function() {
+        this.render({ into: 'bar' });
+      },
+      actions: {
+        disconnect: function() {
+          this.disconnectOutlet({
+            parentView: 'bar',
+            outlet: 'main'
+          });
+        }
+      }
+    });
+
+    bootApplication();
+    equal(Ember.$('#qunit-fixture .bar').text(), 'other');
+    Ember.run(router, 'send', 'disconnect');
+    equal(Ember.$('#qunit-fixture .bar').text(), '');
   });
 
 });
