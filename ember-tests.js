@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.1.849fbe2c
+ * @version   1.11.1.95eab367
  */
 
 (function() {
@@ -17383,7 +17383,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: 'Ember@1.11.1.849fbe2c',
+        revision: 'Ember@1.11.1.95eab367',
         render: function(view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -52734,7 +52734,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, 'Ember@1.11.1.849fbe2c', 'revision is included in generated template');
+    equal(actual.revision, 'Ember@1.11.1.95eab367', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function() {
@@ -58960,7 +58960,7 @@ enifed('ember-views/tests/views/metamorph_view_test.jshint', function () {
   });
 
 });
-enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/enumerable_utils', 'ember-views/system/event_dispatcher'], function (EmberSelect, EmberObject, run, jQuery, enumerable_utils, EventDispatcher) {
+enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/enumerable_utils', 'ember-views/system/event_dispatcher', 'htmlbars-util/safe-string'], function (EmberSelect, EmberObject, run, jQuery, enumerable_utils, EventDispatcher, SafeString) {
 
   'use strict';
 
@@ -59089,6 +59089,44 @@ enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'embe
     equal(select.$('option').length, 2, "Should have two options");
     // IE 8 adds whitespace
     equal(trim(select.$().text()), "YehudaTom", "Options should have content");
+    deepEqual(enumerable_utils.map(select.$('option').toArray(), function(el) { return jQuery['default'](el).attr('value'); }), ["1", "2"], "Options should have values");
+  });
+
+  QUnit.test("XSS: does not escape label value when it is a SafeString", function() {
+    select.set('content', Ember.A([
+      { id: 1, firstName: new SafeString['default']('<p>Yehuda</p>') },
+      { id: 2, firstName: new SafeString['default']('<p>Tom</p>') }
+    ]));
+
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.id');
+
+    append();
+
+    equal(select.$('option').length, 2, "Should have two options");
+    equal(select.$('option[value=1] b').length, 1, "Should have child elements");
+
+    // IE 8 adds whitespace
+    equal(trim(select.$().text()), "YehudaTom", "Options should have content");
+    deepEqual(enumerable_utils.map(select.$('option').toArray(), function(el) { return jQuery['default'](el).attr('value'); }), ["1", "2"], "Options should have values");
+  });
+
+  QUnit.test("XSS: escapes label value content", function() {
+    select.set('content', Ember.A([
+      { id: 1, firstName: '<p>Yehuda</p>' },
+      { id: 2, firstName: '<p>Tom</p>' }
+    ]));
+
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.id');
+
+    append();
+
+    equal(select.$('option').length, 2, "Should have two options");
+    equal(select.$('option[value=1] b').length, 0, "Should have no child elements");
+
+    // IE 8 adds whitespace
+    equal(trim(select.$().text()), "<p>Yehuda</p><p>Tom</p>", "Options should have content");
     deepEqual(enumerable_utils.map(select.$('option').toArray(), function(el) { return jQuery['default'](el).attr('value'); }), ["1", "2"], "Options should have values");
   });
 
