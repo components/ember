@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.5a4667b4
+ * @version   1.13.0-beta.1+canary.ffedc10e
  */
 
 (function() {
@@ -15389,7 +15389,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.5a4667b4",
+        revision: "Ember@1.13.0-beta.1+canary.ffedc10e",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43734,7 +43734,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.5a4667b4", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.ffedc10e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -49125,7 +49125,7 @@ enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'embe
     append();
 
     equal(select.$("option").length, 2, "Should have two options");
-    equal(select.$("option[value=1] b").length, 1, "Should have child elements");
+    equal(select.$("option[value=1] p").length, 1, "Should have child elements");
 
     // IE 8 adds whitespace
     equal(trim(select.$().text()), "YehudaTom", "Options should have content");
