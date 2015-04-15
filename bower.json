@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "1.10.0.intercom",
+  "version": "1.10.1.intercom",
   "main": [
     "./ember.debug.js"
   ],

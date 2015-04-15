@@ -52007,8 +52007,8 @@ enifed("ember-views/tests/views/metamorph_view_test.jshint",
     });
   });
 enifed("ember-views/tests/views/select_test",
-  ["ember-views/views/select","ember-runtime/system/object","ember-metal/run_loop","ember-views/system/jquery","ember-metal/enumerable_utils","ember-views/system/event_dispatcher"],
-  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__) {
+  ["ember-views/views/select","ember-runtime/system/object","ember-metal/run_loop","ember-views/system/jquery","ember-metal/enumerable_utils","ember-views/system/event_dispatcher","htmlbars-util/safe-string"],
+  function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__) {
     "use strict";
     var EmberSelect = __dependency1__["default"];
     var EmberObject = __dependency2__["default"];
@@ -52016,6 +52016,7 @@ enifed("ember-views/tests/views/select_test",
     var jQuery = __dependency4__["default"];
     var map = __dependency5__.map;
     var EventDispatcher = __dependency6__["default"];
+    var SafeString = __dependency7__["default"];
 
     var trim = jQuery.trim;
 
@@ -52142,6 +52143,44 @@ enifed("ember-views/tests/views/select_test",
       equal(select.$('option').length, 2, "Should have two options");
       // IE 8 adds whitespace
       equal(trim(select.$().text()), "YehudaTom", "Options should have content");
+      deepEqual(map(select.$('option').toArray(), function(el) { return jQuery(el).attr('value'); }), ["1", "2"], "Options should have values");
+    });
+
+    QUnit.test("XSS: does not escape label value when it is a SafeString", function() {
+      select.set('content', Ember.A([
+        { id: 1, firstName: new SafeString('<p>Yehuda</p>') },
+        { id: 2, firstName: new SafeString('<p>Tom</p>') }
+      ]));
+
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('optionValuePath', 'content.id');
+
+      append();
+
+      equal(select.$('option').length, 2, "Should have two options");
+      equal(select.$('option[value=1] p').length, 1, "Should have child elements");
+
+      // IE 8 adds whitespace
+      equal(trim(select.$().text()), "YehudaTom", "Options should have content");
+      deepEqual(map(select.$('option').toArray(), function(el) { return jQuery(el).attr('value'); }), ["1", "2"], "Options should have values");
+    });
+
+    QUnit.test("XSS: escapes label value content", function() {
+      select.set('content', Ember.A([
+        { id: 1, firstName: '<p>Yehuda</p>' },
+        { id: 2, firstName: '<p>Tom</p>' }
+      ]));
+
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('optionValuePath', 'content.id');
+
+      append();
+
+      equal(select.$('option').length, 2, "Should have two options");
+      equal(select.$('option[value=1] b').length, 0, "Should have no child elements");
+
+      // IE 8 adds whitespace
+      equal(trim(select.$().text()), "<p>Yehuda</p><p>Tom</p>", "Options should have content");
       deepEqual(map(select.$('option').toArray(), function(el) { return jQuery(el).attr('value'); }), ["1", "2"], "Options should have values");
     });
 

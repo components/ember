@@ -8377,6 +8377,54 @@ enifed("ember-htmlbars/templates/component",
     }());
      __exports__["default"] = template(t);
   });
+enifed("ember-htmlbars/templates/select-option",
+  ["ember-template-compiler/system/template","exports"],
+  function(__dependency1__, __exports__) {
+    "use strict";
+    var template = __dependency1__["default"];
+    var t = (function() {
+      return {
+        isHTMLBars: true,
+        blockParams: 0,
+        cachedFragment: null,
+        hasRendered: false,
+        build: function build(dom) {
+          var el0 = dom.createDocumentFragment();
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          var el1 = dom.createTextNode("");
+          dom.appendChild(el0, el1);
+          return el0;
+        },
+        render: function render(context, env, contextualElement) {
+          var dom = env.dom;
+          var hooks = env.hooks, content = hooks.content;
+          dom.detectNamespace(contextualElement);
+          var fragment;
+          if (env.useFragmentCache && dom.canClone) {
+            if (this.cachedFragment === null) {
+              fragment = this.build(dom);
+              if (this.hasRendered) {
+                this.cachedFragment = fragment;
+              } else {
+                this.hasRendered = true;
+              }
+            }
+            if (this.cachedFragment) {
+              fragment = dom.cloneNode(this.cachedFragment, true);
+            }
+          } else {
+            fragment = this.build(dom);
+          }
+          if (this.cachedFragment) { dom.repairClonedNode(fragment,[0,1]); }
+          var morph0 = dom.createMorphAt(fragment,0,1,contextualElement);
+          content(env, morph0, context, "view.label");
+          return fragment;
+        }
+      };
+    }());
+     __exports__["default"] = template(t);
+  });
 enifed("ember-htmlbars/templates/select",
   ["ember-template-compiler/system/template","exports"],
   function(__dependency1__, __exports__) {
@@ -11870,7 +11918,7 @@ enifed("ember-metal/core",
       @default '1.10.0'
       @static
     */
-    Ember.VERSION = '1.10.0.intercom';
+    Ember.VERSION = '1.10.1.intercom';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -42261,7 +42309,7 @@ enifed("ember-views/views/metamorph_view",
     __exports__._SimpleMetamorphView = _SimpleMetamorphView;
   });
 enifed("ember-views/views/select",
-  ["ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","ember-metal/run_loop","ember-htmlbars/templates/select","exports"],
+  ["ember-metal/enumerable_utils","ember-metal/property_get","ember-metal/property_set","ember-views/views/view","ember-views/views/collection_view","ember-metal/utils","ember-metal/is_none","ember-metal/computed","ember-runtime/system/native_array","ember-metal/mixin","ember-metal/properties","ember-htmlbars/templates/select","ember-htmlbars/templates/select-option","exports"],
   function(__dependency1__, __dependency2__, __dependency3__, __dependency4__, __dependency5__, __dependency6__, __dependency7__, __dependency8__, __dependency9__, __dependency10__, __dependency11__, __dependency12__, __dependency13__, __exports__) {
     "use strict";
     /**
@@ -42284,24 +42332,11 @@ enifed("ember-views/views/select",
     var emberA = __dependency9__.A;
     var observer = __dependency10__.observer;
     var defineProperty = __dependency11__.defineProperty;
-    var run = __dependency12__["default"];
 
-    var htmlbarsTemplate = __dependency13__["default"];
+    var htmlbarsTemplate = __dependency12__["default"];
+    var selectOptionDefaultTemplate = __dependency13__["default"];
 
     var defaultTemplate = htmlbarsTemplate;
-
-    var selectOptionDefaultTemplate = {
-      isHTMLBars: true,
-      render: function(context, env, contextualElement) {
-        var lazyValue = context.getStream('view.label');
-
-        lazyValue.subscribe(context._wrapAsScheduled(function() {
-          run.scheduleOnce('render', context, 'rerender');
-        }));
-
-        return lazyValue.value();
-      }
-    };
 
     var SelectOption = View.extend({
       instrumentDisplay: 'Ember.SelectOption',
