@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.ffedc10e
+ * @version   1.13.0-beta.1+canary.e60116d4
  */
 
 (function() {
@@ -4382,7 +4382,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.ffedc10e
+    @version 1.13.0-beta.1+canary.e60116d4
   */
 
   if ('undefined' === typeof Ember) {
@@ -4411,10 +4411,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.ffedc10e'
+    @default '1.13.0-beta.1+canary.e60116d4'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.ffedc10e';
+  Ember.VERSION = '1.13.0-beta.1+canary.e60116d4';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -5290,7 +5290,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
-    Ember.expandProperties('{foo,bar}.baz', echo);        //=> '{foo,bar}.baz'
+    Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
     Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
