@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.fe9f1fcb
+ * @version   1.13.0-beta.1+canary.8230c84b
  */
 
 (function() {
@@ -4382,7 +4382,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.fe9f1fcb
+    @version 1.13.0-beta.1+canary.8230c84b
   */
 
   if ('undefined' === typeof Ember) {
@@ -4411,10 +4411,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.fe9f1fcb'
+    @default '1.13.0-beta.1+canary.8230c84b'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.fe9f1fcb';
+  Ember.VERSION = '1.13.0-beta.1+canary.8230c84b';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -16384,7 +16384,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy, ObjectController or ArrayController's promise aware.
+    A low level mixin making ObjectProxy, ObjectController or ArrayControllers promise-aware.
 
     ```javascript
     var ObjectPromiseController = Ember.ObjectController.extend(Ember.PromiseProxyMixin);
