@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8230c84b
+ * @version   1.13.0-beta.1+canary.a8400e6c
  */
 
 (function() {
@@ -15389,7 +15389,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.8230c84b",
+        revision: "Ember@1.13.0-beta.1+canary.a8400e6c",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43734,7 +43734,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.8230c84b", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.a8400e6c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -53605,18 +53605,22 @@ enifed('ember-views/tests/views/view/replace_in_test', ['ember-metal/property_ge
   });
 
   QUnit.test("should remove previous elements when calling replaceIn()", function () {
-    jQuery['default']("#qunit-fixture").html("<div id=\"menu\"><p>Foo</p></div>");
-    var viewElem = jQuery['default']("#menu").children();
+    jQuery['default']("#qunit-fixture").html("\n    <div id=\"menu\">\n      <p id=\"child\"></p>\n    </div>\n  ");
 
     view = View.create();
 
-    ok(viewElem.length === 1, "should have one element");
+    var originalChild = jQuery['default']("#child");
+    ok(originalChild.length === 1, "precond - target starts with child element");
 
     run['default'](function () {
       view.replaceIn("#menu");
     });
 
-    ok(viewElem.length === 1, "should have one element");
+    originalChild = jQuery['default']("#child");
+    ok(originalChild.length === 0, "target's original child was removed");
+
+    var newChild = jQuery['default']("#menu").children();
+    ok(newChild.length === 1, "target has new child element");
   });
 
   QUnit.test("should move the view to the inDOM state after replacing", function () {

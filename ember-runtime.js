@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8230c84b
+ * @version   1.13.0-beta.1+canary.a8400e6c
  */
 
 (function() {
@@ -4382,7 +4382,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.8230c84b
+    @version 1.13.0-beta.1+canary.a8400e6c
   */
 
   if ('undefined' === typeof Ember) {
@@ -4411,10 +4411,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.8230c84b'
+    @default '1.13.0-beta.1+canary.a8400e6c'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.8230c84b';
+  Ember.VERSION = '1.13.0-beta.1+canary.a8400e6c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -8681,12 +8681,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
     ```javascript
     App.RichTextEditorComponent = Ember.Component.extend({
-      initializeTinyMCE: function() {
+      initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
-      }.on('didInsertElement'),
+      }),
 
       setupEditor: function(editor) {
         this.set('editor', editor);
