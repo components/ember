@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.a6ed5187
+ * @version   1.13.0-beta.1+canary.bec435a7
  */
 
 (function() {
@@ -15389,7 +15389,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.a6ed5187",
+        revision: "Ember@1.13.0-beta.1+canary.bec435a7",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43734,7 +43734,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.a6ed5187", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.bec435a7", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -52885,6 +52885,63 @@ enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember
 
     equal(templateCalled, 0, "template is not called when layout is present");
     equal(layoutCalled, 1, "layout is called when layout is present");
+  });
+
+  QUnit.test("changing layoutName after setting layoutName continous to work", function () {
+    var layoutCalled = 0;
+    var otherLayoutCalled = 0;
+
+    registry.register("template:layout", function () {
+      layoutCalled++;
+    });
+    registry.register("template:other-layout", function () {
+      otherLayoutCalled++;
+    });
+
+    view = EmberView['default'].create({
+      container: container,
+      layoutName: "layout"
+    });
+
+    run['default'](view, "createElement");
+    equal(layoutCalled, 1, "layout is called when layout is present");
+    equal(otherLayoutCalled, 0, "otherLayout is not yet called");
+
+    run['default'](function () {
+      view.set("layoutName", "other-layout");
+      view.rerender();
+    });
+
+    equal(layoutCalled, 1, "layout is called when layout is present");
+    equal(otherLayoutCalled, 1, "otherLayoutis called when layoutName changes, and explicit rerender occurs");
+  });
+
+  QUnit.test("changing layoutName after setting layout CP continous to work", function () {
+    var layoutCalled = 0;
+    var otherLayoutCalled = 0;
+    function otherLayout() {
+      otherLayoutCalled++;
+    }
+
+    registry.register("template:other-layout", otherLayout);
+
+    view = EmberView['default'].create({
+      container: container,
+      layout: function () {
+        layoutCalled++;
+      }
+    });
+
+    run['default'](view, "createElement");
+    run['default'](function () {
+      view.set("layoutName", "other-layout");
+      view.rerender();
+    });
+
+    equal(view.get("layout"), otherLayout);
+
+    equal(layoutCalled, 1, "layout is called when layout is present");
+    equal(otherLayoutCalled, 1, "otherLayoutis called when layoutName changes, and explicit rerender occurs");
   });
 
   QUnit.test("should call the function of the associated template with itself as the context", function () {
