@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.bec435a7
+ * @version   1.13.0-beta.1+canary.567c63be
  */
 
 (function() {
@@ -8239,7 +8239,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8287,7 +8287,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8327,7 +8327,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8375,7 +8375,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8423,7 +8423,7 @@ enifed('ember-htmlbars/templates/select-option', ['exports', 'ember-template-com
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8472,7 +8472,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+        revision: "Ember@1.13.0-beta.1+canary.567c63be",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8516,7 +8516,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+          revision: "Ember@1.13.0-beta.1+canary.567c63be",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8558,7 +8558,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+        revision: "Ember@1.13.0-beta.1+canary.567c63be",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8602,7 +8602,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+          revision: "Ember@1.13.0-beta.1+canary.567c63be",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8644,7 +8644,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+        revision: "Ember@1.13.0-beta.1+canary.567c63be",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8686,7 +8686,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.bec435a7",
+      revision: "Ember@1.13.0-beta.1+canary.567c63be",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11342,7 +11342,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.bec435a7
+    @version 1.13.0-beta.1+canary.567c63be
   */
 
   if ('undefined' === typeof Ember) {
@@ -11371,10 +11371,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.bec435a7'
+    @default '1.13.0-beta.1+canary.567c63be'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.bec435a7';
+  Ember.VERSION = '1.13.0-beta.1+canary.567c63be';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32941,7 +32941,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.bec435a7";
+    options.revision = "Ember@1.13.0-beta.1+canary.567c63be";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -37348,7 +37348,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     Example:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       names: ["Yehuda", "Tom"]
     });
     ```
@@ -37370,7 +37370,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     `value` property:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       selectedName: 'Tom',
       names: ["Yehuda", "Tom"]
     });
@@ -37407,7 +37407,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     element's text. Both paths must reference each object itself as `content`:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       programmers: [
         {firstName: "Yehuda", id: 1},
         {firstName: "Tom",    id: 2}
@@ -37435,7 +37435,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     can be bound to a property on another object:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       programmers: [
         {firstName: "Yehuda", id: 1},
         {firstName: "Tom",    id: 2}
@@ -37478,7 +37478,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     var yehuda = {firstName: "Yehuda", id: 1, bff4eva: 'tom'}
     var tom = {firstName: "Tom", id: 2, bff4eva: 'yehuda'};
 
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       selectedPerson: tom,
       programmers: [ yehuda, tom ]
     });
@@ -37512,7 +37512,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     results in there being no `<option>` with a `selected` attribute:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       selectedProgrammer: null,
       programmers: ["Yehuda", "Tom"]
     });
@@ -37541,7 +37541,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
     with the `prompt` option:
 
     ```javascript
-    App.ApplicationController = Ember.ObjectController.extend({
+    App.ApplicationController = Ember.Controller.extend({
       selectedProgrammer: null,
       programmers: [ "Yehuda", "Tom" ]
     });
