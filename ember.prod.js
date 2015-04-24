@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.567c63be
+ * @version   1.13.0-beta.1+canary.3b8ad3f7
  */
 
 (function() {
@@ -8239,7 +8239,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8287,7 +8287,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8327,7 +8327,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8375,7 +8375,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8423,7 +8423,7 @@ enifed('ember-htmlbars/templates/select-option', ['exports', 'ember-template-com
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8472,7 +8472,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.567c63be",
+        revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8516,7 +8516,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.567c63be",
+          revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8558,7 +8558,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.567c63be",
+        revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8602,7 +8602,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.567c63be",
+          revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8644,7 +8644,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.567c63be",
+        revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8686,7 +8686,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.567c63be",
+      revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11342,7 +11342,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.567c63be
+    @version 1.13.0-beta.1+canary.3b8ad3f7
   */
 
   if ('undefined' === typeof Ember) {
@@ -11371,10 +11371,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.567c63be'
+    @default '1.13.0-beta.1+canary.3b8ad3f7'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.567c63be';
+  Ember.VERSION = '1.13.0-beta.1+canary.3b8ad3f7';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -32941,7 +32941,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.567c63be";
+    options.revision = "Ember@1.13.0-beta.1+canary.3b8ad3f7";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -35909,7 +35909,7 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
   }
 
 });
-enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/metamorph_view', 'ember-metal/streams/utils', 'ember-views/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-metal/error', 'ember-views/views/container_view'], function (exports, metamorph_view, utils, streams__utils, mergeViewBindings, EmberError, ContainerView) {
+enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/metamorph_view', 'ember-metal/streams/utils', 'ember-views/streams/utils', 'ember-htmlbars/system/merge-view-bindings', 'ember-metal/error', 'ember-views/views/container_view', 'ember-views/views/view'], function (exports, metamorph_view, utils, streams__utils, mergeViewBindings, EmberError, ContainerView, View) {
 
   'use strict';
 
@@ -35921,24 +35921,25 @@ enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/
   exports['default'] = ContainerView['default'].extend(metamorph_view._Metamorph, {
     init: function () {
       this._super.apply(this, arguments);
-      var componentNameStream = this._boundComponentOptions.componentNameStream;
-      var container = this.container;
-      this.componentClassStream = utils.chain(componentNameStream, function () {
-        return streams__utils.readComponentFactory(componentNameStream, container);
-      });
+      this.componentNameStream = this._boundComponentOptions.componentNameStream;
 
-      utils.subscribe(this.componentClassStream, this._updateBoundChildComponent, this);
+      utils.subscribe(this.componentNameStream, this._updateBoundChildComponent, this);
       this._updateBoundChildComponent();
     },
     willDestroy: function () {
-      utils.unsubscribe(this.componentClassStream, this._updateBoundChildComponent, this);
+      utils.unsubscribe(this.componentNameStream, this._updateBoundChildComponent, this);
       this._super.apply(this, arguments);
     },
     _updateBoundChildComponent: function () {
       this.replace(0, 1, [this._createNewComponent()]);
     },
     _createNewComponent: function () {
-      var componentClass = utils.read(this.componentClassStream);
+      var componentName = utils.read(this.componentNameStream);
+      if (!componentName) {
+        return this.createChildView(View['default']);
+      }
+
+      var componentClass = streams__utils.readComponentFactory(componentName, this.container);
       if (!componentClass) {
         throw new EmberError['default']("HTMLBars error: Could not find component named \"" + utils.read(this._boundComponentOptions.componentNameStream) + "\".");
       }
@@ -35947,7 +35948,7 @@ enifed('ember-views/views/bound_component_view', ['exports', 'ember-views/views/
 
       var prop;
       for (prop in hash) {
-        if (prop === "_boundComponentOptions" || prop === "componentClassStream") {
+        if (prop === "_boundComponentOptions" || prop === "componentNameStream") {
           continue;
         }
         hashForComponent[prop] = hash[prop];

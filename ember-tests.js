@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.567c63be
+ * @version   1.13.0-beta.1+canary.3b8ad3f7
  */
 
 (function() {
@@ -7915,6 +7915,26 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       }, /HTMLBars error: Could not find component named "does-not-exist"./);
     });
 
+    QUnit.test("component with unquoted param resolving to a component, then non-existent component", function () {
+      registry.register("template:components/foo-bar", compile['default']("yippie! {{location}} {{yield}}"));
+      view = EmberView['default'].create({
+        container: container,
+        dynamicComponent: "foo-bar",
+        location: "Caracas",
+        template: compile['default']("{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "yippie! Caracas arepas!", "component was looked up and rendered");
+
+      Ember.run(function () {
+        set(view, "dynamicComponent", undefined);
+      });
+
+      equal(view.$().text(), "", "component correctly deals with falsey values set post-render");
+    });
+
     QUnit.test("component with quoted param for non-existent component", function () {
       view = EmberView['default'].create({
         container: container,
@@ -15389,7 +15409,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.567c63be",
+        revision: "Ember@1.13.0-beta.1+canary.3b8ad3f7",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43888,7 +43908,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.567c63be", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.3b8ad3f7", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
