@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.20d9700e
+ * @version   1.13.0-beta.1+canary.9e91371e
  */
 
 (function() {
@@ -15409,7 +15409,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.20d9700e",
+        revision: "Ember@1.13.0-beta.1+canary.9e91371e",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -17899,13 +17899,19 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
     ok(cp instanceof computed.ComputedProperty);
   });
 
-  QUnit.test('throws assertion if called over a CP with a setter', function () {
+  QUnit.test('throws assertion if called over a CP with a setter defined with the new syntax', function () {
     expectAssertion(function () {
       computed.computed({
         get: function () {},
         set: function () {}
       }).readOnly();
-    }, /Computed properties that define a setter cannot be read-only/);
+    }, /Computed properties that define a setter using the new syntax cannot be read-only/);
+  });
+
+  QUnit.test('doesn\'t throws assertion if called over a CP with a setter defined with the old syntax', function () {
+    expectDeprecation(function () {
+      computed.computed(function (key, value) {}).readOnly();
+    }, /same function as getter and setter/);
   });
 
   props_helper.testBoth('protects against setting', function (get, set) {
@@ -43908,7 +43914,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.20d9700e", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.9e91371e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
