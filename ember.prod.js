@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.9e91371e
+ * @version   1.13.0-beta.1+canary.8737c41c
  */
 
 (function() {
@@ -8238,7 +8238,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8286,7 +8286,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8326,7 +8326,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8374,7 +8374,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8422,7 +8422,7 @@ enifed('ember-htmlbars/templates/select-option', ['exports', 'ember-template-com
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8471,7 +8471,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+        revision: "Ember@1.13.0-beta.1+canary.8737c41c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8515,7 +8515,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+          revision: "Ember@1.13.0-beta.1+canary.8737c41c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8557,7 +8557,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+        revision: "Ember@1.13.0-beta.1+canary.8737c41c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8601,7 +8601,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+          revision: "Ember@1.13.0-beta.1+canary.8737c41c",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8643,7 +8643,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+        revision: "Ember@1.13.0-beta.1+canary.8737c41c",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8685,7 +8685,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+      revision: "Ember@1.13.0-beta.1+canary.8737c41c",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11341,7 +11341,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.9e91371e
+    @version 1.13.0-beta.1+canary.8737c41c
   */
 
   if ('undefined' === typeof Ember) {
@@ -11370,10 +11370,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.9e91371e'
+    @default '1.13.0-beta.1+canary.8737c41c'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.9e91371e';
+  Ember.VERSION = '1.13.0-beta.1+canary.8737c41c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11413,7 +11413,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":false,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-htmlbars-each-with-index":true,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":false,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -32940,7 +32940,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.9e91371e";
+    options.revision = "Ember@1.13.0-beta.1+canary.8737c41c";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -36241,27 +36241,25 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 
           view = this.createChildView(itemViewClass, itemViewProps);
 
-          
-            if (this.blockParams > 1) {
-              view._blockArguments = [item, view.getStream("_view.contentIndex")];
-            } else if (this.blockParams === 1) {
-              view._blockArguments = [item];
-            }
-          
+          if (this.blockParams > 0) {
+            view._blockArguments = [item];
+          }
+          if (this.blockParams > 1) {
+            view._blockArguments.push(view.getStream("_view.contentIndex"));
+          }
+
           addedViews.push(view);
         }
 
         this.replace(start, 0, addedViews);
 
-        
-          if (this.blockParams > 1) {
-            var childViews = this._childViews;
-            for (idx = start + added; idx < len; idx++) {
-              view = childViews[idx];
-              property_set.set(view, "contentIndex", idx);
-            }
+        if (this.blockParams > 1) {
+          var childViews = this._childViews;
+          for (idx = start + added; idx < len; idx++) {
+            view = childViews[idx];
+            property_set.set(view, "contentIndex", idx);
           }
-        
+        }
       } else {
         emptyView = property_get.get(this, "emptyView");
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.9e91371e
+ * @version   1.13.0-beta.1+canary.8737c41c
  */
 
 (function() {
@@ -9029,29 +9029,27 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     }
 
     if (useBlockParams) {
-      
-        QUnit.test("the index is passed as the second parameter to #each blocks", function () {
-          expect(3);
+      QUnit.test("the index is passed as the second parameter to #each blocks", function () {
+        expect(3);
 
-          var adam = { name: "Adam" };
-          view = EmberView['default'].create({
-            controller: native_array.A([adam, { name: "Steve" }]),
-            template: templateFor("{{#each this as |person index|}}{{index}}. {{person.name}}{{/each}}", true)
-          });
-          utils.runAppend(view);
-          equal(view.$().text(), "0. Adam1. Steve");
-
-          run['default'](function () {
-            view.get("controller").unshiftObject({ name: "Bob" });
-          });
-          equal(view.$().text(), "0. Bob1. Adam2. Steve");
-
-          run['default'](function () {
-            view.get("controller").removeObject(adam);
-          });
-          equal(view.$().text(), "0. Bob1. Steve");
+        var adam = { name: "Adam" };
+        view = EmberView['default'].create({
+          controller: native_array.A([adam, { name: "Steve" }]),
+          template: templateFor("{{#each this as |person index|}}{{index}}. {{person.name}}{{/each}}", true)
         });
-      
+        utils.runAppend(view);
+        equal(view.$().text(), "0. Adam1. Steve");
+
+        run['default'](function () {
+          view.get("controller").unshiftObject({ name: "Bob" });
+        });
+        equal(view.$().text(), "0. Bob1. Adam2. Steve");
+
+        run['default'](function () {
+          view.get("controller").removeObject(adam);
+        });
+        equal(view.$().text(), "0. Bob1. Steve");
+      });
     }
   }
 
@@ -15409,7 +15407,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.9e91371e",
+        revision: "Ember@1.13.0-beta.1+canary.8737c41c",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -43760,7 +43758,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.9e91371e", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.8737c41c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
