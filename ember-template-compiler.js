@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8737c41c
+ * @version   1.13.0-beta.1+canary.6991d736
  */
 
 (function() {
@@ -110,7 +110,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, utils, EmberError, Logger, environment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -126,10 +126,34 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
     @method _warnIfUsingStrippedFeatureFlags
     @return {void}
   */
+  function isPlainFunction(test) {
+    return typeof test === "function" && test.PrototypeMixin === undefined;
+  }
+
+  /**
+    Define an assertion that will throw an exception if the condition is not
+    met. Ember build tools will remove any calls to `Ember.assert()` when
+    doing a production build. Example:
+
+    ```javascript
+    // Test for truthiness
+    Ember.assert('Must pass a valid object', obj);
+
+    // Fail unconditionally
+    Ember.assert('This code path should never be run');
+    ```
+
+    @method assert
+    @param {String} desc A description of the assertion. This will become
+      the text of the Error thrown if the assertion fails.
+    @param {Boolean|Function} test Must be truthy for the assertion to pass. If
+      falsy, an exception will be thrown. If this is a function, it will be executed and
+      its return value will be used as condition.
+  */
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (utils.typeOf(test) === "function") {
+    if (isPlainFunction(test)) {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -189,7 +213,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].deprecate = function (message, test, options) {
     var noDeprecation;
 
-    if (typeof test === "function") {
+    if (isPlainFunction(test)) {
       noDeprecation = test();
     } else {
       noDeprecation = test;
@@ -418,9 +442,7 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
   Ember['default'].setMeta = utils.setMeta;
   Ember['default'].metaPath = utils.metaPath;
   Ember['default'].inspect = utils.inspect;
-  Ember['default'].typeOf = utils.typeOf;
   Ember['default'].tryCatchFinally = utils.deprecatedTryCatchFinally;
-  Ember['default'].isArray = utils.isArray;
   Ember['default'].makeArray = utils.makeArray;
   Ember['default'].canInvoke = utils.canInvoke;
   Ember['default'].tryInvoke = utils.tryInvoke;
@@ -2610,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.8737c41c
+    @version 1.13.0-beta.1+canary.6991d736
   */
 
   if ('undefined' === typeof Ember) {
@@ -2639,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.8737c41c'
+    @default '1.13.0-beta.1+canary.6991d736'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.8737c41c';
+  Ember.VERSION = '1.13.0-beta.1+canary.6991d736';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -3501,7 +3523,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   }
 
 });
-enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-metal/enumerable_utils', 'ember-metal/utils'], function (exports, EmberError, enumerable_utils, utils) {
+enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-metal/array'], function (exports, EmberError, array) {
 
   'use strict';
 
@@ -3541,17 +3563,17 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
       throw new EmberError['default']('Brace expanded properties cannot contain spaces, e.g. \'user.{firstName, lastName}\' should be \'user.{firstName,lastName}\'');
     }
 
-    if ('string' === utils.typeOf(pattern)) {
+    if ('string' === typeof pattern) {
       var parts = pattern.split(SPLIT_REGEX);
       var properties = [parts];
 
-      enumerable_utils.forEach(parts, function (part, index) {
+      array.forEach.call(parts, function (part, index) {
         if (part.indexOf(',') >= 0) {
           properties = duplicateAndReplace(properties, part.split(','), index);
         }
       });
 
-      enumerable_utils.forEach(properties, function (property) {
+      array.forEach.call(properties, function (property) {
         callback(property.join(''));
       });
     } else {
@@ -3562,8 +3584,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
   function duplicateAndReplace(properties, currentParts, index) {
     var all = [];
 
-    enumerable_utils.forEach(properties, function (property) {
-      enumerable_utils.forEach(currentParts, function (part) {
+    array.forEach.call(properties, function (property) {
+      array.forEach.call(currentParts, function (part) {
         var current = property.slice(0);
         current[index] = part;
         all.push(current);
@@ -3608,7 +3630,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get', 'em
     var propertyNames = arguments;
     var i = 1;
 
-    if (arguments.length === 2 && utils.typeOf(arguments[1]) === "array") {
+    if (arguments.length === 2 && utils.isArray(arguments[1])) {
       i = 0;
       propertyNames = arguments[1];
     }
@@ -7999,7 +8021,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
 });
-enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-metal/platform/define_property', 'ember-metal/array'], function (exports, Ember, o_create, define_property, array) {
+enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platform/create', 'ember-metal/platform/define_property'], function (exports, Ember, o_create, define_property) {
 
   
   exports.uuid = uuid;
@@ -8009,14 +8031,12 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.setMeta = setMeta;
   exports.metaPath = metaPath;
   exports.wrap = wrap;
-  exports.makeArray = makeArray;
   exports.tryInvoke = tryInvoke;
+  exports.makeArray = makeArray;
   exports.inspect = inspect;
   exports.apply = apply;
   exports.applyStr = applyStr;
   exports.meta = meta;
-  exports.typeOf = typeOf;
-  exports.isArray = isArray;
   exports.canInvoke = canInvoke;
 
   // Remove "use strict"; from transpiled module until
@@ -8432,68 +8452,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     return superWrapper;
   }
 
-  var EmberArray;
-
-  /**
-    Returns true if the passed object is an array or Array-like.
-
-    Ember Array Protocol:
-
-      - the object has an objectAt property
-      - the object is a native Array
-      - the object is an Object, and has a length property
-
-    Unlike `Ember.typeOf` this method returns true even if the passed object is
-    not formally array but appears to be array-like (i.e. implements `Ember.Array`)
-
-    ```javascript
-    Ember.isArray();                                          // false
-    Ember.isArray([]);                                        // true
-    Ember.isArray(Ember.ArrayProxy.create({ content: [] }));  // true
-    ```
-
-    @method isArray
-    @for Ember
-    @param {Object} obj The object to test
-    @return {Boolean} true if the passed object is an array or Array-like
-  */
-  // ES6TODO: Move up to runtime? This is only use in ember-metal by concatenatedProperties
-  function isArray(obj) {
-    var modulePath, type;
-
-    if (typeof EmberArray === "undefined") {
-      modulePath = "ember-runtime/mixins/array";
-      if (Ember['default'].__loader.registry[modulePath]) {
-        EmberArray = Ember['default'].__loader.require(modulePath)["default"];
-      }
-    }
-
-    if (!obj || obj.setInterval) {
-      return false;
-    }
-    if (Array.isArray && Array.isArray(obj)) {
-      return true;
-    }
-    if (EmberArray && EmberArray.detect(obj)) {
-      return true;
-    }
-
-    type = typeOf(obj);
-    if ("array" === type) {
-      return true;
-    }
-    if (obj.length !== undefined && "object" === type) {
-      return true;
-    }
-    return false;
-  }
-  function makeArray(obj) {
-    if (obj === null || obj === undefined) {
-      return [];
-    }
-    return isArray(obj) ? obj : [obj];
-  }
-
   /**
     Checks to see if the `methodName` exists on the `obj`.
 
@@ -8699,106 +8657,38 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // TYPING & ARRAY MESSAGING
   //
 
-  var TYPE_MAP = {};
-  var t = "Boolean Number String Function Array Date RegExp Object".split(" ");
-  array.forEach.call(t, function (name) {
-    TYPE_MAP["[object " + name + "]"] = name.toLowerCase();
-  });
-
   var toString = Object.prototype.toString;
 
-  var EmberObject;
-
-  /**
-    Returns a consistent type for the passed item.
-
-    Use this instead of the built-in `typeof` to get the type of an item.
-    It will return the same result across all browsers and includes a bit
-    more detail. Here is what will be returned:
-
-        | Return Value  | Meaning                                              |
-        |---------------|------------------------------------------------------|
-        | 'string'      | String primitive or String object.                   |
-        | 'number'      | Number primitive or Number object.                   |
-        | 'boolean'     | Boolean primitive or Boolean object.                 |
-        | 'null'        | Null value                                           |
-        | 'undefined'   | Undefined value                                      |
-        | 'function'    | A function                                           |
-        | 'array'       | An instance of Array                                 |
-        | 'regexp'      | An instance of RegExp                                |
-        | 'date'        | An instance of Date                                  |
-        | 'class'       | An Ember class (created using Ember.Object.extend()) |
-        | 'instance'    | An Ember object instance                             |
-        | 'error'       | An instance of the Error object                      |
-        | 'object'      | A JavaScript object not inheriting from Ember.Object |
-
-    Examples:
-
-    ```javascript
-    Ember.typeOf();                       // 'undefined'
-    Ember.typeOf(null);                   // 'null'
-    Ember.typeOf(undefined);              // 'undefined'
-    Ember.typeOf('michael');              // 'string'
-    Ember.typeOf(new String('michael'));  // 'string'
-    Ember.typeOf(101);                    // 'number'
-    Ember.typeOf(new Number(101));        // 'number'
-    Ember.typeOf(true);                   // 'boolean'
-    Ember.typeOf(new Boolean(true));      // 'boolean'
-    Ember.typeOf(Ember.makeArray);        // 'function'
-    Ember.typeOf([1, 2, 90]);             // 'array'
-    Ember.typeOf(/abc/);                  // 'regexp'
-    Ember.typeOf(new Date());             // 'date'
-    Ember.typeOf(Ember.Object.extend());  // 'class'
-    Ember.typeOf(Ember.Object.create());  // 'instance'
-    Ember.typeOf(new Error('teamocil'));  // 'error'
-
-    // 'normal' JavaScript object
-    Ember.typeOf({ a: 'b' });             // 'object'
-    ```
-
-    @method typeOf
-    @for Ember
-    @param {Object} item the item to check
-    @return {String} the type
-  */
-  function typeOf(item) {
-    var ret, modulePath;
-
-    // ES6TODO: Depends on Ember.Object which is defined in runtime.
-    if (typeof EmberObject === "undefined") {
-      modulePath = "ember-runtime/system/object";
-      if (Ember['default'].__loader.registry[modulePath]) {
-        EmberObject = Ember['default'].__loader.require(modulePath)["default"];
-      }
+  var isArray = Array.isArray || function (value) {
+    return value !== null && value !== undefined && typeof value === "object" && typeof value.length === "number" && toString.call(value) === "[object Array]";
+  };
+  function makeArray(obj) {
+    if (obj === null || obj === undefined) {
+      return [];
     }
-
-    ret = item === null || item === undefined ? String(item) : TYPE_MAP[toString.call(item)] || "object";
-
-    if (ret === "function") {
-      if (EmberObject && EmberObject.detect(item)) {
-        ret = "class";
-      }
-    } else if (ret === "object") {
-      if (item instanceof Error) {
-        ret = "error";
-      } else if (EmberObject && item instanceof EmberObject) {
-        ret = "instance";
-      } else if (item instanceof Date) {
-        ret = "date";
-      }
-    }
-
-    return ret;
+    return isArray(obj) ? obj : [obj];
   }
+
   function inspect(obj) {
-    var type = typeOf(obj);
-    if (type === "array") {
+    if (obj === null) {
+      return "null";
+    }
+    if (obj === undefined) {
+      return "undefined";
+    }
+    if (isArray(obj)) {
       return "[" + obj + "]";
     }
-    if (type !== "object") {
-      return obj + "";
+    // for non objects
+    if (typeof obj !== "object") {
+      return "" + obj;
+    }
+    // overridden toString
+    if (typeof obj.toString === "function" && obj.toString !== toString) {
+      return obj.toString();
     }
 
+    // Object.prototype.toString === {}.toString
     var v;
     var ret = [];
     for (var key in obj) {
@@ -8807,7 +8697,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
         if (v === "toString") {
           continue;
         } // ignore useless items
-        if (typeOf(v) === "function") {
+        if (typeof v === "function") {
           v = "function() { ... }";
         }
 
@@ -8870,6 +8760,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.GUID_KEY = GUID_KEY;
   exports.META_DESC = META_DESC;
   exports.EMPTY_META = EMPTY_META;
+  exports.isArray = isArray;
   exports.tryCatchFinally = tryCatchFinally;
   exports.deprecatedTryCatchFinally = deprecatedTryCatchFinally;
   exports.tryFinally = tryFinally;
@@ -8885,7 +8776,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
 
   function watchKey(obj, keyName, meta) {
     // can't watch length on Array - it is special...
-    if (keyName === "length" && utils.typeOf(obj) === "array") {
+    if (keyName === "length" && utils.isArray(obj)) {
       return;
     }
 
@@ -9006,7 +8897,7 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/utils', 'ember-metal/c
   }
   function watchPath(obj, keyPath, meta) {
     // can't watch length on Array - it is special...
-    if (keyPath === "length" && utils.typeOf(obj) === "array") {
+    if (keyPath === "length" && utils.isArray(obj)) {
       return;
     }
 
@@ -9046,7 +8937,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
 
   function watch(obj, _keyPath, m) {
     // can't watch length on Array - it is special...
-    if (_keyPath === "length" && utils.typeOf(obj) === "array") {
+    if (_keyPath === "length" && utils.isArray(obj)) {
       return;
     }
 
@@ -9065,7 +8956,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
   watch.flushPending = chains.flushPendingChains;
   function unwatch(obj, _keyPath, m) {
     // can't watch length on Array - it is special...
-    if (_keyPath === "length" && utils.typeOf(obj) === "array") {
+    if (_keyPath === "length" && utils.isArray(obj)) {
       return;
     }
 
@@ -9385,7 +9276,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.8737c41c";
+    options.revision = "Ember@1.13.0-beta.1+canary.6991d736";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8737c41c
+ * @version   1.13.0-beta.1+canary.6991d736
  */
 
 (function() {
@@ -3491,7 +3491,6 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
 
   QUnit.test('Ember.deprecate throws if second argument is a function and it returns false', function () {
     expect(1);
-
     throws(function () {
       Ember['default'].deprecate('Deprecation is thrown', function () {
         return false;
@@ -3537,7 +3536,6 @@ enifed('ember-debug/tests/main_test', ['ember-metal/core'], function (Ember) {
 
   QUnit.test('Ember.assert throws if second argument is a function and it returns false', function () {
     expect(1);
-
     throws(function () {
       Ember['default'].assert('Assertion is thrown', function () {
         return false;
@@ -9057,7 +9055,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   testEachWithItem("{{#each bar as |foo|}}", true);
 
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-views/views/metamorph_view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-metal/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, _MetamorphView, compile, property_set, string, utils, enumerable_utils, tests__utils) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-views/views/metamorph_view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, _MetamorphView, compile, property_set, string, utils, enumerable_utils, tests__utils) {
 
   'use strict';
 
@@ -15407,7 +15405,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.8737c41c",
+        revision: "Ember@1.13.0-beta.1+canary.6991d736",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -23851,34 +23849,6 @@ enifed('ember-metal/tests/utils/guid_for_test', ['ember-metal/utils'], function 
   });
 
 });
-enifed('ember-metal/tests/utils/is_array_test', ['ember-metal/utils'], function (utils) {
-
-  'use strict';
-
-  QUnit.module("Ember Type Checking");
-
-  var global = undefined;
-
-  QUnit.test("Ember.isArray", function () {
-    var numarray = [1, 2, 3];
-    var number = 23;
-    var strarray = ["Hello", "Hi"];
-    var string = "Hello";
-    var object = {};
-    var length = { length: 12 };
-    var fn = function () {};
-
-    equal(utils.isArray(numarray), true, "[1,2,3]");
-    equal(utils.isArray(number), false, "23");
-    equal(utils.isArray(strarray), true, "[\"Hello\", \"Hi\"]");
-    equal(utils.isArray(string), false, "\"Hello\"");
-    equal(utils.isArray(object), false, "{}");
-    equal(utils.isArray(length), true, "{ length: 12 }");
-    equal(utils.isArray(global), false, "global");
-    equal(utils.isArray(fn), false, "function() {}");
-  });
-
-});
 enifed('ember-metal/tests/utils/meta_test', ['ember-metal/core', 'ember-metal/platform/define_property', 'ember-metal/platform/create', 'ember-metal/utils'], function (Ember, define_property, create, utils) {
 
   'use strict';
@@ -24260,43 +24230,6 @@ enifed('ember-metal/tests/utils/try_invoke_test', ['ember-metal/utils'], functio
 
   QUnit.test("should return what the method returns when asked to perform a method that takes arguments and exists on the object", function () {
     equal(utils.tryInvoke(obj, "aMethodThatTakesArguments", [true, true]), true);
-  });
-
-});
-enifed('ember-metal/tests/utils/type_of_test', ['ember-metal/utils'], function (utils) {
-
-  'use strict';
-
-  QUnit.module("Ember Type Checking");
-
-  QUnit.test("Ember.typeOf", function () {
-    var MockedDate = function () {};
-    MockedDate.prototype = new Date();
-
-    var mockedDate = new MockedDate();
-    var date = new Date();
-    var error = new Error("boum");
-    var object = { a: "b" };
-
-    equal(utils.typeOf(), "undefined", "undefined");
-    equal(utils.typeOf(null), "null", "null");
-    equal(utils.typeOf("Cyril"), "string", "Cyril");
-    equal(utils.typeOf(101), "number", "101");
-    equal(utils.typeOf(true), "boolean", "true");
-    equal(utils.typeOf([1, 2, 90]), "array", "[1,2,90]");
-    equal(utils.typeOf(/abc/), "regexp", "/abc/");
-    equal(utils.typeOf(date), "date", "new Date()");
-    equal(utils.typeOf(mockedDate), "date", "mocked date");
-    equal(utils.typeOf(error), "error", "error");
-    equal(utils.typeOf(object), "object", "object");
-
-    if (Ember.Object) {
-      var klass = Ember.Object.extend();
-      var instance = Ember.Object.create();
-
-      equal(utils.typeOf(klass), "class", "class");
-      equal(utils.typeOf(instance), "instance", "instance");
-    }
   });
 
 });
@@ -31698,7 +31631,7 @@ enifed('ember-runtime/tests/controllers/object_controller_test', ['ember-runtime
   });
 
 });
-enifed('ember-runtime/tests/core/compare_test', ['ember-metal/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (utils, EmberObject, compare, Comparable) {
+enifed('ember-runtime/tests/core/compare_test', ['ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (utils, EmberObject, compare, Comparable) {
 
   'use strict';
 
@@ -31849,16 +31782,33 @@ enifed('ember-runtime/tests/core/isEqual_test', ['ember-runtime/core'], function
   });
 
 });
-enifed('ember-runtime/tests/core/is_array_test', ['ember-metal/core', 'ember-metal/utils', 'ember-runtime/system/array_proxy'], function (Ember, utils, ArrayProxy) {
+enifed('ember-runtime/tests/core/is_array_test', ['ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (utils, ArrayProxy) {
 
   'use strict';
 
-  QUnit.module("Ember Type Checking");
+  QUnit.module('Ember Type Checking');
 
-  QUnit.test("Ember.isArray", function () {
-    var arrayProxy = ArrayProxy['default'].create({ content: Ember['default'].A() });
+  var global = undefined;
 
-    equal(utils.isArray(arrayProxy), true, "[]");
+  QUnit.test('Ember.isArray', function () {
+    var numarray = [1, 2, 3];
+    var number = 23;
+    var strarray = ['Hello', 'Hi'];
+    var string = 'Hello';
+    var object = {};
+    var length = { length: 12 };
+    var fn = function () {};
+    var arrayProxy = ArrayProxy['default'].create({ content: Ember.A() });
+
+    equal(utils.isArray(numarray), true, '[1,2,3]');
+    equal(utils.isArray(number), false, '23');
+    equal(utils.isArray(strarray), true, '["Hello", "Hi"]');
+    equal(utils.isArray(string), false, '"Hello"');
+    equal(utils.isArray(object), false, '{}');
+    equal(utils.isArray(length), true, '{ length: 12 }');
+    equal(utils.isArray(global), false, 'global');
+    equal(utils.isArray(fn), false, 'function() {}');
+    equal(utils.isArray(arrayProxy), true, '[]');
   });
 
 });
@@ -31875,26 +31825,44 @@ enifed('ember-runtime/tests/core/is_empty_test', ['ember-metal/core', 'ember-met
   });
 
 });
-enifed('ember-runtime/tests/core/type_test', ['ember-metal/utils', 'ember-runtime/system/object'], function (utils, EmberObject) {
+enifed('ember-runtime/tests/core/type_of_test', ['ember-runtime/utils', 'ember-runtime/system/object'], function (utils, EmberObject) {
 
   'use strict';
 
-  QUnit.module("Ember Type Checking");
+  QUnit.module('Ember Type Checking');
 
-  QUnit.test("Ember.typeOf", function () {
+  QUnit.test('Ember.typeOf', function () {
+    var MockedDate = function () {};
+    MockedDate.prototype = new Date();
+
+    var mockedDate = new MockedDate();
+    var date = new Date();
+    var error = new Error('boum');
+    var object = { a: 'b' };
     var a = null;
     var arr = [1, 2, 3];
     var obj = {};
-    var object = EmberObject['default'].create({ method: function () {} });
+    var instance = EmberObject['default'].create({ method: function () {} });
 
-    equal(utils.typeOf(undefined), "undefined", "item of type undefined");
-    equal(utils.typeOf(a), "null", "item of type null");
-    equal(utils.typeOf(arr), "array", "item of type array");
-    equal(utils.typeOf(obj), "object", "item of type object");
-    equal(utils.typeOf(object), "instance", "item of type instance");
-    equal(utils.typeOf(object.method), "function", "item of type function");
-    equal(utils.typeOf(EmberObject['default']), "class", "item of type class");
-    equal(utils.typeOf(new Error()), "error", "item of type error");
+    equal(utils.typeOf(), 'undefined', 'undefined');
+    equal(utils.typeOf(null), 'null', 'null');
+    equal(utils.typeOf('Cyril'), 'string', 'Cyril');
+    equal(utils.typeOf(101), 'number', '101');
+    equal(utils.typeOf(true), 'boolean', 'true');
+    equal(utils.typeOf([1, 2, 90]), 'array', '[1,2,90]');
+    equal(utils.typeOf(/abc/), 'regexp', '/abc/');
+    equal(utils.typeOf(date), 'date', 'new Date()');
+    equal(utils.typeOf(mockedDate), 'date', 'mocked date');
+    equal(utils.typeOf(error), 'error', 'error');
+    equal(utils.typeOf(object), 'object', 'object');
+    equal(utils.typeOf(undefined), 'undefined', 'item of type undefined');
+    equal(utils.typeOf(a), 'null', 'item of type null');
+    equal(utils.typeOf(arr), 'array', 'item of type array');
+    equal(utils.typeOf(obj), 'object', 'item of type object');
+    equal(utils.typeOf(instance), 'instance', 'item of type instance');
+    equal(utils.typeOf(instance.method), 'function', 'item of type function');
+    equal(utils.typeOf(EmberObject['default'].extend()), 'class', 'item of type class');
+    equal(utils.typeOf(new Error()), 'error', 'item of type error');
   });
 
 });
@@ -32340,7 +32308,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['ember-m
   });
 
 });
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (property_get, enumerable_utils, computed, run, utils, mixin, string, EmberObject, Observable) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (property_get, enumerable_utils, computed, run, mixin, string, EmberObject, Observable) {
 
   'use strict';
 
@@ -32392,7 +32360,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
   QUnit.test('should return the function for a non-computed property', function () {
     var value = object.get('method');
-    equal(utils.typeOf(value), 'function');
+    equal(typeof value, 'function');
   });
 
   QUnit.test('should return null when property value is null', function () {
@@ -32450,7 +32418,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
 
   QUnit.test('should return the function for a non-computed property on Ember.Observable', function () {
     var value = property_get.get(objectA, 'method');
-    equal(utils.typeOf(value), 'function');
+    equal(typeof value, 'function');
   });
 
   QUnit.test('should return null when property value is null on Ember.Observable', function () {
@@ -32615,7 +32583,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['embe
   QUnit.test('should replace the function for a non-computed property and return this', function () {
     var ret = object.set('method', 'changed');
     equal(object._method, 'method'); // make sure this was NOT run
-    ok(utils.typeOf(object.method) !== 'function');
+    ok(typeof object.method !== 'function');
     equal(ret, object);
   });
 
@@ -43758,7 +43726,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.8737c41c", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6991d736", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
