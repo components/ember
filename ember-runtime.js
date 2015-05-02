@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.1d20e2cc
+ * @version   1.12.0-beta.1.bfae813b
  */
 
 (function() {
@@ -1616,7 +1616,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        Ember['default'].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
+        Ember['default'].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
       }
 
       return this._defaultContainer.lookup(fullName, options);
@@ -1626,7 +1626,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       Ember['default'].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        Ember['default'].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
+        Ember['default'].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
       }
 
       return this._defaultContainer.lookupFactory(fullName);
@@ -3667,6 +3667,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   ComputedPropertyPrototype.readOnly = function (readOnly) {
     Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
     this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+    Ember.assert("Computed properties that define a setter using the new syntax cannot be read-only", !(this._readOnly && this._setter && this._setter !== this._getter));
+
     return this;
   };
 
@@ -4365,7 +4367,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.1d20e2cc
+    @version 1.12.0-beta.1.bfae813b
   */
 
   if ('undefined' === typeof Ember) {
@@ -4394,10 +4396,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.1d20e2cc'
+    @default '1.12.0-beta.1.bfae813b'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.1d20e2cc';
+  Ember.VERSION = '1.12.0-beta.1.bfae813b';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -4438,11 +4440,14 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
+  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': false, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false }; //jshint ignore:line
 
-  Ember.FEATURES = Ember.ENV.FEATURES;
-
-  if (!Ember.FEATURES) {
-    Ember.FEATURES = DEFAULT_FEATURES; //jshint ignore:line
+  if (Ember.ENV.FEATURES) {
+    for (var feature in Ember.ENV.FEATURES) {
+      if (Ember.ENV.FEATURES.hasOwnProperty(feature)) {
+        Ember.FEATURES[feature] = Ember.ENV.FEATURES[feature];
+      }
+    }
   }
 
   /**
@@ -5271,7 +5276,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
-    Ember.expandProperties('{foo,bar}.baz', echo);        //=> '{foo,bar}.baz'
+    Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
     Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
@@ -8654,12 +8659,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
     ```javascript
     App.RichTextEditorComponent = Ember.Component.extend({
-      initializeTinyMCE: function() {
+      initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
-      }.on('didInsertElement'),
+      }),
 
       setupEditor: function(editor) {
         this.set('editor', editor);
@@ -12523,7 +12528,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
             changeMeta.property.itemPropertyKey(itemsKey, sortProperty);
           });
 
-          sortPropertyDefinitions.addObserver('@each', this, updateSortPropertiesOnce);
+          this.addObserver(sortPropertiesKey + '.@each', this, updateSortPropertiesOnce);
         }
 
         function updateSortPropertiesOnce() {
@@ -16357,7 +16362,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy, ObjectController or ArrayController's promise aware.
+    A low level mixin making ObjectProxy, ObjectController or ArrayControllers promise-aware.
 
     ```javascript
     var ObjectPromiseController = Ember.ObjectController.extend(Ember.PromiseProxyMixin);

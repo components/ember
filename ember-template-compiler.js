@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.1d20e2cc
+ * @version   1.12.0-beta.1.bfae813b
  */
 
 (function() {
@@ -110,7 +110,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, utils, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -129,7 +129,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (Ember['default'].typeOf(test) === "function") {
+    if (utils.typeOf(test) === "function") {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -1892,6 +1892,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   ComputedPropertyPrototype.readOnly = function (readOnly) {
     Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
     this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+    Ember.assert("Computed properties that define a setter using the new syntax cannot be read-only", !(this._readOnly && this._setter && this._setter !== this._getter));
+
     return this;
   };
 
@@ -2590,7 +2592,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.1.1d20e2cc
+    @version 1.12.0-beta.1.bfae813b
   */
 
   if ('undefined' === typeof Ember) {
@@ -2619,10 +2621,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.1.1d20e2cc'
+    @default '1.12.0-beta.1.bfae813b'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.1.1d20e2cc';
+  Ember.VERSION = '1.12.0-beta.1.bfae813b';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -2663,11 +2665,14 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
+  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': false, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false }; //jshint ignore:line
 
-  Ember.FEATURES = Ember.ENV.FEATURES;
-
-  if (!Ember.FEATURES) {
-    Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-htmlbars-each-with-index': true, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': false, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false }; //jshint ignore:line
+  if (Ember.ENV.FEATURES) {
+    for (var feature in Ember.ENV.FEATURES) {
+      if (Ember.ENV.FEATURES.hasOwnProperty(feature)) {
+        Ember.FEATURES[feature] = Ember.ENV.FEATURES[feature];
+      }
+    }
   }
 
   /**
@@ -3496,7 +3501,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
-    Ember.expandProperties('{foo,bar}.baz', echo);        //=> '{foo,bar}.baz'
+    Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
     Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
@@ -6879,12 +6884,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
     ```javascript
     App.RichTextEditorComponent = Ember.Component.extend({
-      initializeTinyMCE: function() {
+      initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
-      }.on('didInsertElement'),
+      }),
 
       setupEditor: function(editor) {
         this.set('editor', editor);
@@ -9189,9 +9194,10 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
     @class TransformEachInToHash
     @private
   */
-  function TransformEachInToHash() {
+  function TransformEachInToHash(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options || {};
   }
 
   /**
@@ -9260,9 +9266,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
     @private
     @class TransformWithAsToHash
   */
-  function TransformWithAsToHash() {
+  function TransformWithAsToHash(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options;
   }
 
   /**
@@ -9273,6 +9280,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
     var pluginContext = this;
     var walker = new pluginContext.syntax.Walker();
+    var moduleName = this.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
@@ -9281,7 +9289,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
           throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
 
-        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
+        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) " + (moduleName ? " in `" + moduleName + "` " : "") + "instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
 
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -9312,8 +9320,9 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
                  @private
                  @method compile
                  @param {String} templateString This is the string to be compiled by HTMLBars.
+                 @param {Object} options This is an options hash to augment the compiler options.
                */
-  exports['default'] = function (templateString) {
+  exports['default'] = function (templateString, options) {
     if (!compile && Ember.__loader.registry["htmlbars-compiler/compiler"]) {
       compile = requireModule("htmlbars-compiler/compiler").compile;
     }
@@ -9322,7 +9331,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
       throw new Error("Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.");
     }
 
-    var templateSpec = compile(templateString, compileOptions['default']());
+    var templateSpec = compile(templateString, compileOptions['default'](options));
 
     return template['default'](templateSpec);
   }
@@ -9337,16 +9346,22 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
   @submodule ember-template-compiler
   */
 
-  exports['default'] = function () {
+  exports['default'] = function (_options) {
     var disableComponentGeneration = true;
     
-    return {
-      revision: "Ember@1.12.0-beta.1.1d20e2cc",
+    var options = _options || {};
+    // When calling `Ember.Handlebars.compile()` a second argument of `true`
+    // had a special meaning (long since lost), this just gaurds against
+    // `options` being true, and causing an error during compilation.
+    if (options === true) {
+      options = {};
+    }
 
-      disableComponentGeneration: disableComponentGeneration,
+    options.revision = "Ember@1.12.0-beta.1.bfae813b";
+    options.disableComponentGeneration = disableComponentGeneration;
+    options.plugins = plugins['default'];
 
-      plugins: plugins['default']
-    };
+    return options;
   }
 
 });
@@ -9371,7 +9386,7 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
     @method precompile
     @param {String} templateString This is the string to be compiled by HTMLBars.
   */
-  exports['default'] = function (templateString) {
+  exports['default'] = function (templateString, options) {
     if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
       compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
     }
@@ -9380,7 +9395,7 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
       throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
     }
 
-    return compileSpec(templateString, compileOptions['default']());
+    return compileSpec(templateString, compileOptions['default'](options));
   }
 
 });
@@ -10301,7 +10316,7 @@ enifed("htmlbars-compiler/template-compiler",
 
     function TemplateCompiler(options) {
       this.options = options || {};
-      this.revision = this.options.revision || "HTMLBars@v0.11.2";
+      this.revision = this.options.revision || "HTMLBars@v0.11.3";
       this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler();
       this.fragmentCompiler = new FragmentJavaScriptCompiler();
       this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler();
@@ -12494,7 +12509,7 @@ enifed("htmlbars-syntax/parser",
 
       if (options && options.plugins && options.plugins.ast) {
         for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
-          var plugin = new options.plugins.ast[i]();
+          var plugin = new options.plugins.ast[i](options);
 
           plugin.syntax = syntax;
 

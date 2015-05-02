@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.1.1d20e2cc
+ * @version   1.12.0-beta.1.bfae813b
  */
 
 (function() {
@@ -110,7 +110,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, utils, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -129,7 +129,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (Ember['default'].typeOf(test) === "function") {
+    if (utils.typeOf(test) === "function") {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
