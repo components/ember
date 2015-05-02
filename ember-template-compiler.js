@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.2
+ * @version   1.12.0-beta.3
  */
 
 (function() {
@@ -110,7 +110,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, utils, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -129,7 +129,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (Ember['default'].typeOf(test) === "function") {
+    if (utils.typeOf(test) === "function") {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -180,8 +180,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
 
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean} test An optional boolean. If falsy, the deprecation
-      will be displayed.
+    @param {Boolean|Function} test An optional boolean. If falsy, the deprecation
+      will be displayed. If this is a function, it will be executed and its return
+      value will be used as condition.
     @param {Object} options An optional object that can be used to pass
       in a `url` to the transition guide on the emberjs.com website.
   */
@@ -375,8 +376,9 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
   computed.computed.and = computed_macros.and;
   computed.computed.or = computed_macros.or;
   computed.computed.any = computed_macros.any;
-  computed.computed.collect = computed_macros.collect;
+  computed.computed.collect = computed_macros.collect; // END IMPORTS
 
+  // BEGIN EXPORTS
   var EmberInstrumentation = Ember['default'].Instrumentation = {};
   EmberInstrumentation.instrument = instrumentation.instrument;
   EmberInstrumentation.subscribe = instrumentation.subscribe;
@@ -1797,7 +1799,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
         this._getter = config;
         if (config.__ember_arity > 1) {
           Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
           });
           this._setter = config;
         }
@@ -1890,6 +1892,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   ComputedPropertyPrototype.readOnly = function (readOnly) {
     Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
     this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+    Ember.assert("Computed properties that define a setter using the new syntax cannot be read-only", !(this._readOnly && this._setter && this._setter !== this._getter));
+
     return this;
   };
 
@@ -2588,10 +2592,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.2
+    @version 1.12.0-beta.3
   */
 
-  if ("undefined" === typeof Ember) {
+  if ('undefined' === typeof Ember) {
     // Create core object. Make it act like an instance of Ember.Namespace so that
     // objects assigned to it are given a sane string representation.
     Ember = {};
@@ -2611,16 +2615,16 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.isNamespace = true;
 
   Ember.toString = function () {
-    return "Ember";
+    return 'Ember';
   };
 
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.2'
+    @default '1.12.0-beta.3'
     @static
   */
-  Ember.VERSION = "1.12.0-beta.2";
+  Ember.VERSION = '1.12.0-beta.3';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -2635,10 +2639,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
   if (Ember.ENV) {
     // do nothing if Ember.ENV is already setup
-    Ember.assert("Ember.ENV should be an object.", "object" !== typeof Ember.ENV);
-  } else if ("undefined" !== typeof EmberENV) {
+    Ember.assert('Ember.ENV should be an object.', 'object' !== typeof Ember.ENV);
+  } else if ('undefined' !== typeof EmberENV) {
     Ember.ENV = EmberENV;
-  } else if ("undefined" !== typeof ENV) {
+  } else if ('undefined' !== typeof ENV) {
     Ember.ENV = ENV;
   } else {
     Ember.ENV = {};
@@ -2647,7 +2651,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.config = Ember.config || {};
 
   // We disable the RANGE API by default for performance reasons
-  if ("undefined" === typeof Ember.ENV.DISABLE_RANGE_API) {
+  if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
     Ember.ENV.DISABLE_RANGE_API = true;
   }
 
@@ -2661,11 +2665,14 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
+  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': false, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false }; //jshint ignore:line
 
-  Ember.FEATURES = Ember.ENV.FEATURES;
-
-  if (!Ember.FEATURES) {
-    Ember.FEATURES = { "features-stripped-test": false, "ember-routing-named-substates": true, "mandatory-setter": true, "ember-htmlbars-component-generation": false, "ember-htmlbars-component-helper": true, "ember-htmlbars-inline-if-helper": true, "ember-htmlbars-attribute-syntax": true, "ember-routing-transitioning-classes": true, "new-computed-syntax": true, "ember-testing-checkbox-helpers": false, "ember-metal-stream": false, "ember-htmlbars-each-with-index": true, "ember-application-instance-initializers": true, "ember-application-initializer-context": true, "ember-router-willtransition": true, "ember-application-visit": false, "ember-views-component-block-info": false, "ember-routing-core-outlet": false, "ember-libraries-isregistered": false }; //jshint ignore:line
+  if (Ember.ENV.FEATURES) {
+    for (var feature in Ember.ENV.FEATURES) {
+      if (Ember.ENV.FEATURES.hasOwnProperty(feature)) {
+        Ember.FEATURES[feature] = Ember.ENV.FEATURES[feature];
+      }
+    }
   }
 
   /**
@@ -2720,7 +2727,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   */
   Ember.EXTEND_PROTOTYPES = Ember.ENV.EXTEND_PROTOTYPES;
 
-  if (typeof Ember.EXTEND_PROTOTYPES === "undefined") {
+  if (typeof Ember.EXTEND_PROTOTYPES === 'undefined') {
     Ember.EXTEND_PROTOTYPES = true;
   }
 
@@ -2766,22 +2773,22 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
   // Stub out the methods defined by the ember-debug package in case it's not loaded
 
-  if ("undefined" === typeof Ember.assert) {
+  if ('undefined' === typeof Ember.assert) {
     Ember.assert = K;
   }
-  if ("undefined" === typeof Ember.warn) {
+  if ('undefined' === typeof Ember.warn) {
     Ember.warn = K;
   }
-  if ("undefined" === typeof Ember.debug) {
+  if ('undefined' === typeof Ember.debug) {
     Ember.debug = K;
   }
-  if ("undefined" === typeof Ember.runInDebug) {
+  if ('undefined' === typeof Ember.runInDebug) {
     Ember.runInDebug = K;
   }
-  if ("undefined" === typeof Ember.deprecate) {
+  if ('undefined' === typeof Ember.deprecate) {
     Ember.deprecate = K;
   }
-  if ("undefined" === typeof Ember.deprecateFunc) {
+  if ('undefined' === typeof Ember.deprecateFunc) {
     Ember.deprecateFunc = function (_, func) {
       return func;
     };
@@ -2917,13 +2924,13 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
   exports['default'] = makeDictionary;
   function makeDictionary(parent) {
     var dict = create['default'](parent);
-    dict["_dict"] = null;
-    delete dict["_dict"];
+    dict['_dict'] = null;
+    delete dict['_dict'];
     return dict;
   }
 
 });
-enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], function (exports, array) {
+enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], function (exports, ember_metal__array) {
 
   'use strict';
 
@@ -2960,19 +2967,19 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    */
   var splice = Array.prototype.splice;
   function map(obj, callback, thisArg) {
-    return obj.map ? obj.map(callback, thisArg) : array.map.call(obj, callback, thisArg);
+    return obj.map ? obj.map(callback, thisArg) : ember_metal__array.map.call(obj, callback, thisArg);
   }
 
   function forEach(obj, callback, thisArg) {
-    return obj.forEach ? obj.forEach(callback, thisArg) : array.forEach.call(obj, callback, thisArg);
+    return obj.forEach ? obj.forEach(callback, thisArg) : ember_metal__array.forEach.call(obj, callback, thisArg);
   }
 
   function filter(obj, callback, thisArg) {
-    return obj.filter ? obj.filter(callback, thisArg) : array.filter.call(obj, callback, thisArg);
+    return obj.filter ? obj.filter(callback, thisArg) : ember_metal__array.filter.call(obj, callback, thisArg);
   }
 
   function indexOf(obj, element, index) {
-    return obj.indexOf ? obj.indexOf(element, index) : array.indexOf.call(obj, element, index);
+    return obj.indexOf ? obj.indexOf(element, index) : ember_metal__array.indexOf.call(obj, element, index);
   }
 
   function indexesOf(obj, elements) {
@@ -3066,7 +3073,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
   // by searching for window and document.createElement. An environment
   // with DOM may disable the DOM functionality of Ember explicitly by
   // defining a `disableBrowserEnvironment` ENV.
-  var hasDOM = typeof window !== "undefined" && typeof document !== "undefined" && typeof document.createElement !== "undefined" && !Ember['default'].ENV.disableBrowserEnvironment;
+  var hasDOM = typeof window !== 'undefined' && typeof document !== 'undefined' && typeof document.createElement !== 'undefined' && !Ember['default'].ENV.disableBrowserEnvironment;
 
   if (hasDOM) {
     environment = {
@@ -3083,7 +3090,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       isChrome: false,
       location: null,
       history: null,
-      userAgent: "Lynx (textmode)",
+      userAgent: 'Lynx (textmode)',
       global: null
     };
   }
@@ -3095,7 +3102,7 @@ enifed('ember-metal/error', ['exports', 'ember-metal/platform/create'], function
 
   'use strict';
 
-  var errorProps = ["description", "fileName", "lineNumber", "message", "name", "number", "stack"];
+  var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
   /**
     A subclass of the JavaScript Error object for use in Ember.
@@ -3494,7 +3501,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     Ember.expandProperties('foo.bar', echo);              //=> 'foo.bar'
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
-    Ember.expandProperties('{foo,bar}.baz', echo);        //=> '{foo,bar}.baz'
+    Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
     Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
@@ -3510,22 +3517,22 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
 
   var SPLIT_REGEX = /\{|\}/;
   function expandProperties(pattern, callback) {
-    if (pattern.indexOf(" ") > -1) {
-      throw new EmberError['default']("Brace expanded properties cannot contain spaces, e.g. 'user.{firstName, lastName}' should be 'user.{firstName,lastName}'");
+    if (pattern.indexOf(' ') > -1) {
+      throw new EmberError['default']('Brace expanded properties cannot contain spaces, e.g. \'user.{firstName, lastName}\' should be \'user.{firstName,lastName}\'');
     }
 
-    if ("string" === utils.typeOf(pattern)) {
+    if ('string' === utils.typeOf(pattern)) {
       var parts = pattern.split(SPLIT_REGEX);
       var properties = [parts];
 
       enumerable_utils.forEach(parts, function (part, index) {
-        if (part.indexOf(",") >= 0) {
-          properties = duplicateAndReplace(properties, part.split(","), index);
+        if (part.indexOf(',') >= 0) {
+          properties = duplicateAndReplace(properties, part.split(','), index);
         }
       });
 
       enumerable_utils.forEach(properties, function (property) {
-        callback(property.join(""));
+        callback(property.join(''));
       });
     } else {
       callback(pattern);
@@ -3826,7 +3833,7 @@ enifed('ember-metal/is_blank', ['exports', 'ember-metal/is_empty'], function (ex
     */
   exports['default'] = isBlank;
   function isBlank(obj) {
-    return isEmpty['default'](obj) || typeof obj === "string" && obj.match(/\S/) === null;
+    return isEmpty['default'](obj) || typeof obj === 'string' && obj.match(/\S/) === null;
   }
 
 });
@@ -3840,26 +3847,26 @@ enifed('ember-metal/is_empty', ['exports', 'ember-metal/property_get', 'ember-me
       return none;
     }
 
-    if (typeof obj.size === "number") {
+    if (typeof obj.size === 'number') {
       return !obj.size;
     }
 
     var objectType = typeof obj;
 
-    if (objectType === "object") {
-      var size = property_get.get(obj, "size");
-      if (typeof size === "number") {
+    if (objectType === 'object') {
+      var size = property_get.get(obj, 'size');
+      if (typeof size === 'number') {
         return !size;
       }
     }
 
-    if (typeof obj.length === "number" && objectType !== "function") {
+    if (typeof obj.length === 'number' && objectType !== 'function') {
       return !obj.length;
     }
 
-    if (objectType === "object") {
-      var length = property_get.get(obj, "length");
-      if (typeof length === "number") {
+    if (objectType === 'object') {
+      var length = property_get.get(obj, 'length');
+      if (typeof length === 'number') {
         return !length;
       }
     }
@@ -3946,20 +3953,20 @@ enifed('ember-metal/keys', ['exports', 'ember-metal/platform/define_property'], 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
     keys = (function () {
       var hasOwnProperty = Object.prototype.hasOwnProperty;
-      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable("toString");
-      var dontEnums = ["toString", "toLocaleString", "valueOf", "hasOwnProperty", "isPrototypeOf", "propertyIsEnumerable", "constructor"];
+      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
+      var dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
       var dontEnumsLength = dontEnums.length;
 
       return function keys(obj) {
-        if (typeof obj !== "object" && (typeof obj !== "function" || obj === null)) {
-          throw new TypeError("Object.keys called on non-object");
+        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+          throw new TypeError('Object.keys called on non-object');
         }
 
         var result = [];
         var prop, i;
 
         for (prop in obj) {
-          if (prop !== "_super" && prop.lastIndexOf("__", 0) !== 0 && hasOwnProperty.call(obj, prop)) {
+          if (prop !== '_super' && prop.lastIndexOf('__', 0) !== 0 && hasOwnProperty.call(obj, prop)) {
             result.push(prop);
           }
         }
@@ -4716,7 +4723,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
   */
   exports['default'] = merge;
   function merge(original, updates) {
-    if (!updates || typeof updates !== "object") {
+    if (!updates || typeof updates !== 'object') {
       return original;
     }
 
@@ -4733,7 +4740,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
   }
 
 });
-enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/array', 'ember-metal/platform/create', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, Ember, merge, array, o_create, property_get, property_set, utils, expandProperties, properties, computed, ember_metal__binding, ember_metal__observer, events, streams__utils) {
+enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/array', 'ember-metal/platform/create', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, Ember, merge, array, o_create, property_get, property_set, utils, expandProperties, ember_metal__properties, computed, ember_metal__binding, ember_metal__observer, events, streams__utils) {
 
   
   exports.mixin = mixin;
@@ -4965,7 +4972,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   }
 
   function addNormalizedProperty(base, key, value, meta, descs, values, concats, mergings) {
-    if (value instanceof properties.Descriptor) {
+    if (value instanceof ember_metal__properties.Descriptor) {
       if (value === REQUIRED && descs[key]) {
         return CONTINUE;
       }
@@ -5197,7 +5204,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
 
       replaceObserversAndListeners(obj, key, value);
       detectBinding(obj, key, value, m);
-      properties.defineProperty(obj, key, desc, value, m);
+      ember_metal__properties.defineProperty(obj, key, desc, value, m);
     }
 
     if (!partial) {
@@ -5313,8 +5320,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @param arguments*
   */
   Mixin.create = function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
     }
 
     // ES6TODO: this relies on a global state?
@@ -5413,8 +5420,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   };
 
   MixinPrototype.without = function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
     }
 
     var ret = new Mixin([this]);
@@ -5478,7 +5485,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     return ret;
   };
 
-  exports.REQUIRED = REQUIRED = new properties.Descriptor();
+  REQUIRED = new ember_metal__properties.Descriptor();
   REQUIRED.toString = function () {
     return "(Required Property)";
   };
@@ -5492,14 +5499,14 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     this.methodName = methodName;
   }
 
-  Alias.prototype = new properties.Descriptor();
+  Alias.prototype = new ember_metal__properties.Descriptor();
   function aliasMethod(methodName) {
     return new Alias(methodName);
   }
 
   function observer() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
     var func = args.slice(-1)[0];
@@ -5541,8 +5548,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   }
 
   function beforeObserver() {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
     }
 
     var func = args.slice(-1)[0];
@@ -5576,6 +5583,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   }
 
   exports.IS_BINDING = IS_BINDING;
+  exports.REQUIRED = REQUIRED;
 
 });
 enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/array', 'ember-metal/events'], function (exports, watching, array, ember_metal__events) {
@@ -5731,7 +5739,7 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
 
   var IS_GLOBAL = /^[A-Z$]/;
   var IS_GLOBAL_PATH = /^[A-Z$].*[\.]/;
-  var HAS_THIS = "this.";
+  var HAS_THIS = 'this.';
 
   var isGlobalCache = new Cache['default'](1000, function (key) {
     return IS_GLOBAL.test(key);
@@ -5746,7 +5754,7 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
   });
 
   var firstDotIndexCache = new Cache['default'](1000, function (key) {
-    return key.indexOf(".");
+    return key.indexOf('.');
   });
 
   var firstKeyCache = new Cache['default'](1000, function (path) {
@@ -5805,7 +5813,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
-  "REMOVE_USE_STRICT: true";
+  'REMOVE_USE_STRICT: true';
 
   var create;
   // ES5 15.2.3.5
@@ -5814,13 +5822,13 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
     /* jshint scripturl:true, proto:true */
     // Contributed by Brandon Benvie, October, 2012
     var createEmpty;
-    var supportsProto = !({ "__proto__": null } instanceof Object);
+    var supportsProto = !({ '__proto__': null } instanceof Object);
     // the following produces false positives
     // in Opera Mini => not a reliable check
     // Object.prototype.__proto__ === null
-    if (supportsProto || typeof document === "undefined") {
+    if (supportsProto || typeof document === 'undefined') {
       createEmpty = function () {
-        return { "__proto__": null };
+        return { '__proto__': null };
       };
     } else {
       // In old IE __proto__ can't be used to manually set `null`, nor does
@@ -5829,11 +5837,11 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
       // object and *steal* its Object.prototype and strip it bare. This is
       // used as the prototype to create nullary objects.
       createEmpty = function () {
-        var iframe = document.createElement("iframe");
+        var iframe = document.createElement('iframe');
         var parent = document.body || document.documentElement;
-        iframe.style.display = "none";
+        iframe.style.display = 'none';
         parent.appendChild(iframe);
-        iframe.src = "javascript:";
+        iframe.src = 'javascript:';
         var empty = iframe.contentWindow.Object.prototype;
         parent.removeChild(iframe);
         iframe = null;
@@ -5863,13 +5871,13 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
       if (prototype === null) {
         object = createEmpty();
       } else {
-        if (typeof prototype !== "object" && typeof prototype !== "function") {
+        if (typeof prototype !== 'object' && typeof prototype !== 'function') {
           // In the native implementation `parent` can be `null`
           // OR *any* `instanceof Object`  (Object|Function|Array|RegExp|etc)
           // Use `typeof` tho, b/c in old IE, DOM elements are not `instanceof Object`
           // like they are in modern browsers. Using `Object.create` on DOM elements
           // is...err...probably inappropriate, but the native version allows for it.
-          throw new TypeError("Object prototype may only be an Object or null"); // same msg as Chrome
+          throw new TypeError('Object prototype may only be an Object or null'); // same msg as Chrome
         }
 
         Type.prototype = prototype;
@@ -5951,7 +5959,7 @@ enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
     try {
       var a = 5;
       var obj = {};
-      defineProperty(obj, "a", {
+      defineProperty(obj, 'a', {
         configurable: true,
         enumerable: true,
         get: function () {
@@ -5971,14 +5979,14 @@ enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
       }
 
       // check non-enumerability
-      defineProperty(obj, "a", {
+      defineProperty(obj, 'a', {
         configurable: true,
         enumerable: false,
         writable: true,
         value: true
       });
       for (var key in obj) {
-        if (key === "a") {
+        if (key === 'a') {
           return;
         }
       }
@@ -5991,7 +5999,7 @@ enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
 
       // Detects a bug in Android <3 where redefining a property without a value changes the value
       // Object.defineProperty once accessors have already been set.
-      defineProperty(obj, "a", {
+      defineProperty(obj, 'a', {
         enumerable: false
       });
       if (obj.a !== true) {
@@ -6008,12 +6016,12 @@ enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
 
   var hasES5CompliantDefineProperty = !!defineProperty;
 
-  if (hasES5CompliantDefineProperty && typeof document !== "undefined") {
+  if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
     // This is for Safari 5.0, which supports Object.defineProperty, but not
     // on DOM nodes.
     var canDefinePropertyOnDOM = (function () {
       try {
-        defineProperty(document.createElement("div"), "definePropertyOnDOM", {});
+        defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
         return true;
       } catch (e) {}
 
@@ -6024,10 +6032,10 @@ enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
       defineProperty = function (obj, keyName, desc) {
         var isNode;
 
-        if (typeof Node === "object") {
+        if (typeof Node === 'object') {
           isNode = obj instanceof Node;
         } else {
-          isNode = typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName === "string";
+          isNode = typeof obj === 'object' && typeof obj.nodeType === 'number' && typeof obj.nodeName === 'string';
         }
 
         if (isNode) {
@@ -6759,8 +6767,6 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
   'use strict';
 
-  var _toConsumableArray = function (arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } };
-
   function onBegin(current) {
     run.currentRunLoop = current;
   }
@@ -6770,17 +6776,17 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
   }
 
   // ES6TODO: should Backburner become es6?
-  var backburner = new Backburner['default'](["sync", "actions", "destroy"], {
+  var backburner = new Backburner['default'](['sync', 'actions', 'destroy'], {
     GUID_KEY: utils.GUID_KEY,
     sync: {
       before: property_events.beginPropertyChanges,
       after: property_events.endPropertyChanges
     },
-    defaultQueue: "actions",
+    defaultQueue: 'actions',
     onBegin: onBegin,
     onEnd: onEnd,
     onErrorTarget: Ember['default'],
-    onErrorMethod: "onerror"
+    onErrorMethod: 'onerror'
   });
 
   // ..........................................................
@@ -6878,12 +6884,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
 
     ```javascript
     App.RichTextEditorComponent = Ember.Component.extend({
-      initializeTinyMCE: function() {
+      initializeTinyMCE: Ember.on('didInsertElement', function() {
         tinymce.init({
           selector: '#' + this.$().prop('id'),
           setup: Ember.run.bind(this, this.setupEditor)
         });
-      }.on('didInsertElement'),
+      }),
 
       setupEditor: function(editor) {
         this.set('editor', editor);
@@ -6919,7 +6925,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
         args[_key2] = arguments[_key2];
       }
 
-      return run.join.apply(run, _toConsumableArray(curried.concat(args)));
+      return run.join.apply(run, curried.concat(args));
     };
   };
 
@@ -7090,12 +7096,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     @return {Object} Timer information for use in cancelling, see `run.cancel`.
   */
   run.once = function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
     }
 
     checkAutoRun();
-    args.unshift("actions");
+    args.unshift('actions');
     return backburner.scheduleOnce.apply(backburner, args);
   };
 
@@ -7214,8 +7220,8 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     @return {Object} Timer information for use in cancelling, see `run.cancel`.
   */
   run.next = function () {
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
     args.push(1);
@@ -7391,7 +7397,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
   // Make sure it's not an autorun during testing
   function checkAutoRun() {
     if (!run.currentRunLoop) {
-      Ember['default'].assert("You have turned on testing mode, which disabled the run-loop's autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run", !Ember['default'].testing);
+      Ember['default'].assert('You have turned on testing mode, which disabled the run-loop\'s autorun.\n                  You will need to wrap any code with asynchronous side-effects in a run', !Ember['default'].testing);
     }
   }
 
@@ -7609,7 +7615,7 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/platform/create', 
     }
   };
 
-  /**
+  /*
     @public
     @class Stream
     @namespace Ember.stream
@@ -7860,7 +7866,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   exports.concat = concat;
   exports.chain = chain;
 
-  /**
+  /*
    Check whether an object is a stream or not
 
    @public
@@ -9117,22 +9123,22 @@ enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-template-
   var compile, compileSpec;
 
   exports['default'] = function (string) {
-    if ((!compile || !compileSpec) && Ember.__loader.registry["htmlbars-compiler/compiler"]) {
-      var Compiler = requireModule("htmlbars-compiler/compiler");
+    if ((!compile || !compileSpec) && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+      var Compiler = requireModule('htmlbars-compiler/compiler');
 
       compile = Compiler.compile;
       compileSpec = Compiler.compileSpec;
     }
 
     if (!compile || !compileSpec) {
-      throw new Error("Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.");
+      throw new Error('Cannot call `precompile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `precompile`.');
     }
 
     var asObject = arguments[1] === undefined ? true : arguments[1];
     var compileFunc = asObject ? compile : compileSpec;
 
     return compileFunc(string, compileOptions['default']());
-  };
+  }
 
 });
 enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
@@ -9152,7 +9158,7 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
   };
   function registerPlugin(type, Plugin) {
     if (!plugins[type]) {
-      throw new Error("Attempting to register \"" + Plugin + "\" as \"" + type + "\" which is not a valid HTMLBars plugin type.");
+      throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
     }
 
     plugins[type].push(Plugin);
@@ -9188,9 +9194,10 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
     @class TransformEachInToHash
     @private
   */
-  function TransformEachInToHash() {
+  function TransformEachInToHash(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options || {};
   }
 
   /**
@@ -9207,7 +9214,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
       if (pluginContext.validate(node)) {
 
         if (node.program && node.program.blockParams.length) {
-          throw new Error("You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.");
+          throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
         }
 
         var removedParams = node.sexpr.params.splice(0, 2);
@@ -9218,7 +9225,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
           node.sexpr.hash = b.hash();
         }
 
-        node.sexpr.hash.pairs.push(b.pair("keyword", b.string(keyword)));
+        node.sexpr.hash.pairs.push(b.pair('keyword', b.string(keyword)));
       }
     });
 
@@ -9226,7 +9233,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   };
 
   TransformEachInToHash.prototype.validate = function TransformEachInToHash_validate(node) {
-    return (node.type === "BlockStatement" || node.type === "MustacheStatement") && node.sexpr.path.original === "each" && node.sexpr.params.length === 3 && node.sexpr.params[1].type === "PathExpression" && node.sexpr.params[1].original === "in";
+    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.sexpr.path.original === 'each' && node.sexpr.params.length === 3 && node.sexpr.params[1].type === 'PathExpression' && node.sexpr.params[1].original === 'in';
   };
 
   exports['default'] = TransformEachInToHash;
@@ -9259,9 +9266,10 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
     @private
     @class TransformWithAsToHash
   */
-  function TransformWithAsToHash() {
+  function TransformWithAsToHash(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options;
   }
 
   /**
@@ -9272,6 +9280,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
     var pluginContext = this;
     var walker = new pluginContext.syntax.Walker();
+    var moduleName = this.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
@@ -9279,6 +9288,8 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
         if (node.program && node.program.blockParams.length) {
           throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
+
+        Ember.deprecate("Using {{with}} without block syntax is deprecated. " + "Please use standard block form (`{{#with foo as |bar|}}`) " + (moduleName ? " in `" + moduleName + "` " : "") + "instead.", false, { url: "http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code" });
 
         var removedParams = node.sexpr.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -9300,13 +9311,18 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
 
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
 
-  var compile;
-  exports['default'] = function (templateString) {
+  var compile; /**
+                 Uses HTMLBars `compile` function to process a string into a compiled template.
+               
+                 This is not present in production builds.
+               
+                 @private
+                 @method compile
+                 @param {String} templateString This is the string to be compiled by HTMLBars.
+                 @param {Object} options This is an options hash to augment the compiler options.
+               */
+  exports['default'] = function (templateString, options) {
     if (!compile && Ember.__loader.registry["htmlbars-compiler/compiler"]) {
       compile = requireModule("htmlbars-compiler/compiler").compile;
     }
@@ -9315,10 +9331,10 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
       throw new Error("Cannot call `compile` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compile`.");
     }
 
-    var templateSpec = compile(templateString, compileOptions['default']());
+    var templateSpec = compile(templateString, compileOptions['default'](options));
 
     return template['default'](templateSpec);
-  };
+  }
 
 });
 enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
@@ -9330,17 +9346,23 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
   @submodule ember-template-compiler
   */
 
-  exports['default'] = function () {
+  exports['default'] = function (_options) {
     var disableComponentGeneration = true;
     
-    return {
-      revision: "Ember@1.12.0-beta.2",
+    var options = _options || {};
+    // When calling `Ember.Handlebars.compile()` a second argument of `true`
+    // had a special meaning (long since lost), this just gaurds against
+    // `options` being true, and causing an error during compilation.
+    if (options === true) {
+      options = {};
+    }
 
-      disableComponentGeneration: disableComponentGeneration,
+    options.revision = "Ember@1.12.0-beta.3";
+    options.disableComponentGeneration = disableComponentGeneration;
+    options.plugins = plugins['default'];
 
-      plugins: plugins['default']
-    };
-  };
+    return options;
+  }
 
 });
 enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, compileOptions) {
@@ -9364,17 +9386,17 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
     @method precompile
     @param {String} templateString This is the string to be compiled by HTMLBars.
   */
-  exports['default'] = function (templateString) {
-    if (!compileSpec && Ember.__loader.registry["htmlbars-compiler/compiler"]) {
-      compileSpec = requireModule("htmlbars-compiler/compiler").compileSpec;
+  exports['default'] = function (templateString, options) {
+    if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+      compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
     }
 
     if (!compileSpec) {
-      throw new Error("Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.");
+      throw new Error('Cannot call `compileSpec` without the template compiler loaded. Please load `ember-template-compiler.js` prior to calling `compileSpec`.');
     }
 
-    return compileSpec(templateString, compileOptions['default']());
-  };
+    return compileSpec(templateString, compileOptions['default'](options));
+  }
 
 });
 enifed('ember-template-compiler/system/template', ['exports'], function (exports) {
@@ -9400,7 +9422,7 @@ enifed('ember-template-compiler/system/template', ['exports'], function (exports
     templateSpec.isMethod = false;
 
     return templateSpec;
-  };
+  }
 
 });
 enifed("htmlbars-compiler",
@@ -10294,7 +10316,7 @@ enifed("htmlbars-compiler/template-compiler",
 
     function TemplateCompiler(options) {
       this.options = options || {};
-      this.revision = this.options.revision || "HTMLBars@v0.11.2";
+      this.revision = this.options.revision || "HTMLBars@v0.11.3";
       this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler();
       this.fragmentCompiler = new FragmentJavaScriptCompiler();
       this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler();
@@ -12487,7 +12509,7 @@ enifed("htmlbars-syntax/parser",
 
       if (options && options.plugins && options.plugins.ast) {
         for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
-          var plugin = new options.plugins.ast[i]();
+          var plugin = new options.plugins.ast[i](options);
 
           plugin.syntax = syntax;
 
