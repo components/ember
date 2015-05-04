@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1ab4ccb4
+ * @version   1.13.0-beta.1+canary.7ed3b69f
  */
 
 (function() {
@@ -1134,7 +1134,6 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
 
   QUnit.test("acts like a namespace", function () {
     var lookup = Ember['default'].lookup = {};
-    var app;
 
     run['default'](function () {
       app = lookup.TestApp = Application['default'].create({ rootElement: "#two", router: false });
@@ -1183,9 +1182,7 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
       });
 
       app.ApplicationView = View['default'].extend({
-        template: function () {
-          return "<h1>Hello!</h1>";
-        }
+        template: compile['default']("<h1>Hello!</h1>")
       });
     });
 
@@ -1206,9 +1203,7 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
         location: "none"
       });
 
-      app.register("template:application", function () {
-        return "<h1>Hello!</h1>";
-      });
+      app.register("template:application", compile['default']("<h1>Hello!</h1>"));
     });
 
     var router = app.__container__.lookup("router:main");
@@ -1223,9 +1218,7 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
       });
 
       app.ApplicationView = View['default'].extend({
-        render: function (buffer) {
-          buffer.push("<h1>Hello!</h1>");
-        }
+        template: compile['default']("<h1>Hello!</h1>")
       });
 
       app.ApplicationController = Controller['default'].extend();
@@ -1517,7 +1510,7 @@ enifed('ember-application/tests/system/controller_test', ['ember-runtime/control
   });
 
 });
-enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver'], function (jQuery, run, Application, DefaultResolver) {
+enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (jQuery, run, Application, DefaultResolver, compile) {
 
   'use strict';
 
@@ -1525,9 +1518,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
 
   QUnit.module("Ember.Application Dependency Injection – customResolver", {
     setup: function () {
-      function fallbackTemplate() {
-        return "<h1>Fallback</h1>";
-      }
+      var fallbackTemplate = compile['default']("<h1>Fallback</h1>");
 
       var Resolver = DefaultResolver['default'].extend({
         resolveTemplate: function (resolvable) {
@@ -2174,6 +2165,7 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
     var firstInitializerRunCount = 0;
     var secondInitializerRunCount = 0;
     var FirstApp = Application['default'].extend();
+    var firstApp, secondApp;
     FirstApp.initializer({
       name: "first",
       initialize: function (registry) {
@@ -2189,7 +2181,7 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
     });
     jQuery['default']("#qunit-fixture").html("<div id=\"first\"></div><div id=\"second\"></div>");
     run['default'](function () {
-      FirstApp.create({
+      firstApp = FirstApp.create({
         router: false,
         rootElement: "#qunit-fixture #first"
       });
@@ -2197,19 +2189,24 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
     equal(firstInitializerRunCount, 1, "first initializer only was run");
     equal(secondInitializerRunCount, 0, "first initializer only was run");
     run['default'](function () {
-      SecondApp.create({
+      secondApp = SecondApp.create({
         router: false,
         rootElement: "#qunit-fixture #second"
       });
     });
     equal(firstInitializerRunCount, 1, "second initializer only was run");
     equal(secondInitializerRunCount, 1, "second initializer only was run");
+    run['default'](function () {
+      firstApp.destroy();
+      secondApp.destroy();
+    });
   });
 
   QUnit.test("initializers are concatenated", function () {
     var firstInitializerRunCount = 0;
     var secondInitializerRunCount = 0;
     var FirstApp = Application['default'].extend();
+    var firstApp, secondApp;
     FirstApp.initializer({
       name: "first",
       initialize: function (registry) {
@@ -2227,7 +2224,7 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
 
     jQuery['default']("#qunit-fixture").html("<div id=\"first\"></div><div id=\"second\"></div>");
     run['default'](function () {
-      FirstApp.create({
+      firstApp = FirstApp.create({
         router: false,
         rootElement: "#qunit-fixture #first"
       });
@@ -2236,13 +2233,17 @@ enifed('ember-application/tests/system/initializers_test', ['ember-metal/run_loo
     equal(secondInitializerRunCount, 0, "first initializer only was run when base class created");
     firstInitializerRunCount = 0;
     run['default'](function () {
-      SecondApp.create({
+      secondApp = SecondApp.create({
         router: false,
         rootElement: "#qunit-fixture #second"
       });
     });
     equal(firstInitializerRunCount, 1, "first initializer was run when subclass created");
     equal(secondInitializerRunCount, 1, "second initializers was run when subclass created");
+    run['default'](function () {
+      firstApp.destroy();
+      secondApp.destroy();
+    });
   });
 
   QUnit.test("initializers are per-app", function () {
@@ -2569,6 +2570,8 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       var firstInitializerRunCount = 0;
       var secondInitializerRunCount = 0;
       var FirstApp = Application['default'].extend();
+      var firstApp, secondApp;
+
       FirstApp.instanceInitializer({
         name: "first",
         initialize: function (registry) {
@@ -2584,7 +2587,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       });
       jQuery['default']("#qunit-fixture").html("<div id=\"first\"></div><div id=\"second\"></div>");
       run['default'](function () {
-        FirstApp.create({
+        firstApp = FirstApp.create({
           router: false,
           rootElement: "#qunit-fixture #first"
         });
@@ -2592,19 +2595,25 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       equal(firstInitializerRunCount, 1, "first initializer only was run");
       equal(secondInitializerRunCount, 0, "first initializer only was run");
       run['default'](function () {
-        SecondApp.create({
+        secondApp = SecondApp.create({
           router: false,
           rootElement: "#qunit-fixture #second"
         });
       });
       equal(firstInitializerRunCount, 1, "second initializer only was run");
       equal(secondInitializerRunCount, 1, "second initializer only was run");
+      run['default'](function () {
+        firstApp.destroy();
+        secondApp.destroy();
+      });
     });
 
     QUnit.test("initializers are concatenated", function () {
       var firstInitializerRunCount = 0;
       var secondInitializerRunCount = 0;
       var FirstApp = Application['default'].extend();
+      var firstApp, secondApp;
+
       FirstApp.instanceInitializer({
         name: "first",
         initialize: function (registry) {
@@ -2622,7 +2631,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
 
       jQuery['default']("#qunit-fixture").html("<div id=\"first\"></div><div id=\"second\"></div>");
       run['default'](function () {
-        FirstApp.create({
+        firstApp = FirstApp.create({
           router: false,
           rootElement: "#qunit-fixture #first"
         });
@@ -2631,13 +2640,17 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       equal(secondInitializerRunCount, 0, "first initializer only was run when base class created");
       firstInitializerRunCount = 0;
       run['default'](function () {
-        SecondApp.create({
+        secondApp = SecondApp.create({
           router: false,
           rootElement: "#qunit-fixture #second"
         });
       });
       equal(firstInitializerRunCount, 1, "first initializer was run when subclass created");
       equal(secondInitializerRunCount, 1, "second initializers was run when subclass created");
+      run['default'](function () {
+        firstApp.destroy();
+        secondApp.destroy();
+      });
     });
 
     QUnit.test("initializers are per-app", function () {
@@ -2887,14 +2900,12 @@ enifed('ember-application/tests/system/logging_test', ['ember-metal/run_loop', '
     }
 
     App.register("template:application", compile['default']("{{outlet}}"));
-    App.register("template:foo", function () {
-      return "Template with custom view";
-    });
+    App.register("template:foo", compile['default']("Template with custom view"));
     App.register("view:posts", View['default'].extend({ templateName: "foo" }));
     run['default'](App, "advanceReadiness");
 
     visit("/posts").then(function () {
-      equal(logs["view:application"], 1, "expected: Should log use of default view");
+      equal(logs["view:application"], 1, "toplevel view always get an element");
       equal(logs["view:index"], undefined, "expected: Should not log when index is not present.");
       equal(logs["view:posts"], 1, "expected: Rendering posts with PostsView.");
     });
@@ -4616,7 +4627,7 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
       });
       appendView(view);
 
-      ok(view.element.firstChild.className, "large blue round", "classes are set");
+      strictEqual(view.element.firstChild.className, "large blue round", "classes are set");
     });
 
     if (isInlineIfEnabled) {
@@ -4633,12 +4644,12 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
         });
         appendView(view);
 
-        ok(view.element.firstChild.className, "large blue no-shape", "classes are set");
+        strictEqual(view.element.firstChild.className, "large blue no-shape", "classes are set");
 
         run['default'](view, view.set, "context.hasColor", false);
         run['default'](view, view.set, "context.hasShape", true);
 
-        ok(view.element.firstChild.className, "large round", "classes are updated");
+        strictEqual(view.element.firstChild.className, "large  round", "classes are updated");
       });
     }
 
@@ -4651,11 +4662,11 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
       });
       appendView(view);
 
-      ok(view.element.firstChild.className, "large small", "classes are set");
+      strictEqual(view.element.firstChild.className, "large small", "classes are set");
 
       run['default'](view, view.set, "context.size", "medium");
 
-      ok(view.element.firstChild.className, "medium", "classes are updated");
+      strictEqual(view.element.firstChild.className, "medium", "classes are updated");
     });
 
     QUnit.test("class attribute can grok concatted classes, and update", function () {
@@ -4669,11 +4680,11 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
       });
       appendView(view);
 
-      ok(view.element.firstChild.className, "btn-large pre-pre pre-post whoop", "classes are set");
+      strictEqual(view.element.firstChild.className, "btn-large pre-pre pre-post    whoop", "classes are set");
 
       run['default'](view, view.set, "context.prefix", "");
 
-      ok(view.element.firstChild.className, "btn-large -post whoop", "classes are updated");
+      strictEqual(view.element.firstChild.className, "btn-large -post    whoop", "classes are updated");
     });
 
     QUnit.test("class attribute stays in order", function () {
@@ -4687,15 +4698,15 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['ember-views/views/view', 
       appendView(view);
 
       run['default'](view, view.set, "context.showB", false);
-      run['default'](view, view.set, "context.showB", true);
+      run['default'](view, view.set, "context.showB", "b");
 
-      ok(view.element.firstChild.className, "r b a c", "classes are in the right order");
+      strictEqual(view.element.firstChild.className, "r b a c", "classes are in the right order");
     });
   
   // jscs:enable validateIndentation
 
 });
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-views/system/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (EmberView, run, EmberObject, compile, Renderer, htmlbars_test_helpers, env, utils) {
+enifed('ember-htmlbars/tests/attr_nodes/data_test', ['ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (EmberView, run, EmberObject, compile, Renderer, htmlbars_test_helpers, env, utils) {
 
   'use strict';
 
@@ -4873,7 +4884,6 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['ember-views/views/view', '
     });
 
     QUnit.test("updates fail silently after an element is destroyed", function () {
-
       var context = EmberObject['default'].create({ name: "erik" });
       view = EmberView['default'].create({
         context: context,
@@ -5165,7 +5175,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
   // jscs:enable validateIndentation
 
 });
-enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-views/attr_nodes/attr_node'], function (Ember, EmberView, compile, string, utils, attr_node) {
+enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (Ember, EmberView, compile, string, utils, attr_morph) {
 
   'use strict';
 
@@ -5202,7 +5212,7 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember
 
         utils.runAppend(view);
 
-        deepEqual(warnings, [attr_node.styleWarning]);
+        deepEqual(warnings, [attr_morph.styleWarning]);
       });
 
       QUnit.test("specifying `attributeBindings: [\"style\"]` generates a warning", function () {
@@ -5213,7 +5223,7 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['ember-metal/core', 'ember
 
         utils.runAppend(view);
 
-        deepEqual(warnings, [attr_node.styleWarning]);
+        deepEqual(warnings, [attr_morph.styleWarning]);
       });
     }
 
@@ -5382,7 +5392,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['ember-views/views/view', 
   // jscs:enable validateIndentation
 
 });
-enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', 'ember-views/views/metamorph_view', 'ember-views/views/view', 'ember-htmlbars/compat/handlebars-get', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-htmlbars/compat'], function (Ember, _MetamorphView, EmberView, handlebarsGet, system__container, utils, EmberHandlebars) {
+enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', 'ember-views/views/view', 'ember-htmlbars/compat/handlebars-get', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-htmlbars/compat'], function (Ember, EmberView, handlebarsGet, system__container, utils, EmberHandlebars) {
 
   'use strict';
 
@@ -5391,14 +5401,13 @@ enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', '
   var originalLookup = Ember['default'].lookup;
   var TemplateTests, registry, container, lookup, view;
 
-  QUnit.module("ember-htmlbars: Ember.Handlebars.get", {
+  QUnit.module("ember-htmlbars: compat - Ember.Handlebars.get", {
     setup: function () {
       Ember['default'].lookup = lookup = {};
       registry = new system__container.Registry();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
       registry.optionsForType("helper", { instantiate: false });
-      registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
     },
 
@@ -5507,7 +5516,7 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
 
   var view;
 
-  QUnit.module("ember-htmlbars: Handlebars compatible helpers", {
+  QUnit.module("ember-htmlbars: compat - Handlebars compatible helpers", {
     teardown: function () {
       utils.runDestroy(view);
 
@@ -5659,6 +5668,29 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
     equal(view.$().text(), "woot!");
   });
 
+  QUnit.test("makes helpful assertion when called with invalid arguments", function () {
+    expect(1);
+
+    var ViewHelperComponent = Component['default'].extend({
+      layout: compile['default']("woot!")
+    });
+
+    ViewHelperComponent.toString = function () {
+      return "Some Random Class";
+    };
+
+    var helper = makeViewHelper['default'](ViewHelperComponent);
+    compat__helper.registerHandlebarsCompatibleHelper("view-helper", helper);
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{view-helper \"hello\"}}")
+    }).create();
+
+    expectAssertion(function () {
+      utils.runAppend(view);
+    }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
+  });
+
   QUnit.test("does not add `options.fn` if no block was specified", function () {
     expect(1);
 
@@ -5791,7 +5823,7 @@ enifed('ember-htmlbars/tests/compat/make-view-helper_test', ['ember-views/views/
 
   var registry, container, view;
 
-  QUnit.module("ember-htmlbars: makeViewHelper compat", {
+  QUnit.module("ember-htmlbars: compat - makeViewHelper compat", {
     setup: function () {
       registry = new Registry['default']();
       container = registry.container();
@@ -5825,7 +5857,7 @@ enifed('ember-htmlbars/tests/compat/make-view-helper_test', ['ember-views/views/
   });
 
 });
-enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-views/views/simple_bound_view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (EmberView, run, EmberObject, native_array, SimpleBoundView, property_get, property_set, utils, string, EmberHandlebars) {
+enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat', 'ember-htmlbars/helpers/each'], function (EmberView, run, EmberObject, native_array, property_get, property_set, utils, string, EmberHandlebars, each) {
 
   'use strict';
 
@@ -5854,7 +5886,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
 
   function expectDeprecationInHTMLBars() {}
 
-  QUnit.module("ember-htmlbars: makeBoundHelper", {
+  QUnit.module("ember-htmlbars: compat - makeBoundHelper", {
     setup: function () {},
     teardown: function () {
       utils.runDestroy(view);
@@ -5863,8 +5895,8 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
   });
 
   QUnit.test("primitives should work correctly [DEPRECATED]", function () {
-    expectDeprecation("Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
-    expectDeprecation("Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.");
+    expectDeprecation(each.deprecation);
+    expectDeprecation("Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.");
 
     view = EmberView['default'].create({
       prims: Ember.A(["string", 12]),
@@ -5907,9 +5939,11 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
       return string.dasherize(value);
     });
 
-    view = EmberView['default'].create({
-      controller: { prop: "isThing" },
-      template: compile("<div {{bind-attr data-foo=(dasherize prop)}}>{{prop}}</div>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        controller: { prop: "isThing" },
+        template: compile("<div {{bind-attr data-foo=(dasherize prop)}}>{{prop}}</div>")
+      });
     });
 
     utils.runAppend(view);
@@ -6015,12 +6049,44 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
     equal(view.$().text(), "AB", "helper output is correct");
   });
 
-  QUnit.test("bound helpers should support bound options", function () {
+  QUnit.test("bound helpers should support bound options via `fooBinding` [DEPRECATED]", function () {
+    registerRepeatHelper();
+
+    var template;
+
+    expectDeprecation(function () {
+      template = compile("{{repeat text countBinding=\"numRepeats\"}}");
+    }, /You're using legacy binding syntax: countBinding="numRepeats"/);
+
+    view = EmberView['default'].create({
+      controller: EmberObject['default'].create({ text: "ab", numRepeats: 3 }),
+      template: template
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "ababab", "helper output is correct");
+
+    run['default'](function () {
+      view.set("controller.numRepeats", 4);
+    });
+
+    equal(view.$().text(), "abababab", "helper correctly re-rendered after bound option was changed");
+
+    run['default'](function () {
+      view.set("controller.numRepeats", 2);
+      view.set("controller.text", "YES");
+    });
+
+    equal(view.$().text(), "YESYES", "helper correctly re-rendered after both bound option and property changed");
+  });
+
+  QUnit.test("bound helpers should support bound hash options", function () {
     registerRepeatHelper();
 
     view = EmberView['default'].create({
       controller: EmberObject['default'].create({ text: "ab", numRepeats: 3 }),
-      template: compile("{{repeat text countBinding=\"numRepeats\"}}")
+      template: compile("{{repeat text count=numRepeats}}")
     });
 
     utils.runAppend(view);
@@ -6245,6 +6311,8 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
   QUnit.test("bound helpers can handle nulls in array (with primitives) [DEPRECATED]", function () {
     expectDeprecationInHTMLBars();
 
+    // The problem here is that `undefined` is treated as "use the parent scope" in yieldItem
+
     helper("reverse", function (val) {
       return val ? val.split("").reverse().join("") : "NOPE";
     });
@@ -6258,7 +6326,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(view.$().text(), "|NOPE 0|NOPE |NOPE false|NOPE OMG|GMO |NOPE 0|NOPE |NOPE false|NOPE OMG|GMO ", "helper output is correct");
 
@@ -6286,7 +6354,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(view.$().text(), "|NOPE 5|5 |NOPE 5|5 ", "helper output is correct");
 
@@ -6309,26 +6377,26 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
 
     utils.runAppend(view);
 
-    equal(view.$().text(), "alex!", "helper output is correct");
+    equal(view.$().text(), "alex!", "helper output is correct first");
 
     run['default'](function () {
       property_set.set(view, "context", "");
     });
 
-    equal(view.$().text(), "!", "helper output is correct");
+    equal(view.$().text(), "!", "helper output is correct after updating to empty");
 
     run['default'](function () {
       property_set.set(view, "context", "wallace");
     });
 
-    equal(view.$().text(), "wallace!", "helper output is correct");
+    equal(view.$().text(), "wallace!", "helper output is correct after updating to wallace");
   });
 
   QUnit.test("should have correct argument types", function () {
     expectDeprecationInHTMLBars();
 
     helper("getType", function (value) {
-      return typeof value;
+      return value === null ? "null" : typeof value;
     });
 
     view = EmberView['default'].create({
@@ -6338,53 +6406,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['ember-views/views
 
     utils.runAppend(view);
 
-    equal(view.$().text(), "undefined, undefined, string, number, object", "helper output is correct");
-  });
-
-  QUnit.test("when no parameters are bound, no new views are created", function () {
-    registerRepeatHelper();
-    var originalRender = SimpleBoundView['default'].prototype.render;
-    var renderWasCalled = false;
-    SimpleBoundView['default'].prototype.render = function () {
-      renderWasCalled = true;
-      return originalRender.apply(this, arguments);
-    };
-
-    try {
-      view = EmberView['default'].create({
-        template: compile("{{repeat \"a\"}}"),
-        controller: EmberObject['default'].create()
-      });
-      utils.runAppend(view);
-    } finally {
-      SimpleBoundView['default'].prototype.render = originalRender;
-    }
-
-    ok(!renderWasCalled, "simple bound view should not have been created and rendered");
-    equal(view.$().text(), "a");
-  });
-
-  QUnit.test("when no hash parameters are bound, no new views are created", function () {
-    registerRepeatHelper();
-    var originalRender = SimpleBoundView['default'].prototype.render;
-    var renderWasCalled = false;
-    SimpleBoundView['default'].prototype.render = function () {
-      renderWasCalled = true;
-      return originalRender.apply(this, arguments);
-    };
-
-    try {
-      view = EmberView['default'].create({
-        template: compile("{{repeat \"a\" count=3}}"),
-        controller: EmberObject['default'].create()
-      });
-      utils.runAppend(view);
-    } finally {
-      SimpleBoundView['default'].prototype.render = originalRender;
-    }
-
-    ok(!renderWasCalled, "simple bound view should not have been created and rendered");
-    equal(view.$().text(), "aaa");
+    equal(view.$().text(), "null, undefined, string, number, object", "helper output is correct");
   });
 
   // leave this empty function as a place holder to
@@ -6399,7 +6421,7 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['ember-htmlbars/compat'],
   var template = "Hello World";
   var result;
 
-  QUnit.module("ember-htmlbars: Ember.Handlebars.precompile");
+  QUnit.module("ember-htmlbars: compat - Ember.Handlebars.precompile");
 
   QUnit.test("precompile creates an object when asObject isn't defined", function () {
     result = precompile(template);
@@ -6417,7 +6439,7 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['ember-htmlbars/compat'],
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-views/attr_nodes/attr_node', 'ember-htmlbars/utils/string', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile'], function (Ember, run, Namespace, EmberView, _MetamorphView, EmberObject, native_array, computed, observer, system__container, property_set, utils, attr_node, string, helpers, compile) {
+enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-htmlbars/utils/string', 'ember-htmlbars/morphs/attr-morph', 'ember-template-compiler/system/compile'], function (Ember, run, Namespace, EmberView, EmberObject, native_array, computed, observer, system__container, property_set, utils, string, attr_morph, compile) {
 
   'use strict';
 
@@ -6436,14 +6458,13 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     If you add additional template support to View, you should create a new
     file in which to test.
   */
-  QUnit.module("ember-htmlbars: {{bind-attr}}", {
+  QUnit.module("ember-htmlbars: {{bind-attr}} [DEPRECATED]", {
     setup: function () {
       Ember['default'].lookup = lookup = {};
       lookup.TemplateTests = TemplateTests = Namespace['default'].create();
       registry = new system__container.Registry();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
-      registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
 
       warnings = [];
@@ -6467,14 +6488,14 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind element attributes using {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr src=view.content.url alt=view.content.title}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      content: EmberObject['default'].create({
-        url: "http://www.emberjs.com/assets/images/logo.png",
-        title: "The SproutCore Logo"
-      })
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr src=view.content.url alt=view.content.title}}>"),
+        content: EmberObject['default'].create({
+          url: "http://www.emberjs.com/assets/images/logo.png",
+          title: "The SproutCore Logo"
+        })
+      });
     });
 
     utils.runAppend(view);
@@ -6519,9 +6540,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind to view attributes with {{bind-attr}}", function () {
-    view = EmberView['default'].create({
-      value: "Test",
-      template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=view.value}}>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        value: "Test",
+        template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=view.value}}>")
+      });
     });
 
     utils.runAppend(view);
@@ -6535,26 +6558,30 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     equal(view.$("img").attr("alt"), "Updated", "updates value");
   });
 
-  QUnit.test("should be able to bind to globals with {{bind-attr}} (DEPRECATED)", function () {
+  QUnit.test("should be able to bind to globals with {{bind-attr}}", function () {
     TemplateTests.set("value", "Test");
 
-    view = EmberView['default'].create({
-      template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=TemplateTests.value}}>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=TemplateTests.value}}>")
+      });
     });
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, /Global lookup of TemplateTests.value from a Handlebars template is deprecated/);
+    }, /Global lookup of TemplateTests from a Handlebars template is deprecated/);
 
     equal(view.$("img").attr("alt"), "Test", "renders initial value");
   });
 
   QUnit.test("should not allow XSS injection via {{bind-attr}}", function () {
-    view = EmberView['default'].create({
-      template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=view.content.value}}>"),
-      content: {
-        value: "Trololol\" onmouseover=\"alert('HAX!');"
-      }
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img src=\"test.jpg\" {{bind-attr alt=view.content.value}}>"),
+        content: {
+          value: "Trololol\" onmouseover=\"alert('HAX!');"
+        }
+      });
     });
 
     utils.runAppend(view);
@@ -6565,14 +6592,14 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind use {{bind-attr}} more than once on an element", function () {
-    var template = compile['default']("<img {{bind-attr src=view.content.url}} {{bind-attr alt=view.content.title}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      content: EmberObject['default'].create({
-        url: "http://www.emberjs.com/assets/images/logo.png",
-        title: "The SproutCore Logo"
-      })
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr src=view.content.url}} {{bind-attr alt=view.content.title}}>"),
+        content: EmberObject['default'].create({
+          url: "http://www.emberjs.com/assets/images/logo.png",
+          title: "The SproutCore Logo"
+        })
+      });
     });
 
     utils.runAppend(view);
@@ -6616,43 +6643,17 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     equal(view.$("img").attr("alt"), "Nanananana Ember!", "updates alt attribute when title property is computed");
   });
 
-  QUnit.test("{{bindAttr}} is aliased to {{bind-attr}}", function () {
-    expect(4);
+  QUnit.test("{{bindAttr}} can be used to bind attributes", function () {
+    expect(2);
 
-    var originalBindAttr = helpers['default']["bind-attr"];
-
-    try {
-      helpers['default']["bind-attr"] = {
-        helperFunction: function () {
-          equal(arguments[0], "foo", "First arg match");
-          equal(arguments[1], "bar", "Second arg match");
-
-          return "result";
-        }
-      };
-
-      expectDeprecation(function () {
-        var result;
-
-        result = helpers['default'].bindAttr.helperFunction("foo", "bar");
-        equal(result, "result", "Result match");
-      }, "The 'bindAttr' view helper is deprecated in favor of 'bind-attr'");
-    } finally {
-      helpers['default']["bind-attr"] = originalBindAttr;
-    }
-  });
-
-  QUnit.test("{{bindAttr}} can be used to bind attributes [DEPRECATED]", function () {
-    expect(3);
-
-    view = EmberView['default'].create({
-      value: "Test",
-      template: compile['default']("<img src=\"test.jpg\" {{bindAttr alt=view.value}}>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        value: "Test",
+        template: compile['default']("<img src=\"test.jpg\" {{bindAttr alt=view.value}}>")
+      });
     });
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /The 'bindAttr' view helper is deprecated in favor of 'bind-attr'/);
+    utils.runAppend(view);
 
     equal(view.$("img").attr("alt"), "Test", "renders initial value");
 
@@ -6664,14 +6665,14 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind element attributes using {{bind-attr}} inside a block", function () {
-    var template = compile['default']("{{#with view.content as |image|}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}");
-
-    view = EmberView['default'].create({
-      template: template,
-      content: EmberObject['default'].create({
-        url: "http://www.emberjs.com/assets/images/logo.png",
-        title: "The SproutCore Logo"
-      })
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#with view.content as image}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}"),
+        content: EmberObject['default'].create({
+          url: "http://www.emberjs.com/assets/images/logo.png",
+          title: "The SproutCore Logo"
+        })
+      });
     });
 
     utils.runAppend(view);
@@ -6687,11 +6688,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind class attribute with {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr class=\"view.foo\"}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      foo: "bar"
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=\"view.foo\"}}>"),
+        foo: "bar"
+      });
     });
 
     utils.runAppend(view);
@@ -6706,11 +6707,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind unquoted class attribute with {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr class=view.foo}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      foo: "bar"
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=view.foo}}>"),
+        foo: "bar"
+      });
     });
 
     utils.runAppend(view);
@@ -6725,11 +6726,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind class attribute via a truthy property with {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr class=\"view.isNumber:is-truthy\"}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      isNumber: 5
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=\"view.isNumber:is-truthy\"}}>"),
+        isNumber: 5
+      });
     });
 
     utils.runAppend(view);
@@ -6744,11 +6745,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind class to view attribute with {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr class=\"view.foo\"}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      foo: "bar"
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=\"view.foo\"}}>"),
+        foo: "bar"
+      });
     });
 
     utils.runAppend(view);
@@ -6763,9 +6764,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should not allow XSS injection via {{bind-attr}} with class", function () {
-    view = EmberView['default'].create({
-      template: compile['default']("<img {{bind-attr class=\"view.foo\"}}>"),
-      foo: "\" onmouseover=\"alert('I am in your classes hacking your app');"
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=\"view.foo\"}}>"),
+        foo: "\" onmouseover=\"alert('I am in your classes hacking your app');"
+      });
     });
 
     try {
@@ -6776,14 +6779,15 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind class attribute using ternary operator in {{bind-attr}}", function () {
-    var template = compile['default']("<img {{bind-attr class=\"view.content.isDisabled:disabled:enabled\"}} />");
     var content = EmberObject['default'].create({
       isDisabled: true
     });
 
-    view = EmberView['default'].create({
-      template: template,
-      content: content
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr class=\"view.content.isDisabled:disabled:enabled\"}} />"),
+        content: content
+      });
     });
 
     utils.runAppend(view);
@@ -6800,7 +6804,6 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to add multiple classes using {{bind-attr class}}", function () {
-    var template = compile['default']("<div {{bind-attr class=\"view.content.isAwesomeSauce view.content.isAlsoCool view.content.isAmazing:amazing :is-super-duper view.content.isEnabled:enabled:disabled\"}}></div>");
     var content = EmberObject['default'].create({
       isAwesomeSauce: true,
       isAlsoCool: true,
@@ -6808,9 +6811,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
       isEnabled: true
     });
 
-    view = EmberView['default'].create({
-      template: template,
-      content: content
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<div {{bind-attr class=\"view.content.isAwesomeSauce view.content.isAlsoCool view.content.isAmazing:amazing :is-super-duper view.content.isEnabled:enabled:disabled\"}}></div>"),
+        content: content
+      });
     });
 
     utils.runAppend(view);
@@ -6835,29 +6840,33 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     ok(view.$("div").hasClass("disabled"), "falsy class in ternary classname definition is rendered");
   });
 
-  QUnit.test("should be able to bind classes to globals with {{bind-attr class}} (DEPRECATED)", function () {
+  QUnit.test("should be able to bind classes to globals with {{bind-attr class}}", function () {
     TemplateTests.set("isOpen", true);
 
-    view = EmberView['default'].create({
-      template: compile['default']("<img src=\"test.jpg\" {{bind-attr class=\"TemplateTests.isOpen\"}}>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img src=\"test.jpg\" {{bind-attr class=\"TemplateTests.isOpen\"}}>")
+      });
     });
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, /Global lookup of TemplateTests.isOpen from a Handlebars template is deprecated/);
+    }, /Global lookup of TemplateTests from a Handlebars template is deprecated/);
 
     ok(view.$("img").hasClass("is-open"), "sets classname to the dasherized value of the global property");
   });
 
-  QUnit.test("should be able to bind-attr to 'this' in an {{#each}} block [DEPRECATED]", function () {
-    expectDeprecation("Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
-
-    view = EmberView['default'].create({
-      template: compile['default']("{{#each view.images}}<img {{bind-attr src=this}}>{{/each}}"),
-      images: native_array.A(["one.png", "two.jpg", "three.gif"])
+  QUnit.test("should be able to bind-attr to 'this' in an {{#each}} block", function () {
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#each view.images}}<img {{bind-attr src=this}}>{{/each}}"),
+        images: native_array.A(["one.png", "two.jpg", "three.gif"])
+      });
     });
 
-    utils.runAppend(view);
+    ignoreDeprecation(function () {
+      utils.runAppend(view);
+    });
 
     var images = view.$("img");
     ok(/one\.png$/.test(images[0].src));
@@ -6865,15 +6874,17 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
     ok(/three\.gif$/.test(images[2].src));
   });
 
-  QUnit.test("should be able to bind classes to 'this' in an {{#each}} block with {{bind-attr class}} [DEPRECATED]", function () {
-    expectDeprecation("Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
-
-    view = EmberView['default'].create({
-      template: compile['default']("{{#each view.items}}<li {{bind-attr class=\"this\"}}>Item</li>{{/each}}"),
-      items: native_array.A(["a", "b", "c"])
+  QUnit.test("should be able to bind classes to 'this' in an {{#each}} block with {{bind-attr class}}", function () {
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#each view.items}}<li {{bind-attr class=\"this\"}}>Item</li>{{/each}}"),
+        items: native_array.A(["a", "b", "c"])
+      });
     });
 
-    utils.runAppend(view);
+    ignoreDeprecation(function () {
+      utils.runAppend(view);
+    });
 
     ok(view.$("li").eq(0).hasClass("a"), "sets classname to the value of the first item");
     ok(view.$("li").eq(1).hasClass("b"), "sets classname to the value of the second item");
@@ -6881,9 +6892,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should be able to bind-attr to var in {{#each var in list}} block", function () {
-    view = EmberView['default'].create({
-      template: compile['default']("{{#each image in view.images}}<img {{bind-attr src=image}}>{{/each}}"),
-      images: native_array.A(["one.png", "two.jpg", "three.gif"])
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#each image in view.images}}<img {{bind-attr src=image}}>{{/each}}"),
+        images: native_array.A(["one.png", "two.jpg", "three.gif"])
+      });
     });
 
     utils.runAppend(view);
@@ -6905,9 +6918,11 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should teardown observers from bind-attr on rerender", function () {
-    view = EmberView['default'].create({
-      template: compile['default']("<span {{bind-attr class=\"view.foo\" name=view.foo}}>wat</span>"),
-      foo: "bar"
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<span {{bind-attr class=\"view.foo\" name=view.foo}}>wat</span>"),
+        foo: "bar"
+      });
     });
 
     utils.runAppend(view);
@@ -6922,8 +6937,10 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should keep class in the order it appears in", function () {
-    view = EmberView['default'].create({
-      template: compile['default']("<span {{bind-attr class=\":foo :baz\"}}></span>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<span {{bind-attr class=\":foo :baz\"}}></span>")
+      });
     });
 
     utils.runAppend(view);
@@ -6932,10 +6949,12 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   });
 
   QUnit.test("should allow either quoted or unquoted values", function () {
-    view = EmberView['default'].create({
-      value: "Test",
-      source: "test.jpg",
-      template: compile['default']("<img {{bind-attr alt=\"view.value\" src=view.source}}>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        value: "Test",
+        source: "test.jpg",
+        template: compile['default']("<img {{bind-attr alt=\"view.value\" src=view.source}}>")
+      });
     });
 
     utils.runAppend(view);
@@ -6954,45 +6973,40 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
   QUnit.test("property before didInsertElement", function () {
     var matchingElement;
-    view = EmberView['default'].create({
-      name: "bob",
-      template: compile['default']("<div {{bind-attr alt=view.name}}></div>"),
-      didInsertElement: function () {
-        matchingElement = this.$("div[alt=bob]");
-      }
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        name: "bob",
+        template: compile['default']("<div {{bind-attr alt=view.name}}></div>"),
+        didInsertElement: function () {
+          matchingElement = this.$("div[alt=bob]");
+        }
+      });
     });
     utils.runAppend(view);
     equal(matchingElement.length, 1, "element is in the DOM when didInsertElement");
   });
 
   QUnit.test("asserts for <div class='foo' {{bind-attr class='bar'}}></div>", function () {
-    var template = compile['default']("<div class=\"foo\" {{bind-attr class=view.foo}}></div>");
-
-    view = EmberView['default'].create({
-      template: template,
-      foo: "bar"
+    ignoreDeprecation(function () {
+      expectAssertion(function () {
+        compile['default']("<div class=\"foo\" {{bind-attr class=view.foo}}></div>");
+      }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
     });
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
   });
 
   QUnit.test("asserts for <div data-bar='foo' {{bind-attr data-bar='blah'}}></div>", function () {
-    var template = compile['default']("<div data-bar=\"foo\" {{bind-attr data-bar=view.blah}}></div>");
-
-    view = EmberView['default'].create({
-      template: template,
-      blah: "bar"
+    ignoreDeprecation(function () {
+      expectAssertion(function () {
+        compile['default']("<div data-bar=\"foo\" {{bind-attr data-bar=view.blah}}></div>");
+      }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
     });
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
   });
 
   QUnit.test("src attribute bound to undefined is empty", function () {
-    var template = compile['default']("<img {{bind-attr src=view.undefinedValue}}>");
+    var template;
+    ignoreDeprecation(function () {
+      template = compile['default']("<img {{bind-attr src=view.undefinedValue}}>");
+    });
 
     view = EmberView['default'].create({
       template: template,
@@ -7001,24 +7015,27 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
 
     utils.runAppend(view);
 
-    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
+    ok(!view.element.firstChild.hasAttribute("src"), "src attribute is empty");
   });
 
-  QUnit.test("src attribute bound to null is empty", function () {
-    var template = compile['default']("<img {{bind-attr src=view.nullValue}}>");
-
-    view = EmberView['default'].create({
-      template: template,
-      nullValue: null
+  QUnit.test("src attribute bound to null is not present", function () {
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("<img {{bind-attr src=view.nullValue}}>"),
+        nullValue: null
+      });
     });
 
     utils.runAppend(view);
 
-    equal(view.element.firstChild.getAttribute("src"), "", "src attribute is empty");
+    equal(view.element.firstChild.getAttribute("src"), null, "src attribute is empty");
   });
 
   QUnit.test("src attribute will be cleared when the value is set to null or undefined", function () {
-    var template = compile['default']("<img {{bind-attr src=view.value}}>");
+    var template;
+    ignoreDeprecation(function () {
+      template = compile['default']("<img {{bind-attr src=view.value}}>");
+    });
 
     view = EmberView['default'].create({
       template: template,
@@ -7057,21 +7074,31 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   if (!EmberDev.runningProdBuild) {
 
     QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` triggers a warning", function () {
+      var template;
+      ignoreDeprecation(function () {
+        template = compile['default']("<div {{bind-attr style=view.userValue}}></div>");
+      });
+
       view = EmberView['default'].create({
-        userValue: "42",
-        template: compile['default']("<div {{bind-attr style=view.userValue}}></div>")
+        template: template,
+        userValue: "42"
       });
 
       utils.runAppend(view);
 
-      deepEqual(warnings, [attr_node.styleWarning]);
+      deepEqual(warnings, [attr_morph.styleWarning]);
     });
   }
 
   QUnit.test("specifying `<div {{bind-attr style=userValue}}></div>` works properly with a SafeString", function () {
+    var template;
+    ignoreDeprecation(function () {
+      template = compile['default']("<div {{bind-attr style=view.userValue}}></div>");
+    });
+
     view = EmberView['default'].create({
-      userValue: new string.SafeString("42"),
-      template: compile['default']("<div {{bind-attr style=view.userValue}}></div>")
+      template: template,
+      userValue: new string.SafeString("42")
     });
 
     utils.runAppend(view);
@@ -7110,7 +7137,6 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       container = registry.container();
 
       registry.optionsForType("template", { instantiate: false });
-      // registry.register('view:default', _MetamorphView);
       registry.register("view:toplevel", EmberView['default'].extend());
     },
 
@@ -7155,7 +7181,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       template: compile['default']("{{#collection content=view.exampleController itemViewClass=TemplateTests.ExampleItemView}}beta{{/collection}}")
     });
 
-    var deprecation = /Global lookup of TemplateTests.ExampleItemView from a Handlebars template is deprecated/;
+    var deprecation = /Global lookup of TemplateTests from a Handlebars template is deprecated/;
     expectDeprecation(function () {
       utils.runAppend(view);
     }, deprecation);
@@ -7230,9 +7256,8 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
 
     registry.register("view:collectionTest", ACollectionView);
 
-    var controller = { container: container };
     view = EmberView['default'].create({
-      controller: controller,
+      container: container,
       template: compile['default']("{{#collection \"collectionTest\"}} <label></label> {{/collection}}")
     });
 
@@ -7287,6 +7312,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
   });
 
   QUnit.test("should be able to specify which class should be used for the empty view", function () {
+    var registry = new system__container.Registry();
     var App;
 
     run['default'](function () {
@@ -7297,12 +7323,10 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       template: compile['default']("This is an empty view")
     });
 
+    registry.register("view:empty-view", EmptyView);
+
     view = EmberView['default'].create({
-      container: {
-        lookupFactory: function () {
-          return EmptyView;
-        }
-      },
+      container: registry.container(),
       template: compile['default']("{{collection emptyViewClass=\"empty-view\"}}")
     });
 
@@ -7424,7 +7448,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
     equal(view.$("ul li.baz").length, 3, "adds class attribute");
   });
 
-  QUnit.test("should give its item views the class specified by itemClass", function () {
+  QUnit.test("should give its item views the class specified by itemClass binding", function () {
     var ItemClassBindingTestCollectionView = CollectionView['default'].extend({
       tagName: "ul",
       content: native_array.A([EmberObject['default'].create({ isBaz: false }), EmberObject['default'].create({ isBaz: true }), EmberObject['default'].create({ isBaz: true })])
@@ -7445,20 +7469,20 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
   });
 
   QUnit.test("should give its item views the property specified by itemProperty", function () {
+    var registry = new system__container.Registry();
+
     var ItemPropertyBindingTestItemView = EmberView['default'].extend({
       tagName: "li"
     });
+
+    registry.register("view:item-property-binding-test-item-view", ItemPropertyBindingTestItemView);
 
     // Use preserveContext=false so the itemView handlebars context is the view context
     // Set itemView bindings using item*
     view = EmberView['default'].create({
       baz: "baz",
       content: native_array.A([EmberObject['default'].create(), EmberObject['default'].create(), EmberObject['default'].create()]),
-      container: {
-        lookupFactory: function () {
-          return ItemPropertyBindingTestItemView;
-        }
-      },
+      container: registry.container(),
       template: compile['default']("{{#collection content=view.content tagName=\"ul\" itemViewClass=\"item-property-binding-test-item-view\" itemProperty=view.baz preserveContext=false}}{{view.property}}{{/collection}}")
     });
 
@@ -7476,38 +7500,6 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
 
     equal(view.$("ul li:first").text(), "yobaz", "change property of sub view");
   });
-
-  QUnit.test("should unsubscribe stream bindings", function () {
-    view = EmberView['default'].create({
-      baz: "baz",
-      content: native_array.A([EmberObject['default'].create(), EmberObject['default'].create(), EmberObject['default'].create()]),
-      template: compile['default']("{{#collection content=view.content itemProperty=view.baz}}{{view.property}}{{/collection}}")
-    });
-
-    utils.runAppend(view);
-
-    var barStreamBinding = view._streamBindings["view.baz"];
-
-    equal(countSubscribers(barStreamBinding), 3, "adds 3 subscribers");
-
-    run['default'](function () {
-      view.get("content").popObject();
-    });
-
-    equal(countSubscribers(barStreamBinding), 2, "removes 1 subscriber");
-  });
-
-  function countSubscribers(stream) {
-    var count = 0;
-    var subscriber = stream.subscriberHead;
-
-    while (subscriber) {
-      count++;
-      subscriber = subscriber.next;
-    }
-
-    return count;
-  }
 
   QUnit.test("should work inside a bound {{#if}}", function () {
     var testData = native_array.A([EmberObject['default'].create({ isBaz: false }), EmberObject['default'].create({ isBaz: true }), EmberObject['default'].create({ isBaz: true })]);
@@ -7549,7 +7541,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.");
 
     equal(view.$().text(), "Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ", "prints each item in sequence");
   });
@@ -7694,7 +7686,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
       var ExampleCollectionView = CollectionView['default'].extend({
         contentBinding: "parentView.items",
         tagName: "ul",
-        template: compile['default']("{{view.content}}")
+        _itemViewTemplate: compile['default']("{{view.content}}")
       });
 
       var ReportingView = EmberView['default'].extend({
@@ -7786,8 +7778,8 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
     });
 
     QUnit.test("component helper with unquoted string is bound", function () {
-      registry.register("template:components/foo-bar", compile['default']("yippie! {{location}} {{yield}}"));
-      registry.register("template:components/baz-qux", compile['default']("yummy {{location}} {{yield}}"));
+      registry.register("template:components/foo-bar", compile['default']("yippie! {{attrs.location}} {{yield}}"));
+      registry.register("template:components/baz-qux", compile['default']("yummy {{attrs.location}} {{yield}}"));
 
       view = EmberView['default'].create({
         container: container,
@@ -7864,9 +7856,9 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
     });
 
     QUnit.test("nested component helpers", function () {
-      registry.register("template:components/foo-bar", compile['default']("yippie! {{location}} {{yield}}"));
-      registry.register("template:components/baz-qux", compile['default']("yummy {{location}} {{yield}}"));
-      registry.register("template:components/corge-grault", compile['default']("delicious {{location}} {{yield}}"));
+      registry.register("template:components/foo-bar", compile['default']("yippie! {{attrs.location}} {{yield}}"));
+      registry.register("template:components/baz-qux", compile['default']("yummy {{attrs.location}} {{yield}}"));
+      registry.register("template:components/corge-grault", compile['default']("delicious {{attrs.location}} {{yield}}"));
 
       view = EmberView['default'].create({
         container: container,
@@ -7887,7 +7879,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
     });
 
     QUnit.test("component helper can be used with a quoted string (though you probably would not do this)", function () {
-      registry.register("template:components/foo-bar", compile['default']("yippie! {{location}} {{yield}}"));
+      registry.register("template:components/foo-bar", compile['default']("yippie! {{attrs.location}} {{yield}}"));
 
       view = EmberView['default'].create({
         container: container,
@@ -7908,13 +7900,13 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
         template: compile['default']("{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}")
       });
 
-      throws(function () {
+      expectAssertion(function () {
         utils.runAppend(view);
-      }, /HTMLBars error: Could not find component named "does-not-exist"./);
+      }, /HTMLBars error: Could not find component named "does-not-exist"./, "Expected missing component to generate an exception");
     });
 
     QUnit.test("component with unquoted param resolving to a component, then non-existent component", function () {
-      registry.register("template:components/foo-bar", compile['default']("yippie! {{location}} {{yield}}"));
+      registry.register("template:components/foo-bar", compile['default']("yippie! {{attrs.location}} {{yield}}"));
       view = EmberView['default'].create({
         container: container,
         dynamicComponent: "foo-bar",
@@ -7940,7 +7932,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
         template: compile['default']("{{#component \"does-not-exist\" location=view.location}}arepas!{{/component}}")
       });
 
-      throws(function () {
+      expectAssertion(function () {
         utils.runAppend(view);
       }, /HTMLBars error: Could not find component named "does-not-exist"./);
     });
@@ -8016,7 +8008,7 @@ enifed('ember-htmlbars/tests/helpers/debug_test', ['ember-metal/core', 'ember-me
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/metamorph_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (Ember, EmberObject, run, EmberView, _MetamorphView, computed, ArrayController, native_array, EmberController, ObjectController, system__container, property_get, property_set, utils, compile) {
+enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (Ember, EmberObject, run, EmberView, LegacyEachView, computed, ArrayController, native_array, EmberController, ObjectController, system__container, property_get, property_set, utils, compile, each) {
 
   'use strict';
 
@@ -8089,8 +8081,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       registry = new system__container.Registry();
       container = registry.container();
 
-      registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
+      registry.register("view:-legacy-each", LegacyEachView['default']);
 
       view = EmberView['default'].create({
         container: container,
@@ -8102,15 +8094,17 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       lookup.MyView = MyView = EmberView['default'].extend({
         template: templateMyView
       });
+      registry.register("view:my-view", MyView);
 
       templateMyEmptyView = templateFor("I'm empty");
       lookup.MyEmptyView = MyEmptyView = EmberView['default'].extend({
         template: templateMyEmptyView
       });
+      registry.register("view:my-empty-view", MyEmptyView);
 
       expectDeprecation(function () {
         utils.runAppend(view);
-      }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+      }, each.deprecation);
     },
 
     teardown: function () {
@@ -8266,7 +8260,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     view = EmberView['default'].create({
       container: container,
-      template: templateFor("{{#each value in view.content}}{{value}}-{{#each option in view.options}}{{option.value}}:{{option.label}} {{/each}}{{/each}}"),
+      template: templateFor("{{#each view.content as |value|}}{{value}}-{{#each view.options as |option|}}{{option.value}}:{{option.label}} {{/each}}{{/each}}"),
 
       content: native_array.A(["X", "Y"]),
       options: native_array.A([{ label: "One", value: 1 }, { label: "Two", value: 2 }])
@@ -8367,7 +8361,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     assertText(view, "controller:Trek Glowackicontroller:Geoffrey Grosenbach");
 
-    strictEqual(view._childViews[0]._arrayController.get("target"), parentController, "the target property of the child controllers are set correctly");
+    strictEqual(view.childViews[0].get("_arrayController.target"), parentController, "the target property of the child controllers are set correctly");
   });
 
   QUnit.test("itemController specified in template gets a parentController property", function () {
@@ -8523,18 +8517,17 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     });
 
     registry.register("view:an-item-view", itemView);
-    registry.resolve = function (fullname) {
-      equal(fullname, "view:an-item-view", "leaves fullname untouched");
-      return system__container.Registry.prototype.resolve.call(this, fullname);
-    };
     utils.runAppend(view);
+
+    assertText(view, "itemView:Steve HoltitemView:Annabelle");
   });
 
   QUnit.test("it supports {{itemViewClass=}} with global (DEPRECATED)", function () {
     utils.runDestroy(view);
     view = EmberView['default'].create({
       template: templateFor("{{each view.people itemViewClass=MyView}}"),
-      people: people
+      people: people,
+      container: container
     });
 
     var deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
@@ -8549,12 +8542,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   QUnit.test("it supports {{itemViewClass=}} via container", function () {
     utils.runDestroy(view);
     view = EmberView['default'].create({
-      container: {
-        lookupFactory: function (name) {
-          equal(name, "view:my-view");
-          return MyView;
-        }
-      },
+      container: container,
       template: templateFor("{{each view.people itemViewClass=\"my-view\"}}"),
       people: people
     });
@@ -8568,10 +8556,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     utils.runDestroy(view);
     view = EmberView['default'].create({
       template: templateFor("{{each view.people itemViewClass=MyView tagName=\"ul\"}}"),
-      people: people
+      people: people,
+      container: container
     });
-
-    expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
 
     utils.runAppend(view);
     equal(view.$("ul").length, 1, "rendered ul tag");
@@ -8580,19 +8567,14 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   });
 
   QUnit.test("it supports {{itemViewClass=}} with in format", function () {
-
     MyView = EmberView['default'].extend({
       template: templateFor("{{person.name}}")
     });
 
     utils.runDestroy(view);
     view = EmberView['default'].create({
-      container: {
-        lookupFactory: function (name) {
-          return MyView;
-        }
-      },
-      template: templateFor("{{each person in view.people itemViewClass=\"myView\"}}"),
+      container: registry.container(),
+      template: templateFor("{{each person in view.people itemViewClass=\"my-view\"}}"),
       people: people
     });
 
@@ -8636,12 +8618,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     registry.register("view:an-empty-view", emptyView);
 
-    registry.resolve = function (fullname) {
-      equal(fullname, "view:an-empty-view", "leaves fullname untouched");
-      return system__container.Registry.prototype.resolve.call(this, fullname);
-    };
-
     utils.runAppend(view);
+
+    assertText(view, "emptyView:sad panda");
   });
 
   QUnit.test("it supports {{emptyViewClass=}} with global (DEPRECATED)", function () {
@@ -8649,7 +8628,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     view = EmberView['default'].create({
       template: templateFor("{{each view.people emptyViewClass=MyEmptyView}}"),
-      people: native_array.A()
+      people: native_array.A(),
+      container: container
     });
 
     var deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
@@ -8665,12 +8645,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     utils.runDestroy(view);
 
     view = EmberView['default'].create({
-      container: {
-        lookupFactory: function (name) {
-          equal(name, "view:my-empty-view");
-          return MyEmptyView;
-        }
-      },
+      container: container,
       template: templateFor("{{each view.people emptyViewClass=\"my-empty-view\"}}"),
       people: native_array.A()
     });
@@ -8685,10 +8660,9 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     view = EmberView['default'].create({
       template: templateFor("{{each view.people emptyViewClass=MyEmptyView tagName=\"b\"}}"),
-      people: native_array.A()
+      people: native_array.A(),
+      container: container
     });
-
-    expectDeprecation(/Supplying a tagName to Metamorph views is unreliable and is deprecated./);
 
     utils.runAppend(view);
 
@@ -8700,12 +8674,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     utils.runDestroy(view);
 
     view = EmberView['default'].create({
-      container: {
-        lookupFactory: function (name) {
-          return MyEmptyView;
-        }
-      },
-      template: templateFor("{{each person in view.people emptyViewClass=\"myEmptyView\"}}"),
+      container: container,
+      template: templateFor("{{each person in view.people emptyViewClass=\"my-empty-view\"}}"),
       people: native_array.A()
     });
 
@@ -8764,7 +8734,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -8779,7 +8749,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -8789,12 +8759,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     view = EmberView['default'].create({
       controller: native_array.A([{ name: "Adam" }, { name: "Steve" }]),
-      template: templateFor("{{#each}}{{name}}{{/each}}")
+      template: templateFor("{{#each}}{{name}}{{/each}}"),
+      container: container
     });
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(view.$().text(), "AdamSteve");
   });
@@ -8805,8 +8776,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
         registry = new system__container.Registry();
         container = registry.container();
 
-        registry.register("view:default", _MetamorphView['default']);
         registry.register("view:toplevel", EmberView['default'].extend());
+        registry.register("view:-legacy-each", LegacyEachView['default']);
       },
       teardown: function () {
         utils.runDestroy(container);
@@ -8883,7 +8854,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function () {
           utils.runAppend(view);
-        }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+        }, each.deprecation);
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -8924,6 +8895,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       });
 
       registry = new system__container.Registry();
+      registry.register("view:-legacy-each", LegacyEachView['default']);
       container = registry.container();
 
       people = native_array.A([{ name: "Steve Holt" }, { name: "Annabelle" }]);
@@ -8960,7 +8932,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
       assertText(view, "controller:parentController - controller:Trek Glowacki - controller:parentController - controller:Geoffrey Grosenbach - ");
 
-      strictEqual(view._childViews[0]._arrayController.get("target"), parentController, "the target property of the child controllers are set correctly");
+      strictEqual(view.childViews[0].get("_arrayController.target"), parentController, "the target property of the child controllers are set correctly");
     });
 
     QUnit.test("itemController specified in ArrayController with name binding does not change context", function () {
@@ -8978,6 +8950,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
         controllerName: "controller:people"
       });
       registry = new system__container.Registry();
+      registry.register("view:-legacy-each", LegacyEachView['default']);
       container = registry.container();
 
       registry.register("controller:people", PeopleController);
@@ -8994,6 +8967,33 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       equal(view.$().text(), "controller:people - controller:Steve Holt of Yapp - controller:people - controller:Annabelle of Yapp - ");
     });
 
+    QUnit.test("locals in stable loops update when the list is updated", function () {
+      expect(3);
+
+      var list = [{ key: "adam", name: "Adam" }, { key: "steve", name: "Steve" }];
+      view = EmberView['default'].create({
+        queries: list,
+        template: templateFor("{{#each view.queries key=\"key\" as |query|}}{{query.name}}{{/each}}", true)
+      });
+      utils.runAppend(view);
+      equal(view.$().text(), "AdamSteve");
+
+      run['default'](function () {
+        list.unshift({ key: "bob", name: "Bob" });
+        view.set("queries", list);
+        view.notifyPropertyChange("queries");
+      });
+
+      equal(view.$().text(), "BobAdamSteve");
+
+      run['default'](function () {
+        view.set("queries", [{ key: "bob", name: "Bob" }, { key: "steve", name: "Steve" }]);
+        view.notifyPropertyChange("queries");
+      });
+
+      equal(view.$().text(), "BobSteve");
+    });
+
     if (!useBlockParams) {
       QUnit.test("{{each}} without arguments [DEPRECATED]", function () {
         expect(2);
@@ -9005,7 +9005,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function () {
           utils.runAppend(view);
-        }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+        }, each.deprecation);
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -9020,7 +9020,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
         expectDeprecation(function () {
           utils.runAppend(view);
-        }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+        }, each.deprecation);
 
         equal(view.$().text(), "AdamSteve");
       });
@@ -9055,7 +9055,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   testEachWithItem("{{#each bar as |foo|}}", true);
 
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-views/views/metamorph_view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, _MetamorphView, compile, property_set, string, utils, enumerable_utils, tests__utils) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, compile, property_set, string, utils, enumerable_utils, tests__utils) {
 
   'use strict';
 
@@ -9070,7 +9070,6 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
       registry = new system__container.Registry();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
-      registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
     },
 
@@ -9255,53 +9254,26 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
     equal(view.$().text(), "");
   });
 
-  QUnit.test("The `if` helper ignores a controller option", function () {
-    var lookupCalled = false;
-
-    view = EmberView['default'].create({
-      container: {
-        lookup: function () {
-          lookupCalled = true;
-        }
-      },
-      truthy: true,
-
-      template: compile['default']("{{#if view.truthy controller=\"foo\"}}Yep{{/if}}")
-    });
-
-    tests__utils.runAppend(view);
-
-    equal(lookupCalled, false, "controller option should NOT be used");
-  });
-
   QUnit.test("should not rerender if truthiness does not change", function () {
-    var renderCount = 0;
-
     view = EmberView['default'].create({
       template: compile['default']("<h1 id=\"first\">{{#if view.shouldDisplay}}{{view view.InnerViewClass}}{{/if}}</h1>"),
 
       shouldDisplay: true,
 
       InnerViewClass: EmberView['default'].extend({
-        template: compile['default']("bam"),
-
-        render: function () {
-          renderCount++;
-          return this._super.apply(this, arguments);
-        }
+        template: compile['default']("bam")
       })
     });
 
     tests__utils.runAppend(view);
 
-    equal(renderCount, 1, "precond - should have rendered once");
     equal(view.$("#first").text(), "bam", "renders block when condition is true");
+    equal(view.$("#first div").text(), "bam", "inserts a div into the DOM");
 
     run['default'](function () {
       property_set.set(view, "shouldDisplay", 1);
     });
 
-    equal(renderCount, 1, "should not have rerendered");
     equal(view.$("#first").text(), "bam", "renders block when condition is true");
   });
 
@@ -9328,7 +9300,6 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
       });
 
       equal(view.$("h1").text(), "Eat your vegetables", string.fmt("renders block when conditional is \"%@\"; %@", [String(val), utils.typeOf(val)]));
-
       run['default'](function () {
         property_set.set(view, "onDrugs", true);
       });
@@ -9431,7 +9402,10 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
 
   QUnit.test("views within an if statement should be sane on re-render", function () {
     view = EmberView['default'].create({
-      template: compile['default']("{{#if view.display}}{{input}}{{/if}}"),
+      template: compile['default']("{{#if view.display}}{{view view.MyView}}{{/if}}"),
+      MyView: Ember.View.extend({
+        tagName: "input"
+      }),
       display: false
     });
 
@@ -9640,8 +9614,8 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
     });
 
     // TODO: Priority Queue, for now ensure correct result.
-    //ok(!childCreated, 'child should not be created');
-    ok(child.isDestroyed, "child should be gone");
+    ok(!childCreated, "child should not be created");
+    //ok(child.isDestroyed, 'child should be gone');
     equal(view.$().text(), "");
   });
 
@@ -9930,15 +9904,25 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
   
 
 });
-enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (run, property_set, View, utils, compile) {
+enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox'], function (run, property_set, View, utils, compile, Registry, ComponentLookup, TextField, Checkbox) {
 
   'use strict';
 
   var view;
-  var controller;
+  var controller, registry, container;
+
+  function commonSetup() {
+    registry = new Registry['default']();
+    registry.register("component:-text-field", TextField['default']);
+    registry.register("component:-checkbox", Checkbox['default']);
+    registry.register("component-lookup:main", ComponentLookup['default']);
+    container = registry.container();
+  }
 
   QUnit.module("{{input type='text'}}", {
     setup: function () {
+      commonSetup();
+
       controller = {
         val: "hello",
         place: "Enter some text",
@@ -9949,6 +9933,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
       };
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=\"text\" disabled=disabled value=val placeholder=place name=name maxlength=max size=size tabindex=tab}}")
       }).create();
@@ -9977,8 +9962,13 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("input value is updated when setting value property of view", function () {
     equal(view.$("input").val(), "hello", "renders text field with value");
+
+    var id = view.$("input").prop("id");
+
     run['default'](null, property_set.set, controller, "val", "bye!");
     equal(view.$("input").val(), "bye!", "updates text field after value changes");
+
+    equal(view.$("input").prop("id"), id, "the component hasn't changed");
   });
 
   QUnit.test("input placeholder is updated when setting placeholder property of view", function () {
@@ -10020,10 +10010,10 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     // set the cursor position to 3 (no selection)
     run['default'](function () {
       input.value = "derp";
+      view.childViews[0]._elementValueDidChange();
       input.selectionStart = 3;
       input.selectionEnd = 3;
     });
-
     run['default'](null, property_set.set, controller, "val", "derp");
 
     equal(view.$("input").val(), "derp", "updates text field after value changes");
@@ -10054,9 +10044,12 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type='text'}} - static values", {
     setup: function () {
+      commonSetup();
+
       controller = {};
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=\"text\" disabled=true value=\"hello\" placeholder=\"Enter some text\" name=\"some-name\" maxlength=30 size=30 tabindex=5}}")
       }).create();
@@ -10103,11 +10096,14 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type='text'}} - dynamic type", {
     setup: function () {
+      commonSetup();
+
       controller = {
         someProperty: "password"
       };
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=someProperty}}")
       }).create();
@@ -10124,11 +10120,24 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     equal(view.$("input").attr("type"), "password", "a bound property can be used to determine type.");
   });
 
+  QUnit.test("should change if the type changes", function () {
+    equal(view.$("input").attr("type"), "password", "a bound property can be used to determine type.");
+
+    run['default'](function () {
+      property_set.set(controller, "someProperty", "text");
+    });
+
+    equal(view.$("input").attr("type"), "text", "it changes after the type changes");
+  });
+
   QUnit.module("{{input}} - default type", {
     setup: function () {
+      commonSetup();
+
       controller = {};
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input}}")
       }).create();
@@ -10147,6 +10156,8 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type='checkbox'}}", {
     setup: function () {
+      commonSetup();
+
       controller = {
         tab: 6,
         name: "hello",
@@ -10154,6 +10165,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
       };
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=\"checkbox\" disabled=disabled tabindex=tab name=name checked=val}}")
       }).create();
@@ -10196,7 +10208,10 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type='checkbox'}} - prevent value= usage", {
     setup: function () {
+      commonSetup();
+
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=\"checkbox\" disabled=disabled tabindex=tab name=name value=val}}")
       }).create();
@@ -10215,12 +10230,15 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type=boundType}}", {
     setup: function () {
+      commonSetup();
+
       controller = {
         inputType: "checkbox",
         isChecked: true
       };
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=inputType checked=isChecked}}")
       }).create();
@@ -10245,6 +10263,8 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.module("{{input type='checkbox'}} - static values", {
     setup: function () {
+      commonSetup();
+
       controller = {
         tab: 6,
         name: "hello",
@@ -10252,6 +10272,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
       };
 
       view = View['default'].extend({
+        container: container,
         controller: controller,
         template: compile['default']("{{input type=\"checkbox\" disabled=true tabindex=6 name=\"hello\" checked=false}}")
       }).create();
@@ -10281,6 +10302,10 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
   });
 
   QUnit.module("{{input type='text'}} - null/undefined values", {
+    setup: function () {
+      commonSetup();
+    },
+
     teardown: function () {
       utils.runDestroy(view);
     }
@@ -10288,6 +10313,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("placeholder attribute bound to undefined is not present", function () {
     view = View['default'].extend({
+      container: container,
       controller: {},
       template: compile['default']("{{input placeholder=someThingNotThere}}")
     }).create();
@@ -10303,6 +10329,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("placeholder attribute bound to null is not present", function () {
     view = View['default'].extend({
+      container: container,
       controller: {
         someNullProperty: null
       },
@@ -10368,30 +10395,6 @@ enifed('ember-htmlbars/tests/helpers/loc_test', ['ember-views/views/view', 'embe
     utils.runAppend(view);
 
     equal(view.$().text(), "Hello, Mr. Pitkin", "the value of localizationKey is correct");
-
-    utils.runDestroy(view);
-  });
-
-  QUnit.test("localize throws an assertion if the second parameter is a binding", function () {
-    var view = buildView("{{loc \"Hello %@\" name}}", {
-      name: "Bob Foster"
-    });
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot pass bindings to `loc` helper/);
-
-    utils.runDestroy(view);
-  });
-
-  QUnit.test("localize a binding throws an assertion", function () {
-    var view = buildView("{{loc localizationKey}}", {
-      localizationKey: "villain"
-    });
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot pass bindings to `loc` helper/);
 
     utils.runDestroy(view);
   });
@@ -10557,85 +10560,7 @@ enifed('ember-htmlbars/tests/helpers/partial_test', ['ember-runtime/system/objec
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/sanitized_bind_attr_test', ['ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (EmberView, compile, run, string, utils, environment) {
-
-  'use strict';
-
-  /* jshint scripturl:true */
-
-  var view;
-
-  QUnit.module("ember-htmlbars: sanitized attribute", {
-    teardown: function () {
-      utils.runDestroy(view);
-    }
-  });
-
-  var badTags = [{ tag: "a", attr: "href",
-    template: compile['default']("<a {{bind-attr href=view.badValue}}></a>") }, { tag: "body", attr: "background",
-    // IE8 crashes when setting background with
-    // a javascript: protocol
-    skip: environment['default'].hasDOM && document.documentMode && document.documentMode <= 8,
-    template: compile['default']("<body {{bind-attr background=view.badValue}}></body>") }, { tag: "link", attr: "href",
-    template: compile['default']("<link {{bind-attr href=view.badValue}}>") }, { tag: "img", attr: "src",
-    template: compile['default']("<img {{bind-attr src=view.badValue}}>") }];
-
-  for (var i = 0, l = badTags.length; i < l; i++) {
-    (function () {
-      var tagName = badTags[i].tag;
-      var attr = badTags[i].attr;
-      var template = badTags[i].template;
-
-      if (badTags[i].skip) {
-        return;
-      }
-
-      QUnit.test("XSS - should not bind unsafe " + tagName + " " + attr + " values", function () {
-        view = EmberView['default'].create({
-          template: template,
-          badValue: "javascript:alert('XSS')"
-        });
-
-        utils.runAppend(view);
-
-        equal(view.element.firstChild.getAttribute(attr), "unsafe:javascript:alert('XSS')", "attribute is output");
-      });
-
-      QUnit.test("XSS - should not bind unsafe " + tagName + " " + attr + " values on rerender", function () {
-        view = EmberView['default'].create({
-          template: template,
-          badValue: "/sunshine/and/rainbows"
-        });
-
-        utils.runAppend(view);
-
-        equal(view.element.firstChild.getAttribute(attr), "/sunshine/and/rainbows", "attribute is output");
-
-        run['default'](view, "set", "badValue", "javascript:alert('XSS')");
-
-        equal(view.element.firstChild.getAttribute(attr), "unsafe:javascript:alert('XSS')", "attribute is output");
-      });
-
-      QUnit.test("should bind unsafe " + tagName + " " + attr + " values if they are SafeString", function () {
-        view = EmberView['default'].create({
-          template: template,
-          badValue: new string.SafeString("javascript:alert('XSS')")
-        });
-
-        try {
-          utils.runAppend(view);
-
-          equal(view.element.firstChild.getAttribute(attr), "javascript:alert('XSS')", "attribute is output");
-        } catch (e) {
-          // IE does not allow javascript: to be set on img src
-          ok(true, "caught exception " + e);
-        }
-      });
-    })(); //jshint ignore:line
-  }
-
-});
-enifed('ember-htmlbars/tests/helpers/template_test', ['ember-views/views/view', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (EmberView, EmberObject, jQuery, system__container, compile, utils) {
+enifed('ember-htmlbars/tests/helpers/template_test', ['ember-views/views/view', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/keywords/template'], function (EmberView, EmberObject, jQuery, system__container, compile, utils, template) {
 
   'use strict';
 
@@ -10666,7 +10591,7 @@ enifed('ember-htmlbars/tests/helpers/template_test', ['ember-views/views/view', 
       template: compile['default']("This {{template \"sub_template_from_container\"}} is pretty great.")
     });
 
-    expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
+    expectDeprecation(template.deprecation);
 
     utils.runAppend(view);
 
@@ -10685,7 +10610,7 @@ enifed('ember-htmlbars/tests/helpers/template_test', ['ember-views/views/view', 
       lastName: "Selden"
     }));
 
-    expectDeprecation(/The `template` helper has been deprecated in favor of the `partial` helper./);
+    expectDeprecation(template.deprecation);
 
     utils.runAppend(view);
 
@@ -10693,7 +10618,7 @@ enifed('ember-htmlbars/tests/helpers/template_test', ['ember-views/views/view', 
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/text_area_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils'], function (run, View, compile, property_set, utils) {
+enifed('ember-htmlbars/tests/helpers/text_area_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-views/views/text_area', 'container/registry', 'ember-views/component_lookup'], function (run, View, compile, property_set, utils, TextArea, Registry, ComponentLookup) {
 
   'use strict';
 
@@ -10711,7 +10636,12 @@ enifed('ember-htmlbars/tests/helpers/text_area_test', ['ember-metal/run_loop', '
         val: "Lorem ipsum dolor"
       };
 
+      var registry = new Registry['default']();
+      registry.register("component:-text-area", TextArea['default']);
+      registry.register("component-lookup:main", ComponentLookup['default']);
+
       textArea = View['default'].extend({
+        container: registry.container(),
         controller: controller,
         template: compile['default']("{{textarea disabled=disabled value=val}}")
       }).create();
@@ -10741,7 +10671,7 @@ enifed('ember-htmlbars/tests/helpers/text_area_test', ['ember-metal/run_loop', '
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-metal/error', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/register-bound-helper', 'ember-htmlbars/compat/make-bound-helper', 'ember-runtime/system/container', 'ember-runtime/tests/utils'], function (EmberView, EmberObject, native_array, Ember, property_get, property_set, run, compile, EmberError, helpers, registerBoundHelper, makeBoundHelper, system__container, utils) {
+enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/register-bound-helper', 'ember-htmlbars/compat/make-bound-helper', 'ember-runtime/system/container', 'ember-runtime/tests/utils'], function (EmberView, EmberObject, native_array, Ember, property_get, property_set, run, compile, helpers, registerBoundHelper, makeBoundHelper, system__container, utils) {
 
   'use strict';
 
@@ -10783,8 +10713,16 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
     equal(view.$().text(), 'BORK BORK', 'should not re-render if the property changes');
   });
 
+  QUnit.test('it should re-render if the parent view rerenders', function () {
+    run['default'](function () {
+      view.set('context.foo', 'OOF');
+      view.rerender();
+    });
+    equal(view.$().text(), 'OOF OOF', 'should re-render if the parent view rerenders');
+  });
+
   QUnit.test('it should throw the helper missing error if multiple properties are provided', function () {
-    throws(function () {
+    expectAssertion(function () {
       utils.runAppend(EmberView['default'].create({
         template: compile['default']('{{unbound foo bar}}'),
         context: EmberObject['default'].create({
@@ -10792,7 +10730,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
           bar: 'foo'
         })
       }));
-    }, EmberError['default']);
+    }, /A helper named 'foo' could not be found/);
   });
 
   QUnit.test('should property escape unsafe hrefs', function () {
@@ -10823,6 +10761,101 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
       var link = links[i];
       equal(link.protocol, 'unsafe:', 'properly escaped');
     }
+  });
+
+  QUnit.module('ember-htmlbars: {{#unbound}} subexpression', {
+    setup: function () {
+      Ember['default'].lookup = lookup = { Ember: Ember['default'] };
+
+      registerBoundHelper['default']('capitalize', function (value) {
+        return value.toUpperCase();
+      });
+
+      view = EmberView['default'].create({
+        template: compile['default']('{{capitalize (unbound foo)}}'),
+        context: EmberObject['default'].create({
+          foo: 'bork'
+        })
+      });
+
+      utils.runAppend(view);
+    },
+
+    teardown: function () {
+      delete helpers['default']['capitalize'];
+
+      utils.runDestroy(view);
+      Ember['default'].lookup = originalLookup;
+    }
+  });
+
+  QUnit.test('it should render the current value of a property on the context', function () {
+    equal(view.$().text(), 'BORK', 'should render the current value of a property');
+  });
+
+  QUnit.test('it should not re-render if the property changes', function () {
+    run['default'](function () {
+      view.set('context.foo', 'oof');
+    });
+    equal(view.$().text(), 'BORK', 'should not re-render if the property changes');
+  });
+
+  QUnit.test('it should re-render if the parent view rerenders', function () {
+    run['default'](function () {
+      view.set('context.foo', 'oof');
+      view.rerender();
+    });
+    equal(view.$().text(), 'OOF', 'should re-render if the parent view rerenders');
+  });
+
+  QUnit.module('ember-htmlbars: {{#unbound}} subexpression - helper form', {
+    setup: function () {
+      Ember['default'].lookup = lookup = { Ember: Ember['default'] };
+
+      registerBoundHelper['default']('capitalize', function (value) {
+        return value.toUpperCase();
+      });
+
+      registerBoundHelper['default']('doublize', function (value) {
+        return '' + value + ' ' + value;
+      });
+
+      view = EmberView['default'].create({
+        template: compile['default']('{{capitalize (unbound doublize foo)}}'),
+        context: EmberObject['default'].create({
+          foo: 'bork'
+        })
+      });
+
+      utils.runAppend(view);
+    },
+
+    teardown: function () {
+      delete helpers['default']['capitalize'];
+      delete helpers['default']['doublize'];
+
+      utils.runDestroy(view);
+      Ember['default'].lookup = originalLookup;
+    }
+  });
+
+  QUnit.test('it should render the current value of a property on the context', function () {
+    equal(view.$().text(), 'BORK BORK', 'should render the current value of a property');
+  });
+
+  QUnit.test('it should not re-render if the property changes', function () {
+    run['default'](function () {
+      view.set('context.foo', 'oof');
+    });
+    equal(view.$().text(), 'BORK BORK', 'should not re-render if the property changes');
+  });
+
+  QUnit.test('it should re-render if the parent view rerenders', function () {
+    run['default'](function () {
+      view.set('context.foo', 'oof');
+      view.rerender();
+    });
+    equal(view.$().text(), 'OOF OOF', 'should re-render if the parent view rerenders');
   });
 
   QUnit.module('ember-htmlbars: {{#unbound boundHelper arg1 arg2... argN}} form: render unbound helper invocations', {
@@ -10875,7 +10908,45 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
       });
 
       view = EmberView['default'].create({
-        template: compile['default']('{{unbound repeat foo countBinding="bar"}} {{repeat foo countBinding="bar"}} {{unbound repeat foo count=2}} {{repeat foo count=4}}'),
+        template: compile['default']('{{unbound repeat foo count=bar}} {{repeat foo count=bar}} {{unbound repeat foo count=2}} {{repeat foo count=4}}'),
+        context: EmberObject['default'].create({
+          foo: 'X',
+          numRepeatsBinding: 'bar',
+          bar: 5
+        })
+      });
+      utils.runAppend(view);
+
+      equal(view.$().text(), 'XXXXX XXXXX XX XXXX', 'first render is correct');
+
+      run['default'](function () {
+        property_set.set(view, 'context.bar', 1);
+      });
+
+      equal(view.$().text(), 'XXXXX X XX XXXX', 'only unbound bound options changed');
+    } finally {
+      delete helpers['default']['repeat'];
+    }
+  });
+
+  QUnit.test('should be able to render an unbound helper invocation with deprecated fooBinding [DEPRECATED]', function () {
+    try {
+      registerBoundHelper['default']('repeat', function (value, options) {
+        var count = options.hash.count;
+        var a = [];
+        while (a.length < count) {
+          a.push(value);
+        }
+        return a.join('');
+      });
+
+      var template;
+      expectDeprecation(function () {
+        template = compile['default']('{{unbound repeat foo countBinding="bar"}} {{repeat foo countBinding="bar"}} {{unbound repeat foo count=2}} {{repeat foo count=4}}');
+      }, /You're using legacy binding syntax/);
+
+      view = EmberView['default'].create({
+        template: template,
         context: EmberObject['default'].create({
           foo: 'X',
           numRepeatsBinding: 'bar',
@@ -11141,7 +11212,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
   // to enforce deprecation notice for old Handlebars versions
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'ember-views/views/metamorph_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, _MetamorphView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -11174,7 +11245,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
       registry.optionsForType("helper", { instantiate: false });
-      registry.register("view:default", _MetamorphView['default']);
       registry.register("view:toplevel", EmberView['default'].extend());
     },
 
@@ -11210,30 +11280,26 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
     // Use match, since old IE appends the whole URL
     var href = parentView.$("a").attr("href");
+    var classNames = parentView.$("a").attr("class");
     ok(href.match(/(^|\/)test$/), "Expected href to be 'test' but got \"" + href + "\"");
+    equal(classNames, "ember-view app-link");
 
     utils.runDestroy(parentView);
   });
 
   QUnit.test("By default view:toplevel is used", function () {
+    var registry = new Registry['default']();
+
     var DefaultView = viewClass({
       elementId: "toplevel-view",
       template: compile['default']("hello world")
     });
 
-    function lookupFactory(fullName) {
-      equal(fullName, "view:toplevel");
-
-      return DefaultView;
-    }
-
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:toplevel", DefaultView);
 
     view = EmberView['default'].extend({
       template: compile['default']("{{view}}"),
-      container: container
+      container: registry.container()
     }).create();
 
     utils.runAppend(view);
@@ -11267,7 +11333,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, /Global lookup of App.FuView from a Handlebars template is deprecated./);
+    }, /Global lookup of App from a Handlebars template is deprecated./);
 
     equal(jQuery['default']("#fu").text(), "bro");
   });
@@ -11278,15 +11344,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       template: compile['default']("bro")
     });
 
-    function lookupFactory(fullName) {
-      equal(fullName, "view:fu");
-
-      return FuView;
-    }
-
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:fu", FuView);
 
     view = EmberView['default'].extend({
       template: compile['default']("{{view 'fu'}}"),
@@ -11304,15 +11362,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       template: compile['default']("bro")
     });
 
-    function lookupFactory(fullName) {
-      equal(fullName, "view:fu");
-
-      return FuView;
-    }
-
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:fu", FuView);
 
     view = EmberView['default'].extend({
       template: compile['default']("{{view 'fu'}}"),
@@ -11331,15 +11381,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       template: compile['default']("bro")
     });
 
-    function lookupFactory(fullName) {
-      equal(fullName, "view:fu");
-
-      return FuView;
-    }
-
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:fu", FuView);
 
     view = EmberView['default'].extend({
       template: compile['default']("{{view view.computed}}"),
@@ -11386,18 +11428,23 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
     var oldWarn = Ember.warn;
 
-    Ember.warn = function (msg) {
-      ok(msg.match(/You're attempting to render a view by passing borfBinding.+, but this syntax is ambiguous./));
+    Ember.warn = function (msg, disableWarning) {
+      if (!disableWarning) {
+        ok(msg.match(/You're attempting to render a view by passing borfBinding.+, but this syntax is ambiguous./));
+      }
     };
 
+    var compiled = undefined;
+    expectDeprecation(function () {
+      compiled = compile['default']("{{#view borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}");
+    }, "You're using legacy binding syntax: borfBinding=view.snork @ 1:8 in (inline). Please replace with borf=view.snork");
+
     view = EmberView['default'].extend({
-      template: compile['default']("{{#view borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}"),
+      template: compiled,
       snork: "nerd"
     }).create();
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /You're attempting to render a view by passing borfBinding to a view helper without a quoted value, but this syntax is ambiguous. You should either surround borfBinding's value in quotes or remove `Binding` from borfBinding./);
+    utils.runAppend(view);
 
     equal(jQuery['default']("#lol").text(), "nerd", "awkward mixed syntax treated like binding");
 
@@ -11405,8 +11452,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("\"Binding\"-suffixed bindings are runloop-synchronized [DEPRECATED]", function () {
-    expect(6);
-
     var subview;
 
     var Subview = EmberView['default'].extend({
@@ -11417,17 +11462,20 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       template: compile['default']("<div class=\"color\">{{view.color}}</div>")
     });
 
+    var compiled = undefined;
+    expectDeprecation(function () {
+      compiled = compile['default']("<h1>{{view view.Subview colorBinding=\"view.color\"}}</h1>");
+    }, "You're using legacy binding syntax: colorBinding=\"view.color\" @ 1:24 in (inline). Please replace with color=view.color");
+
     var View = EmberView['default'].extend({
       color: "mauve",
       Subview: Subview,
-      template: compile['default']("<h1>{{view view.Subview colorBinding=\"view.color\"}}</h1>")
+      template: compiled
     });
 
     view = View.create();
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /You're attempting to render a view by passing colorBinding to a view helper, but this syntax is deprecated. You should use `color=someValue` instead./);
+    utils.runAppend(view);
 
     equal(view.$("h1 .color").text(), "mauve", "renders bound value");
 
@@ -11439,6 +11487,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       view.set("color", "persian rose");
 
       run['default'].schedule("sync", function () {
+        equal(property_get.get(subview, "color"), "mauve", "bound property is correctly scheduled into the sync queue");
+      });
+
+      run['default'].schedule("afterRender", function () {
         equal(property_get.get(subview, "color"), "persian rose", "bound property is correctly scheduled into the sync queue");
       });
 
@@ -11449,8 +11501,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("Non-\"Binding\"-suffixed bindings are runloop-synchronized", function () {
-    expect(5);
-
     var subview;
 
     var Subview = EmberView['default'].extend({
@@ -11458,7 +11508,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
         subview = this;
         return this._super.apply(this, arguments);
       },
-      template: compile['default']("<div class=\"color\">{{view.color}}</div>")
+      template: compile['default']("<div class=\"color\">{{view.attrs.color}}</div>")
     });
 
     var View = EmberView['default'].extend({
@@ -11480,6 +11530,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       view.set("color", "persian rose");
 
       run['default'].schedule("sync", function () {
+        equal(property_get.get(subview, "color"), "mauve", "bound property is correctly scheduled into the sync queue");
+      });
+
+      run['default'].schedule("afterRender", function () {
         equal(property_get.get(subview, "color"), "persian rose", "bound property is correctly scheduled into the sync queue");
       });
 
@@ -11510,10 +11564,12 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("Should apply class without condition always", function () {
-    view = EmberView['default'].create({
-      controller: Ember.Object.create(),
-      template: compile['default']("{{#view id=\"foo\" classBinding=\":foo\"}} Foo{{/view}}")
-    });
+    expectDeprecation(function () {
+      view = EmberView['default'].create({
+        controller: Ember.Object.create(),
+        template: compile['default']("{{#view id=\"foo\" classBinding=\":foo\"}} Foo{{/view}}")
+      });
+    }, /legacy class binding syntax/);
 
     utils.runAppend(view);
 
@@ -11626,16 +11682,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   QUnit.test("bound properties should be available in the view", function () {
     var FuView = viewClass({
       elementId: "fu",
-      template: compile['default']("{{view.foo}}")
+      template: compile['default']("{{view.attrs.foo}}")
     });
 
-    function lookupFactory(fullName) {
-      return FuView;
-    }
-
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:fu", FuView);
 
     view = EmberView['default'].extend({
       template: compile['default']("{{view 'fu' foo=view.someProp}}"),
@@ -11970,7 +12020,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
         template: compile['default']("{{view attributeBindings=\"one two\"}}")
       });
       utils.runAppend(view);
-    }, /Setting 'attributeBindings' via template helpers is not allowed/);
+    }, "Setting 'attributeBindings' via template helpers is not allowed @ 1:7 in (inline)");
   });
 
   QUnit.test("{{view}} should be able to point to a local view", function () {
@@ -11999,10 +12049,12 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       });
     });
 
-    view = EmberView['default'].create({
-      textField: TextField['default'],
-      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled\"}}")
-    });
+    expectDeprecation(function () {
+      view = EmberView['default'].create({
+        textField: TextField['default'],
+        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled\"}}")
+      });
+    }, /legacy class binding/);
 
     expectDeprecation(function () {
       utils.runAppend(view);
@@ -12028,14 +12080,16 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("{{view}} should evaluate class bindings set in the current context", function () {
-    view = EmberView['default'].create({
-      isView: true,
-      isEditable: true,
-      directClass: "view-direct",
-      isEnabled: true,
-      textField: TextField['default'],
-      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"view.isEditable:editable view.directClass view.isView view.isEnabled:enabled:disabled\"}}")
-    });
+    expectDeprecation(function () {
+      view = EmberView['default'].create({
+        isView: true,
+        isEditable: true,
+        directClass: "view-direct",
+        isEnabled: true,
+        textField: TextField['default'],
+        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"view.isEditable:editable view.directClass view.isView view.isEnabled:enabled:disabled\"}}")
+      });
+    }, /legacy class binding syntax/);
 
     utils.runAppend(view);
 
@@ -12066,10 +12120,12 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       });
     });
 
-    view = EmberView['default'].create({
-      textField: TextField['default'],
-      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.isEnabled:enabled:disabled\" classNameBindings=\"App.isGreat:really-great App.isEnabled:really-enabled:really-disabled\"}}")
-    });
+    expectDeprecation(function () {
+      view = EmberView['default'].create({
+        textField: TextField['default'],
+        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.isEnabled:enabled:disabled\" classNameBindings=\"App.isGreat:really-great App.isEnabled:really-enabled:really-disabled\"}}")
+      });
+    }, /legacy class binding/);
 
     expectDeprecation(function () {
       utils.runAppend(view);
@@ -12095,21 +12151,26 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     utils.runDestroy(lookup.App);
   });
 
-  QUnit.test("{{view}} should evaluate other attribute bindings set to global paths", function () {
+  QUnit.test("{{view}} should evaluate other attribute bindings set to global paths [DEPRECATED]", function () {
     run['default'](function () {
       lookup.App = Namespace['default'].create({
         name: "myApp"
       });
     });
 
+    var template;
+    expectDeprecation(function () {
+      template = compile['default']("{{view view.textField valueBinding=\"App.name\"}}");
+    }, /You're using legacy binding syntax: valueBinding/);
+
     view = EmberView['default'].create({
       textField: TextField['default'],
-      template: compile['default']("{{view view.textField valueBinding=\"App.name\"}}")
+      template: template
     });
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Global lookup of App.name from a Handlebars template is deprecated.");
+    }, "Global lookup of App from a Handlebars template is deprecated.");
 
     equal(view.$("input").val(), "myApp", "evaluates attributes bound to global paths");
 
@@ -12129,7 +12190,9 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("{{view}} should be able to bind class names to truthy properties", function () {
-    registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy\"}}foo{{/view}}"));
+    expectDeprecation(function () {
+      registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy\"}}foo{{/view}}"));
+    }, /legacy class binding syntax/);
 
     var ClassBindingView = EmberView['default'].extend();
 
@@ -12152,7 +12215,9 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
   });
 
   QUnit.test("{{view}} should be able to bind class names to truthy or falsy properties", function () {
-    registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy:is-falsy\"}}foo{{/view}}"));
+    expectDeprecation(function () {
+      registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy:is-falsy\"}}foo{{/view}}"));
+    }, /legacy class binding syntax/);
 
     var ClassBindingView = EmberView['default'].extend();
 
@@ -12178,12 +12243,12 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
   QUnit.test("a view helper's bindings are to the parent context", function () {
     var Subview = EmberView['default'].extend({
-      classNameBindings: ["color"],
+      classNameBindings: ["attrs.color"],
       controller: EmberObject['default'].create({
         color: "green",
         name: "bar"
       }),
-      template: compile['default']("{{view.someController.name}} {{name}}")
+      template: compile['default']("{{attrs.someController.name}} {{name}}")
     });
 
     var View = EmberView['default'].extend({
@@ -12317,15 +12382,13 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       }),
 
       museumView: EmberView['default'].extend({
-        template: compile['default']("Name: {{view.name}} Price: ${{view.dollars}}")
+        template: compile['default']("Name: {{view.attrs.name}} Price: ${{view.attrs.dollars}}")
       }),
 
-      template: compile['default']("{{#if view.museumOpen}} {{view view.museumView nameBinding=\"view.museumDetails.name\" dollarsBinding=\"view.museumDetails.price\"}} {{/if}}")
+      template: compile['default']("{{#if view.museumOpen}} {{view view.museumView name=view.museumDetails.name dollars=view.museumDetails.price}} {{/if}}")
     });
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
+    utils.runAppend(view);
 
     equal(trim(view.$().text()), "Name: SFMoMA Price: $20", "should print baz twice");
   });
@@ -12343,15 +12406,13 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       },
 
       museumView: EmberView['default'].extend({
-        template: compile['default']("Name: {{view.name}} Price: ${{view.dollars}}")
+        template: compile['default']("Name: {{view.attrs.name}} Price: ${{view.attrs.dollars}}")
       }),
 
-      template: compile['default']("{{#if view.museumOpen}}{{view view.museumView nameBinding=\"controller.museumDetails.name\" dollarsBinding=\"controller.museumDetails.price\"}}{{/if}}")
+      template: compile['default']("{{#if view.museumOpen}}{{view view.museumView name=controller.museumDetails.name dollars=controller.museumDetails.price}}{{/if}}")
     });
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
+    utils.runAppend(view);
 
     equal(trim(view.$().text()), "Name: SFMoMA Price: $20", "should print baz twice");
   });
@@ -12369,7 +12430,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       },
 
       museumView: EmberView['default'].extend({
-        template: compile['default']("Name: {{view.name}} Price: ${{view.dollars}}")
+        template: compile['default']("Name: {{view.attrs.name}} Price: ${{view.attrs.dollars}}")
       }),
 
       template: compile['default']("{{#if view.museumOpen}}{{view view.museumView name=controller.museumDetails.name dollars=controller.museumDetails.price}}{{/if}}")
@@ -12595,16 +12656,6 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   QUnit.module("Multiple Handlebars {{with foo as bar}} helpers", {
     setup: function () {
       Ember.lookup = lookup = { Ember: Ember };
-
-      view = EmberView['default'].create({
-        template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
-        context: {
-          admin: { name: "Tom Dale" },
-          user: { name: "Yehuda Katz" }
-        }
-      });
-
-      utils.runAppend(view);
     },
 
     teardown: function () {
@@ -12615,31 +12666,42 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("re-using the same variable with different #with blocks does not override each other", function () {
+    view = EmberView['default'].create({
+      template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
+      context: {
+        admin: { name: "Tom Dale" },
+        user: { name: "Yehuda Katz" }
+      }
+    });
+
+    utils.runAppend(view);
     equal(view.$().text(), "Admin: Tom Dale User: Yehuda Katz", "should be properly scoped");
   });
 
   QUnit.test("the scoped variable is not available outside the {{with}} block.", function () {
-    run['default'](function () {
-      view.set("template", compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"));
-      view.set("context", {
+    view = EmberView['default'].create({
+      template: compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"),
+      context: {
         name: "Stef",
         other: "Yehuda"
-      });
+      }
     });
 
+    utils.runAppend(view);
     equal(view.$().text(), "Stef-Yehuda-Stef", "should be properly scoped after updating");
   });
 
   QUnit.test("nested {{with}} blocks shadow the outer scoped variable properly.", function () {
-    run['default'](function () {
-      view.set("template", compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
-      view.set("context", {
+    view = EmberView['default'].create({
+      template: compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"),
+      context: {
         first: "Limbo",
         fifth: "Wrath",
         ninth: "Treachery"
-      });
+      }
     });
 
+    utils.runAppend(view);
     equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
   });
 
@@ -12662,7 +12724,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   QUnit.test("it should support #with Foo.bar as qux [DEPRECATED]", function () {
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, /Global lookup of Foo.bar from a Handlebars template is deprecated/);
+    }, /Global lookup of Foo from a Handlebars template is deprecated/);
 
     equal(view.$().text(), "baz", "should be properly scoped");
 
@@ -12693,7 +12755,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     utils.runDestroy(view);
   });
 
-  QUnit.test("it should support #with name as food, then #with foo as bar", function () {
+  QUnit.test("it should support #with name as foo, then #with foo as bar", function () {
     var view = EmberView['default'].create({
       template: compile['default']("{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}"),
       context: { name: "caterpillar" }
@@ -12734,12 +12796,19 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   QUnit.module("Handlebars {{#with foo}} with defined controller");
 
   QUnit.test("it should wrap context with object controller [DEPRECATED]", function () {
-    expectDeprecation(ObjectController.objectControllerDeprecation);
+    var childController;
 
     var Controller = ObjectController['default'].extend({
+      init: function () {
+        if (childController) {
+          throw new Error("Did not expect controller.init to be invoked twice");
+        }
+        childController = this;
+        this._super();
+      },
       controllerName: computed.computed(function () {
         return "controller:" + this.get("model.name") + " and " + this.get("parentController.name");
-      })
+      }).property("model.name", "parentController.name")
     });
 
     var person = EmberObject['default'].create({ name: "Steve Holt" });
@@ -12760,9 +12829,10 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
     registry.register("controller:person", Controller);
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, "Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.");
+    expectDeprecation(ObjectController.objectControllerDeprecation);
+    expectDeprecation("Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.");
+
+    utils.runAppend(view);
 
     equal(view.$().text(), "controller:Steve Holt and Bob Loblaw");
 
@@ -12786,7 +12856,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
     equal(view.$().text(), "controller:Gob and Carl Weathers");
 
-    strictEqual(view._childViews[0].get("controller.target"), parentController, "the target property of the child controllers are set correctly");
+    strictEqual(childController.get("target"), parentController, "the target property of the child controllers are set correctly");
 
     utils.runDestroy(view);
   });
@@ -12979,16 +13049,6 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   QUnit.module("Multiple Handlebars {{with foo as |bar|}} helpers", {
     setup: function () {
       Ember.lookup = lookup = { Ember: Ember };
-
-      view = EmberView['default'].create({
-        template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
-        context: {
-          admin: { name: "Tom Dale" },
-          user: { name: "Yehuda Katz" }
-        }
-      });
-
-      utils.runAppend(view);
     },
 
     teardown: function () {
@@ -12998,36 +13058,48 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("re-using the same variable with different #with blocks does not override each other", function () {
+    view = EmberView['default'].create({
+      template: compile['default']("Admin: {{#with admin as |person|}}{{person.name}}{{/with}} User: {{#with user as |person|}}{{person.name}}{{/with}}"),
+      context: {
+        admin: { name: "Tom Dale" },
+        user: { name: "Yehuda Katz" }
+      }
+    });
+
+    utils.runAppend(view);
     equal(view.$().text(), "Admin: Tom Dale User: Yehuda Katz", "should be properly scoped");
   });
 
   QUnit.test("the scoped variable is not available outside the {{with}} block.", function () {
-    run['default'](function () {
-      view.set("template", compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"));
-      view.set("context", {
+    view = EmberView['default'].create({
+      template: compile['default']("{{name}}-{{#with other as |name|}}{{name}}{{/with}}-{{name}}"),
+      context: {
         name: "Stef",
         other: "Yehuda"
-      });
+      }
     });
+
+    utils.runAppend(view);
 
     equal(view.$().text(), "Stef-Yehuda-Stef", "should be properly scoped after updating");
   });
 
   QUnit.test("nested {{with}} blocks shadow the outer scoped variable properly.", function () {
-    run['default'](function () {
-      view.set("template", compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"));
-      view.set("context", {
+    view = EmberView['default'].create({
+      template: compile['default']("{{#with first as |ring|}}{{ring}}-{{#with fifth as |ring|}}{{ring}}-{{#with ninth as |ring|}}{{ring}}-{{/with}}{{ring}}-{{/with}}{{ring}}{{/with}}"),
+      context: {
         first: "Limbo",
         fifth: "Wrath",
         ninth: "Treachery"
-      });
+      }
     });
 
+    utils.runAppend(view);
     equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-metal/error', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (run, EmberView, computed, system__container, property_get, property_set, native_array, Component, EmberError, helpers, makeViewHelper, compile, utils) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (run, EmberView, computed, system__container, native_array, Component, helpers, makeViewHelper, compile, utils) {
 
   'use strict';
 
@@ -13052,7 +13124,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("a view with a layout set renders its template where the {{yield}} helper appears", function () {
     var ViewWithLayout = EmberView['default'].extend({
-      layout: compile['default']("<div class=\"wrapper\"><h1>{{title}}</h1>{{yield}}</div>")
+      layout: compile['default']("<div class=\"wrapper\"><h1>{{attrs.title}}</h1>{{yield}}</div>")
     });
 
     view = EmberView['default'].create({
@@ -13066,7 +13138,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
   });
 
   QUnit.test("block should work properly even when templates are not hard-coded", function () {
-    registry.register("template:nester", compile['default']("<div class=\"wrapper\"><h1>{{title}}</h1>{{yield}}</div>"));
+    registry.register("template:nester", compile['default']("<div class=\"wrapper\"><h1>{{attrs.title}}</h1>{{yield}}</div>"));
     registry.register("template:nested", compile['default']("{{#view \"with-layout\" title=\"My Fancy Page\"}}<div class=\"page-body\">Show something interesting here</div>{{/view}}"));
 
     registry.register("view:with-layout", EmberView['default'].extend({
@@ -13086,10 +13158,10 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("templates should yield to block, when the yield is embedded in a hierarchy of virtual views", function () {
     var TimesView = EmberView['default'].extend({
-      layout: compile['default']("<div class=\"times\">{{#each item in view.index}}{{yield}}{{/each}}</div>"),
+      layout: compile['default']("<div class=\"times\">{{#each view.index as |item|}}{{yield}}{{/each}}</div>"),
       n: null,
       index: computed.computed(function () {
-        var n = property_get.get(this, "n");
+        var n = this.attrs.n;
         var indexArray = native_array.A();
         for (var i = 0; i < n; i++) {
           indexArray[i] = i;
@@ -13208,8 +13280,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
   QUnit.test("can bind a keyword to a component and use it in yield", function () {
     var component = Component['default'].extend({
-      content: null,
-      layout: compile['default']("<p>{{content}}</p><p>{{yield}}</p>")
+      layout: compile['default']("<p>{{attrs.content}}</p><p>{{yield}}</p>")
     });
 
     view = EmberView['default'].create({
@@ -13252,36 +13323,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
     utils.runAppend(view);
   });
 
-  QUnit.test("adding a layout should not affect the context of normal views", function () {
-    var parentView = EmberView['default'].create({
-      context: "ParentContext"
-    });
-
-    view = EmberView['default'].create({
-      template: compile['default']("View context: {{this}}"),
-      context: "ViewContext",
-      _parentView: parentView
-    });
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    equal(view.$().text(), "View context: ViewContext");
-
-    property_set.set(view, "layout", compile['default']("Layout: {{yield}}"));
-
-    run['default'](function () {
-      view.destroyElement();
-      view.createElement();
-    });
-
-    equal(view.$().text(), "Layout: View context: ViewContext");
-
-    utils.runDestroy(parentView);
-  });
-
-  QUnit.test("yield should work for views even if _parentView is null", function () {
+  QUnit.test("yield should work for views even if parentView is null", function () {
     view = EmberView['default'].create({
       layout: compile['default']("Layout: {{yield}}"),
       template: compile['default']("View Content")
@@ -13332,17 +13374,8 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
   });
 
   QUnit.test("yield with nested components (#3220)", function () {
-    var count = 0;
     var InnerComponent = Component['default'].extend({
-      layout: compile['default']("{{yield}}"),
-      _yield: function (context, options, morph) {
-        count++;
-        if (count > 1) {
-          throw new EmberError['default']("is looping");
-        }
-
-        return this._super(context, options, morph);
-      }
+      layout: compile['default']("{{yield}}")
     });
 
     helpers.registerHelper("inner-component", makeViewHelper['default'](InnerComponent));
@@ -13353,29 +13386,13 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['ember-metal/run_loop', 'embe
 
     helpers.registerHelper("outer-component", makeViewHelper['default'](OuterComponent));
 
-    view = EmberView['default'].create({
+    view = EmberView['default'].extend({
       template: compile['default']("{{#outer-component}}Hello world{{/outer-component}}")
-    });
+    }).create();
 
     utils.runAppend(view);
 
     equal(view.$("div > span").text(), "Hello world");
-  });
-
-  QUnit.test("yield works inside a conditional in a component that has Ember._Metamorph mixed in", function () {
-    var component = Component['default'].extend(Ember._Metamorph, {
-      item: "inner",
-      layout: compile['default']("<p>{{item}}</p>{{#if item}}<p>{{yield}}</p>{{/if}}")
-    });
-
-    view = Ember.View.create({
-      controller: { item: "outer", component: component },
-      template: compile['default']("{{#view component}}{{item}}{{/view}}")
-    });
-
-    utils.runAppend(view);
-
-    equal(view.$().text(), "innerouter", "{{yield}} renders yielded content inside metamorph component");
   });
 
   QUnit.test("view keyword works inside component yield", function () {
@@ -13439,7 +13456,7 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['ember-views/component_look
 
       expectAssertion(function () {
         utils.runAppend(view);
-      }, "You specified `foo-bar` in your template, but a component for `foo-bar` could not be found.");
+      }, /Could not find component named "foo-bar" \(no component or template with that name was found\)/);
     });
   }
 
@@ -13577,7 +13594,7 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['ember-template-compiler/system/co
 
     var env = merge['default']({ dom: defaultEnv.domHelper }, defaultEnv['default']);
 
-    var output = template.render({}, env, document.body);
+    var output = template.render({}, env, { contextualElement: document.body }).fragment;
     htmlbars_test_helpers.equalHTML(output, "ohai");
   });
 
@@ -13674,7 +13691,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['ember-meta
 
     run['default'](view, 'rerender');
 
-    equal(view._childViews.length, 1);
+    equal(view.$().text(), 'wycats', 'rendered binding');
   });
 
   QUnit.test('should update bound values after view\'s parent is removed and then re-appended', function () {
@@ -13756,15 +13773,8 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
 
   var registry, container, view;
 
-  function aliasHelper(params, hash, options, env) {
-    var view = env.data.view;
-
-    view.appendChild(View['default'], {
-      isVirtual: true,
-      _morph: options.morph,
-      template: options.template,
-      _blockArguments: params
-    });
+  function aliasHelper(params, hash, options) {
+    this.yield(params);
   }
 
   QUnit.module("ember-htmlbars: block params", {
@@ -13792,12 +13802,13 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
 
   QUnit.test("should raise error if helper not available", function () {
     view = View['default'].create({
+      container: container,
       template: compile['default']("{{#shouldfail}}{{/shouldfail}}")
     });
 
     expectAssertion(function () {
       utils.runAppend(view);
-    }, "A helper named `shouldfail` could not be found");
+    }, "A helper named 'shouldfail' could not be found");
   });
 
   QUnit.test("basic block params usage", function () {
@@ -13831,7 +13842,7 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
   });
 
   QUnit.test("components can yield values", function () {
-    registry.register("template:components/x-alias", compile['default']("{{yield param.name}}"));
+    registry.register("template:components/x-alias", compile['default']("{{yield attrs.param.name}}"));
 
     view = View['default'].create({
       container: container,
@@ -13847,7 +13858,7 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
   });
 
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (EmberView, Registry, jQuery, compile, ComponentLookup, utils) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (EmberView, Registry, jQuery, compile, ComponentLookup, Component, utils, run) {
 
   'use strict';
 
@@ -13901,8 +13912,77 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - In template");
   });
 
-  QUnit.test("non-block with properties", function () {
+  QUnit.test("non-block with properties on attrs", function () {
     expect(1);
+
+    registry.register("template:components/non-block", compile['default']("In layout - someProp: {{attrs.someProp}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{non-block someProp=\"something here\"}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
+  });
+
+  QUnit.test("non-block with properties on attrs and component class", function () {
+    registry.register("component:non-block", Component['default'].extend());
+    registry.register("template:components/non-block", compile['default']("In layout - someProp: {{attrs.someProp}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{non-block someProp=\"something here\"}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
+  });
+
+  QUnit.test("rerendering component with attrs from parent", function () {
+    var willUpdate = 0;
+    var willReceiveAttrs = 0;
+
+    registry.register("component:non-block", Component['default'].extend({
+      willReceiveAttrs: function () {
+        willReceiveAttrs++;
+      },
+
+      willUpdate: function () {
+        willUpdate++;
+      }
+    }));
+    registry.register("template:components/non-block", compile['default']("In layout - someProp: {{attrs.someProp}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{non-block someProp=view.someProp}}"),
+      container: container,
+      someProp: "wycats"
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: wycats");
+
+    run['default'](function () {
+      view.set("someProp", "tomdale");
+    });
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
+    equal(willReceiveAttrs, 1, "The willReceiveAttrs hook fired");
+    equal(willUpdate, 1, "The willUpdate hook fired once");
+
+    Ember.run(view, "rerender");
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
+    equal(willReceiveAttrs, 2, "The willReceiveAttrs hook fired again");
+    equal(willUpdate, 2, "The willUpdate hook fired again");
+  });
+
+  QUnit.test("[DEPRECATED] non-block with properties on self", function () {
+    expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
 
     registry.register("template:components/non-block", compile['default']("In layout - someProp: {{someProp}}"));
 
@@ -13916,8 +13996,23 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
   });
 
-  QUnit.test("block with properties", function () {
+  QUnit.test("block with properties on attrs", function () {
     expect(1);
+
+    registry.register("template:components/with-block", compile['default']("In layout - someProp: {{attrs.someProp}} - {{yield}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{#with-block someProp=\"something here\"}}In template{{/with-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here - In template");
+  });
+
+  QUnit.test("[DEPRECATED] block with properties on self", function () {
+    expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
 
     registry.register("template:components/with-block", compile['default']("In layout - someProp: {{someProp}} - {{yield}}"));
 
@@ -13932,7 +14027,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
   });
 
   if (Ember.FEATURES.isEnabled("ember-views-component-block-info")) {
-    QUnit.test("`Component.prototype.hasBlock` when block supplied", function () {
+    QUnit.test("hasBlock is true when block supplied", function () {
       expect(1);
 
       registry.register("template:components/with-block", compile['default']("{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}"));
@@ -13947,7 +14042,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "In template");
     });
 
-    QUnit.test("`Component.prototype.hasBlock` when no block supplied", function () {
+    QUnit.test("hasBlock is false when no block supplied", function () {
       expect(1);
 
       registry.register("template:components/with-block", compile['default']("{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}"));
@@ -13962,7 +14057,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "No Block!");
     });
 
-    QUnit.test("`Component.prototype.hasBlockParams` when block param supplied", function () {
+    QUnit.test("hasBlockParams is true when block param supplied", function () {
       expect(1);
 
       registry.register("template:components/with-block", compile['default']("{{#if hasBlockParams}}{{yield this}} - In Component{{else}}{{yield}} No Block!{{/if}}"));
@@ -13977,7 +14072,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "In template - In Component");
     });
 
-    QUnit.test("`Component.prototype.hasBlockParams` when no block param supplied", function () {
+    QUnit.test("hasBlockParams is false when no block param supplied", function () {
       expect(1);
 
       registry.register("template:components/with-block", compile['default']("{{#if hasBlockParams}}{{yield this}}{{else}}{{yield}} No Block Param!{{/if}}"));
@@ -13992,6 +14087,287 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "In block No Block Param!");
     });
   }
+
+});
+enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
+
+  'use strict';
+
+  var registry, container, view;
+  var hooks;
+
+  QUnit.module("component - lifecycle hooks", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+
+      hooks = [];
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  function pushHook(view, type, arg) {
+    hooks.push(hook(view, type, arg));
+  }
+
+  function hook(view, type, arg) {
+    return { type: type, view: view, arg: arg };
+  }
+
+  QUnit.test("lifecycle hooks are invoked in a predictable order", function () {
+    var components = {};
+
+    function component(label) {
+      return Component['default'].extend({
+        init: function () {
+          this.label = label;
+          pushHook(label, "init");
+          components[label] = this;
+          this._super.apply(this, arguments);
+        },
+        willReceiveAttrs: function (nextAttrs) {
+          pushHook(label, "willReceiveAttrs", nextAttrs);
+        },
+        willUpdate: function () {
+          pushHook(label, "willUpdate");
+        },
+        didUpdate: function () {
+          pushHook(label, "didUpdate");
+        },
+        didInsertElement: function () {
+          pushHook(label, "didInsertElement");
+        },
+        willRender: function () {
+          pushHook(label, "willRender");
+        },
+        didRender: function () {
+          pushHook(label, "didRender");
+        }
+      });
+    }
+
+    registry.register("component:the-top", component("top"));
+    registry.register("component:the-middle", component("middle"));
+    registry.register("component:the-bottom", component("bottom"));
+
+    registry.register("template:components/the-top", compile['default']("Twitter: {{attrs.twitter}} {{the-middle name=\"Tom Dale\"}}"));
+    registry.register("template:components/the-middle", compile['default']("Name: {{attrs.name}} {{the-bottom website=\"tomdale.net\"}}"));
+    registry.register("template:components/the-bottom", compile['default']("Website: {{attrs.website}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{the-top twitter=(readonly view.twitter)}}"),
+      twitter: "@tomdale",
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    ok(component, "The component was inserted");
+    equal(jQuery['default']("#qunit-fixture").text(), "Twitter: @tomdale Name: Tom Dale Website: tomdale.net");
+
+    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      components.bottom.rerender();
+    });
+
+    deepEqual(hooks, [hook("bottom", "willUpdate"), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      components.middle.rerender();
+    });
+
+    deepEqual(hooks, [hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      components.top.rerender();
+    });
+
+    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { name: "Tom Dale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      view.set("twitter", "@hipstertomdale");
+    });
+
+    // Because the `twitter` attr is only used by the topmost component,
+    // and not passed down, we do not expect to see lifecycle hooks
+    // called for child components. If the `willReceiveAttrs` hook used
+    // the new attribute to rerender itself imperatively, that would result
+    // in lifecycle hooks being invoked for the child.
+
+    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+  });
+
+  QUnit.test("passing values through attrs causes lifecycle hooks to fire if the attribute values have changed", function () {
+    var components = {};
+
+    function component(label) {
+      return Component['default'].extend({
+        init: function () {
+          this.label = label;
+          pushHook(label, "init");
+          components[label] = this;
+          this._super.apply(this, arguments);
+        },
+        willReceiveAttrs: function (nextAttrs) {
+          pushHook(label, "willReceiveAttrs", nextAttrs);
+        },
+        willUpdate: function () {
+          pushHook(label, "willUpdate");
+        },
+        didUpdate: function () {
+          pushHook(label, "didUpdate");
+        },
+        didInsertElement: function () {
+          pushHook(label, "didInsertElement");
+        },
+        willRender: function () {
+          pushHook(label, "willRender");
+        },
+        didRender: function () {
+          pushHook(label, "didRender");
+        }
+      });
+    }
+
+    registry.register("component:the-top", component("top"));
+    registry.register("component:the-middle", component("middle"));
+    registry.register("component:the-bottom", component("bottom"));
+
+    registry.register("template:components/the-top", compile['default']("Top: {{the-middle twitterTop=(readonly attrs.twitter)}}"));
+    registry.register("template:components/the-middle", compile['default']("Middle: {{the-bottom twitterMiddle=(readonly attrs.twitterTop)}}"));
+    registry.register("template:components/the-bottom", compile['default']("Bottom: {{attrs.twitterMiddle}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{the-top twitter=(readonly view.twitter)}}"),
+      twitter: "@tomdale",
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    ok(component, "The component was inserted");
+    equal(jQuery['default']("#qunit-fixture").text(), "Top: Middle: Bottom: @tomdale");
+
+    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      view.set("twitter", "@hipstertomdale");
+    });
+
+    // Because the `twitter` attr is used by the all of the components,
+    // the lifecycle hooks are invoked for all components.
+
+    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { twitterTop: "@hipstertomdale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { twitterMiddle: "@hipstertomdale" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+  });
+
+  QUnit.test("changing a component's displayed properties inside didInsertElement() is deprecated", function (assert) {
+    var component = Component['default'].extend({
+      layout: compile['default']("{{handle}}"),
+      handle: "@wycats",
+      container: container,
+
+      didInsertElement: function () {
+        this.set("handle", "@tomdale");
+      }
+    }).create();
+
+    expectDeprecation(function () {
+      utils.runAppend(component);
+    }, /modified inside the didInsertElement hook/);
+
+    assert.strictEqual(component.$().text(), "@tomdale");
+
+    run['default'](function () {
+      component.destroy();
+    });
+  });
+
+  QUnit.test("manually re-rendering in `willReceiveAttrs` triggers lifecycle hooks on the child even if the nodes were not dirty", function () {
+    var components = {};
+
+    function component(label) {
+      return Component['default'].extend({
+        init: function () {
+          this.label = label;
+          pushHook(label, "init");
+          components[label] = this;
+          this._super.apply(this, arguments);
+        },
+        willReceiveAttrs: function (nextAttrs) {
+          this.rerender();
+          pushHook(label, "willReceiveAttrs", nextAttrs);
+        },
+        willUpdate: function () {
+          pushHook(label, "willUpdate");
+        },
+        didUpdate: function () {
+          pushHook(label, "didUpdate");
+        },
+        didInsertElement: function () {
+          pushHook(label, "didInsertElement");
+        },
+        willRender: function () {
+          pushHook(label, "willRender");
+        },
+        didRender: function () {
+          pushHook(label, "didRender");
+        }
+      });
+    }
+
+    registry.register("component:the-top", component("top"));
+    registry.register("component:the-middle", component("middle"));
+    registry.register("component:the-bottom", component("bottom"));
+
+    registry.register("template:components/the-top", compile['default']("Twitter: {{attrs.twitter}} {{the-middle name=\"Tom Dale\"}}"));
+    registry.register("template:components/the-middle", compile['default']("Name: {{attrs.name}} {{the-bottom website=\"tomdale.net\"}}"));
+    registry.register("template:components/the-bottom", compile['default']("Website: {{attrs.website}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{the-top twitter=(readonly view.twitter)}}"),
+      twitter: "@tomdale",
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    ok(component, "The component was inserted");
+    equal(jQuery['default']("#qunit-fixture").text(), "Twitter: @tomdale Name: Tom Dale Website: tomdale.net");
+
+    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+
+    hooks = [];
+
+    run['default'](function () {
+      view.set("twitter", "@hipstertomdale");
+    });
+
+    // Because each `willReceiveAttrs` hook triggered a downstream
+    // rerender, lifecycle hooks are invoked on all child components.
+
+    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { name: "Tom Dale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+  });
 
 });
 enifed('ember-htmlbars/tests/integration/escape_integration_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-metal/platform/create', 'ember-runtime/tests/utils'], function (run, EmberView, compile, property_set, o_create, utils) {
@@ -14152,7 +14528,7 @@ enifed('ember-htmlbars/tests/integration/globals_integration_test', ['ember-meta
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, 'Global lookup of Global.Space from a Handlebars template is deprecated.');
+    }, 'Global lookup of Global from a Handlebars template is deprecated.');
     equal(view.$().text(), Ember['default'].lookup.Global.Space);
   });
 
@@ -14178,9 +14554,272 @@ enifed('ember-htmlbars/tests/integration/globals_integration_test', ['ember-meta
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, 'Global lookup of Global.Space from a Handlebars template is deprecated.');
+    }, 'Global lookup of Global from a Handlebars template is deprecated.');
     equal(view.$().text(), Ember['default'].lookup.Global.Space);
   });
+
+});
+enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (EmberView, Registry, compile, ComponentLookup, Component, utils, run) {
+
+  'use strict';
+
+  var registry, container, view;
+
+  QUnit.module("component - mutable bindings", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("a simple mutable binding propagates properly [DEPRECATED]", function (assert) {
+    expectDeprecation();
+
+    var bottom;
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{bottom-mut setMe=value}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      didInsertElement: function () {
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=view.val}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(bottom.get("setMe"), 12, "precond - the data propagated");
+
+    run['default'](function () {
+      return bottom.set("setMe", 13);
+    });
+
+    assert.strictEqual(bottom.get("setMe"), 13, "precond - the set took effect");
+    assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("a simple mutable binding using `mut` propagates properly", function (assert) {
+    var bottom;
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{bottom-mut setMe=(mut attrs.value)}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      didInsertElement: function () {
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=(mut view.val)}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(bottom.attrs.setMe.value, 12, "precond - the data propagated");
+
+    run['default'](function () {
+      return bottom.attrs.setMe.update(13);
+    });
+
+    assert.strictEqual(bottom.attrs.setMe.value, 13, "precond - the set took effect");
+    assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("using a string value through middle tier does not trigger assertion", function (assert) {
+    var bottom;
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{bottom-mut stuff=attrs.value}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      layout: compile['default']("<p class=\"bottom\">{{attrs.stuff}}</p>"),
+      didInsertElement: function () {
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=\"foo\"}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(bottom.attrs.stuff.value, "foo", "precond - the data propagated");
+    assert.strictEqual(view.$("p.bottom").text(), "foo");
+  });
+
+  QUnit.test("a simple mutable binding using `mut` inserts into the DOM", function (assert) {
+    var bottom;
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{bottom-mut setMe=(mut attrs.value)}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>"),
+      didInsertElement: function () {
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=(mut view.val)}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(view.$("p.bottom").text(), "12");
+    assert.strictEqual(bottom.attrs.setMe.value, 12, "precond - the data propagated");
+
+    run['default'](function () {
+      return bottom.attrs.setMe.update(13);
+    });
+
+    assert.strictEqual(bottom.attrs.setMe.value, 13, "precond - the set took effect");
+    assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("a simple mutable binding using `mut` can be converted into an immutable binding", function (assert) {
+    var middle;
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      // no longer mutable
+      layout: compile['default']("{{bottom-mut setMe=attrs.value}}"),
+
+      didInsertElement: function () {
+        middle = this;
+      }
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>")
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=(mut view.val)}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(view.$("p.bottom").text(), "12");
+
+    run['default'](function () {
+      return middle.attrs.value.update(13);
+    });
+
+    assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
+    assert.strictEqual(view.$("p.bottom").text(), "13");
+    assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("a simple mutable binding using `mut` is available in hooks", function (assert) {
+    var bottom;
+    var willRender = [];
+    var didInsert = [];
+
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{bottom-mut setMe=(mut attrs.value)}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      willRender: function () {
+        willRender.push(this.attrs.setMe.value);
+      },
+      didInsertElement: function () {
+        didInsert.push(this.attrs.setMe.value);
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut value=(mut view.val)}}"),
+      val: 12
+    });
+
+    utils.runAppend(view);
+
+    assert.deepEqual(willRender, [12], "willReceive is [12]");
+    assert.deepEqual(didInsert, [12], "didInsert is [12]");
+
+    assert.strictEqual(bottom.attrs.setMe.value, 12, "precond - the data propagated");
+
+    run['default'](function () {
+      return bottom.attrs.setMe.update(13);
+    });
+
+    assert.strictEqual(bottom.attrs.setMe.value, 13, "precond - the set took effect");
+    assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  // jscs:disable validateIndentation
+  if (Ember.FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+
+    QUnit.test("mutable bindings work as angle-bracket component attributes", function (assert) {
+      var middle;
+
+      registry.register("component:middle-mut", Component['default'].extend({
+        // no longer mutable
+        layout: compile['default']("<bottom-mut setMe={{attrs.value}} />"),
+
+        didInsertElement: function () {
+          middle = this;
+        }
+      }));
+
+      registry.register("component:bottom-mut", Component['default'].extend({
+        layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>")
+      }));
+
+      view = EmberView['default'].create({
+        container: container,
+        template: compile['default']("<middle-mut value={{mut view.val}} />"),
+        val: 12
+      });
+
+      utils.runAppend(view);
+
+      assert.strictEqual(view.$("p.bottom").text(), "12");
+
+      run['default'](function () {
+        return middle.attrs.value.update(13);
+      });
+
+      assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
+      assert.strictEqual(view.$("p.bottom").text(), "13");
+      assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+    });
+  }
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (EmberObject, run, EmberView, EventDispatcher, computed, Namespace, ArrayController, ArrayProxy, SelectView, compile, utils) {
@@ -14227,12 +14866,10 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
     view = EmberView['default'].create({
       app: application,
       selectView: SelectView['default'],
-      template: compile['default']("{{view view.selectView viewName=\"select\"" + "    contentBinding=\"view.app.peopleController\"" + "    optionLabelPath=\"content.fullName\"" + "    optionValuePath=\"content.id\"" + "    prompt=\"Pick a person:\"" + "    selectionBinding=\"view.app.selectedPersonController.person\"}}")
+      template: compile['default']("{{view view.selectView viewName=\"select\"" + "    content=view.app.peopleController" + "    optionLabelPath=\"content.fullName\"" + "    optionValuePath=\"content.id\"" + "    prompt=\"Pick a person:\"" + "    selection=view.app.selectedPersonController.person}}")
     });
 
-    expectDeprecation(function () {
-      utils.runAppend(view);
-    }, /You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated/);
+    utils.runAppend(view);
 
     var select = view.get("select");
     ok(select.$().length, "Select was rendered");
@@ -14386,12 +15023,12 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
   }
 
   QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding [DEPRECATED]", function () {
-    expectDeprecation(/You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated./);
+    expectDeprecation("You're using legacy binding syntax: valueBinding=\"view.val\" @ 1:176 in (inline). Please replace with value=view.val");
 
     testValueBinding("{{view view.selectView viewName=\"select\"" + "    contentBinding=\"view.collection\"" + "    optionLabelPath=\"content.name\"" + "    optionValuePath=\"content.value\"" + "    prompt=\"Please wait...\"" + "    valueBinding=\"view.val\"}}");
   });
 
-  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using a bound value", function () {
+  QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding", function () {
     testValueBinding("{{view view.selectView viewName=\"select\"" + "    content=view.collection" + "    optionLabelPath=\"content.name\"" + "    optionValuePath=\"content.value\"" + "    prompt=\"Please wait...\"" + "    value=view.val}}");
   });
 
@@ -14424,7 +15061,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
   }
 
   QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding [DEPRECATED]", function () {
-    expectDeprecation(/You're attempting to render a view by passing .+Binding to a view helper, but this syntax is deprecated./);
+    expectDeprecation("You're using legacy binding syntax: contentBinding=\"view.collection\" @ 1:44 in (inline). Please replace with content=view.collection");
 
     testSelectionBinding("{{view view.selectView viewName=\"select\"" + "    contentBinding=\"view.collection\"" + "    optionLabelPath=\"content.name\"" + "    optionValuePath=\"content.value\"" + "    prompt=\"Please wait...\"" + "    selectionBinding=\"view.selection\"}}");
   });
@@ -14531,7 +15168,7 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['ember-m
   });
 
 });
-enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-views/views/metamorph_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (run, jQuery, EmberView, system__container, EmberObject, _MetamorphView, compile, utils, property_set) {
+enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (run, jQuery, EmberView, system__container, EmberObject, compile, utils, property_set) {
 
   'use strict';
 
@@ -14543,7 +15180,6 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['ember-metal/run_loop
       registry = new system__container.Registry();
       container = registry.container();
       registry.optionsForType('template', { instantiate: false });
-      registry.register('view:default', _MetamorphView['default']);
       registry.register('view:toplevel', EmberView['default'].extend());
     },
 
@@ -14795,7 +15431,7 @@ enifed('ember-htmlbars/tests/system/append-templated-view-test', ['ember-runtime
     equal(view.$().text(), 'controller context - view local controller context');
   });
 
-  QUnit.test('does change the context if a component instanced is used', function () {
+  QUnit.test('does change the context if a component instance is used', function () {
     var controller = {
       someProp: 'controller context',
       someView: EmberComponent['default'].create({
@@ -14969,14 +15605,15 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['ember-views/system/jquery
   }
 
 });
-enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'container/registry', 'ember-views/views/component'], function (lookupHelper, ComponentLookup, Registry, Component) {
+enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'container/registry', 'ember-views/views/component'], function (lookup_helper, ComponentLookup, Registry, Component) {
 
   'use strict';
 
-  function generateEnv(helpers) {
+  function generateEnv(helpers, container) {
     return {
+      container: container,
       helpers: helpers ? helpers : {},
-      data: { view: {} }
+      hooks: { keywords: {} }
     };
   }
 
@@ -14997,7 +15634,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
       "flubarb": function () {}
     });
 
-    var actual = lookupHelper['default']("flubarb", null, env);
+    var actual = lookup_helper['default']("flubarb", null, env);
 
     equal(actual, env.helpers.flubarb, "helpers are looked up on env");
   });
@@ -15006,7 +15643,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
     var env = generateEnv();
     var view = {};
 
-    var actual = lookupHelper['default']("flubarb", view, env);
+    var actual = lookup_helper.findHelper("flubarb", view, env);
 
     equal(actual, undefined, "does not blow up if view does not have a container");
   });
@@ -15021,31 +15658,33 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
       }
     };
 
-    var actual = lookupHelper['default']("flubarb", view, env);
+    var actual = lookup_helper.findHelper("flubarb", view, env);
 
     equal(actual, undefined, "does not blow up if view does not have a container");
   });
 
   QUnit.test("does a lookup in the container if the name contains a dash (and helper is not found in env)", function () {
-    var env = generateEnv();
+    var container = generateContainer();
+    var env = generateEnv(null, container);
     var view = {
-      container: generateContainer()
+      container: container
     };
 
     function someName() {}
     someName.isHTMLBars = true;
     view.container._registry.register("helper:some-name", someName);
 
-    var actual = lookupHelper['default']("some-name", view, env);
+    var actual = lookup_helper['default']("some-name", view, env);
 
     equal(actual, someName, "does not wrap provided function if `isHTMLBars` is truthy");
   });
 
   QUnit.test("wraps helper from container in a Handlebars compat helper", function () {
     expect(2);
-    var env = generateEnv();
+    var container = generateContainer();
+    var env = generateEnv(null, container);
     var view = {
-      container: generateContainer()
+      container: container
     };
     var called;
 
@@ -15054,14 +15693,16 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
     }
     view.container._registry.register("helper:some-name", someName);
 
-    var actual = lookupHelper['default']("some-name", view, env);
+    var actual = lookup_helper['default']("some-name", view, env);
 
     ok(actual.isHTMLBars, "wraps provided helper in an HTMLBars compatible helper");
 
     var fakeParams = [];
     var fakeHash = {};
     var fakeOptions = {
-      morph: { update: function () {} }
+      morph: { update: function () {} },
+      template: {},
+      inverse: {}
     };
     var fakeEnv = {
       data: {
@@ -15074,33 +15715,35 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
   });
 
   QUnit.test("asserts if component-lookup:main cannot be found", function () {
-    var env = generateEnv();
+    var container = generateContainer();
+    var env = generateEnv(null, container);
     var view = {
-      container: generateContainer()
+      container: container
     };
 
     view.container._registry.unregister("component-lookup:main");
 
     expectAssertion(function () {
-      lookupHelper['default']("some-name", view, env);
+      lookup_helper['default']("some-name", view, env);
     }, "Could not find 'component-lookup:main' on the provided container, which is necessary for performing component lookups");
   });
 
   QUnit.test("registers a helper in the container if component is found", function () {
-    var env = generateEnv();
+    var container = generateContainer();
+    var env = generateEnv(null, container);
     var view = {
-      container: generateContainer()
+      container: container
     };
 
     view.container._registry.register("component:some-name", Component['default']);
 
-    lookupHelper['default']("some-name", view, env);
+    lookup_helper['default']("some-name", view, env);
 
     ok(view.container.lookup("helper:some-name"), "new helper was registered");
   });
 
 });
-enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views/view', 'ember-metal/run_loop', 'container/registry', 'ember-htmlbars/system/make_bound_helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-views/views/simple_bound_view', 'ember-runtime/system/object'], function (EmberView, run, Registry, makeBoundHelper, compile, utils, string, SimpleBoundView, EmberObject) {
+enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views/view', 'ember-metal/run_loop', 'container/registry', 'ember-htmlbars/system/make_bound_helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-runtime/system/string'], function (EmberView, run, Registry, makeBoundHelper, compile, utils, string) {
 
   'use strict';
 
@@ -15132,10 +15775,12 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
       return string.dasherize(params[0]);
     }));
 
-    view = EmberView['default'].create({
-      container: container,
-      controller: { prop: "isThing" },
-      template: compile['default']("<div {{bind-attr data-foo=(x-dasherize prop)}}>{{prop}}</div>")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        container: container,
+        controller: { prop: "isThing" },
+        template: compile['default']("<div {{bind-attr data-foo=(x-dasherize prop)}}>{{prop}}</div>")
+      });
     });
 
     utils.runAppend(view);
@@ -15204,10 +15849,16 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
     equal(view.$().text(), "AB", "helper output is correct");
   });
 
-  QUnit.test("bound helpers should not process `fooBinding` style hash properties", function () {
+  QUnit.test("bound helpers should process `fooBinding` style hash properties [DEPRECATED]", function () {
     registry.register("helper:x-repeat", makeBoundHelper['default'](function (params, hash, options, env) {
-      equal(hash.timesBinding, "numRepeats");
+      equal(hash.times, 3);
     }));
+
+    var template;
+
+    expectDeprecation(function () {
+      template = compile['default']("{{x-repeat text timesBinding=\"numRepeats\"}}");
+    }, /You're using legacy binding syntax: timesBinding="numRepeats"/);
 
     view = EmberView['default'].create({
       container: container,
@@ -15215,7 +15866,7 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
         text: "ab",
         numRepeats: 3
       },
-      template: compile['default']("{{x-repeat text timesBinding=\"numRepeats\"}}")
+      template: template
     });
 
     utils.runAppend(view);
@@ -15305,7 +15956,9 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
 
   QUnit.test("should have correct argument types", function () {
     registry.register("helper:get-type", makeBoundHelper['default'](function (params) {
-      return typeof params[0];
+      var value = params[0];
+
+      return value === null ? "null" : typeof value;
     }));
 
     view = EmberView['default'].create({
@@ -15316,121 +15969,65 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['ember-views/views
 
     utils.runAppend(view);
 
-    equal(view.$().text(), "undefined, undefined, string, number, object", "helper output is correct");
-  });
-
-  QUnit.test("when no parameters are bound, no new views are created", function () {
-    registerRepeatHelper();
-    var originalRender = SimpleBoundView['default'].prototype.render;
-    var renderWasCalled = false;
-    SimpleBoundView['default'].prototype.render = function () {
-      renderWasCalled = true;
-      return originalRender.apply(this, arguments);
-    };
-
-    try {
-      view = EmberView['default'].create({
-        template: compile['default']("{{x-repeat \"a\"}}"),
-        controller: EmberObject['default'].create(),
-        container: container
-      });
-      utils.runAppend(view);
-    } finally {
-      SimpleBoundView['default'].prototype.render = originalRender;
-    }
-
-    ok(!renderWasCalled, "simple bound view should not have been created and rendered");
-    equal(view.$().text(), "a");
-  });
-
-  QUnit.test("when no hash parameters are bound, no new views are created", function () {
-    registerRepeatHelper();
-    var originalRender = SimpleBoundView['default'].prototype.render;
-    var renderWasCalled = false;
-    SimpleBoundView['default'].prototype.render = function () {
-      renderWasCalled = true;
-      return originalRender.apply(this, arguments);
-    };
-
-    try {
-      view = EmberView['default'].create({
-        template: compile['default']("{{x-repeat \"a\" times=3}}"),
-        controller: EmberObject['default'].create(),
-        container: container
-      });
-      utils.runAppend(view);
-    } finally {
-      SimpleBoundView['default'].prototype.render = originalRender;
-    }
-
-    ok(!renderWasCalled, "simple bound view should not have been created and rendered");
-    equal(view.$().text(), "aaa");
+    equal(view.$().text(), "null, undefined, string, number, object", "helper output is correct");
   });
 
 });
-enifed('ember-htmlbars/tests/system/make_view_helper_test', ['ember-htmlbars/system/make-view-helper'], function (makeViewHelper) {
+enifed('ember-htmlbars/tests/system/make_view_helper_test', ['ember-htmlbars/system/make-view-helper', 'ember-views/views/view', 'ember-template-compiler', 'container/registry', 'ember-runtime/tests/utils'], function (makeViewHelper, EmberView, ember_template_compiler, Registry, utils) {
 
   'use strict';
 
-  QUnit.module("ember-htmlbars: makeViewHelper");
+  var registry, container, view;
 
-  QUnit.test("makes helpful assertion when called with invalid arguments", function () {
-    var viewClass = { toString: function () {
-        return "Some Random Class";
-      } };
-
-    var helper = makeViewHelper['default'](viewClass);
-
-    expectAssertion(function () {
-      helper.helperFunction(["foo"], {}, {}, {});
-    }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
-  });
-
-});
-enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/utils', 'ember-views/views/view', 'ember-htmlbars/env', 'ember-metal/keys'], function (utils, EmberView, defaultEnv, keys) {
-
-  'use strict';
-
-  var view;
-  QUnit.module("ember-htmlbars: renderView", {
+  QUnit.module("ember-htmlbars: makeViewHelper", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("helper", { instantiate: false });
+    },
     teardown: function () {
       utils.runDestroy(view);
     }
   });
 
-  QUnit.test("default environment values are passed through", function () {
-    var keyNames = keys['default'](defaultEnv['default']);
-    expect(keyNames.length);
-
-    view = EmberView['default'].create({
-      template: {
-        isHTMLBars: true,
-        revision: "Ember@1.13.0-beta.1+canary.1ab4ccb4",
-        render: function (view, env, contextualElement, blockArguments) {
-          for (var i = 0, l = keyNames.length; i < l; i++) {
-            var keyName = keyNames[i];
-
-            deepEqual(env[keyName], defaultEnv['default'][keyName], "passes " + keyName + " from the default env");
-          }
-        }
-      }
+  QUnit.test("makes helpful assertion when called with invalid arguments", function () {
+    var SomeRandom = EmberView['default'].extend({
+      template: ember_template_compiler.compile("Some Random Class")
     });
 
-    utils.runAppend(view);
-  });
+    SomeRandom.toString = function () {
+      return "Some Random Class";
+    };
 
-  QUnit.test("Provides a helpful assertion if revisions do not match.", function () {
+    var helper = makeViewHelper['default'](SomeRandom);
+    registry.register("helper:some-random", helper);
+
     view = EmberView['default'].create({
-      template: {
-        isHTMLBars: true,
-        revision: "Foo-Bar-Baz",
-        render: function () {}
-      }
+      template: ember_template_compiler.compile("{{some-random 'sending-params-to-view-is-invalid'}}"),
+      container: container
     });
 
     expectAssertion(function () {
       utils.runAppend(view);
-    }, /was compiled with `Foo-Bar-Baz`/);
+    }, "You can only pass attributes (such as name=value) not bare values to a helper for a View found in 'Some Random Class'");
+  });
+
+  QUnit.test("can properly yield", function () {
+    var SomeRandom = EmberView['default'].extend({
+      layout: ember_template_compiler.compile("Some Random Class - {{yield}}")
+    });
+
+    var helper = makeViewHelper['default'](SomeRandom);
+    registry.register("helper:some-random", helper);
+
+    view = EmberView['default'].create({
+      template: ember_template_compiler.compile("{{#some-random}}Template{{/some-random}}"),
+      container: container
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "Some Random Class - Template");
   });
 
 });
@@ -15453,352 +16050,6 @@ enifed('ember-htmlbars/tests/utils/string_test', ['htmlbars-util/safe-string', '
   QUnit.test("htmlSafe should return an empty string for undefined", function () {
     equal(string.htmlSafe().toString(), "", "should return an empty string");
   });
-
-});
-enifed('ember-metal-views/tests/attributes_test', ['ember-metal-views/tests/test_helpers'], function (test_helpers) {
-
-  'use strict';
-
-  test_helpers.testsFor("ember-metal-views - attributes");
-
-  QUnit.test("aliased attributeBindings", function () {
-    var view = {
-      isView: true,
-      attributeBindings: ["isDisabled:disabled"],
-      isDisabled: "disabled"
-    };
-
-    var el = test_helpers.appendTo(view);
-
-    equal(el.getAttribute("disabled"), "disabled", "The attribute alias was set");
-
-    test_helpers.subject().removeAndDestroy(view);
-  });
-
-});
-enifed('ember-metal-views/tests/children_test', ['ember-metal-views/tests/test_helpers'], function (test_helpers) {
-
-  'use strict';
-
-  test_helpers.testsFor("ember-metal-views - children");
-
-  QUnit.test("a view can have child views", function () {
-    var view = {
-      isView: true,
-      tagName: "ul",
-      childViews: [{ isView: true, tagName: "li", textContent: "ohai" }]
-    };
-
-    test_helpers.appendTo(view);
-    test_helpers.equalHTML("qunit-fixture", "<ul><li>ohai</li></ul>");
-  });
-
-  QUnit.test("didInsertElement fires after children are rendered", function () {
-    expect(2);
-
-    var view = {
-      isView: true,
-      tagName: "ul",
-      childViews: [{ isView: true, tagName: "li", textContent: "ohai" }],
-
-      didInsertElement: function () {
-        test_helpers.equalHTML(this.element, "<ul><li>ohai</li></ul>", "Children are rendered");
-      }
-    };
-
-    test_helpers.appendTo(view);
-    test_helpers.equalHTML("qunit-fixture", "<ul><li>ohai</li></ul>");
-
-    test_helpers.subject().removeAndDestroy(view);
-  });
-
-});
-enifed('ember-metal-views/tests/main_test', ['ember-metal-views/tests/test_helpers'], function (test_helpers) {
-
-  'use strict';
-
-  var view;
-
-  test_helpers.testsFor("ember-metal-views", {
-    teardown: function (renderer) {
-      if (view) {
-        renderer.removeAndDestroy(view);
-      }
-      view = null;
-    }
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("by default, view renders as a div", function () {
-    view = { isView: true };
-
-    test_helpers.appendTo(view);
-    test_helpers.equalHTML("qunit-fixture", "<div></div>");
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("tagName can be specified", function () {
-    view = {
-      isView: true,
-      tagName: "span"
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<span></span>");
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("textContent can be specified", function () {
-    view = {
-      isView: true,
-      textContent: "ohai <a>derp</a>"
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<div>ohai &lt;a&gt;derp&lt;/a&gt;</div>");
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("innerHTML can be specified", function () {
-    view = {
-      isView: true,
-      innerHTML: "ohai <a>derp</a>"
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<div>ohai <a>derp</a></div>");
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("innerHTML tr can be specified", function () {
-    view = {
-      isView: true,
-      tagName: "table",
-      innerHTML: "<tr><td>ohai</td></tr>"
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<table><tr><td>ohai</td></tr></table>");
-  });
-
-  // Test the behavior of the helper createElement stub
-  QUnit.test("element can be specified", function () {
-    view = {
-      isView: true,
-      element: document.createElement("i")
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<i></i>");
-  });
-
-  QUnit.test("willInsertElement hook", function () {
-    expect(3);
-
-    view = {
-      isView: true,
-
-      willInsertElement: function (el) {
-        ok(this.element && this.element.nodeType === 1, "We have an element");
-        equal(this.element.parentElement, null, "The element is parentless");
-        test_helpers.setElementText(this.element, "you gone and done inserted that element");
-      }
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<div>you gone and done inserted that element</div>");
-  });
-
-  QUnit.test("didInsertElement hook", function () {
-    expect(3);
-
-    view = {
-      isView: true,
-
-      didInsertElement: function () {
-        ok(this.element && this.element.nodeType === 1, "We have an element");
-        equal(this.element.parentElement, document.getElementById("qunit-fixture"), "The element's parent is correct");
-        test_helpers.setElementText(this.element, "you gone and done inserted that element");
-      }
-    };
-
-    test_helpers.appendTo(view);
-
-    test_helpers.equalHTML("qunit-fixture", "<div>you gone and done inserted that element</div>");
-  });
-
-  QUnit.test("classNames - array", function () {
-    view = {
-      isView: true,
-      classNames: ["foo", "bar"],
-      textContent: "ohai"
-    };
-
-    test_helpers.appendTo(view);
-    test_helpers.equalHTML("qunit-fixture", "<div class=\"foo bar\">ohai</div>");
-  });
-
-  QUnit.test("classNames - string", function () {
-    view = {
-      isView: true,
-      classNames: "foo bar",
-      textContent: "ohai"
-    };
-
-    test_helpers.appendTo(view);
-    test_helpers.equalHTML("qunit-fixture", "<div class=\"foo bar\">ohai</div>");
-  });
-
-});
-enifed('ember-metal-views/tests/test_helpers', ['exports', 'ember-metal/platform/create', 'ember-metal-views'], function (exports, create, ember_metal_views) {
-
-  'use strict';
-
-  exports.testsFor = testsFor;
-  exports.subject = subject;
-  exports.equalHTML = equalHTML;
-  exports.appendTo = appendTo;
-
-  var renderer;
-
-  function MetalRenderer() {
-    MetalRenderer._super.call(this);
-  }
-  MetalRenderer._super = ember_metal_views.Renderer;
-  MetalRenderer.prototype = create['default'](ember_metal_views.Renderer.prototype, {
-    constructor: {
-      value: MetalRenderer,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  MetalRenderer.prototype.childViews = function (view) {
-    return view.childViews;
-  };
-  MetalRenderer.prototype.willCreateElement = function (view) {};
-  MetalRenderer.prototype.createElement = function (view, contextualElement) {
-    var el;
-    if (view.element) {
-      el = view.element;
-    } else {
-      el = view.element = this._dom.createElement(view.tagName || 'div', contextualElement);
-    }
-    var classNames = view.classNames;
-    if (typeof classNames === 'string') {
-      el.setAttribute('class', classNames);
-    } else if (classNames && classNames.length) {
-      if (classNames.length === 1) {
-        // PERF: avoid join'ing unnecessarily
-        el.setAttribute('class', classNames[0]);
-      } else {
-        el.setAttribute('class', classNames.join(' ')); // TODO: faster way to do this?
-      }
-    }
-    var attributeBindings = view.attributeBindings;
-    if (attributeBindings && attributeBindings.length) {
-      for (var i = 0, l = attributeBindings.length; i < l; i++) {
-        var attributeBinding = attributeBindings[i];
-        var parts = attributeBinding.split(':');
-        el.setAttribute(parts[1], view[parts[0]]);
-      }
-    }
-    if (view.childViews) {
-      view._childViewsMorph = this._dom.appendMorph(el);
-    } else if (view.textContent) {
-      setElementText(el, view.textContent);
-    } else if (view.innerHTML) {
-      this._dom.detectNamespace(el);
-      var frag = this._dom.parseHTML(view.innerHTML, el);
-      el.appendChild(frag);
-    }
-    return el;
-  };
-  MetalRenderer.prototype.didCreateElement = function (view) {};
-  MetalRenderer.prototype.willInsertElement = function (view) {
-    if (view.willInsertElement) {
-      view.willInsertElement();
-    }
-  };
-  MetalRenderer.prototype.didInsertElement = function (view) {
-    if (view.didInsertElement) {
-      view.didInsertElement();
-    }
-  };
-
-  MetalRenderer.prototype.scheduleRender = function (renderer, render) {
-    render.call(renderer);
-  };
-  function testsFor(name, options) {
-    QUnit.module(name, {
-      setup: function () {
-        renderer = new MetalRenderer();
-        if (options && options.setup) {
-          options.setup(renderer);
-        }
-      },
-      teardown: function () {
-        if (options && options.teardown) {
-          options.teardown(renderer);
-        }
-        renderer = undefined;
-      }
-    });
-  }
-
-  function subject() {
-    return renderer;
-  }
-
-  var supportsTextContent = ('textContent' in document.createElement('div'));
-  var setElementText;
-  if (supportsTextContent) {
-    setElementText = function setElementText(element, text) {
-      element.textContent = text;
-    };
-  } else {
-    setElementText = function setElementText(element, text) {
-      element.innerText = text;
-    };
-  }
-  function equalHTML(element, expectedHTML, message) {
-    var html;
-    if (typeof element === 'string') {
-      html = document.getElementById(element).innerHTML;
-    } else {
-      if (element instanceof window.NodeList) {
-        var fragment = document.createElement('div');
-        while (element[0]) {
-          fragment.appendChild(element[0]);
-        }
-        html = fragment.innerHTML;
-      } else {
-        html = element.outerHTML;
-      }
-    }
-
-    var actualHTML = html.replace(/ id="[^"]+"/gmi, '');
-    actualHTML = actualHTML.replace(/<\/?([A-Z]+)/gi, function (tag) {
-      return tag.toLowerCase();
-    });
-    actualHTML = actualHTML.replace(/\r\n/gm, '');
-    actualHTML = actualHTML.replace(/ $/, '');
-    equal(actualHTML, expectedHTML, message || 'HTML matches');
-  }
-
-  function appendTo(view) {
-    renderer.appendTo(view, document.getElementById('qunit-fixture'));
-    return view.element;
-  }
-
-  exports.setElementText = setElementText;
 
 });
 enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get'], function (property_get) {
@@ -15984,6 +16235,53 @@ enifed('ember-metal/tests/accessors/get_test', ['ember-metal/tests/props_helper'
         continue;
       }
       equal(property_get.get(obj, key), obj[key], key);
+    }
+  });
+
+  QUnit.test('should invoke INTERCEPT_GET even if the property exists', function () {
+    var obj = {
+      string: 'string',
+      number: 23,
+      boolTrue: true,
+      boolFalse: false,
+      nullValue: null
+    };
+
+    var calledWith = undefined;
+    obj[property_get.INTERCEPT_GET] = function (obj, key) {
+      calledWith = [obj, key];
+      return property_get.UNHANDLED_GET;
+    };
+
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key)) {
+        continue;
+      }
+      calledWith = undefined;
+      equal(property_get.get(obj, key), obj[key], key);
+      equal(calledWith[0], obj, 'the object was passed');
+      equal(calledWith[1], key, 'the key was passed');
+    }
+  });
+
+  QUnit.test('should invoke INTERCEPT_GET and accept a return value', function () {
+    var obj = {
+      string: 'string',
+      number: 23,
+      boolTrue: true,
+      boolFalse: false,
+      nullValue: null
+    };
+
+    obj[property_get.INTERCEPT_GET] = function (obj, key) {
+      return key;
+    };
+
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key) || key === property_get.INTERCEPT_GET) {
+        continue;
+      }
+      equal(property_get.get(obj, key), key, key);
     }
   });
 
@@ -16571,6 +16869,114 @@ enifed('ember-metal/tests/accessors/set_test', ['ember-metal/property_get', 'emb
 
       equal(property_set.set(newObj, key, obj[key]), obj[key], 'should return value');
       equal(property_get.get(newObj, key), obj[key], 'should set value');
+    }
+  });
+
+  QUnit.test('should call INTERCEPT_SET and support UNHANDLED_SET if INTERCEPT_SET is defined', function () {
+    var obj = {
+      string: 'string',
+      number: 23,
+      boolTrue: true,
+      boolFalse: false,
+      nullValue: null,
+      undefinedValue: undefined
+    };
+
+    var newObj = {
+      undefinedValue: 'emberjs'
+    };
+
+    var calledWith = undefined;
+    newObj[property_set.INTERCEPT_SET] = function (obj, key, value) {
+      calledWith = [key, value];
+      return property_set.UNHANDLED_SET;
+    };
+
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key)) {
+        continue;
+      }
+
+      calledWith = undefined;
+
+      equal(property_set.set(newObj, key, obj[key]), obj[key], 'should return value');
+      equal(calledWith[0], key, 'INTERCEPT_SET called with the key');
+      equal(calledWith[1], obj[key], 'INTERCEPT_SET called with the key');
+      equal(property_get.get(newObj, key), obj[key], 'should set value since UNHANDLED_SET was returned');
+    }
+  });
+
+  QUnit.test('should call INTERCEPT_SET and support handling the set if it is defined', function () {
+    var obj = {
+      string: 'string',
+      number: 23,
+      boolTrue: true,
+      boolFalse: false,
+      nullValue: null,
+      undefinedValue: undefined
+    };
+
+    var newObj = {
+      bucket: {}
+    };
+
+    var calledWith = undefined;
+    newObj[property_set.INTERCEPT_SET] = function (obj, key, value) {
+      property_set.set(obj.bucket, key, value);
+      return value;
+    };
+
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key)) {
+        continue;
+      }
+
+      calledWith = undefined;
+
+      equal(property_set.set(newObj, key, obj[key]), obj[key], 'should return value');
+      equal(property_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
+      ok(newObj.bucket.hasOwnProperty(key), 'the key is defined in bucket');
+      ok(!newObj.hasOwnProperty(key), 'the key is not defined on the raw object');
+    }
+  });
+
+  QUnit.test('should call INTERCEPT_GET and INTERCEPT_SET', function () {
+    var obj = {
+      string: 'string',
+      number: 23,
+      boolTrue: true,
+      boolFalse: false,
+      nullValue: null,
+      undefinedValue: undefined
+    };
+
+    var newObj = {
+      string: null,
+      number: null,
+      boolTrue: null,
+      boolFalse: null,
+      nullValue: null,
+      undefinedValue: null,
+      bucket: {}
+    };
+
+    newObj[property_set.INTERCEPT_SET] = function (obj, key, value) {
+      property_set.set(obj.bucket, key, value);
+      return value;
+    };
+
+    newObj[property_get.INTERCEPT_GET] = function (obj, key) {
+      return property_get.get(obj.bucket, key);
+    };
+
+    for (var key in obj) {
+      if (!obj.hasOwnProperty(key)) {
+        continue;
+      }
+
+      equal(property_set.set(newObj, key, obj[key]), obj[key], 'should return value');
+      equal(property_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
+      equal(property_get.get(newObj, key), obj[key], 'INTERCEPT_GET was called');
     }
   });
 
@@ -23631,13 +24037,205 @@ enifed('ember-metal/tests/set_properties_test', ['ember-metal/set_properties'], 
   });
 
 });
-enifed('ember-metal/tests/streams/simple_stream_test', ['ember-metal/streams/stream', 'ember-metal/streams/simple'], function (Stream, SimpleStream) {
+enifed('ember-metal/tests/streams/key-stream-test', ['ember-metal/watching', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/property_set'], function (watching, Stream, KeyStream, property_set) {
+
+  'use strict';
+
+  var source, object, count;
+
+  function incrementCount() {
+    count++;
+  }
+
+  QUnit.module("KeyStream", {
+    setup: function () {
+      count = 0;
+      object = { name: "mmun" };
+
+      source = new Stream['default'](function () {
+        return object;
+      });
+    },
+    teardown: function () {
+      count = undefined;
+      object = undefined;
+      source = undefined;
+    }
+  });
+
+  QUnit.test("can be instantiated manually", function () {
+    var nameStream = new KeyStream['default'](source, "name");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+  });
+
+  QUnit.test("can be instantiated via `Stream.prototype.get`", function () {
+    var nameStream = source.get("name");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the observed object's property is mutated", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "wycats");
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the source stream's value changes to a new object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    object = { name: "wycats" };
+    source.notify();
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when the source stream's value changes to the same object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    source.notify();
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when setSource is called with a new stream whose value is a new object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    object = { name: "wycats" };
+    nameStream.setSource(new Stream['default'](function () {
+      return object;
+    }));
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "wycats", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("is notified when setSource is called with a new stream whose value is the same object", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(incrementCount);
+
+    equal(count, 0, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    nameStream.setSource(new Stream['default'](function () {
+      return object;
+    }));
+
+    equal(count, 1, "Subscribers called correct number of times");
+    equal(nameStream.value(), "mmun", "Stream value is correct");
+
+    property_set.set(object, "name", "kris");
+
+    equal(count, 2, "Subscribers called correct number of times");
+    equal(nameStream.value(), "kris", "Stream value is correct");
+  });
+
+  QUnit.test("adds and removes key observers on activation and deactivation", function () {
+    var nameStream = source.get("name");
+
+    ok(!watching.isWatching(object, "name"), "Key is not observered immediately after creation");
+
+    nameStream.value();
+
+    ok(!watching.isWatching(object, "name"), "Key is not observered after calling value with no subscribers");
+
+    var firstCallback = function () {};
+    nameStream.subscribe(firstCallback);
+
+    ok(!watching.isWatching(object, "name"), "Key is not observered immediately after first subscription");
+
+    nameStream.value();
+
+    ok(watching.isWatching(object, "name"), "Key is observered after activation");
+
+    var secondCallback = function () {};
+    nameStream.subscribe(secondCallback);
+
+    ok(watching.isWatching(object, "name"), "Key is still observered after second subscription is added");
+
+    nameStream.unsubscribe(secondCallback);
+
+    ok(watching.isWatching(object, "name"), "Key is still observered after second subscription is removed");
+
+    nameStream.unsubscribe(firstCallback);
+
+    ok(!watching.isWatching(object, "name"), "Key is not observered after deactivation");
+  });
+
+  QUnit.test("removes key observers on destruction", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(function () {});
+    nameStream.value();
+
+    ok(watching.isWatching(object, "name"), "(Precondition) Key is observered after activation");
+
+    nameStream.destroy();
+
+    ok(!watching.isWatching(object, "name"), "Key is not observered after destruction");
+  });
+
+  QUnit.test("manages key observers correctly when the object changes", function () {
+    var nameStream = source.get("name");
+    nameStream.subscribe(function () {});
+    nameStream.value();
+
+    ok(watching.isWatching(object, "name"), "(Precondition) Key is observered after activation");
+
+    var prevObject = object;
+    object = { name: "wycats" };
+    source.notify();
+
+    ok(watching.isWatching(prevObject, "name"), "Key is still observered on the previous object before recomputing");
+    ok(!watching.isWatching(object, "name"), "Key is still not observered on the new object before recomputing");
+
+    nameStream.value();
+
+    ok(!watching.isWatching(prevObject, "name"), "Key is not observered on the previous object after recomputing");
+    ok(watching.isWatching(object, "name"), "Key is observered on the new object after recomputing");
+  });
+
+});
+enifed('ember-metal/tests/streams/proxy-stream-test', ['ember-metal/streams/stream', 'ember-metal/streams/proxy-stream'], function (Stream, ProxyStream) {
 
   'use strict';
 
   var source, value;
 
-  QUnit.module("Simple Stream", {
+  QUnit.module("ProxyStream", {
     setup: function () {
       value = "zlurp";
 
@@ -23657,7 +24255,7 @@ enifed('ember-metal/tests/streams/simple_stream_test', ['ember-metal/streams/str
   });
 
   QUnit.test("supports a stream argument", function () {
-    var stream = new SimpleStream['default'](source);
+    var stream = new ProxyStream['default'](source);
     equal(stream.value(), "zlurp");
 
     stream.setValue("blorg");
@@ -23665,7 +24263,7 @@ enifed('ember-metal/tests/streams/simple_stream_test', ['ember-metal/streams/str
   });
 
   QUnit.test("supports a non-stream argument", function () {
-    var stream = new SimpleStream['default'](value);
+    var stream = new ProxyStream['default'](value);
     equal(stream.value(), "zlurp");
 
     stream.setValue("blorg");
@@ -23673,150 +24271,50 @@ enifed('ember-metal/tests/streams/simple_stream_test', ['ember-metal/streams/str
   });
 
 });
-enifed('ember-metal/tests/streams/stream_binding_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/streams/stream', 'ember-metal/streams/stream_binding'], function (property_get, property_set, mixin, run, Stream, StreamBinding) {
+enifed('ember-metal/tests/streams/stream-test', ['ember-metal/streams/stream', 'ember-runtime/system/object_proxy', 'ember-metal/property_get'], function (Stream, ObjectProxy, property_get) {
 
   'use strict';
 
-  var source, value;
+  var stream, value, count;
 
-  QUnit.module("Stream Binding", {
+  function incrementCount() {
+    count++;
+  }
+
+  QUnit.module("Stream - Proxy compatibility", {
     setup: function () {
+      count = 0;
       value = "zlurp";
 
-      source = new Stream['default'](function () {
+      stream = new Stream['default'](function () {
         return value;
       });
-
-      source.setValue = function (_value) {
-        value = _value;
-        this.notify();
-      };
     },
     teardown: function () {
       value = undefined;
-      source = undefined;
+      stream = undefined;
     }
   });
 
-  QUnit.test("basic", function () {
-    var binding = new StreamBinding['default'](source);
+  QUnit.test("is notified when a proxy's content changes", function () {
+    stream.subscribe(incrementCount);
+    stream.value();
 
-    equal(binding.value(), "zlurp");
-
-    run['default'](function () {
-      source.setValue("blorg");
+    value = ObjectProxy['default'].create({
+      content: { message: "foo" }
     });
 
-    equal(binding.value(), "blorg");
+    equal(count, 0);
 
-    binding.destroy(); // destroy should not fail
-  });
+    stream.notify();
 
-  QUnit.test("the source stream can send values to a single subscriber", function () {
-    var binding = new StreamBinding['default'](source);
-    var obj = mixin.mixin({}, { toBinding: binding });
+    equal(count, 1);
+    equal(property_get.get(stream.value(), "message"), "foo");
 
-    equal(property_get.get(obj, "to"), "zlurp", "immediately syncs value forward on init");
+    value.set("content", { message: "bar" });
 
-    run['default'](function () {
-      source.setValue("blorg");
-      equal(property_get.get(obj, "to"), "zlurp", "does not immediately sync value on set");
-    });
-
-    equal(property_get.get(obj, "to"), "blorg", "value has synced after run loop");
-  });
-
-  QUnit.test("the source stream can send values to multiple subscribers", function () {
-    var binding = new StreamBinding['default'](source);
-    var obj1 = mixin.mixin({}, { toBinding: binding });
-    var obj2 = mixin.mixin({}, { toBinding: binding });
-
-    equal(property_get.get(obj1, "to"), "zlurp", "immediately syncs value forward on init");
-    equal(property_get.get(obj2, "to"), "zlurp", "immediately syncs value forward on init");
-
-    run['default'](function () {
-      source.setValue("blorg");
-      equal(property_get.get(obj1, "to"), "zlurp", "does not immediately sync value on set");
-      equal(property_get.get(obj2, "to"), "zlurp", "does not immediately sync value on set");
-    });
-
-    equal(property_get.get(obj1, "to"), "blorg", "value has synced after run loop");
-    equal(property_get.get(obj2, "to"), "blorg", "value has synced after run loop");
-  });
-
-  QUnit.test("a subscriber can set the value on the source stream and notify the other subscribers", function () {
-    var binding = new StreamBinding['default'](source);
-    var obj1 = mixin.mixin({}, { toBinding: binding });
-    var obj2 = mixin.mixin({}, { toBinding: binding });
-
-    run['default'](function () {
-      property_set.set(obj1, "to", "blorg");
-      equal(property_get.get(obj2, "to"), "zlurp", "does not immediately sync value on set");
-      equal(source.value(), "zlurp", "does not immediately sync value on set");
-    });
-
-    equal(property_get.get(obj2, "to"), "blorg", "value has synced after run loop");
-    equal(source.value(), "blorg", "value has synced after run loop");
-  });
-
-  QUnit.test("if source and subscribers sync value, source wins", function () {
-    var binding = new StreamBinding['default'](source);
-    var obj1 = mixin.mixin({}, { toBinding: binding });
-    var obj2 = mixin.mixin({}, { toBinding: binding });
-    var obj3 = mixin.mixin({}, { toBinding: binding });
-
-    run['default'](function () {
-      property_set.set(obj1, "to", "blorg");
-      source.setValue("hoopla");
-      property_set.set(obj2, "to", "flarp");
-      equal(property_get.get(obj3, "to"), "zlurp", "does not immediately sync value on set");
-    });
-
-    equal(source.value(), "hoopla", "value has synced after run loop");
-    equal(property_get.get(obj1, "to"), "hoopla", "value has synced after run loop");
-    equal(property_get.get(obj2, "to"), "hoopla", "value has synced after run loop");
-    equal(property_get.get(obj3, "to"), "hoopla", "value has synced after run loop");
-  });
-
-  QUnit.test("the last value sent by the source wins", function () {
-    var binding = new StreamBinding['default'](source);
-    var obj = mixin.mixin({}, { toBinding: binding });
-
-    run['default'](function () {
-      source.setValue("blorg");
-      source.setValue("hoopla");
-      equal(property_get.get(obj, "to"), "zlurp", "does not immediately sync value on set");
-    });
-
-    equal(source.value(), "hoopla", "value has synced after run loop");
-    equal(property_get.get(obj, "to"), "hoopla", "value has synced after run loop");
-  });
-
-  QUnit.test("continues to notify subscribers after first consumption, even if not consumed", function () {
-    var counter = 0;
-    var binding = new StreamBinding['default'](source);
-
-    binding.value();
-
-    binding.subscribe(function () {
-      source.value();
-      counter++;
-    });
-
-    equal(counter, 0);
-
-    run['default'](function () {
-      source.setValue("blorg");
-      equal(counter, 0);
-    });
-    equal(counter, 1);
-
-    run['default'](function () {
-      source.setValue("hoopla");
-      source.setValue("zlurp");
-      equal(counter, 1);
-    });
-    equal(counter, 2);
+    equal(count, 2);
+    equal(property_get.get(stream.value(), "message"), "bar");
   });
 
 });
@@ -24790,18 +25288,15 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-metal/core', 'ember-meta
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-htmlbars/helpers', 'ember-routing-htmlbars/helpers/action', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, helpers, action, utils) {
+enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, action, each, utils) {
 
   'use strict';
 
-  var dispatcher, view, originalActionHelper;
+  var dispatcher, view;
   var originalRegisterAction = action.ActionHelper.registerAction;
 
   QUnit.module("ember-routing-htmlbars: action helper", {
     setup: function () {
-      originalActionHelper = helpers['default']["action"];
-      helpers.registerHelper("action", action.actionHelper);
-
       dispatcher = EventDispatcher['default'].create();
       dispatcher.setup();
     },
@@ -24809,9 +25304,6 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     teardown: function () {
       utils.runDestroy(view);
       utils.runDestroy(dispatcher);
-
-      delete helpers['default']["action"];
-      helpers['default']["action"] = originalActionHelper;
 
       action.ActionHelper.registerAction = originalRegisterAction;
     }
@@ -24830,8 +25322,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should by default register a click event", function () {
     var registeredEventName;
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredEventName = options.eventName;
+    action.ActionHelper.registerAction = function (_ref) {
+      var eventName = _ref.eventName;
+
+      registeredEventName = eventName;
     };
 
     view = EmberView['default'].create({
@@ -24846,8 +25340,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should allow alternative events to be handled", function () {
     var registeredEventName;
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredEventName = options.eventName;
+    action.ActionHelper.registerAction = function (_ref2) {
+      var eventName = _ref2.eventName;
+
+      registeredEventName = eventName;
     };
 
     view = EmberView['default'].create({
@@ -24863,8 +25359,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var registeredTarget;
     var controller = {};
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredTarget = options.target.value();
+    action.ActionHelper.registerAction = function (_ref3) {
+      var node = _ref3.node;
+
+      registeredTarget = node.state.target;
     };
 
     view = EmberView['default'].create({
@@ -24911,8 +25409,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should target the current controller inside an {{each}} loop [DEPRECATED]", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredTarget = options.target.value();
+    action.ActionHelper.registerAction = function (_ref4) {
+      var node = _ref4.node;
+
+      registeredTarget = node.state.target;
     };
 
     var itemController = EmberController['default'].create();
@@ -24935,7 +25435,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
 
     expectDeprecation(function () {
       utils.runAppend(view);
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     equal(registeredTarget, itemController, "the item controller is the target of action");
   });
@@ -24943,8 +25443,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredTarget = options.target.value();
+    action.ActionHelper.registerAction = function (_ref5) {
+      var node = _ref5.node;
+
+      registeredTarget = node.state.target;
     };
 
     var PersonController = EmberController['default'].extend();
@@ -24970,9 +25472,9 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     ok(registeredTarget instanceof PersonController, "the with-controller is the target of action");
   });
 
-  QUnit.test("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function () {
-    expectDeprecation("Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
-    expectDeprecation("Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.");
+  QUnit.skip("should target the with-controller inside an {{each}} in a {{#with controller='person'}} [DEPRECATED]", function () {
+    expectDeprecation(each.deprecation);
+    expectDeprecation("Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.");
 
     var eventsCalled = [];
 
@@ -25012,8 +25514,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should allow a target to be specified", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (actionName, options) {
-      registeredTarget = options.target.value();
+    action.ActionHelper.registerAction = function (_ref6) {
+      var node = _ref6.node;
+
+      registeredTarget = node.state.target;
     };
 
     var anotherTarget = EmberView['default'].create();
@@ -25305,7 +25809,8 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var eventHandlerWasCalled = false;
 
     view = EmberView['default'].extend({
-      template: compile['default']("<a href=\"#\" {{action \"edit\"}}>click me</a>"),
+      template: compile['default']("{{#if view.active}}<a href=\"#\" {{action \"edit\"}}>click me</a>{{/if}}"),
+      active: true,
       actions: { edit: function () {
           eventHandlerWasCalled = true;
         } }
@@ -25316,7 +25821,11 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var previousActionId = view.$("a[data-ember-action]").attr("data-ember-action");
 
     run['default'](function () {
-      view.rerender();
+      property_set.set(view, "active", false);
+    });
+
+    run['default'](function () {
+      property_set.set(view, "active", true);
     });
 
     ok(!ActionManager['default'].registeredActions[previousActionId], "On rerender, the event handler was removed");
@@ -25709,8 +26218,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var lastAction;
     var actionOrder = [];
 
-    view = EmberView['default'].create({
-      template: compile['default']("{{#each allactions}}<a {{bind-attr id='name'}} {{action name}}>{{title}}</a>{{/each}}")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#each allactions}}<a {{bind-attr id='name'}} {{action name}}>{{title}}</a>{{/each}}")
+      });
     });
 
     var controller = EmberController['default'].extend({
@@ -25736,7 +26247,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
         view.set("controller", controller);
         view.appendTo("#qunit-fixture");
       });
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    }, each.deprecation);
 
     var testBoundAction = function (propertyValue) {
       run['default'](function () {
@@ -25758,8 +26269,10 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var lastAction;
     var actionOrder = [];
 
-    view = EmberView['default'].create({
-      template: compile['default']("{{#each item in allactions}}<a {{bind-attr id='item.name'}} {{action item.name}}>{{item.title}}</a>{{/each}}")
+    ignoreDeprecation(function () {
+      view = EmberView['default'].create({
+        template: compile['default']("{{#each item in allactions}}<a {{bind-attr id='item.name'}} {{action item.name}}>{{item.title}}</a>{{/each}}")
+      });
     });
 
     var controller = EmberController['default'].extend({
@@ -25801,45 +26314,32 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   });
 
   QUnit.test("a quoteless parameter that does not resolve to a value asserts", function () {
-    var triggeredAction;
-
-    view = EmberView['default'].create({
-      template: compile['default']("<a id='oops-bound-param' {{action ohNoeNotValid}}>Hi</a>")
-    });
 
     var controller = EmberController['default'].extend({
       actions: {
-        ohNoeNotValid: function () {
-          triggeredAction = true;
-        }
+        ohNoeNotValid: function () {}
       }
     }).create();
 
-    run['default'](function () {
-      view.set("controller", controller);
-      view.appendTo("#qunit-fixture");
+    view = EmberView['default'].create({
+      controller: controller,
+      template: compile['default']("<a id='oops-bound-param' {{action ohNoeNotValid}}>Hi</a>")
     });
 
     expectAssertion(function () {
       run['default'](function () {
-        view.$("#oops-bound-param").click();
+        view.appendTo("#qunit-fixture");
       });
     }, "You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).");
   });
 
   QUnit.module("ember-routing-htmlbars: action helper - deprecated invoking directly on target", {
     setup: function () {
-      originalActionHelper = helpers['default']["action"];
-      helpers.registerHelper("action", action.actionHelper);
-
       dispatcher = EventDispatcher['default'].create();
       dispatcher.setup();
     },
 
     teardown: function () {
-      delete helpers['default']["action"];
-      helpers['default']["action"] = originalActionHelper;
-
       utils.runDestroy(view);
       utils.runDestroy(dispatcher);
     }
@@ -25868,13 +26368,43 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils'], function (__dep0__, run, EmberView, compile, property_set, Controller, utils) {
+enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-routing-views/views/link'], function (__dep0__, run, EmberView, compile, property_set, Controller, system__container, utils, EmberObject, ComponentLookup, LinkView) {
 
   'use strict';
 
   var view;
+  var container;
+  var registry = new system__container.Registry();
+
+  // These tests don't rely on the routing service, but LinkView makes
+  // some assumptions that it will exist. This small stub service ensures
+  // that the LinkView can render without raising an exception.
+  //
+  // TODO: Add tests that test actual behavior. Currently, all behavior
+  // is tested integration-style in the `ember` package.
+  registry.register("service:-routing", EmberObject['default'].extend({
+    availableRoutes: function () {
+      return ["index"];
+    },
+    hasRoute: function (name) {
+      return name === "index";
+    },
+    isActiveForRoute: function () {
+      return true;
+    },
+    generateURL: function () {
+      return "/";
+    }
+  }));
+
+  registry.register("component-lookup:main", ComponentLookup['default']);
+  registry.register("component:-link-to", LinkView['default']);
 
   QUnit.module("ember-routing-htmlbars: link-to helper", {
+    setup: function () {
+      container = registry.container();
+    },
+
     teardown: function () {
       utils.runDestroy(view);
     }
@@ -25883,7 +26413,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
   QUnit.test("should be able to be inserted in DOM when the router is not present", function () {
     var template = "{{#link-to 'index'}}Go to Index{{/link-to}}";
     view = EmberView['default'].create({
-      template: compile['default'](template)
+      template: compile['default'](template),
+      container: container
     });
 
     utils.runAppend(view);
@@ -25898,7 +26429,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
         title: "foo",
         routeName: "index"
       },
-      template: compile['default'](template)
+      template: compile['default'](template),
+      container: container
     });
 
     utils.runAppend(view);
@@ -25919,7 +26451,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
         title: "foo",
         routeName: "index"
       },
-      template: compile['default'](template)
+      template: compile['default'](template),
+      container: container
     });
 
     utils.runAppend(view);
@@ -25930,7 +26463,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
   QUnit.test("escaped inline form (double curlies) escapes link title", function () {
     view = EmberView['default'].create({
       title: "<b>blah</b>",
-      template: compile['default']("{{link-to view.title}}")
+      template: compile['default']("{{link-to view.title}}"),
+      container: container
     });
 
     utils.runAppend(view);
@@ -25941,7 +26475,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
   QUnit.test("unescaped inline form (triple curlies) does not escape link title", function () {
     view = EmberView['default'].create({
       title: "<b>blah</b>",
-      template: compile['default']("{{{link-to view.title}}}")
+      template: compile['default']("{{{link-to view.title}}}"),
+      container: container
     });
 
     utils.runAppend(view);
@@ -25957,7 +26492,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
         model: "foo"
       }),
 
-      template: compile['default'](template)
+      template: compile['default'](template),
+      container: container
     });
 
     expectDeprecation(function () {
@@ -25968,19 +26504,16 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-routing-htmlbars/helpers/outlet', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (run, Namespace, EmberView, jQuery, outlet, compile, helpers, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (run, Namespace, EmberView, jQuery, compile, utils, tests__utils) {
 
   'use strict';
 
   var trim = jQuery['default'].trim;
 
-  var registry, container, originalOutletHelper, top;
+  var registry, container, top;
 
   QUnit.module("ember-routing-htmlbars: {{outlet}} helper", {
     setup: function () {
-      originalOutletHelper = helpers['default']["outlet"];
-      helpers.registerHelper("outlet", outlet.outletHelper);
-
       var namespace = Namespace['default'].create();
       registry = tests__utils.buildRegistry(namespace);
       container = registry.container();
@@ -25990,9 +26523,6 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     },
 
     teardown: function () {
-      delete helpers['default']["outlet"];
-      helpers['default']["outlet"] = originalOutletHelper;
-
       utils.runDestroy(container);
       utils.runDestroy(top);
       registry = container = top = null;
@@ -26043,7 +26573,8 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     equal(trim(top.$().text()), "HIBYE");
   });
 
-  QUnit.test("outlet should correctly lookup a view", function () {
+  QUnit.test("outlet should correctly lookup a view [DEPRECATED]", function () {
+    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
     var CoreOutlet = container.lookupFactory("view:core-outlet");
     var SpecialOutlet = CoreOutlet.extend({
       classNames: ["special"]
@@ -26067,7 +26598,8 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     equal(top.$().find(".special").length, 1, "expected to find .special element");
   });
 
-  QUnit.test("outlet should assert view is specified as a string", function () {
+  QUnit.test("outlet should assert view is specified as a string [DEPRECATED]", function () {
+    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
     top.setOutletState(withTemplate("<h1>HI</h1>{{outlet view=containerView}}"));
 
     expectAssertion(function () {
@@ -26075,15 +26607,17 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     }, /Using a quoteless view parameter with {{outlet}} is not supported/);
   });
 
-  QUnit.test("outlet should assert view path is successfully resolved", function () {
+  QUnit.test("outlet should assert view path is successfully resolved [DEPRECATED]", function () {
+    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
     top.setOutletState(withTemplate("<h1>HI</h1>{{outlet view='someViewNameHere'}}"));
 
     expectAssertion(function () {
       utils.runAppend(top);
-    }, "The view name you supplied 'someViewNameHere' did not resolve to a view.");
+    }, /someViewNameHere must be a subclass or an instance of Ember.View/);
   });
 
-  QUnit.test("outlet should support an optional view class", function () {
+  QUnit.test("outlet should support an optional view class [DEPRECATED]", function () {
+    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
     var CoreOutlet = container.lookupFactory("view:core-outlet");
     var SpecialOutlet = CoreOutlet.extend({
       classNames: ["very-special"]
@@ -26159,7 +26693,8 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     equal(output, "BOTTOM", "all templates were rendered");
   });
 
-  QUnit.test("should support layouts", function () {
+  QUnit.test("should support layouts [DEPRECATED]", function () {
+    expectDeprecation(/Using deprecated `template` property on a Component/);
     var template = "{{outlet}}";
     var layout = "<h1>HI</h1>{{yield}}";
     var routerState = {
@@ -26215,7 +26750,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
   }
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/platform/define_property', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/helpers/render', 'ember-routing-htmlbars/helpers/action', 'ember-routing-htmlbars/helpers/outlet', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (Ember, property_set, run, define_property, mixin, Namespace, EmberController, EmberArrayController, helpers, compile, EmberView, jQuery, ActionManager, render, helpers__action, outlet, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/platform/define_property', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (Ember, property_set, run, define_property, mixin, Namespace, EmberController, EmberArrayController, compile, EmberView, jQuery, ActionManager, utils, tests__utils) {
 
   'use strict';
 
@@ -26225,34 +26760,16 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     });
   }
 
-  var view, container, originalRenderHelper, originalActionHelper, originalOutletHelper;
+  var view, container;
 
   QUnit.module("ember-routing-htmlbars: {{render}} helper", {
     setup: function () {
-      originalOutletHelper = helpers['default']["outlet"];
-      helpers.registerHelper("outlet", outlet.outletHelper);
-
-      originalRenderHelper = helpers['default']["render"];
-      helpers.registerHelper("render", render.renderHelper);
-
-      originalActionHelper = helpers['default']["action"];
-      helpers.registerHelper("action", helpers__action.actionHelper);
-
       var namespace = Namespace['default'].create();
       var registry = utils.buildRegistry(namespace);
       container = registry.container();
     },
 
     teardown: function () {
-      delete helpers['default']["render"];
-      helpers['default']["render"] = originalRenderHelper;
-
-      delete helpers['default']["action"];
-      helpers['default']["action"] = originalActionHelper;
-
-      delete helpers['default']["outlet"];
-      helpers['default']["outlet"] = originalOutletHelper;
-
       tests__utils.runDestroy(container);
       tests__utils.runDestroy(view);
 
@@ -26264,6 +26781,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "<h1>HI</h1>{{render 'home'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26273,13 +26791,16 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     tests__utils.runAppend(view);
 
     equal(view.$().text(), "HIBYE");
-    ok(container.lookup("router:main")._lookupActiveView("home"), "should register home as active view");
+    // This is a poor assertion. What is really being tested is that
+    // a second render with the same name will throw an assert.
+    ok(container.lookup("router:main")._lookupActiveComponentNode("home"), "should register home as active view");
   });
 
   QUnit.test("{{render}} helper should render nested helpers", function () {
     var template = "<h1>HI</h1>{{render 'foo'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26297,6 +26818,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "<h1>HI</h1>{{render 'oops'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26311,6 +26833,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = EmberController['default'].extend({ container: container });
     container._registry.register("controller:good", EmberController['default'].extend({ name: "Rob" }));
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26324,6 +26847,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "<h1>HI</h1>{{render 'oops'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26349,18 +26873,23 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = Controller.create({});
 
     view = EmberView['default'].create({
+      container: container,
       controller: controller,
       template: compile['default'](template)
     });
 
-    var PostController = EmberController['default'].extend();
+    var postController;
+    var PostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
     container._registry.register("controller:post", PostController);
 
     Ember['default'].TEMPLATES["post"] = compile['default']("<p>{{model.title}}</p>");
 
     tests__utils.runAppend(view);
-
-    var postController = view._childViews[0].get("controller");
 
     equal(view.$().text(), "HIRails is omakase");
     equal(postController.get("model"), post);
@@ -26382,6 +26911,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     };
 
     view = EmberView['default'].create({
+      container: container,
       controller: EmberController['default'].create({
         container: container,
         post: post
@@ -26409,6 +26939,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = EmberController['default'].extend({ container: container });
     container._registry.register("controller:posts", EmberArrayController['default'].extend());
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26421,26 +26952,35 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
   QUnit.test("{{render}} helper should render with given controller", function () {
-    var template = "<h1>HI</h1>{{render \"home\" controller=\"posts\"}}";
+    var template = "{{render \"home\" controller=\"posts\"}}";
     var controller = EmberController['default'].extend({ container: container });
-    container._registry.register("controller:posts", EmberArrayController['default'].extend());
+    var id = 0;
+    container._registry.register("controller:posts", EmberArrayController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.uniqueId = id++;
+      }
+    }));
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
 
-    Ember['default'].TEMPLATES["home"] = compile['default']("<p>BYE</p>");
+    Ember['default'].TEMPLATES["home"] = compile['default']("{{uniqueId}}");
 
     tests__utils.runAppend(view);
 
-    var renderedView = container.lookup("router:main")._lookupActiveView("home");
-    equal(container.lookup("controller:posts"), renderedView.get("controller"), "rendered with correct controller");
+    var uniqueId = container.lookup("controller:posts").get("uniqueId");
+    equal(uniqueId, 0, "precond - first uniqueId is used for singleton");
+    equal(uniqueId, view.$().html(), "rendered with singleton controller");
   });
 
   QUnit.test("{{render}} helper should render a template without a model only once", function () {
     var template = "<h1>HI</h1>{{render 'home'}}<hr/>{{render 'home'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26470,19 +27010,27 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = Controller.create();
 
     view = EmberView['default'].create({
+      container: container,
       controller: controller,
       template: compile['default'](template)
     });
 
-    var PostController = EmberController['default'].extend();
+    var postController1, postController2;
+    var PostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
     container._registry.register("controller:post", PostController, { singleton: false });
 
     Ember['default'].TEMPLATES["post"] = compile['default']("<p>{{model.title}}</p>");
 
     tests__utils.runAppend(view);
-
-    var postController1 = view._childViews[0].get("controller");
-    var postController2 = view._childViews[1].get("controller");
 
     ok(view.$().text().match(/^HI ?Me first ?Then me$/));
     equal(postController1.get("model"), post1);
@@ -26512,28 +27060,34 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = Controller.create();
 
     view = EmberView['default'].create({
+      container: container,
       controller: controller,
       template: compile['default'](template)
     });
 
-    var PostController = EmberController['default'].extend();
+    var postController;
+    var PostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        postController = this;
+      }
+    });
     container._registry.register("controller:post", PostController);
 
     Ember['default'].TEMPLATES["post"] = compile['default']("<p>{{title}}</p>");
 
     tests__utils.runAppend(view);
 
-    var postController1 = view._childViews[0].get("controller");
-
     tests__utils.runDestroy(view);
 
-    ok(postController1.isDestroyed, "expected postController to be destroyed");
+    ok(postController.isDestroyed, "expected postController to be destroyed");
   });
 
   QUnit.test("{{render}} helper should not treat invocations with falsy contexts as context-less", function () {
     var template = "<h1>HI</h1> {{render 'post' zero}} {{render 'post' nonexistent}}";
 
     view = EmberView['default'].create({
+      container: container,
       controller: EmberController['default'].createWithMixins({
         container: container,
         zero: false
@@ -26541,15 +27095,22 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
       template: compile['default'](template)
     });
 
-    var PostController = EmberController['default'].extend();
+    var postController1, postController2;
+    var PostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
     container._registry.register("controller:post", PostController, { singleton: false });
 
     Ember['default'].TEMPLATES["post"] = compile['default']("<p>{{#unless model}}NOTHING{{/unless}}</p>");
 
     tests__utils.runAppend(view);
-
-    var postController1 = view._childViews[0].get("controller");
-    var postController2 = view._childViews[1].get("controller");
 
     ok(view.$().text().match(/^HI ?NOTHING ?NOTHING$/));
     equal(postController1.get("model"), 0);
@@ -26570,19 +27131,27 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var controller = Controller.create();
 
     view = EmberView['default'].create({
+      container: container,
       controller: controller,
       template: compile['default'](template)
     });
 
-    var PostController = EmberController['default'].extend();
+    var postController1, postController2;
+    var PostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        if (!postController1) {
+          postController1 = this;
+        } else if (!postController2) {
+          postController2 = this;
+        }
+      }
+    });
     container._registry.register("controller:post", PostController, { singleton: false });
 
     Ember['default'].TEMPLATES["post"] = compile['default']("<p>Title:{{model.title}}</p>");
 
     tests__utils.runAppend(view);
-
-    var postController1 = view._childViews[0].get("controller");
-    var postController2 = view._childViews[1].get("controller");
 
     ok(view.$().text().match(/^HI ?Title: ?Title:Rails is omakase$/));
     equal(postController1.get("model"), null);
@@ -26615,6 +27184,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     container._registry.register("controller:posts", EmberArrayController['default'].extend());
 
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26638,8 +27208,9 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   QUnit.test("{{render}} helper should be able to render a template again when it was removed", function () {
     var controller = EmberController['default'].extend({ container: container });
     var CoreOutlet = container.lookupFactory("view:core-outlet");
-    view = CoreOutlet.create();
-    tests__utils.runAppend(view);
+    view = CoreOutlet.create({
+      container: container
+    });
 
     Ember['default'].TEMPLATES["home"] = compile['default']("<p>BYE</p>");
 
@@ -26659,6 +27230,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
       };
       view.setOutletState(liveRoutes);
     });
+    tests__utils.runAppend(view);
 
     equal(view.$().text(), "HI1BYE");
 
@@ -26676,49 +27248,70 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
   QUnit.test("{{render}} works with dot notation", function () {
-    var template = "<h1>BLOG</h1>{{render \"blog.post\"}}";
+    var template = "{{render \"blog.post\"}}";
 
-    var controller = EmberController['default'].extend({ container: container });
-    container._registry.register("controller:blog.post", EmberController['default'].extend());
+    var ContextController = EmberController['default'].extend({ container: container });
+
+    var controller;
+    var id = 0;
+    var BlogPostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        controller = this;
+        this.uniqueId = id++;
+      }
+    });
+    container._registry.register("controller:blog.post", BlogPostController);
 
     view = EmberView['default'].create({
-      controller: controller.create(),
+      container: container,
+      controller: ContextController.create(),
       template: compile['default'](template)
     });
 
-    Ember['default'].TEMPLATES["blog.post"] = compile['default']("<p>POST</p>");
+    Ember['default'].TEMPLATES["blog.post"] = compile['default']("{{uniqueId}}");
 
     tests__utils.runAppend(view);
 
-    var renderedView = container.lookup("router:main")._lookupActiveView("blog.post");
-    equal(renderedView.get("viewName"), "blogPost", "camelizes the view name");
-    equal(container.lookup("controller:blog.post"), renderedView.get("controller"), "rendered with correct controller");
+    var singletonController = container.lookup("controller:blog.post");
+    equal(singletonController.uniqueId, view.$().html(), "rendered with correct singleton controller");
   });
 
   QUnit.test("{{render}} works with slash notation", function () {
-    var template = "<h1>BLOG</h1>{{render \"blog/post\"}}";
+    var template = "{{render \"blog/post\"}}";
 
-    var controller = EmberController['default'].extend({ container: container });
-    container._registry.register("controller:blog.post", EmberController['default'].extend());
+    var ContextController = EmberController['default'].extend({ container: container });
+
+    var controller;
+    var id = 0;
+    var BlogPostController = EmberController['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        controller = this;
+        this.uniqueId = id++;
+      }
+    });
+    container._registry.register("controller:blog.post", BlogPostController);
 
     view = EmberView['default'].create({
-      controller: controller.create(),
+      container: container,
+      controller: ContextController.create(),
       template: compile['default'](template)
     });
 
-    Ember['default'].TEMPLATES["blog.post"] = compile['default']("<p>POST</p>");
+    Ember['default'].TEMPLATES["blog.post"] = compile['default']("{{uniqueId}}");
 
     tests__utils.runAppend(view);
 
-    var renderedView = container.lookup("router:main")._lookupActiveView("blog.post");
-    equal(renderedView.get("viewName"), "blogPost", "camelizes the view name");
-    equal(container.lookup("controller:blog.post"), renderedView.get("controller"), "rendered with correct controller");
+    var singletonController = container.lookup("controller:blog.post");
+    equal(singletonController.uniqueId, view.$().html(), "rendered with correct singleton controller");
   });
 
   QUnit.test("throws an assertion if {{render}} is called with an unquoted template name", function () {
     var template = "<h1>HI</h1>{{render home}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26734,6 +27327,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "<h1>HI</h1>{{render \"home\" \"model\"}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26749,6 +27343,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "{{render 'fish'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26769,6 +27364,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
     var template = "{{render 'fish'}}";
     var controller = EmberController['default'].extend({ container: container });
     view = EmberView['default'].create({
+      container: container,
       controller: controller.create(),
       template: compile['default'](template)
     });
@@ -26783,7 +27379,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['ember-metal/core', 
   });
 
 });
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/metamorph_view', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, property_get, property_set, string, Registry, Controller, ObjectController, ArrayController, _MetamorphView, EmberView, EmberRouter, outlet, HashLocation) {
+enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, property_get, property_set, string, Registry, Controller, ObjectController, ArrayController, EmberView, EmberRouter, outlet, HashLocation) {
 
   'use strict';
 
@@ -26828,7 +27424,6 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_g
     registry.register("controller:object", ObjectController['default'], { instantiate: false });
     registry.register("controller:array", ArrayController['default'], { instantiate: false });
 
-    registry.register("view:default", _MetamorphView['default']);
     registry.register("view:toplevel", EmberView['default'].extend());
     registry.register("view:-outlet", outlet.OutletView);
     registry.register("view:core-outlet", outlet.CoreOutletView);
@@ -26840,7 +27435,7 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_g
   }
 
 });
-enifed('ember-routing-views/tests/main_test', ['ember-metal/core'], function (Ember) {
+enifed('ember-routing-views/tests/main_test', ['ember-routing-views'], function (Ember) {
 
   'use strict';
 
@@ -43780,11 +44375,54 @@ enifed('ember-template-compiler/tests/main_test', function () {
 	'use strict';
 
 });
-enifed('ember-template-compiler/tests/plugins/transform-each-in-to-hash-test', ['ember-template-compiler'], function (ember_template_compiler) {
+enifed('ember-template-compiler/tests/plugins/transform-bind-attr-to-attributes-test', ['ember-template-compiler'], function (ember_template_compiler) {
 
   'use strict';
 
-  QUnit.module('ember-template-compiler: transform-each-in-to-hash');
+  QUnit.module("ember-template-compiler: transform-bind-attr-to-attributes");
+
+  QUnit.test("Using the `bind-attr` helper throws a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("<div {{bind-attr class=view.foo}}></div>");
+    }, /The `bind-attr` helper is deprecated in favor of HTMLBars-style bound attributes/);
+  });
+
+  QUnit.test("Using the `bindAttr` helper throws a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("<div {{bindAttr class=view.foo}}></div>");
+    }, /The `bindAttr` helper is deprecated in favor of HTMLBars-style bound attributes/);
+  });
+
+  QUnit.test("asserts for <div class='foo' {{bind-attr class='bar'}}></div>", function () {
+    expect(1);
+
+    expectAssertion(function () {
+      ignoreDeprecation(function () {
+        ember_template_compiler.compile("<div class=\"foo\" {{bind-attr class=view.foo}}></div>");
+      });
+    }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
+  });
+
+  QUnit.test("asserts for <div data-bar='foo' {{bind-attr data-bar='blah'}}></div>", function () {
+    expect(1);
+
+    expectAssertion(function () {
+      ignoreDeprecation(function () {
+        ember_template_compiler.compile("<div data-bar=\"foo\" {{bind-attr data-bar=view.blah}}></div>");
+      });
+    }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
+  });
+
+});
+enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-test', ['ember-template-compiler'], function (ember_template_compiler) {
+
+  'use strict';
+
+  QUnit.module('ember-template-compiler: transform-each-in-to-block-params');
 
   QUnit.test('cannot use block params and keyword syntax together', function () {
     expect(1);
@@ -43880,7 +44518,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.1ab4ccb4", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.7ed3b69f", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -43912,17 +44550,17 @@ enifed('ember-template-compiler/tests/system/template_test', ['ember-template-co
   QUnit.test('sets `isTop` on the provided function', function () {
     function test() {}
 
-    template['default'](test);
+    var result = template['default'](test);
 
-    equal(test.isTop, true, 'sets isTop on the provided function');
+    equal(result.isTop, true, 'sets isTop on the provided function');
   });
 
   QUnit.test('sets `isMethod` on the provided function', function () {
     function test() {}
 
-    template['default'](test);
+    var result = template['default'](test);
 
-    equal(test.isMethod, false, 'sets isMethod on the provided function');
+    equal(result.isMethod, false, 'sets isMethod on the provided function');
   });
 
 });
@@ -45014,7 +45652,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
     });
   });
 
-  QUnit.test("`fillIn` focuses on the element", function () {
+  QUnit.skip("`fillIn` focuses on the element", function () {
     expect(2);
     var fillIn, find, visit, andThen;
 
@@ -45460,7 +46098,7 @@ enifed('ember-testing/tests/integration_test', ['ember-metal/core', 'ember-metal
         });
 
         App.PeopleView = EmberView['default'].extend({
-          defaultTemplate: compile['default']("{{#each person in controller}}<div class=\"name\">{{person.firstName}}</div>{{/each}}")
+          defaultTemplate: compile['default']("{{#each model as |person|}}<div class=\"name\">{{person.firstName}}</div>{{/each}}")
         });
 
         App.PeopleController = ArrayController['default'].extend({});
@@ -45569,769 +46207,42 @@ enifed('ember-testing/tests/simple_setup', ['ember-metal/run_loop', 'ember-views
   });
 
 });
-enifed('ember-views/tests/mixins/view_target_action_support_test', ['ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (EmberObject, View, ViewTargetActionSupport) {
+enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry'], function (View, utils, compile, Registry) {
 
   'use strict';
 
-  QUnit.module("ViewTargetActionSupport");
+  var view, registry, container;
 
-  QUnit.test("it should return false if no action is specified", function () {
-    expect(1);
-
-    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
-      controller: EmberObject['default'].create()
-    });
-
-    ok(false === view.triggerAction(), "a valid target and action were specified");
-  });
-
-  QUnit.test("it should support actions specified as strings", function () {
-    expect(2);
-
-    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
-      controller: EmberObject['default'].create({
-        anEvent: function () {
-          ok(true, "anEvent method was called");
-        }
-      }),
-      action: "anEvent"
-    });
-
-    ok(true === view.triggerAction(), "a valid target and action were specified");
-  });
-
-  QUnit.test("it should invoke the send() method on the controller with the view's context", function () {
-    expect(3);
-
-    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
-      context: {},
-      controller: EmberObject['default'].create({
-        send: function (evt, context) {
-          equal(evt, "anEvent", "send() method was invoked with correct event name");
-          equal(context, view.context, "send() method was invoked with correct context");
-        }
-      }),
-      action: "anEvent"
-    });
-
-    ok(true === view.triggerAction(), "a valid target and action were specified");
-  });
-
-});
-enifed('ember-views/tests/streams/class_string_for_value_test', ['ember-views/streams/class_name_binding'], function (class_name_binding) {
-
-  'use strict';
-
-  QUnit.module("EmberView - classStringForValue");
-
-  QUnit.test("returns dasherized version of last path part if value is true", function () {
-    equal(class_name_binding.classStringForValue("propertyName", true), "property-name", "class is dasherized");
-    equal(class_name_binding.classStringForValue("content.propertyName", true), "property-name", "class is dasherized");
-  });
-
-  QUnit.test("returns className if value is true and className is specified", function () {
-    equal(class_name_binding.classStringForValue("propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
-    equal(class_name_binding.classStringForValue("content.propertyName", true, "truthyClass"), "truthyClass", "returns className if given");
-  });
-
-  QUnit.test("returns falsyClassName if value is false and falsyClassName is specified", function () {
-    equal(class_name_binding.classStringForValue("propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
-    equal(class_name_binding.classStringForValue("content.propertyName", false, "truthyClass", "falsyClass"), "falsyClass", "returns falsyClassName if given");
-  });
-
-  QUnit.test("returns null if value is false and falsyClassName is not specified", function () {
-    equal(class_name_binding.classStringForValue("propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
-    equal(class_name_binding.classStringForValue("content.propertyName", false, "truthyClass"), null, "returns null if falsyClassName is not specified");
-  });
-
-  QUnit.test("returns null if value is false", function () {
-    equal(class_name_binding.classStringForValue("propertyName", false), null, "returns null if value is false");
-    equal(class_name_binding.classStringForValue("content.propertyName", false), null, "returns null if value is false");
-  });
-
-  QUnit.test("returns null if value is true and className is not specified and falsyClassName is specified", function () {
-    equal(class_name_binding.classStringForValue("propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
-    equal(class_name_binding.classStringForValue("content.propertyName", true, undefined, "falsyClassName"), null, "returns null if value is true");
-  });
-
-  QUnit.test("returns the value if the value is truthy", function () {
-    equal(class_name_binding.classStringForValue("propertyName", "myString"), "myString", "returns value if the value is truthy");
-    equal(class_name_binding.classStringForValue("content.propertyName", "myString"), "myString", "returns value if the value is truthy");
-
-    equal(class_name_binding.classStringForValue("propertyName", "123"), 123, "returns value if the value is truthy");
-    equal(class_name_binding.classStringForValue("content.propertyName", 123), 123, "returns value if the value is truthy");
-  });
-
-  QUnit.test("treat empty array as falsy value and return null", function () {
-    equal(class_name_binding.classStringForValue("propertyName", [], "truthyClass"), null, "returns null if value is false");
-    equal(class_name_binding.classStringForValue("content.propertyName", [], "truthyClass"), null, "returns null if value is false");
-  });
-
-  QUnit.test("treat non-empty array as truthy value and return the className if specified", function () {
-    equal(class_name_binding.classStringForValue("propertyName", ["emberjs"], "truthyClass"), "truthyClass", "returns className if given");
-    equal(class_name_binding.classStringForValue("content.propertyName", ["emberjs"], "truthyClass"), "truthyClass", "returns className if given");
-  });
-
-});
-enifed('ember-views/tests/streams/key_stream_test', ['ember-metal/property_set', 'ember-metal/streams/stream', 'ember-views/streams/key_stream'], function (property_set, Stream, KeyStream) {
-
-  'use strict';
-
-  var source, object, count;
-
-  function incrementCount() {
-    count++;
-  }
-
-  QUnit.module("KeyStream", {
+  QUnit.module("ember-views: attrs-proxy", {
     setup: function () {
-      count = 0;
-      object = { name: "mmun" };
-
-      source = new Stream['default'](function () {
-        return object;
-      });
-
-      source.setValue = function (value) {
-        object = value;
-        this.notify();
-      };
+      registry = new Registry['default']();
+      container = registry.container();
     },
+
     teardown: function () {
-      count = undefined;
-      object = undefined;
-      source = undefined;
+      utils.runDestroy(view);
     }
   });
 
-  QUnit.test("can be instantiated manually", function () {
-    var nameStream = new KeyStream['default'](source, "name");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-  });
+  QUnit.test("works with properties setup in root of view", function () {
+    registry.register("view:foo", View['default'].extend({
+      bar: "qux",
 
-  QUnit.test("can be instantiated via `Stream.prototype.get`", function () {
-    var nameStream = source.get("name");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-  });
-
-  QUnit.test("is notified when the observed object's property is mutated", function () {
-    var nameStream = source.get("name");
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    property_set.set(object, "name", "wycats");
-
-    equal(count, 1, "Subscribers called correct number of times");
-    equal(nameStream.value(), "wycats", "Stream value is correct");
-  });
-
-  QUnit.test("is notified when the source stream's value changes to a new object", function () {
-    var nameStream = source.get("name");
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    object = { name: "wycats" };
-    source.setValue(object);
-
-    equal(count, 1, "Subscribers called correct number of times");
-    equal(nameStream.value(), "wycats", "Stream value is correct");
-
-    property_set.set(object, "name", "kris");
-
-    equal(count, 2, "Subscribers called correct number of times");
-    equal(nameStream.value(), "kris", "Stream value is correct");
-  });
-
-  QUnit.test("is notified when the source stream's value changes to the same object", function () {
-    var nameStream = source.get("name");
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    source.setValue(object);
-
-    equal(count, 1, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    property_set.set(object, "name", "kris");
-
-    equal(count, 2, "Subscribers called correct number of times");
-    equal(nameStream.value(), "kris", "Stream value is correct");
-  });
-
-  QUnit.test("is notified when setSource is called with a new stream whose value is a new object", function () {
-    var nameStream = source.get("name");
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    object = { name: "wycats" };
-    nameStream.setSource(new Stream['default'](function () {
-      return object;
+      template: compile['default']("{{view.bar}}")
     }));
 
-    equal(count, 1, "Subscribers called correct number of times");
-    equal(nameStream.value(), "wycats", "Stream value is correct");
+    view = View['default'].extend({
+      container: registry.container(),
+      template: compile['default']("{{view \"foo\" bar=\"baz\"}}")
+    }).create();
 
-    property_set.set(object, "name", "kris");
+    utils.runAppend(view);
 
-    equal(count, 2, "Subscribers called correct number of times");
-    equal(nameStream.value(), "kris", "Stream value is correct");
-  });
-
-  QUnit.test("is notified when setSource is called with a new stream whose value is the same object", function () {
-    var nameStream = source.get("name");
-    nameStream.subscribe(incrementCount);
-
-    equal(count, 0, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    nameStream.setSource(new Stream['default'](function () {
-      return object;
-    }));
-
-    equal(count, 1, "Subscribers called correct number of times");
-    equal(nameStream.value(), "mmun", "Stream value is correct");
-
-    property_set.set(object, "name", "kris");
-
-    equal(count, 2, "Subscribers called correct number of times");
-    equal(nameStream.value(), "kris", "Stream value is correct");
+    equal(view.$().text(), "baz", "value specified in the template is used");
   });
 
 });
-enifed('ember-views/tests/streams/parse_property_path_test', ['ember-views/streams/class_name_binding'], function (class_name_binding) {
-
-  'use strict';
-
-  QUnit.module("EmberView - parsePropertyPath");
-
-  QUnit.test("it works with a simple property path", function () {
-    var parsed = class_name_binding.parsePropertyPath("simpleProperty");
-
-    equal(parsed.path, "simpleProperty", "path is parsed correctly");
-    equal(parsed.className, undefined, "there is no className");
-    equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-    equal(parsed.classNames, "", "there is no classNames");
-  });
-
-  QUnit.test("it works with a more complex property path", function () {
-    var parsed = class_name_binding.parsePropertyPath("content.simpleProperty");
-
-    equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-    equal(parsed.className, undefined, "there is no className");
-    equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-    equal(parsed.classNames, "", "there is no classNames");
-  });
-
-  QUnit.test("className is extracted", function () {
-    var parsed = class_name_binding.parsePropertyPath("content.simpleProperty:class");
-
-    equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-    equal(parsed.className, "class", "className is extracted");
-    equal(parsed.falsyClassName, undefined, "there is no falsyClassName");
-    equal(parsed.classNames, ":class", "there is a classNames");
-  });
-
-  QUnit.test("falsyClassName is extracted", function () {
-    var parsed = class_name_binding.parsePropertyPath("content.simpleProperty:class:falsyClass");
-
-    equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-    equal(parsed.className, "class", "className is extracted");
-    equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
-    equal(parsed.classNames, ":class:falsyClass", "there is a classNames");
-  });
-
-  QUnit.test("it works with an empty true class", function () {
-    var parsed = class_name_binding.parsePropertyPath("content.simpleProperty::falsyClass");
-
-    equal(parsed.path, "content.simpleProperty", "path is parsed correctly");
-    equal(parsed.className, undefined, "className is undefined");
-    equal(parsed.falsyClassName, "falsyClass", "falsyClassName is extracted");
-    equal(parsed.classNames, "::falsyClass", "there is a classNames");
-  });
-
-});
-enifed('ember-views/tests/system/event_dispatcher_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/views/container_view'], function (property_get, run, EmberObject, jQuery, View, EventDispatcher, ContainerView) {
-
-  'use strict';
-
-  var view;
-  var dispatcher;
-
-  QUnit.module("EventDispatcher", {
-    setup: function () {
-      run['default'](function () {
-        dispatcher = EventDispatcher['default'].create();
-        dispatcher.setup();
-      });
-    },
-
-    teardown: function () {
-      run['default'](function () {
-        if (view) {
-          view.destroy();
-        }
-        dispatcher.destroy();
-      });
-    }
-  });
-
-  QUnit.test("should dispatch events to views", function () {
-    var receivedEvent;
-    var parentMouseDownCalled = 0;
-    var childKeyDownCalled = 0;
-    var parentKeyDownCalled = 0;
-
-    var childView = View['default'].createWithMixins({
-      render: function (buffer) {
-        buffer.push("<span id=\"wot\">ewot</span>");
-      },
-
-      keyDown: function (evt) {
-        childKeyDownCalled++;
-
-        return false;
-      }
-    });
-
-    view = View['default'].createWithMixins({
-      render: function (buffer) {
-        buffer.push("some <span id=\"awesome\">awesome</span> content");
-        this.appendChild(childView);
-      },
-
-      mouseDown: function (evt) {
-        parentMouseDownCalled++;
-        receivedEvent = evt;
-      },
-
-      keyDown: function (evt) {
-        parentKeyDownCalled++;
-      }
-    });
-
-    run['default'](function () {
-      view.appendTo("#qunit-fixture");
-    });
-
-    view.$().trigger("mousedown");
-
-    ok(receivedEvent, "passes event to associated event method");
-    receivedEvent = null;
-    parentMouseDownCalled = 0;
-
-    view.$("span#awesome").trigger("mousedown");
-    ok(receivedEvent, "event bubbles up to nearest View");
-    equal(parentMouseDownCalled, 1, "does not trigger the parent handlers twice because of browser bubbling");
-    receivedEvent = null;
-
-    jQuery['default']("#wot").trigger("mousedown");
-    ok(receivedEvent, "event bubbles up to nearest View");
-
-    jQuery['default']("#wot").trigger("keydown");
-    equal(childKeyDownCalled, 1, "calls keyDown on child view");
-    equal(parentKeyDownCalled, 0, "does not call keyDown on parent if child handles event");
-  });
-
-  QUnit.test("should not dispatch events to views not inDOM", function () {
-    var receivedEvent;
-
-    view = View['default'].createWithMixins({
-      render: function (buffer) {
-        buffer.push("some <span id=\"awesome\">awesome</span> content");
-        this._super(buffer);
-      },
-
-      mouseDown: function (evt) {
-        receivedEvent = evt;
-      }
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    var $element = view.$();
-
-    // TODO change this test not to use private API
-    // Force into preRender
-    view._renderer.remove(view, false, true);
-
-    $element.trigger("mousedown");
-
-    ok(!receivedEvent, "does not pass event to associated event method");
-    receivedEvent = null;
-
-    $element.find("span#awesome").trigger("mousedown");
-    ok(!receivedEvent, "event does not bubble up to nearest View");
-    receivedEvent = null;
-
-    // Cleanup
-    $element.remove();
-  });
-
-  QUnit.test("should send change events up view hierarchy if view contains form elements", function () {
-    var receivedEvent;
-    view = View['default'].create({
-      render: function (buffer) {
-        buffer.push("<input id=\"is-done\" type=\"checkbox\">");
-      },
-
-      change: function (evt) {
-        receivedEvent = evt;
-      }
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    jQuery['default']("#is-done").trigger("change");
-    ok(receivedEvent, "calls change method when a child element is changed");
-    equal(receivedEvent.target, jQuery['default']("#is-done")[0], "target property is the element that was clicked");
-  });
-
-  QUnit.test("events should stop propagating if the view is destroyed", function () {
-    var parentViewReceived, receivedEvent;
-
-    var parentView = ContainerView['default'].create({
-      change: function (evt) {
-        parentViewReceived = true;
-      }
-    });
-
-    view = parentView.createChildView(View['default'], {
-      render: function (buffer) {
-        buffer.push("<input id=\"is-done\" type=\"checkbox\">");
-      },
-
-      change: function (evt) {
-        receivedEvent = true;
-        var self = this;
-        run['default'](function () {
-          property_get.get(self, "parentView").destroy();
-        });
-      }
-    });
-
-    parentView.pushObject(view);
-
-    run['default'](function () {
-      parentView.append();
-    });
-
-    ok(jQuery['default']("#is-done").length, "precond - view is in the DOM");
-    jQuery['default']("#is-done").trigger("change");
-    ok(!jQuery['default']("#is-done").length, "precond - view is not in the DOM");
-    ok(receivedEvent, "calls change method when a child element is changed");
-    ok(!parentViewReceived, "parent view does not receive the event");
-  });
-
-  QUnit.test("should not interfere with event propagation of virtualViews", function () {
-    var receivedEvent;
-
-    var view = View['default'].create({
-      isVirtual: true,
-      render: function (buffer) {
-        buffer.push("<div id=\"propagate-test-div\"></div>");
-      }
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    jQuery['default'](window).bind("click", function (evt) {
-      receivedEvent = evt;
-    });
-
-    jQuery['default']("#propagate-test-div").click();
-
-    ok(receivedEvent, "allowed event to propagate");
-    deepEqual(receivedEvent && receivedEvent.target, jQuery['default']("#propagate-test-div")[0], "target property is the element that was clicked");
-  });
-
-  QUnit.test("should dispatch events to nearest event manager", function () {
-    var receivedEvent = 0;
-    view = ContainerView['default'].create({
-      render: function (buffer) {
-        buffer.push("<input id=\"is-done\" type=\"checkbox\">");
-      },
-
-      eventManager: EmberObject['default'].create({
-        mouseDown: function () {
-          receivedEvent++;
-        }
-      }),
-
-      mouseDown: function () {}
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    jQuery['default']("#is-done").trigger("mousedown");
-    equal(receivedEvent, 1, "event should go to manager and not view");
-  });
-
-  QUnit.test("event manager should be able to re-dispatch events to view", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    var receivedEvent = 0;
-    view = ContainerView['default'].createWithMixins({
-      elementId: "containerView",
-
-      eventManager: EmberObject['default'].create({
-        mouseDown: function (evt, view) {
-          // Re-dispatch event when you get it.
-          //
-          // The second parameter tells the dispatcher
-          // that this event has been handled. This
-          // API will clearly need to be reworked since
-          // multiple eventManagers in a single view
-          // hierarchy would break, but it shows that
-          // re-dispatching works
-          view.$().trigger("mousedown", this);
-        }
-      }),
-
-      childViews: ["child"],
-
-      child: View['default'].extend({
-        elementId: "nestedView",
-
-        mouseDown: function (evt) {
-          receivedEvent++;
-        }
-      }),
-
-      mouseDown: function (evt) {
-        receivedEvent++;
-      }
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    jQuery['default']("#nestedView").trigger("mousedown");
-    equal(receivedEvent, 2, "event should go to manager and not view");
-  });
-
-  QUnit.test("event handlers should be wrapped in a run loop", function () {
-    expect(1);
-
-    view = View['default'].createWithMixins({
-      elementId: "test-view",
-
-      eventManager: EmberObject['default'].create({
-        mouseDown: function () {
-          ok(run['default'].currentRunLoop, "a run loop should have started");
-        }
-      })
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    jQuery['default']("#test-view").trigger("mousedown");
-  });
-
-  QUnit.module("EventDispatcher#setup", {
-    setup: function () {
-      run['default'](function () {
-        dispatcher = EventDispatcher['default'].create({
-          rootElement: "#qunit-fixture"
-        });
-      });
-    },
-
-    teardown: function () {
-      run['default'](function () {
-        if (view) {
-          view.destroy();
-        }
-        dispatcher.destroy();
-      });
-    }
-  });
-
-  QUnit.test("additional events which should be listened on can be passed", function () {
-    expect(1);
-
-    run['default'](function () {
-      dispatcher.setup({ myevent: "myEvent" });
-
-      view = View['default'].create({
-        elementId: "leView",
-        myEvent: function () {
-          ok(true, "custom event has been triggered");
-        }
-      }).appendTo(dispatcher.get("rootElement"));
-    });
-
-    jQuery['default']("#leView").trigger("myevent");
-  });
-
-  QUnit.test("additional events and rootElement can be specified", function () {
-    expect(3);
-
-    jQuery['default']("#qunit-fixture").append("<div class='custom-root'></div>");
-
-    run['default'](function () {
-      dispatcher.setup({ myevent: "myEvent" }, ".custom-root");
-
-      view = View['default'].create({
-        elementId: "leView",
-        myEvent: function () {
-          ok(true, "custom event has been triggered");
-        }
-      }).appendTo(dispatcher.get("rootElement"));
-    });
-
-    ok(jQuery['default'](".custom-root").hasClass("ember-application"), "the custom rootElement is used");
-    equal(dispatcher.get("rootElement"), ".custom-root", "the rootElement is updated");
-
-    jQuery['default']("#leView").trigger("myevent");
-  });
-
-});
-enifed('ember-views/tests/system/ext_test', ['ember-metal/run_loop', 'ember-views/views/view'], function (run, View) {
-
-  'use strict';
-
-  QUnit.module("Ember.View additions to run queue");
-
-  QUnit.test("View hierarchy is done rendering to DOM when functions queued in afterRender execute", function () {
-    var didInsert = 0;
-    var childView = View['default'].create({
-      elementId: "child_view",
-      didInsertElement: function () {
-        didInsert++;
-      }
-    });
-    var parentView = View['default'].create({
-      elementId: "parent_view",
-      render: function (buffer) {
-        this.appendChild(childView);
-      },
-      didInsertElement: function () {
-        didInsert++;
-      }
-    });
-
-    run['default'](function () {
-      parentView.appendTo("#qunit-fixture");
-      run['default'].schedule("afterRender", this, function () {
-        equal(didInsert, 2, "all didInsertElement hooks fired for hierarchy");
-      });
-    });
-
-    run['default'](function () {
-      parentView.destroy();
-    });
-  });
-
-});
-enifed('ember-views/tests/system/jquery_ext_test', ['ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-views/views/view'], function (run, EventDispatcher, jQuery, View) {
-
-  'use strict';
-
-  var view, dispatcher;
-
-  // Adapted from https://github.com/jquery/jquery/blob/f30f7732e7775b6e417c4c22ced7adb2bf76bf89/test/data/testinit.js
-  var canDataTransfer, fireNativeWithDataTransfer;
-
-  if (document.createEvent) {
-    canDataTransfer = !!document.createEvent("HTMLEvents").dataTransfer;
-    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
-      var event = document.createEvent("HTMLEvents");
-      event.initEvent(type, true, true);
-      event.dataTransfer = dataTransfer;
-      node.dispatchEvent(event);
-    };
-  } else {
-    canDataTransfer = !!document.createEventObject().dataTransfer;
-    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
-      var event = document.createEventObject();
-      event.dataTransfer = dataTransfer;
-      node.fireEvent("on" + type, event);
-    };
-  }
-
-  QUnit.module("EventDispatcher", {
-    setup: function () {
-      run['default'](function () {
-        dispatcher = EventDispatcher['default'].create();
-        dispatcher.setup();
-      });
-    },
-
-    teardown: function () {
-      run['default'](function () {
-        if (view) {
-          view.destroy();
-        }
-        dispatcher.destroy();
-      });
-    }
-  });
-
-  if (canDataTransfer) {
-    QUnit.test("jQuery.event.fix copies over the dataTransfer property", function () {
-      var originalEvent;
-      var receivedEvent;
-
-      originalEvent = {
-        type: "drop",
-        dataTransfer: "success",
-        target: document.body
-      };
-
-      receivedEvent = jQuery['default'].event.fix(originalEvent);
-
-      ok(receivedEvent !== originalEvent, "attributes are copied to a new event object");
-      equal(receivedEvent.dataTransfer, originalEvent.dataTransfer, "copies dataTransfer property to jQuery event");
-    });
-
-    QUnit.test("drop handler should receive event with dataTransfer property", function () {
-      var receivedEvent;
-      var dropCalled = 0;
-
-      view = View['default'].createWithMixins({
-        render: function (buffer) {
-          buffer.push("please drop stuff on me");
-          this._super(buffer);
-        },
-
-        drop: function (evt) {
-          receivedEvent = evt;
-          dropCalled++;
-        }
-      });
-
-      run['default'](function () {
-        view.append();
-      });
-
-      fireNativeWithDataTransfer(view.$().get(0), "drop", "success");
-
-      equal(dropCalled, 1, "called drop handler once");
-      equal(receivedEvent.dataTransfer, "success", "copies dataTransfer property to jQuery event");
-    });
-  }
-
-});
-enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquery', 'ember-views/system/render_buffer', 'dom-helper'], function (jQuery, RenderBuffer, DOMHelper) {
+enifed('ember-views/tests/compat/render_buffer_test', ['ember-views/system/jquery', 'ember-views/compat/render_buffer', 'dom-helper'], function (jQuery, RenderBuffer, DOMHelper) {
 
   'use strict';
 
@@ -46339,9 +46250,6 @@ enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquer
   var xhtmlNamespace = "http://www.w3.org/1999/xhtml";
   var trim = jQuery['default'].trim;
 
-  // .......................................................
-  //  render()
-  //
   QUnit.module("RenderBuffer");
 
   var domHelper = new DOMHelper['default']();
@@ -46682,6 +46590,587 @@ enifed('ember-views/tests/system/render_buffer_test', ['ember-views/system/jquer
   }
 
 });
+enifed('ember-views/tests/compat/view_render_hook_test', ['ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/views/view'], function (utils, compile, View) {
+
+  'use strict';
+
+  var view, parentView;
+
+  QUnit.module("ember-views: View#render hook", {
+    teardown: function () {
+      utils.runDestroy(view);
+      utils.runDestroy(parentView);
+    }
+  });
+
+  QUnit.test("the render hook replaces a view if present", function (assert) {
+    var count = 0;
+    view = View['default'].create({
+      template: compile['default']("bob"),
+      render: function () {
+        count++;
+      }
+    });
+
+    utils.runAppend(view);
+
+    assert.equal(count, 1, "render called");
+    assert.equal(view.$().html(), "<!---->", "template not rendered");
+  });
+
+  QUnit.test("the render hook can push HTML into the buffer once", function (assert) {
+    view = View['default'].create({
+      render: function (buffer) {
+        buffer.push("<span>Nancy</span>");
+      }
+    });
+
+    utils.runAppend(view);
+
+    assert.equal(view.$().html(), "<span>Nancy</span>", "buffer made DOM");
+  });
+
+  QUnit.test("the render hook can push HTML into the buffer on nested view", function (assert) {
+    view = View['default'].create({
+      render: function (buffer) {
+        buffer.push("<span>Nancy</span>");
+      }
+    });
+    parentView = View['default'].create({
+      childView: view,
+      template: compile['default']("{{view view.childView}}")
+    });
+
+    utils.runAppend(parentView);
+
+    assert.equal(view.$().html(), "<span>Nancy</span>", "buffer made DOM");
+  });
+
+  QUnit.test("the render hook can push arbitrary HTML into the buffer", function (assert) {
+    view = View['default'].create({
+      render: function (buffer) {
+        buffer.push("<span>");
+        buffer.push("Nancy</span>");
+      }
+    });
+
+    utils.runAppend(view);
+
+    assert.equal(view.$().html(), "<span>Nancy</span>", "buffer made DOM");
+  });
+
+  QUnit.test("the render hook can push HTML into the buffer on tagless view", function (assert) {
+    view = View['default'].create({
+      tagName: "",
+      render: function (buffer) {
+        buffer.push("<span>Nancy</span>");
+      }
+    });
+
+    utils.runAppend(view);
+
+    assert.equal(Ember.$("#qunit-fixture").html(), "<span>Nancy</span>", "buffer made DOM");
+  });
+
+  QUnit.test("the render hook can push HTML into the buffer on nested tagless view", function (assert) {
+    view = View['default'].create({
+      tagName: "",
+      render: function (buffer) {
+        buffer.push("<span>Nancy</span>");
+      }
+    });
+    parentView = View['default'].create({
+      childView: view,
+      template: compile['default']("{{view view.childView}}")
+    });
+
+    utils.runAppend(parentView);
+
+    assert.equal(parentView.$().html(), "<span>Nancy</span>", "buffer made DOM");
+  });
+
+});
+enifed('ember-views/tests/mixins/view_target_action_support_test', ['ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (EmberObject, View, ViewTargetActionSupport) {
+
+  'use strict';
+
+  QUnit.module("ViewTargetActionSupport");
+
+  QUnit.test("it should return false if no action is specified", function () {
+    expect(1);
+
+    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
+      controller: EmberObject['default'].create()
+    });
+
+    ok(false === view.triggerAction(), "a valid target and action were specified");
+  });
+
+  QUnit.test("it should support actions specified as strings", function () {
+    expect(2);
+
+    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
+      controller: EmberObject['default'].create({
+        anEvent: function () {
+          ok(true, "anEvent method was called");
+        }
+      }),
+      action: "anEvent"
+    });
+
+    ok(true === view.triggerAction(), "a valid target and action were specified");
+  });
+
+  QUnit.test("it should invoke the send() method on the controller with the view's context", function () {
+    expect(3);
+
+    var view = View['default'].createWithMixins(ViewTargetActionSupport['default'], {
+      context: {},
+      controller: EmberObject['default'].create({
+        send: function (evt, context) {
+          equal(evt, "anEvent", "send() method was invoked with correct event name");
+          equal(context, view.context, "send() method was invoked with correct context");
+        }
+      }),
+      action: "anEvent"
+    });
+
+    ok(true === view.triggerAction(), "a valid target and action were specified");
+  });
+
+});
+enifed('ember-views/tests/system/event_dispatcher_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/views/container_view', 'ember-template-compiler/system/compile'], function (property_get, run, EmberObject, jQuery, View, EventDispatcher, ContainerView, compile) {
+
+  'use strict';
+
+  var view;
+  var dispatcher;
+
+  QUnit.module("EventDispatcher", {
+    setup: function () {
+      run['default'](function () {
+        dispatcher = EventDispatcher['default'].create();
+        dispatcher.setup();
+      });
+    },
+
+    teardown: function () {
+      run['default'](function () {
+        if (view) {
+          view.destroy();
+        }
+        dispatcher.destroy();
+      });
+    }
+  });
+
+  QUnit.test("should dispatch events to views", function () {
+    var receivedEvent;
+    var parentMouseDownCalled = 0;
+    var childKeyDownCalled = 0;
+    var parentKeyDownCalled = 0;
+
+    var childView = View['default'].createWithMixins({
+      template: compile['default']("<span id=\"wot\">ewot</span>"),
+
+      keyDown: function (evt) {
+        childKeyDownCalled++;
+
+        return false;
+      }
+    });
+
+    view = View['default'].createWithMixins({
+      template: compile['default']("some <span id=\"awesome\">awesome</span> content {{view view.childView}}"),
+      childView: childView,
+
+      mouseDown: function (evt) {
+        parentMouseDownCalled++;
+        receivedEvent = evt;
+      },
+
+      keyDown: function (evt) {
+        parentKeyDownCalled++;
+      }
+    });
+
+    run['default'](function () {
+      view.appendTo("#qunit-fixture");
+    });
+
+    view.$().trigger("mousedown");
+
+    ok(receivedEvent, "passes event to associated event method");
+    receivedEvent = null;
+    parentMouseDownCalled = 0;
+
+    view.$("span#awesome").trigger("mousedown");
+    ok(receivedEvent, "event bubbles up to nearest View");
+    equal(parentMouseDownCalled, 1, "does not trigger the parent handlers twice because of browser bubbling");
+    receivedEvent = null;
+
+    jQuery['default']("#wot").trigger("mousedown");
+    ok(receivedEvent, "event bubbles up to nearest View");
+
+    jQuery['default']("#wot").trigger("keydown");
+    equal(childKeyDownCalled, 1, "calls keyDown on child view");
+    equal(parentKeyDownCalled, 0, "does not call keyDown on parent if child handles event");
+  });
+
+  QUnit.test("should not dispatch events to views not inDOM", function () {
+    var receivedEvent;
+
+    view = View['default'].createWithMixins({
+      template: compile['default']("some <span id=\"awesome\">awesome</span> content"),
+
+      mouseDown: function (evt) {
+        receivedEvent = evt;
+      }
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    var $element = view.$();
+
+    run['default'](function () {
+      // TODO change this test not to use private API
+      // Force into preRender
+      view.renderer.remove(view, false, true);
+    });
+
+    $element.trigger("mousedown");
+
+    ok(!receivedEvent, "does not pass event to associated event method");
+    receivedEvent = null;
+
+    $element.find("span#awesome").trigger("mousedown");
+    ok(!receivedEvent, "event does not bubble up to nearest View");
+    receivedEvent = null;
+
+    // Cleanup
+    $element.remove();
+  });
+
+  QUnit.test("should send change events up view hierarchy if view contains form elements", function () {
+    var receivedEvent;
+    view = View['default'].create({
+      template: compile['default']("<input id=\"is-done\" type=\"checkbox\">"),
+
+      change: function (evt) {
+        receivedEvent = evt;
+      }
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    jQuery['default']("#is-done").trigger("change");
+    ok(receivedEvent, "calls change method when a child element is changed");
+    equal(receivedEvent.target, jQuery['default']("#is-done")[0], "target property is the element that was clicked");
+  });
+
+  QUnit.test("events should stop propagating if the view is destroyed", function () {
+    var parentViewReceived, receivedEvent;
+
+    var parentView = ContainerView['default'].create({
+      change: function (evt) {
+        parentViewReceived = true;
+      }
+    });
+
+    view = parentView.createChildView(View['default'], {
+      template: compile['default']("<input id=\"is-done\" type=\"checkbox\">"),
+
+      change: function (evt) {
+        receivedEvent = true;
+        var self = this;
+        run['default'](function () {
+          property_get.get(self, "parentView").destroy();
+        });
+      }
+    });
+
+    parentView.pushObject(view);
+
+    run['default'](function () {
+      parentView.append();
+    });
+
+    ok(jQuery['default']("#is-done").length, "precond - view is in the DOM");
+    jQuery['default']("#is-done").trigger("change");
+    ok(!jQuery['default']("#is-done").length, "precond - view is not in the DOM");
+    ok(receivedEvent, "calls change method when a child element is changed");
+    ok(!parentViewReceived, "parent view does not receive the event");
+  });
+
+  QUnit.test("should dispatch events to nearest event manager", function () {
+    var receivedEvent = 0;
+    view = View['default'].create({
+      template: compile['default']("<input id=\"is-done\" type=\"checkbox\">"),
+
+      eventManager: EmberObject['default'].create({
+        mouseDown: function () {
+          receivedEvent++;
+        }
+      }),
+
+      mouseDown: function () {}
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    jQuery['default']("#is-done").trigger("mousedown");
+    equal(receivedEvent, 1, "event should go to manager and not view");
+  });
+
+  QUnit.test("event manager should be able to re-dispatch events to view", function () {
+    expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+    var receivedEvent = 0;
+    view = ContainerView['default'].createWithMixins({
+      elementId: "containerView",
+
+      eventManager: EmberObject['default'].create({
+        mouseDown: function (evt, view) {
+          // Re-dispatch event when you get it.
+          //
+          // The second parameter tells the dispatcher
+          // that this event has been handled. This
+          // API will clearly need to be reworked since
+          // multiple eventManagers in a single view
+          // hierarchy would break, but it shows that
+          // re-dispatching works
+          view.$().trigger("mousedown", this);
+        }
+      }),
+
+      childViews: ["child"],
+
+      child: View['default'].extend({
+        elementId: "nestedView",
+
+        mouseDown: function (evt) {
+          receivedEvent++;
+        }
+      }),
+
+      mouseDown: function (evt) {
+        receivedEvent++;
+      }
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    jQuery['default']("#nestedView").trigger("mousedown");
+    equal(receivedEvent, 2, "event should go to manager and not view");
+  });
+
+  QUnit.test("event handlers should be wrapped in a run loop", function () {
+    expect(1);
+
+    view = View['default'].createWithMixins({
+      elementId: "test-view",
+
+      eventManager: EmberObject['default'].create({
+        mouseDown: function () {
+          ok(run['default'].currentRunLoop, "a run loop should have started");
+        }
+      })
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    jQuery['default']("#test-view").trigger("mousedown");
+  });
+
+  QUnit.module("EventDispatcher#setup", {
+    setup: function () {
+      run['default'](function () {
+        dispatcher = EventDispatcher['default'].create({
+          rootElement: "#qunit-fixture"
+        });
+      });
+    },
+
+    teardown: function () {
+      run['default'](function () {
+        if (view) {
+          view.destroy();
+        }
+        dispatcher.destroy();
+      });
+    }
+  });
+
+  QUnit.test("additional events which should be listened on can be passed", function () {
+    expect(1);
+
+    run['default'](function () {
+      dispatcher.setup({ myevent: "myEvent" });
+
+      view = View['default'].create({
+        elementId: "leView",
+        myEvent: function () {
+          ok(true, "custom event has been triggered");
+        }
+      }).appendTo(dispatcher.get("rootElement"));
+    });
+
+    jQuery['default']("#leView").trigger("myevent");
+  });
+
+  QUnit.test("additional events and rootElement can be specified", function () {
+    expect(3);
+
+    jQuery['default']("#qunit-fixture").append("<div class='custom-root'></div>");
+
+    run['default'](function () {
+      dispatcher.setup({ myevent: "myEvent" }, ".custom-root");
+
+      view = View['default'].create({
+        elementId: "leView",
+        myEvent: function () {
+          ok(true, "custom event has been triggered");
+        }
+      }).appendTo(dispatcher.get("rootElement"));
+    });
+
+    ok(jQuery['default'](".custom-root").hasClass("ember-application"), "the custom rootElement is used");
+    equal(dispatcher.get("rootElement"), ".custom-root", "the rootElement is updated");
+
+    jQuery['default']("#leView").trigger("myevent");
+  });
+
+});
+enifed('ember-views/tests/system/ext_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler'], function (run, View, ember_template_compiler) {
+
+  'use strict';
+
+  QUnit.module("Ember.View additions to run queue");
+
+  QUnit.test("View hierarchy is done rendering to DOM when functions queued in afterRender execute", function () {
+    var didInsert = 0;
+    var childView = View['default'].create({
+      elementId: "child_view",
+      didInsertElement: function () {
+        didInsert++;
+      }
+    });
+    var parentView = View['default'].create({
+      elementId: "parent_view",
+      template: ember_template_compiler.compile("{{view view.childView}}"),
+      childView: childView,
+      didInsertElement: function () {
+        didInsert++;
+      }
+    });
+
+    run['default'](function () {
+      parentView.appendTo("#qunit-fixture");
+      run['default'].schedule("afterRender", this, function () {
+        equal(didInsert, 2, "all didInsertElement hooks fired for hierarchy");
+      });
+    });
+
+    run['default'](function () {
+      parentView.destroy();
+    });
+  });
+
+});
+enifed('ember-views/tests/system/jquery_ext_test', ['ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-views/views/view'], function (run, EventDispatcher, jQuery, View) {
+
+  'use strict';
+
+  var view, dispatcher;
+
+  // Adapted from https://github.com/jquery/jquery/blob/f30f7732e7775b6e417c4c22ced7adb2bf76bf89/test/data/testinit.js
+  var canDataTransfer, fireNativeWithDataTransfer;
+
+  if (document.createEvent) {
+    canDataTransfer = !!document.createEvent("HTMLEvents").dataTransfer;
+    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
+      var event = document.createEvent("HTMLEvents");
+      event.initEvent(type, true, true);
+      event.dataTransfer = dataTransfer;
+      node.dispatchEvent(event);
+    };
+  } else {
+    canDataTransfer = !!document.createEventObject().dataTransfer;
+    fireNativeWithDataTransfer = function (node, type, dataTransfer) {
+      var event = document.createEventObject();
+      event.dataTransfer = dataTransfer;
+      node.fireEvent("on" + type, event);
+    };
+  }
+
+  QUnit.module("EventDispatcher - jQuery integration", {
+    setup: function () {
+      run['default'](function () {
+        dispatcher = EventDispatcher['default'].create();
+        dispatcher.setup();
+      });
+    },
+
+    teardown: function () {
+      run['default'](function () {
+        if (view) {
+          view.destroy();
+        }
+        dispatcher.destroy();
+      });
+    }
+  });
+
+  if (canDataTransfer) {
+    QUnit.test("jQuery.event.fix copies over the dataTransfer property", function () {
+      var originalEvent;
+      var receivedEvent;
+
+      originalEvent = {
+        type: "drop",
+        dataTransfer: "success",
+        target: document.body
+      };
+
+      receivedEvent = jQuery['default'].event.fix(originalEvent);
+
+      ok(receivedEvent !== originalEvent, "attributes are copied to a new event object");
+      equal(receivedEvent.dataTransfer, originalEvent.dataTransfer, "copies dataTransfer property to jQuery event");
+    });
+
+    QUnit.test("drop handler should receive event with dataTransfer property", function () {
+      var receivedEvent;
+      var dropCalled = 0;
+
+      view = View['default'].createWithMixins({
+        drop: function (evt) {
+          receivedEvent = evt;
+          dropCalled++;
+        }
+      });
+
+      run['default'](function () {
+        view.append();
+      });
+
+      fireNativeWithDataTransfer(view.$().get(0), "drop", "success");
+
+      equal(dropCalled, 1, "called drop handler once");
+      equal(receivedEvent.dataTransfer, "success", "copies dataTransfer property to jQuery event");
+    });
+  }
+
+});
 enifed('ember-views/tests/system/view_utils_test', ['ember-metal/run_loop', 'ember-views/views/view'], function (run, View) {
 
   'use strict';
@@ -46725,11 +47214,7 @@ enifed('ember-views/tests/system/view_utils_test', ['ember-metal/run_loop', 'emb
       return;
     }
 
-    view = View['default'].create({
-      render: function (buffer) {
-        buffer.push("Hello, world!");
-      }
-    });
+    view = View['default'].create();
 
     run['default'](function () {
       view.appendTo("#qunit-fixture");
@@ -46744,11 +47229,7 @@ enifed('ember-views/tests/system/view_utils_test', ['ember-metal/run_loop', 'emb
       return;
     }
 
-    view = View['default'].create({
-      render: function (buffer) {
-        buffer.push("Hello, world!");
-      }
-    });
+    view = View['default'].create();
 
     run['default'](function () {
       view.appendTo("#qunit-fixture");
@@ -46756,6 +47237,38 @@ enifed('ember-views/tests/system/view_utils_test', ['ember-metal/run_loop', 'emb
 
     ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
   });
+
+});
+enifed('ember-views/tests/test-helpers/equal-html', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports.equalHTML = equalHTML;
+
+  function equalHTML(element, expectedHTML, message) {
+    var html;
+    if (typeof element === 'string') {
+      html = document.getElementById(element).innerHTML;
+    } else {
+      if (element instanceof window.NodeList) {
+        var fragment = document.createElement('div');
+        while (element[0]) {
+          fragment.appendChild(element[0]);
+        }
+        html = fragment.innerHTML;
+      } else {
+        html = element.outerHTML;
+      }
+    }
+
+    var actualHTML = html.replace(/ id="[^"]+"/gmi, '');
+    actualHTML = actualHTML.replace(/<\/?([A-Z]+)/gi, function (tag) {
+      return tag.toLowerCase();
+    });
+    actualHTML = actualHTML.replace(/\r\n/gm, '');
+    actualHTML = actualHTML.replace(/ $/, '');
+    equal(actualHTML, expectedHTML, message || 'HTML matches');
+  }
 
 });
 enifed('ember-views/tests/test-helpers/get-element-style', ['exports'], function (exports) {
@@ -46944,11 +47457,12 @@ enifed('ember-views/tests/views/checkbox_test', ['ember-views/views/checkbox', '
   });
 
 });
-enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/tests/test-helpers/get-element-style'], function (Ember, property_set, property_get, run, enumerable_utils, mixin, string, ArrayProxy, ArrayController, jQuery, CollectionView, View, getElementStyle) {
+enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style'], function (Ember, property_set, run, enumerable_utils, mixin, string, ArrayProxy, ArrayController, jQuery, CollectionView, View, Registry, compile, getElementStyle) {
 
   'use strict';
 
   var trim = jQuery['default'].trim;
+  var registry;
   var view;
 
   var originalLookup;
@@ -46957,6 +47471,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     setup: function () {
       CollectionView['default'].CONTAINER_MAP.del = "em";
       originalLookup = Ember['default'].lookup;
+      registry = new Registry['default']();
     },
     teardown: function () {
       delete CollectionView['default'].CONTAINER_MAP.del;
@@ -46983,14 +47498,28 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
 
   QUnit.test("should render the emptyView if content array is empty (view class)", function () {
     view = CollectionView['default'].create({
+      content: Ember['default'].A(),
+
+      emptyView: View['default'].extend({
+        template: compile['default']("OY SORRY GUVNAH NO NEWS TODAY EH")
+      })
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    ok(view.$().find("div:contains(\"OY SORRY GUVNAH\")").length, "displays empty view");
+  });
+
+  QUnit.test("should render the emptyView if content array is empty (view class with custom tagName)", function () {
+    view = CollectionView['default'].create({
       tagName: "del",
       content: Ember['default'].A(),
 
       emptyView: View['default'].extend({
         tagName: "kbd",
-        render: function (buf) {
-          buf.push("OY SORRY GUVNAH NO NEWS TODAY EH");
-        }
+        template: compile['default']("OY SORRY GUVNAH NO NEWS TODAY EH")
       })
     });
 
@@ -47008,9 +47537,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
 
       emptyView: View['default'].create({
         tagName: "kbd",
-        render: function (buf) {
-          buf.push("OY SORRY GUVNAH NO NEWS TODAY EH");
-        }
+        template: compile['default']("OY SORRY GUVNAH NO NEWS TODAY EH")
       })
     });
 
@@ -47028,9 +47555,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
 
       itemViewClass: View['default'].extend({
         tagName: "kbd",
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47042,15 +47567,12 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
   });
 
   QUnit.test("should allow custom item views by setting itemViewClass", function () {
-    var passedContents = [];
+    var content = Ember['default'].A(["foo", "bar", "baz"]);
     view = CollectionView['default'].create({
-      content: Ember['default'].A(["foo", "bar", "baz"]),
+      content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          passedContents.push(property_get.get(this, "content"));
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47058,9 +47580,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       view.append();
     });
 
-    deepEqual(passedContents, ["foo", "bar", "baz"], "sets the content property on each item view");
-
-    enumerable_utils.forEach(passedContents, function (item) {
+    enumerable_utils.forEach(content, function (item) {
       equal(view.$(":contains(\"" + item + "\")").length, 1);
     });
   });
@@ -47072,9 +47592,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47100,9 +47618,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47129,9 +47645,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47159,9 +47673,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47190,9 +47702,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47221,9 +47731,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47254,9 +47762,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: content,
 
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "content"));
-        }
+        template: compile['default']("{{view.content}}")
       })
     });
 
@@ -47308,9 +47814,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       view = CollectionView['default'].create({
         content: content,
         itemViewClass: View['default'].extend({
-          render: function (buf) {
-            buf.push(property_get.get(this, "content"));
-          },
+          template: compile['default']("{{view.content}}"),
           didInsertElement: function () {
             didInsertElement++;
           },
@@ -47386,9 +47890,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
       content: Ember['default'].A([1, 2, 3]),
 
       emptyView: View['default'].extend({
-        template: function () {
-          return "(empty)";
-        }
+        template: compile['default']("(empty)")
       })
     });
 
@@ -47409,9 +47911,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     view = CollectionView['default'].create({
       content: Ember['default'].A(["zero", "one", "two"]),
       itemViewClass: View['default'].extend({
-        render: function (buf) {
-          buf.push(property_get.get(this, "contentIndex"));
-        }
+        template: compile['default']("{{view.contentIndex}}")
       })
     });
 
@@ -47425,14 +47925,10 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
   });
 
   QUnit.test("should allow declaration of itemViewClass as a string", function () {
-    var container = {
-      lookupFactory: function () {
-        return Ember['default'].View.extend();
-      }
-    };
+    registry.register("view:simple-view", Ember['default'].View.extend());
 
     view = CollectionView['default'].create({
-      container: container,
+      container: registry.container(),
       content: Ember['default'].A([1, 2, 3]),
       itemViewClass: "simple-view"
     });
@@ -47451,9 +47947,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
 
       emptyView: View['default'].extend({
         tagName: "kbd",
-        render: function (buf) {
-          buf.push("OY SORRY GUVNAH NO NEWS TODAY EH");
-        }
+        template: compile['default']("OY SORRY GUVNAH NO NEWS TODAY EH")
       })
     });
 
@@ -47503,24 +47997,21 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
   });
 
   QUnit.test("when a collection view is emptied, deeply nested views elements are not removed from the DOM and then destroyed again", function () {
+    var gotDestroyed = [];
+
     var assertProperDestruction = mixin.Mixin.create({
-      destroyElement: function () {
-        if (this._state === "inDOM") {
-          ok(this.get("element"), this + " still exists in DOM");
-        }
-        return this._super.apply(this, arguments);
+      destroy: function () {
+        gotDestroyed.push(this.label);
+        this._super.apply(this, arguments);
       }
     });
 
     var ChildView = View['default'].extend(assertProperDestruction, {
-      render: function (buf) {
-        // emulate nested template
-        this.appendChild(View['default'].createWithMixins(assertProperDestruction, {
-          template: function () {
-            return "<div class='inner_element'></div>";
-          }
-        }));
-      }
+      template: compile['default']("{{#view view.assertDestruction}}<div class=\"inner_element\"></div>{{/view}}"),
+      label: "parent",
+      assertDestruction: View['default'].extend(assertProperDestruction, {
+        label: "child"
+      })
     });
 
     var view = CollectionView['default'].create({
@@ -47539,21 +48030,45 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     equal(jQuery['default'](".inner_element").length, 0, "elements removed");
 
     run['default'](function () {
-      view.remove();
+      view.destroy();
     });
+
+    deepEqual(gotDestroyed, ["parent", "child"], "The child view was destroyed");
   });
 
   QUnit.test("should render the emptyView if content array is empty and emptyView is given as string", function () {
+    registry.register("view:custom-empty", View['default'].extend({
+      tagName: "kbd",
+      template: compile['default']("THIS IS AN EMPTY VIEW")
+    }));
+
+    view = CollectionView['default'].create({
+      tagName: "del",
+      content: Ember['default'].A(),
+      container: registry.container(),
+
+      emptyView: "custom-empty"
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    ok(view.$().find("kbd:contains(\"THIS IS AN EMPTY VIEW\")").length, "displays empty view");
+  });
+
+  QUnit.test("should render the emptyView if content array is empty and emptyView is given as global string [DEPRECATED]", function () {
+    expectDeprecation(/Resolved the view "App.EmptyView" on the global context/);
+
     Ember['default'].lookup = {
       App: {
         EmptyView: View['default'].extend({
           tagName: "kbd",
-          render: function (buf) {
-            buf.push("THIS IS AN EMPTY VIEW");
-          }
+          template: compile['default']("THIS IS AN EMPTY VIEW")
         })
       }
     };
+
     view = CollectionView['default'].create({
       tagName: "del",
       content: Ember['default'].A(),
@@ -47570,17 +48085,13 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
 
   QUnit.test("should lookup against the container if itemViewClass is given as a string", function () {
     var ItemView = View['default'].extend({
-      render: function (buf) {
-        buf.push(property_get.get(this, "content"));
-      }
+      template: compile['default']("{{view.content}}")
     });
 
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:item", ItemView);
 
     view = CollectionView['default'].create({
-      container: container,
+      container: registry.container(),
       content: Ember['default'].A([1, 2, 3, 4]),
       itemViewClass: "item"
     });
@@ -47590,27 +48101,17 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     });
 
     equal(view.$(".ember-view").length, 4);
-
-    function lookupFactory(fullName) {
-      equal(fullName, "view:item");
-
-      return ItemView;
-    }
   });
 
   QUnit.test("should lookup only global path against the container if itemViewClass is given as a string", function () {
     var ItemView = View['default'].extend({
-      render: function (buf) {
-        buf.push(property_get.get(this, "content"));
-      }
+      template: compile['default']("{{view.content}}")
     });
 
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:top", ItemView);
 
     view = CollectionView['default'].create({
-      container: container,
+      container: registry.container(),
       content: Ember['default'].A(["hi"]),
       itemViewClass: "top"
     });
@@ -47620,28 +48121,18 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     });
 
     equal(view.$().text(), "hi");
-
-    function lookupFactory(fullName) {
-      equal(fullName, "view:top");
-
-      return ItemView;
-    }
   });
 
   QUnit.test("should lookup against the container and render the emptyView if emptyView is given as string and content array is empty ", function () {
     var EmptyView = View['default'].extend({
       tagName: "kbd",
-      render: function (buf) {
-        buf.push("THIS IS AN EMPTY VIEW");
-      }
+      template: compile['default']("THIS IS AN EMPTY VIEW")
     });
 
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:empty", EmptyView);
 
     view = CollectionView['default'].create({
-      container: container,
+      container: registry.container(),
       tagName: "del",
       content: Ember['default'].A(),
       emptyView: "empty"
@@ -47652,27 +48143,17 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     });
 
     ok(view.$().find("kbd:contains(\"THIS IS AN EMPTY VIEW\")").length, "displays empty view");
-
-    function lookupFactory(fullName) {
-      equal(fullName, "view:empty");
-
-      return EmptyView;
-    }
   });
 
   QUnit.test("should lookup from only global path against the container if emptyView is given as string and content array is empty ", function () {
     var EmptyView = View['default'].extend({
-      render: function (buf) {
-        buf.push("EMPTY");
-      }
+      template: compile['default']("EMPTY")
     });
 
-    var container = {
-      lookupFactory: lookupFactory
-    };
+    registry.register("view:top", EmptyView);
 
     view = CollectionView['default'].create({
-      container: container,
+      container: registry.container(),
       content: Ember['default'].A(),
       emptyView: "top"
     });
@@ -47682,12 +48163,6 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
     });
 
     equal(view.$().text(), "EMPTY");
-
-    function lookupFactory(fullName) {
-      equal(fullName, "view:top");
-
-      return EmptyView;
-    }
   });
 
   QUnit.test("Collection with style attribute supports changing content", function () {
@@ -47818,7 +48293,7 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
       });
 
       component = Component['default'].create({
-        _parentView: EmberView['default'].create({
+        parentView: EmberView['default'].create({
           controller: controller
         })
       });
@@ -47957,17 +48432,22 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
 
   
 });
-enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-metal/streams/utils', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/tests/test-helpers/get-element-style'], function (property_get, property_set, run, computed, utils, Controller, jQuery, View, ContainerView, getElementStyle) {
+enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style'], function (property_get, property_set, run, computed, Controller, jQuery, View, ContainerView, Registry, compile, getElementStyle) {
 
   'use strict';
 
   var trim = jQuery['default'].trim;
-  var container, view, otherContainer;
+  var container, registry, view, otherContainer;
 
   QUnit.module("ember-views/views/container_view_test", {
+    setup: function () {
+      registry = new Registry['default']();
+    },
     teardown: function () {
       run['default'](function () {
-        container.destroy();
+        if (container) {
+          container.destroy();
+        }
         if (view) {
           view.destroy();
         }
@@ -47982,7 +48462,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     container = ContainerView['default'].create({
       classNameBindings: ["name"],
       name: "foo",
-      container: {}
+      container: registry.container()
     });
 
     run['default'](function () {
@@ -47990,9 +48470,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     });
 
     view = View['default'].create({
-      template: function () {
-        return "This is my moment";
-      }
+      template: compile['default']("This is my moment")
     });
 
     run['default'](function () {
@@ -48000,7 +48478,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     });
 
     equal(view.container, container.container, "view gains its containerViews container");
-    equal(view._parentView, container, "view's _parentView is the container");
+    equal(view.parentView, container, "view's parentView is the container");
     equal(trim(container.$().text()), "This is my moment");
 
     run['default'](function () {
@@ -48034,38 +48512,38 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
   });
 
   QUnit.test("childViews inherit their parents iocContainer, and retain the original container even when moved", function () {
+    var iocContainer = registry.container();
+
     container = ContainerView['default'].create({
-      container: {}
+      container: iocContainer
     });
 
     otherContainer = ContainerView['default'].create({
-      container: {}
+      container: iocContainer
     });
 
     view = View['default'].create();
 
     container.pushObject(view);
 
-    equal(view.get("parentView"), container, "sets the parent view after the childView is appended");
-    equal(property_get.get(view, "container"), container.container, "inherits its parentViews iocContainer");
+    strictEqual(view.get("parentView"), container, "sets the parent view after the childView is appended");
+    strictEqual(property_get.get(view, "container"), container.container, "inherits its parentViews iocContainer");
 
     container.removeObject(view);
 
-    equal(property_get.get(view, "container"), container.container, "leaves existing iocContainer alone");
+    strictEqual(property_get.get(view, "container"), container.container, "leaves existing iocContainer alone");
 
     otherContainer.pushObject(view);
 
-    equal(view.get("parentView"), otherContainer, "sets the new parent view after the childView is appended");
-    equal(property_get.get(view, "container"), container.container, "still inherits its original parentViews iocContainer");
+    strictEqual(view.get("parentView"), otherContainer, "sets the new parent view after the childView is appended");
+    strictEqual(property_get.get(view, "container"), container.container, "still inherits its original parentViews iocContainer");
   });
 
   QUnit.test("should set the parentView property on views that are added to the child views array", function () {
     container = ContainerView['default'].create();
 
     var ViewKlass = View['default'].extend({
-      template: function () {
-        return "This is my moment";
-      }
+      template: compile['default']("This is my moment")
     });
 
     view = ViewKlass.create();
@@ -48148,15 +48626,11 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
         this._super.apply(this, arguments);
         this.pushObject(View['default'].create({
           name: "A",
-          template: function () {
-            return "A";
-          }
+          template: compile['default']("A")
         }));
         this.pushObject(View['default'].create({
           name: "B",
-          template: function () {
-            return "B";
-          }
+          template: compile['default']("B")
         }));
       },
       // functions here avoid attaching an observer, which is
@@ -48184,9 +48658,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     run['default'](function () {
       container.pushObject(View['default'].create({
         name: "C",
-        template: function () {
-          return "C";
-        }
+        template: compile['default']("C")
       }));
     });
 
@@ -48201,14 +48673,12 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
   QUnit.test("views that are removed from a ContainerView should have their child views cleared", function () {
     container = ContainerView['default'].create();
-    view = View['default'].createWithMixins({
-      remove: function () {
-        this._super.apply(this, arguments);
-      },
-      template: function (context, options) {
-        options.data.view.appendChild(View['default']);
-      }
+
+    var ChildView = View['default'].extend({
+      MyView: View['default'],
+      template: compile['default']("{{view MyView}}")
     });
+    var view = ChildView.create();
 
     container.pushObject(view);
 
@@ -48220,8 +48690,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     run['default'](function () {
       container.removeObject(view);
     });
-    equal(property_get.get(view, "childViews.length"), 0, "child views are cleared when removed from container view");
-    equal(container.$().text(), "", "the child view is removed from the DOM");
+    strictEqual(container.$("div").length, 0, "the child view is removed from the DOM");
   });
 
   QUnit.test("if a ContainerView starts with an empty currentView, nothing is displayed", function () {
@@ -48240,12 +48709,9 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     container = ContainerView['default'].create({
       controller: controller
     });
-    var context = null;
+
     var mainView = View['default'].create({
-      template: function (ctx, opts) {
-        context = ctx;
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the main view.")
     });
 
     property_set.set(container, "currentView", mainView);
@@ -48258,18 +48724,11 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(property_get.get(container, "length"), 1, "should have one child view");
     equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
     equal(mainView.get("parentView"), container, "parentView is setup");
-    equal(context, container.get("context"), "context preserved");
-    equal(utils.read(mainView._keywords.controller), controller, "controller keyword is setup");
-    equal(utils.read(mainView._keywords.view), mainView, "view keyword is setup");
   });
 
   QUnit.test("if a ContainerView is created with a currentView, it is rendered as a child view", function () {
-    var context = null;
     var mainView = View['default'].create({
-      template: function (ctx, opts) {
-        context = ctx;
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the main view.")
     });
 
     var controller = Controller['default'].create();
@@ -48287,21 +48746,16 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(property_get.get(container, "length"), 1, "should have one child view");
     equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
     equal(mainView.get("parentView"), container, "parentView is setup");
-    equal(context, container.get("context"), "context preserved");
-    equal(utils.read(mainView._keywords.controller), controller, "controller keyword is setup");
-    equal(utils.read(mainView._keywords.view), mainView, "view keyword is setup");
   });
 
   QUnit.test("if a ContainerView starts with no currentView and then one is set, the ContainerView is updated", function () {
-    var context = null;
     var mainView = View['default'].create({
-      template: function (ctx, opts) {
-        context = ctx;
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the {{name}} view.")
     });
 
-    var controller = Controller['default'].create();
+    var controller = Controller['default'].create({
+      name: "main"
+    });
 
     container = ContainerView['default'].create({
       controller: controller
@@ -48322,18 +48776,11 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(property_get.get(container, "length"), 1, "should have one child view");
     equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
     equal(mainView.get("parentView"), container, "parentView is setup");
-    equal(context, container.get("context"), "context preserved");
-    equal(utils.read(mainView._keywords.controller), controller, "controller keyword is setup");
-    equal(utils.read(mainView._keywords.view), mainView, "view keyword is setup");
   });
 
   QUnit.test("if a ContainerView starts with a currentView and then is set to null, the ContainerView is updated", function () {
-    var context = null;
     var mainView = View['default'].create({
-      template: function (ctx, opts) {
-        context = ctx;
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the main view.")
     });
 
     var controller = Controller['default'].create();
@@ -48352,9 +48799,6 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(property_get.get(container, "length"), 1, "should have one child view");
     equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
     equal(mainView.get("parentView"), container, "parentView is setup");
-    equal(context, container.get("context"), "context preserved");
-    equal(utils.read(mainView._keywords.controller), controller, "controller keyword is setup");
-    equal(utils.read(mainView._keywords.view), mainView, "view keyword is setup");
 
     run['default'](function () {
       property_set.set(container, "currentView", null);
@@ -48365,12 +48809,8 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
   });
 
   QUnit.test("if a ContainerView starts with a currentView and then is set to null, the ContainerView is updated and the previous currentView is destroyed", function () {
-    var context = null;
     var mainView = View['default'].create({
-      template: function (ctx, opts) {
-        context = ctx;
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the main view.")
     });
 
     var controller = Controller['default'].create();
@@ -48389,9 +48829,6 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(property_get.get(container, "length"), 1, "should have one child view");
     equal(container.objectAt(0), mainView, "should have the currentView as the only child view");
     equal(mainView.get("parentView"), container, "parentView is setup");
-    equal(context, container.get("context"), "context preserved");
-    equal(utils.read(mainView._keywords.controller), controller, "controller keyword is setup");
-    equal(utils.read(mainView._keywords.view), mainView, "view keyword is setup");
 
     run['default'](function () {
       property_set.set(container, "currentView", null);
@@ -48406,21 +48843,15 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
   QUnit.test("if a ContainerView starts with a currentView and then a different currentView is set, the old view is destroyed and the new one is added", function () {
     container = ContainerView['default'].create();
     var mainView = View['default'].create({
-      template: function () {
-        return "This is the main view.";
-      }
+      template: compile['default']("This is the main view.")
     });
 
     var secondaryView = View['default'].create({
-      template: function () {
-        return "This is the secondary view.";
-      }
+      template: compile['default']("This is the secondary view.")
     });
 
     var tertiaryView = View['default'].create({
-      template: function () {
-        return "This is the tertiary view.";
-      }
+      template: compile['default']("This is the tertiary view.")
     });
 
     container.set("currentView", mainView);
@@ -48463,21 +48894,15 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     });
 
     var one = View['default'].create({
-      template: function () {
-        return "one";
-      }
+      template: compile['default']("one")
     });
 
     var two = View['default'].create({
-      template: function () {
-        return "two";
-      }
+      template: compile['default']("two")
     });
 
     var three = View['default'].create({
-      template: function () {
-        return "three";
-      }
+      template: compile['default']("three")
     });
 
     run['default'](function () {
@@ -48492,52 +48917,6 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     equal(trim(container.$().text()), "onetwothree");
   });
 
-  QUnit.test("should be able to modify childViews then remove the ContainerView in same run loop", function () {
-    container = ContainerView['default'].create();
-
-    run['default'](function () {
-      container.appendTo("#qunit-fixture");
-    });
-
-    var count = 0;
-    var child = View['default'].create({
-      template: function () {
-        count++;
-        return "child";
-      }
-    });
-
-    run['default'](function () {
-      container.pushObject(child);
-      container.remove();
-    });
-
-    equal(count, 0, "did not render child");
-  });
-
-  QUnit.test("should be able to modify childViews then destroy the ContainerView in same run loop", function () {
-    container = ContainerView['default'].create();
-
-    run['default'](function () {
-      container.appendTo("#qunit-fixture");
-    });
-
-    var count = 0;
-    var child = View['default'].create({
-      template: function () {
-        count++;
-        return "child";
-      }
-    });
-
-    run['default'](function () {
-      container.pushObject(child);
-      container.destroy();
-    });
-
-    equal(count, 0, "did not render child");
-  });
-
   QUnit.test("should be able to modify childViews then rerender the ContainerView in same run loop", function () {
     container = ContainerView['default'].create();
 
@@ -48545,21 +48924,14 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.appendTo("#qunit-fixture");
     });
 
-    var count = 0;
     var child = View['default'].create({
-      template: function () {
-        count++;
-        return "child";
-      }
+      template: compile['default']("child")
     });
 
     run['default'](function () {
       container.pushObject(child);
       container.rerender();
     });
-
-    // TODO: Fix with Priority Queue for now ensure valid rendering
-    //equal(count, 1, 'rendered child only once');
 
     equal(trim(container.$().text()), "child");
   });
@@ -48573,11 +48945,12 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      render: function (buffer) {
+      willRender: function () {
         this.count++;
-        buffer.push(this.label);
-      }
+      },
+      template: compile['default']("{{view.label}}")
     });
+
     var one = Child.create({ label: "one" });
     var two = Child.create({ label: "two" });
 
@@ -48601,11 +48974,12 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      render: function (buffer) {
+      willRender: function () {
         this.count++;
-        buffer.push(this.label);
-      }
+      },
+      template: compile['default']("{{view.label}}")
     });
+
     var one = Child.create({ label: "one" });
     var two = Child.create({ label: "two" });
 
@@ -48614,16 +48988,14 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       container.rerender();
     });
 
-    // TODO: Fix with Priority Queue for now ensure valid rendering
-    //equal(one.count, 1, 'rendered one child only once');
+    equal(one.count, 1, "rendered one child only once");
     equal(container.$().text(), "one");
 
     run['default'](function () {
       container.pushObject(two);
     });
 
-    // TODO: Fix with Priority Queue for now ensure valid rendering
-    //equal(one.count, 1, 'rendered one child only once');
+    equal(one.count, 1, "rendered one child only once");
     equal(two.count, 1, "rendered two child only once");
 
     // IE 8 adds a line break but this shouldn't affect validity
@@ -48635,7 +49007,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var root = ContainerView['default'].create();
 
-    view = View['default'].create({ template: function () {} });
+    view = View['default'].create({ template: compile['default']("child view") });
     container = ContainerView['default'].create({ childViews: ["child"], child: view });
 
     run['default'](function () {
@@ -48691,7 +49063,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     });
   });
 
-  QUnit.test("if a containerView appends a child in its didInsertElement event, the didInsertElement event of the child view should be fired once", function () {
+  QUnit.test("if a containerView appends a child in its didInsertElement event, the didInsertElement event of the child view should be fired once", function (assert) {
 
     var counter = 0;
     var root = ContainerView['default'].create({});
@@ -48715,12 +49087,13 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
       root.appendTo("#qunit-fixture");
     });
 
-    run['default'](function () {
-      root.pushObject(container);
-    });
+    expectDeprecation(function () {
+      run['default'](function () {
+        root.pushObject(container);
+      });
+    }, /was modified inside the didInsertElement hook/);
 
-    equal(container.get("childViews").get("length"), 1, "containerView should only have a child");
-    equal(counter, 1, "didInsertElement should be fired once");
+    assert.strictEqual(counter, 1, "child didInsertElement was invoked");
 
     run['default'](function () {
       root.destroy();
@@ -48799,6 +49172,64 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
     });
   });
 
+  QUnit.test("should render child views with a different tagName", function () {
+    expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+    container = ContainerView['default'].create({
+      childViews: ["child"],
+
+      child: View['default'].create({
+        tagName: "aside"
+      })
+    });
+
+    run['default'](function () {
+      container.createElement();
+    });
+
+    equal(container.$("aside").length, 1);
+  });
+
+  QUnit.test("should allow hX tags as tagName", function () {
+    expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+    container = ContainerView['default'].create({
+      childViews: ["child"],
+
+      child: View['default'].create({
+        tagName: "h3"
+      })
+    });
+
+    run['default'](function () {
+      container.createElement();
+    });
+
+    ok(container.$("h3").length, "does not render the h3 tag correctly");
+  });
+
+  QUnit.test("renders contained view with omitted start tag and parent view context", function () {
+    expectDeprecation("Setting `childViews` on a Container is deprecated.");
+
+    view = ContainerView['default'].createWithMixins({
+      tagName: "table",
+      childViews: ["row"],
+      row: View['default'].createWithMixins({
+        tagName: "tr"
+      })
+    });
+
+    run['default'](view, view.append);
+
+    equal(view.element.tagName, "TABLE", "container view is table");
+    equal(view.element.childNodes[2].tagName, "TR", "inner view is tr");
+
+    run['default'](view, view.rerender);
+
+    equal(view.element.tagName, "TABLE", "container view is table");
+    equal(view.element.childNodes[2].tagName, "TR", "inner view is tr");
+  });
+
 });
 enifed('ember-views/tests/views/exports_test', ['ember-views'], function (Ember) {
 
@@ -48867,252 +49298,6 @@ enifed('ember-views/tests/views/instrumentation_test', ['ember-metal/instrumenta
     run['default'](view, "createElement");
 
     confirmPayload(beforeCalls[0], view);
-  });
-
-});
-enifed('ember-views/tests/views/metamorph_view_test', ['ember-views/system/jquery', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-template-compiler/system/compile', 'ember-views/views/metamorph_view'], function (jQuery, run, EmberView, property_get, property_set, compile, _MetamorphView) {
-
-  'use strict';
-
-  var view, childView, metamorphView;
-
-  QUnit.module("Metamorph views", {
-    setup: function () {
-      view = EmberView['default'].create({
-        render: function (buffer) {
-          buffer.push("<h1>View</h1>");
-          this.appendChild(metamorphView);
-        }
-      });
-    },
-
-    teardown: function () {
-      run['default'](function () {
-        view.destroy();
-        if (childView && !childView.isDestroyed) {
-          childView.destroy();
-        }
-
-        if (metamorphView && !metamorphView.isDestroyed) {
-          metamorphView.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test("a Metamorph view is not a view's parentView", function () {
-    childView = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("<p>Bye bros</p>");
-      }
-    });
-
-    metamorphView = _MetamorphView['default'].create({
-      render: function (buffer) {
-        buffer.push("<h2>Meta</h2>");
-        this.appendChild(childView);
-      }
-    });
-
-    run['default'](function () {
-      view.appendTo("#qunit-fixture");
-    });
-
-    equal(property_get.get(childView, "parentView"), view, "A child of a metamorph view cannot see the metamorph view as its parent");
-
-    var children = property_get.get(view, "childViews");
-
-    equal(property_get.get(children, "length"), 1, "precond - there is only one child of the main node");
-    equal(children.objectAt(0), childView, "... and it is not the metamorph");
-  });
-
-  QUnit.module("Metamorph views correctly handle DOM", {
-    setup: function () {
-      view = EmberView['default'].create({
-        render: function (buffer) {
-          buffer.push("<h1>View</h1>");
-          this.appendChild(metamorphView);
-        }
-      });
-
-      metamorphView = _MetamorphView['default'].create({
-        powerRanger: "Jason",
-
-        render: function (buffer) {
-          buffer.push("<h2 id='from-meta'>" + property_get.get(this, "powerRanger") + "</h2>");
-        }
-      });
-
-      run['default'](function () {
-        view.appendTo("#qunit-fixture");
-      });
-    },
-
-    teardown: function () {
-      run['default'](function () {
-        view.destroy();
-        if (!metamorphView.isDestroyed) {
-          metamorphView.destroy();
-        }
-      });
-    }
-  });
-
-  QUnit.test("a metamorph view generates without a DOM node", function () {
-    var meta = jQuery['default']("> h2", "#" + property_get.get(view, "elementId"));
-
-    equal(meta.length, 1, "The metamorph element should be directly inside its parent");
-  });
-
-  QUnit.test("a metamorph view can be removed from the DOM", function () {
-    run['default'](function () {
-      metamorphView.destroy();
-    });
-
-    var meta = jQuery['default']("#from-morph");
-    equal(meta.length, 0, "the associated DOM was removed");
-  });
-
-  QUnit.test("a metamorph view can be rerendered", function () {
-    equal(jQuery['default']("#from-meta").text(), "Jason", "precond - renders to the DOM");
-
-    property_set.set(metamorphView, "powerRanger", "Trini");
-    run['default'](function () {
-      metamorphView.rerender();
-    });
-
-    equal(jQuery['default']("#from-meta").text(), "Trini", "updates value when re-rendering");
-  });
-
-  // Redefining without setup/teardown
-  QUnit.module("Metamorph views correctly handle DOM");
-
-  QUnit.test("a metamorph view calls its children's willInsertElement and didInsertElement", function () {
-    var parentView;
-    var willInsertElementCalled = false;
-    var didInsertElementCalled = false;
-    var didInsertElementSawElement = false;
-
-    parentView = EmberView['default'].create({
-      ViewWithCallback: EmberView['default'].extend({
-        template: compile['default']("<div id=\"do-i-exist\"></div>"),
-
-        willInsertElement: function () {
-          willInsertElementCalled = true;
-        },
-        didInsertElement: function () {
-          didInsertElementCalled = true;
-          didInsertElementSawElement = this.$("div").length === 1;
-        }
-      }),
-
-      template: compile['default']("{{#if view.condition}}{{view view.ViewWithCallback}}{{/if}}"),
-      condition: false
-    });
-
-    run['default'](function () {
-      parentView.append();
-    });
-    run['default'](function () {
-      parentView.set("condition", true);
-    });
-
-    ok(willInsertElementCalled, "willInsertElement called");
-    ok(didInsertElementCalled, "didInsertElement called");
-    ok(didInsertElementSawElement, "didInsertElement saw element");
-
-    run['default'](function () {
-      parentView.destroy();
-    });
-  });
-
-  QUnit.test("replacing a Metamorph should invalidate childView elements", function () {
-    var elementOnDidInsert;
-
-    view = EmberView['default'].create({
-      show: false,
-
-      CustomView: EmberView['default'].extend({
-        init: function () {
-          this._super.apply(this, arguments);
-          // This will be called in preRender
-          // We want it to cache a null value
-          // Hopefully it will be invalidated when `show` is toggled
-          this.get("element");
-        },
-
-        didInsertElement: function () {
-          elementOnDidInsert = this.get("element");
-        }
-      }),
-
-      template: compile['default']("{{#if view.show}}{{view view.CustomView}}{{/if}}")
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    run['default'](function () {
-      view.set("show", true);
-    });
-
-    ok(elementOnDidInsert, "should have an element on insert");
-
-    run['default'](function () {
-      view.destroy();
-    });
-  });
-
-  QUnit.test("trigger rerender of parent and SimpleBoundView", function () {
-    var view = EmberView['default'].create({
-      show: true,
-      foo: "bar",
-      template: compile['default']("{{#if view.show}}{{#if view.foo}}{{view.foo}}{{/if}}{{/if}}")
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    equal(view.$().text(), "bar");
-
-    run['default'](function () {
-      view.set("foo", "baz"); // schedule render of simple bound
-      view.set("show", false); // destroy tree
-    });
-
-    equal(view.$().text(), "");
-
-    run['default'](function () {
-      view.destroy();
-    });
-  });
-
-  QUnit.test("re-rendering and then changing the property does not raise an exception", function () {
-    view = EmberView['default'].create({
-      show: true,
-      foo: "bar",
-      metamorphView: _MetamorphView['default'],
-      template: compile['default']("{{#view view.metamorphView}}truth{{/view}}")
-    });
-
-    run['default'](function () {
-      view.appendTo("#qunit-fixture");
-    });
-
-    equal(view.$().text(), "truth");
-
-    run['default'](function () {
-      view._childViews[0].rerender();
-      view._childViews[0].rerender();
-    });
-
-    equal(view.$().text(), "truth");
-
-    run['default'](function () {
-      view.destroy();
-    });
   });
 
 });
@@ -49883,45 +50068,6 @@ enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'embe
   });
 
 });
-enifed('ember-views/tests/views/simple_bound_view_test', ['ember-metal/streams/stream', 'ember-views/views/simple_bound_view'], function (Stream, SimpleBoundView) {
-
-  'use strict';
-
-  QUnit.module("SimpleBoundView");
-
-  QUnit.test("does not render if update is triggered by normalizedValue is the same as the previous normalizedValue", function () {
-    var value = null;
-    var obj = { "foo": "bar" };
-    var lazyValue = new Stream['default'](function () {
-      return obj.foo;
-    });
-    var morph = {
-      setContent: function (newValue) {
-        value = newValue;
-      }
-    };
-    var view = new SimpleBoundView['default'](null, null, morph, lazyValue);
-
-    equal(value, null);
-
-    view.update();
-
-    equal(value, "bar", "expected call to morph.setContent with \"bar\"");
-    value = null;
-
-    view.update();
-
-    equal(value, null, "expected no call to morph.setContent");
-
-    obj.foo = "baz"; // change property
-    lazyValue.notify();
-
-    view.update();
-
-    equal(value, "baz", "expected call to morph.setContent with \"baz\"");
-  });
-
-});
 enifed('ember-views/tests/views/text_area_test', ['ember-runtime/system/object', 'ember-metal/array', 'ember-metal/run_loop', 'ember-views/views/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (EmberObject, array, run, TextArea, property_get, property_set) {
 
   'use strict';
@@ -50131,9 +50277,11 @@ enifed('ember-views/tests/views/text_area_test', ['ember-runtime/system/object',
       });
 
       textArea.$().val("new value");
-      textArea.trigger(eventName, EmberObject['default'].create({
-        type: eventName
-      }));
+      run['default'](function () {
+        textArea.trigger(eventName, EmberObject['default'].create({
+          type: eventName
+        }));
+      });
 
       equal(textArea.get("value"), "new value", "value property updates on " + eventName + " events");
     });
@@ -50872,7 +51020,7 @@ enifed('ember-views/tests/views/view/actions_test', ['ember-metal/run_loop', 'em
   });
 
 });
-enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view'], function (property_get, run, jQuery, EmberView, ContainerView) {
+enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (property_get, run, jQuery, EmberView, ContainerView, compile, utils) {
 
   'use strict';
 
@@ -50884,11 +51032,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
     },
 
     teardown: function () {
-      run['default'](function () {
-        if (!view.isDestroyed) {
-          view.destroy();
-        }
-      });
+      utils.runDestroy(view);
     }
   });
 
@@ -50909,9 +51053,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
 
   QUnit.test("should be added to the document body when calling append()", function () {
     view = View.create({
-      render: function (buffer) {
-        buffer.push("foo bar baz");
-      }
+      template: compile['default']("foo bar baz")
     });
 
     ok(!property_get.get(view, "element"), "precond - should not have an element");
@@ -50946,13 +51088,12 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
       didInsertElement: function () {
         didInsertElementCalled = true;
       },
-      render: function (buffer) {
-        this.appendChild(EmberView['default'].create({
-          willInsertElement: function () {
-            willInsertElementCalledInChild = true;
-          }
-        }));
-      }
+      childView: EmberView['default'].create({
+        willInsertElement: function () {
+          willInsertElementCalledInChild = true;
+        }
+      }),
+      template: compile['default']("{{view view.childView}}")
     });
 
     view = ViewWithCallback.create();
@@ -50964,6 +51105,108 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
     ok(willInsertElementCalled, "willInsertElement called");
     ok(willInsertElementCalledInChild, "willInsertElement called in child");
     ok(didInsertElementCalled, "didInsertElement called");
+  });
+
+  QUnit.test("a view calls its children's willInsertElement and didInsertElement", function () {
+    var parentView;
+    var willInsertElementCalled = false;
+    var didInsertElementCalled = false;
+    var didInsertElementSawElement = false;
+
+    parentView = EmberView['default'].create({
+      ViewWithCallback: EmberView['default'].extend({
+        template: compile['default']("<div id=\"do-i-exist\"></div>"),
+
+        willInsertElement: function () {
+          willInsertElementCalled = true;
+        },
+        didInsertElement: function () {
+          didInsertElementCalled = true;
+          didInsertElementSawElement = this.$("div").length === 1;
+        }
+      }),
+
+      template: compile['default']("{{#if view.condition}}{{view view.ViewWithCallback}}{{/if}}"),
+      condition: false
+    });
+
+    run['default'](function () {
+      parentView.append();
+    });
+    run['default'](function () {
+      parentView.set("condition", true);
+    });
+
+    ok(willInsertElementCalled, "willInsertElement called");
+    ok(didInsertElementCalled, "didInsertElement called");
+    ok(didInsertElementSawElement, "didInsertElement saw element");
+
+    run['default'](function () {
+      parentView.destroy();
+    });
+  });
+
+  QUnit.test("replacing a view should invalidate childView elements", function () {
+    var elementOnDidInsert;
+
+    view = EmberView['default'].create({
+      show: false,
+
+      CustomView: EmberView['default'].extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          // This will be called in preRender
+          // We want it to cache a null value
+          // Hopefully it will be invalidated when `show` is toggled
+          this.get("element");
+        },
+
+        didInsertElement: function () {
+          elementOnDidInsert = this.get("element");
+        }
+      }),
+
+      template: compile['default']("{{#if view.show}}{{view view.CustomView}}{{/if}}")
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    run['default'](function () {
+      view.set("show", true);
+    });
+
+    ok(elementOnDidInsert, "should have an element on insert");
+
+    run['default'](function () {
+      view.destroy();
+    });
+  });
+
+  QUnit.test("trigger rerender of parent and SimpleBoundView", function () {
+    var view = EmberView['default'].create({
+      show: true,
+      foo: "bar",
+      template: compile['default']("{{#if view.show}}{{#if view.foo}}{{view.foo}}{{/if}}{{/if}}")
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    equal(view.$().text(), "bar");
+
+    run['default'](function () {
+      view.set("foo", "baz"); // schedule render of simple bound
+      view.set("show", false); // destroy tree
+    });
+
+    equal(view.$().text(), "");
+
+    run['default'](function () {
+      view.destroy();
+    });
   });
 
   QUnit.test("remove removes an element from the DOM", function () {
@@ -51421,13 +51664,13 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
 
     appendView();
 
-    equal(observer.observersFor(view, "foo").length, 2, "observer count after render is two");
+    equal(observer.observersFor(view, "foo").length, 1, "observer count after render is one");
 
     run['default'](function () {
       view.rerender();
     });
 
-    equal(observer.observersFor(view, "foo").length, 2, "observer count after rerender remains two");
+    equal(observer.observersFor(view, "foo").length, 1, "observer count after rerender remains one");
   });
 
   QUnit.test("handles attribute bindings for properties", function () {
@@ -51564,6 +51807,10 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     expectAssertion(function () {
       appendView();
     }, "You cannot use class as an attributeBinding, use classNameBindings instead.");
+
+    // Remove render node to avoid "Render node exists without concomitant env"
+    // assertion on teardown.
+    view.renderNode = null;
   });
 
   QUnit.test("blacklists href bindings based on protocol", function () {
@@ -51605,7 +51852,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
   });
 
 });
-enifed('ember-views/tests/views/view/child_views_test', ['ember-metal/run_loop', 'ember-views/views/view'], function (run, EmberView) {
+enifed('ember-views/tests/views/view/child_views_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler'], function (run, EmberView, ember_template_compiler) {
 
   'use strict';
 
@@ -51613,17 +51860,13 @@ enifed('ember-views/tests/views/view/child_views_test', ['ember-metal/run_loop',
 
   QUnit.module("tests/views/view/child_views_tests.js", {
     setup: function () {
-      parentView = EmberView['default'].create({
-        render: function (buffer) {
-          buffer.push("Em");
-          this.appendChild(childView);
-        }
+      childView = EmberView['default'].create({
+        template: ember_template_compiler.compile("ber")
       });
 
-      childView = EmberView['default'].create({
-        template: function () {
-          return "ber";
-        }
+      parentView = EmberView['default'].create({
+        template: ember_template_compiler.compile("Em{{view view.childView}}"),
+        childView: childView
       });
     },
 
@@ -51649,45 +51892,34 @@ enifed('ember-views/tests/views/view/child_views_test', ['ember-metal/run_loop',
 
   QUnit.test("should not duplicate childViews when rerendering", function () {
 
-    var Inner = EmberView['default'].extend({
-      template: function () {
-        return "";
-      }
+    var InnerView = EmberView['default'].extend();
+    var InnerView2 = EmberView['default'].extend();
+
+    var MiddleView = EmberView['default'].extend({
+      innerViewClass: InnerView,
+      innerView2Class: InnerView2,
+      template: ember_template_compiler.compile("{{view view.innerViewClass}}{{view view.innerView2Class}}")
     });
 
-    var Inner2 = EmberView['default'].extend({
-      template: function () {
-        return "";
-      }
-    });
-
-    var Middle = EmberView['default'].extend({
-      render: function (buffer) {
-        this.appendChild(Inner);
-        this.appendChild(Inner2);
-      }
-    });
-
-    var outer = EmberView['default'].create({
-      render: function (buffer) {
-        this.middle = this.appendChild(Middle);
-      }
+    var outerView = EmberView['default'].create({
+      middleViewClass: MiddleView,
+      template: ember_template_compiler.compile("{{view view.middleViewClass viewName=\"middle\"}}")
     });
 
     run['default'](function () {
-      outer.append();
+      outerView.append();
     });
 
-    equal(outer.get("middle.childViews.length"), 2, "precond middle has 2 child views rendered to buffer");
+    equal(outerView.get("middle.childViews.length"), 2, "precond middle has 2 child views rendered to buffer");
 
     run['default'](function () {
-      outer.middle.rerender();
+      outerView.middle.rerender();
     });
 
-    equal(outer.get("middle.childViews.length"), 2, "middle has 2 child views rendered to buffer");
+    equal(outerView.get("middle.childViews.length"), 2, "middle has 2 child views rendered to buffer");
 
     run['default'](function () {
-      outer.destroy();
+      outerView.destroy();
     });
   });
 
@@ -51836,19 +52068,21 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['ember-metal/pr
       view.createElement();
     });
 
-    equal(view.$().attr("class"), "ember-view high");
+    equal(view.$().attr("class"), "ember-view high", "has the high class");
 
     run['default'](function () {
       view.remove();
     });
 
-    view.set("priority", "low");
+    run['default'](function () {
+      view.set("priority", "low");
+    });
 
     run['default'](function () {
       view.append();
     });
 
-    equal(view.$().attr("class"), "ember-view low");
+    equal(view.$().attr("class"), "ember-view low", "has a low class");
   });
 
   QUnit.test("classNames removed by a classNameBindings observer should not re-appear on rerender", function () {
@@ -51876,7 +52110,7 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['ember-metal/pr
     equal(view.$().attr("class"), "ember-view");
   });
 
-  QUnit.test("classNameBindings lifecycle test", function () {
+  QUnit.skip("classNameBindings lifecycle test", function () {
     run['default'](function () {
       view = EmberView['default'].create({
         classNameBindings: ["priority"],
@@ -51957,6 +52191,10 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['ember-metal/pr
     expectAssertion(function () {
       view.createElement();
     }, /classNameBindings must not have spaces in them/i);
+
+    // Remove render node to avoid "Render node exists without concomitant env"
+    // assertion on teardown.
+    view.renderNode = null;
   });
 
 });
@@ -52113,7 +52351,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
     equal(property_get.get(view, "someChildView"), newView);
   });
 
-  QUnit.test("should update a view instances attributes, including the _parentView and container properties", function () {
+  QUnit.test("should update a view instances attributes, including the parentView and container properties", function () {
     var attrs = {
       foo: "baz"
     };
@@ -52122,7 +52360,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
     newView = view.createChildView(myView, attrs);
 
     equal(newView.container, container, "expects to share container with parent");
-    equal(newView._parentView, view, "expects to have the correct parent");
+    equal(newView.parentView, view, "expects to have the correct parent");
     equal(property_get.get(newView, "foo"), "baz", "view did get custom attributes");
 
     deepEqual(newView, myView);
@@ -52143,7 +52381,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
     newView = view.createChildView("bro");
 
     equal(newView.container, container, "expects to share container with parent");
-    equal(newView._parentView, view, "expects to have the correct parent");
+    equal(newView.parentView, view, "expects to have the correct parent");
   });
 
   QUnit.test("should assert when trying to create childView from string, but no such view is registered", function () {
@@ -52155,7 +52393,7 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['ember-metal/prop
   });
 
 });
-enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-metal-views/tests/test_helpers'], function (property_get, run, EmberView, ContainerView, test_helpers) {
+enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/tests/test-helpers/equal-html', 'ember-template-compiler/system/compile'], function (property_get, run, EmberView, ContainerView, equal_html, compile) {
 
   'use strict';
 
@@ -52194,16 +52432,16 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
       run['default'](function () {
         view.createElement();
       });
-    }, /You cannot use `classNameBindings` on a tag-less view/);
+    }, /You cannot use `classNameBindings` on a tag-less component/);
+
+    // Prevent further assertions
+    view.renderNode = null;
   });
 
   QUnit.test("calls render and turns resultant string into element", function () {
     view = EmberView['default'].create({
       tagName: "span",
-
-      render: function (buffer) {
-        buffer.push("foo");
-      }
+      template: compile['default']("foo")
     });
 
     equal(property_get.get(view, "element"), null, "precondition - has no element");
@@ -52217,17 +52455,14 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
     equal(elem.tagName.toString().toLowerCase(), "span", "has tagName from view");
   });
 
-  QUnit.test("calls render and parses the buffer string in the right context", function () {
+  QUnit.test("renders the child view templates in the right context", function () {
     expectDeprecation("Setting `childViews` on a Container is deprecated.");
 
     view = ContainerView['default'].create({
       tagName: "table",
       childViews: [EmberView['default'].create({
         tagName: "",
-        render: function (buffer) {
-          // Emulate a metamorph
-          buffer.push("<script></script><tr><td>snorfblax</td></tr>");
-        }
+        template: compile['default']("<tr><td>snorfblax</td></tr>")
       })]
     });
 
@@ -52239,9 +52474,7 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
     var elem = property_get.get(view, "element");
     ok(elem, "has element now");
     equal(elem.tagName.toString().toLowerCase(), "table", "has tagName from view");
-    equal(elem.childNodes[0].tagName, "SCRIPT", "script tag first");
-    equal(elem.childNodes[1].tagName, "TR", "tr tag second");
-    test_helpers.equalHTML(elem.childNodes, "<script></script><tr><td>snorfblax</td></tr>", "has innerHTML from context");
+    equal_html.equalHTML(elem.childNodes, "<tr><td>snorfblax</td></tr>", "has innerHTML from context");
   });
 
   QUnit.test("does not wrap many tr children in tbody elements", function () {
@@ -52251,15 +52484,11 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
       tagName: "table",
       childViews: [EmberView['default'].create({
         tagName: "",
-        render: function (buffer) {
-          // Emulate a metamorph
-          buffer.push("<script></script><tr><td>snorfblax</td></tr>");
-        } }), EmberView['default'].create({
+        template: compile['default']("<tr><td>snorfblax</td></tr>")
+      }), EmberView['default'].create({
         tagName: "",
-        render: function (buffer) {
-          // Emulate a metamorph
-          buffer.push("<script></script><tr><td>snorfblax</td></tr>");
-        } })]
+        template: compile['default']("<tr><td>snorfblax</td></tr>")
+      })]
     });
 
     equal(property_get.get(view, "element"), null, "precondition - has no element");
@@ -52269,7 +52498,7 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
 
     var elem = property_get.get(view, "element");
     ok(elem, "has element now");
-    test_helpers.equalHTML(elem.childNodes, "<script></script><tr><td>snorfblax</td></tr><script></script><tr><td>snorfblax</td></tr>", "has innerHTML from context");
+    equal_html.equalHTML(elem.childNodes, "<tr><td>snorfblax</td></tr><tr><td>snorfblax</td></tr>", "has innerHTML from context");
     equal(elem.tagName.toString().toLowerCase(), "table", "has tagName from view");
   });
 
@@ -52542,7 +52771,7 @@ enifed('ember-views/tests/views/view/evented_test', ['ember-metal/run_loop', 'em
   });
 
 });
-enifed('ember-views/tests/views/view/init_test', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view'], function (Ember, property_get, run, computed, EmberView) {
+enifed('ember-views/tests/views/view/init_test', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-template-compiler'], function (Ember, property_get, run, computed, EmberView, ember_template_compiler) {
 
   'use strict';
 
@@ -52597,17 +52826,13 @@ enifed('ember-views/tests/views/view/init_test', ['ember-metal/core', 'ember-met
   QUnit.test("creates a renderer if one is not provided", function () {
     var childView;
 
-    view = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("Em");
-        this.appendChild(childView);
-      }
+    childView = EmberView['default'].create({
+      template: ember_template_compiler.compile("ber")
     });
 
-    childView = EmberView['default'].create({
-      template: function () {
-        return "ber";
-      }
+    view = EmberView['default'].create({
+      childView: childView,
+      template: ember_template_compiler.compile("Em{{view.childView}}")
     });
 
     run['default'](function () {
@@ -52649,7 +52874,7 @@ enifed('ember-views/tests/views/view/inject_test', ['ember-runtime/system/servic
   });
 
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-template-compiler/system/compile'], function (property_get, property_set, run, EmberView, ContainerView, compile) {
+enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view'], function (property_get, property_set, run, EmberView, ContainerView) {
 
   'use strict';
 
@@ -52721,6 +52946,20 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
     run['default'](function () {
       view.remove();
     });
+  });
+
+  QUnit.test("doesn't overwrite existing style attribute bindings", function () {
+    view = EmberView['default'].create({
+      isVisible: false,
+      attributeBindings: ["style"],
+      style: "color: blue;"
+    });
+
+    run['default'](function () {
+      view.append();
+    });
+
+    equal(view.$().attr("style"), "color: blue; display: none;", "has concatenated style attribute");
   });
 
   QUnit.module("EmberView#isVisible with Container", {
@@ -52812,11 +53051,9 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
     equal(grandchildBecameVisible, 1);
   });
 
-  QUnit.test("view should change visibility with a virtual childView", function () {
-    view = View.create({
-      isVisible: true,
-      template: compile['default']("<div {{bind-attr bing=\"tweep\"}}></div>")
-    });
+  QUnit.test("view should be notified after isVisible is set to false and the element has been hidden", function () {
+    view = View.create({ isVisible: true });
+    //var childView = view.get('childViews').objectAt(0);
 
     run['default'](function () {
       view.append();
@@ -52907,7 +53144,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
   });
 
 });
-enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils'], function (property_get, EmberView, utils) {
+enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (property_get, EmberView, utils, compile) {
 
   'use strict';
 
@@ -52915,9 +53152,7 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
   QUnit.module("EmberView#$", {
     setup: function () {
       view = EmberView['default'].extend({
-        render: function (context, firstTime) {
-          context.push("<span></span>");
-        }
+        template: compile['default']("<span></span>")
       }).create();
 
       utils.runAppend(view);
@@ -52975,7 +53210,7 @@ enifed('ember-views/tests/views/view/jquery_test', ['ember-metal/property_get', 
   });
 
 });
-enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, property_get, run, EmberView) {
+enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers'], function (Registry, property_get, run, EmberView, ember_template_compiler, helpers) {
 
   'use strict';
 
@@ -53008,16 +53243,20 @@ enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember
     }, /cantBeFound/);
   });
 
-  QUnit.test("should call the function of the associated layout", function () {
+  QUnit.test("should use the template of the associated layout", function () {
     var templateCalled = 0;
     var layoutCalled = 0;
 
-    registry.register("template:template", function () {
+    helpers.registerHelper("call-template", function () {
       templateCalled++;
     });
-    registry.register("template:layout", function () {
+
+    helpers.registerHelper("call-layout", function () {
       layoutCalled++;
     });
+
+    registry.register("template:template", ember_template_compiler.compile("{{call-template}}"));
+    registry.register("template:layout", ember_template_compiler.compile("{{call-layout}}"));
 
     view = EmberView['default'].create({
       container: container,
@@ -53033,67 +53272,8 @@ enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember
     equal(layoutCalled, 1, "layout is called when layout is present");
   });
 
-  QUnit.test("changing layoutName after setting layoutName continous to work", function () {
-    var layoutCalled = 0;
-    var otherLayoutCalled = 0;
-
-    registry.register("template:layout", function () {
-      layoutCalled++;
-    });
-    registry.register("template:other-layout", function () {
-      otherLayoutCalled++;
-    });
-
-    view = EmberView['default'].create({
-      container: container,
-      layoutName: "layout"
-    });
-
-    run['default'](view, "createElement");
-    equal(layoutCalled, 1, "layout is called when layout is present");
-    equal(otherLayoutCalled, 0, "otherLayout is not yet called");
-
-    run['default'](function () {
-      view.set("layoutName", "other-layout");
-      view.rerender();
-    });
-
-    equal(layoutCalled, 1, "layout is called when layout is present");
-    equal(otherLayoutCalled, 1, "otherLayoutis called when layoutName changes, and explicit rerender occurs");
-  });
-
-  QUnit.test("changing layoutName after setting layout CP continous to work", function () {
-    var layoutCalled = 0;
-    var otherLayoutCalled = 0;
-    function otherLayout() {
-      otherLayoutCalled++;
-    }
-
-    registry.register("template:other-layout", otherLayout);
-
-    view = EmberView['default'].create({
-      container: container,
-      layout: function () {
-        layoutCalled++;
-      }
-    });
-
-    run['default'](view, "createElement");
-    run['default'](function () {
-      view.set("layoutName", "other-layout");
-      view.rerender();
-    });
-
-    equal(view.get("layout"), otherLayout);
-
-    equal(layoutCalled, 1, "layout is called when layout is present");
-    equal(otherLayoutCalled, 1, "otherLayoutis called when layoutName changes, and explicit rerender occurs");
-  });
-
-  QUnit.test("should call the function of the associated template with itself as the context", function () {
-    registry.register("template:testTemplate", function (dataSource) {
-      return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-    });
+  QUnit.test("should use the associated template with itself as the context", function () {
+    registry.register("template:testTemplate", ember_template_compiler.compile("<h1 id='twas-called'>template was called for {{personName}}</h1>"));
 
     view = EmberView['default'].create({
       container: container,
@@ -53111,38 +53291,24 @@ enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember
     equal("template was called for Tom DAAAALE", view.$("#twas-called").text(), "the named template was called with the view as the data source");
   });
 
-  QUnit.test("should fall back to defaultTemplate if neither template nor templateName are provided", function () {
-    var View;
-
-    View = EmberView['default'].extend({
-      defaultLayout: function (dataSource) {
-        return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-      }
+  QUnit.test("should fall back to defaultLayout if neither template nor templateName are provided", function () {
+    var View = EmberView['default'].extend({
+      defaultLayout: ember_template_compiler.compile("used default layout")
     });
 
-    view = View.create({
-      context: {
-        personName: "Tom DAAAALE"
-      }
-    });
+    view = View.create();
 
     run['default'](function () {
       view.createElement();
     });
 
-    equal("template was called for Tom DAAAALE", view.$("#twas-called").text(), "the named template was called with the view as the data source");
+    equal("used default layout", view.$().text(), "the named template was called with the view as the data source");
   });
 
   QUnit.test("should not use defaultLayout if layout is provided", function () {
-    var View;
-
-    View = EmberView['default'].extend({
-      layout: function () {
-        return "foo";
-      },
-      defaultLayout: function (dataSource) {
-        return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-      }
+    var View = EmberView['default'].extend({
+      layout: ember_template_compiler.compile("used layout"),
+      defaultLayout: ember_template_compiler.compile("used default layout")
     });
 
     view = View.create();
@@ -53150,30 +53316,11 @@ enifed('ember-views/tests/views/view/layout_test', ['container/registry', 'ember
       view.createElement();
     });
 
-    equal("foo", view.$().text(), "default layout was not printed");
-  });
-
-  QUnit.test("the template property is available to the layout template", function () {
-    view = EmberView['default'].create({
-      template: function (context, options) {
-        options.data.buffer.push(" derp");
-      },
-
-      layout: function (context, options) {
-        options.data.buffer.push("Herp");
-        property_get.get(options.data.view, "template")(context, options);
-      }
-    });
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    equal("Herp derp", view.$().text(), "the layout has access to the template");
+    equal("used layout", view.$().text(), "default layout was not printed");
   });
 
 });
-enifed('ember-views/tests/views/view/nearest_of_type_test', ['ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view'], function (run, mixin, View) {
+enifed('ember-views/tests/views/view/nearest_of_type_test', ['ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (run, mixin, View, compile) {
 
   'use strict';
 
@@ -53195,9 +53342,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['ember-metal/run_lo
   (function () {
     var Mixin = mixin.Mixin.create({});
     var Parent = View['default'].extend(Mixin, {
-      render: function (buffer) {
-        this.appendChild(View['default'].create());
-      }
+      template: compile['default']("{{view}}")
     });
 
     QUnit.test("nearestOfType should find the closest view by view class", function () {
@@ -53229,10 +53374,7 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['ember-metal/run_lo
 
       view = View['default'].create({
         myProp: true,
-
-        render: function (buffer) {
-          this.appendChild(View['default'].create());
-        }
+        template: compile['default']("{{view}}")
       });
 
       run['default'](function () {
@@ -53467,246 +53609,6 @@ enifed('ember-views/tests/views/view/remove_test', ['ember-metal/property_get', 
   });
 
 });
-enifed('ember-views/tests/views/view/render_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-metal/computed', 'ember-template-compiler/system/compile'], function (property_get, run, jQuery, EmberView, ContainerView, computed, compile) {
-
-  'use strict';
-
-  var view;
-
-  // .......................................................
-  //  render()
-  //
-  QUnit.module("EmberView#render", {
-    teardown: function () {
-      run['default'](function () {
-        view.destroy();
-      });
-    }
-  });
-
-  QUnit.test("default implementation does not render child views", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    var rendered = 0;
-    var parentRendered = 0;
-
-    view = ContainerView['default'].createWithMixins({
-      childViews: ["child"],
-
-      render: function (buffer) {
-        parentRendered++;
-        this._super(buffer);
-      },
-
-      child: EmberView['default'].createWithMixins({
-        render: function (buffer) {
-          rendered++;
-          this._super(buffer);
-        }
-      })
-    });
-
-    run['default'](function () {
-      view.createElement();
-    });
-    equal(rendered, 1, "rendered the child once");
-    equal(parentRendered, 1);
-    equal(view.$("div").length, 1);
-  });
-
-  QUnit.test("should invoke renderChildViews if layer is destroyed then re-rendered", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    var rendered = 0;
-    var parentRendered = 0;
-
-    view = ContainerView['default'].createWithMixins({
-      childViews: ["child"],
-
-      render: function (buffer) {
-        parentRendered++;
-        this._super(buffer);
-      },
-
-      child: EmberView['default'].createWithMixins({
-        render: function (buffer) {
-          rendered++;
-          this._super(buffer);
-        }
-      })
-    });
-
-    run['default'](function () {
-      view.append();
-    });
-
-    equal(rendered, 1, "rendered the child once");
-    equal(parentRendered, 1);
-    equal(view.$("div").length, 1);
-
-    run['default'](function () {
-      view.rerender();
-    });
-
-    equal(rendered, 2, "rendered the child twice");
-    equal(parentRendered, 2);
-    equal(view.$("div").length, 1);
-
-    run['default'](function () {
-      view.destroy();
-    });
-  });
-
-  QUnit.test("should render child views with a different tagName", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    view = ContainerView['default'].create({
-      childViews: ["child"],
-
-      child: EmberView['default'].create({
-        tagName: "aside"
-      })
-    });
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    equal(view.$("aside").length, 1);
-  });
-
-  QUnit.test("should add ember-view to views", function () {
-    view = EmberView['default'].create();
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    ok(view.$().hasClass("ember-view"), "the view has ember-view");
-  });
-
-  QUnit.test("should allow tagName to be a computed property [DEPRECATED]", function () {
-    view = EmberView['default'].extend({
-      tagName: computed.computed(function () {
-        return "span";
-      })
-    }).create();
-
-    expectDeprecation(function () {
-      run['default'](function () {
-        view.createElement();
-      });
-    }, /using a computed property to define tagName will not be permitted/);
-
-    equal(view.element.tagName, "SPAN", "the view has was created with the correct element");
-
-    run['default'](function () {
-      view.set("tagName", "div");
-    });
-
-    equal(view.element.tagName, "SPAN", "the tagName cannot be changed after initial render");
-  });
-
-  QUnit.test("should allow hX tags as tagName", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    view = ContainerView['default'].create({
-      childViews: ["child"],
-
-      child: EmberView['default'].create({
-        tagName: "h3"
-      })
-    });
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    ok(view.$("h3").length, "does not render the h3 tag correctly");
-  });
-
-  QUnit.test("should not add role attribute unless one is specified", function () {
-    view = EmberView['default'].create();
-
-    run['default'](function () {
-      view.createElement();
-    });
-
-    ok(view.$().attr("role") === undefined, "does not have a role attribute");
-  });
-
-  QUnit.test("should re-render if the context is changed", function () {
-    view = EmberView['default'].create({
-      elementId: "template-context-test",
-      context: { foo: "bar" },
-      render: function (buffer) {
-        var value = property_get.get(property_get.get(this, "context"), "foo");
-        buffer.push(value);
-      }
-    });
-
-    run['default'](function () {
-      view.appendTo("#qunit-fixture");
-    });
-
-    equal(jQuery['default']("#qunit-fixture #template-context-test").text(), "bar", "precond - renders the view with the initial value");
-
-    run['default'](function () {
-      view.set("context", {
-        foo: "bang baz"
-      });
-    });
-
-    equal(jQuery['default']("#qunit-fixture #template-context-test").text(), "bang baz", "re-renders the view with the updated context");
-  });
-
-  QUnit.test("renders contained view with omitted start tag and parent view context", function () {
-    expectDeprecation("Setting `childViews` on a Container is deprecated.");
-
-    view = ContainerView['default'].createWithMixins({
-      tagName: "table",
-      childViews: ["row"],
-      row: EmberView['default'].createWithMixins({
-        tagName: "tr"
-      })
-    });
-
-    run['default'](view, view.append);
-
-    equal(view.element.tagName, "TABLE", "container view is table");
-    equal(view.element.childNodes[0].tagName, "TR", "inner view is tr");
-
-    run['default'](view, view.rerender);
-
-    equal(view.element.tagName, "TABLE", "container view is table");
-    equal(view.element.childNodes[0].tagName, "TR", "inner view is tr");
-  });
-
-  QUnit.test("renders a contained view with omitted start tag and tagless parent view context", function () {
-    view = EmberView['default'].createWithMixins({
-      tagName: "table",
-      template: compile['default']("{{view view.pivot}}"),
-      pivot: EmberView['default'].extend({
-        tagName: "",
-        template: compile['default']("{{view view.row}}"),
-        row: EmberView['default'].extend({
-          tagName: "tr"
-        })
-      })
-    });
-
-    run['default'](view, view.append);
-
-    equal(view.element.tagName, "TABLE", "container view is table");
-    ok(view.$("tr").length, "inner view is tr");
-
-    run['default'](view, view.rerender);
-
-    equal(view.element.tagName, "TABLE", "container view is table");
-    ok(view.$("tr").length, "inner view is tr");
-  });
-
-});
 enifed('ember-views/tests/views/view/render_to_element_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (property_get, run, EmberView, compile) {
 
   'use strict';
@@ -53916,85 +53818,7 @@ enifed('ember-views/tests/views/view/state_deprecation_test', ['ember-metal/plat
   });
 
 });
-enifed('ember-views/tests/views/view/stream_test', ['ember-metal/run_loop', 'ember-views/views/view'], function (run, EmberView) {
-
-  'use strict';
-
-  var view;
-
-  QUnit.module("ember-views: streams", {
-    teardown: function () {
-      if (view) {
-        run['default'](view, "destroy");
-      }
-    }
-  });
-
-  QUnit.test("can return a stream that is notified of changes", function () {
-    expect(2);
-
-    view = EmberView['default'].create({
-      controller: {
-        name: "Robert"
-      }
-    });
-
-    var stream = view.getStream("name");
-
-    equal(stream.value(), "Robert", "initial value is correct");
-
-    stream.subscribe(function () {
-      equal(stream.value(), "Max", "value is updated");
-    });
-
-    run['default'](view, "set", "controller.name", "Max");
-  });
-
-  QUnit.test("a single stream is used for the same path", function () {
-    expect(2);
-
-    var stream1, stream2;
-
-    view = EmberView['default'].create({
-      controller: {
-        name: "Robert"
-      }
-    });
-
-    stream1 = view.getStream("name");
-    stream2 = view.getStream("name");
-
-    equal(stream1, stream2, "streams for the same path should be the same object");
-
-    stream1 = view.getStream("");
-    stream2 = view.getStream("this");
-
-    equal(stream1, stream2, "streams \"\" and \"this\"  should be the same object");
-  });
-
-  QUnit.test("the stream returned is labeled with the requested path", function () {
-    expect(2);
-    var stream;
-
-    view = EmberView['default'].create({
-      controller: {
-        name: "Robert"
-      },
-
-      foo: "bar"
-    });
-
-    stream = view.getStream("name");
-
-    equal(stream._label, "name", "stream is labeled");
-
-    stream = view.getStream("view.foo");
-
-    equal(stream._label, "view.foo", "stream is labeled");
-  });
-
-});
-enifed('ember-views/tests/views/view/template_test', ['container/registry', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/views/view'], function (Registry, property_get, run, EmberObject, EmberView) {
+enifed('ember-views/tests/views/view/template_test', ['container/registry', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler'], function (Registry, property_get, run, EmberView, ember_template_compiler) {
 
   'use strict';
 
@@ -54028,25 +53852,8 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
     }, /cantBeFound/);
   });
 
-  if (typeof Handlebars === "object") {
-    QUnit.test("should allow standard Handlebars template usage", function () {
-      view = EmberView['default'].create({
-        context: { name: "Erik" },
-        template: Handlebars.compile("Hello, {{name}}")
-      });
-
-      run['default'](function () {
-        view.createElement();
-      });
-
-      equal(view.$().text(), "Hello, Erik");
-    });
-  }
-
   QUnit.test("should call the function of the associated template", function () {
-    registry.register("template:testTemplate", function () {
-      return "<h1 id='twas-called'>template was called</h1>";
-    });
+    registry.register("template:testTemplate", ember_template_compiler.compile("<h1 id='twas-called'>template was called</h1>"));
 
     view = EmberView['default'].create({
       container: container,
@@ -54061,9 +53868,7 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
   });
 
   QUnit.test("should call the function of the associated template with itself as the context", function () {
-    registry.register("template:testTemplate", function (dataSource) {
-      return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-    });
+    registry.register("template:testTemplate", ember_template_compiler.compile("<h1 id='twas-called'>template was called for {{personName}}</h1>"));
 
     view = EmberView['default'].create({
       container: container,
@@ -54085,9 +53890,7 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
     var View;
 
     View = EmberView['default'].extend({
-      defaultTemplate: function (dataSource) {
-        return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-      }
+      defaultTemplate: ember_template_compiler.compile("<h1 id='twas-called'>template was called for {{personName}}</h1>")
     });
 
     view = View.create({
@@ -54104,15 +53907,9 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
   });
 
   QUnit.test("should not use defaultTemplate if template is provided", function () {
-    var View;
-
-    View = EmberView['default'].extend({
-      template: function () {
-        return "foo";
-      },
-      defaultTemplate: function (dataSource) {
-        return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-      }
+    var View = EmberView['default'].extend({
+      template: ember_template_compiler.compile("foo"),
+      defaultTemplate: ember_template_compiler.compile("<h1 id='twas-called'>template was called for {{personName}}</h1>")
     });
 
     view = View.create();
@@ -54124,18 +53921,12 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
   });
 
   QUnit.test("should not use defaultTemplate if template is provided", function () {
-    var View;
+    registry.register("template:foobar", ember_template_compiler.compile("foo"));
 
-    registry.register("template:foobar", function () {
-      return "foo";
-    });
-
-    View = EmberView['default'].extend({
+    var View = EmberView['default'].extend({
       container: container,
       templateName: "foobar",
-      defaultTemplate: function (dataSource) {
-        return "<h1 id='twas-called'>template was called for " + property_get.get(dataSource, "personName") + "</h1>";
-      }
+      defaultTemplate: ember_template_compiler.compile("<h1 id='twas-called'>template was called for {{personName}}</h1>")
     });
 
     view = View.create();
@@ -54152,102 +53943,7 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
       view.createElement();
     });
 
-    equal(view.$().html(), "", "view div should be empty");
-  });
-
-  QUnit.test("should provide a controller to the template if a controller is specified on the view", function () {
-    expect(7);
-
-    var Controller1 = EmberObject['default'].extend({
-      toString: function () {
-        return "Controller1";
-      }
-    });
-
-    var Controller2 = EmberObject['default'].extend({
-      toString: function () {
-        return "Controller2";
-      }
-    });
-
-    var controller1 = Controller1.create();
-    var controller2 = Controller2.create();
-    var optionsDataKeywordsControllerForView;
-    var optionsDataKeywordsControllerForChildView;
-    var contextForView;
-    var contextForControllerlessView;
-
-    view = EmberView['default'].create({
-      controller: controller1,
-
-      template: function (buffer, options) {
-        optionsDataKeywordsControllerForView = options.data.view._keywords.controller.value();
-      }
-    });
-
-    run['default'](function () {
-      view.appendTo("#qunit-fixture");
-    });
-
-    strictEqual(optionsDataKeywordsControllerForView, controller1, "passes the controller in the data");
-
-    run['default'](function () {
-      view.destroy();
-    });
-
-    var parentView = EmberView['default'].create({
-      controller: controller1,
-
-      template: function (buffer, options) {
-        options.data.view.appendChild(EmberView['default'].create({
-          controller: controller2,
-          template: function (context, options) {
-            contextForView = context;
-            optionsDataKeywordsControllerForChildView = options.data.view._keywords.controller.value();
-          }
-        }));
-        optionsDataKeywordsControllerForView = options.data.view._keywords.controller.value();
-      }
-    });
-
-    run['default'](function () {
-      parentView.appendTo("#qunit-fixture");
-    });
-
-    strictEqual(optionsDataKeywordsControllerForView, controller1, "passes the controller in the data");
-    strictEqual(optionsDataKeywordsControllerForChildView, controller2, "passes the child view's controller in the data");
-
-    run['default'](function () {
-      parentView.destroy();
-    });
-
-    var parentViewWithControllerlessChild = EmberView['default'].create({
-      controller: controller1,
-
-      template: function (buffer, options) {
-        options.data.view.appendChild(EmberView['default'].create({
-          template: function (context, options) {
-            contextForControllerlessView = context;
-            optionsDataKeywordsControllerForChildView = options.data.view._keywords.controller.value();
-          }
-        }));
-        optionsDataKeywordsControllerForView = options.data.view._keywords.controller.value();
-      }
-    });
-
-    run['default'](function () {
-      parentViewWithControllerlessChild.appendTo("#qunit-fixture");
-    });
-
-    strictEqual(optionsDataKeywordsControllerForView, controller1, "passes the original controller in the data");
-    strictEqual(optionsDataKeywordsControllerForChildView, controller1, "passes the controller in the data to child views");
-    strictEqual(contextForView, controller2, "passes the controller in as the main context of the parent view");
-    strictEqual(contextForControllerlessView, controller1, "passes the controller in as the main context of the child view");
-
-    run['default'](function () {
-      parentView.destroy();
-      parentViewWithControllerlessChild.destroy();
-    });
+    equal(view.$().text(), "", "view div should be empty");
   });
 
   QUnit.test("should throw an assertion if no container has been set", function () {
@@ -54264,6 +53960,8 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
         view.createElement();
       });
     }, /Container was not found when looking up a views template./);
+
+    view.renderNode = null;
   });
 
 });
@@ -54301,7 +53999,7 @@ enifed('ember-views/tests/views/view/transition_to_deprecation_test', ['ember-vi
   });
 
 });
-enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view'], function (Ember, run, EmberObject, jQuery, EmberView) {
+enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/helpers'], function (Ember, run, EmberObject, jQuery, EmberView, ember_template_compiler, helpers) {
 
   'use strict';
 
@@ -54323,12 +54021,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
     }
   });
 
-  function tmpl(str) {
-    return function (context, options) {
-      options.data.buffer.push(str);
-    };
-  }
-
   QUnit.test("should create and append a DOM element after bindings have synced", function () {
     var ViewTest;
 
@@ -54341,14 +54033,13 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
 
       view = EmberView['default'].createWithMixins({
         fooBinding: "ViewTest.fakeController.fakeThing",
-
-        render: function (buffer) {
-          buffer.push(this.get("foo"));
-        }
+        template: ember_template_compiler.compile("{{view.foo}}")
       });
 
       ok(!view.get("element"), "precond - does not have an element before appending");
 
+      // the actual render happens in the `render` queue, which is after the `sync`
+      // queue where the binding is synced.
       view.append();
     });
 
@@ -54368,7 +54059,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should not affect rendering if rerender is called before initial render happens", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Rerender me!")
+        template: ember_template_compiler.compile("Rerender me!")
       });
 
       view.rerender();
@@ -54381,7 +54072,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should not affect rendering if destroyElement is called before initial render happens", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Don't destroy me!")
+        template: ember_template_compiler.compile("Don't destroy me!")
       });
 
       view.destroyElement();
@@ -54403,55 +54094,32 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
     }
   });
 
-  QUnit.test("appendChild should work inside a template", function () {
-    run['default'](function () {
-      view = EmberView['default'].create({
-        template: function (context, options) {
-          var buffer = options.data.buffer;
-
-          buffer.push("<h1>Hi!</h1>");
-
-          options.data.view.appendChild(EmberView['default'], {
-            template: tmpl("Inception reached")
-          });
-
-          buffer.push("<div class='footer'>Wait for the kick</div>");
-        }
-      });
-
-      view.appendTo("#qunit-fixture");
+  QUnit.test("rerender of top level view during rendering should throw", function () {
+    helpers.registerHelper("throw", function () {
+      view.rerender();
     });
-
-    ok(view.$("h1").length === 1 && view.$("div").length === 2, "The appended child is visible");
+    view = EmberView['default'].create({
+      template: ember_template_compiler.compile("{{throw}}")
+    });
+    throws(function () {
+      run['default'](view, view.appendTo, "#qunit-fixture");
+    }, /Something you did caused a view to re-render after it rendered but before it was inserted into the DOM./, "expected error was not raised");
   });
 
-  QUnit.test("rerender should throw inside a template", function () {
+  QUnit.test("rerender of non-top level view during rendering should throw", function () {
+    var innerView = EmberView['default'].create({
+      template: ember_template_compiler.compile("{{throw}}")
+    });
+    helpers.registerHelper("throw", function () {
+      innerView.rerender();
+    });
+    view = EmberView['default'].create({
+      template: ember_template_compiler.compile("{{view view.innerView}}"),
+      innerView: innerView
+    });
     throws(function () {
-      run['default'](function () {
-        var renderCount = 0;
-        view = EmberView['default'].create({
-          template: function (context, options) {
-            var view = options.data.view;
-
-            var child1 = view.appendChild(EmberView['default'], {
-              template: function (context, options) {
-                renderCount++;
-                options.data.buffer.push(String(renderCount));
-              }
-            });
-
-            view.appendChild(EmberView['default'], {
-              template: function (context, options) {
-                options.data.buffer.push("Inside child2");
-                child1.rerender();
-              }
-            });
-          }
-        });
-
-        view.appendTo("#qunit-fixture");
-      });
-    }, /Something you did caused a view to re-render after it rendered but before it was inserted into the DOM./);
+      run['default'](view, view.appendTo, "#qunit-fixture");
+    }, /Something you did caused a view to re-render after it rendered but before it was inserted into the DOM./, "expected error was not raised");
   });
 
   QUnit.module("views/view/view_lifecycle_test - hasElement", {
@@ -54465,9 +54133,10 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   });
 
   QUnit.test("createElement puts the view into the hasElement state", function () {
+    var hasCalledInsertElement = false;
     view = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("hello");
+      didInsertElement: function () {
+        hasCalledInsertElement = true;
       }
     });
 
@@ -54475,13 +54144,15 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
       view.createElement();
     });
 
-    equal(view.currentState, view._states.hasElement, "the view is in the hasElement state");
+    ok(!hasCalledInsertElement, "didInsertElement is not called");
+    equal(view.element.tagName, "DIV", "content is rendered");
   });
 
   QUnit.test("trigger rerender on a view in the hasElement state doesn't change its state to inDOM", function () {
+    var hasCalledInsertElement = false;
     view = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("hello");
+      didInsertElement: function () {
+        hasCalledInsertElement = true;
       }
     });
 
@@ -54490,7 +54161,8 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
       view.rerender();
     });
 
-    equal(view.currentState, view._states.hasElement, "the view is still in the hasElement state");
+    ok(!hasCalledInsertElement, "didInsertElement is not called");
+    equal(view.element.tagName, "DIV", "content is rendered");
   });
 
   QUnit.module("views/view/view_lifecycle_test - in DOM", {
@@ -54506,7 +54178,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should throw an exception when calling appendChild when DOM element exists", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Wait for the kick")
+        template: ember_template_compiler.compile("Wait for the kick")
       });
 
       view.append();
@@ -54514,32 +54186,31 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
 
     throws(function () {
       view.appendChild(EmberView['default'], {
-        template: tmpl("Ah ah ah! You didn't say the magic word!")
+        template: ember_template_compiler.compile("Ah ah ah! You didn't say the magic word!")
       });
     }, null, "throws an exception when calling appendChild after element is created");
   });
 
   QUnit.test("should replace DOM representation if rerender() is called after element is created", function () {
     run['default'](function () {
-      view = EmberView['default'].create({
-        template: function (context, options) {
-          var buffer = options.data.buffer;
-          var value = context.get("shape");
-
-          buffer.push("Do not taunt happy fun " + value);
+      view = EmberView['default'].createWithMixins({
+        template: ember_template_compiler.compile("Do not taunt happy fun {{unbound view.shape}}"),
+        rerender: function () {
+          this._super.apply(this, arguments);
         },
-
-        context: EmberObject['default'].create({
-          shape: "sphere"
-        })
+        shape: "sphere"
       });
 
+      view.volatileProp = view.get("context.shape");
       view.append();
     });
 
     equal(view.$().text(), "Do not taunt happy fun sphere", "precond - creates DOM element");
 
-    view.set("context.shape", "ball");
+    view.shape = "ball";
+
+    equal(view.$().text(), "Do not taunt happy fun sphere", "precond - keeps DOM element");
+
     run['default'](function () {
       view.rerender();
     });
@@ -54550,7 +54221,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should destroy DOM representation when destroyElement is called", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Don't fear the reaper")
+        template: ember_template_compiler.compile("Don't fear the reaper")
       });
 
       view.append();
@@ -54568,7 +54239,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should destroy DOM representation when destroy is called", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("<div id='warning'>Don't fear the reaper</div>")
+        template: ember_template_compiler.compile("<div id='warning'>Don't fear the reaper</div>")
       });
 
       view.append();
@@ -54586,7 +54257,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should throw an exception if trying to append an element that is already in DOM", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Broseidon, King of the Brocean")
+        template: ember_template_compiler.compile("Broseidon, King of the Brocean")
       });
 
       view.append();
@@ -54606,7 +54277,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should throw an exception when calling appendChild after view is destroyed", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("Wait for the kick")
+        template: ember_template_compiler.compile("Wait for the kick")
       });
 
       view.append();
@@ -54618,7 +54289,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
 
     throws(function () {
       view.appendChild(EmberView['default'], {
-        template: tmpl("Ah ah ah! You didn't say the magic word!")
+        template: ember_template_compiler.compile("Ah ah ah! You didn't say the magic word!")
       });
     }, null, "throws an exception when calling appendChild");
   });
@@ -54626,7 +54297,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should throw an exception when rerender is called after view is destroyed", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("foo")
+        template: ember_template_compiler.compile("foo")
       });
 
       view.append();
@@ -54644,7 +54315,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("should throw an exception when destroyElement is called after view is destroyed", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("foo")
+        template: ember_template_compiler.compile("foo")
       });
 
       view.append();
@@ -54662,7 +54333,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   QUnit.test("trigger rerender on a view in the inDOM state keeps its state as inDOM", function () {
     run['default'](function () {
       view = EmberView['default'].create({
-        template: tmpl("foo")
+        template: ember_template_compiler.compile("foo")
       });
 
       view.append();
@@ -54680,101 +54351,158 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['ember-metal/core', 
   });
 
 });
-enifed('ember-views/tests/views/view/virtual_views_test', ['ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view'], function (property_get, run, jQuery, EmberView) {
+enifed('ember-views/tests/views/view_test', ['ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler'], function (computed, run, jQuery, EmberView, ember_template_compiler) {
 
   'use strict';
 
-  var rootView, childView;
+  var view;
 
-  QUnit.module("virtual views", {
+  QUnit.module("Ember.View", {
     teardown: function () {
       run['default'](function () {
-        rootView.destroy();
-        childView.destroy();
+        view.destroy();
       });
     }
   });
 
-  QUnit.test("a virtual view does not appear as a view's parentView", function () {
-    rootView = EmberView['default'].create({
-      elementId: "root-view",
-
-      render: function (buffer) {
-        buffer.push("<h1>Hi</h1>");
-        this.appendChild(virtualView);
-      }
-    });
-
-    var virtualView = EmberView['default'].create({
-      isVirtual: true,
-      tagName: "",
-
-      render: function (buffer) {
-        buffer.push("<h2>Virtual</h2>");
-        this.appendChild(childView);
-      }
-    });
-
-    childView = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("<p>Bye!</p>");
-      }
-    });
+  QUnit.test("should add ember-view to views", function () {
+    view = EmberView['default'].create();
 
     run['default'](function () {
-      jQuery['default']("#qunit-fixture").empty();
-      rootView.appendTo("#qunit-fixture");
+      view.createElement();
     });
 
-    equal(jQuery['default']("#root-view > h2").length, 1, "nodes with '' tagName do not create wrappers");
-    equal(property_get.get(childView, "parentView"), rootView);
-
-    var children = property_get.get(rootView, "childViews");
-
-    equal(property_get.get(children, "length"), 1, "there is one child element");
-    equal(children.objectAt(0), childView, "the child element skips through the virtual view");
+    ok(view.$().hasClass("ember-view"), "the view has ember-view");
   });
 
-  QUnit.test("when a virtual view's child views change, the parent's childViews should reflect", function () {
-    rootView = EmberView['default'].create({
-      elementId: "root-view",
+  QUnit.test("should not add role attribute unless one is specified", function () {
+    view = EmberView['default'].create();
 
-      render: function (buffer) {
-        buffer.push("<h1>Hi</h1>");
-        this.appendChild(virtualView);
-      }
+    run['default'](function () {
+      view.createElement();
     });
 
-    var virtualView = EmberView['default'].create({
-      isVirtual: true,
-      tagName: "",
+    ok(view.$().attr("role") === undefined, "does not have a role attribute");
+  });
 
-      render: function (buffer) {
-        buffer.push("<h2>Virtual</h2>");
-        this.appendChild(childView);
-      }
+  QUnit.test("should allow tagName to be a computed property [DEPRECATED]", function () {
+    view = EmberView['default'].extend({
+      tagName: computed.computed(function () {
+        return "span";
+      })
+    }).create();
+
+    expectDeprecation(function () {
+      run['default'](function () {
+        view.createElement();
+      });
+    }, /using a computed property to define tagName will not be permitted/);
+
+    equal(view.element.tagName, "SPAN", "the view has was created with the correct element");
+
+    run['default'](function () {
+      view.set("tagName", "div");
     });
 
-    childView = EmberView['default'].create({
-      render: function (buffer) {
-        buffer.push("<p>Bye!</p>");
-      }
+    equal(view.element.tagName, "SPAN", "the tagName cannot be changed after initial render");
+  });
+
+  QUnit.test("should re-render if the context is changed", function () {
+    view = EmberView['default'].create({
+      elementId: "template-context-test",
+      context: { foo: "bar" },
+      template: ember_template_compiler.compile("{{foo}}")
     });
 
     run['default'](function () {
-      jQuery['default']("#qunit-fixture").empty();
-      rootView.appendTo("#qunit-fixture");
+      view.appendTo("#qunit-fixture");
     });
 
-    equal(virtualView.get("childViews.length"), 1, "has childView - precond");
-    equal(rootView.get("childViews.length"), 1, "has childView - precond");
+    equal(jQuery['default']("#qunit-fixture #template-context-test").text(), "bar", "precond - renders the view with the initial value");
 
     run['default'](function () {
-      childView.removeFromParent();
+      view.set("context", {
+        foo: "bang baz"
+      });
     });
 
-    equal(virtualView.get("childViews.length"), 0, "has no childView");
-    equal(rootView.get("childViews.length"), 0, "has no childView");
+    equal(jQuery['default']("#qunit-fixture #template-context-test").text(), "bang baz", "re-renders the view with the updated context");
+  });
+
+  QUnit.test("renders a contained view with omitted start tag and tagless parent view context", function () {
+    view = EmberView['default'].createWithMixins({
+      tagName: "table",
+      template: ember_template_compiler.compile("{{view view.pivot}}"),
+      pivot: EmberView['default'].extend({
+        tagName: "",
+        template: ember_template_compiler.compile("{{view view.row}}"),
+        row: EmberView['default'].extend({
+          tagName: "tr"
+        })
+      })
+    });
+
+    run['default'](view, view.append);
+
+    equal(view.element.tagName, "TABLE", "container view is table");
+    ok(view.$("tr").length, "inner view is tr");
+
+    run['default'](view, view.rerender);
+
+    equal(view.element.tagName, "TABLE", "container view is table");
+    ok(view.$("tr").length, "inner view is tr");
+  });
+
+  QUnit.test("propagates dependent-key invalidated sets upstream", function () {
+    view = EmberView['default'].create({
+      parentProp: "parent-value",
+      template: ember_template_compiler.compile("{{view view.childView childProp=view.parentProp}}"),
+      childView: EmberView['default'].createWithMixins({
+        template: ember_template_compiler.compile("child template"),
+        childProp: "old-value"
+      })
+    });
+
+    run['default'](view, view.append);
+
+    equal(view.get("parentProp"), "parent-value", "precond - parent value is there");
+    var childView = view.get("childView");
+
+    run['default'](function () {
+      childView.set("childProp", "new-value");
+    });
+
+    equal(view.get("parentProp"), "new-value", "new value is propagated across template");
+  });
+
+  QUnit.test("propagates dependent-key invalidated bindings upstream", function () {
+    view = EmberView['default'].create({
+      parentProp: "parent-value",
+      template: ember_template_compiler.compile("{{view view.childView childProp=view.parentProp}}"),
+      childView: EmberView['default'].createWithMixins({
+        template: ember_template_compiler.compile("child template"),
+        childProp: Ember.computed("dependencyProp", {
+          get: function (key) {
+            return this.get("dependencyProp");
+          },
+          set: function (key, value) {
+            // Avoid getting stomped by the template attrs
+            return this.get("dependencyProp");
+          }
+        }),
+        dependencyProp: "old-value"
+      })
+    });
+
+    run['default'](view, view.append);
+
+    equal(view.get("parentProp"), "parent-value", "precond - parent value is there");
+    var childView = view.get("childView");
+    run['default'](function () {
+      return childView.set("dependencyProp", "new-value");
+    });
+    equal(childView.get("childProp"), "new-value", "pre-cond - new value is propagated to CP");
+    equal(view.get("parentProp"), "new-value", "new value is propagated across template");
   });
 
 });
@@ -54989,9 +54717,7 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
     boot(function () {
       registry.register("component:my-hero", Ember.Component.extend({
         classNames: "testing123",
-        template: function () {
-          return "watch him as he GOES";
-        }
+        template: compile['default']("watch him as he GOES")
       }));
     });
 
@@ -55059,8 +54785,9 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
     equal(Ember.$("#wrapper").text(), "inner-outer", "The component is composed correctly");
   });
 
-  QUnit.test("Assigning templateName and layoutName should use the templates specified", function () {
-    expect(1);
+  QUnit.test("Assigning templateName and layoutName should use the templates specified [DEPRECATED]", function () {
+    expect(2);
+    expectDeprecation(/Using deprecated `template` property on a Component/);
 
     Ember.TEMPLATES.application = compile['default']("<div id='wrapper'>{{my-component}}</div>");
     Ember.TEMPLATES["foo"] = compile['default']("{{text}}");
@@ -55086,7 +54813,7 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
 
     expectAssertion(function () {
       boot();
-    }, /A helper named `no-good` could not be found/);
+    }, /A helper named 'no-good' could not be found/);
   });
 
   QUnit.module("Application Lifecycle - Component Context", {
@@ -55162,7 +54889,8 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
     equal(Ember.$("#wrapper").text(), "Some text inserted by jQuery", "The component is composed correctly");
   });
 
-  QUnit.test("properties of a component  without a template should not collide with internal structures", function () {
+  // The test following this one is the non-deprecated version
+  QUnit.test("properties of a component without a template should not collide with internal structures [DEPRECATED]", function () {
     Ember.TEMPLATES.application = compile['default']("<div id='wrapper'>{{my-component data=foo}}</div>");
 
     boot(function () {
@@ -55174,6 +54902,26 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
       registry.register("component:my-component", Ember.Component.extend({
         didInsertElement: function () {
           this.$().html(this.get("data"));
+        }
+      }));
+    });
+
+    equal(Ember.$("#wrapper").text(), "Some text inserted by jQuery", "The component is composed correctly");
+  });
+
+  QUnit.test("attrs property of a component without a template should not collide with internal structures", function () {
+    Ember.TEMPLATES.application = compile['default']("<div id='wrapper'>{{my-component attrs=foo}}</div>");
+
+    boot(function () {
+      registry.register("controller:application", Ember.Controller.extend({
+        "text": "outer",
+        "foo": "Some text inserted by jQuery"
+      }));
+
+      registry.register("component:my-component", Ember.Component.extend({
+        didInsertElement: function () {
+          // FIXME: I'm unsure if this is even the right way to access attrs
+          this.$().html(this.get("attrs.attrs.value"));
         }
       }));
     });
@@ -55227,6 +54975,152 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
   });
 
 });
+enifed('ember/tests/controller_test', ['ember', 'ember-htmlbars/compat'], function (__dep0__, EmberHandlebars) {
+
+  'use strict';
+
+  var compile = EmberHandlebars['default'].compile;
+  var App, $fixture, templates;
+
+  QUnit.module("Template scoping examples", {
+    setup: function () {
+      Ember.run(function () {
+        templates = Ember.TEMPLATES;
+        App = Ember.Application.create({
+          name: "App",
+          rootElement: "#qunit-fixture"
+        });
+        App.deferReadiness();
+
+        App.Router.reopen({
+          location: "none"
+        });
+
+        App.LoadingRoute = Ember.Route.extend();
+      });
+
+      $fixture = Ember.$("#qunit-fixture");
+    },
+
+    teardown: function () {
+      Ember.run(function () {
+        App.destroy();
+      });
+
+      App = null;
+
+      Ember.TEMPLATES = {};
+    }
+  });
+
+  QUnit.test("Actions inside an outlet go to the associated controller", function () {
+    expect(1);
+
+    templates.index = compile("{{component-with-action action='componentAction'}}");
+
+    App.IndexController = Ember.Controller.extend({
+      actions: {
+        componentAction: function () {
+          ok(true, "received the click");
+        }
+      }
+    });
+
+    App.ComponentWithActionComponent = Ember.Component.extend({
+      classNames: ["component-with-action"],
+      click: function () {
+        this.sendAction();
+      }
+    });
+
+    bootApp();
+
+    $fixture.find(".component-with-action").click();
+  });
+
+  // This test caught a regression where {{#each}}s used directly in a template
+  // (i.e., not inside a view or component) did not have access to a container and
+  // would raise an exception.
+  QUnit.test("{{#each}} inside outlet can have an itemController", function (assert) {
+    templates.index = compile("\n    {{#each model itemController='thing'}}\n      <p>hi</p>\n    {{/each}}\n  ");
+
+    App.IndexController = Ember.Controller.extend({
+      model: Ember.A([1, 2, 3])
+    });
+
+    App.ThingController = Ember.Controller.extend();
+
+    bootApp();
+
+    assert.equal($fixture.find("p").length, 3, "the {{#each}} rendered without raising an exception");
+  });
+
+  QUnit.test("", function (assert) {
+    templates.index = compile("\n    {{#each model itemController='thing'}}\n      {{controller}}\n      <p><a {{action 'checkController' controller}}>Click me</a></p>\n    {{/each}}\n  ");
+
+    App.IndexRoute = Ember.Route.extend({
+      model: function () {
+        return Ember.A([{ name: "red" }, { name: "yellow" }, { name: "blue" }]);
+      }
+    });
+
+    App.ThingController = Ember.Controller.extend({
+      actions: {
+        checkController: function (controller) {
+          assert.ok(controller === this, "correct controller was passed as action context");
+        }
+      }
+    });
+
+    bootApp();
+
+    $fixture.find("a").first().click();
+  });
+
+  function bootApp() {
+    Ember.run(App, "advanceReadiness");
+  }
+
+});
+enifed('ember/tests/default_initializers_test', ['ember-application/system/application', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-metal/run_loop'], function (Application, TextField, Checkbox, run) {
+
+  'use strict';
+
+  var App;
+
+  QUnit.module("Default Registry", {
+    setup: function () {
+      run['default'](function () {
+        App = Application['default'].create({
+          rootElement: "#qunit-fixture"
+        });
+
+        App.deferReadiness();
+      });
+    },
+
+    teardown: function () {
+      run['default'](App, "destroy");
+    }
+  });
+
+  QUnit.test("Default objects are registered", function (assert) {
+    App.instanceInitializer({
+      name: "test",
+      initialize: function (instance) {
+        var registry = instance.registry;
+
+        assert.strictEqual(registry.resolve("component:-text-field"), TextField['default'], "TextField was registered");
+        assert.strictEqual(registry.resolve("component:-checkbox"), Checkbox['default'], "Checkbox was registered");
+      }
+    });
+
+    run['default'](function () {
+      App.advanceReadiness();
+    });
+  });
+
+});
 enifed('ember/tests/global-api-test', ['ember'], function () {
 
   'use strict';
@@ -55251,6 +55145,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
   compile = EmberHandlebars['default'].compile;
   helpers = EmberHandlebars['default'].helpers;
   makeBoundHelper = EmberHandlebars['default'].makeBoundHelper;
+  var makeViewHelper = EmberHandlebars['default'].makeViewHelper;
 
   var App, registry, container;
 
@@ -55327,6 +55222,22 @@ enifed('ember/tests/helpers/helper_registration_test', ['ember', 'ember-htmlbars
 
     equal(Ember.$("#wrapper").text(), "-- xela", "The bound helper was invoked from the container");
     ok(!helpers["x-reverse"], "Container-registered helper doesn't wind up on global helpers hash");
+  });
+
+  QUnit.test("Bound `makeViewHelper` helpers registered on the container can be used", function () {
+    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-foo}} {{x-foo name=foo}}</div>");
+
+    boot(function () {
+      registry.register("controller:application", Ember.Controller.extend({
+        foo: "alex"
+      }));
+
+      registry.register("helper:x-foo", makeViewHelper(Ember.Component.extend({
+        layout: compile("woot!!{{attrs.name}}")
+      })));
+    });
+
+    equal(Ember.$("#wrapper").text(), "woot!! woot!!alex", "The helper was invoked from the container");
   });
 
   // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
@@ -55547,10 +55458,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
   });
 
   QUnit.test("the {{link-to}} helper supports a custom disabledClass", function () {
-    Ember.TEMPLATES.index = compile("{{#link-to \"about\" id=\"about-link\" disabledWhen=\"shouldDisable\" disabledClass=\"do-not-want\"}}About{{/link-to}}");
-    App.IndexController = Ember.Controller.extend({
-      shouldDisable: true
-    });
+    Ember.TEMPLATES.index = compile("{{#link-to \"about\" id=\"about-link\" disabledWhen=true disabledClass=\"do-not-want\"}}About{{/link-to}}");
 
     Router.map(function () {
       this.route("about");
@@ -55566,10 +55474,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
   });
 
   QUnit.test("the {{link-to}} helper does not respond to clicks when disabled", function () {
-    Ember.TEMPLATES.index = compile("{{#link-to \"about\" id=\"about-link\" disabledWhen=\"shouldDisable\"}}About{{/link-to}}");
-    App.IndexController = Ember.Controller.extend({
-      shouldDisable: true
-    });
+    Ember.TEMPLATES.index = compile("{{#link-to \"about\" id=\"about-link\" disabledWhen=true}}About{{/link-to}}");
 
     Router.map(function () {
       this.route("about");
@@ -55802,7 +55707,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
       this.resource("item", { path: "/item/:id" });
     });
 
-    Ember.TEMPLATES.about = compile("<h3>List</h3><ul>{{#each person in model}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
+    Ember.TEMPLATES.about = compile("<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to 'item' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
     App.AboutRoute = Ember.Route.extend({
       model: function () {
@@ -56296,12 +56201,10 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
     });
 
     Ember.TEMPLATES = {
-      index: compile("{{#each routeName in routeNames}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames}}{{#link-to this}}{{this}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}")
+      index: compile("{{#each routeNames as |routeName|}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames as |r|}}{{#link-to r}}{{r}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}")
     };
 
-    expectDeprecation(function () {
-      bootApplication();
-    }, "Using the context switching form of {{each}} is deprecated. Please use the block param form (`{{#each bar as |foo|}}`) instead.");
+    bootApplication();
 
     function linksEqual($links, expected) {
       equal($links.length, expected.length, "Has correct number of links");
@@ -56412,7 +56315,7 @@ enifed('ember/tests/helpers/link_to_test', ['ember', 'ember-runtime/controllers/
       }
     });
 
-    Ember.TEMPLATES.index = compile("<h3>Home</h3><ul>{{#each person in controller}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>");
+    Ember.TEMPLATES.index = compile("<h3>Home</h3><ul>{{#each controller as |person|}}<li>{{link-to person.name 'item' person}}</li>{{/each}}</ul>");
     Ember.TEMPLATES.item = compile("<h3>Item</h3><p>{{model.name}}</p>{{#link-to 'index' id='home-link'}}Home{{/link-to}}");
 
     bootApplication();
@@ -57326,7 +57229,7 @@ enifed('ember/tests/routing/basic_test', ['ember', 'ember-metal/enumerable_utils
 
 	'use strict';
 
-	var compile=EmberHandlebars['default'].compile;var trim=Ember.$.trim;var Router, App, router, registry, container, originalLoggerError;function bootApplication(){router = container.lookup("router:main");Ember.run(App, "advanceReadiness");}function handleURL(path){return Ember.run(function(){return router.handleURL(path).then(function(value){ok(true, "url: `" + path + "` was handled");return value;}, function(reason){ok(false, "failed to visit:`" + path + "` reason: `" + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, "url: `" + path + "` was NOT to be handled");}, function(reason){ok(reason && reason.message === "TransitionAborted", "url: `" + path + "` was to be aborted");});});}function handleURLRejectsWith(path, expectedReason){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, "expected handleURLing: `" + path + "` to fail");}, function(reason){equal(expectedReason, reason);});});}QUnit.module("Basic Routing", {setup:function(){Ember.run(function(){App = Ember.Application.create({name:"App", rootElement:"#qunit-fixture"});App.deferReadiness();App.Router.reopen({location:"none"});Router = App.Router;App.LoadingRoute = Ember.Route.extend({});registry = App.registry;container = App.__container__;Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.home = compile("<h3>Hours</h3>");Ember.TEMPLATES.homepage = compile("<h3>Megatroll</h3><p>{{model.home}}</p>");Ember.TEMPLATES.camelot = compile("<section><h3>Is a silly place</h3></section>");originalLoggerError = Ember.Logger.error;});}, teardown:function(){Ember.run(function(){App.destroy();App = null;Ember.TEMPLATES = {};Ember.Logger.error = originalLoggerError;});}});QUnit.test("warn on URLs not included in the route set", function(){Router.map(function(){this.route("home", {path:"/"});});bootApplication();expectAssertion(function(){Ember.run(function(){router.handleURL("/what-is-this-i-dont-even");});}, "The URL '/what-is-this-i-dont-even' did not match any routes in your application");});QUnit.test("The Homepage", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();equal(currentPath, "home");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");});QUnit.test("The Home page and the Camelot page with multiple Router.map calls", function(){Router.map(function(){this.route("home", {path:"/"});});Router.map(function(){this.route("camelot", {path:"/camelot"});});App.HomeRoute = Ember.Route.extend({});App.CamelotRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});App.CamelotController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();handleURL("/camelot");equal(currentPath, "camelot");equal(Ember.$("h3:contains(silly)", "#qunit-fixture").length, 1, "The camelot template was rendered");handleURL("/");equal(currentPath, "home");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");});QUnit.test("The Homepage with explicit template name in renderTemplate", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});bootApplication();equal(Ember.$("h3:contains(Megatroll)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("An alternate template will pull in an alternate controller", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});App.HomepageController = Ember.Controller.extend({model:{home:"Comes from homepage"}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from homepage)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("An alternate template will pull in an alternate controller instead of controllerName", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({controllerName:"foo", renderTemplate:function(){this.render("homepage");}});App.FooController = Ember.Controller.extend({model:{home:"Comes from Foo"}});App.HomepageController = Ember.Controller.extend({model:{home:"Comes from homepage"}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from homepage)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("The template will pull in an alternate controller via key/value", function(){Router.map(function(){this.route("homepage", {path:"/"});});App.HomepageRoute = Ember.Route.extend({renderTemplate:function(){this.render({controller:"home"});}});App.HomeController = Ember.Controller.extend({model:{home:"Comes from home."}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from home.)", "#qunit-fixture").length, 1, "The homepage template was rendered from data from the HomeController");});QUnit.test("The Homepage with explicit template name in renderTemplate and controller", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.Controller.extend({model:{home:"YES I AM HOME"}});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(YES I AM HOME)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("Model passed via renderTemplate model is set as controller's model", function(){Ember.TEMPLATES["bio"] = compile("<p>{{model.name}}</p>");App.BioController = Ember.Controller.extend();Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("bio", {model:{name:"emberjs"}});}});bootApplication();equal(Ember.$("p:contains(emberjs)", "#qunit-fixture").length, 1, "Passed model was set as controllers model");});QUnit.test("Renders correct view with slash notation", function(){Ember.TEMPLATES["home/page"] = compile("<p>{{view.name}}</p>");Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("home/page");}});App.HomePageView = Ember.View.extend({name:"Home/Page"});bootApplication();equal(Ember.$("p:contains(Home/Page)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("Renders the view given in the view option", function(){Ember.TEMPLATES["home"] = compile("<p>{{view.name}}</p>");Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({view:"homePage"});}});App.HomePageView = Ember.View.extend({name:"Home/Page"});bootApplication();equal(Ember.$("p:contains(Home/Page)", "#qunit-fixture").length, 1, "The homepage view was rendered");});QUnit.test("render does not replace templateName if user provided", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>");App.HomeView = Ember.View.extend({templateName:"the_real_home_template"});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("render does not replace template if user provided", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeView = Ember.View.extend({template:compile("<p>THIS IS THE REAL HOME</p>")});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();Ember.run(function(){router.handleURL("/");});equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("render uses templateName from route", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>");App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"the_real_home_template"});bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("defining templateName allows other templates to be rendered", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.alert = compile("<div class='alert-box'>Invader!</div>");Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>{{outlet 'alert'}}");App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"the_real_home_template", actions:{showAlert:function(){this.render("alert", {into:"home", outlet:"alert"});}}});bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");Ember.run(function(){router.send("showAlert");});equal(Ember.$(".alert-box", "#qunit-fixture").text(), "Invader!", "Template for alert was render into outlet");});QUnit.test("Specifying a name to render should have precedence over everything else", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"home", controllerName:"home", viewName:"home", renderTemplate:function(){this.render("homepage");}});App.HomeView = Ember.View.extend({template:compile("<h3>This should not be rendered</h3><p>{{model.home}}</p>")});App.HomepageController = Ember.Controller.extend({model:{home:"Tinytroll"}});App.HomepageView = Ember.View.extend({layout:compile("<span>Outer</span>{{yield}}<span>troll</span>"), templateName:"homepage"});bootApplication();equal(Ember.$("h3", "#qunit-fixture").text(), "Megatroll", "The homepage template was rendered");equal(Ember.$("p", "#qunit-fixture").text(), "Tinytroll", "The homepage controller was used");equal(Ember.$("span", "#qunit-fixture").text(), "Outertroll", "The homepage view was used");});QUnit.test("The Homepage with a `setupController` hook", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){property_set.set(controller, "hours", Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]));}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The route controller is still set when overriding the setupController hook", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){}});registry.register("controller:home", Ember.Controller.extend());bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:home"), "route controller is the home controller");});QUnit.test("The route controller can be specified via controllerName", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.home = compile("<p>{{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController"});registry.register("controller:myController", Ember.Controller.extend({myValue:"foo"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "foo", "The homepage template was rendered with data from the custom controller");});QUnit.test("The route controller specified via controllerName is used in render", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.alternative_home = compile("<p>alternative home: {{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController", renderTemplate:function(){this.render("alternative_home");}});registry.register("controller:myController", Ember.Controller.extend({myValue:"foo"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "alternative home: foo", "The homepage template was rendered with data from the custom controller");});QUnit.test("The route controller specified via controllerName is used in render even when a controller with the routeName is available", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.home = compile("<p>home: {{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController"});registry.register("controller:home", Ember.Controller.extend({myValue:"home"}));registry.register("controller:myController", Ember.Controller.extend({myValue:"myController"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "home: myController", "The homepage template was rendered with data from the custom controller");});QUnit.test("The Homepage with a `setupController` hook modifying other controllers", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){property_set.set(this.controllerFor("home"), "hours", Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]));}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The Homepage with a computed context that does not get overridden", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.ArrayController.extend({model:Ember.computed(function(){return Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]);})});Ember.TEMPLATES.home = compile("<ul>{{#each passage in model}}<li>{{passage}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the context intact");});QUnit.test("The Homepage getting its controller context via model", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({model:function(){return Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]);}, setupController:function(controller, model){equal(this.controllerFor("home"), controller);property_set.set(this.controllerFor("home"), "hours", model);}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The Specials Page getting its controller context by deserializing the params hash", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.SpecialRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({menuItemId:params.menu_item_id});}, setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.menuItemId}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The model was used to render the template");});QUnit.test("The Specials Page defaults to looking models up via `find`", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The model was used to render the template");});QUnit.test("The Special Page returning a promise puts the app into a loading state until the promise is resolved", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "LOADING!", "The app is in the loading state");Ember.run(function(){resolve(menuItem);});equal(Ember.$("p", "#qunit-fixture").text(), "1", "The app is now in the specials state");});QUnit.test("The loading state doesn't get entered for promises that resolve on the same run loop", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = Ember.Route.extend({enter:function(){ok(false, "LoadingRoute shouldn't have been entered.");}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The app is now in the specials state");});QUnit.test("The Special page returning an error invokes SpecialRoute's error handler", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, promise, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new Ember.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = Ember.Route.extend({setup:function(){throw "Setup error";}, actions:{error:function(reason){equal(reason, "Setup error", "SpecialRoute#error received the error thrown from setup");}}});bootApplication();handleURLRejectsWith("/specials/1", "Setup error");Ember.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason, "Setup error", "error was correctly passed to custom ApplicationRoute handler");}};App.ApplicationRoute = Ember.Route.extend(attrs);App.SpecialRoute = Ember.Route.extend({setup:function(){throw "Setup error";}});bootApplication();handleURLRejectsWith("/specials/1", "Setup error");Ember.run(function(){resolve(menuItem);});}QUnit.test("ApplicationRoute's default error handler can be overridden", function(){testOverridableErrorHandler("actions");});QUnit.test("ApplicationRoute's default error handler can be overridden (with DEPRECATED `events`)", function(){ignoreDeprecation(function(){testOverridableErrorHandler("events");});});asyncTest("Moving from one page to another triggers the correct callbacks", function(){expect(3);Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.home = compile("<h3>Home</h3>");Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());var transition=handleURL("/");Ember.run(function(){transition.then(function(){equal(Ember.$("h3", "#qunit-fixture").text(), "Home", "The app is now in the initial state");var promiseContext=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(promiseContext);}, 1);return router.transitionTo("special", promiseContext);}).then(function(result){deepEqual(router.location.path, "/specials/1");QUnit.start();});});});asyncTest("Nested callbacks are not exited when moving to siblings", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.resource("special", {path:"/specials/:menu_item_id"});});});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});var menuItem;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = Ember.Route.extend({});App.RootRoute = Ember.Route.extend({model:function(){rootModel++;return this._super.apply(this, arguments);}, serialize:function(){rootSerialize++;return this._super.apply(this, arguments);}, setupController:function(){rootSetup++;}, renderTemplate:function(){rootRender++;}});App.HomeRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES["root/index"] = compile("<h3>Home</h3>");Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register("controller:special", Ember.Controller.extend());equal(Ember.$("h3", "#qunit-fixture").text(), "Home", "The app is now in the initial state");equal(rootSetup, 1, "The root setup was triggered");equal(rootRender, 1, "The root render was triggered");equal(rootSerialize, 0, "The root serialize was not called");equal(rootModel, 1, "The root model was called");router = container.lookup("router:main");Ember.run(function(){var menuItem=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(menuItem);}, 1);router.transitionTo("special", menuItem).then(function(result){equal(rootSetup, 1, "The root setup was not triggered again");equal(rootRender, 1, "The root render was not triggered again");equal(rootSerialize, 0, "The root serialize was not called");equal(rootModel, 1, "The root model was called again");deepEqual(router.location.path, "/specials/1");equal(currentPath, "root.special");QUnit.start();});});});asyncTest("Events are triggered on the controller if a matching action name is implemented", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){stateIsNotCalled = false;}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");var controller=Ember.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled, "an event on the state is not triggered");deepEqual(context, {name:"Tom Dale"}, "an event with context is passed");QUnit.start();}}});registry.register("controller:home", controller);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});asyncTest("Events are triggered on the current state when defined in `actions` object", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{model.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});asyncTest("Events defined in `actions` object are triggered on the current state when routes are nested", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model}}>{{model.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});asyncTest("Events are triggered on the current state when defined in `events` object (DEPRECATED)", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, events:{showStuff:function(obj){ok(this instanceof App.HomeRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});asyncTest("Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model}}>{{name}}</a>");expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.test("Events can be handled by inherited event handlers", function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, "foo");}, bar:function(msg){equal(msg, "HELLO");}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, "HELLO");this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, "baz");}}});bootApplication();router.send("foo");router.send("bar", "HELLO");router.send("baz");});asyncTest("Actions are not triggered on the controller if a matching action name is implemented as a method", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(context){ok(stateIsNotCalled, "an event on the state is not triggered");deepEqual(context, {name:"Tom Dale"}, "an event with context is passed");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");var controller=Ember.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled, "an event on the state is not triggered");}});registry.register("controller:home", controller);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});asyncTest("actions can be triggered with multiple arguments", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model1={name:"Tilde"};var model2={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj1, obj2){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj1, true), {name:"Tilde"}, "the first context is correct");deepEqual(Ember.copy(obj2, true), {name:"Tom Dale"}, "the second context is correct");QUnit.start();}}});App.RootIndexController = Ember.Controller.extend({model1:model1, model2:model2});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model1 model2}}>{{model1.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.test("transitioning multiple times in a single run loop only sets the URL once", function(){Router.map(function(){this.route("root", {path:"/"});this.route("foo");this.route("bar");});bootApplication();var urlSetCount=0;router.get("location").setURL = function(path){urlSetCount++;property_set.set(this, "path", path);};equal(urlSetCount, 0);Ember.run(function(){router.transitionTo("foo");router.transitionTo("bar");});equal(urlSetCount, 1);equal(router.get("location").getURL(), "/bar");});QUnit.test("navigating away triggers a url property change", function(){expect(3);Router.map(function(){this.route("root", {path:"/"});this.route("foo", {path:"/foo"});this.route("bar", {path:"/bar"});});bootApplication();Ember.run(function(){Ember.addObserver(router, "url", function(){ok(true, "url change event was fired");});});enumerable_utils.forEach(["foo", "bar", "/foo"], function(destination){Ember.run(router, "transitionTo", destination);});});QUnit.test("using replaceWith calls location.replaceURL if available", function(){var setCount=0;var replaceCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;property_set.set(this, "path", path);}, replaceURL:function(path){replaceCount++;property_set.set(this, "path", path);}})});Router.map(function(){this.route("root", {path:"/"});this.route("foo");});bootApplication();equal(setCount, 0);equal(replaceCount, 0);Ember.run(function(){router.replaceWith("foo");});equal(setCount, 0, "should not call setURL");equal(replaceCount, 1, "should call replaceURL once");equal(router.get("location").getURL(), "/foo");});QUnit.test("using replaceWith calls setURL if location.replaceURL is not defined", function(){var setCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;property_set.set(this, "path", path);}})});Router.map(function(){this.route("root", {path:"/"});this.route("foo");});bootApplication();equal(setCount, 0);Ember.run(function(){router.replaceWith("foo");});equal(setCount, 1, "should call setURL once");equal(router.get("location").getURL(), "/foo");});QUnit.test("Route inherits model from parent route", function(){expect(9);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.route("comments");this.resource("shares", {path:"/shares/:share_id"}, function(){this.route("share");});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1, 2:post2, 3:post3};var shares={1:share1, 2:share2, 3:share3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor("thePost");equal(post, parent_model);}});App.SharesRoute = Ember.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = Ember.Route.extend({afterModel:function(share, transition){var parent_model=this.modelFor("shares");equal(share, parent_model);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");handleURL("/posts/1/shares/1");currentPost = post2;handleURL("/posts/2/comments");handleURL("/posts/2/shares/2");currentPost = post3;handleURL("/posts/3/comments");handleURL("/posts/3/shares/3");});QUnit.test("Resource inherits model from parent resource", function(){expect(6);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.resource("comments", function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor("thePost");equal(post, parent_model);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");currentPost = post2;handleURL("/posts/2/comments");currentPost = post3;handleURL("/posts/3/comments");});QUnit.test("It is possible to get the model from a parent route", function(){expect(9);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.resource("comments");});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({model:function(){equal(this.modelFor("thePost"), currentPost);equal(this.modelFor("the_post"), currentPost);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");currentPost = post2;handleURL("/posts/2/comments");currentPost = post3;handleURL("/posts/3/comments");});QUnit.test("A redirection hook is provided", function(){Router.map(function(){this.route("choose", {path:"/"});this.route("home");});var chooseFollowed=0;var destination;App.ChooseRoute = Ember.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}}, setupController:function(){chooseFollowed++;}});destination = "home";bootApplication();equal(chooseFollowed, 0, "The choose route wasn't entered since a transition occurred");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");equal(router.container.lookup("controller:application").get("currentPath"), "home");});QUnit.test("Redirecting from the middle of a route aborts the remainder of the routes", function(){expect(3);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});});});App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo("home");}, setupController:function(){ok(false, "Should transition before setupController");}});App.BarBazRoute = Ember.Route.extend({enter:function(){ok(false, "Should abort transition getting to next route");}});bootApplication();handleURLAborts("/foo/bar/baz");equal(router.container.lookup("controller:application").get("currentPath"), "home");equal(router.get("location").getURL(), "/home");});QUnit.test("Redirecting to the current target in the middle of a route does not abort initial routing", function(){expect(5);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});});});var successCount=0;App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo("bar.baz").then(function(){successCount++;});}, setupController:function(){ok(true, "Should still invoke bar's setupController");}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, "Should still invoke bar.baz's setupController");}});bootApplication();handleURL("/foo/bar/baz");equal(router.container.lookup("controller:application").get("currentPath"), "foo.bar.baz");equal(successCount, 1, "transitionTo success handler was called once");});QUnit.test("Redirecting to the current target with a different context aborts the remainder of the routes", function(){expect(4);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", {path:"bar/:id"}, function(){this.route("baz");});});});var model={id:2};var count=0;App.BarRoute = Ember.Route.extend({afterModel:function(context){if(count++ > 10){ok(false, "infinite loop");}else {this.transitionTo("bar.baz", model);}}, serialize:function(params){return params;}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, "Should still invoke setupController");}});bootApplication();handleURLAborts("/foo/bar/1/baz");equal(router.container.lookup("controller:application").get("currentPath"), "foo.bar.baz");equal(router.get("location").getURL(), "/foo/bar/2/baz");});QUnit.test("Transitioning from a parent event does not prevent currentPath from being set", function(){Router.map(function(){this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});this.route("qux");});});App.FooRoute = Ember.Route.extend({actions:{goToQux:function(){this.transitionTo("foo.qux");}}});bootApplication();var applicationController=router.container.lookup("controller:application");handleURL("/foo/bar/baz");equal(applicationController.get("currentPath"), "foo.bar.baz");Ember.run(function(){router.send("goToQux");});equal(applicationController.get("currentPath"), "foo.qux");equal(router.get("location").getURL(), "/foo/qux");});QUnit.test("Generated names can be customized when providing routes with dot notation", function(){expect(4);Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.foo = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.bar = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["bar/baz"] = compile("<p>{{name}}Bottom!</p>");Router.map(function(){this.resource("foo", {path:"/top"}, function(){this.resource("bar", {path:"/middle"}, function(){this.route("baz", {path:"/bottom"});});});});App.FooRoute = Ember.Route.extend({renderTemplate:function(){ok(true, "FooBarRoute was called");return this._super.apply(this, arguments);}});App.BarBazRoute = Ember.Route.extend({renderTemplate:function(){ok(true, "BarBazRoute was called");return this._super.apply(this, arguments);}});App.BarController = Ember.Controller.extend({name:"Bar"});App.BarBazController = Ember.Controller.extend({name:"BarBaz"});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").text(), "BarBazBottom!", "The templates were rendered into their appropriate parents");});QUnit.test("Child routes render into their parent route's template by default", function(){Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.top = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.middle = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["middle/bottom"] = compile("<p>Bottom!</p>");Router.map(function(){this.resource("top", function(){this.resource("middle", function(){this.route("bottom");});});});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").text(), "Bottom!", "The templates were rendered into their appropriate parents");});QUnit.test("Child routes render into specified template", function(){Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.top = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.middle = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["middle/bottom"] = compile("<p>Bottom!</p>");Router.map(function(){this.resource("top", function(){this.resource("middle", function(){this.route("bottom");});});});App.MiddleBottomRoute = Ember.Route.extend({renderTemplate:function(){this.render("middle/bottom", {into:"top"});}});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").length, 0, "should not render into the middle template");equal(Ember.$(".main .middle > p", "#qunit-fixture").text(), "Bottom!", "The template was rendered into the top template");});QUnit.test("Rendering into specified template with slash notation", function(){Ember.TEMPLATES["person/profile"] = compile("profile {{outlet}}");Ember.TEMPLATES["person/details"] = compile("details!");Router.map(function(){this.resource("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("person/profile");this.render("person/details", {into:"person/profile"});}});bootApplication();equal(Ember.$("#qunit-fixture:contains(profile details!)").length, 1, "The templates were rendered");});QUnit.test("Parent route context change", function(){var editCount=0;var editedPostIds=Ember.A();Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.post = compile("{{outlet}}");Ember.TEMPLATES["post/index"] = compile("showing");Ember.TEMPLATES["post/edit"] = compile("editing");Router.map(function(){this.resource("posts", function(){this.resource("post", {path:"/:postId"}, function(){this.route("edit");});});});App.PostsRoute = Ember.Route.extend({actions:{showPost:function(context){this.transitionTo("post", context);}}});App.PostRoute = Ember.Route.extend({model:function(params){return {id:params.postId};}, actions:{editPost:function(context){this.transitionTo("post.edit");}}});App.PostEditRoute = Ember.Route.extend({model:function(params){var postId=this.modelFor("post").id;editedPostIds.push(postId);return null;}, setup:function(){this._super.apply(this, arguments);editCount++;}});bootApplication();handleURL("/posts/1");Ember.run(function(){router.send("editPost");});Ember.run(function(){router.send("showPost", {id:"2"});});Ember.run(function(){router.send("editPost");});equal(editCount, 2, "set up the edit route twice without failure");deepEqual(editedPostIds, ["1", "2"], "modelFor posts.post returns the right context");});QUnit.test("Router accounts for rootURL on page load when using history location", function(){var rootURL=window.location.pathname + "/app";var postsTemplateRendered=false;var setHistory, HistoryTestLocation;setHistory = function(obj, path){obj.set("history", {state:{path:path}});};HistoryTestLocation = Ember.HistoryLocation.extend({initState:function(){var path=rootURL + "/posts";setHistory(this, path);this.set("location", {pathname:path, href:"http://localhost/" + path});}, replaceState:function(path){setHistory(this, path);}, pushState:function(path){setHistory(this, path);}});registry.register("location:historyTest", HistoryTestLocation);Router.reopen({location:"historyTest", rootURL:rootURL});Router.map(function(){this.resource("posts", {path:"/posts"});});App.PostsRoute = Ember.Route.extend({model:function(){}, renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered, "Posts route successfully stripped from rootURL");});QUnit.test("The rootURL is passed properly to the location implementation", function(){expect(1);var rootURL="/blahzorz";var HistoryTestLocation;HistoryTestLocation = Ember.HistoryLocation.extend({rootURL:"this is not the URL you are looking for", initState:function(){equal(this.get("rootURL"), rootURL);}});registry.register("location:history-test", HistoryTestLocation);Router.reopen({location:"history-test", rootURL:rootURL, _doURLTransition:function(){}});bootApplication();});QUnit.test("Only use route rendered into main outlet for default into property on child", function(){Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES["posts/index"] = compile("postsIndex");Ember.TEMPLATES["posts/menu"] = compile("postsMenu");Router.map(function(){this.resource("posts", function(){});});App.PostsMenuView = Ember.View.extend({tagName:"div", templateName:"posts/menu", classNames:["posts-menu"]});App.PostsIndexView = Ember.View.extend({tagName:"p", classNames:["posts-index"]});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render();this.render("postsMenu", {into:"application", outlet:"menu"});}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 1, "The posts/menu template was rendered");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");});QUnit.test("Generating a URL should not affect currentModel", function(){Router.map(function(){this.route("post", {path:"/posts/:post_id"});});var posts={1:{id:1}, 2:{id:2}};App.PostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL("/posts/1");var route=container.lookup("route:post");equal(route.modelFor("post"), posts[1]);var url=router.generate("post", posts[2]);equal(url, "/posts/2");equal(route.modelFor("post"), posts[1]);});QUnit.test("Generated route should be an instance of App.Route if provided", function(){var generatedRoute;Router.map(function(){this.route("posts");});App.Route = Ember.Route.extend();bootApplication();handleURL("/posts");generatedRoute = container.lookup("route:posts");ok(generatedRoute instanceof App.Route, "should extend the correct route");});QUnit.test("Nested index route is not overriden by parent's implicit index route", function(){Router.map(function(){this.resource("posts", function(){this.route("index", {path:":category"});});});App.Route = Ember.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();Ember.run(function(){router.transitionTo("posts", {category:"emberjs"});});deepEqual(router.location.path, "/posts/emberjs");});QUnit.test("Application template does not duplicate when re-rendered", function(){Ember.TEMPLATES.application = compile("<h3>I Render Once</h3>{{outlet}}");Router.map(function(){this.route("posts");});App.ApplicationRoute = Ember.Route.extend({model:function(){return Ember.A();}});bootApplication();handleURL("/posts");equal(Ember.$("h3:contains(I Render Once)").size(), 1);});QUnit.test("Child routes should render inside the application template if the application template causes a redirect", function(){Ember.TEMPLATES.application = compile("<h3>App</h3> {{outlet}}");Ember.TEMPLATES.posts = compile("posts");Router.map(function(){this.route("posts");this.route("photos");});App.ApplicationRoute = Ember.Route.extend({afterModel:function(){this.transitionTo("posts");}});bootApplication();equal(Ember.$("#qunit-fixture > div").text(), "App posts");});QUnit.test("The template is not re-rendered when the route's context changes", function(){Router.map(function(){this.route("page", {path:"/page/:name"});});App.PageRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({name:params.name});}});var insertionCount=0;App.PageView = Ember.View.extend({didInsertElement:function(){insertionCount += 1;}});Ember.TEMPLATES.page = compile("<p>{{model.name}}</p>");bootApplication();handleURL("/page/first");equal(Ember.$("p", "#qunit-fixture").text(), "first");equal(insertionCount, 1);handleURL("/page/second");equal(Ember.$("p", "#qunit-fixture").text(), "second");equal(insertionCount, 1, "view should have inserted only once");Ember.run(function(){router.transitionTo("page", Ember.Object.create({name:"third"}));});equal(Ember.$("p", "#qunit-fixture").text(), "third");equal(insertionCount, 1, "view should still have inserted only once");});QUnit.test("The template is not re-rendered when two routes present the exact same template, view, & controller", function(){Router.map(function(){this.route("first");this.route("second");this.route("third");this.route("fourth");});App.SharedRoute = Ember.Route.extend({viewName:"shared", setupController:function(controller){this.controllerFor("shared").set("message", "This is the " + this.routeName + " message");}, renderTemplate:function(controller, context){this.render({controller:"shared"});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:"fourth"});App.SharedController = Ember.Controller.extend();var insertionCount=0;App.SharedView = Ember.View.extend({templateName:"shared", didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();Ember.TEMPLATES.shared = compile("<p>{{message}}</p>");bootApplication();handleURL("/first");equal(Ember.$("p", "#qunit-fixture").text(), "This is the first message");equal(insertionCount, 1, "expected one assertion");handleURL("/second");equal(Ember.$("p", "#qunit-fixture").text(), "This is the second message");equal(insertionCount, 1, "view should have inserted only once");Ember.run(function(){router.transitionTo("third").then(function(value){ok(true, "expected transition");}, function(reason){ok(false, "unexpected transition failure: ", QUnit.jsDump.parse(reason));});});equal(Ember.$("p", "#qunit-fixture").text(), "This is the third message");equal(insertionCount, 1, "view should still have inserted only once");handleURL("/fourth");equal(Ember.$("p", "#qunit-fixture").text(), "This is the fourth message");equal(insertionCount, 2, "view should have inserted a second time");});QUnit.test("ApplicationRoute with model does not proxy the currentPath", function(){var model={};var currentPath;App.ApplicationRoute = Ember.Route.extend({model:function(){return model;}});App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();equal(currentPath, "index", "currentPath is index");equal("currentPath" in model, false, "should have defined currentPath on controller");});QUnit.test("Promises encountered on app load put app into loading state until resolved", function(){expect(2);var deferred=Ember.RSVP.defer();App.IndexRoute = Ember.Route.extend({model:function(){return deferred.promise;}});Ember.TEMPLATES.index = compile("<p>INDEX</p>");Ember.TEMPLATES.loading = compile("<p>LOADING</p>");bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "LOADING", "The loading state is displaying.");Ember.run(deferred.resolve);equal(Ember.$("p", "#qunit-fixture").text(), "INDEX", "The index route is display.");});QUnit.test("Route should tear down multiple outlets", function(){Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}{{outlet 'footer'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex");Ember.TEMPLATES["posts/menu"] = compile("postsMenu");Ember.TEMPLATES["posts/footer"] = compile("postsFooter");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsMenuView = Ember.View.extend({tagName:"div", templateName:"posts/menu", classNames:["posts-menu"]});App.PostsIndexView = Ember.View.extend({tagName:"p", classNames:["posts-index"]});App.PostsFooterView = Ember.View.extend({tagName:"div", templateName:"posts/footer", classNames:["posts-footer"]});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render("postsMenu", {into:"application", outlet:"menu"});this.render();this.render("postsFooter", {into:"application", outlet:"footer"});}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 1, "The posts/menu template was rendered");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");equal(Ember.$("div.posts-footer:contains(postsFooter)", "#qunit-fixture").length, 1, "The posts/footer template was rendered");handleURL("/users");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 0, "The posts/menu template was removed");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-footer:contains(postsFooter)", "#qunit-fixture").length, 0, "The posts/footer template was removed");});QUnit.test("Route will assert if you try to explicitly render {into: ...} a missing template", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"nonexistent"});}});expectAssertion(function(){bootApplication();}, "You attempted to render into 'nonexistent' but it was not found");});QUnit.test("Route supports clearing outlet explicitly", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex {{outlet}}");Ember.TEMPLATES["posts/modal"] = compile("postsModal");Ember.TEMPLATES["posts/extra"] = compile("postsExtra");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsIndexView = Ember.View.extend({classNames:["posts-index"]});App.PostsModalView = Ember.View.extend({templateName:"posts/modal", classNames:["posts-modal"]});App.PostsExtraView = Ember.View.extend({templateName:"posts/extra", classNames:["posts-extra"]});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render("postsModal", {into:"application", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet({outlet:"modal", parentView:"application"});}}});App.PostsIndexRoute = Ember.Route.extend({actions:{showExtra:function(){this.render("postsExtra", {into:"posts/index"});}, hideExtra:function(){this.disconnectOutlet({parentView:"posts/index"});}}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");Ember.run(function(){router.send("showModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 1, "The posts/modal template was rendered");Ember.run(function(){router.send("showExtra");});equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 1, "The posts/extra template was rendered");Ember.run(function(){router.send("hideModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");Ember.run(function(){router.send("hideExtra");});equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 0, "The posts/extra template was removed");handleURL("/users");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 0, "The posts/extra template was removed");});QUnit.test("Route supports clearing outlet using string parameter", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex {{outlet}}");Ember.TEMPLATES["posts/modal"] = compile("postsModal");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsIndexView = Ember.View.extend({classNames:["posts-index"]});App.PostsModalView = Ember.View.extend({templateName:"posts/modal", classNames:["posts-modal"]});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render("postsModal", {into:"application", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet("modal");}}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");Ember.run(function(){router.send("showModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 1, "The posts/modal template was rendered");Ember.run(function(){router.send("hideModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");handleURL("/users");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");});QUnit.test("Route silently fails when cleaning an outlet from an inactive view", function(){expect(1);Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet 'modal'}}");Ember.TEMPLATES.modal = compile("A Yo.");Router.map(function(){this.route("posts");});App.PostsRoute = Ember.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:"main", parentView:"application"});}, showModal:function(){this.render("modal", {into:"posts", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet({outlet:"modal", parentView:"posts"});}}});bootApplication();handleURL("/posts");Ember.run(function(){router.send("showModal");});Ember.run(function(){router.send("hideSelf");});Ember.run(function(){router.send("hideModal");});});QUnit.test("Router `willTransition` hook passes in cancellable transition", function(){expect(3);Router.map(function(){this.route("nork");this.route("about");});Router.reopen({init:function(){this._super();this.on("willTransition", this.testWillTransitionHook);}, testWillTransitionHook:function(transition, url){ok(true, "willTransition was called " + url);transition.abort();}});App.LoadingRoute = Ember.Route.extend({activate:function(){ok(false, "LoadingRoute was not entered");}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(false, "NorkRoute was not entered");}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(false, "AboutRoute was not entered");}});bootApplication();Ember.run(router, "handleURL", "/nork");Ember.run(router, "handleURL", "/about");});QUnit.test("Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered", function(){expect(8);Router.map(function(){this.route("nork");this.route("about");});var redirect=false;App.IndexRoute = Ember.Route.extend({actions:{willTransition:function(transition){ok(true, "willTransition was called");if(redirect){this.transitionTo("about");}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = Ember.Route.extend({activate:function(){ok(deferred, "LoadingRoute should be entered at this time");}, deactivate:function(){ok(true, "LoadingRoute was exited");}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(true, "NorkRoute was entered");}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(true, "AboutRoute was entered");}, model:function(){if(deferred){return deferred.promise;}}});bootApplication();Ember.run(router, "transitionTo", "nork");Ember.run(router, "handleURL", "/nork");redirect = true;Ember.run(router, "transitionTo", "nork");Ember.run(router, "transitionTo", "index");deferred = Ember.RSVP.defer();Ember.run(router, "transitionTo", "nork");Ember.run(deferred.resolve);});QUnit.test("`didTransition` event fires on the router", function(){expect(3);Router.map(function(){this.route("nork");});router = container.lookup("router:main");router.one("didTransition", function(){ok(true, "didTransition fired on initial routing");});bootApplication();router.one("didTransition", function(){ok(true, "didTransition fired on the router");equal(router.get("url"), "/nork", "The url property is updated by the time didTransition fires");});Ember.run(router, "transitionTo", "nork");});QUnit.test("`didTransition` can be reopened", function(){expect(1);Router.map(function(){this.route("nork");});Router.reopen({didTransition:function(){this._super.apply(this, arguments);ok(true, "reopened didTransition was called");}});bootApplication();});QUnit.test("`activate` event fires on the route", function(){expect(2);var eventFired=0;Router.map(function(){this.route("nork");});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on("activate", function(){equal(++eventFired, 1, "activate event is fired once");});}, activate:function(){ok(true, "activate hook is called");}});bootApplication();Ember.run(router, "transitionTo", "nork");});QUnit.test("`deactivate` event fires on the route", function(){expect(2);var eventFired=0;Router.map(function(){this.route("nork");this.route("dork");});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on("deactivate", function(){equal(++eventFired, 1, "deactivate event is fired once");});}, deactivate:function(){ok(true, "deactivate hook is called");}});bootApplication();Ember.run(router, "transitionTo", "nork");Ember.run(router, "transitionTo", "dork");});QUnit.test("Actions can be handled by inherited action handlers", function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, "foo");}, bar:function(msg){equal(msg, "HELLO");}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, "HELLO");this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, "baz");}}});bootApplication();router.send("foo");router.send("bar", "HELLO");router.send("baz");});QUnit.test("currentRouteName is a property installed on ApplicationController that can be used in transitionTo", function(){expect(24);Router.map(function(){this.resource("be", function(){this.resource("excellent", function(){this.resource("to", function(){this.resource("each", function(){this.route("other");});});});});});bootApplication();var appController=router.container.lookup("controller:application");function transitionAndCheck(path, expectedPath, expectedRouteName){if(path){Ember.run(router, "transitionTo", path);}equal(appController.get("currentPath"), expectedPath);equal(appController.get("currentRouteName"), expectedRouteName);}transitionAndCheck(null, "index", "index");transitionAndCheck("/be", "be.index", "be.index");transitionAndCheck("/be/excellent", "be.excellent.index", "excellent.index");transitionAndCheck("/be/excellent/to", "be.excellent.to.index", "to.index");transitionAndCheck("/be/excellent/to/each", "be.excellent.to.each.index", "each.index");transitionAndCheck("/be/excellent/to/each/other", "be.excellent.to.each.other", "each.other");transitionAndCheck("index", "index", "index");transitionAndCheck("be", "be.index", "be.index");transitionAndCheck("excellent", "be.excellent.index", "excellent.index");transitionAndCheck("to.index", "be.excellent.to.index", "to.index");transitionAndCheck("each", "be.excellent.to.each.index", "each.index");transitionAndCheck("each.other", "be.excellent.to.each.other", "each.other");});QUnit.test("Route model hook finds the same model as a manual find", function(){var Post;App.Post = Ember.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route("post", {path:"/post/:post_id"});});bootApplication();handleURL("/post/1");equal(App.Post, Post);});QUnit.test("Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)", function(){var TestLocation=Ember.NoneLocation.extend({implementation:"test"});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);Ember.Location.registerImplementation("test", TestLocation);Router.reopen({location:"test"});bootApplication();equal(router.get("location.implementation"), "test", "custom location implementation can be registered with registerImplementation");});QUnit.test("Ember.Location.registerImplementation is deprecated", function(){var TestLocation=Ember.NoneLocation.extend({implementation:"test"});expectDeprecation(function(){Ember.Location.registerImplementation("test", TestLocation);}, "Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.");});QUnit.test("Routes can refresh themselves causing their model hooks to be re-run", function(){Router.map(function(){this.resource("parent", {path:"/parent/:parent_id"}, function(){this.route("child");});});var appcount=0;App.ApplicationRoute = Ember.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = Ember.Route.extend({model:function(params){equal(params.parent_id, "123");++parentcount;}, actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = Ember.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount, 1);equal(parentcount, 0);equal(childcount, 0);Ember.run(router, "transitionTo", "parent.child", "123");equal(appcount, 1);equal(parentcount, 1);equal(childcount, 1);Ember.run(router, "send", "refreshParent");equal(appcount, 1);equal(parentcount, 2);equal(childcount, 2);});QUnit.test("Specifying non-existent controller name in route#render throws", function(){expect(1);Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){try{this.render("homepage", {controller:"stefanpenneristhemanforme"});}catch(e) {equal(e.message, "You passed `controller: 'stefanpenneristhemanforme'` into the `render` method, but no such controller could be found.");}}});bootApplication();});QUnit.test("Redirecting with null model doesn't error out", function(){Router.map(function(){this.route("home", {path:"/"});this.route("about", {path:"/about/:hurhurhur"});});App.HomeRoute = Ember.Route.extend({beforeModel:function(){this.transitionTo("about", null);}});App.AboutRoute = Ember.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:"TreeklesMcGeekles"};}}});bootApplication();equal(router.get("location.path"), "/about/TreeklesMcGeekles");});QUnit.test("rejecting the model hooks promise with a non-error prints the `message` property", function(){var rejectedMessage="OMG!! SOOOOOO BAD!!!!";var rejectedStack="Yeah, buddy: stack gets printed too.";Router.map(function(){this.route("yippie", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, "Error while processing route: yippie", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");equal(errorStack, rejectedStack, "the rejected reason's stack property is logged");};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({message:rejectedMessage, stack:rejectedStack});}});bootApplication();});QUnit.test("rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property", function(){var rejectedMessage="OMG!! SOOOOOO BAD!!!!";var rejectedStack="Yeah, buddy: stack gets printed too.";Router.map(function(){this.route("yippie", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, "Error while processing route: yippie", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");equal(errorStack, rejectedStack, "the rejected reason's stack property is logged");};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({errorThrown:{message:rejectedMessage, stack:rejectedStack}});}});bootApplication();});QUnit.test("rejecting the model hooks promise with no reason still logs error", function(){Router.map(function(){this.route("wowzers", {path:"/"});});Ember.Logger.error = function(initialMessage){equal(initialMessage, "Error while processing route: wowzers", "a message with the current route name is printed");};App.WowzersRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject();}});bootApplication();});QUnit.test("rejecting the model hooks promise with a string shows a good error", function(){var originalLoggerError=Ember.Logger.error;var rejectedMessage="Supercalifragilisticexpialidocious";Router.map(function(){this.route("yondo", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage){equal(initialMessage, "Error while processing route: yondo", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");};App.YondoRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject(rejectedMessage);}});bootApplication();Ember.Logger.error = originalLoggerError;});QUnit.test("willLeave, willChangeContext, willChangeModel actions don't fire unless feature flag enabled", function(){expect(1);App.Router.map(function(){this.route("about");});function shouldNotFire(){ok(false, "this action shouldn't have been received");}App.IndexRoute = Ember.Route.extend({actions:{willChangeModel:shouldNotFire, willChangeContext:shouldNotFire, willLeave:shouldNotFire}});App.AboutRoute = Ember.Route.extend({setupController:function(){ok(true, "about route was entered");}});bootApplication();Ember.run(router, "transitionTo", "about");});QUnit.test("Errors in transitionTo within redirect hook are logged", function(){expect(3);var actual=[];Router.map(function(){this.route("yondo", {path:"/"});this.route("stink-bomb");});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo("stink-bomb", {something:"goes boom"});}});Ember.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length, 1, "the error is only logged once");equal(actual[0][0], "Error while processing route: yondo", "source route is printed");ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), "the error is printed");});QUnit.test("Errors in transition show error template if available", function(){Ember.TEMPLATES.error = compile("<div id='error'>Error!</div>");Router.map(function(){this.route("yondo", {path:"/"});this.route("stink-bomb");});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo("stink-bomb", {something:"goes boom"});}});bootApplication();equal(Ember.$("#error").length, 1, "Error template was rendered.");});QUnit.test("Route#resetController gets fired when changing models and exiting routes", function(){expect(4);Router.map(function(){this.resource("a", function(){this.resource("b", {path:"/b/:id"}, function(){});this.resource("c", {path:"/c/:id"}, function(){});});this.route("out");});var calls=[];var SpyRoute=Ember.Route.extend({setupController:function(controller, model, transition){calls.push(["setup", this.routeName]);}, resetController:function(controller){calls.push(["reset", this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls, []);Ember.run(router, "transitionTo", "b", "b-1");deepEqual(calls, [["setup", "a"], ["setup", "b"]]);calls.length = 0;Ember.run(router, "transitionTo", "c", "c-1");deepEqual(calls, [["reset", "b"], ["setup", "c"]]);calls.length = 0;Ember.run(router, "transitionTo", "out");deepEqual(calls, [["reset", "c"], ["reset", "a"], ["setup", "out"]]);});QUnit.test("Exception during initialization of non-initial route is not swallowed", function(){Router.map(function(){this.route("boom");});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});bootApplication();throws(function(){Ember.run(router, "transitionTo", "boom");}, /\bboom\b/);});QUnit.test("Exception during load of non-initial route is not swallowed", function(){Router.map(function(){this.route("boom");});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === "route:boom"){throw new Error("boom!");}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});bootApplication();throws(function(){Ember.run(router, "transitionTo", "boom");});});QUnit.test("Exception during initialization of initial route is not swallowed", function(){Router.map(function(){this.route("boom", {path:"/"});});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test("Exception during load of initial route is not swallowed", function(){Router.map(function(){this.route("boom", {path:"/"});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === "route:boom"){throw new Error("boom!");}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test("{{outlet}} works when created after initial render", function(){Ember.TEMPLATES.sample = compile("Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye");Ember.TEMPLATES["sample/inner"] = compile("Yay");Ember.TEMPLATES["sample/inner2"] = compile("Boo");Router.map(function(){this.route("sample", {path:"/"}, function(){this.route("inner", {path:"/"});this.route("inner2", {path:"/2"});});});bootApplication();equal(Ember.$("#qunit-fixture").text(), "HiBye", "initial render");Ember.run(function(){container.lookup("controller:sample").set("showTheThing", true);});equal(Ember.$("#qunit-fixture").text(), "HiYayBye", "second render");handleURL("/2");equal(Ember.$("#qunit-fixture").text(), "HiBooBye", "third render");});QUnit.test("Can rerender application view multiple times when it contains an outlet", function(){Ember.TEMPLATES.application = compile("App{{outlet}}");Ember.TEMPLATES.index = compile("Hello world");registry.register("view:application", Ember.View.extend({elementId:"im-special"}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "AppHello world", "initial render");Ember.run(function(){Ember.View.views["im-special"].rerender();});equal(Ember.$("#qunit-fixture").text(), "AppHello world", "second render");Ember.run(function(){Ember.View.views["im-special"].rerender();});equal(Ember.$("#qunit-fixture").text(), "AppHello world", "third render");});QUnit.test("Can render into a named outlet at the top level", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "initial render");});QUnit.test("Can disconnect a named outlet at the top level", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}, actions:{banish:function(){this.disconnectOutlet({parentView:"application", outlet:"other"});}}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "initial render");Ember.run(router, "send", "banish");equal(Ember.$("#qunit-fixture").text(), "A-The index-B--C", "second render");});QUnit.test("Can render into a named outlet at the top level, with empty main outlet", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Router.map(function(){this.route("hasNoTemplate", {path:"/"});});registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A--B-Hello world-C", "initial render");});QUnit.test("Can render into a named outlet at the top level, later", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({actions:{launch:function(){this.render("modal", {into:"application", outlet:"other"});}}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B--C", "initial render");Ember.run(router, "send", "launch");equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "second render");});QUnit.test("Can render routes with no 'main' outlet and their children", function(){Ember.TEMPLATES.application = compile("<div id=\"application\">{{outlet \"app\"}}</div>");Ember.TEMPLATES.app = compile("<div id=\"app-common\">{{outlet \"common\"}}</div><div id=\"app-sub\">{{outlet \"sub\"}}</div>");Ember.TEMPLATES.common = compile("<div id=\"common\"></div>");Ember.TEMPLATES.sub = compile("<div id=\"sub\"></div>");Router.map(function(){this.route("app", {path:"/app"}, function(){this.resource("sub", {path:"/sub"});});});App.AppRoute = Ember.Route.extend({renderTemplate:function(){this.render("app", {outlet:"app", into:"application"});this.render("common", {outlet:"common", into:"app"});}});App.SubRoute = Ember.Route.extend({renderTemplate:function(){this.render("sub", {outlet:"sub", into:"app"});}});bootApplication();handleURL("/app");equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app");handleURL("/app/sub");equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app/sub");equal(Ember.$("#app-sub #sub").length, 1, "Finds sub while viewing /app/sub");});QUnit.test("Tolerates stacked renders", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");Ember.TEMPLATES.index = compile("hi");Ember.TEMPLATES.layer = compile("layer");App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render("layer", {into:"application", outlet:"modal"});}, close:function(){this.disconnectOutlet({outlet:"modal", parentView:"application"});}}});bootApplication();equal(trim(Ember.$("#qunit-fixture").text()), "hi");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "close");equal(trim(Ember.$("#qunit-fixture").text()), "hi");});QUnit.test("Renders child into parent with non-default template name", function(){Ember.TEMPLATES.application = compile("<div class=\"a\">{{outlet}}</div>");Ember.TEMPLATES["exports/root"] = compile("<div class=\"b\">{{outlet}}</div>");Ember.TEMPLATES["exports/index"] = compile("<div class=\"c\"></div>");Router.map(function(){this.route("root", function(){});});App.RootRoute = Ember.Route.extend({renderTemplate:function(){this.render("exports/root");}});App.RootIndexRoute = Ember.Route.extend({renderTemplate:function(){this.render("exports/index");}});bootApplication();handleURL("/root");equal(Ember.$("#qunit-fixture .a .b .c").length, 1);});QUnit.test("Allows any route to disconnectOutlet another route's templates", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");Ember.TEMPLATES.index = compile("hi");Ember.TEMPLATES.layer = compile("layer");App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render("layer", {into:"application", outlet:"modal"});}}});App.IndexRoute = Ember.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:"application", outlet:"modal"});}}});bootApplication();equal(trim(Ember.$("#qunit-fixture").text()), "hi");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "close");equal(trim(Ember.$("#qunit-fixture").text()), "hi");});QUnit.test("Can render({into:...}) the render helper", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");Ember.TEMPLATES.bar = compile("bar");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:"foo", outlet:"main"});this.render("bar", {into:"foo"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo").text(), "other");Ember.run(router, "send", "changeToBar");equal(Ember.$("#qunit-fixture .foo").text(), "bar");});QUnit.test("Can disconnect from the render helper", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"foo", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .foo").text(), "");});QUnit.test("Can render({into:...}) the render helper's children", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("<div class=\"index\">{{outlet}}</div>");Ember.TEMPLATES.other = compile("other");Ember.TEMPLATES.bar = compile("bar");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});this.render("other", {into:"index"});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:"index", outlet:"main"});this.render("bar", {into:"index"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo .index").text(), "other");Ember.run(router, "send", "changeToBar");equal(Ember.$("#qunit-fixture .foo .index").text(), "bar");});QUnit.test("Can disconnect from the render helper's children", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("<div class=\"index\">{{outlet}}</div>");Ember.TEMPLATES.other = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});this.render("other", {into:"index"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"index", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo .index").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .foo .index").text(), "");});QUnit.test("Can render({into:...}) nested render helpers", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{render \"bar\"}}</div>");Ember.TEMPLATES.bar = compile("<div class=\"bar\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");Ember.TEMPLATES.baz = compile("baz");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"bar"});}, actions:{changeToBaz:function(){this.disconnectOutlet({parentView:"bar", outlet:"main"});this.render("baz", {into:"bar"});}}});bootApplication();equal(Ember.$("#qunit-fixture .bar").text(), "other");Ember.run(router, "send", "changeToBaz");equal(Ember.$("#qunit-fixture .bar").text(), "baz");});QUnit.test("Can disconnect from nested render helpers", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{render \"bar\"}}</div>");Ember.TEMPLATES.bar = compile("<div class=\"bar\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"bar"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"bar", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .bar").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .bar").text(), "");});
+	var compile=EmberHandlebars['default'].compile;var trim=Ember.$.trim;var Router, App, router, registry, container, originalLoggerError;function bootApplication(){router = container.lookup("router:main");Ember.run(App, "advanceReadiness");}function handleURL(path){return Ember.run(function(){return router.handleURL(path).then(function(value){ok(true, "url: `" + path + "` was handled");return value;}, function(reason){ok(false, "failed to visit:`" + path + "` reason: `" + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, "url: `" + path + "` was NOT to be handled");}, function(reason){ok(reason && reason.message === "TransitionAborted", "url: `" + path + "` was to be aborted");});});}function handleURLRejectsWith(path, expectedReason){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, "expected handleURLing: `" + path + "` to fail");}, function(reason){equal(expectedReason, reason);});});}QUnit.module("Basic Routing", {setup:function(){Ember.run(function(){App = Ember.Application.create({name:"App", rootElement:"#qunit-fixture"});App.deferReadiness();App.Router.reopen({location:"none"});Router = App.Router;App.LoadingRoute = Ember.Route.extend({});registry = App.registry;container = App.__container__;Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.home = compile("<h3>Hours</h3>");Ember.TEMPLATES.homepage = compile("<h3>Megatroll</h3><p>{{model.home}}</p>");Ember.TEMPLATES.camelot = compile("<section><h3>Is a silly place</h3></section>");originalLoggerError = Ember.Logger.error;});}, teardown:function(){Ember.run(function(){App.destroy();App = null;Ember.TEMPLATES = {};Ember.Logger.error = originalLoggerError;});}});QUnit.test("warn on URLs not included in the route set", function(){Router.map(function(){this.route("home", {path:"/"});});bootApplication();expectAssertion(function(){Ember.run(function(){router.handleURL("/what-is-this-i-dont-even");});}, "The URL '/what-is-this-i-dont-even' did not match any routes in your application");});QUnit.test("The Homepage", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();equal(currentPath, "home");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");});QUnit.test("The Home page and the Camelot page with multiple Router.map calls", function(){Router.map(function(){this.route("home", {path:"/"});});Router.map(function(){this.route("camelot", {path:"/camelot"});});App.HomeRoute = Ember.Route.extend({});App.CamelotRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});App.CamelotController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();handleURL("/camelot");equal(currentPath, "camelot");equal(Ember.$("h3:contains(silly)", "#qunit-fixture").length, 1, "The camelot template was rendered");handleURL("/");equal(currentPath, "home");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");});QUnit.test("The Homepage with explicit template name in renderTemplate", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});bootApplication();equal(Ember.$("h3:contains(Megatroll)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("An alternate template will pull in an alternate controller", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});App.HomepageController = Ember.Controller.extend({model:{home:"Comes from homepage"}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from homepage)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("An alternate template will pull in an alternate controller instead of controllerName", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({controllerName:"foo", renderTemplate:function(){this.render("homepage");}});App.FooController = Ember.Controller.extend({model:{home:"Comes from Foo"}});App.HomepageController = Ember.Controller.extend({model:{home:"Comes from homepage"}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from homepage)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("The template will pull in an alternate controller via key/value", function(){Router.map(function(){this.route("homepage", {path:"/"});});App.HomepageRoute = Ember.Route.extend({renderTemplate:function(){this.render({controller:"home"});}});App.HomeController = Ember.Controller.extend({model:{home:"Comes from home."}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(Comes from home.)", "#qunit-fixture").length, 1, "The homepage template was rendered from data from the HomeController");});QUnit.test("The Homepage with explicit template name in renderTemplate and controller", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.Controller.extend({model:{home:"YES I AM HOME"}});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("homepage");}});bootApplication();equal(Ember.$("h3:contains(Megatroll) + p:contains(YES I AM HOME)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("Model passed via renderTemplate model is set as controller's model", function(){Ember.TEMPLATES["bio"] = compile("<p>{{model.name}}</p>");App.BioController = Ember.Controller.extend();Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("bio", {model:{name:"emberjs"}});}});bootApplication();equal(Ember.$("p:contains(emberjs)", "#qunit-fixture").length, 1, "Passed model was set as controllers model");});QUnit.test("Renders correct view with slash notation", function(){Ember.TEMPLATES["home/page"] = compile("<p>{{view.name}}</p>");Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("home/page");}});App.HomePageView = Ember.View.extend({name:"Home/Page"});bootApplication();equal(Ember.$("p:contains(Home/Page)", "#qunit-fixture").length, 1, "The homepage template was rendered");});QUnit.test("Renders the view given in the view option", function(){Ember.TEMPLATES["home"] = compile("<p>{{view.name}}</p>");Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({view:"homePage"});}});App.HomePageView = Ember.View.extend({name:"Home/Page"});bootApplication();equal(Ember.$("p:contains(Home/Page)", "#qunit-fixture").length, 1, "The homepage view was rendered");});QUnit.test("render does not replace templateName if user provided", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>");App.HomeView = Ember.View.extend({templateName:"the_real_home_template"});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("render does not replace template if user provided", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeView = Ember.View.extend({template:compile("<p>THIS IS THE REAL HOME</p>")});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();Ember.run(function(){router.handleURL("/");});equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("render uses templateName from route", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>");App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"the_real_home_template"});bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");});QUnit.test("defining templateName allows other templates to be rendered", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.alert = compile("<div class='alert-box'>Invader!</div>");Ember.TEMPLATES.the_real_home_template = compile("<p>THIS IS THE REAL HOME</p>{{outlet 'alert'}}");App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"the_real_home_template", actions:{showAlert:function(){this.render("alert", {into:"home", outlet:"alert"});}}});bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "THIS IS THE REAL HOME", "The homepage template was rendered");Ember.run(function(){router.send("showAlert");});equal(Ember.$(".alert-box", "#qunit-fixture").text(), "Invader!", "Template for alert was render into outlet");});QUnit.test("Specifying a name to render should have precedence over everything else [DEPRECATED]", function(){expectDeprecation(/Using deprecated `template` property on a Component/);Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:"home", controllerName:"home", viewName:"home", renderTemplate:function(){this.render("homepage");}});App.HomeView = Ember.View.extend({template:compile("<h3>This should not be rendered</h3><p>{{model.home}}</p>")});App.HomepageController = Ember.Controller.extend({model:{home:"Tinytroll"}});App.HomepageView = Ember.View.extend({layout:compile("<span>Outer</span>{{yield}}<span>troll</span>"), templateName:"homepage"});bootApplication();equal(Ember.$("h3", "#qunit-fixture").text(), "Megatroll", "The homepage template was rendered");equal(Ember.$("p", "#qunit-fixture").text(), "Tinytroll", "The homepage controller was used");equal(Ember.$("span", "#qunit-fixture").text(), "Outertroll", "The homepage view was used");});QUnit.test("The Homepage with a `setupController` hook", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){property_set.set(controller, "hours", Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]));}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The route controller is still set when overriding the setupController hook", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){}});registry.register("controller:home", Ember.Controller.extend());bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:home"), "route controller is the home controller");});QUnit.test("The route controller can be specified via controllerName", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.home = compile("<p>{{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController"});registry.register("controller:myController", Ember.Controller.extend({myValue:"foo"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "foo", "The homepage template was rendered with data from the custom controller");});QUnit.test("The route controller specified via controllerName is used in render", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.alternative_home = compile("<p>alternative home: {{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController", renderTemplate:function(){this.render("alternative_home");}});registry.register("controller:myController", Ember.Controller.extend({myValue:"foo"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "alternative home: foo", "The homepage template was rendered with data from the custom controller");});QUnit.test("The route controller specified via controllerName is used in render even when a controller with the routeName is available", function(){Router.map(function(){this.route("home", {path:"/"});});Ember.TEMPLATES.home = compile("<p>home: {{myValue}}</p>");App.HomeRoute = Ember.Route.extend({controllerName:"myController"});registry.register("controller:home", Ember.Controller.extend({myValue:"home"}));registry.register("controller:myController", Ember.Controller.extend({myValue:"myController"}));bootApplication();deepEqual(container.lookup("route:home").controller, container.lookup("controller:myController"), "route controller is set by controllerName");equal(Ember.$("p", "#qunit-fixture").text(), "home: myController", "The homepage template was rendered with data from the custom controller");});QUnit.test("The Homepage with a `setupController` hook modifying other controllers", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){property_set.set(this.controllerFor("home"), "hours", Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]));}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The Homepage with a computed context that does not get overridden", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeController = Ember.ArrayController.extend({model:Ember.computed(function(){return Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]);})});Ember.TEMPLATES.home = compile("<ul>{{#each passage in model}}<li>{{passage}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the context intact");});QUnit.test("The Homepage getting its controller context via model", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({model:function(){return Ember.A(["Monday through Friday: 9am to 5pm", "Saturday: Noon to Midnight", "Sunday: Noon to 6pm"]);}, setupController:function(controller, model){equal(this.controllerFor("home"), controller);property_set.set(this.controllerFor("home"), "hours", model);}});Ember.TEMPLATES.home = compile("<ul>{{#each entry in hours}}<li>{{entry}}</li>{{/each}}</ul>");bootApplication();equal(Ember.$("ul li", "#qunit-fixture").eq(2).text(), "Sunday: Noon to 6pm", "The template was rendered with the hours context");});QUnit.test("The Specials Page getting its controller context by deserializing the params hash", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.SpecialRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({menuItemId:params.menu_item_id});}, setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.menuItemId}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The model was used to render the template");});QUnit.test("The Specials Page defaults to looking models up via `find`", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The model was used to render the template");});QUnit.test("The Special Page returning a promise puts the app into a loading state until the promise is resolved", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "LOADING!", "The app is in the loading state");Ember.run(function(){resolve(menuItem);});equal(Ember.$("p", "#qunit-fixture").text(), "1", "The app is now in the specials state");});QUnit.test("The loading state doesn't get entered for promises that resolve on the same run loop", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = Ember.Route.extend({enter:function(){ok(false, "LoadingRoute shouldn't have been entered.");}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());handleURL("/specials/1");equal(Ember.$("p", "#qunit-fixture").text(), "1", "The app is now in the specials state");});QUnit.test("The Special page returning an error invokes SpecialRoute's error handler", function(){Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, promise, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new Ember.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = Ember.Route.extend({setup:function(){throw "Setup error";}, actions:{error:function(reason){equal(reason, "Setup error", "SpecialRoute#error received the error thrown from setup");}}});bootApplication();handleURLRejectsWith("/specials/1", "Setup error");Ember.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason, "Setup error", "error was correctly passed to custom ApplicationRoute handler");}};App.ApplicationRoute = Ember.Route.extend(attrs);App.SpecialRoute = Ember.Route.extend({setup:function(){throw "Setup error";}});bootApplication();handleURLRejectsWith("/specials/1", "Setup error");Ember.run(function(){resolve(menuItem);});}QUnit.test("ApplicationRoute's default error handler can be overridden", function(){testOverridableErrorHandler("actions");});QUnit.test("ApplicationRoute's default error handler can be overridden (with DEPRECATED `events`)", function(){ignoreDeprecation(function(){testOverridableErrorHandler("events");});});asyncTest("Moving from one page to another triggers the correct callbacks", function(){expect(3);Router.map(function(){this.route("home", {path:"/"});this.resource("special", {path:"/specials/:menu_item_id"});});App.MenuItem = Ember.Object.extend();App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES.home = compile("<h3>Home</h3>");Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");bootApplication();registry.register("controller:special", Ember.Controller.extend());var transition=handleURL("/");Ember.run(function(){transition.then(function(){equal(Ember.$("h3", "#qunit-fixture").text(), "Home", "The app is now in the initial state");var promiseContext=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(promiseContext);}, 1);return router.transitionTo("special", promiseContext);}).then(function(result){deepEqual(router.location.path, "/specials/1");QUnit.start();});});});asyncTest("Nested callbacks are not exited when moving to siblings", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.resource("special", {path:"/specials/:menu_item_id"});});});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});var menuItem;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = Ember.Route.extend({});App.RootRoute = Ember.Route.extend({model:function(){rootModel++;return this._super.apply(this, arguments);}, serialize:function(){rootSerialize++;return this._super.apply(this, arguments);}, setupController:function(){rootSetup++;}, renderTemplate:function(){rootRender++;}});App.HomeRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){property_set.set(controller, "model", model);}});Ember.TEMPLATES["root/index"] = compile("<h3>Home</h3>");Ember.TEMPLATES.special = compile("<p>{{model.id}}</p>");Ember.TEMPLATES.loading = compile("<p>LOADING!</p>");var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register("controller:special", Ember.Controller.extend());equal(Ember.$("h3", "#qunit-fixture").text(), "Home", "The app is now in the initial state");equal(rootSetup, 1, "The root setup was triggered");equal(rootRender, 1, "The root render was triggered");equal(rootSerialize, 0, "The root serialize was not called");equal(rootModel, 1, "The root model was called");router = container.lookup("router:main");Ember.run(function(){var menuItem=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(menuItem);}, 1);router.transitionTo("special", menuItem).then(function(result){equal(rootSetup, 1, "The root setup was not triggered again");equal(rootRender, 1, "The root render was not triggered again");equal(rootSerialize, 0, "The root serialize was not called");equal(rootModel, 1, "The root model was called again");deepEqual(router.location.path, "/specials/1");equal(currentPath, "root.special");QUnit.start();});});});QUnit.asyncTest("Events are triggered on the controller if a matching action name is implemented", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){stateIsNotCalled = false;}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");var controller=Ember.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled, "an event on the state is not triggered");deepEqual(context, {name:"Tom Dale"}, "an event with context is passed");QUnit.start();}}});registry.register("controller:home", controller);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.asyncTest("Events are triggered on the current state when defined in `actions` object", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{model.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.asyncTest("Events defined in `actions` object are triggered on the current state when routes are nested", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model}}>{{model.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.asyncTest("Events are triggered on the current state when defined in `events` object (DEPRECATED)", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, events:{showStuff:function(obj){ok(this instanceof App.HomeRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.asyncTest("Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj, true), {name:"Tom Dale"}, "the context is correct");QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model}}>{{name}}</a>");expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.test("Events can be handled by inherited event handlers", function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, "foo");}, bar:function(msg){equal(msg, "HELLO");}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, "HELLO");this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, "baz");}}});bootApplication();router.send("foo");router.send("bar", "HELLO");router.send("baz");});QUnit.asyncTest("Actions are not triggered on the controller if a matching action name is implemented as a method", function(){Router.map(function(){this.route("home", {path:"/"});});var model={name:"Tom Dale"};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(context){ok(stateIsNotCalled, "an event on the state is not triggered");deepEqual(context, {name:"Tom Dale"}, "an event with context is passed");QUnit.start();}}});Ember.TEMPLATES.home = compile("<a {{action 'showStuff' model}}>{{name}}</a>");var controller=Ember.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled, "an event on the state is not triggered");}});registry.register("controller:home", controller);bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.asyncTest("actions can be triggered with multiple arguments", function(){Router.map(function(){this.resource("root", {path:"/"}, function(){this.route("index", {path:"/"});});});var model1={name:"Tilde"};var model2={name:"Tom Dale"};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj1, obj2){ok(this instanceof App.RootRoute, "the handler is an App.HomeRoute");deepEqual(Ember.copy(obj1, true), {name:"Tilde"}, "the first context is correct");deepEqual(Ember.copy(obj2, true), {name:"Tom Dale"}, "the second context is correct");QUnit.start();}}});App.RootIndexController = Ember.Controller.extend({model1:model1, model2:model2});Ember.TEMPLATES["root/index"] = compile("<a {{action 'showStuff' model1 model2}}>{{model1.name}}</a>");bootApplication();var actionId=Ember.$("#qunit-fixture a").data("ember-action");var action=ActionManager['default'].registeredActions[actionId];var event=new Ember.$.Event("click");action.handler(event);});QUnit.test("transitioning multiple times in a single run loop only sets the URL once", function(){Router.map(function(){this.route("root", {path:"/"});this.route("foo");this.route("bar");});bootApplication();var urlSetCount=0;router.get("location").setURL = function(path){urlSetCount++;property_set.set(this, "path", path);};equal(urlSetCount, 0);Ember.run(function(){router.transitionTo("foo");router.transitionTo("bar");});equal(urlSetCount, 1);equal(router.get("location").getURL(), "/bar");});QUnit.test("navigating away triggers a url property change", function(){expect(3);Router.map(function(){this.route("root", {path:"/"});this.route("foo", {path:"/foo"});this.route("bar", {path:"/bar"});});bootApplication();Ember.run(function(){Ember.addObserver(router, "url", function(){ok(true, "url change event was fired");});});enumerable_utils.forEach(["foo", "bar", "/foo"], function(destination){Ember.run(router, "transitionTo", destination);});});QUnit.test("using replaceWith calls location.replaceURL if available", function(){var setCount=0;var replaceCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;property_set.set(this, "path", path);}, replaceURL:function(path){replaceCount++;property_set.set(this, "path", path);}})});Router.map(function(){this.route("root", {path:"/"});this.route("foo");});bootApplication();equal(setCount, 0);equal(replaceCount, 0);Ember.run(function(){router.replaceWith("foo");});equal(setCount, 0, "should not call setURL");equal(replaceCount, 1, "should call replaceURL once");equal(router.get("location").getURL(), "/foo");});QUnit.test("using replaceWith calls setURL if location.replaceURL is not defined", function(){var setCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;property_set.set(this, "path", path);}})});Router.map(function(){this.route("root", {path:"/"});this.route("foo");});bootApplication();equal(setCount, 0);Ember.run(function(){router.replaceWith("foo");});equal(setCount, 1, "should call setURL once");equal(router.get("location").getURL(), "/foo");});QUnit.test("Route inherits model from parent route", function(){expect(9);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.route("comments");this.resource("shares", {path:"/shares/:share_id"}, function(){this.route("share");});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1, 2:post2, 3:post3};var shares={1:share1, 2:share2, 3:share3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor("thePost");equal(post, parent_model);}});App.SharesRoute = Ember.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = Ember.Route.extend({afterModel:function(share, transition){var parent_model=this.modelFor("shares");equal(share, parent_model);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");handleURL("/posts/1/shares/1");currentPost = post2;handleURL("/posts/2/comments");handleURL("/posts/2/shares/2");currentPost = post3;handleURL("/posts/3/comments");handleURL("/posts/3/shares/3");});QUnit.test("Resource inherits model from parent resource", function(){expect(6);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.resource("comments", function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor("thePost");equal(post, parent_model);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");currentPost = post2;handleURL("/posts/2/comments");currentPost = post3;handleURL("/posts/3/comments");});QUnit.test("It is possible to get the model from a parent route", function(){expect(9);Router.map(function(){this.resource("the_post", {path:"/posts/:post_id"}, function(){this.resource("comments");});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({model:function(){equal(this.modelFor("thePost"), currentPost);equal(this.modelFor("the_post"), currentPost);}});bootApplication();currentPost = post1;handleURL("/posts/1/comments");currentPost = post2;handleURL("/posts/2/comments");currentPost = post3;handleURL("/posts/3/comments");});QUnit.test("A redirection hook is provided", function(){Router.map(function(){this.route("choose", {path:"/"});this.route("home");});var chooseFollowed=0;var destination;App.ChooseRoute = Ember.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}}, setupController:function(){chooseFollowed++;}});destination = "home";bootApplication();equal(chooseFollowed, 0, "The choose route wasn't entered since a transition occurred");equal(Ember.$("h3:contains(Hours)", "#qunit-fixture").length, 1, "The home template was rendered");equal(router.container.lookup("controller:application").get("currentPath"), "home");});QUnit.test("Redirecting from the middle of a route aborts the remainder of the routes", function(){expect(3);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});});});App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo("home");}, setupController:function(){ok(false, "Should transition before setupController");}});App.BarBazRoute = Ember.Route.extend({enter:function(){ok(false, "Should abort transition getting to next route");}});bootApplication();handleURLAborts("/foo/bar/baz");equal(router.container.lookup("controller:application").get("currentPath"), "home");equal(router.get("location").getURL(), "/home");});QUnit.test("Redirecting to the current target in the middle of a route does not abort initial routing", function(){expect(5);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});});});var successCount=0;App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo("bar.baz").then(function(){successCount++;});}, setupController:function(){ok(true, "Should still invoke bar's setupController");}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, "Should still invoke bar.baz's setupController");}});bootApplication();handleURL("/foo/bar/baz");equal(router.container.lookup("controller:application").get("currentPath"), "foo.bar.baz");equal(successCount, 1, "transitionTo success handler was called once");});QUnit.test("Redirecting to the current target with a different context aborts the remainder of the routes", function(){expect(4);Router.map(function(){this.route("home");this.resource("foo", function(){this.resource("bar", {path:"bar/:id"}, function(){this.route("baz");});});});var model={id:2};var count=0;App.BarRoute = Ember.Route.extend({afterModel:function(context){if(count++ > 10){ok(false, "infinite loop");}else {this.transitionTo("bar.baz", model);}}, serialize:function(params){return params;}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, "Should still invoke setupController");}});bootApplication();handleURLAborts("/foo/bar/1/baz");equal(router.container.lookup("controller:application").get("currentPath"), "foo.bar.baz");equal(router.get("location").getURL(), "/foo/bar/2/baz");});QUnit.test("Transitioning from a parent event does not prevent currentPath from being set", function(){Router.map(function(){this.resource("foo", function(){this.resource("bar", function(){this.route("baz");});this.route("qux");});});App.FooRoute = Ember.Route.extend({actions:{goToQux:function(){this.transitionTo("foo.qux");}}});bootApplication();var applicationController=router.container.lookup("controller:application");handleURL("/foo/bar/baz");equal(applicationController.get("currentPath"), "foo.bar.baz");Ember.run(function(){router.send("goToQux");});equal(applicationController.get("currentPath"), "foo.qux");equal(router.get("location").getURL(), "/foo/qux");});QUnit.test("Generated names can be customized when providing routes with dot notation", function(){expect(4);Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.foo = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.bar = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["bar/baz"] = compile("<p>{{name}}Bottom!</p>");Router.map(function(){this.resource("foo", {path:"/top"}, function(){this.resource("bar", {path:"/middle"}, function(){this.route("baz", {path:"/bottom"});});});});App.FooRoute = Ember.Route.extend({renderTemplate:function(){ok(true, "FooBarRoute was called");return this._super.apply(this, arguments);}});App.BarBazRoute = Ember.Route.extend({renderTemplate:function(){ok(true, "BarBazRoute was called");return this._super.apply(this, arguments);}});App.BarController = Ember.Controller.extend({name:"Bar"});App.BarBazController = Ember.Controller.extend({name:"BarBaz"});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").text(), "BarBazBottom!", "The templates were rendered into their appropriate parents");});QUnit.test("Child routes render into their parent route's template by default", function(){Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.top = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.middle = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["middle/bottom"] = compile("<p>Bottom!</p>");Router.map(function(){this.resource("top", function(){this.resource("middle", function(){this.route("bottom");});});});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").text(), "Bottom!", "The templates were rendered into their appropriate parents");});QUnit.test("Child routes render into specified template", function(){Ember.TEMPLATES.index = compile("<div>Index</div>");Ember.TEMPLATES.application = compile("<h1>Home</h1><div class='main'>{{outlet}}</div>");Ember.TEMPLATES.top = compile("<div class='middle'>{{outlet}}</div>");Ember.TEMPLATES.middle = compile("<div class='bottom'>{{outlet}}</div>");Ember.TEMPLATES["middle/bottom"] = compile("<p>Bottom!</p>");Router.map(function(){this.resource("top", function(){this.resource("middle", function(){this.route("bottom");});});});App.MiddleBottomRoute = Ember.Route.extend({renderTemplate:function(){this.render("middle/bottom", {into:"top"});}});bootApplication();handleURL("/top/middle/bottom");equal(Ember.$(".main .middle .bottom p", "#qunit-fixture").length, 0, "should not render into the middle template");equal(Ember.$(".main .middle > p", "#qunit-fixture").text(), "Bottom!", "The template was rendered into the top template");});QUnit.test("Rendering into specified template with slash notation", function(){Ember.TEMPLATES["person/profile"] = compile("profile {{outlet}}");Ember.TEMPLATES["person/details"] = compile("details!");Router.map(function(){this.resource("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render("person/profile");this.render("person/details", {into:"person/profile"});}});bootApplication();equal(Ember.$("#qunit-fixture:contains(profile details!)").length, 1, "The templates were rendered");});QUnit.test("Parent route context change", function(){var editCount=0;var editedPostIds=Ember.A();Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.post = compile("{{outlet}}");Ember.TEMPLATES["post/index"] = compile("showing");Ember.TEMPLATES["post/edit"] = compile("editing");Router.map(function(){this.resource("posts", function(){this.resource("post", {path:"/:postId"}, function(){this.route("edit");});});});App.PostsRoute = Ember.Route.extend({actions:{showPost:function(context){this.transitionTo("post", context);}}});App.PostRoute = Ember.Route.extend({model:function(params){return {id:params.postId};}, actions:{editPost:function(context){this.transitionTo("post.edit");}}});App.PostEditRoute = Ember.Route.extend({model:function(params){var postId=this.modelFor("post").id;editedPostIds.push(postId);return null;}, setup:function(){this._super.apply(this, arguments);editCount++;}});bootApplication();handleURL("/posts/1");Ember.run(function(){router.send("editPost");});Ember.run(function(){router.send("showPost", {id:"2"});});Ember.run(function(){router.send("editPost");});equal(editCount, 2, "set up the edit route twice without failure");deepEqual(editedPostIds, ["1", "2"], "modelFor posts.post returns the right context");});QUnit.test("Router accounts for rootURL on page load when using history location", function(){var rootURL=window.location.pathname + "/app";var postsTemplateRendered=false;var setHistory, HistoryTestLocation;setHistory = function(obj, path){obj.set("history", {state:{path:path}});};HistoryTestLocation = Ember.HistoryLocation.extend({initState:function(){var path=rootURL + "/posts";setHistory(this, path);this.set("location", {pathname:path, href:"http://localhost/" + path});}, replaceState:function(path){setHistory(this, path);}, pushState:function(path){setHistory(this, path);}});registry.register("location:historyTest", HistoryTestLocation);Router.reopen({location:"historyTest", rootURL:rootURL});Router.map(function(){this.resource("posts", {path:"/posts"});});App.PostsRoute = Ember.Route.extend({model:function(){}, renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered, "Posts route successfully stripped from rootURL");});QUnit.test("The rootURL is passed properly to the location implementation", function(){expect(1);var rootURL="/blahzorz";var HistoryTestLocation;HistoryTestLocation = Ember.HistoryLocation.extend({rootURL:"this is not the URL you are looking for", initState:function(){equal(this.get("rootURL"), rootURL);}});registry.register("location:history-test", HistoryTestLocation);Router.reopen({location:"history-test", rootURL:rootURL, _doURLTransition:function(){}});bootApplication();});QUnit.test("Only use route rendered into main outlet for default into property on child", function(){Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES["posts/index"] = compile("postsIndex");Ember.TEMPLATES["posts/menu"] = compile("postsMenu");Router.map(function(){this.resource("posts", function(){});});App.PostsMenuView = Ember.View.extend({tagName:"div", templateName:"posts/menu", classNames:["posts-menu"]});App.PostsIndexView = Ember.View.extend({tagName:"p", classNames:["posts-index"]});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render();this.render("postsMenu", {into:"application", outlet:"menu"});}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 1, "The posts/menu template was rendered");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");});QUnit.test("Generating a URL should not affect currentModel", function(){Router.map(function(){this.route("post", {path:"/posts/:post_id"});});var posts={1:{id:1}, 2:{id:2}};App.PostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL("/posts/1");var route=container.lookup("route:post");equal(route.modelFor("post"), posts[1]);var url=router.generate("post", posts[2]);equal(url, "/posts/2");equal(route.modelFor("post"), posts[1]);});QUnit.test("Generated route should be an instance of App.Route if provided", function(){var generatedRoute;Router.map(function(){this.route("posts");});App.Route = Ember.Route.extend();bootApplication();handleURL("/posts");generatedRoute = container.lookup("route:posts");ok(generatedRoute instanceof App.Route, "should extend the correct route");});QUnit.test("Nested index route is not overriden by parent's implicit index route", function(){Router.map(function(){this.resource("posts", function(){this.route("index", {path:":category"});});});App.Route = Ember.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();Ember.run(function(){router.transitionTo("posts", {category:"emberjs"});});deepEqual(router.location.path, "/posts/emberjs");});QUnit.test("Application template does not duplicate when re-rendered", function(){Ember.TEMPLATES.application = compile("<h3>I Render Once</h3>{{outlet}}");Router.map(function(){this.route("posts");});App.ApplicationRoute = Ember.Route.extend({model:function(){return Ember.A();}});bootApplication();handleURL("/posts");equal(Ember.$("h3:contains(I Render Once)").size(), 1);});QUnit.test("Child routes should render inside the application template if the application template causes a redirect", function(){Ember.TEMPLATES.application = compile("<h3>App</h3> {{outlet}}");Ember.TEMPLATES.posts = compile("posts");Router.map(function(){this.route("posts");this.route("photos");});App.ApplicationRoute = Ember.Route.extend({afterModel:function(){this.transitionTo("posts");}});bootApplication();equal(Ember.$("#qunit-fixture > div").text(), "App posts");});QUnit.test("The template is not re-rendered when the route's context changes", function(){Router.map(function(){this.route("page", {path:"/page/:name"});});App.PageRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({name:params.name});}});var insertionCount=0;App.PageView = Ember.View.extend({didInsertElement:function(){insertionCount += 1;}});Ember.TEMPLATES.page = compile("<p>{{model.name}}</p>");bootApplication();handleURL("/page/first");equal(Ember.$("p", "#qunit-fixture").text(), "first");equal(insertionCount, 1);handleURL("/page/second");equal(Ember.$("p", "#qunit-fixture").text(), "second");equal(insertionCount, 1, "view should have inserted only once");Ember.run(function(){router.transitionTo("page", Ember.Object.create({name:"third"}));});equal(Ember.$("p", "#qunit-fixture").text(), "third");equal(insertionCount, 1, "view should still have inserted only once");});QUnit.test("The template is not re-rendered when two routes present the exact same template, view, & controller", function(){Router.map(function(){this.route("first");this.route("second");this.route("third");this.route("fourth");});App.SharedRoute = Ember.Route.extend({viewName:"shared", setupController:function(controller){this.controllerFor("shared").set("message", "This is the " + this.routeName + " message");}, renderTemplate:function(controller, context){this.render({controller:"shared"});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:"fourth"});App.SharedController = Ember.Controller.extend();var insertionCount=0;App.SharedView = Ember.View.extend({templateName:"shared", didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();Ember.TEMPLATES.shared = compile("<p>{{message}}</p>");bootApplication();handleURL("/first");equal(Ember.$("p", "#qunit-fixture").text(), "This is the first message");equal(insertionCount, 1, "expected one assertion");handleURL("/second");equal(Ember.$("p", "#qunit-fixture").text(), "This is the second message");equal(insertionCount, 1, "view should have inserted only once");Ember.run(function(){router.transitionTo("third").then(function(value){ok(true, "expected transition");}, function(reason){ok(false, "unexpected transition failure: ", QUnit.jsDump.parse(reason));});});equal(Ember.$("p", "#qunit-fixture").text(), "This is the third message");equal(insertionCount, 1, "view should still have inserted only once");handleURL("/fourth");equal(Ember.$("p", "#qunit-fixture").text(), "This is the fourth message");equal(insertionCount, 2, "view should have inserted a second time");});QUnit.test("ApplicationRoute with model does not proxy the currentPath", function(){var model={};var currentPath;App.ApplicationRoute = Ember.Route.extend({model:function(){return model;}});App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer("currentPath", function(){currentPath = property_get.get(this, "currentPath");})});bootApplication();equal(currentPath, "index", "currentPath is index");equal("currentPath" in model, false, "should have defined currentPath on controller");});QUnit.test("Promises encountered on app load put app into loading state until resolved", function(){expect(2);var deferred=Ember.RSVP.defer();App.IndexRoute = Ember.Route.extend({model:function(){return deferred.promise;}});Ember.TEMPLATES.index = compile("<p>INDEX</p>");Ember.TEMPLATES.loading = compile("<p>LOADING</p>");bootApplication();equal(Ember.$("p", "#qunit-fixture").text(), "LOADING", "The loading state is displaying.");Ember.run(deferred.resolve);equal(Ember.$("p", "#qunit-fixture").text(), "INDEX", "The index route is display.");});QUnit.test("Route should tear down multiple outlets", function(){Ember.TEMPLATES.application = compile("{{outlet 'menu'}}{{outlet}}{{outlet 'footer'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex");Ember.TEMPLATES["posts/menu"] = compile("postsMenu");Ember.TEMPLATES["posts/footer"] = compile("postsFooter");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsMenuView = Ember.View.extend({tagName:"div", templateName:"posts/menu", classNames:["posts-menu"]});App.PostsIndexView = Ember.View.extend({tagName:"p", classNames:["posts-index"]});App.PostsFooterView = Ember.View.extend({tagName:"div", templateName:"posts/footer", classNames:["posts-footer"]});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render("postsMenu", {into:"application", outlet:"menu"});this.render();this.render("postsFooter", {into:"application", outlet:"footer"});}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 1, "The posts/menu template was rendered");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");equal(Ember.$("div.posts-footer:contains(postsFooter)", "#qunit-fixture").length, 1, "The posts/footer template was rendered");handleURL("/users");equal(Ember.$("div.posts-menu:contains(postsMenu)", "#qunit-fixture").length, 0, "The posts/menu template was removed");equal(Ember.$("p.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-footer:contains(postsFooter)", "#qunit-fixture").length, 0, "The posts/footer template was removed");});QUnit.test("Route will assert if you try to explicitly render {into: ...} a missing template", function(){Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"nonexistent"});}});expectAssertion(function(){bootApplication();}, "You attempted to render into 'nonexistent' but it was not found");});QUnit.test("Route supports clearing outlet explicitly", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex {{outlet}}");Ember.TEMPLATES["posts/modal"] = compile("postsModal");Ember.TEMPLATES["posts/extra"] = compile("postsExtra");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsIndexView = Ember.View.extend({classNames:["posts-index"]});App.PostsModalView = Ember.View.extend({templateName:"posts/modal", classNames:["posts-modal"]});App.PostsExtraView = Ember.View.extend({templateName:"posts/extra", classNames:["posts-extra"]});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render("postsModal", {into:"application", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet({outlet:"modal", parentView:"application"});}}});App.PostsIndexRoute = Ember.Route.extend({actions:{showExtra:function(){this.render("postsExtra", {into:"posts/index"});}, hideExtra:function(){this.disconnectOutlet({parentView:"posts/index"});}}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");Ember.run(function(){router.send("showModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 1, "The posts/modal template was rendered");Ember.run(function(){router.send("showExtra");});equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 1, "The posts/extra template was rendered");Ember.run(function(){router.send("hideModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");Ember.run(function(){router.send("hideExtra");});equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 0, "The posts/extra template was removed");handleURL("/users");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");equal(Ember.$("div.posts-extra:contains(postsExtra)", "#qunit-fixture").length, 0, "The posts/extra template was removed");});QUnit.test("Route supports clearing outlet using string parameter", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet 'modal'}}");Ember.TEMPLATES.posts = compile("{{outlet}}");Ember.TEMPLATES.users = compile("users");Ember.TEMPLATES["posts/index"] = compile("postsIndex {{outlet}}");Ember.TEMPLATES["posts/modal"] = compile("postsModal");Router.map(function(){this.resource("posts", function(){});this.resource("users", function(){});});App.PostsIndexView = Ember.View.extend({classNames:["posts-index"]});App.PostsModalView = Ember.View.extend({templateName:"posts/modal", classNames:["posts-modal"]});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render("postsModal", {into:"application", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet("modal");}}});bootApplication();handleURL("/posts");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 1, "The posts/index template was rendered");Ember.run(function(){router.send("showModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 1, "The posts/modal template was rendered");Ember.run(function(){router.send("hideModal");});equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");handleURL("/users");equal(Ember.$("div.posts-index:contains(postsIndex)", "#qunit-fixture").length, 0, "The posts/index template was removed");equal(Ember.$("div.posts-modal:contains(postsModal)", "#qunit-fixture").length, 0, "The posts/modal template was removed");});QUnit.test("Route silently fails when cleaning an outlet from an inactive view", function(){expect(1);Ember.TEMPLATES.application = compile("{{outlet}}");Ember.TEMPLATES.posts = compile("{{outlet 'modal'}}");Ember.TEMPLATES.modal = compile("A Yo.");Router.map(function(){this.route("posts");});App.PostsRoute = Ember.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:"main", parentView:"application"});}, showModal:function(){this.render("modal", {into:"posts", outlet:"modal"});}, hideModal:function(){this.disconnectOutlet({outlet:"modal", parentView:"posts"});}}});bootApplication();handleURL("/posts");Ember.run(function(){router.send("showModal");});Ember.run(function(){router.send("hideSelf");});Ember.run(function(){router.send("hideModal");});});QUnit.test("Router `willTransition` hook passes in cancellable transition", function(){expect(3);Router.map(function(){this.route("nork");this.route("about");});Router.reopen({init:function(){this._super();this.on("willTransition", this.testWillTransitionHook);}, testWillTransitionHook:function(transition, url){ok(true, "willTransition was called " + url);transition.abort();}});App.LoadingRoute = Ember.Route.extend({activate:function(){ok(false, "LoadingRoute was not entered");}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(false, "NorkRoute was not entered");}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(false, "AboutRoute was not entered");}});bootApplication();Ember.run(router, "handleURL", "/nork");Ember.run(router, "handleURL", "/about");});QUnit.test("Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered", function(){expect(8);Router.map(function(){this.route("nork");this.route("about");});var redirect=false;App.IndexRoute = Ember.Route.extend({actions:{willTransition:function(transition){ok(true, "willTransition was called");if(redirect){this.transitionTo("about");}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = Ember.Route.extend({activate:function(){ok(deferred, "LoadingRoute should be entered at this time");}, deactivate:function(){ok(true, "LoadingRoute was exited");}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(true, "NorkRoute was entered");}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(true, "AboutRoute was entered");}, model:function(){if(deferred){return deferred.promise;}}});bootApplication();Ember.run(router, "transitionTo", "nork");Ember.run(router, "handleURL", "/nork");redirect = true;Ember.run(router, "transitionTo", "nork");Ember.run(router, "transitionTo", "index");deferred = Ember.RSVP.defer();Ember.run(router, "transitionTo", "nork");Ember.run(deferred.resolve);});QUnit.test("`didTransition` event fires on the router", function(){expect(3);Router.map(function(){this.route("nork");});router = container.lookup("router:main");router.one("didTransition", function(){ok(true, "didTransition fired on initial routing");});bootApplication();router.one("didTransition", function(){ok(true, "didTransition fired on the router");equal(router.get("url"), "/nork", "The url property is updated by the time didTransition fires");});Ember.run(router, "transitionTo", "nork");});QUnit.test("`didTransition` can be reopened", function(){expect(1);Router.map(function(){this.route("nork");});Router.reopen({didTransition:function(){this._super.apply(this, arguments);ok(true, "reopened didTransition was called");}});bootApplication();});QUnit.test("`activate` event fires on the route", function(){expect(2);var eventFired=0;Router.map(function(){this.route("nork");});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on("activate", function(){equal(++eventFired, 1, "activate event is fired once");});}, activate:function(){ok(true, "activate hook is called");}});bootApplication();Ember.run(router, "transitionTo", "nork");});QUnit.test("`deactivate` event fires on the route", function(){expect(2);var eventFired=0;Router.map(function(){this.route("nork");this.route("dork");});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on("deactivate", function(){equal(++eventFired, 1, "deactivate event is fired once");});}, deactivate:function(){ok(true, "deactivate hook is called");}});bootApplication();Ember.run(router, "transitionTo", "nork");Ember.run(router, "transitionTo", "dork");});QUnit.test("Actions can be handled by inherited action handlers", function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, "foo");}, bar:function(msg){equal(msg, "HELLO");}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, "HELLO");this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, "baz");}}});bootApplication();router.send("foo");router.send("bar", "HELLO");router.send("baz");});QUnit.test("currentRouteName is a property installed on ApplicationController that can be used in transitionTo", function(){expect(24);Router.map(function(){this.resource("be", function(){this.resource("excellent", function(){this.resource("to", function(){this.resource("each", function(){this.route("other");});});});});});bootApplication();var appController=router.container.lookup("controller:application");function transitionAndCheck(path, expectedPath, expectedRouteName){if(path){Ember.run(router, "transitionTo", path);}equal(appController.get("currentPath"), expectedPath);equal(appController.get("currentRouteName"), expectedRouteName);}transitionAndCheck(null, "index", "index");transitionAndCheck("/be", "be.index", "be.index");transitionAndCheck("/be/excellent", "be.excellent.index", "excellent.index");transitionAndCheck("/be/excellent/to", "be.excellent.to.index", "to.index");transitionAndCheck("/be/excellent/to/each", "be.excellent.to.each.index", "each.index");transitionAndCheck("/be/excellent/to/each/other", "be.excellent.to.each.other", "each.other");transitionAndCheck("index", "index", "index");transitionAndCheck("be", "be.index", "be.index");transitionAndCheck("excellent", "be.excellent.index", "excellent.index");transitionAndCheck("to.index", "be.excellent.to.index", "to.index");transitionAndCheck("each", "be.excellent.to.each.index", "each.index");transitionAndCheck("each.other", "be.excellent.to.each.other", "each.other");});QUnit.test("Route model hook finds the same model as a manual find", function(){var Post;App.Post = Ember.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route("post", {path:"/post/:post_id"});});bootApplication();handleURL("/post/1");equal(App.Post, Post);});QUnit.test("Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)", function(){var TestLocation=Ember.NoneLocation.extend({implementation:"test"});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);Ember.Location.registerImplementation("test", TestLocation);Router.reopen({location:"test"});bootApplication();equal(router.get("location.implementation"), "test", "custom location implementation can be registered with registerImplementation");});QUnit.test("Ember.Location.registerImplementation is deprecated", function(){var TestLocation=Ember.NoneLocation.extend({implementation:"test"});expectDeprecation(function(){Ember.Location.registerImplementation("test", TestLocation);}, "Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.");});QUnit.test("Routes can refresh themselves causing their model hooks to be re-run", function(){Router.map(function(){this.resource("parent", {path:"/parent/:parent_id"}, function(){this.route("child");});});var appcount=0;App.ApplicationRoute = Ember.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = Ember.Route.extend({model:function(params){equal(params.parent_id, "123");++parentcount;}, actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = Ember.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount, 1);equal(parentcount, 0);equal(childcount, 0);Ember.run(router, "transitionTo", "parent.child", "123");equal(appcount, 1);equal(parentcount, 1);equal(childcount, 1);Ember.run(router, "send", "refreshParent");equal(appcount, 1);equal(parentcount, 2);equal(childcount, 2);});QUnit.test("Specifying non-existent controller name in route#render throws", function(){expect(1);Router.map(function(){this.route("home", {path:"/"});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){try{this.render("homepage", {controller:"stefanpenneristhemanforme"});}catch(e) {equal(e.message, "You passed `controller: 'stefanpenneristhemanforme'` into the `render` method, but no such controller could be found.");}}});bootApplication();});QUnit.test("Redirecting with null model doesn't error out", function(){Router.map(function(){this.route("home", {path:"/"});this.route("about", {path:"/about/:hurhurhur"});});App.HomeRoute = Ember.Route.extend({beforeModel:function(){this.transitionTo("about", null);}});App.AboutRoute = Ember.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:"TreeklesMcGeekles"};}}});bootApplication();equal(router.get("location.path"), "/about/TreeklesMcGeekles");});QUnit.test("rejecting the model hooks promise with a non-error prints the `message` property", function(){var rejectedMessage="OMG!! SOOOOOO BAD!!!!";var rejectedStack="Yeah, buddy: stack gets printed too.";Router.map(function(){this.route("yippie", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, "Error while processing route: yippie", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");equal(errorStack, rejectedStack, "the rejected reason's stack property is logged");};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({message:rejectedMessage, stack:rejectedStack});}});bootApplication();});QUnit.test("rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property", function(){var rejectedMessage="OMG!! SOOOOOO BAD!!!!";var rejectedStack="Yeah, buddy: stack gets printed too.";Router.map(function(){this.route("yippie", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, "Error while processing route: yippie", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");equal(errorStack, rejectedStack, "the rejected reason's stack property is logged");};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({errorThrown:{message:rejectedMessage, stack:rejectedStack}});}});bootApplication();});QUnit.test("rejecting the model hooks promise with no reason still logs error", function(){Router.map(function(){this.route("wowzers", {path:"/"});});Ember.Logger.error = function(initialMessage){equal(initialMessage, "Error while processing route: wowzers", "a message with the current route name is printed");};App.WowzersRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject();}});bootApplication();});QUnit.test("rejecting the model hooks promise with a string shows a good error", function(){var originalLoggerError=Ember.Logger.error;var rejectedMessage="Supercalifragilisticexpialidocious";Router.map(function(){this.route("yondo", {path:"/"});});Ember.Logger.error = function(initialMessage, errorMessage){equal(initialMessage, "Error while processing route: yondo", "a message with the current route name is printed");equal(errorMessage, rejectedMessage, "the rejected reason's message property is logged");};App.YondoRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject(rejectedMessage);}});bootApplication();Ember.Logger.error = originalLoggerError;});QUnit.test("willLeave, willChangeContext, willChangeModel actions don't fire unless feature flag enabled", function(){expect(1);App.Router.map(function(){this.route("about");});function shouldNotFire(){ok(false, "this action shouldn't have been received");}App.IndexRoute = Ember.Route.extend({actions:{willChangeModel:shouldNotFire, willChangeContext:shouldNotFire, willLeave:shouldNotFire}});App.AboutRoute = Ember.Route.extend({setupController:function(){ok(true, "about route was entered");}});bootApplication();Ember.run(router, "transitionTo", "about");});QUnit.test("Errors in transitionTo within redirect hook are logged", function(){expect(3);var actual=[];Router.map(function(){this.route("yondo", {path:"/"});this.route("stink-bomb");});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo("stink-bomb", {something:"goes boom"});}});Ember.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length, 1, "the error is only logged once");equal(actual[0][0], "Error while processing route: yondo", "source route is printed");ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), "the error is printed");});QUnit.test("Errors in transition show error template if available", function(){Ember.TEMPLATES.error = compile("<div id='error'>Error!</div>");Router.map(function(){this.route("yondo", {path:"/"});this.route("stink-bomb");});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo("stink-bomb", {something:"goes boom"});}});bootApplication();equal(Ember.$("#error").length, 1, "Error template was rendered.");});QUnit.test("Route#resetController gets fired when changing models and exiting routes", function(){expect(4);Router.map(function(){this.resource("a", function(){this.resource("b", {path:"/b/:id"}, function(){});this.resource("c", {path:"/c/:id"}, function(){});});this.route("out");});var calls=[];var SpyRoute=Ember.Route.extend({setupController:function(controller, model, transition){calls.push(["setup", this.routeName]);}, resetController:function(controller){calls.push(["reset", this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls, []);Ember.run(router, "transitionTo", "b", "b-1");deepEqual(calls, [["setup", "a"], ["setup", "b"]]);calls.length = 0;Ember.run(router, "transitionTo", "c", "c-1");deepEqual(calls, [["reset", "b"], ["setup", "c"]]);calls.length = 0;Ember.run(router, "transitionTo", "out");deepEqual(calls, [["reset", "c"], ["reset", "a"], ["setup", "out"]]);});QUnit.test("Exception during initialization of non-initial route is not swallowed", function(){Router.map(function(){this.route("boom");});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});bootApplication();throws(function(){Ember.run(router, "transitionTo", "boom");}, /\bboom\b/);});QUnit.test("Exception during load of non-initial route is not swallowed", function(){Router.map(function(){this.route("boom");});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === "route:boom"){throw new Error("boom!");}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});bootApplication();throws(function(){Ember.run(router, "transitionTo", "boom");});});QUnit.test("Exception during initialization of initial route is not swallowed", function(){Router.map(function(){this.route("boom", {path:"/"});});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test("Exception during load of initial route is not swallowed", function(){Router.map(function(){this.route("boom", {path:"/"});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === "route:boom"){throw new Error("boom!");}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error("boom!");}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test("{{outlet}} works when created after initial render", function(){Ember.TEMPLATES.sample = compile("Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye");Ember.TEMPLATES["sample/inner"] = compile("Yay");Ember.TEMPLATES["sample/inner2"] = compile("Boo");Router.map(function(){this.route("sample", {path:"/"}, function(){this.route("inner", {path:"/"});this.route("inner2", {path:"/2"});});});bootApplication();equal(Ember.$("#qunit-fixture").text(), "HiBye", "initial render");Ember.run(function(){container.lookup("controller:sample").set("showTheThing", true);});equal(Ember.$("#qunit-fixture").text(), "HiYayBye", "second render");handleURL("/2");equal(Ember.$("#qunit-fixture").text(), "HiBooBye", "third render");});QUnit.test("Can rerender application view multiple times when it contains an outlet", function(){Ember.TEMPLATES.application = compile("App{{outlet}}");Ember.TEMPLATES.index = compile("Hello world");registry.register("view:application", Ember.View.extend({elementId:"im-special"}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "AppHello world", "initial render");Ember.run(function(){Ember.View.views["im-special"].rerender();});equal(Ember.$("#qunit-fixture").text(), "AppHello world", "second render");Ember.run(function(){Ember.View.views["im-special"].rerender();});equal(Ember.$("#qunit-fixture").text(), "AppHello world", "third render");});QUnit.test("Can render into a named outlet at the top level", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "initial render");});QUnit.test("Can disconnect a named outlet at the top level", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}, actions:{banish:function(){this.disconnectOutlet({parentView:"application", outlet:"other"});}}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "initial render");Ember.run(router, "send", "banish");equal(Ember.$("#qunit-fixture").text(), "A-The index-B--C", "second render");});QUnit.test("Can render into a named outlet at the top level, with empty main outlet", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Router.map(function(){this.route("hasNoTemplate", {path:"/"});});registry.register("route:application", Ember.Route.extend({renderTemplate:function(){this.render();this.render("modal", {into:"application", outlet:"other"});}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A--B-Hello world-C", "initial render");});QUnit.test("Can render into a named outlet at the top level, later", function(){Ember.TEMPLATES.application = compile("A-{{outlet}}-B-{{outlet \"other\"}}-C");Ember.TEMPLATES.modal = compile("Hello world");Ember.TEMPLATES.index = compile("The index");registry.register("route:application", Ember.Route.extend({actions:{launch:function(){this.render("modal", {into:"application", outlet:"other"});}}}));bootApplication();equal(Ember.$("#qunit-fixture").text(), "A-The index-B--C", "initial render");Ember.run(router, "send", "launch");equal(Ember.$("#qunit-fixture").text(), "A-The index-B-Hello world-C", "second render");});QUnit.test("Can render routes with no 'main' outlet and their children", function(){Ember.TEMPLATES.application = compile("<div id=\"application\">{{outlet \"app\"}}</div>");Ember.TEMPLATES.app = compile("<div id=\"app-common\">{{outlet \"common\"}}</div><div id=\"app-sub\">{{outlet \"sub\"}}</div>");Ember.TEMPLATES.common = compile("<div id=\"common\"></div>");Ember.TEMPLATES.sub = compile("<div id=\"sub\"></div>");Router.map(function(){this.route("app", {path:"/app"}, function(){this.resource("sub", {path:"/sub"});});});App.AppRoute = Ember.Route.extend({renderTemplate:function(){this.render("app", {outlet:"app", into:"application"});this.render("common", {outlet:"common", into:"app"});}});App.SubRoute = Ember.Route.extend({renderTemplate:function(){this.render("sub", {outlet:"sub", into:"app"});}});bootApplication();handleURL("/app");equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app");handleURL("/app/sub");equal(Ember.$("#app-common #common").length, 1, "Finds common while viewing /app/sub");equal(Ember.$("#app-sub #sub").length, 1, "Finds sub while viewing /app/sub");});QUnit.test("Tolerates stacked renders", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");Ember.TEMPLATES.index = compile("hi");Ember.TEMPLATES.layer = compile("layer");App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render("layer", {into:"application", outlet:"modal"});}, close:function(){this.disconnectOutlet({outlet:"modal", parentView:"application"});}}});bootApplication();equal(trim(Ember.$("#qunit-fixture").text()), "hi");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "close");equal(trim(Ember.$("#qunit-fixture").text()), "hi");});QUnit.test("Renders child into parent with non-default template name", function(){Ember.TEMPLATES.application = compile("<div class=\"a\">{{outlet}}</div>");Ember.TEMPLATES["exports/root"] = compile("<div class=\"b\">{{outlet}}</div>");Ember.TEMPLATES["exports/index"] = compile("<div class=\"c\"></div>");Router.map(function(){this.route("root", function(){});});App.RootRoute = Ember.Route.extend({renderTemplate:function(){this.render("exports/root");}});App.RootIndexRoute = Ember.Route.extend({renderTemplate:function(){this.render("exports/index");}});bootApplication();handleURL("/root");equal(Ember.$("#qunit-fixture .a .b .c").length, 1);});QUnit.test("Allows any route to disconnectOutlet another route's templates", function(){Ember.TEMPLATES.application = compile("{{outlet}}{{outlet \"modal\"}}");Ember.TEMPLATES.index = compile("hi");Ember.TEMPLATES.layer = compile("layer");App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render("layer", {into:"application", outlet:"modal"});}}});App.IndexRoute = Ember.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:"application", outlet:"modal"});}}});bootApplication();equal(trim(Ember.$("#qunit-fixture").text()), "hi");Ember.run(router, "send", "openLayer");equal(trim(Ember.$("#qunit-fixture").text()), "hilayer");Ember.run(router, "send", "close");equal(trim(Ember.$("#qunit-fixture").text()), "hi");});QUnit.test("Can this.render({into:...}) the render helper", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");Ember.TEMPLATES.bar = compile("bar");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:"foo", outlet:"main"});this.render("bar", {into:"foo"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo").text(), "other");Ember.run(router, "send", "changeToBar");equal(Ember.$("#qunit-fixture .foo").text(), "bar");});QUnit.test("Can disconnect from the render helper", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"foo", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .foo").text(), "");});QUnit.test("Can this.render({into:...}) the render helper's children", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("<div class=\"index\">{{outlet}}</div>");Ember.TEMPLATES.other = compile("other");Ember.TEMPLATES.bar = compile("bar");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});this.render("other", {into:"index"});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:"index", outlet:"main"});this.render("bar", {into:"index"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo .index").text(), "other");Ember.run(router, "send", "changeToBar");equal(Ember.$("#qunit-fixture .foo .index").text(), "bar");});QUnit.test("Can disconnect from the render helper's children", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("<div class=\"index\">{{outlet}}</div>");Ember.TEMPLATES.other = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"foo"});this.render("other", {into:"index"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"index", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .foo .index").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .foo .index").text(), "");});QUnit.test("Can this.render({into:...}) nested render helpers", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{render \"bar\"}}</div>");Ember.TEMPLATES.bar = compile("<div class=\"bar\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");Ember.TEMPLATES.baz = compile("baz");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"bar"});}, actions:{changeToBaz:function(){this.disconnectOutlet({parentView:"bar", outlet:"main"});this.render("baz", {into:"bar"});}}});bootApplication();equal(Ember.$("#qunit-fixture .bar").text(), "other");Ember.run(router, "send", "changeToBaz");equal(Ember.$("#qunit-fixture .bar").text(), "baz");});QUnit.test("Can disconnect from nested render helpers", function(){Ember.TEMPLATES.application = compile("{{render \"foo\"}}");Ember.TEMPLATES.foo = compile("<div class=\"foo\">{{render \"bar\"}}</div>");Ember.TEMPLATES.bar = compile("<div class=\"bar\">{{outlet}}</div>");Ember.TEMPLATES.index = compile("other");App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:"bar"});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:"bar", outlet:"main"});}}});bootApplication();equal(Ember.$("#qunit-fixture .bar").text(), "other");Ember.run(router, "send", "disconnect");equal(Ember.$("#qunit-fixture .bar").text(), "");});QUnit.test("Components inside an outlet have their didInsertElement hook invoked when the route is displayed", function(assert){Ember.TEMPLATES.index = compile("{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}");var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = Ember.Controller.extend({showFirst:true});App.IndexRoute = Ember.Route.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = Ember.Component.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = Ember.Component.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter, 1, "didInsertElement invoked on displayed component");assert.strictEqual(otherComponentCounter, 0, "didInsertElement not invoked on displayed component");Ember.run(function(){indexController.set("showFirst", false);});assert.strictEqual(myComponentCounter, 1, "didInsertElement not invoked on displayed component");assert.strictEqual(otherComponentCounter, 1, "didInsertElement invoked on displayed component");});
 
 });
 enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed', 'ember-metal/platform/define_property', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (__dep0__, computed, define_property, string, EmberHandlebars) {
@@ -58461,7 +58364,7 @@ enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed'
 
   QUnit.test("opting into replace does not affect transitions between routes", function () {
     expect(5);
-    Ember.TEMPLATES.application = compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isanerd') id='bar-link'}}" + "{{outlet}}");
+    Ember.TEMPLATES.application = compile("{{link-to 'Foo' 'foo' id='foo-link'}}" + "{{link-to 'Bar' 'bar' id='bar-no-qp-link'}}" + "{{link-to 'Bar' 'bar' (query-params raytiley='isthebest') id='bar-link'}}" + "{{outlet}}");
     App.Router.map(function () {
       this.route("foo");
       this.route("bar");
@@ -58469,7 +58372,7 @@ enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed'
 
     App.BarController = Ember.Controller.extend({
       queryParams: ["raytiley"],
-      raytiley: "isadork"
+      raytiley: "israd"
     });
 
     App.BarRoute = Ember.Route.extend({
@@ -58489,13 +58392,13 @@ enifed('ember/tests/routing/query_params_test', ['ember', 'ember-metal/computed'
     expectedPushURL = "/bar";
     Ember.run(Ember.$("#bar-no-qp-link"), "click");
 
-    expectedReplaceURL = "/bar?raytiley=boo";
-    setAndFlush(controller, "raytiley", "boo");
+    expectedReplaceURL = "/bar?raytiley=woot";
+    setAndFlush(controller, "raytiley", "woot");
 
     expectedPushURL = "/foo";
     Ember.run(Ember.$("#foo-link"), "click");
 
-    expectedPushURL = "/bar?raytiley=isanerd";
+    expectedPushURL = "/bar?raytiley=isthebest";
     Ember.run(Ember.$("#bar-link"), "click");
   });
 
@@ -59797,116 +59700,248 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
   
 
 });
-enifed("htmlbars-test-helpers",
-  ["exports"],
-  function(__exports__) {
-    "use strict";
-    function equalInnerHTML(fragment, html) {
-      var actualHTML = normalizeInnerHTML(fragment.innerHTML);
-      QUnit.push(actualHTML === html, actualHTML, html);
+enifed('ember/tests/routing/toplevel_dom_test', ['ember', 'ember-htmlbars/compat'], function (__dep0__, EmberHandlebars) {
+
+  'use strict';
+
+  var compile = EmberHandlebars['default'].compile;
+
+  var Router, App, templates, router, container;
+
+  function bootApplication() {
+    for (var name in templates) {
+      Ember.TEMPLATES[name] = compile(templates[name]);
     }
+    router = container.lookup("router:main");
+    Ember.run(App, "advanceReadiness");
+  }
 
-    __exports__.equalInnerHTML = equalInnerHTML;function equalHTML(node, html) {
-      var fragment;
-      if (!node.nodeType && node.length) {
-        fragment = document.createDocumentFragment();
-        while (node[0]) {
-          fragment.appendChild(node[0]);
-        }
-      } else {
-        fragment = node;
-      }
-
-      var div = document.createElement("div");
-      div.appendChild(fragment.cloneNode(true));
-
-      equalInnerHTML(div, html);
-    }
-
-    __exports__.equalHTML = equalHTML;// detect weird IE8 html strings
-    var ie8InnerHTMLTestElement = document.createElement('div');
-    ie8InnerHTMLTestElement.setAttribute('id', 'womp');
-    var ie8InnerHTML = (ie8InnerHTMLTestElement.outerHTML.indexOf('id=womp') > -1);
-
-    // detect side-effects of cloning svg elements in IE9-11
-    var ieSVGInnerHTML = (function () {
-      if (!document.createElementNS) {
-        return false;
-      }
-      var div = document.createElement('div');
-      var node = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      div.appendChild(node);
-      var clone = div.cloneNode(true);
-      return clone.innerHTML === '<svg xmlns="http://www.w3.org/2000/svg" />';
-    })();
-
-    function normalizeInnerHTML(actualHTML) {
-      if (ie8InnerHTML) {
-        // drop newlines in IE8
-        actualHTML = actualHTML.replace(/\r\n/gm, '');
-        // downcase ALLCAPS tags in IE8
-        actualHTML = actualHTML.replace(/<\/?[A-Z\-]+/gi, function(tag){
-          return tag.toLowerCase();
-        });
-        // quote ids in IE8
-        actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function(match, id){
-          return 'id="'+id+'"';
-        });
-        // IE8 adds ':' to some tags
-        // <keygen> becomes <:keygen>
-        actualHTML = actualHTML.replace(/<(\/?):([^ >]+)/gi, function(match, slash, tag){
-          return '<'+slash+tag;
+  QUnit.module("Top Level DOM Structure", {
+    setup: function () {
+      Ember.run(function () {
+        App = Ember.Application.create({
+          name: "App",
+          rootElement: "#qunit-fixture"
         });
 
-        // Normalize the style attribute
-        actualHTML = actualHTML.replace(/style="(.+?)"/gi, function(match, val){
-          return 'style="'+val.toLowerCase()+';"';
+        App.deferReadiness();
+
+        App.Router.reopen({
+          location: "none"
         });
 
-      }
-      if (ieSVGInnerHTML) {
-        // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
-        // drop namespace attribute
-        actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, '');
-        // replace self-closing elements
-        actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function(tag, tagName) {
-          return tag.slice(0, tag.length - 3) + '></' + tagName + '>';
-        });
-      }
+        Router = App.Router;
 
-      return actualHTML;
-    }
+        container = App.__container__;
 
-    __exports__.normalizeInnerHTML = normalizeInnerHTML;// detect weird IE8 checked element string
-    var checkedInput = document.createElement('input');
-    checkedInput.setAttribute('checked', 'checked');
-    var checkedInputString = checkedInput.outerHTML;
-    function isCheckedInputHTML(element) {
-      equal(element.outerHTML, checkedInputString);
-    }
+        templates = {
+          application: "hello world"
+        };
+      });
+    },
 
-    __exports__.isCheckedInputHTML = isCheckedInputHTML;// check which property has the node's text content
-    var textProperty = document.createElement('div').textContent === undefined ? 'innerText' : 'textContent';
-    function getTextContent(el) {
-      // textNode
-      if (el.nodeType === 3) {
-        return el.nodeValue;
-      } else {
-        return el[textProperty];
-      }
-    }
+    teardown: function () {
+      Ember.run(function () {
+        App.destroy();
+        App = null;
 
-    __exports__.getTextContent = getTextContent;// IE8 does not have Object.create, so use a polyfill if needed.
-    // Polyfill based on Mozilla's (MDN)
-    function createObject(obj) {
-      if (typeof Object.create === 'function') {
-        return Object.create(obj);
-      } else {
-        var Temp = function() {};
-        Temp.prototype = obj;
-        return new Temp();
-      }
+        Ember.TEMPLATES = {};
+      });
+
+      Ember.NoneLocation.reopen({
+        path: ""
+      });
     }
-    __exports__.createObject = createObject;
   });
+
+  QUnit.test("Topmost template always get an element", function () {
+    bootApplication();
+    equal(Ember.$("#qunit-fixture > .ember-view").text(), "hello world");
+  });
+
+  QUnit.test("If topmost view has its own element, it doesn't get wrapped in a higher element", function () {
+    App.registry.register("view:application", Ember.View.extend({
+      classNames: ["im-special"]
+    }));
+    bootApplication();
+    equal(Ember.$("#qunit-fixture > .im-special").text(), "hello world");
+  });
+
+});
+enifed('htmlbars-test-helpers', ['exports', '../simple-html-tokenizer', '../htmlbars-util/array-utils'], function (exports, simple_html_tokenizer, array_utils) {
+
+  'use strict';
+
+  exports.equalInnerHTML = equalInnerHTML;
+  exports.equalHTML = equalHTML;
+  exports.equalTokens = equalTokens;
+  exports.normalizeInnerHTML = normalizeInnerHTML;
+  exports.isCheckedInputHTML = isCheckedInputHTML;
+  exports.getTextContent = getTextContent;
+  exports.createObject = createObject;
+
+  function equalInnerHTML(fragment, html) {
+    var actualHTML = normalizeInnerHTML(fragment.innerHTML);
+    QUnit.push(actualHTML === html, actualHTML, html);
+  }
+
+  function equalHTML(node, html) {
+    var fragment;
+    if (!node.nodeType && node.length) {
+      fragment = document.createDocumentFragment();
+      while (node[0]) {
+        fragment.appendChild(node[0]);
+      }
+    } else {
+      fragment = node;
+    }
+
+    var div = document.createElement("div");
+    div.appendChild(fragment.cloneNode(true));
+
+    equalInnerHTML(div, html);
+  }
+
+  // IE8 removes comments and does other unspeakable things with innerHTML
+  var ie8GenerateTokensNeeded = (function () {
+    var div = document.createElement("div");
+    div.innerHTML = "<!-- foobar -->";
+    return div.innerHTML === "";
+  })();
+
+  function generateTokens(fragmentOrHtml) {
+    var div = document.createElement("div");
+    if (typeof fragmentOrHtml === "string") {
+      div.innerHTML = fragmentOrHtml;
+    } else {
+      div.appendChild(fragmentOrHtml.cloneNode(true));
+    }
+    if (ie8GenerateTokensNeeded) {
+      // IE8 drops comments and does other unspeakable things on `innerHTML`.
+      // So in that case we do it to both the expected and actual so that they match.
+      var div2 = document.createElement("div");
+      div2.innerHTML = div.innerHTML;
+      div.innerHTML = div2.innerHTML;
+    }
+    return { tokens: simple_html_tokenizer.tokenize(div.innerHTML), html: div.innerHTML };
+  }
+  function equalTokens(fragment, html, message) {
+    if (fragment.fragment) {
+      fragment = fragment.fragment;
+    }
+    if (html.fragment) {
+      html = html.fragment;
+    }
+
+    var fragTokens = generateTokens(fragment);
+    var htmlTokens = generateTokens(html);
+
+    function normalizeTokens(token) {
+      if (token.type === "StartTag") {
+        token.attributes = token.attributes.sort(function (a, b) {
+          if (a.name > b.name) {
+            return 1;
+          }
+          if (a.name < b.name) {
+            return -1;
+          }
+          return 0;
+        });
+      }
+    }
+
+    array_utils.forEach(fragTokens.tokens, normalizeTokens);
+    array_utils.forEach(htmlTokens.tokens, normalizeTokens);
+
+    var msg = "Expected: " + html + "; Actual: " + fragTokens.html;
+
+    if (message) {
+      msg += " (" + message + ")";
+    }
+
+    deepEqual(fragTokens.tokens, htmlTokens.tokens, msg);
+  }
+
+  // detect weird IE8 html strings
+  var ie8InnerHTMLTestElement = document.createElement("div");
+  ie8InnerHTMLTestElement.setAttribute("id", "womp");
+  var ie8InnerHTML = ie8InnerHTMLTestElement.outerHTML.indexOf("id=womp") > -1;
+
+  // detect side-effects of cloning svg elements in IE9-11
+  var ieSVGInnerHTML = (function () {
+    if (!document.createElementNS) {
+      return false;
+    }
+    var div = document.createElement("div");
+    var node = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    div.appendChild(node);
+    var clone = div.cloneNode(true);
+    return clone.innerHTML === "<svg xmlns=\"http://www.w3.org/2000/svg\" />";
+  })();
+  function normalizeInnerHTML(actualHTML) {
+    if (ie8InnerHTML) {
+      // drop newlines in IE8
+      actualHTML = actualHTML.replace(/\r\n/gm, "");
+      // downcase ALLCAPS tags in IE8
+      actualHTML = actualHTML.replace(/<\/?[A-Z\-]+/gi, function (tag) {
+        return tag.toLowerCase();
+      });
+      // quote ids in IE8
+      actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function (match, id) {
+        return "id=\"" + id + "\"";
+      });
+      // IE8 adds ':' to some tags
+      // <keygen> becomes <:keygen>
+      actualHTML = actualHTML.replace(/<(\/?):([^ >]+)/gi, function (match, slash, tag) {
+        return "<" + slash + tag;
+      });
+
+      // Normalize the style attribute
+      actualHTML = actualHTML.replace(/style="(.+?)"/gi, function (match, val) {
+        return "style=\"" + val.toLowerCase() + ";\"";
+      });
+    }
+    if (ieSVGInnerHTML) {
+      // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
+      // drop namespace attribute
+      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, "");
+      // replace self-closing elements
+      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
+        return tag.slice(0, tag.length - 3) + "></" + tagName + ">";
+      });
+    }
+
+    return actualHTML;
+  }
+
+  // detect weird IE8 checked element string
+  var checkedInput = document.createElement("input");
+  checkedInput.setAttribute("checked", "checked");
+  var checkedInputString = checkedInput.outerHTML;
+  function isCheckedInputHTML(element) {
+    equal(element.outerHTML, checkedInputString);
+  }
+
+  // check which property has the node's text content
+  var textProperty = document.createElement("div").textContent === undefined ? "innerText" : "textContent";
+  function getTextContent(el) {
+    // textNode
+    if (el.nodeType === 3) {
+      return el.nodeValue;
+    } else {
+      return el[textProperty];
+    }
+  }
+
+  function createObject(obj) {
+    if (typeof Object.create === "function") {
+      return Object.create(obj);
+    } else {
+      var Temp = function () {};
+      Temp.prototype = obj;
+      return new Temp();
+    }
+  }
+
+});
 })();
