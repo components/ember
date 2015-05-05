@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.984f9a29
+ * @version   1.13.0-beta.1+canary.fd0cb35c
  */
 
 (function() {
@@ -26695,11 +26695,46 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     utils.runAppend(top);
   });
 
-  QUnit.test("should throw an assertion if {{outlet}} used with unquoted name", function () {
-    top.setOutletState(withTemplate("{{outlet foo}}"));
-    expectAssertion(function () {
-      utils.runAppend(top);
-    }, "Using {{outlet}} with an unquoted name is not supported.");
+  QUnit.test("{{outlet}} should work with an unquoted name", function () {
+    var routerState = {
+      render: {
+        controller: Ember.Controller.create({
+          outletName: "magical"
+        }),
+        template: compile['default']("{{outlet outletName}}")
+      },
+      outlets: {
+        magical: withTemplate("It's magic")
+      }
+    };
+
+    top.setOutletState(routerState);
+    utils.runAppend(top);
+
+    equal(top.$().text().trim(), "It's magic");
+  });
+
+  QUnit.test("{{outlet}} should rerender when bound name changes", function () {
+    var routerState = {
+      render: {
+        controller: Ember.Controller.create({
+          outletName: "magical"
+        }),
+        template: compile['default']("{{outlet outletName}}")
+      },
+      outlets: {
+        magical: withTemplate("It's magic"),
+        second: withTemplate("second")
+      }
+    };
+
+    top.setOutletState(routerState);
+    utils.runAppend(top);
+    equal(top.$().text().trim(), "It's magic");
+    run['default'](function () {
+      routerState.render.controller.set("outletName", "second");
+    });
+    equal(top.$().text().trim(), "second");
   });
 
   function withTemplate(string) {
@@ -44433,7 +44468,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.984f9a29", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.fd0cb35c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
