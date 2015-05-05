@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1ca99f98
+ * @version   1.13.0-beta.1+canary.fd0cb35c
  */
 
 (function() {
@@ -13620,39 +13620,6 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['ember-template-compiler/system/co
 
     var output = template.render({}, env, { contextualElement: document.body }).fragment;
     htmlbars_test_helpers.equalHTML(output, "ohai");
-  });
-
-});
-enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (run, EmberView, compile, utils, property_set) {
-
-  'use strict';
-
-  var view;
-
-  QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
-    teardown: function () {
-      utils.runDestroy(view);
-    }
-  });
-
-  QUnit.test('can properly re-render an if/else with attribute morphs', function () {
-    view = EmberView['default'].create({
-      trueClass: 'truthy',
-      falseClass: 'falsey',
-      "switch": true,
-
-      template: compile['default']('{{#if view.switch}}<div class={{view.trueClass}}>Truthy</div>{{else}}<div class={{view.falseClass}}>Falsey</div>{{/if}}')
-    });
-
-    utils.runAppend(view);
-
-    equal(view.$('.truthy').length, 1, 'template block rendered properly');
-
-    run['default'](function () {
-      property_set.set(view, 'switch', false);
-    });
-
-    equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 
 });
@@ -44501,7 +44468,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.1ca99f98", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.fd0cb35c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
