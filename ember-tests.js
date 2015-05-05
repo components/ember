@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8962e36f
+ * @version   1.13.0-beta.1+canary.6f20f6a5
  */
 
 (function() {
@@ -44542,7 +44542,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.8962e36f", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6f20f6a5", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -46231,7 +46231,7 @@ enifed('ember-testing/tests/simple_setup', ['ember-metal/run_loop', 'ember-views
   });
 
 });
-enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry'], function (View, utils, compile, Registry) {
+enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get'], function (View, utils, compile, Registry, run, property_set, property_get) {
 
   'use strict';
 
@@ -46263,6 +46263,37 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', '
     utils.runAppend(view);
 
     equal(view.$().text(), "baz", "value specified in the template is used");
+  });
+
+  QUnit.test("works with undefined attributes", function () {
+    expectDeprecation();
+
+    var childView;
+    registry.register("view:foo", View['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        childView = this;
+      },
+
+      template: compile['default']("{{bar}}")
+    }));
+
+    view = View['default'].extend({
+      container: registry.container(),
+
+      template: compile['default']("{{view \"foo\" bar=undefined}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "", "precond - value is used");
+
+    run['default'](function () {
+      property_set.set(childView, "bar", "stuff");
+    });
+
+    equal(property_get.get(view, "bar"), undefined, "value is updated upstream");
   });
 
 });
