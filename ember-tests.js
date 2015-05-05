@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6f20f6a5
+ * @version   1.13.0-beta.1+canary.984f9a29
  */
 
 (function() {
@@ -14731,11 +14731,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
   });
 
   QUnit.test("a simple mutable binding using `mut` can be converted into an immutable binding", function (assert) {
-    var middle;
+    var middle, bottom;
 
     registry.register("component:middle-mut", Component['default'].extend({
       // no longer mutable
-      layout: compile['default']("{{bottom-mut setMe=attrs.value}}"),
+      layout: compile['default']("{{bottom-mut setMe=(readonly attrs.value)}}"),
 
       didInsertElement: function () {
         middle = this;
@@ -14743,7 +14743,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
     }));
 
     registry.register("component:bottom-mut", Component['default'].extend({
-      layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>")
+      layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>"),
+
+      didInsertElement: function () {
+        bottom = this;
+      }
     }));
 
     view = EmberView['default'].create({
@@ -14761,6 +14765,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
     });
 
     assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
+    assert.strictEqual(bottom.attrs.setMe, 13, "the mutable binding has been converted to an immutable cell");
     assert.strictEqual(view.$("p.bottom").text(), "13");
     assert.strictEqual(view.get("val"), 13, "the set propagated back up");
   });
@@ -14839,6 +14844,46 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
       });
 
       assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
+      assert.strictEqual(view.$("p.bottom").text(), "13");
+      assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+    });
+
+    QUnit.test("a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components", function (assert) {
+      var middle, bottom;
+
+      registry.register("component:middle-mut", Component['default'].extend({
+        // no longer mutable
+        layout: compile['default']("<bottom-mut setMe={{attrs.value}} />"),
+
+        didInsertElement: function () {
+          middle = this;
+        }
+      }));
+
+      registry.register("component:bottom-mut", Component['default'].extend({
+        layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>"),
+
+        didInsertElement: function () {
+          bottom = this;
+        }
+      }));
+
+      view = EmberView['default'].create({
+        container: container,
+        template: compile['default']("<middle-mut value={{mut view.val}} />"),
+        val: 12
+      });
+
+      utils.runAppend(view);
+
+      assert.strictEqual(view.$("p.bottom").text(), "12");
+
+      run['default'](function () {
+        return middle.attrs.value.update(13);
+      });
+
+      assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
+      assert.strictEqual(bottom.attrs.setMe, 13, "the mutable binding has been converted to an immutable cell");
       assert.strictEqual(view.$("p.bottom").text(), "13");
       assert.strictEqual(view.get("val"), 13, "the set propagated back up");
     });
@@ -44542,7 +44587,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6f20f6a5", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.984f9a29", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
