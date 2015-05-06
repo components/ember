@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.b2163fd2
+ * @version   1.13.0-beta.1+canary.d10d66e8
  */
 
 (function() {
@@ -12595,11 +12595,11 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
     utils.runAppend(view);
 
-    equal(view.$("#view-id").text(), "bar", "the views id property is set");
+    equal(view.$("#bar #view-id").text(), "bar", "the views id property is set");
 
     run['default'](view, property_set.set, view, "foo", "baz");
 
-    equal(view.$("#view-id").text(), "bar", "the views id property is not changed");
+    equal(view.$("#bar #view-id").text(), "baz", "the views id property is not changed");
   });
 
 });
@@ -44560,7 +44560,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.b2163fd2", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.d10d66e8", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -46249,7 +46249,7 @@ enifed('ember-testing/tests/simple_setup', ['ember-metal/run_loop', 'ember-views
   });
 
 });
-enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get'], function (View, utils, compile, Registry, run, property_set, property_get) {
+enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/events'], function (View, utils, compile, Registry, run, property_set, property_get, mixin, events) {
 
   'use strict';
 
@@ -46312,6 +46312,38 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', '
     });
 
     equal(property_get.get(view, "bar"), undefined, "value is updated upstream");
+  });
+
+  QUnit.test("an observer on an attribute in the root of the component is fired when attrs are set", function () {
+    expect(2);
+
+    registry.register("view:foo", View['default'].extend({
+      observerFiredCount: 0,
+
+      barObserver: events.on("init", mixin.observer("bar", function () {
+        var count = property_get.get(this, "observerFiredCount");
+
+        property_set.set(this, "observerFiredCount", count + 1);
+      })),
+
+      template: compile['default']("{{view.bar}} - {{view.observerFiredCount}}")
+    }));
+
+    view = View['default'].extend({
+      container: registry.container(),
+      baz: "baz",
+      template: compile['default']("{{view \"foo\" bar=view.baz}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "baz - 1", "observer is fired on initial set");
+
+    run['default'](function () {
+      property_set.set(view, "baz", "qux");
+    });
+
+    equal(view.$().text(), "qux - 2", "observer is fired on update");
   });
 
 });
