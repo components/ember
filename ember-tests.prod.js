@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1ca99f98
+ * @version   1.13.0-beta.1+canary.f29a21bb
  */
 
 (function() {
@@ -13629,7 +13629,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['ember-metal
 
   var view;
 
-  QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
+  QUnit.module('ember-htmlbars: custom morph integration tests', {
     teardown: function () {
       utils.runDestroy(view);
     }
@@ -13642,6 +13642,26 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['ember-metal
       "switch": true,
 
       template: compile['default']('{{#if view.switch}}<div class={{view.trueClass}}>Truthy</div>{{else}}<div class={{view.falseClass}}>Falsey</div>{{/if}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$('.truthy').length, 1, 'template block rendered properly');
+
+    run['default'](function () {
+      property_set.set(view, 'switch', false);
+    });
+
+    equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
+  });
+
+  QUnit.test('can properly re-render an if/else with element morphs', function () {
+    view = EmberView['default'].create({
+      trueClass: 'truthy',
+      falseClass: 'falsey',
+      "switch": true,
+
+      template: compile['default']('{{#if view.switch}}<div class="truthy" {{action view.trueClass}}>Truthy</div>{{else}}<div class="falsey" {{action view.falseClass}}>Falsey</div>{{/if}}')
     });
 
     utils.runAppend(view);
@@ -14144,6 +14164,45 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "In block No Block Param!");
     });
   }
+
+  QUnit.test("static positional parameters", function () {
+    registry.register("template:components/sample-component", compile['default']("{{attrs.name}}{{attrs.age}}"));
+    registry.register("component:sample-component", Component['default'].extend({
+      positionalParams: ["name", "age"]
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{sample-component \"Quint\" 4}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
+  });
+
+  QUnit.test("dynamic positional parameters", function () {
+    registry.register("template:components/sample-component", compile['default']("{{attrs.name}}{{attrs.age}}"));
+    registry.register("component:sample-component", Component['default'].extend({
+      positionalParams: ["name", "age"]
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{sample-component myName myAge}}"),
+      container: container,
+      context: {
+        myName: "Quint",
+        myAge: 4
+      }
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
+    run['default'](function () {
+      Ember.set(view.context, "myName", "Edward");
+      Ember.set(view.context, "myAe", "5");
+    });
+  });
 
 });
 enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
@@ -44501,7 +44560,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.1ca99f98", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.f29a21bb", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1ca99f98
+ * @version   1.13.0-beta.1+canary.f29a21bb
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.1ca99f98
+    @version 1.13.0-beta.1+canary.f29a21bb
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.1ca99f98'
+    @default '1.13.0-beta.1+canary.f29a21bb'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.1ca99f98';
+  Ember.VERSION = '1.13.0-beta.1+canary.f29a21bb';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10388,7 +10388,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.1ca99f98";
+    options.revision = "Ember@1.13.0-beta.1+canary.f29a21bb";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -11290,7 +11290,7 @@ enifed('htmlbars-compiler/template-compiler', ['exports', './fragment-opcode-com
 
   function TemplateCompiler(options) {
     this.options = options || {};
-    this.revision = this.options.revision || 'HTMLBars@v0.13.13';
+    this.revision = this.options.revision || 'HTMLBars@v0.13.15';
     this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler['default']();
     this.fragmentCompiler = new FragmentJavaScriptCompiler['default']();
     this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler['default']();
@@ -11885,10 +11885,10 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
       var path = node[1],
           attrs = node[2],
           templateId = node[3];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, null, attrs);
+      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, [], attrs);
 
       morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.component(morph, env, scope, path, paramsAndHash[1], template.templates[templateId], visitor);
+      env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], template.templates[templateId], visitor);
     }
   });
 
@@ -12337,7 +12337,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     if (redirect) {
       switch (redirect) {
         case "component":
-          env.hooks.component(morph, env, scope, path, hash, template, visitor);break;
+          env.hooks.component(morph, env, scope, path, params, hash, template, visitor);break;
         case "inline":
           env.hooks.inline(morph, env, scope, path, params, hash, visitor);break;
         case "block":
@@ -12600,9 +12600,9 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     return reference;
   }
 
-  function component(morph, env, scope, tagName, attrs, template, visitor) {
+  function component(morph, env, scope, tagName, params, attrs, template, visitor) {
     if (env.hooks.hasHelper(env, scope, tagName)) {
-      return env.hooks.block(morph, env, scope, tagName, [], attrs, template, null, visitor);
+      return env.hooks.block(morph, env, scope, tagName, params, attrs, template, null, visitor);
     }
 
     componentFallback(morph, env, scope, tagName, attrs, template);
@@ -12832,7 +12832,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
 
     var template = {
       isHTMLBars: true,
-      revision: "HTMLBars@1.13.0-beta.1+canary.1ca99f98",
+      revision: "HTMLBars@1.13.0-beta.1+canary.f29a21bb",
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -15028,7 +15028,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
 
       this.elementStack.push(element);
       if (voidMap.hasOwnProperty(tag.tagName) || tag.selfClosing) {
-        tokenHandlers.EndTag.call(this, tag);
+        tokenHandlers.EndTag.call(this, tag, true);
       }
     },
 
@@ -15082,12 +15082,12 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
       }
     },
 
-    EndTag: function (tag) {
+    EndTag: function (tag, selfClosing) {
       var element = this.elementStack.pop();
       var parent = this.currentElement();
       var disableComponentGeneration = this.options.disableComponentGeneration === true;
 
-      validateEndTag(tag, element);
+      validateEndTag(tag, element, selfClosing);
 
       if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
         utils.appendChild(parent, element);
@@ -15101,12 +15101,13 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
 
   };
 
-  function validateEndTag(tag, element) {
+  function validateEndTag(tag, element, selfClosing) {
     var error;
 
-    if (voidMap[tag.tagName] && element.tag === undefined) {
-      // For void elements, we check element.tag is undefined because endTag is called by the startTag token handler in
-      // the normal case, so checking only voidMap[tag.tagName] would lead to an error being thrown on the opening tag.
+    if (voidMap[tag.tagName] && !selfClosing) {
+      // EngTag is also called by StartTag for void and self-closing tags (i.e.
+      // <input> or <br />, so we need to check for that here. Otherwise, we would
+      // throw an error for those cases.
       error = "Invalid end tag " + formatEndTagInfo(tag) + " (void elements cannot have end tags).";
     } else if (element.tag === undefined) {
       error = "Closing tag " + formatEndTagInfo(tag) + " without an open tag.";
