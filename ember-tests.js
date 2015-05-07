@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.56877d07
+ * @version   1.13.0-beta.1+canary.5ff3d02e
  */
 
 (function() {
@@ -8377,6 +8377,28 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     assertText(view, "controller:Trek Glowackicontroller:Geoffrey Grosenbach");
 
     strictEqual(view.childViews[0].get("_arrayController.target"), parentController, "the target property of the child controllers are set correctly");
+  });
+
+  QUnit.test("itemController should not affect the DOM structure", function () {
+    var Controller = EmberController['default'].extend({
+      name: computed.computed.alias("model.name")
+    });
+
+    utils.runDestroy(view);
+
+    registry.register("controller:array", ArrayController['default'].extend());
+
+    view = EmberView['default'].create({
+      container: container,
+      template: templateFor("<div id=\"a\">{{#each view.people itemController=\"person\" as |person|}}{{person.name}}{{/each}}</div>" + "<div id=\"b\">{{#each view.people as |person|}}{{person.name}}{{/each}}</div>"),
+      people: people
+    });
+
+    registry.register("controller:person", Controller);
+
+    utils.runAppend(view);
+
+    equal(view.$("#a").html(), view.$("#b").html());
   });
 
   QUnit.test("itemController specified in template gets a parentController property", function () {
@@ -44812,7 +44834,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.56877d07", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.5ff3d02e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
