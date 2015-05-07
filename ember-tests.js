@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.f5aaa8ba
+ * @version   1.13.0-beta.1+canary.aace1051
  */
 
 (function() {
@@ -12637,6 +12637,34 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
     run['default'](view, property_set.set, view, "foo", "baz");
 
     equal(view.$("#bar #view-id").text(), "baz", "the views id property is not changed");
+  });
+
+  QUnit.test("using a bound view name does not change on view name property changes", function () {
+    registry.register("view:foo", viewClass({
+      elementId: "foo"
+    }));
+
+    registry.register("view:bar", viewClass({
+      elementId: "bar"
+    }));
+
+    view = EmberView['default'].extend({
+      container: container,
+      elementId: "parent",
+      viewName: "foo",
+      template: compile['default']("{{view view.viewName}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#foo").length, 1, "moving from falsey to truthy causes the viewName to be looked up and rendered");
+
+    run['default'](function () {
+      property_set.set(view, "viewName", "bar");
+    });
+
+    equal(view.$("#bar").length, 0, "changing the viewName string after it was initially rendered does not render the new viewName");
+    equal(view.$("#foo").length, 1, "the originally rendered view is still present");
   });
 
 });
@@ -44854,7 +44882,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.f5aaa8ba", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.aace1051", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
