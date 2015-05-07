@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6869d58e
+ * @version   1.13.0-beta.1+canary.72ce6904
  */
 
 (function() {
@@ -1526,7 +1526,11 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
           if (resolvedTemplate) {
             return resolvedTemplate;
           }
-          return fallbackTemplate;
+          if (resolvable.fullNameWithoutType === "application") {
+            return fallbackTemplate;
+          } else {
+            return;
+          }
         }
       });
 
@@ -14521,6 +14525,46 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     // rerender, lifecycle hooks are invoked on all child components.
 
     deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { name: "Tom Dale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+  });
+
+});
+enifed('ember-htmlbars/tests/integration/component_lookup_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (EmberView, Registry, compile, ComponentLookup, utils) {
+
+  'use strict';
+
+  var registry, container, view;
+
+  QUnit.module("component - lookup", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("dashless components should not be found", function () {
+    expect(1);
+
+    registry.register("template:components/dashless", compile['default']("Do not render me!"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{dashless}}"),
+      container: container
+    }).create();
+
+    expectAssertion(function () {
+      utils.runAppend(view);
+    }, /You canot use 'dashless' as a component name. Component names must contain a hyphen./);
   });
 
 });
@@ -44752,7 +44796,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6869d58e", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.72ce6904", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
