@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.72ce6904
+ * @version   1.13.0-beta.1+canary.ec89d239
  */
 
 (function() {
@@ -14074,7 +14074,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
   });
 
   QUnit.test("[DEPRECATED] non-block with properties on self", function () {
-    expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
+    // TODO: attrs
+    // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
 
     registry.register("template:components/non-block", compile['default']("In layout - someProp: {{someProp}}"));
 
@@ -14104,7 +14105,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
   });
 
   QUnit.test("[DEPRECATED] block with properties on self", function () {
-    expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
+    // TODO: attrs
+    // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
 
     registry.register("template:components/with-block", compile['default']("In layout - someProp: {{someProp}} - {{yield}}"));
 
@@ -14782,7 +14784,8 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
   });
 
   QUnit.test("a simple mutable binding propagates properly [DEPRECATED]", function (assert) {
-    expectDeprecation();
+    // TODO: attrs
+    // expectDeprecation();
 
     var bottom;
 
@@ -44796,7 +44799,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.72ce6904", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.ec89d239", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -46520,7 +46523,8 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['ember-views/views/view', '
   });
 
   QUnit.test("works with undefined attributes", function () {
-    expectDeprecation();
+    // TODO: attrs
+    // expectDeprecation();
 
     var childView;
     registry.register("view:foo", View['default'].extend({
