@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.d10d66e8
+ * @version   1.13.0-beta.1+canary.7603ac6d
  */
 
 (function() {
@@ -7607,6 +7607,17 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
 
     equal(view.$("li").length, 3, "rerenders with correct number of items");
     equal(trim(view.$("li:eq(0)").text()), "bing");
+  });
+
+  QUnit.test("itemClassNames adds classes to items", function () {
+    view = EmberView['default'].create({
+      context: { list: native_array.A(["one", "two"]) },
+      template: compile['default']("{{#collection content=list itemClassNames=\"some-class\"}}{{/collection}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$("div > .some-class").length, 2, "should have two items with the class");
   });
 
   QUnit.test("should render nested collections", function () {
@@ -44560,7 +44571,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.d10d66e8", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.7603ac6d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
