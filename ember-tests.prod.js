@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.deb96034
+ * @version   1.13.0-beta.1+canary.a69f48bc
  */
 
 (function() {
@@ -13135,6 +13135,17 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
 
     utils.runAppend(view);
     equal(view.$().text(), "Limbo-Wrath-Treachery-Wrath-Limbo", "should be properly scoped after updating");
+  });
+
+  QUnit.test("{{with}} block should not render if passed variable is falsey", function () {
+    view = EmberView['default'].create({
+      template: compile['default']("{{#with foo as |bar|}}Don't render me{{/with}}"),
+      context: {
+        foo: null
+      }
+    });
+    utils.runAppend(view);
+    equal(view.$().text(), "", "should not render the inner template");
   });
 
 });
@@ -44647,7 +44658,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.deb96034", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.a69f48bc", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
