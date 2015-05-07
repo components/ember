@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.ec89d239
+ * @version   1.13.0-beta.1+canary.deb96034
  */
 
 (function() {
@@ -14217,8 +14217,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
     run['default'](function () {
       Ember.set(view.context, "myName", "Edward");
-      Ember.set(view.context, "myAe", "5");
+      Ember.set(view.context, "myAge", "5");
     });
+
+    equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
   });
 
   
@@ -44645,7 +44647,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.ec89d239", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.deb96034", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
