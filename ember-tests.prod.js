@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.42ae2aeb
+ * @version   1.13.0-beta.1+canary.63675651
  */
 
 (function() {
@@ -44751,7 +44751,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.42ae2aeb", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.63675651", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -52126,7 +52126,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
 
     // Remove render node to avoid "Render node exists without concomitant env"
     // assertion on teardown.
-    view._renderNode = null;
+    view.renderNode = null;
   });
 
   QUnit.test("blacklists href bindings based on protocol", function () {
@@ -52510,7 +52510,7 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['ember-metal/pr
 
     // Remove render node to avoid "Render node exists without concomitant env"
     // assertion on teardown.
-    view._renderNode = null;
+    view.renderNode = null;
   });
 
 });
@@ -52751,7 +52751,7 @@ enifed('ember-views/tests/views/view/create_element_test', ['ember-metal/propert
     }, /You cannot use `classNameBindings` on a tag-less component/);
 
     // Prevent further assertions
-    view._renderNode = null;
+    view.renderNode = null;
   });
 
   QUnit.test("calls render and turns resultant string into element", function () {
@@ -54277,7 +54277,7 @@ enifed('ember-views/tests/views/view/template_test', ['container/registry', 'emb
       });
     }, /Container was not found when looking up a views template./);
 
-    view._renderNode = null;
+    view.renderNode = null;
   });
 
 });
