@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.5ff3d02e
+ * @version   1.13.0-beta.1+canary.60d942f0
  */
 
 (function() {
@@ -14980,6 +14980,26 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
     assert.strictEqual(bottom.attrs.setMe, 13, "the mutable binding has been converted to an immutable cell");
     assert.strictEqual(view.$("p.bottom").text(), "13");
     assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("mutable bindings work inside of yielded content", function (assert) {
+    registry.register("component:middle-mut", Component['default'].extend({
+      layout: compile['default']("{{#bottom-mut}}{{attrs.model.name}}{{/bottom-mut}}")
+    }));
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      layout: compile['default']("<p class=\"bottom\">{{yield}}</p>")
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{middle-mut model=(mut view.model)}}"),
+      model: { name: "Matthew Beale" }
+    });
+
+    utils.runAppend(view);
+
+    assert.strictEqual(view.$("p.bottom").text(), "Matthew Beale");
   });
 
   QUnit.test("a simple mutable binding using `mut` is available in hooks", function (assert) {
@@ -44680,7 +44700,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.5ff3d02e", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.60d942f0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
