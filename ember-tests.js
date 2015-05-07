@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.e921b0df
+ * @version   1.13.0-beta.1+canary.6869d58e
  */
 
 (function() {
@@ -14214,6 +14214,33 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       Ember.set(view.context, "myAe", "5");
     });
   });
+
+  
+    QUnit.test("{{component}} helper works with positional params", function () {
+      registry.register("template:components/sample-component", compile['default']("{{attrs.name}}{{attrs.age}}"));
+      registry.register("component:sample-component", Component['default'].extend({
+        positionalParams: ["name", "age"]
+      }));
+
+      view = EmberView['default'].extend({
+        layout: compile['default']("{{component \"sample-component\" myName myAge}}"),
+        container: container,
+        context: {
+          myName: "Quint",
+          myAge: 4
+        }
+      }).create();
+
+      utils.runAppend(view);
+      equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
+      run['default'](function () {
+        Ember.set(view.context, "myName", "Edward");
+        Ember.set(view.context, "myAge", "5");
+      });
+
+      equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
+    });
+  
 
 });
 enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
@@ -44725,7 +44752,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.e921b0df", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.6869d58e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
