@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.7603ac6d
+ * @version   1.13.0-beta.1+canary.e921b0df
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.7603ac6d
+    @version 1.13.0-beta.1+canary.e921b0df
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.7603ac6d'
+    @default '1.13.0-beta.1+canary.e921b0df'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.7603ac6d';
+  Ember.VERSION = '1.13.0-beta.1+canary.e921b0df';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -7022,7 +7022,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     });
     ```
 
-    In this example, we use Ember.run.bind to bind the setupEditor message to the
+    In this example, we use Ember.run.bind to bind the setupEditor method to the
     context of the App.RichTextEditorComponent and to have the invocation of that
     method be safely handled and executed by the Ember run loop.
 
@@ -10388,7 +10388,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.7603ac6d";
+    options.revision = "Ember@1.13.0-beta.1+canary.e921b0df";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -12832,7 +12832,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
 
     var template = {
       isHTMLBars: true,
-      revision: "HTMLBars@1.13.0-beta.1+canary.7603ac6d",
+      revision: "HTMLBars@1.13.0-beta.1+canary.e921b0df",
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
