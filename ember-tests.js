@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.aace1051
+ * @version   1.13.0-beta.1+canary.63675651
  */
 
 (function() {
@@ -7767,12 +7767,10 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['ember-views/views/colle
   });
 
 });
-enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lookup', 'container/registry', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (ComponentLookup, Registry, EmberView, compile, utils) {
+enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lookup', 'container/registry', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/component'], function (ComponentLookup, Registry, EmberView, compile, utils, run, property_set, property_get, Component) {
 
   'use strict';
 
-  var set = Ember.set;
-  var get = Ember.get;
   var view, registry, container;
 
   
@@ -7807,8 +7805,8 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       equal(view.$().text(), "yippie! Caracas arepas!", "component was looked up and rendered");
 
       Ember.run(function () {
-        set(view, "dynamicComponent", "baz-qux");
-        set(view, "location", "Loisaida");
+        property_set.set(view, "dynamicComponent", "baz-qux");
+        property_set.set(view, "location", "Loisaida");
       });
       equal(view.$().text(), "yummy Loisaida arepas!", "component was updated and re-rendered");
     });
@@ -7867,7 +7865,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       });
 
       utils.runAppend(view);
-      equal(get(componentInstance, "parentView"), view, "component's parentView is the view invoking the helper");
+      equal(property_get.get(componentInstance, "parentView"), view, "component's parentView is the view invoking the helper");
     });
 
     QUnit.test("nested component helpers", function () {
@@ -7887,8 +7885,8 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       equal(view.$().text(), "yippie! Caracas yummy Caracas arepas!", "components were looked up and rendered");
 
       Ember.run(function () {
-        set(view, "dynamicComponent1", "corge-grault");
-        set(view, "location", "Loisaida");
+        property_set.set(view, "dynamicComponent1", "corge-grault");
+        property_set.set(view, "location", "Loisaida");
       });
       equal(view.$().text(), "delicious Loisaida yummy Loisaida arepas!", "components were updated and re-rendered");
     });
@@ -7934,7 +7932,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       equal(view.$().text(), "yippie! Caracas arepas!", "component was looked up and rendered");
 
       Ember.run(function () {
-        set(view, "dynamicComponent", undefined);
+        property_set.set(view, "dynamicComponent", undefined);
       });
 
       equal(view.$().text(), "", "component correctly deals with falsey values set post-render");
@@ -7950,6 +7948,31 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       expectAssertion(function () {
         utils.runAppend(view);
       }, /HTMLBars error: Could not find component named "does-not-exist"./);
+    });
+
+    QUnit.test("component helper properly invalidates hash params inside an {{each}} invocation #11044", function () {
+      registry.register("component:foo-bar", Component['default'].extend({
+        willRender: function () {
+          // store internally available name to ensure that the name available in `this.attrs.name`
+          // matches the template lookup name
+          property_set.set(this, "internalName", this.attrs.name);
+        }
+      }));
+      registry.register("template:components/foo-bar", compile['default']("{{internalName}} - {{attrs.name}}|"));
+
+      view = EmberView['default'].create({
+        container: container,
+        items: [{ name: "Robert" }, { name: "Jacquie" }],
+        template: compile['default']("{{#each view.items as |item|}}{{component \"foo-bar\" name=item.name}}{{/each}}")
+      });
+
+      utils.runAppend(view);
+      equal(view.$().text(), "Robert - Robert|Jacquie - Jacquie|", "component was rendered");
+
+      run['default'](function () {
+        property_set.set(view, "items", [{ name: "Max" }, { name: "James" }]);
+      });
+      equal(view.$().text(), "Max - Max|James - James|", "component was updated and re-rendered");
     });
   
 
@@ -44882,7 +44905,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.aace1051", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.63675651", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
