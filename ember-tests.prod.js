@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.5f4cfbc7
+ * @version   1.13.0-beta.1+canary.7c174d5d
  */
 
 (function() {
@@ -14031,6 +14031,46 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['container/registr
     utils.runAppend(view);
 
     equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
+  });
+
+});
+enifed('ember-htmlbars/tests/integration/component_element_id_test', ['ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (EmberView, system__container, compile, utils, ComponentLookup, Component) {
+
+  'use strict';
+
+  var registry, container, view;
+
+  QUnit.module("ember-htmlbars: component elementId", {
+    setup: function () {
+      registry = new system__container.Registry();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("passing undefined elementId results in a default elementId", function () {
+    registry.register("component:x-foo", Component['default'].extend({
+      tagName: "h1"
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-foo id=somethingUndefined}}")
+    });
+
+    utils.runAppend(view);
+    var foundId = view.$("h1").attr("id");
+    ok(/^ember/.test(foundId), "Has a reasonable id attribute (found id=" + foundId + ").");
   });
 
 });
@@ -44751,7 +44791,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.5f4cfbc7", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.7c174d5d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
