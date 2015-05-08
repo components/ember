@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.7c174d5d
+ * @version   1.13.0-beta.1+canary.0c8ba4fb
  */
 
 (function() {
@@ -14885,7 +14885,7 @@ enifed('ember-htmlbars/tests/integration/globals_integration_test', ['ember-meta
   });
 
 });
-enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (EmberView, Registry, compile, ComponentLookup, Component, utils, run) {
+enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed'], function (EmberView, Registry, compile, ComponentLookup, Component, utils, run, computed) {
 
   'use strict';
 
@@ -15131,6 +15131,41 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
 
     assert.strictEqual(bottom.attrs.setMe.value, 13, "precond - the set took effect");
     assert.strictEqual(view.get("val"), 13, "the set propagated back up");
+  });
+
+  QUnit.test("a mutable binding with a backing computed property and attribute present in the root of the component is updated when the upstream property invalidates #11023", function (assert) {
+    var bottom;
+
+    registry.register("component:bottom-mut", Component['default'].extend({
+      thingy: null,
+
+      didInsertElement: function () {
+        bottom = this;
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      container: container,
+      template: compile['default']("{{bottom-mut thingy=(mut view.val)}}"),
+      baseValue: 12,
+      val: computed.computed("baseValue", function () {
+        return this.get("baseValue");
+      })
+    }).create();
+
+    utils.runAppend(view);
+
+    assert.strictEqual(bottom.attrs.thingy.value, 12, "data propagated");
+
+    run['default'](function () {
+      return view.set("baseValue", 13);
+    });
+    assert.strictEqual(bottom.attrs.thingy.value, 13, "the set took effect");
+
+    run['default'](function () {
+      return view.set("baseValue", 14);
+    });
+    assert.strictEqual(bottom.attrs.thingy.value, 14, "the set took effect");
   });
 
   // jscs:disable validateIndentation
@@ -44945,7 +44980,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.7c174d5d", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.0c8ba4fb", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
