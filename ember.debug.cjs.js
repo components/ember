@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6b4f704d
+ * @version   1.13.0-beta.1+canary.73794599
  */
 
 (function() {
@@ -7655,10 +7655,10 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
         hash.emptyViewClass = hash.emptyView;
       }
 
-      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
-      state.manager = componentNode;
+      var nodeManager = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
+      state.manager = nodeManager;
 
-      componentNode.render(env, hash, visitor);
+      nodeManager.render(env, hash, visitor);
     }
   };
 
@@ -7737,9 +7737,9 @@ enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-htmlbars/
       var options = {
         component: state.viewClass
       };
-      var componentNode = ViewNodeManager['default'].create(renderNode, env, hash, options, parentView, null, null, null);
-      state.manager = componentNode;
-      componentNode.render(env, hash, visitor);
+      var nodeManager = ViewNodeManager['default'].create(renderNode, env, hash, options, parentView, null, null, null);
+      state.manager = nodeManager;
+      nodeManager.render(env, hash, visitor);
     }
   };
 
@@ -8059,7 +8059,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.73794599";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8120,10 +8120,10 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
         Ember.Logger.info("Rendering " + toRender.name + " with " + ViewClass, { fullName: "view:" + toRender.name });
       }
 
-      var componentNode = ViewNodeManager['default'].create(renderNode, env, {}, options, parentView, null, null, template);
-      state.manager = componentNode;
+      var nodeManager = ViewNodeManager['default'].create(renderNode, env, {}, options, parentView, null, null, template);
+      state.manager = nodeManager;
 
-      componentNode.render(env, hash, visitor);
+      nodeManager.render(env, hash, visitor);
     }
   };
 
@@ -8287,10 +8287,10 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
       var parentView = state.parentView;
 
       var options = { component: node.state.viewClassOrInstance, layout: null };
-      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
-      state.manager = componentNode;
+      var nodeManager = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
+      state.manager = nodeManager;
 
-      componentNode.render(env, hash, visitor);
+      nodeManager.render(env, hash, visitor);
     }
   };
 
@@ -8757,7 +8757,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
   exports.createOrUpdateComponent = createOrUpdateComponent;
 
-  function ComponentNode(component, scope, renderNode, block, expectElement) {
+  function ViewNodeManager(component, scope, renderNode, block, expectElement) {
     this.component = component;
     this.scope = scope;
     this.renderNode = renderNode;
@@ -8765,9 +8765,9 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     this.expectElement = expectElement;
   }
 
-  exports['default'] = ComponentNode;
+  exports['default'] = ViewNodeManager;
 
-  ComponentNode.create = function (renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
+  ViewNodeManager.create = function (renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
     Ember['default'].assert("HTMLBars error: Could not find component named \"" + path + "\" (no component or template with that name was found)", function () {
       if (path) {
         return found.component || found.layout;
@@ -8826,7 +8826,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       renderNode.emberView = component;
     }
 
-    Ember['default'].assert("BUG: ComponentNode.create can take a scope or a self, but not both", !(contentScope && found.self));
+    Ember['default'].assert("BUG: ViewNodeManager.create can take a scope or a self, but not both", !(contentScope && found.self));
 
     var results = buildComponentTemplate['default'](componentInfo, attrs, {
       template: contentTemplate,
@@ -8834,10 +8834,10 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       self: found.self
     });
 
-    return new ComponentNode(component, contentScope, renderNode, results.block, results.createdElement);
+    return new ViewNodeManager(component, contentScope, renderNode, results.block, results.createdElement);
   };
 
-  ComponentNode.prototype.render = function (env, attrs, visitor) {
+  ViewNodeManager.prototype.render = function (env, attrs, visitor) {
     var component = this.component;
 
     return instrumentation_support.instrument(component, function () {
@@ -8883,7 +8883,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     }, this);
   };
 
-  ComponentNode.prototype.rerender = function (env, attrs, visitor) {
+  ViewNodeManager.prototype.rerender = function (env, attrs, visitor) {
     var component = this.component;
 
     return instrumentation_support.instrument(component, function () {
@@ -9408,9 +9408,9 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'e
 
     view.env = env;
     view_node_manager.createOrUpdateComponent(view, {}, renderNode, env);
-    var componentNode = new view_node_manager['default'](view, null, renderNode, block, view.tagName !== "");
+    var nodeManager = new view_node_manager['default'](view, null, renderNode, block, view.tagName !== "");
 
-    componentNode.render(env, {});
+    nodeManager.render(env, {});
   }
 
 });
@@ -12860,7 +12860,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.6b4f704d
+    @version 1.13.0-beta.1+canary.73794599
   */
 
   if ('undefined' === typeof Ember) {
@@ -12889,10 +12889,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.6b4f704d'
+    @default '1.13.0-beta.1+canary.73794599'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.6b4f704d';
+  Ember.VERSION = '1.13.0-beta.1+canary.73794599';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20125,14 +20125,14 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
         options.component = view;
       }
 
-      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, state.parentView, null, null, template);
-      state.manager = componentNode;
+      var nodeManager = ViewNodeManager['default'].create(node, env, hash, options, state.parentView, null, null, template);
+      state.manager = nodeManager;
 
       if (router && params.length === 1) {
-        router._connectActiveComponentNode(name, componentNode);
+        router._connectActiveComponentNode(name, nodeManager);
       }
 
-      componentNode.render(env, hash, visitor);
+      nodeManager.render(env, hash, visitor);
     },
 
     rerender: function (node, env, scope, params, hash, template, inverse, visitor) {
@@ -20247,7 +20247,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.73794599";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20721,7 +20721,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.73794599";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35470,7 +35470,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.6b4f704d",
+        revision: "Ember@1.13.0-beta.1+canary.73794599",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39967,7 +39967,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.73794599";
 
   /**
   @module ember
