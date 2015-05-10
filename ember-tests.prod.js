@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.367e5f5c
+ * @version   1.13.0-beta.1+canary.6b4f704d
  */
 
 (function() {
@@ -45285,7 +45285,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.367e5f5c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.6b4f704d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -60637,6 +60637,71 @@ enifed('ember/tests/routing/toplevel_dom_test', ['ember', 'ember-htmlbars/compat
     }));
     bootApplication();
     equal(Ember.$("#qunit-fixture > .im-special").text(), "hello world");
+  });
+
+});
+enifed('ember/tests/view_instrumentation_test', ['ember-htmlbars/compat', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/instrumentation'], function (EmberHandlebars, run, $, instrumentation) {
+
+  'use strict';
+
+  var compile = EmberHandlebars['default'].compile;
+
+  var App, $fixture;
+
+  function setupExample() {
+    // setup templates
+    Ember.TEMPLATES.application = compile("{{outlet}}");
+    Ember.TEMPLATES.index = compile("<h1>Node 1</h1>");
+    Ember.TEMPLATES.posts = compile("<h1>Node 1</h1>");
+
+    App.Router.map(function () {
+      this.route("posts");
+    });
+  }
+
+  function handleURL(path) {
+    var router = App.__container__.lookup("router:main");
+    return run['default'](router, "handleURL", path);
+  }
+
+  QUnit.module("View Instrumentation", {
+    setup: function () {
+      run['default'](function () {
+        App = Ember.Application.create({
+          rootElement: "#qunit-fixture"
+        });
+        App.deferReadiness();
+
+        App.Router.reopen({
+          location: "none"
+        });
+      });
+
+      $fixture = $['default']("#qunit-fixture");
+      setupExample();
+    },
+
+    teardown: function () {
+      run['default'](App, "destroy");
+      App = null;
+      Ember.TEMPLATES = {};
+    }
+  });
+
+  QUnit.test("Nodes without view instances are instrumented", function (assert) {
+    var called = false;
+    var subscriber = instrumentation.subscribe("render", {
+      before: function () {
+        called = true;
+      },
+      after: function () {}
+    });
+    run['default'](App, "advanceReadiness");
+    assert.ok(called, "Instrumentation called on first render");
+    called = false;
+    handleURL("/posts");
+    assert.ok(called, "instrumentation called on transition to non-view backed route");
+    instrumentation.unsubscribe(subscriber);
   });
 
 });

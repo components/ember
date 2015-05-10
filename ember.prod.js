@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.367e5f5c
+ * @version   1.13.0-beta.1+canary.6b4f704d
  */
 
 (function() {
@@ -7297,7 +7297,7 @@ enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime', 'ember-metal/p
   exports['default'] = keywords;
 
 });
-enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/utils', 'ember-views/views/collection_view', 'ember-htmlbars/system/component-node', 'ember-metal/keys', 'ember-metal/merge'], function (exports, utils, CollectionView, ComponentNode, objectKeys, merge) {
+enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/utils', 'ember-views/views/collection_view', 'ember-htmlbars/node-managers/view-node-manager', 'ember-metal/keys', 'ember-metal/merge'], function (exports, utils, CollectionView, ViewNodeManager, objectKeys, merge) {
 
   'use strict';
 
@@ -7345,7 +7345,7 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
         hash.emptyViewClass = hash.emptyView;
       }
 
-      var componentNode = ComponentNode['default'].create(node, env, hash, options, parentView, null, scope, template);
+      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
       state.manager = componentNode;
 
       componentNode.render(env, hash, visitor);
@@ -7404,7 +7404,7 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], fu
   }
 
 });
-enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-htmlbars/system/component-node', 'ember-views/streams/utils', 'ember-metal/streams/utils'], function (exports, ComponentNode, utils, streams__utils) {
+enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-views/streams/utils', 'ember-metal/streams/utils'], function (exports, ViewNodeManager, utils, streams__utils) {
 
   'use strict';
 
@@ -7426,7 +7426,7 @@ enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-htmlbars/
       var options = {
         component: state.viewClass
       };
-      var componentNode = ComponentNode['default'].create(renderNode, env, hash, options, parentView, null, null, null);
+      var componentNode = ViewNodeManager['default'].create(renderNode, env, hash, options, parentView, null, null, null);
       state.manager = componentNode;
       componentNode.render(env, hash, visitor);
     }
@@ -7736,7 +7736,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 
 });
-enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_get', 'ember-htmlbars/system/component-node', 'ember-htmlbars/templates/top-level-view'], function (exports, property_get, ComponentNode, topLevelViewTemplate) {
+enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, property_get, ViewNodeManager, topLevelViewTemplate) {
 
   'use strict';
 
@@ -7745,7 +7745,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -7805,7 +7805,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
       if (LOG_VIEW_LOOKUPS && ViewClass) {
               }
 
-      var componentNode = ComponentNode['default'].create(renderNode, env, {}, options, parentView, null, null, template);
+      var componentNode = ViewNodeManager['default'].create(renderNode, env, {}, options, parentView, null, null, template);
       state.manager = componentNode;
 
       componentNode.render(env, hash, visitor);
@@ -7925,7 +7925,7 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/merge', 'embe
   });
 
 });
-enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 'ember-views/views/view', 'ember-htmlbars/system/component-node', 'ember-metal/keys'], function (exports, utils, EmberView, ComponentNode, objectKeys) {
+enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 'ember-views/views/view', 'ember-htmlbars/node-managers/view-node-manager', 'ember-metal/keys'], function (exports, utils, EmberView, ViewNodeManager, objectKeys) {
 
   'use strict';
 
@@ -7971,7 +7971,7 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
       var parentView = state.parentView;
 
       var options = { component: node.state.viewClassOrInstance, layout: null };
-      var componentNode = ComponentNode['default'].create(node, env, hash, options, parentView, null, scope, template);
+      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
       state.manager = componentNode;
 
       componentNode.render(env, hash, visitor);
@@ -8145,7 +8145,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
   exports['default'] = EmberMorph;
 
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, View, attrs_proxy, getValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, View, attrs_proxy, instrumentation_support, getValue) {
 
   'use strict';
 
@@ -8259,65 +8259,319 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var component = this.component;
     var attrs = this.attrs;
 
-    var newEnv = env;
-    if (component) {
-      newEnv = merge['default']({}, env);
-      newEnv.view = component;
-    }
+    return instrumentation_support.instrument(component, function () {
 
-    if (component) {
-      var snapshot = takeSnapshot(attrs);
-      env.renderer.setAttrs(this.component, snapshot);
-      env.renderer.willCreateElement(component);
-      env.renderer.willRender(component);
-      env.renderedViews.push(component.elementId);
-    }
+      var newEnv = env;
+      if (component) {
+        newEnv = merge['default']({}, env);
+        newEnv.view = component;
+      }
 
-    if (this.block) {
-      this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
-    }
+      if (component) {
+        var snapshot = takeSnapshot(attrs);
+        env.renderer.setAttrs(this.component, snapshot);
+        env.renderer.willCreateElement(component);
+        env.renderer.willRender(component);
+        env.renderedViews.push(component.elementId);
+      }
 
-    if (component) {
-      var element = this.expectElement && this.renderNode.firstNode;
-      env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
-      env.renderer.willInsertElement(component, element);
-      env.lifecycleHooks.push({ type: "didInsertElement", view: component });
-    }
+      if (this.block) {
+        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+      }
+
+      if (component) {
+        var element = this.expectElement && this.renderNode.firstNode;
+        env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
+        env.renderer.willInsertElement(component, element);
+        env.lifecycleHooks.push({ type: "didInsertElement", view: component });
+      }
+    }, this);
   };
 
   ComponentNodeManager.prototype.rerender = function (env, attrs, visitor) {
     var component = this.component;
+    return instrumentation_support.instrument(component, function () {
 
-    var newEnv = env;
-    if (component) {
-      newEnv = merge['default']({}, env);
-      newEnv.view = component;
+      var newEnv = env;
+      if (component) {
+        newEnv = merge['default']({}, env);
+        newEnv.view = component;
 
-      var snapshot = takeSnapshot(attrs);
+        var snapshot = takeSnapshot(attrs);
 
-      // Notify component that it has become dirty and is about to change.
-      env.renderer.willUpdate(component, snapshot);
+        // Notify component that it has become dirty and is about to change.
+        env.renderer.willUpdate(component, snapshot);
 
-      if (component._renderNode.shouldReceiveAttrs) {
-        env.renderer.updateAttrs(component, snapshot);
-        setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
-        component._renderNode.shouldReceiveAttrs = false;
+        if (component._renderNode.shouldReceiveAttrs) {
+          env.renderer.updateAttrs(component, snapshot);
+          setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
+          component._renderNode.shouldReceiveAttrs = false;
+        }
+
+        env.renderer.willRender(component);
+
+        env.renderedViews.push(component.elementId);
       }
 
-      env.renderer.willRender(component);
+      if (this.block) {
+        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+      }
 
-      env.renderedViews.push(component.elementId);
+      if (component) {
+        env.lifecycleHooks.push({ type: "didUpdate", view: component });
+      }
+
+      return newEnv;
+    }, this);
+  };
+  function createOrUpdateComponent(component, options, renderNode, env) {
+    var attrs = arguments[4] === undefined ? {} : arguments[4];
+
+    var snapshot = takeSnapshot(attrs);
+    var props = merge['default']({}, options);
+    var defaultController = View['default'].proto().controller;
+    var hasSuppliedController = ("controller" in attrs);
+
+    props.attrs = snapshot;
+
+    if (component.create) {
+      var proto = component.proto();
+      mergeBindings(props, shadowedAttrs(proto, snapshot));
+      props.container = options.parentView ? options.parentView.container : env.container;
+
+      if (proto.controller !== defaultController || hasSuppliedController) {
+        delete props._context;
+      }
+
+      component = component.create(props);
+    } else {
+      mergeBindings(props, shadowedAttrs(component, snapshot));
+      setProperties['default'](component, props);
     }
 
-    if (this.block) {
-      this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+    if (options.parentView) {
+      options.parentView.appendChild(component);
+
+      if (options.viewName) {
+        property_set.set(options.parentView, options.viewName, component);
+      }
     }
 
-    if (component) {
-      env.lifecycleHooks.push({ type: "didUpdate", view: component });
+    component._renderNode = renderNode;
+    renderNode.emberComponent = component;
+    renderNode.emberView = component;
+    return component;
+  }
+
+  function shadowedAttrs(target, attrs) {
+    var shadowed = {};
+
+    // For backwards compatibility, set the component property
+    // if it has an attr with that name. Undefined attributes
+    // are handled on demand via the `unknownProperty` hook.
+    for (var attr in attrs) {
+      if (attr in target) {
+        // TODO: Should we issue a deprecation here?
+        //Ember.deprecate(deprecation(attr));
+        shadowed[attr] = attrs[attr];
+      }
     }
 
-    return newEnv;
+    return shadowed;
+  }
+
+  function takeSnapshot(attrs) {
+    var hash = {};
+
+    for (var prop in attrs) {
+      hash[prop] = getCellOrValue['default'](attrs[prop]);
+    }
+
+    return hash;
+  }
+
+  function mergeBindings(target, attrs) {
+    for (var prop in attrs) {
+      if (!attrs.hasOwnProperty(prop)) {
+        continue;
+      }
+      // when `attrs` is an actual value being set in the
+      // attrs hash (`{{foo-bar attrs="blah"}}`) we cannot
+      // set `"blah"` to the root of the target because
+      // that would replace all attrs with `attrs.attrs`
+      if (prop === "attrs") {
+                continue;
+      }
+      var value = attrs[prop];
+
+      if (value && value[attrs_proxy.MUTABLE_CELL]) {
+        target[prop] = value.value;
+      } else {
+        target[prop] = value;
+      }
+    }
+
+    return target;
+  }
+
+});
+enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, property_get, property_set, setProperties, View, attrs_proxy, getCellOrValue, SafeString, instrumentation_support, getValue) {
+
+  'use strict';
+
+  exports.createOrUpdateComponent = createOrUpdateComponent;
+
+  function ComponentNode(component, scope, renderNode, block, expectElement) {
+    this.component = component;
+    this.scope = scope;
+    this.renderNode = renderNode;
+    this.block = block;
+    this.expectElement = expectElement;
+  }
+
+  exports['default'] = ComponentNode;
+
+  ComponentNode.create = function (renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
+    
+    var component;
+    var componentInfo = { layout: found.layout };
+
+    if (found.component) {
+      var options = { parentView: parentView };
+
+      if (found.createOptions) {
+        merge['default'](options, found.createOptions);
+      }
+
+      if (attrs && attrs.id) {
+        options.elementId = getValue['default'](attrs.id);
+      }
+      if (attrs && attrs.tagName) {
+        options.tagName = getValue['default'](attrs.tagName);
+      }
+      if (attrs && attrs._defaultTagName) {
+        options._defaultTagName = getValue['default'](attrs._defaultTagName);
+      }
+      if (attrs && attrs.viewName) {
+        options.viewName = getValue['default'](attrs.viewName);
+      }
+
+      if (found.component.create && contentScope && contentScope.self) {
+        options._context = getValue['default'](contentScope.self);
+      }
+
+      if (found.self) {
+        options._context = getValue['default'](found.self);
+      }
+
+      component = componentInfo.component = createOrUpdateComponent(found.component, options, renderNode, env, attrs);
+
+      var layout = property_get.get(component, "layout");
+      if (layout) {
+        componentInfo.layout = layout;
+        if (!contentTemplate) {
+          var template = property_get.get(component, "template");
+          if (template) {
+                        contentTemplate = template.raw;
+          }
+        }
+      } else {
+        componentInfo.layout = property_get.get(component, "template") || componentInfo.layout;
+      }
+
+      renderNode.emberView = component;
+    }
+
+    
+    var results = buildComponentTemplate['default'](componentInfo, attrs, {
+      template: contentTemplate,
+      scope: contentScope,
+      self: found.self
+    });
+
+    return new ComponentNode(component, contentScope, renderNode, results.block, results.createdElement);
+  };
+
+  ComponentNode.prototype.render = function (env, attrs, visitor) {
+    var component = this.component;
+
+    return instrumentation_support.instrument(component, function () {
+
+      var newEnv = env;
+      if (component) {
+        newEnv = merge['default']({}, env);
+        newEnv.view = component;
+      }
+
+      if (component) {
+        var snapshot = takeSnapshot(attrs);
+        env.renderer.setAttrs(this.component, snapshot);
+        env.renderer.willCreateElement(component);
+        env.renderer.willRender(component);
+        env.renderedViews.push(component.elementId);
+      }
+
+      if (this.block) {
+        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+      }
+
+      if (component) {
+        var element = this.expectElement && this.renderNode.firstNode;
+        if (component.render) {
+          var content, node, lastChildIndex;
+          var buffer = [];
+          component.render(buffer);
+          content = buffer.join("");
+          if (element) {
+            lastChildIndex = this.renderNode.childNodes.length - 1;
+            node = this.renderNode.childNodes[lastChildIndex];
+          } else {
+            node = this.renderNode;
+          }
+          node.setContent(new SafeString['default'](content));
+        }
+
+        env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
+        env.renderer.willInsertElement(component, element);
+        env.lifecycleHooks.push({ type: "didInsertElement", view: component });
+      }
+    }, this);
+  };
+
+  ComponentNode.prototype.rerender = function (env, attrs, visitor) {
+    var component = this.component;
+
+    return instrumentation_support.instrument(component, function () {
+      var newEnv = env;
+      if (component) {
+        newEnv = merge['default']({}, env);
+        newEnv.view = component;
+
+        var snapshot = takeSnapshot(attrs);
+
+        // Notify component that it has become dirty and is about to change.
+        env.renderer.willUpdate(component, snapshot);
+
+        if (component._renderNode.shouldReceiveAttrs) {
+          env.renderer.updateAttrs(component, snapshot);
+          setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
+          component._renderNode.shouldReceiveAttrs = false;
+        }
+
+        env.renderer.willRender(component);
+
+        env.renderedViews.push(component.elementId);
+      }
+      if (this.block) {
+        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+      }
+
+      if (component) {
+        env.lifecycleHooks.push({ type: "didUpdate", view: component });
+      }
+
+      return newEnv;
+    }, this);
   };
   function createOrUpdateComponent(component, options, renderNode, env) {
     var attrs = arguments[4] === undefined ? {} : arguments[4];
@@ -8529,251 +8783,6 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
   exports['default'] = bootstrap;
 
 });
-enifed('ember-htmlbars/system/component-node', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'htmlbars-util/safe-string', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, property_get, property_set, setProperties, View, attrs_proxy, getCellOrValue, SafeString, getValue) {
-
-  'use strict';
-
-  exports.createOrUpdateComponent = createOrUpdateComponent;
-
-  function ComponentNode(component, scope, renderNode, block, expectElement) {
-    this.component = component;
-    this.scope = scope;
-    this.renderNode = renderNode;
-    this.block = block;
-    this.expectElement = expectElement;
-  }
-
-  exports['default'] = ComponentNode;
-
-  ComponentNode.create = function (renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
-    
-    var component;
-    var componentInfo = { layout: found.layout };
-
-    if (found.component) {
-      var options = { parentView: parentView };
-
-      if (found.createOptions) {
-        merge['default'](options, found.createOptions);
-      }
-
-      if (attrs && attrs.id) {
-        options.elementId = getValue['default'](attrs.id);
-      }
-      if (attrs && attrs.tagName) {
-        options.tagName = getValue['default'](attrs.tagName);
-      }
-      if (attrs && attrs._defaultTagName) {
-        options._defaultTagName = getValue['default'](attrs._defaultTagName);
-      }
-      if (attrs && attrs.viewName) {
-        options.viewName = getValue['default'](attrs.viewName);
-      }
-
-      if (found.component.create && contentScope && contentScope.self) {
-        options._context = getValue['default'](contentScope.self);
-      }
-
-      if (found.self) {
-        options._context = getValue['default'](found.self);
-      }
-
-      component = componentInfo.component = createOrUpdateComponent(found.component, options, renderNode, env, attrs);
-
-      var layout = property_get.get(component, "layout");
-      if (layout) {
-        componentInfo.layout = layout;
-        if (!contentTemplate) {
-          var template = property_get.get(component, "template");
-          if (template) {
-                        contentTemplate = template.raw;
-          }
-        }
-      } else {
-        componentInfo.layout = property_get.get(component, "template") || componentInfo.layout;
-      }
-
-      renderNode.emberView = component;
-    }
-
-    
-    var results = buildComponentTemplate['default'](componentInfo, attrs, {
-      template: contentTemplate,
-      scope: contentScope,
-      self: found.self
-    });
-
-    return new ComponentNode(component, contentScope, renderNode, results.block, results.createdElement);
-  };
-
-  ComponentNode.prototype.render = function (env, attrs, visitor) {
-    var component = this.component;
-
-    var newEnv = env;
-    if (component) {
-      newEnv = merge['default']({}, env);
-      newEnv.view = component;
-    }
-
-    if (component) {
-      var snapshot = takeSnapshot(attrs);
-      env.renderer.setAttrs(this.component, snapshot);
-      env.renderer.willCreateElement(component);
-      env.renderer.willRender(component);
-      env.renderedViews.push(component.elementId);
-    }
-
-    if (this.block) {
-      this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
-    }
-
-    if (component) {
-      var element = this.expectElement && this.renderNode.firstNode;
-      if (component.render) {
-        var content, node, lastChildIndex;
-        var buffer = [];
-        component.render(buffer);
-        content = buffer.join("");
-        if (element) {
-          lastChildIndex = this.renderNode.childNodes.length - 1;
-          node = this.renderNode.childNodes[lastChildIndex];
-        } else {
-          node = this.renderNode;
-        }
-        node.setContent(new SafeString['default'](content));
-      }
-
-      env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
-      env.renderer.willInsertElement(component, element);
-      env.lifecycleHooks.push({ type: "didInsertElement", view: component });
-    }
-  };
-
-  ComponentNode.prototype.rerender = function (env, attrs, visitor) {
-    var component = this.component;
-
-    var newEnv = env;
-    if (component) {
-      newEnv = merge['default']({}, env);
-      newEnv.view = component;
-
-      var snapshot = takeSnapshot(attrs);
-
-      // Notify component that it has become dirty and is about to change.
-      env.renderer.willUpdate(component, snapshot);
-
-      if (component._renderNode.shouldReceiveAttrs) {
-        env.renderer.updateAttrs(component, snapshot);
-        setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
-        component._renderNode.shouldReceiveAttrs = false;
-      }
-
-      env.renderer.willRender(component);
-
-      env.renderedViews.push(component.elementId);
-    }
-
-    if (this.block) {
-      this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
-    }
-
-    if (component) {
-      env.lifecycleHooks.push({ type: "didUpdate", view: component });
-    }
-
-    return newEnv;
-  };
-  function createOrUpdateComponent(component, options, renderNode, env) {
-    var attrs = arguments[4] === undefined ? {} : arguments[4];
-
-    var snapshot = takeSnapshot(attrs);
-    var props = merge['default']({}, options);
-    var defaultController = View['default'].proto().controller;
-    var hasSuppliedController = ("controller" in attrs);
-
-    props.attrs = snapshot;
-
-    if (component.create) {
-      var proto = component.proto();
-      mergeBindings(props, shadowedAttrs(proto, snapshot));
-      props.container = options.parentView ? options.parentView.container : env.container;
-
-      if (proto.controller !== defaultController || hasSuppliedController) {
-        delete props._context;
-      }
-
-      component = component.create(props);
-    } else {
-      mergeBindings(props, shadowedAttrs(component, snapshot));
-      setProperties['default'](component, props);
-    }
-
-    if (options.parentView) {
-      options.parentView.appendChild(component);
-
-      if (options.viewName) {
-        property_set.set(options.parentView, options.viewName, component);
-      }
-    }
-
-    component._renderNode = renderNode;
-    renderNode.emberComponent = component;
-    renderNode.emberView = component;
-    return component;
-  }
-
-  function shadowedAttrs(target, attrs) {
-    var shadowed = {};
-
-    // For backwards compatibility, set the component property
-    // if it has an attr with that name. Undefined attributes
-    // are handled on demand via the `unknownProperty` hook.
-    for (var attr in attrs) {
-      if (attr in target) {
-        // TODO: Should we issue a deprecation here?
-        //Ember.deprecate(deprecation(attr));
-        shadowed[attr] = attrs[attr];
-      }
-    }
-
-    return shadowed;
-  }
-
-  function takeSnapshot(attrs) {
-    var hash = {};
-
-    for (var prop in attrs) {
-      hash[prop] = getCellOrValue['default'](attrs[prop]);
-    }
-
-    return hash;
-  }
-
-  function mergeBindings(target, attrs) {
-    for (var prop in attrs) {
-      if (!attrs.hasOwnProperty(prop)) {
-        continue;
-      }
-      // when `attrs` is an actual value being set in the
-      // attrs hash (`{{foo-bar attrs="blah"}}`) we cannot
-      // set `"blah"` to the root of the target because
-      // that would replace all attrs with `attrs.attrs`
-      if (prop === "attrs") {
-                continue;
-      }
-      var value = attrs[prop];
-
-      if (value && value[attrs_proxy.MUTABLE_CELL]) {
-        target[prop] = value.value;
-      } else {
-        target[prop] = value;
-      }
-    }
-
-    return target;
-  }
-
-});
 enifed('ember-htmlbars/system/dom-helper', ['exports', 'dom-helper', 'ember-htmlbars/morphs/morph', 'ember-htmlbars/morphs/attr-morph', 'ember-metal/platform/create'], function (exports, DOMHelper, EmberMorph, EmberAttrMorph, o_create) {
 
   'use strict';
@@ -8810,6 +8819,50 @@ enifed('ember-htmlbars/system/helper', ['exports'], function (exports) {
   }
 
   exports['default'] = Helper;
+
+});
+enifed('ember-htmlbars/system/instrumentation-support', ['exports', 'ember-metal/instrumentation'], function (exports, instrumentation) {
+
+  'use strict';
+
+  exports.instrument = instrument;
+
+  /**
+   * Provides instrumentation for node managers.
+   *
+   * Wrap your node manager's render and re-render methods
+   * with this function.
+   *
+   * @param {Object} component Component or View instance (optional)
+   * @param {Function} callback The function to instrument
+   * @param {Object} context The context to call the function with
+   * @return {Object} Return value from the invoked callback
+   */
+  function instrument(component, callback, context) {
+    var instrumentName, val, details, end;
+    // Only instrument if there's at least one subscriber.
+    if (instrumentation.subscribers.length) {
+      if (component) {
+        instrumentName = component.instrumentName;
+      } else {
+        instrumentName = 'node';
+      }
+      details = {};
+      if (component) {
+        component.instrumentDetails(details);
+      }
+      end = instrumentation._instrumentStart('render.' + instrumentName, function viewInstrumentDetails() {
+        return details;
+      });
+      val = callback.call(context);
+      if (end) {
+        end();
+      }
+      return val;
+    } else {
+      return callback.call(context);
+    }
+  }
 
 });
 enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'ember-metal/cache', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/compat/helper'], function (exports, Ember, Cache, makeViewHelper, HandlebarsCompatibleHelper) {
@@ -8981,7 +9034,7 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-htmlbars/sy
   }
 
 });
-enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'ember-htmlbars/system/component-node'], function (exports, defaultEnv, component_node) {
+enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, defaultEnv, view_node_manager) {
 
   'use strict';
 
@@ -9004,8 +9057,8 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'e
     };
 
     view.env = env;
-    component_node.createOrUpdateComponent(view, {}, renderNode, env);
-    var componentNode = new component_node['default'](view, null, renderNode, block, view.tagName !== "");
+    view_node_manager.createOrUpdateComponent(view, {}, renderNode, env);
+    var componentNode = new view_node_manager['default'](view, null, renderNode, block, view.tagName !== "");
 
     componentNode.render(env, {});
   }
@@ -9958,7 +10011,7 @@ enifed('ember-metal-views', ['exports', 'ember-metal-views/renderer'], function 
 	exports.Renderer = Renderer['default'];
 
 });
-enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/instrumentation', 'ember-views/system/build-component-template', 'ember-metal/enumerable_utils'], function (exports, run, property_get, property_set, instrumentation, buildComponentTemplate, enumerable_utils) {
+enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/build-component-template', 'ember-metal/enumerable_utils'], function (exports, run, property_get, property_set, buildComponentTemplate, enumerable_utils) {
 
   'use strict';
 
@@ -10066,15 +10119,8 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     this.prerenderTopLevelView(view, morph);
   };
 
-  Renderer.prototype.willCreateElement = function (view) {
-    if (instrumentation.subscribers.length && view.instrumentDetails) {
-      view._instrumentEnd = instrumentation._instrumentStart("render." + view.instrumentName, function viewInstrumentDetails() {
-        var details = {};
-        view.instrumentDetails(details);
-        return details;
-      });
-    }
-  }; // inBuffer
+  // inBuffer
+  Renderer.prototype.willCreateElement = function () {};
 
   Renderer.prototype.didCreateElement = function (view, element) {
     if (element) {
@@ -10083,9 +10129,6 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
 
     if (view._transitionTo) {
       view._transitionTo("hasElement");
-    }
-    if (view._instrumentEnd) {
-      view._instrumentEnd();
     }
   }; // hasElement
 
@@ -10162,7 +10205,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     }
   };
 
-  Renderer.prototype.willRemoveElement = function (view) {};
+  Renderer.prototype.willRemoveElement = function () {};
 
   Renderer.prototype.willDestroyElement = function (view) {
     if (view._willDestroyElement) {
@@ -10203,6 +10246,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   }; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
 
   exports['default'] = Renderer;
+  /*view*/ /*view*/
 
 });
 enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/enumerable_utils', 'ember-metal/cache', 'ember-metal/platform/define_property', 'ember-metal/platform/create', 'ember-metal/array', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/keys', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, Ember, merge, instrumentation, utils, EmberError, EnumerableUtils, Cache, define_property, create, array, Logger, property_get, events, ObserverSet, property_events, properties, property_set, map, getProperties, setProperties, watch_key, chains, watch_path, watching, expandProperties, computed, alias, computed_macros, observer, mixin, binding, run, Libraries, isNone, isEmpty, isBlank, isPresent, keys, Backburner, streams__utils, Stream) {
@@ -12451,7 +12495,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.367e5f5c
+    @version 1.13.0-beta.1+canary.6b4f704d
   */
 
   if ('undefined' === typeof Ember) {
@@ -12480,10 +12524,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.367e5f5c'
+    @default '1.13.0-beta.1+canary.6b4f704d'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.367e5f5c';
+  Ember.VERSION = '1.13.0-beta.1+canary.6b4f704d';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19442,7 +19486,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
   */
 
 });
-enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/platform/create', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/system/component-node'], function (exports, Ember, property_get, EmberError, create, utils, string, generateController, ComponentNode) {
+enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/platform/create', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, Ember, property_get, EmberError, create, utils, string, generateController, ViewNodeManager) {
 
   'use strict';
 
@@ -19577,7 +19621,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
         options.component = view;
       }
 
-      var componentNode = ComponentNode['default'].create(node, env, hash, options, state.parentView, null, null, template);
+      var componentNode = ViewNodeManager['default'].create(node, env, hash, options, state.parentView, null, null, template);
       state.manager = componentNode;
 
       if (router && params.length === 1) {
@@ -19699,7 +19743,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20169,7 +20213,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -34822,7 +34866,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.367e5f5c",
+        revision: "Ember@1.13.0-beta.1+canary.6b4f704d",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38089,7 +38133,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6b4f704d";
 
   /**
   @module ember
