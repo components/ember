@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8fe0caa2
+ * @version   1.13.0-beta.1+canary.24e42ced
  */
 
 (function() {
@@ -25715,12 +25715,334 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-metal/core', 'ember-meta
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, action, each, utils) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-runtime/tests/utils'], function (run, compile, EmberComponent, utils) {
+
+  'use strict';
+
+  var innerComponent, outerComponent;
+
+  if (Ember.FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+
+    QUnit.module("ember-routing-htmlbars: action helper", {
+      setup: function () {},
+
+      teardown: function () {
+        utils.runDestroy(innerComponent);
+        utils.runDestroy(outerComponent);
+      }
+    });
+
+    QUnit.test("action should be called", function (assert) {
+      assert.expect(1);
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("{{view innerComponent submit=(action outerSubmit)}}"),
+        innerComponent: innerComponent,
+        outerSubmit: function () {
+          assert.ok(true, "action is called");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("action value is returned", function (assert) {
+      assert.expect(1);
+
+      var returnedValue = "terrible tom";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          var actualReturnedValue = this.attrs.submit();
+          assert.equal(actualReturnedValue, returnedValue, "action can return to caller");
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("{{view innerComponent submit=(action outerSubmit)}}"),
+        innerComponent: innerComponent,
+        outerSubmit: function () {
+          return returnedValue;
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("action should be called on the correct scope", function (assert) {
+      assert.expect(1);
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("{{view innerComponent submit=(action outerSubmit)}}"),
+        innerComponent: innerComponent,
+        isOuterComponent: true,
+        outerSubmit: function () {
+          assert.ok(this.isOuterComponent, "action has the correct context");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("arguments to action are passed, curry", function (assert) {
+      assert.expect(4);
+
+      var first = "mitch";
+      var second = "martin";
+      var third = "matt";
+      var fourth = "wacky wycats";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit(fourth);
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        third: third,
+        layout: compile['default']("\n        {{view innerComponent submit=(action (action outerSubmit \"" + first + "\") \"" + second + "\" third)}}\n      "),
+        innerComponent: innerComponent,
+        outerSubmit: function (actualFirst, actualSecond, actualThird, actualFourth) {
+          assert.equal(actualFirst, first, "action has the correct first arg");
+          assert.equal(actualSecond, second, "action has the correct second arg");
+          assert.equal(actualThird, third, "action has the correct third arg");
+          assert.equal(actualFourth, fourth, "action has the correct fourth arg");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("arguments to action are bound", function (assert) {
+      assert.expect(1);
+
+      var value = "lazy leah";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action outerSubmit value)}}\n      "),
+        innerComponent: innerComponent,
+        value: "",
+        outerSubmit: function (actualValue) {
+          assert.equal(actualValue, value, "action has the correct first arg");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        outerComponent.set("value", value);
+      });
+
+      innerComponent.fireAction();
+    });
+
+    QUnit.test("mut values can be wrapped in actions, are settable", function (assert) {
+      assert.expect(1);
+
+      var newValue = "trollin trek";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit(newValue);
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action (mut outerMut))}}\n      "),
+        innerComponent: innerComponent,
+        outerMut: "patient peter"
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+        assert.equal(outerComponent.get("outerMut"), newValue, "mut value is set");
+      });
+    });
+
+    QUnit.test("mut values can be wrapped in actions, are settable with a curry", function (assert) {
+      assert.expect(1);
+
+      var newValue = "trollin trek";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action (mut outerMut) '" + newValue + "')}}\n      "),
+        innerComponent: innerComponent,
+        outerMut: "patient peter"
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+        assert.equal(outerComponent.get("outerMut"), newValue, "mut value is set");
+      });
+    });
+
+    QUnit.test("action can create closures over sendAction", function (assert) {
+      assert.expect(2);
+
+      var first = "raging robert";
+      var second = "mild machty";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit(second);
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action 'outerAction' '" + first + "')}}\n      "),
+        innerComponent: innerComponent,
+        actions: {
+          outerAction: function (actualFirst, actualSecond) {
+            assert.equal(actualFirst, first, "first argument is correct");
+            assert.equal(actualSecond, second, "second argument is correct");
+          }
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("action can create closures over sendAction with target", function (assert) {
+      assert.expect(1);
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action 'outerAction' target=otherComponent)}}\n      "),
+        innerComponent: innerComponent,
+        otherComponent: EmberComponent['default'].extend({
+          actions: {
+            outerAction: function (actualFirst, actualSecond) {
+              assert.ok(true, "action called on otherComponent");
+            }
+          }
+        }).create()
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("action will read the value of a first property", function (assert) {
+      assert.expect(1);
+
+      var newValue = "irate igor";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit({
+            readProp: newValue
+          });
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action outerAction value=\"readProp\")}}\n      "),
+        innerComponent: innerComponent,
+        outerAction: function (actualNewValue) {
+          assert.equal(actualNewValue, newValue, "property is read");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+
+    QUnit.test("action will read the value of a curried first argument property", function (assert) {
+      assert.expect(1);
+
+      var newValue = "kissing kris";
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit();
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action outerAction objectArgument value=\"readProp\")}}\n      "),
+        innerComponent: innerComponent,
+        objectArgument: {
+          readProp: newValue
+        },
+        outerAction: function (actualNewValue) {
+          assert.equal(actualNewValue, newValue, "property is read");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
+  }
+
+});
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, element_action, each, utils) {
 
   'use strict';
 
   var dispatcher, view;
-  var originalRegisterAction = action.ActionHelper.registerAction;
+  var originalRegisterAction = element_action.ActionHelper.registerAction;
 
   QUnit.module("ember-routing-htmlbars: action helper", {
     setup: function () {
@@ -25732,7 +26054,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
       utils.runDestroy(view);
       utils.runDestroy(dispatcher);
 
-      action.ActionHelper.registerAction = originalRegisterAction;
+      element_action.ActionHelper.registerAction = originalRegisterAction;
     }
   });
 
@@ -25749,7 +26071,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should by default register a click event", function () {
     var registeredEventName;
 
-    action.ActionHelper.registerAction = function (_ref) {
+    element_action.ActionHelper.registerAction = function (_ref) {
       var eventName = _ref.eventName;
 
       registeredEventName = eventName;
@@ -25767,7 +26089,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should allow alternative events to be handled", function () {
     var registeredEventName;
 
-    action.ActionHelper.registerAction = function (_ref2) {
+    element_action.ActionHelper.registerAction = function (_ref2) {
       var eventName = _ref2.eventName;
 
       registeredEventName = eventName;
@@ -25786,7 +26108,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     var registeredTarget;
     var controller = {};
 
-    action.ActionHelper.registerAction = function (_ref3) {
+    element_action.ActionHelper.registerAction = function (_ref3) {
       var node = _ref3.node;
 
       registeredTarget = node.state.target;
@@ -25836,7 +26158,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should target the current controller inside an {{each}} loop [DEPRECATED]", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (_ref4) {
+    element_action.ActionHelper.registerAction = function (_ref4) {
       var node = _ref4.node;
 
       registeredTarget = node.state.target;
@@ -25870,7 +26192,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (_ref5) {
+    element_action.ActionHelper.registerAction = function (_ref5) {
       var node = _ref5.node;
 
       registeredTarget = node.state.target;
@@ -25941,7 +26263,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
   QUnit.test("should allow a target to be specified", function () {
     var registeredTarget;
 
-    action.ActionHelper.registerAction = function (_ref6) {
+    element_action.ActionHelper.registerAction = function (_ref6) {
       var node = _ref6.node;
 
       registeredTarget = node.state.target;
@@ -26365,7 +26687,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
 
     view = EmberView['default'].create({
       controller: controller,
-      template: compile['default']("<a href=\"#\" {{action \"send\" }}>send</a>")
+      template: compile['default']("<a href=\"#\" {{action \"send\"}}>send</a>")
     });
 
     utils.runAppend(view);
@@ -26691,7 +27013,7 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
     deepEqual(actionOrder, ["whompWhomp", "sloopyDookie", "biggityBoom"], "action name was looked up properly");
   });
 
-  QUnit.test("a quoteless parameter should resolve actionName, including path", function () {
+  QUnit.test("a quoteless string parameter should resolve actionName, including path", function () {
     expect(4);
     var lastAction;
     var actionOrder = [];
@@ -26739,6 +27061,35 @@ enifed('ember-routing-htmlbars/tests/helpers/action_test', ['ember-metal/core', 
 
     deepEqual(actionOrder, ["whompWhomp", "sloopyDookie", "biggityBoom"], "action name was looked up properly");
   });
+
+  if (Ember['default'].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+
+    QUnit.test("a quoteless function parameter should be called, including arguments", function () {
+      expect(2);
+
+      var arg = "rough ray";
+
+      view = EmberView['default'].create({
+        template: compile['default']("<a {{action submit '" + arg + "'}}></a>")
+      });
+
+      var controller = EmberController['default'].extend({
+        submit: function (actualArg) {
+          ok(true, "submit function called");
+          equal(actualArg, arg, "argument passed");
+        }
+      }).create();
+
+      run['default'](function () {
+        view.set("controller", controller);
+        view.appendTo("#qunit-fixture");
+      });
+
+      run['default'](function () {
+        view.$("a").click();
+      });
+    });
+  }
 
   QUnit.test("a quoteless parameter that does not resolve to a value asserts", function () {
 
@@ -44980,7 +45331,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.8fe0caa2", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.24e42ced", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
