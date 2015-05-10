@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.521673ae
+ * @version   1.13.0-beta.1+canary.367e5f5c
  */
 
 (function() {
@@ -15166,6 +15166,76 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
       return view.set("baseValue", 14);
     });
     assert.strictEqual(bottom.attrs.thingy.value, 14, "the set took effect");
+  });
+
+  QUnit.test("automatic mutable bindings tolerate undefined non-stream inputs", function (assert) {
+    registry.register("template:components/x-outer", compile['default']("{{x-inner model=attrs.nonexistent}}"));
+    registry.register("template:components/x-inner", compile['default']("hello"));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-outer}}")
+    });
+
+    utils.runAppend(view);
+    assert.strictEqual(view.$().text(), "hello");
+  });
+
+  QUnit.test("automatic mutable bindings tolerate constant non-stream inputs", function (assert) {
+    registry.register("template:components/x-outer", compile['default']("{{x-inner model=\"foo\"}}"));
+    registry.register("template:components/x-inner", compile['default']("hello{{attrs.model}}"));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-outer}}")
+    });
+
+    utils.runAppend(view);
+    assert.strictEqual(view.$().text(), "hellofoo");
+  });
+
+  QUnit.test("automatic mutable bindings to undefined non-streams tolerate attempts to set them", function (assert) {
+    var inner;
+
+    registry.register("template:components/x-outer", compile['default']("{{x-inner model=attrs.nonexistent}}"));
+    registry.register("component:x-inner", Component['default'].extend({
+      didInsertElement: function () {
+        inner = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-outer}}")
+    });
+
+    utils.runAppend(view);
+    run['default'](function () {
+      return inner.attrs.model.update(42);
+    });
+    assert.equal(inner.attrs.model.value, 42);
+  });
+
+  QUnit.test("automatic mutable bindings to constant non-streams tolerate attempts to set them", function (assert) {
+    var inner;
+
+    registry.register("template:components/x-outer", compile['default']("{{x-inner model=attrs.x}}"));
+    registry.register("component:x-inner", Component['default'].extend({
+      didInsertElement: function () {
+        inner = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-outer x=\"foo\"}}")
+    });
+
+    utils.runAppend(view);
+    run['default'](function () {
+      return inner.attrs.model.update(42);
+    });
+    assert.equal(inner.attrs.model.value, 42);
   });
 
   // jscs:disable validateIndentation
@@ -45215,7 +45285,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.521673ae", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.367e5f5c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

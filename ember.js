@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.521673ae
+ * @version   1.13.0-beta.1+canary.367e5f5c
  */
 
 (function() {
@@ -7895,7 +7895,7 @@ enifed('ember-htmlbars/keywords/legacy-yield', ['exports', 'ember-metal/streams/
   }
 
 });
-enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/platform/create', 'ember-metal/merge', 'ember-metal/utils', 'ember-metal/streams/proxy-stream', 'ember-views/compat/attrs-proxy', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, create, merge, utils, ProxyStream, attrs_proxy, closure_action) {
+enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/platform/create', 'ember-metal/merge', 'ember-metal/utils', 'ember-metal/streams/proxy-stream', 'ember-metal/streams/utils', 'ember-metal/streams/stream', 'ember-views/compat/attrs-proxy', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, create, merge, utils, ProxyStream, streams__utils, Stream, attrs_proxy, closure_action) {
 
   'use strict';
 
@@ -7926,11 +7926,26 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/platform/create',
   }
 
   function mutParam(read, stream, internal) {
+    if (internal) {
+      if (!streams__utils.isStream(stream)) {
+        (function () {
+          var literal = stream;
+          stream = new Stream['default'](function () {
+            return literal;
+          }, "(literal " + literal + ")");
+          stream.setValue = function (newValue) {
+            literal = newValue;
+            stream.notify();
+          };
+        })();
+      }
+    } else {
+      Ember.assert("You can only pass a path to mut", streams__utils.isStream(stream));
+    }
+
     if (stream[MUTABLE_REFERENCE]) {
       return stream;
     }
-
-    Ember.assert("You can only pass a path to mut", internal || typeof stream.setValue === "function");
 
     return new MutStream(stream);
   }
@@ -8044,7 +8059,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.521673ae";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12801,7 +12816,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.521673ae
+    @version 1.13.0-beta.1+canary.367e5f5c
   */
 
   if ('undefined' === typeof Ember) {
@@ -12830,10 +12845,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.521673ae'
+    @default '1.13.0-beta.1+canary.367e5f5c'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.521673ae';
+  Ember.VERSION = '1.13.0-beta.1+canary.367e5f5c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20188,7 +20203,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.521673ae";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20662,7 +20677,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.521673ae";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35411,7 +35426,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.521673ae",
+        revision: "Ember@1.13.0-beta.1+canary.367e5f5c",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39908,7 +39923,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.521673ae";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.367e5f5c";
 
   /**
   @module ember
