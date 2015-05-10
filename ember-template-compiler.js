@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.dd4e6208
+ * @version   1.13.0-beta.1+canary.3edba576
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.dd4e6208
+    @version 1.13.0-beta.1+canary.3edba576
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.dd4e6208'
+    @default '1.13.0-beta.1+canary.3edba576'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.dd4e6208';
+  Ember.VERSION = '1.13.0-beta.1+canary.3edba576';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10388,9 +10388,16 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.13.0-beta.1+canary.dd4e6208";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
+
+    options.buildMeta = function buildMeta(program) {
+      return {
+        revision: "Ember@1.13.0-beta.1+canary.3edba576",
+        loc: program.loc,
+        moduleName: options.moduleName
+      };
+    };
 
     return options;
   }
@@ -11290,7 +11297,7 @@ enifed('htmlbars-compiler/template-compiler', ['exports', './fragment-opcode-com
 
   function TemplateCompiler(options) {
     this.options = options || {};
-    this.revision = this.options.revision || 'HTMLBars@v0.13.15';
+    this.consumerBuildMeta = this.options.buildMeta || function () {};
     this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler['default']();
     this.fragmentCompiler = new FragmentJavaScriptCompiler['default']();
     this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler['default']();
@@ -11405,9 +11412,19 @@ enifed('htmlbars-compiler/template-compiler', ['exports', './fragment-opcode-com
       return 'child' + index;
     }).join(', ');
 
-    var template = '(function() {\n' + this.getChildTemplateVars(indent + '  ') + indent + '  return {\n' + indent + '    isHTMLBars: true,\n' + indent + '    revision: "' + this.revision + '",\n' + indent + '    arity: ' + blockParams.length + ',\n' + indent + '    cachedFragment: null,\n' + indent + '    hasRendered: false,\n' + indent + '    buildFragment: ' + fragmentProgram + ',\n' + indent + '    buildRenderNodes: ' + hydrationPrograms.createMorphsProgram + ',\n' + indent + '    statements: [\n' + statements + '\n' + indent + '    ],\n' + indent + '    locals: ' + locals + ',\n' + indent + '    templates: [' + templates + ']\n' + indent + '  };\n' + indent + '}())';
+    var template = '(function() {\n' + this.getChildTemplateVars(indent + '  ') + indent + '  return {\n' + this.buildMeta(indent + '    ', program) + indent + '    arity: ' + blockParams.length + ',\n' + indent + '    cachedFragment: null,\n' + indent + '    hasRendered: false,\n' + indent + '    buildFragment: ' + fragmentProgram + ',\n' + indent + '    buildRenderNodes: ' + hydrationPrograms.createMorphsProgram + ',\n' + indent + '    statements: [\n' + statements + '\n' + indent + '    ],\n' + indent + '    locals: ' + locals + ',\n' + indent + '    templates: [' + templates + ']\n' + indent + '  };\n' + indent + '}())';
 
     this.templates.push(template);
+  };
+
+  TemplateCompiler.prototype.buildMeta = function (indent, program) {
+    var meta = this.consumerBuildMeta(program) || {};
+
+    var head = indent + 'meta: ';
+    var stringMeta = JSON.stringify(meta, null, 2).replace(/\n/g, '\n' + indent);
+    var tail = ',\n';
+
+    return head + stringMeta + tail;
   };
 
   TemplateCompiler.prototype.openElement = function (element, i, l, r, c, b) {
@@ -11707,16 +11724,16 @@ enifed('htmlbars-compiler/utils', ['exports'], function (exports) {
   }
 
 });
-enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', 'htmlbars-runtime/expression-visitor'], function (exports, hooks, render, morph_utils, template_utils, expression_visitor) {
+enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', './htmlbars-runtime/expression-visitor', 'htmlbars-runtime/hooks'], function (exports, hooks, render, morph_utils, template_utils, expression_visitor, htmlbars_runtime__hooks) {
 
   'use strict';
 
   var internal = {
     blockFor: template_utils.blockFor,
     manualElement: render.manualElement,
-    hostBlock: hooks.hostBlock,
-    continueBlock: hooks.continueBlock,
-    hostYieldWithShadowTemplate: hooks.hostYieldWithShadowTemplate,
+    hostBlock: htmlbars_runtime__hooks.hostBlock,
+    continueBlock: htmlbars_runtime__hooks.continueBlock,
+    hostYieldWithShadowTemplate: htmlbars_runtime__hooks.hostYieldWithShadowTemplate,
     visitChildren: morph_utils.visitChildren,
     validateChildMorphs: expression_visitor.validateChildMorphs,
     clearMorph: template_utils.clearMorph
@@ -12081,9 +12098,8 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     }
 
     return {
-      isHTMLBars: true,
+      meta: template.meta,
       arity: template.arity,
-      revision: template.revision,
       raw: template,
       render: function (self, env, options, blockArguments) {
         var scope = env.hooks.createFreshScope();
@@ -12107,8 +12123,8 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     var yieldArgs = yieldTemplate(template, env, scope, morph, renderState, visitor);
 
     return {
+      meta: template.meta,
       arity: template.arity,
-      revision: template.revision,
       yield: yieldArgs,
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
       yieldIn: yieldInShadowTemplate(template, env, scope, morph, renderState, visitor),
@@ -12831,8 +12847,6 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
     statements.push(["content", "yield"]);
 
     var template = {
-      isHTMLBars: true,
-      revision: "HTMLBars@1.13.0-beta.1+canary.dd4e6208",
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -13015,7 +13029,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
   }
 
 });
-enifed('htmlbars-syntax', ['exports', './htmlbars-syntax/walker', './htmlbars-syntax/builders', './htmlbars-syntax/parser'], function (exports, Walker, builders, parser) {
+enifed('htmlbars-syntax', ['exports', './htmlbars-syntax/walker', './htmlbars-syntax/builders', './htmlbars-syntax/parser'], function (exports, Walker, builders, parse) {
 
 	'use strict';
 
@@ -13023,7 +13037,7 @@ enifed('htmlbars-syntax', ['exports', './htmlbars-syntax/walker', './htmlbars-sy
 
 	exports.Walker = Walker['default'];
 	exports.builders = builders['default'];
-	exports.parse = parser.preprocess;
+	exports.parse = parse['default'];
 
 });
 enifed('htmlbars-syntax/builders', ['exports'], function (exports) {
@@ -13213,12 +13227,32 @@ enifed('htmlbars-syntax/builders', ['exports'], function (exports) {
     };
   }
 
-  function buildProgram(body, blockParams) {
+  function buildProgram(body, blockParams, loc) {
     return {
       type: "Program",
       body: body || [],
-      blockParams: blockParams || []
+      blockParams: blockParams || [],
+      loc: buildLoc(loc)
     };
+  }
+
+  function buildPosition(line, column) {
+    return {
+      line: line,
+      column: column
+    };
+  }
+
+  function buildLoc(loc) {
+    if (loc) {
+      return {
+        source: loc.source || null,
+        start: buildPosition(loc.start.line, loc.start.column),
+        end: buildPosition(loc.end.line, loc.end.column)
+      };
+    } else {
+      return null;
+    }
   }
 
   exports['default'] = {
@@ -13241,7 +13275,9 @@ enifed('htmlbars-syntax/builders', ['exports'], function (exports) {
     concat: buildConcat,
     hash: buildHash,
     pair: buildPair,
-    program: buildProgram
+    program: buildProgram,
+    loc: buildLoc,
+    pos: buildPosition
   };
 
 });
@@ -14740,7 +14776,7 @@ enifed('htmlbars-syntax/node-handlers', ['exports', './builders', '../htmlbars-u
 
     Program: function (program) {
       var body = [];
-      var node = builders.buildProgram(body, program.blockParams);
+      var node = builders.buildProgram(body, program.blockParams, program.loc);
       var i,
           l = program.body.length;
 
@@ -14932,6 +14968,8 @@ enifed('htmlbars-syntax/parser', ['exports', './handlebars/compiler/base', './to
 
     return combined;
   }
+
+  exports['default'] = preprocess;
 
   function HTMLProcessor(source, options) {
     this.options = options || {};
