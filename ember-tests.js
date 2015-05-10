@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.0b72242c
+ * @version   1.13.0-beta.1+canary.b2c739e4
  */
 
 (function() {
@@ -25715,7 +25715,7 @@ enifed('ember-metal/tests/watching/watch_test', ['ember-metal/core', 'ember-meta
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-runtime/tests/utils'], function (run, compile, EmberComponent, utils) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils'], function (run, compile, EmberComponent, computed, utils) {
 
   'use strict';
 
@@ -25920,15 +25920,17 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       });
     });
 
-    QUnit.test("action can create closures over sendAction", function (assert) {
-      assert.expect(2);
+    QUnit.test("action can create closures over actions", function (assert) {
+      assert.expect(3);
 
       var first = "raging robert";
       var second = "mild machty";
+      var returnValue = "butch brian";
 
       innerComponent = EmberComponent['default'].extend({
         fireAction: function () {
-          this.attrs.submit(second);
+          var actualReturnedValue = this.attrs.submit(second);
+          assert.equal(actualReturnedValue, returnValue, "return value is present");
         }
       }).create();
 
@@ -25939,6 +25941,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
           outerAction: function (actualFirst, actualSecond) {
             assert.equal(actualFirst, first, "first argument is correct");
             assert.equal(actualSecond, second, "second argument is correct");
+            return returnValue;
           }
         }
       }).create();
@@ -25950,7 +25953,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       });
     });
 
-    QUnit.test("action can create closures over sendAction with target", function (assert) {
+    QUnit.test("action can create closures over actions with target", function (assert) {
       assert.expect(1);
 
       innerComponent = EmberComponent['default'].extend({
@@ -25962,13 +25965,15 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       outerComponent = EmberComponent['default'].extend({
         layout: compile['default']("\n        {{view innerComponent submit=(action 'outerAction' target=otherComponent)}}\n      "),
         innerComponent: innerComponent,
-        otherComponent: EmberComponent['default'].extend({
-          actions: {
-            outerAction: function (actualFirst, actualSecond) {
-              assert.ok(true, "action called on otherComponent");
+        otherComponent: computed.computed(function () {
+          return {
+            actions: {
+              outerAction: function (actualFirst, actualSecond) {
+                assert.ok(true, "action called on otherComponent");
+              }
             }
-          }
-        }).create()
+          };
+        })
       }).create();
 
       utils.runAppend(outerComponent);
@@ -25978,7 +25983,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       });
     });
 
-    QUnit.test("value can be used with action over sendAction", function (assert) {
+    QUnit.test("value can be used with action over actions", function (assert) {
       assert.expect(1);
 
       var newValue = "yelping yehuda";
@@ -45364,7 +45369,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.13.0-beta.1+canary.0b72242c", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.13.0-beta.1+canary.b2c739e4", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
