@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.73794599
+ * @version   1.13.0-beta.1+canary.ab9276bc
  */
 
 (function() {
@@ -45285,7 +45285,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.73794599", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.ab9276bc", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -49169,6 +49169,25 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
 
     equal(sendCount, 1, "send was called once");
     equal(actionCounts["addItem"], 1, "addItem event was sent once");
+  });
+
+  QUnit.test("Calling sendAction on a component with a function calls the function", function () {
+    expect(1);
+    property_set.set(component, "action", function () {
+      ok(true, "function is called");
+    });
+
+    component.sendAction();
+  });
+
+  QUnit.test("Calling sendAction on a component with a function calls the function with arguments", function () {
+    expect(1);
+    var argument = {};
+    property_set.set(component, "action", function (actualArgument) {
+      equal(actualArgument, argument, "argument is passed");
+    });
+
+    component.sendAction("action", argument);
   });
 
   QUnit.test("Calling sendAction with a named action uses the component's property as the action name", function () {
