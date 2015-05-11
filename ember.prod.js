@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.fd3d54d0
+ * @version   1.13.0-beta.1+canary.2af0f5cf
  */
 
 (function() {
@@ -7745,7 +7745,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fd3d54d0";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2af0f5cf";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -7938,6 +7938,10 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
     setupState: function (state, env, scope, params, hash) {
       var read = env.hooks.getValue;
       var viewClassOrInstance = state.viewClassOrInstance;
+
+      // if parentView exists, use its controller (the default
+      // behavior), otherwise use `scope.self` as the controller
+      var controller = scope.view ? null : read(scope.self);
       if (!viewClassOrInstance) {
         viewClassOrInstance = getView(read(params[0]), env.container);
       }
@@ -7945,6 +7949,7 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
       return {
         manager: state.manager,
         parentView: scope.view,
+        controller: controller,
         viewClassOrInstance: viewClassOrInstance
       };
     },
@@ -7970,7 +7975,15 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
       var state = node.state;
       var parentView = state.parentView;
 
-      var options = { component: node.state.viewClassOrInstance, layout: null };
+      var options = {
+        component: node.state.viewClassOrInstance,
+        layout: null
+      };
+
+      if (node.state.controller) {
+        options.createOptions = { _controller: node.state.controller };
+      }
+
       var nodeManager = ViewNodeManager['default'].create(node, env, hash, options, parentView, null, scope, template);
       state.manager = nodeManager;
 
@@ -8333,7 +8346,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var hasSuppliedController = ("controller" in attrs);
 
     props.attrs = snapshot;
-
     if (component.create) {
       var proto = component.proto();
       mergeBindings(props, shadowedAttrs(proto, snapshot));
@@ -8439,10 +8451,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     if (found.component) {
       var options = { parentView: parentView };
 
-      if (found.createOptions) {
-        merge['default'](options, found.createOptions);
-      }
-
       if (attrs && attrs.id) {
         options.elementId = getValue['default'](attrs.id);
       }
@@ -8464,7 +8472,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
         options._context = getValue['default'](found.self);
       }
 
-      component = componentInfo.component = createOrUpdateComponent(found.component, options, renderNode, env, attrs);
+      component = componentInfo.component = createOrUpdateComponent(found.component, options, found.createOptions, renderNode, env, attrs);
 
       var layout = property_get.get(component, "layout");
       if (layout) {
@@ -8573,18 +8581,22 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       return newEnv;
     }, this);
   };
-  function createOrUpdateComponent(component, options, renderNode, env) {
-    var attrs = arguments[4] === undefined ? {} : arguments[4];
+  function createOrUpdateComponent(component, options, createOptions, renderNode, env) {
+    var attrs = arguments[5] === undefined ? {} : arguments[5];
 
     var snapshot = takeSnapshot(attrs);
     var props = merge['default']({}, options);
     var defaultController = View['default'].proto().controller;
-    var hasSuppliedController = ("controller" in attrs);
+    var hasSuppliedController = "controller" in attrs || "controller" in props;
 
     props.attrs = snapshot;
-
     if (component.create) {
       var proto = component.proto();
+
+      if (createOptions) {
+        merge['default'](props, createOptions);
+      }
+
       mergeBindings(props, shadowedAttrs(proto, snapshot));
       props.container = options.parentView ? options.parentView.container : env.container;
 
@@ -9057,7 +9069,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'e
     };
 
     view.env = env;
-    view_node_manager.createOrUpdateComponent(view, {}, renderNode, env);
+    view_node_manager.createOrUpdateComponent(view, {}, null, renderNode, env);
     var nodeManager = new view_node_manager['default'](view, null, renderNode, block, view.tagName !== "");
 
     nodeManager.render(env, {});
@@ -12495,7 +12507,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.fd3d54d0
+    @version 1.13.0-beta.1+canary.2af0f5cf
   */
 
   if ('undefined' === typeof Ember) {
@@ -12524,10 +12536,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.fd3d54d0'
+    @default '1.13.0-beta.1+canary.2af0f5cf'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.fd3d54d0';
+  Ember.VERSION = '1.13.0-beta.1+canary.2af0f5cf';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19743,7 +19755,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fd3d54d0";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2af0f5cf";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20213,7 +20225,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fd3d54d0";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2af0f5cf";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -34866,7 +34878,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.fd3d54d0",
+        revision: "Ember@1.13.0-beta.1+canary.2af0f5cf",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38140,7 +38152,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fd3d54d0";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2af0f5cf";
 
   /**
   @module ember

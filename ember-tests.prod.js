@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.fd3d54d0
+ * @version   1.13.0-beta.1+canary.2af0f5cf
  */
 
 (function() {
@@ -45327,7 +45327,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.fd3d54d0", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.2af0f5cf", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58155,6 +58155,81 @@ enifed('ember/tests/homepage_example_test', ['ember', 'ember-htmlbars/compat'], 
     equal($fixture.find("li").length, 2);
     equal($fixture.find("li:nth-of-type(1)").text(), "Hello, Tom Dale!");
     equal($fixture.find("li:nth-of-type(2)").text(), "Hello, Yehuda Katz!");
+  });
+
+});
+enifed('ember/tests/integration/view_test', ['ember-template-compiler/system/compile', 'ember-metal/run_loop'], function (compile, run) {
+
+  'use strict';
+
+  var App, registry;
+
+  function setupExample() {
+    // setup templates
+    Ember.TEMPLATES.application = compile['default']("{{outlet}}", { moduleName: "application" });
+    Ember.TEMPLATES.index = compile['default']("<h1>Node 1</h1>", { moduleName: "index" });
+    Ember.TEMPLATES.posts = compile['default']("<h1>Node 1</h1>", { moduleName: "posts" });
+
+    App.Router.map(function () {
+      this.route("posts");
+    });
+  }
+
+  function handleURL(path) {
+    var router = App.__container__.lookup("router:main");
+    return run['default'](router, "handleURL", path);
+  }
+
+  QUnit.module("View Integration", {
+    setup: function () {
+      run['default'](function () {
+        App = Ember.Application.create({
+          rootElement: "#qunit-fixture"
+        });
+        App.deferReadiness();
+
+        App.Router.reopen({
+          location: "none"
+        });
+
+        registry = App.__container__._registry;
+      });
+
+      setupExample();
+    },
+
+    teardown: function () {
+      run['default'](App, "destroy");
+      App = null;
+      Ember.TEMPLATES = {};
+    }
+  });
+
+  QUnit.test("invoking `{{view}} from a non-view backed (aka only template) template provides the correct controller to the view instance`", function (assert) {
+    var controllerInMyFoo, indexController;
+
+    Ember.TEMPLATES.index = compile['default']("{{view \"my-foo\"}}", { moduleName: "my-foo" });
+
+    registry.register("view:my-foo", Ember.View.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        controllerInMyFoo = this.get("controller");
+      }
+    }));
+
+    registry.register("controller:index", Ember.Controller.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        indexController = this;
+      }
+    }));
+
+    run['default'](App, "advanceReadiness");
+    handleURL("/");
+
+    assert.strictEqual(controllerInMyFoo, indexController, "controller is provided to `{{view}}`");
   });
 
 });
