@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.9ba2dbc2
+ * @version   1.13.0-beta.1+canary.fd3d54d0
  */
 
 (function() {
@@ -14345,6 +14345,48 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     });
 
     equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
+  });
+
+  QUnit.test("moduleName is available on _renderNode when a layout is present", function () {
+    expect(1);
+
+    var layoutModuleName = "my-app-name/templates/components/sample-component";
+    var sampleComponentLayout = compile['default']("Sample Component - {{yield}}", {
+      moduleName: layoutModuleName
+    });
+    registry.register("template:components/sample-component", sampleComponentLayout);
+    registry.register("component:sample-component", Component['default'].extend({
+      didInsertElement: function () {
+        equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{sample-component}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test("moduleName is available on _renderNode when no layout is present", function () {
+    expect(1);
+
+    var templateModuleName = "my-app-name/templates/application";
+    registry.register("component:sample-component", Component['default'].extend({
+      didInsertElement: function () {
+        equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{#sample-component}}Derp{{/sample-component}}", {
+        moduleName: templateModuleName
+      }),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
   });
 
   
@@ -45439,7 +45481,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.9ba2dbc2", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.fd3d54d0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
