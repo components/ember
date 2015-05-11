@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.2af0f5cf
+ * @version   1.13.0-beta.1+canary.fdb5d74f
  */
 
 (function() {
@@ -26184,6 +26184,50 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
         innerComponent.fireAction();
       });
     });
+
+    QUnit.test("action closure does not get auto-mut wrapped", function (assert) {
+      assert.expect(3);
+
+      var first = "raging robert";
+      var second = "mild machty";
+      var returnValue = "butch brian";
+
+      innerComponent = Ember.Component.extend({
+        middleComponent: middleComponent,
+
+        fireAction: function () {
+          var actualReturnedValue = this.attrs.submit(second);
+          assert.equal(actualReturnedValue, returnValue, "return value is present");
+        }
+      }).create();
+
+      var middleComponent = EmberComponent['default'].extend({
+        innerComponent: innerComponent,
+
+        layout: compile['default']("\n        {{view innerComponent submit=attrs.submit}}\n      ")
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        middleComponent: middleComponent,
+
+        layout: compile['default']("\n        {{view middleComponent submit=(action 'outerAction' '" + first + "')}}\n      "),
+
+        actions: {
+          outerAction: function (actualFirst, actualSecond) {
+            assert.equal(actualFirst, first, "first argument is correct");
+            assert.equal(actualSecond, second, "second argument is correct");
+
+            return returnValue;
+          }
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        innerComponent.fireAction();
+      });
+    });
   }
 
 });
@@ -45481,7 +45525,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.2af0f5cf", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.fdb5d74f", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
