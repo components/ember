@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.fdb5d74f
+ * @version   1.13.0-beta.1+canary.44fd58d0
  */
 
 (function() {
@@ -14415,6 +14415,91 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
     });
   
+
+  QUnit.test("yield to inverse", function () {
+    registry.register("template:components/my-if", compile['default']("{{#if predicate}}Yes:{{yield someValue}}{{else}}No:{{yield to=\"inverse\"}}{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{#my-if predicate=activated someValue=42 as |result|}}Hello{{result}}{{else}}Goodbye{{/my-if}}"),
+      container: container,
+      context: {
+        activated: true
+      }
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture").text(), "Yes:Hello42");
+    run['default'](function () {
+      Ember.set(view.context, "activated", false);
+    });
+
+    equal(jQuery['default']("#qunit-fixture").text(), "No:Goodbye");
+  });
+
+  QUnit.test("parameterized hasBlock inverse", function () {
+    registry.register("template:components/check-inverse", compile['default']("{{#if (hasBlock \"inverse\")}}Yes{{else}}No{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{#check-inverse id=\"expect-no\"}}{{/check-inverse}}  {{#check-inverse id=\"expect-yes\"}}{{else}}{{/check-inverse}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
+    equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
+
+  QUnit.test("parameterized hasBlock default", function () {
+    registry.register("template:components/check-block", compile['default']("{{#if (hasBlock)}}Yes{{else}}No{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{check-block id=\"expect-no\"}}  {{#check-block id=\"expect-yes\"}}{{/check-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
+    equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
+
+  QUnit.test("non-expression hasBlock ", function () {
+    registry.register("template:components/check-block", compile['default']("{{#if hasBlock}}Yes{{else}}No{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{check-block id=\"expect-no\"}}  {{#check-block id=\"expect-yes\"}}{{/check-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
+    equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
+
+  QUnit.test("parameterized hasBlockParams", function () {
+    registry.register("template:components/check-params", compile['default']("{{#if (hasBlockParams)}}Yes{{else}}No{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{#check-params id=\"expect-no\"}}{{/check-params}}  {{#check-params id=\"expect-yes\" as |foo|}}{{/check-params}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
+    equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
+
+  QUnit.test("non-expression hasBlockParams", function () {
+    registry.register("template:components/check-params", compile['default']("{{#if hasBlockParams}}Yes{{else}}No{{/if}}"));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{#check-params id=\"expect-no\"}}{{/check-params}}  {{#check-params id=\"expect-yes\" as |foo|}}{{/check-params}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+    equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
+    equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
 
 });
 enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
@@ -45371,7 +45456,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.fdb5d74f", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.44fd58d0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

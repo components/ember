@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.fdb5d74f
+ * @version   1.13.0-beta.1+canary.44fd58d0
  */
 
 (function() {
@@ -6973,7 +6973,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-htmlbars/node-manage
 
 
   exports['default'] = componentHook;
-  function componentHook(renderNode, env, scope, tagName, params, attrs, template, visitor) {
+  function componentHook(renderNode, env, scope, tagName, params, attrs, templates, visitor) {
     var state = renderNode.state;
 
     // Determine if this is an initial render or a re-render
@@ -6990,7 +6990,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-htmlbars/node-manage
       params: params,
       attrs: attrs,
       parentView: parentView,
-      template: template,
+      templates: templates,
       parentScope: scope
     });
 
@@ -7026,7 +7026,7 @@ enifed('ember-htmlbars/hooks/create-fresh-scope', ['exports'], function (exports
   function createFreshScope() {
     return {
       self: null,
-      block: null,
+      blocks: {},
       component: null,
       view: null,
       attrs: null,
@@ -7184,9 +7184,9 @@ enifed('ember-htmlbars/hooks/get-root', ['exports', 'ember-metal/core', 'ember-m
     if (key === "this") {
       return [scope.self];
     } else if (key === "hasBlock") {
-      return [!!scope.block];
+      return [!!scope.blocks["default"]];
     } else if (key === "hasBlockParams") {
-      return [!!(scope.block && scope.block.arity)];
+      return [!!(scope.blocks["default"] && scope.blocks["default"].arity)];
     } else if (path_cache.isGlobal(key) && Ember['default'].lookup[key]) {
       return [getGlobal(key)];
     } else if (scope.locals[key]) {
@@ -7710,7 +7710,7 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], fu
       return;
     }
 
-    env.hooks.component(morph, env, scope, componentPath, params, hash, template, visitor);
+    env.hooks.component(morph, env, scope, componentPath, params, hash, { "default": template, inverse: inverse }, visitor);
   }
 
 });
@@ -7846,7 +7846,7 @@ enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/core', 'ember-m
     },
 
     render: function (morph, env, scope, params, hash, template, inverse, visitor) {
-      env.hooks.component(morph, env, scope, morph.state.componentName, params, hash, template, visitor);
+      env.hooks.component(morph, env, scope, morph.state.componentName, params, hash, { "default": template, inverse: inverse }, visitor);
     },
 
     rerender: function () {
@@ -7875,7 +7875,7 @@ enifed('ember-htmlbars/keywords/legacy-yield', ['exports', 'ember-metal/streams/
   function legacyYield(morph, env, _scope, params, hash, template, inverse, visitor) {
     var scope = _scope;
 
-    if (scope.block.arity === 0) {
+    if (scope.blocks["default"].arity === 0) {
       // Typically, the `controller` local is persists through lexical scope.
       // However, in this case, the `{{legacy-yield}}` in the legacy each view
       // needs to override the controller local for the template it is yielding.
@@ -7886,9 +7886,9 @@ enifed('ember-htmlbars/keywords/legacy-yield', ['exports', 'ember-metal/streams/
         scope.locals.controller = new ProxyStream['default'](hash.controller, "controller");
         scope.overrideController = true;
       }
-      scope.block(env, [], params[0], morph, scope, visitor);
+      scope.blocks["default"](env, [], params[0], morph, scope, visitor);
     } else {
-      scope.block(env, params, undefined, morph, scope, visitor);
+      scope.blocks["default"](env, params, undefined, morph, scope, visitor);
     }
 
     return true;
@@ -8064,7 +8064,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fdb5d74f";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8185,7 +8185,7 @@ enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
   exports['default'] = textarea;
 
   function textarea(morph, env, scope, originalParams, hash, template, inverse, visitor) {
-    env.hooks.component(morph, env, scope, '-text-area', originalParams, hash, template, visitor);
+    env.hooks.component(morph, env, scope, '-text-area', originalParams, hash, { "default": template, inverse: inverse }, visitor);
     return true;
   }
 
@@ -8517,7 +8517,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var attrs = options.attrs;
     var parentView = options.parentView;
     var parentScope = options.parentScope;
-    var template = options.template;
+    var templates = options.templates;
 
     attrs = attrs || {};
 
@@ -8576,9 +8576,9 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
         // There is no block template provided but the component has a
         // `template` property.
-        if (!template && componentTemplate) {
+        if ((!templates || !templates["default"]) && componentTemplate) {
           Ember['default'].deprecate("Using deprecated `template` property on a Component.");
-          template = componentTemplate.raw;
+          templates = { "default": componentTemplate.raw };
         }
       } else if (componentTemplate) {
         // If the component has a `template` but no `layout`, use the template
@@ -8601,7 +8601,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
 
     var results = buildComponentTemplate['default']({ layout: layout, component: component }, attrs, {
-      template: template,
+      templates: templates,
       scope: parentScope
     });
 
@@ -8842,7 +8842,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     Ember['default'].assert("BUG: ViewNodeManager.create can take a scope or a self, but not both", !(contentScope && found.self));
 
     var results = buildComponentTemplate['default'](componentInfo, attrs, {
-      template: contentTemplate,
+      templates: { "default": contentTemplate },
       scope: contentScope,
       self: found.self
     });
@@ -10400,7 +10400,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
 
     var block = buildComponentTemplate['default'](componentInfo, {}, {
       self: view,
-      template: template && template.raw
+      templates: template ? { "default": template.raw } : undefined
     }).block;
 
     view.renderBlock(block, renderNode);
@@ -12877,7 +12877,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.fdb5d74f
+    @version 1.13.0-beta.1+canary.44fd58d0
   */
 
   if ('undefined' === typeof Ember) {
@@ -12906,10 +12906,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.fdb5d74f'
+    @default '1.13.0-beta.1+canary.44fd58d0'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.fdb5d74f';
+  Ember.VERSION = '1.13.0-beta.1+canary.44fd58d0';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19990,7 +19990,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
 
       attrs.escaped = !morph.parseTextAsHTML;
 
-      env.hooks.component(morph, env, scope, "-link-to", params, attrs, template, visitor);
+      env.hooks.component(morph, env, scope, "-link-to", params, attrs, { "default": template }, visitor);
     },
 
     rerender: function (morph, env, scope, params, hash, template, inverse, visitor) {
@@ -20272,7 +20272,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fdb5d74f";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20746,7 +20746,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fdb5d74f";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35495,7 +35495,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.fdb5d74f",
+        revision: "Ember@1.13.0-beta.1+canary.44fd58d0",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38786,14 +38786,13 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
       component = null;
     }
 
-    if (content.template) {
-      meta = content.template.meta;
-      blockToRender = createContentBlock(content.template, content.scope, content.self, component);
-    }
-
     if (layout && layout.raw) {
+      var yieldTo = createContentBlocks(content.templates, content.scope, content.self, component);
+      blockToRender = createLayoutBlock(layout.raw, yieldTo, content.self, component, attrs);
       meta = layout.raw.meta;
-      blockToRender = createLayoutBlock(layout.raw, blockToRender, content.self, component, attrs);
+    } else if (content.templates && content.templates["default"]) {
+      blockToRender = createContentBlock(content.templates["default"], content.scope, content.self, component);
+      meta = content.templates["default"].meta;
     }
 
     if (component) {
@@ -38833,6 +38832,22 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
       self: self,
       options: { view: component }
     });
+  }
+
+  function createContentBlocks(templates, scope, self, component) {
+    if (!templates) {
+      return;
+    }
+    var output = {};
+    for (var name in templates) {
+      if (templates.hasOwnProperty(name)) {
+        var template = templates[name];
+        if (template) {
+          output[name] = createContentBlock(templates[name], scope, self, component);
+        }
+      }
+    }
+    return output;
   }
 
   function createLayoutBlock(template, yieldTo, self, component, attrs) {
@@ -39999,7 +40014,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.fdb5d74f";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
 
   /**
   @module ember
@@ -43179,15 +43194,20 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
       env.hooks.attribute(morph, env, scope, name, paramsAndHash[0][0]);
     },
 
-    // [ 'component', path, attrs, templateId ]
+    // [ 'component', path, attrs, templateId, inverseId ]
     component: function (node, morph, env, scope, template, visitor) {
       var path = node[1],
           attrs = node[2],
-          templateId = node[3];
+          templateId = node[3],
+          inverseId = node[4];
       var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, [], attrs);
+      var templates = {
+        "default": template.templates[templateId],
+        inverse: template.templates[inverseId]
+      };
 
       morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], template.templates[templateId], visitor);
+      env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templates, visitor);
     }
   });
 
@@ -43396,7 +43416,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   }
 
   function wrapForHelper(template, env, scope, morph, renderState, visitor) {
-    if (template === null) {
+    if (!template) {
       return {
         yieldIn: yieldInShadowTemplate(null, env, scope, morph, renderState, visitor)
       };
@@ -43576,7 +43596,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     // because `in` checks have unpredictable performance, keep a
     // separate dictionary to track whether a local was bound.
     // See `bindLocal` for more information.
-    return { self: null, block: null, locals: {}, localPresent: {} };
+    return { self: null, blocks: {}, locals: {}, localPresent: {} };
   }
 
   function bindShadowScope(env /*, parentScope, shadowScope */) {
@@ -43607,7 +43627,9 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   }
 
   function bindBlock(env, scope, block) {
-    scope.block = block;
+    var name = arguments[3] === undefined ? "default" : arguments[3];
+
+    scope.blocks[name] = block;
   }
 
   function block(morph, env, scope, path, params, hash, template, inverse, visitor) {
@@ -43635,7 +43657,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     if (redirect) {
       switch (redirect) {
         case "component":
-          env.hooks.component(morph, env, scope, path, params, hash, template, visitor);break;
+          env.hooks.component(morph, env, scope, path, params, hash, { "default": template, inverse: inverse }, visitor);break;
         case "inline":
           env.hooks.inline(morph, env, scope, path, params, hash, visitor);break;
         case "block":
@@ -43804,11 +43826,24 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     yield: function (morph, env, scope, params, hash, template, inverse, visitor) {
       // the current scope is provided purely for the creation of shadow
       // scopes; it should not be provided to user code.
-      if (scope.block) {
-        scope.block(env, params, hash.self, morph, scope, visitor);
+
+      var to = env.hooks.getValue(hash.to) || "default";
+      if (scope.blocks[to]) {
+        scope.blocks[to](env, params, hash.self, morph, scope, visitor);
       }
       return true;
+    },
+
+    hasBlock: function (morph, env, scope, params) {
+      var name = env.hooks.getValue(params[0]) || "default";
+      return !!scope.blocks[name];
+    },
+
+    hasBlockParams: function (morph, env, scope, params) {
+      var name = env.hooks.getValue(params[0]) || "default";
+      return !!(scope.blocks[name] && scope.blocks[name].arity);
     }
+
   };function partial(renderNode, env, scope, path) {
     var template = env.partials[path];
     return template.render(scope.self, env, {}).fragment;
@@ -43898,12 +43933,12 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     return reference;
   }
 
-  function component(morph, env, scope, tagName, params, attrs, template, visitor) {
+  function component(morph, env, scope, tagName, params, attrs, templates, visitor) {
     if (env.hooks.hasHelper(env, scope, tagName)) {
-      return env.hooks.block(morph, env, scope, tagName, params, attrs, template, null, visitor);
+      return env.hooks.block(morph, env, scope, tagName, params, attrs, templates["default"], templates.inverse, visitor);
     }
 
-    componentFallback(morph, env, scope, tagName, attrs, template);
+    componentFallback(morph, env, scope, tagName, attrs, templates["default"]);
   }
 
   function concat(env, params) {
@@ -44776,9 +44811,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
           env.hooks.bindSelf(env, shadowScope, blockOptions.self);
         }
 
-        if (blockOptions.yieldTo !== undefined) {
-          env.hooks.bindBlock(env, shadowScope, blockOptions.yieldTo);
-        }
+        bindBlocks(env, shadowScope, blockOptions.yieldTo);
 
         renderAndCleanup(renderNode, env, options, null, function () {
           options.renderState.clearMorph = null;
@@ -44792,6 +44825,20 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     return block;
   }
 
+  function bindBlocks(env, shadowScope, blocks) {
+    if (!blocks) {
+      return;
+    }
+    if (typeof blocks === 'function') {
+      env.hooks.bindBlock(env, shadowScope, blocks);
+    } else {
+      for (var name in blocks) {
+        if (blocks.hasOwnProperty(name)) {
+          env.hooks.bindBlock(env, shadowScope, blocks[name], name);
+        }
+      }
+    }
+  }
   function renderAndCleanup(morph, env, options, shadowOptions, callback) {
     options.renderState.shadowOptions = shadowOptions;
     var result = callback(options);
@@ -44813,7 +44860,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     }
 
     if (toClear) {
-      if (Object.prototype.toString.call(toClear) === "[object Array]") {
+      if (Object.prototype.toString.call(toClear) === '[object Array]') {
         for (var i = 0, l = toClear.length; i < l; i++) {
           clearMorph(toClear[i], env);
         }
