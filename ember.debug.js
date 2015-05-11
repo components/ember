@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.44fd58d0
+ * @version   1.13.0-beta.1+canary.6af6fa4c
  */
 
 (function() {
@@ -8064,7 +8064,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6af6fa4c";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12877,7 +12877,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.44fd58d0
+    @version 1.13.0-beta.1+canary.6af6fa4c
   */
 
   if ('undefined' === typeof Ember) {
@@ -12906,10 +12906,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.44fd58d0'
+    @default '1.13.0-beta.1+canary.6af6fa4c'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.44fd58d0';
+  Ember.VERSION = '1.13.0-beta.1+canary.6af6fa4c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -12950,7 +12950,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":null}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -19717,18 +19717,14 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
   */
 
   exports['default'] = function (morph, env, scope, params, hash, template, inverse, visitor) {
-    if (Ember.FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+    
       if (morph) {
         hooks.keyword("@element_action", morph, env, scope, params, hash, template, inverse, visitor);
         return true;
       }
 
       return closureAction['default'](morph, env, scope, params, hash, template, inverse, visitor);
-    } else {
-      hooks.keyword("@element_action", morph, env, scope, params, hash, template, inverse, visitor);
-      return true;
-    }
-  }
+      }
 
 });
 enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/array', 'ember-metal/streams/utils', 'ember-metal/keys', 'ember-metal/utils', 'ember-metal/property_get'], function (exports, Stream, array, utils, keys, ember_metal__utils, property_get) {
@@ -19823,6 +19819,12 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
 
   'use strict';
 
+  function assert(message, test) {
+    // This only exists to prevent defeatureify from error when attempting
+    // to transform the same source twice (tldr; you can't nest stripped statements)
+    Ember['default'].assert(message, test);
+  }
+
   exports['default'] = {
     setupState: function (state, env, scope, params, hash) {
       var getStream = env.hooks.get;
@@ -19830,12 +19832,9 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
 
       var actionName = read(params[0]);
 
-      if (Ember['default'].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
-        Ember['default'].assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string" || typeof actionName === "function");
-      } else {
-        Ember['default'].assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string");
-      }
-
+      
+        assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string" || typeof actionName === "function");
+      
       var actionArgs = [];
       for (var i = 1, l = params.length; i < l; i++) {
         actionArgs.push(streams__utils.readUnwrappedModel(params[i]));
@@ -19911,12 +19910,12 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
         var actionArgs = _node$state.actionArgs;
 
         run['default'](function runRegisteredAction() {
-          if (Ember['default'].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+          
             if (typeof actionName === "function") {
               actionName.apply(target, actionArgs);
               return;
             }
-          }
+          
           if (target.send) {
             target.send.apply(target, [actionName].concat(actionArgs));
           } else {
@@ -20272,7 +20271,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6af6fa4c";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20746,7 +20745,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6af6fa4c";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35495,7 +35494,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.44fd58d0",
+        revision: "Ember@1.13.0-beta.1+canary.6af6fa4c",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40014,7 +40013,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44fd58d0";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.6af6fa4c";
 
   /**
   @module ember

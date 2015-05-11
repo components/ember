@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.44fd58d0
+ * @version   1.13.0-beta.1+canary.6af6fa4c
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.44fd58d0
+    @version 1.13.0-beta.1+canary.6af6fa4c
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.44fd58d0'
+    @default '1.13.0-beta.1+canary.6af6fa4c'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.44fd58d0';
+  Ember.VERSION = '1.13.0-beta.1+canary.6af6fa4c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -2705,7 +2705,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': null, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': null }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': null, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -10393,7 +10393,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.44fd58d0",
+        revision: "Ember@1.13.0-beta.1+canary.6af6fa4c",
         loc: program.loc,
         moduleName: options.moduleName
       };

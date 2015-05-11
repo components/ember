@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.44fd58d0
+ * @version   1.13.0-beta.1+canary.6af6fa4c
  */
 
 (function() {
@@ -25811,7 +25811,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
 
   var innerComponent, outerComponent;
 
-  if (Ember.FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+  
 
     QUnit.module("ember-routing-htmlbars: action helper", {
       setup: function () {},
@@ -26206,7 +26206,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
         innerComponent.fireAction();
       });
     });
-  }
+  
 
 });
 enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, element_action, each, utils) {
@@ -27234,7 +27234,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['ember-metal
     deepEqual(actionOrder, ["whompWhomp", "sloopyDookie", "biggityBoom"], "action name was looked up properly");
   });
 
-  if (Ember['default'].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+  
 
     QUnit.test("a quoteless function parameter should be called, including arguments", function () {
       expect(2);
@@ -27261,7 +27261,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['ember-metal
         view.$("a").click();
       });
     });
-  }
+  
 
   QUnit.test("a quoteless parameter that does not resolve to a value asserts", function () {
 
@@ -45456,7 +45456,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.44fd58d0", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.6af6fa4c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
