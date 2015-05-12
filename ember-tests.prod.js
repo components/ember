@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.6af6fa4c
+ * @version   1.13.0-beta.1+canary.49ca1068
  */
 
 (function() {
@@ -13219,6 +13219,60 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
     });
     utils.runAppend(view);
     equal(view.$().text(), "", "should not render the inner template");
+  });
+
+  QUnit.module("{{#with}} inverse template", {
+    setup: function () {
+      Ember.lookup = lookup = { Ember: Ember };
+
+      view = EmberView['default'].create({
+        template: compile['default']("{{#with view.falsyThing as |thing|}}Has Thing{{else}}No Thing{{/with}}"),
+        falsyThing: null
+      });
+
+      utils.runAppend(view);
+    },
+
+    teardown: function () {
+      utils.runDestroy(view);
+      Ember.lookup = originalLookup;
+    }
+  });
+
+  QUnit.test("inverse template is displayed", function () {
+    equal(view.$().text(), "No Thing", "should render inverse template");
+  });
+
+  QUnit.test("changing the property to truthy causes standard template to be displayed", function () {
+    run['default'](function () {
+      property_set.set(view, "falsyThing", true);
+    });
+    equal(view.$().text(), "Has Thing", "should render standard template");
+  });
+
+  QUnit.module("{{#with}} inverse template preserves context", {
+    setup: function () {
+      Ember.lookup = lookup = { Ember: Ember };
+
+      view = EmberView['default'].create({
+        template: compile['default']("{{#with falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/with}}"),
+        context: {
+          falsyThing: null,
+          otherThing: "bar"
+        }
+      });
+
+      utils.runAppend(view);
+    },
+
+    teardown: function () {
+      utils.runDestroy(view);
+      Ember.lookup = originalLookup;
+    }
+  });
+
+  QUnit.test("inverse template is displayed with context", function () {
+    equal(view.$().text(), "No Thing bar", "should render inverse template with context preserved");
   });
 
 });
@@ -45456,7 +45510,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.6af6fa4c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.49ca1068", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
