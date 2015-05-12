@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.49ca1068
+ * @version   1.13.0-beta.1+canary.319fad27
  */
 
 (function() {
@@ -14213,11 +14213,11 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
 
   QUnit.test("rerendering component with attrs from parent", function () {
     var willUpdate = 0;
-    var willReceiveAttrs = 0;
+    var didReceiveAttrs = 0;
 
     registry.register("component:non-block", Component['default'].extend({
-      willReceiveAttrs: function () {
-        willReceiveAttrs++;
+      didReceiveAttrs: function () {
+        didReceiveAttrs++;
       },
 
       willUpdate: function () {
@@ -14234,6 +14234,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
 
     utils.runAppend(view);
 
+    equal(didReceiveAttrs, 1, "The didReceiveAttrs hook fired");
+
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: wycats");
 
     run['default'](function () {
@@ -14241,13 +14243,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     });
 
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
-    equal(willReceiveAttrs, 1, "The willReceiveAttrs hook fired");
+    equal(didReceiveAttrs, 2, "The didReceiveAttrs hook fired again");
     equal(willUpdate, 1, "The willUpdate hook fired once");
 
     Ember.run(view, "rerender");
 
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
-    equal(willReceiveAttrs, 2, "The willReceiveAttrs hook fired again");
+    equal(didReceiveAttrs, 3, "The didReceiveAttrs hook fired again");
     equal(willUpdate, 2, "The willUpdate hook fired again");
   });
 
@@ -14598,27 +14600,40 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
       return Component['default'].extend({
         init: function () {
           this.label = label;
-          pushHook(label, "init");
           components[label] = this;
           this._super.apply(this, arguments);
         },
-        willReceiveAttrs: function (nextAttrs) {
-          pushHook(label, "willReceiveAttrs", nextAttrs);
+
+        didInitAttrs: function (options) {
+          pushHook(label, "didInitAttrs", options);
         },
-        willUpdate: function () {
-          pushHook(label, "willUpdate");
+
+        didUpdateAttrs: function (options) {
+          pushHook(label, "didUpdateAttrs", options);
         },
-        didUpdate: function () {
-          pushHook(label, "didUpdate");
+
+        willUpdate: function (options) {
+          pushHook(label, "willUpdate", options);
         },
-        didInsertElement: function () {
-          pushHook(label, "didInsertElement");
+
+        didReceiveAttrs: function (nextAttrs) {
+          pushHook(label, "didReceiveAttrs", nextAttrs);
         },
+
         willRender: function () {
           pushHook(label, "willRender");
         },
+
         didRender: function () {
           pushHook(label, "didRender");
+        },
+
+        didInsertElement: function () {
+          pushHook(label, "didInsertElement");
+        },
+
+        didUpdate: function (options) {
+          pushHook(label, "didUpdate", options);
         }
       });
     }
@@ -14642,7 +14657,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     ok(component, "The component was inserted");
     equal(jQuery['default']("#qunit-fixture").text(), "Twitter: @tomdale Name: Tom Dale Website: tomdale.net");
 
-    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+    var topAttrs = { attrs: { twitter: "@tomdale" } };
+    var middleAttrs = { attrs: { name: "Tom Dale" } };
+    var bottomAttrs = { attrs: { website: "tomdale.net" } };
+
+    deepEqual(hooks, [hook("top", "didInitAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willRender"), hook("middle", "didInitAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willRender"), hook("bottom", "didInitAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
 
     hooks = [];
 
@@ -14658,7 +14677,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
       components.middle.rerender();
     });
 
-    deepEqual(hooks, [hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender")]);
+    bottomAttrs = { oldAttrs: { website: "tomdale.net" }, newAttrs: { website: "tomdale.net" } };
+
+    deepEqual(hooks, [hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "didUpdateAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willUpdate"), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender")]);
 
     hooks = [];
 
@@ -14666,7 +14687,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
       components.top.rerender();
     });
 
-    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { name: "Tom Dale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+    middleAttrs = { oldAttrs: { name: "Tom Dale" }, newAttrs: { name: "Tom Dale" } };
+
+    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willRender"), hook("middle", "didUpdateAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "didUpdateAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willUpdate"), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
 
     hooks = [];
 
@@ -14680,7 +14703,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     // the new attribute to rerender itself imperatively, that would result
     // in lifecycle hooks being invoked for the child.
 
-    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+    deepEqual(hooks, [hook("top", "didUpdateAttrs", { oldAttrs: { twitter: "@tomdale" }, newAttrs: { twitter: "@hipstertomdale" } }), hook("top", "didReceiveAttrs", { oldAttrs: { twitter: "@tomdale" }, newAttrs: { twitter: "@hipstertomdale" } }), hook("top", "willUpdate"), hook("top", "willRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
   });
 
   QUnit.test("passing values through attrs causes lifecycle hooks to fire if the attribute values have changed", function () {
@@ -14690,27 +14713,40 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
       return Component['default'].extend({
         init: function () {
           this.label = label;
-          pushHook(label, "init");
           components[label] = this;
           this._super.apply(this, arguments);
         },
-        willReceiveAttrs: function (nextAttrs) {
-          pushHook(label, "willReceiveAttrs", nextAttrs);
+
+        didInitAttrs: function (options) {
+          pushHook(label, "didInitAttrs", options);
         },
-        willUpdate: function () {
-          pushHook(label, "willUpdate");
+
+        didUpdateAttrs: function (options) {
+          pushHook(label, "didUpdateAttrs", options);
         },
-        didUpdate: function () {
-          pushHook(label, "didUpdate");
+
+        willUpdate: function (options) {
+          pushHook(label, "willUpdate", options);
         },
-        didInsertElement: function () {
-          pushHook(label, "didInsertElement");
+
+        didReceiveAttrs: function (nextAttrs) {
+          pushHook(label, "didReceiveAttrs", nextAttrs);
         },
+
         willRender: function () {
           pushHook(label, "willRender");
         },
+
         didRender: function () {
           pushHook(label, "didRender");
+        },
+
+        didInsertElement: function () {
+          pushHook(label, "didInsertElement");
+        },
+
+        didUpdate: function (options) {
+          pushHook(label, "didUpdate", options);
         }
       });
     }
@@ -14734,7 +14770,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     ok(component, "The component was inserted");
     equal(jQuery['default']("#qunit-fixture").text(), "Top: Middle: Bottom: @tomdale");
 
-    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+    var topAttrs = { attrs: { twitter: "@tomdale" } };
+    var middleAttrs = { attrs: { twitterTop: "@tomdale" } };
+    var bottomAttrs = { attrs: { twitterMiddle: "@tomdale" } };
+
+    deepEqual(hooks, [hook("top", "didInitAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willRender"), hook("middle", "didInitAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willRender"), hook("bottom", "didInitAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
 
     hooks = [];
 
@@ -14745,7 +14785,25 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     // Because the `twitter` attr is used by the all of the components,
     // the lifecycle hooks are invoked for all components.
 
-    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { twitterTop: "@hipstertomdale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { twitterMiddle: "@hipstertomdale" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+    topAttrs = { oldAttrs: { twitter: "@tomdale" }, newAttrs: { twitter: "@hipstertomdale" } };
+    middleAttrs = { oldAttrs: { twitterTop: "@tomdale" }, newAttrs: { twitterTop: "@hipstertomdale" } };
+    bottomAttrs = { oldAttrs: { twitterMiddle: "@tomdale" }, newAttrs: { twitterMiddle: "@hipstertomdale" } };
+
+    deepEqual(hooks, [hook("top", "didUpdateAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willUpdate"), hook("top", "willRender"), hook("middle", "didUpdateAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "didUpdateAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willUpdate"), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
+
+    hooks = [];
+
+    // In this case, because the attrs are passed down, all child components are invoked.
+
+    run['default'](function () {
+      view.rerender();
+    });
+
+    topAttrs = { oldAttrs: { twitter: "@hipstertomdale" }, newAttrs: { twitter: "@hipstertomdale" } };
+    middleAttrs = { oldAttrs: { twitterTop: "@hipstertomdale" }, newAttrs: { twitterTop: "@hipstertomdale" } };
+    bottomAttrs = { oldAttrs: { twitterMiddle: "@hipstertomdale" }, newAttrs: { twitterMiddle: "@hipstertomdale" } };
+
+    deepEqual(hooks, [hook("top", "didUpdateAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willUpdate"), hook("top", "willRender"), hook("middle", "didUpdateAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willUpdate"), hook("middle", "willRender"), hook("bottom", "didUpdateAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willUpdate"), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
   });
 
   QUnit.test("changing a component's displayed properties inside didInsertElement() is deprecated", function (assert) {
@@ -14770,71 +14828,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     });
   });
 
-  QUnit.test("manually re-rendering in `willReceiveAttrs` triggers lifecycle hooks on the child even if the nodes were not dirty", function () {
-    var components = {};
-
-    function component(label) {
-      return Component['default'].extend({
-        init: function () {
-          this.label = label;
-          pushHook(label, "init");
-          components[label] = this;
-          this._super.apply(this, arguments);
-        },
-        willReceiveAttrs: function (nextAttrs) {
-          this.rerender();
-          pushHook(label, "willReceiveAttrs", nextAttrs);
-        },
-        willUpdate: function () {
-          pushHook(label, "willUpdate");
-        },
-        didUpdate: function () {
-          pushHook(label, "didUpdate");
-        },
-        didInsertElement: function () {
-          pushHook(label, "didInsertElement");
-        },
-        willRender: function () {
-          pushHook(label, "willRender");
-        },
-        didRender: function () {
-          pushHook(label, "didRender");
-        }
-      });
-    }
-
-    registry.register("component:the-top", component("top"));
-    registry.register("component:the-middle", component("middle"));
-    registry.register("component:the-bottom", component("bottom"));
-
-    registry.register("template:components/the-top", compile['default']("Twitter: {{attrs.twitter}} {{the-middle name=\"Tom Dale\"}}"));
-    registry.register("template:components/the-middle", compile['default']("Name: {{attrs.name}} {{the-bottom website=\"tomdale.net\"}}"));
-    registry.register("template:components/the-bottom", compile['default']("Website: {{attrs.website}}"));
-
-    view = EmberView['default'].extend({
-      template: compile['default']("{{the-top twitter=(readonly view.twitter)}}"),
-      twitter: "@tomdale",
-      container: container
-    }).create();
-
-    utils.runAppend(view);
-
-    ok(component, "The component was inserted");
-    equal(jQuery['default']("#qunit-fixture").text(), "Twitter: @tomdale Name: Tom Dale Website: tomdale.net");
-
-    deepEqual(hooks, [hook("top", "init"), hook("top", "willRender"), hook("middle", "init"), hook("middle", "willRender"), hook("bottom", "init"), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
-
-    hooks = [];
-
-    run['default'](function () {
-      view.set("twitter", "@hipstertomdale");
-    });
-
-    // Because each `willReceiveAttrs` hook triggered a downstream
-    // rerender, lifecycle hooks are invoked on all child components.
-
-    deepEqual(hooks, [hook("top", "willUpdate"), hook("top", "willReceiveAttrs", { twitter: "@hipstertomdale" }), hook("top", "willRender"), hook("middle", "willUpdate"), hook("middle", "willReceiveAttrs", { name: "Tom Dale" }), hook("middle", "willRender"), hook("bottom", "willUpdate"), hook("bottom", "willReceiveAttrs", { website: "tomdale.net" }), hook("bottom", "willRender"), hook("bottom", "didUpdate"), hook("bottom", "didRender"), hook("middle", "didUpdate"), hook("middle", "didRender"), hook("top", "didUpdate"), hook("top", "didRender")]);
-  });
+  // TODO: Write a test that involves deep mutability: the component plucks something
+  // from inside the attrs hash out into state and passes it as attrs into a child
+  // component. The hooks should run correctly.
 
 });
 enifed('ember-htmlbars/tests/integration/component_lookup_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (EmberView, Registry, compile, ComponentLookup, utils) {
@@ -45510,7 +45506,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.49ca1068", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.319fad27", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

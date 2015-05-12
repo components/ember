@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.49ca1068
+ * @version   1.13.0-beta.1+canary.319fad27
  */
 
 (function() {
@@ -8066,7 +8066,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.49ca1068";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.319fad27";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8456,9 +8456,16 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
     this.HTMLBarsMorph$constructor(DOMHelper, contextualElement);
 
     this.emberView = null;
-    this.emberComponent = null;
     this.emberToDestroy = null;
     this.streamUnsubscribers = null;
+
+    // A component can become dirty either because one of its
+    // attributes changed, or because it was re-rendered. If any part
+    // of the component's template changes through observation, it has
+    // re-rendered from the perpsective of the programming model. This
+    // flag is set to true whenever a component becomes dirty because
+    // one of its attributes changed, which also triggers the attribute
+    // update flag (didUpdateAttrs).
     this.shouldReceiveAttrs = false;
   }
 
@@ -8496,11 +8503,11 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
   exports['default'] = EmberMorph;
 
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, View, attrs_proxy, instrumentation_support, getValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, instrumentation_support, getValue) {
 
   'use strict';
 
-  exports.createOrUpdateComponent = createOrUpdateComponent;
+  exports.createComponent = createComponent;
 
   function ComponentNodeManager(component, scope, renderNode, attrs, block, expectElement) {
     this.component = component;
@@ -8535,71 +8542,31 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       return component || layout;
     });
 
-    //var componentInfo = { layout: found.layout };
-
     if (component) {
       var createOptions = { parentView: parentView };
 
-      // Some attrs are special and need to be set as properties on the component
-      // instance. Make sure we use getValue() to get them from `attrs` since
-      // they are still streams.
-      if (attrs.id) {
-        createOptions.elementId = getValue['default'](attrs.id);
-      }
-      if (attrs.tagName) {
-        createOptions.tagName = getValue['default'](attrs.tagName);
-      }
-      if (attrs._defaultTagName) {
-        createOptions._defaultTagName = getValue['default'](attrs._defaultTagName);
-      }
-      if (attrs.viewName) {
-        createOptions.viewName = getValue['default'](attrs.viewName);
-      }
+      // Map passed attributes (e.g. <my-component id="foo">) to component
+      // properties ({ id: "foo" }).
+      configureCreateOptions(attrs, createOptions);
 
-      if (component.create && parentScope && parentScope.self) {
-        createOptions._context = getValue['default'](parentScope.self);
-      }
-
+      // If there is a controller on the scope, pluck it off and save it on the
+      // component. This allows the component to target actions sent via
+      // `sendAction` correctly.
       if (parentScope.locals.controller) {
         createOptions._controller = getValue['default'](parentScope.locals.controller);
       }
 
-      component = createOrUpdateComponent(component, createOptions, renderNode, env, attrs);
+      // Instantiate the component
+      component = createComponent(component, createOptions, renderNode, env, attrs);
 
-      // Even though we looked up a layout from the container earlier, the
-      // component may specify a `layout` property that overrides that.
-      // The component may also provide a `template` property we should
-      // respect (though this behavior is deprecated).
-      var componentLayout = property_get.get(component, "layout");
-      var componentTemplate = property_get.get(component, "template");
+      // If the component specifies its template via the `layout` or `template`
+      // properties instead of using the template looked up in the container, get
+      // them now that we have the component instance.
+      var result = extractComponentTemplates(component, templates);
+      layout = result.layout || layout;
+      templates = result.templates || templates;
 
-      if (componentLayout) {
-        layout = componentLayout;
-
-        // There is no block template provided but the component has a
-        // `template` property.
-        if ((!templates || !templates["default"]) && componentTemplate) {
-          Ember['default'].deprecate("Using deprecated `template` property on a Component.");
-          templates = { "default": componentTemplate.raw };
-        }
-      } else if (componentTemplate) {
-        // If the component has a `template` but no `layout`, use the template
-        // as the layout.
-        layout = componentTemplate;
-      }
-
-      renderNode.emberView = component;
-
-      if (component.positionalParams) {
-        // if the component is rendered via {{component}} helper, the first
-        // element of `params` is the name of the component, so we need to
-        // skip that when the positional parameters are constructed
-        var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
-        var pp = component.positionalParams;
-        for (var i = 0; i < pp.length; i++) {
-          attrs[pp[i]] = params[paramsStartIndex + i];
-        }
-      }
+      extractPositionalParams(renderNode, component, params, attrs);
     }
 
     var results = buildComponentTemplate['default']({ layout: layout, component: component }, attrs, {
@@ -8610,98 +8577,160 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return new ComponentNodeManager(component, parentScope, renderNode, attrs, results.block, results.createdElement);
   };
 
-  ComponentNodeManager.prototype.render = function (env, visitor) {
+  function extractPositionalParams(renderNode, component, params, attrs) {
+    if (component.positionalParams) {
+      // if the component is rendered via {{component}} helper, the first
+      // element of `params` is the name of the component, so we need to
+      // skip that when the positional parameters are constructed
+      var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
+      var pp = component.positionalParams;
+      for (var i = 0; i < pp.length; i++) {
+        attrs[pp[i]] = params[paramsStartIndex + i];
+      }
+    }
+  }
+
+  function extractComponentTemplates(component, _templates) {
+    // Even though we looked up a layout from the container earlier, the
+    // component may specify a `layout` property that overrides that.
+    // The component may also provide a `template` property we should
+    // respect (though this behavior is deprecated).
+    var componentLayout = property_get.get(component, "layout");
+    var componentTemplate = property_get.get(component, "template");
+    var layout = undefined,
+        templates = undefined;
+
+    if (componentLayout) {
+      layout = componentLayout;
+      templates = extractLegacyTemplate(_templates, componentTemplate);
+    } else if (componentTemplate) {
+      // If the component has a `template` but no `layout`, use the template
+      // as the layout.
+      layout = componentTemplate;
+      templates = _templates;
+      Ember['default'].deprecate("Using deprecated `template` property on a Component.");
+    }
+
+    return { layout: layout, templates: templates };
+  }
+
+  // 2.0TODO: Remove legacy behavior
+  function extractLegacyTemplate(_templates, componentTemplate) {
+    var templates = undefined;
+
+    // There is no block template provided but the component has a
+    // `template` property.
+    if ((!templates || !templates["default"]) && componentTemplate) {
+      Ember['default'].deprecate("Using deprecated `template` property on a Component.");
+      templates = { "default": componentTemplate.raw };
+    } else {
+      templates = _templates;
+    }
+
+    return templates;
+  }
+
+  function configureCreateOptions(attrs, createOptions) {
+    // Some attrs are special and need to be set as properties on the component
+    // instance. Make sure we use getValue() to get them from `attrs` since
+    // they are still streams.
+    if (attrs.id) {
+      createOptions.elementId = getValue['default'](attrs.id);
+    }
+    if (attrs.tagName) {
+      createOptions.tagName = getValue['default'](attrs.tagName);
+    }
+    if (attrs._defaultTagName) {
+      createOptions._defaultTagName = getValue['default'](attrs._defaultTagName);
+    }
+    if (attrs.viewName) {
+      createOptions.viewName = getValue['default'](attrs.viewName);
+    }
+  }
+
+  ComponentNodeManager.prototype.render = function (_env, visitor) {
     var component = this.component;
     var attrs = this.attrs;
 
     return instrumentation_support.instrument(component, function () {
-
-      var newEnv = env;
-      if (component) {
-        newEnv = merge['default']({}, env);
-        newEnv.view = component;
-      }
+      var env = _env;
 
       if (component) {
+        env = merge.assign({ view: component }, env);
+
         var snapshot = takeSnapshot(attrs);
-        env.renderer.setAttrs(this.component, snapshot);
-        env.renderer.willCreateElement(component);
-        env.renderer.willRender(component);
+        env.renderer.componentInitAttrs(this.component, snapshot);
+        env.renderer.componentWillRender(component);
         env.renderedViews.push(component.elementId);
       }
 
       if (this.block) {
-        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+        this.block(env, [], undefined, this.renderNode, this.scope, visitor);
       }
 
       if (component) {
         var element = this.expectElement && this.renderNode.firstNode;
-        env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
-        env.renderer.willInsertElement(component, element);
+        env.renderer.didCreateElement(component, element);
+        env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
         env.lifecycleHooks.push({ type: "didInsertElement", view: component });
       }
     }, this);
   };
 
-  ComponentNodeManager.prototype.rerender = function (env, attrs, visitor) {
+  ComponentNodeManager.prototype.rerender = function (_env, attrs, visitor) {
     var component = this.component;
-    return instrumentation_support.instrument(component, function () {
 
-      var newEnv = env;
+    return instrumentation_support.instrument(component, function () {
+      var env = _env;
+
       if (component) {
-        newEnv = merge['default']({}, env);
-        newEnv.view = component;
+        env = merge.assign({ view: component }, env);
 
         var snapshot = takeSnapshot(attrs);
 
-        // Notify component that it has become dirty and is about to change.
-        env.renderer.willUpdate(component, snapshot);
-
         if (component._renderNode.shouldReceiveAttrs) {
-          env.renderer.updateAttrs(component, snapshot);
+          env.renderer.componentUpdateAttrs(component, component.attrs, snapshot);
+
+          // 2.0TODO: remove legacy semantics for angle-bracket semantics
           setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
+
           component._renderNode.shouldReceiveAttrs = false;
         }
 
-        env.renderer.willRender(component);
+        // Notify component that it has become dirty and is about to change.
+        env.renderer.componentWillUpdate(component, snapshot);
+        env.renderer.componentWillRender(component);
 
         env.renderedViews.push(component.elementId);
       }
 
       if (this.block) {
-        this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
+        this.block(env, [], undefined, this.renderNode, this.scope, visitor);
       }
 
       if (component) {
         env.lifecycleHooks.push({ type: "didUpdate", view: component });
       }
 
-      return newEnv;
+      return env;
     }, this);
   };
-  function createOrUpdateComponent(component, options, renderNode, env) {
+  function createComponent(_component, options, renderNode, env) {
     var attrs = arguments[4] === undefined ? {} : arguments[4];
 
     var snapshot = takeSnapshot(attrs);
-    var props = merge['default']({}, options);
-    var defaultController = View['default'].proto().controller;
-    var hasSuppliedController = ("controller" in attrs);
+    var props = merge.assign({}, options);
+    var hasSuppliedController = ("controller" in attrs); // 2.0TODO remove
+
+    Ember['default'].deprecate("controller= is deprecated", !hasSuppliedController);
 
     props.attrs = snapshot;
-    if (component.create) {
-      var proto = component.proto();
-      mergeBindings(props, shadowedAttrs(proto, snapshot));
-      props.container = options.parentView ? options.parentView.container : env.container;
 
-      if (proto.controller !== defaultController || hasSuppliedController) {
-        delete props._context;
-      }
+    // 2.0TODO deprecate and remove from angle components
+    var proto = _component.proto();
+    mergeBindings(props, shadowedAttrs(proto, snapshot));
 
-      component = component.create(props);
-    } else {
-      mergeBindings(props, shadowedAttrs(component, snapshot));
-      setProperties['default'](component, props);
-    }
+    var component = _component.create(props);
 
     if (options.parentView) {
       options.parentView.appendChild(component);
@@ -8712,7 +8741,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
 
     component._renderNode = renderNode;
-    renderNode.emberComponent = component;
     renderNode.emberView = component;
     return component;
   }
@@ -8971,7 +8999,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     }
 
     component._renderNode = renderNode;
-    renderNode.emberComponent = component;
     renderNode.emberView = component;
     return component;
   }
@@ -10336,6 +10363,11 @@ enifed('ember-htmlbars/utils/subscribe', ['exports', 'ember-metal/streams/utils'
     unsubscribers.push(stream.subscribe(function () {
       node.isDirty = true;
 
+      // Whenever a render node directly inside a component becomes
+      // dirty, we want to invoke the willRenderElement and
+      // didRenderElement lifecycle hooks. From the perspective of the
+      // programming model, whenever anything in the DOM changes, a
+      // "re-render" has occured.
       if (component && component._renderNode) {
         component._renderNode.isDirty = true;
       }
@@ -10511,6 +10543,12 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     property_set.set(view, "attrs", attrs);
   }; // set attrs the first time
 
+  Renderer.prototype.componentInitAttrs = function (component, attrs) {
+    property_set.set(component, "attrs", attrs);
+    component.trigger("didInitAttrs", { attrs: attrs });
+    component.trigger("didReceiveAttrs", { attrs: attrs });
+  }; // set attrs the first time
+
   Renderer.prototype.didInsertElement = function (view) {
     if (view._transitionTo) {
       view._transitionTo("inDOM");
@@ -10541,16 +10579,31 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     this.setAttrs(view, attrs);
   }; // setting new attrs
 
+  Renderer.prototype.componentUpdateAttrs = function (component, oldAttrs, newAttrs) {
+    property_set.set(component, "attrs", newAttrs);
+
+    component.trigger("didUpdateAttrs", { oldAttrs: oldAttrs, newAttrs: newAttrs });
+    component.trigger("didReceiveAttrs", { oldAttrs: oldAttrs, newAttrs: newAttrs });
+  };
+
   Renderer.prototype.willUpdate = function (view, attrs) {
     if (view.willUpdate) {
       view.willUpdate(attrs);
     }
   };
 
+  Renderer.prototype.componentWillUpdate = function (component) {
+    component.trigger("willUpdate");
+  };
+
   Renderer.prototype.willRender = function (view) {
     if (view.willRender) {
       view.willRender();
     }
+  };
+
+  Renderer.prototype.componentWillRender = function (component) {
+    component.trigger("willRender");
   };
 
   Renderer.prototype.remove = function (view, shouldDestroy) {
@@ -12879,7 +12932,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.49ca1068
+    @version 1.13.0-beta.1+canary.319fad27
   */
 
   if ('undefined' === typeof Ember) {
@@ -12908,10 +12961,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.49ca1068'
+    @default '1.13.0-beta.1+canary.319fad27'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.49ca1068';
+  Ember.VERSION = '1.13.0-beta.1+canary.319fad27';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20273,7 +20326,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.49ca1068";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.319fad27";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20747,7 +20800,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.49ca1068";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.319fad27";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35496,7 +35549,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.49ca1068",
+        revision: "Ember@1.13.0-beta.1+canary.319fad27",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40015,7 +40068,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.49ca1068";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.319fad27";
 
   /**
   @module ember
