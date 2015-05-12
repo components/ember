@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.f8c46897
+ * @version   1.13.0-beta.1+canary.8039daec
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.f8c46897
+    @version 1.13.0-beta.1+canary.8039daec
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.f8c46897'
+    @default '1.13.0-beta.1+canary.8039daec'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.f8c46897';
+  Ember.VERSION = '1.13.0-beta.1+canary.8039daec';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -9892,24 +9892,45 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   exports['default'] = TransformEachInToHash;
 
 });
-enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports', 'ember-metal/core'], function (exports, Ember) {
 
   'use strict';
 
+
+
   exports['default'] = TransformEachIntoCollection;
 
-  function TransformEachIntoCollection() {
+  function TransformEachIntoCollection(options) {
+    this.options = options;
     this.syntax = null;
   }
 
   TransformEachIntoCollection.prototype.transform = function TransformEachIntoCollection_transform(ast) {
+    var options = this.options;
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
 
     walker.visit(ast, function (node) {
-      if (!validate(node)) {
+      var legacyHashKey = validate(node);
+      if (!legacyHashKey) {
         return;
       }
+
+      var _ref = legacyHashKey.loc.start || {};
+
+      var column = _ref.column;
+      var line = _ref.line;
+
+      var moduleInfo = '';
+      if (options.moduleName) {
+        moduleInfo += '\'' + options.moduleName + '\' ';
+      }
+
+      if (line && column) {
+        moduleInfo += '@L' + line + ':C' + column;
+      }
+
+      Ember['default'].deprecate('Using \'' + legacyHashKey.key + '\' with \'{{each}}\' ' + moduleInfo + ' is deprecated.  Please refactor to a component.');
 
       var list = node.params.shift();
       node.path = b.path('collection');
@@ -9929,16 +9950,21 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
   };
 
   function validate(node) {
-    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each' && any(node.hash.pairs, function (pair) {
-      var key = pair.key;
-      return key === 'itemController' || key === 'itemView' || key === 'itemViewClass' || key === 'tagName' || key === 'emptyView' || key === 'emptyViewClass';
-    });
+    if ((node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each') {
+
+      return any(node.hash.pairs, function (pair) {
+        var key = pair.key;
+        return key === 'itemController' || key === 'itemView' || key === 'itemViewClass' || key === 'tagName' || key === 'emptyView' || key === 'emptyViewClass';
+      });
+    }
+
+    return false;
   }
 
   function any(list, predicate) {
     for (var i = 0, l = list.length; i < l; i++) {
       if (predicate(list[i])) {
-        return true;
+        return list[i];
       }
     }
 
@@ -10393,7 +10419,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.f8c46897",
+        revision: "Ember@1.13.0-beta.1+canary.8039daec",
         loc: program.loc,
         moduleName: options.moduleName
       };

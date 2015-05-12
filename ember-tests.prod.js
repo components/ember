@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.f8c46897
+ * @version   1.13.0-beta.1+canary.8039daec
  */
 
 (function() {
@@ -8947,7 +8947,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       ok(true, "No assertion from valid template");
     });
 
-    QUnit.test("itemController specified in template with name binding does not change context", function () {
+    QUnit.test("itemController specified in template with name binding does not change context [DEPRECATED]", function () {
       var Controller = EmberController['default'].extend({
         controllerName: computed.computed(function () {
           return "controller:" + this.get("model.name");
@@ -8968,9 +8968,14 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
       registry.register("controller:array", ArrayController['default'].extend());
 
+      var template;
+      expectDeprecation(function () {
+        template = templateFor("{{#EACH|people|person|itemController=\"person\"}}{{controllerName}} - {{person.controllerName}} - {{/each}}", useBlockParams);
+      }, /Using 'itemController' with '{{each}}' @L1/);
+
       view = EmberView['default'].create({
+        template: template,
         container: container,
-        template: templateFor("{{#EACH|people|person|itemController=\"person\"}}{{controllerName}} - {{person.controllerName}} - {{/each}}", useBlockParams),
         controller: parentController
       });
 
@@ -45421,6 +45426,46 @@ enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-
   });
 
 });
+enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['ember-template-compiler'], function (ember_template_compiler) {
+
+  'use strict';
+
+  QUnit.module('ember-template-compiler: transform-each-into-collection');
+
+  var deprecatedAttrs = ['itemController', 'itemView', 'itemViewClass', 'tagName', 'emptyView', 'emptyViewClass'];
+
+  function testBlockForm(attr) {
+    QUnit.test('Using the \'' + attr + '\' hash argument with a block results in a deprecation', function () {
+      expect(1);
+
+      expectDeprecation(function () {
+        ember_template_compiler.compile('\n\n    {{#each model ' + attr + '="foo" as |item|}}{{item}}{{/each}}', {
+          moduleName: 'lol-wat-app/index/template'
+        });
+      }, 'Using \'' + attr + '\' with \'{{each}}\' \'lol-wat-app/index/template\' @L3:C18 is deprecated.  Please refactor to a component.');
+    });
+  }
+
+  function testNonBlockForm(attr) {
+    QUnit.test('Using the \'' + attr + '\' hash argument in non-block form results in a deprecation', function () {
+      expect(1);
+
+      expectDeprecation(function () {
+        ember_template_compiler.compile('\n\n    {{each model ' + attr + '="foo"}}', {
+          moduleName: 'lol-wat-app/index/template'
+        });
+      }, 'Using \'' + attr + '\' with \'{{each}}\' \'lol-wat-app/index/template\' @L3:C17 is deprecated.  Please refactor to a component.');
+    });
+  }
+
+  for (var i = 0, l = deprecatedAttrs.length; i < l; i++) {
+    var attr = deprecatedAttrs[i];
+
+    testBlockForm(attr);
+    testNonBlockForm(attr);
+  }
+
+});
 enifed('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test', ['ember-template-compiler'], function (ember_template_compiler) {
 
   'use strict';
@@ -45506,7 +45551,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.f8c46897", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.8039daec", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -56154,7 +56199,9 @@ enifed('ember/tests/controller_test', ['ember', 'ember-htmlbars/compat'], functi
   // (i.e., not inside a view or component) did not have access to a container and
   // would raise an exception.
   QUnit.test("{{#each}} inside outlet can have an itemController", function (assert) {
-    templates.index = compile("\n    {{#each model itemController='thing'}}\n      <p>hi</p>\n    {{/each}}\n  ");
+    expectDeprecation(function () {
+      templates.index = compile("\n      {{#each model itemController='thing'}}\n        <p>hi</p>\n      {{/each}}\n    ");
+    }, "Using 'itemController' with '{{each}}' @L2:C20 is deprecated.  Please refactor to a component.");
 
     App.IndexController = Ember.Controller.extend({
       model: Ember.A([1, 2, 3])
@@ -56167,8 +56214,10 @@ enifed('ember/tests/controller_test', ['ember', 'ember-htmlbars/compat'], functi
     assert.equal($fixture.find("p").length, 3, "the {{#each}} rendered without raising an exception");
   });
 
-  QUnit.test("", function (assert) {
-    templates.index = compile("\n    {{#each model itemController='thing'}}\n      {{controller}}\n      <p><a {{action 'checkController' controller}}>Click me</a></p>\n    {{/each}}\n  ");
+  QUnit.test("actions within a context shifting {{each}} with `itemController` [DEPRECATED]", function (assert) {
+    expectDeprecation(function () {
+      templates.index = compile("\n      {{#each model itemController='thing'}}\n        {{controller}}\n        <p><a {{action 'checkController' controller}}>Click me</a></p>\n      {{/each}}\n    ");
+    });
 
     App.IndexRoute = Ember.Route.extend({
       model: function () {
