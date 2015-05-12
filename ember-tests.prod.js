@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.167fe589
+ * @version   1.13.0-beta.1+canary.ecadea4a
  */
 
 (function() {
@@ -11277,7 +11277,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
   // to enforce deprecation notice for old Handlebars versions
 
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'container/registry', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, Registry, run, jQuery, TextField, Namespace, EmberObject, ContainerView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (EmberView, EmberComponent, Registry, ComponentLookup, run, jQuery, TextField, Namespace, EmberObject, ContainerView, SafeString, precompile, compile, system__template, observer, Controller, makeBoundHelper, utils, property_set, property_get, computed) {
 
   'use strict';
 
@@ -11311,6 +11311,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
       registry.optionsForType("template", { instantiate: false });
       registry.optionsForType("helper", { instantiate: false });
       registry.register("view:toplevel", EmberView['default'].extend());
+      registry.register("component-lookup:main", ComponentLookup['default']);
     },
 
     teardown: function () {
@@ -12693,6 +12694,42 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'con
 
     equal(view.$("#bar").length, 0, "changing the viewName string after it was initially rendered does not render the new viewName");
     equal(view.$("#foo").length, 1, "the originally rendered view is still present");
+  });
+
+  QUnit.test("should have the correct action target", function () {
+    registry.register("component:x-outer", EmberComponent['default'].extend({
+      container: container,
+      layout: compile['default']("{{#x-middle}}{{view innerView dismiss=\"dismiss\"}}{{/x-middle}}"),
+      actions: {
+        dismiss: function () {
+          ok(true, "We handled the action in the right place");
+        }
+      },
+      innerView: EmberComponent['default'].extend({
+        container: container,
+        elementId: "x-inner"
+      })
+    }));
+
+    registry.register("component:x-middle", EmberComponent['default'].extend({
+      container: container,
+      actions: {
+        dismiss: function () {
+          throw new Error("action was not supposed to go here");
+        }
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      container: container,
+      template: compile['default']("{{x-outer}}")
+    }).create();
+
+    utils.runAppend(view);
+
+    run['default'](function () {
+      EmberView['default'].views["x-inner"].sendAction("dismiss");
+    });
   });
 
 });
@@ -45610,7 +45647,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.167fe589", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.ecadea4a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
