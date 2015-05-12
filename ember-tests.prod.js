@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.44ab9128
+ * @version   1.13.0-beta.1+canary.5bff8674
  */
 
 (function() {
@@ -45570,7 +45570,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.44ab9128", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.5bff8674", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -52178,7 +52178,7 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
 
   'use strict';
 
-  var View, view, willDestroyCalled, childView;
+  var View, view, otherView, willDestroyCalled, childView;
 
   QUnit.module("EmberView - append() and appendTo()", {
     setup: function () {
@@ -52187,7 +52187,30 @@ enifed('ember-views/tests/views/view/append_to_test', ['ember-metal/property_get
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(otherView);
     }
+  });
+
+  QUnit.test("can call `appendTo` for multiple views #11109", function () {
+    var elem;
+    jQuery['default']("#qunit-fixture").html("<div id=\"menu\"></div><div id=\"other-menu\"></div>");
+
+    view = View.create();
+    otherView = View.create();
+
+    ok(!property_get.get(view, "element"), "precond - should not have an element");
+    ok(!property_get.get(otherView, "element"), "precond - should not have an element");
+
+    run['default'](function () {
+      view.appendTo("#menu");
+      otherView.appendTo("#other-menu");
+    });
+
+    elem = jQuery['default']("#menu").children();
+    ok(elem.length > 0, "creates and appends the first view's element");
+
+    elem = jQuery['default']("#other-menu").children();
+    ok(elem.length > 0, "creates and appends the second view's element");
   });
 
   QUnit.test("should be added to the specified element when calling appendTo()", function () {
