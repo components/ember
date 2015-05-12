@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.ecadea4a
+ * @version   1.13.0-beta.1+canary.2b76aa07
  */
 
 (function() {
@@ -9120,7 +9120,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
   testEachWithItem("{{#each bar as |foo|}}", true);
 
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, compile, property_set, string, utils, enumerable_utils, tests__utils) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, compile, ArrayProxy, property_set, string, utils, enumerable_utils, tests__utils) {
 
   'use strict';
 
@@ -9234,9 +9234,9 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
     equal(view.$().text(), "");
   });
 
-  QUnit.test("The `if` helper updates if an array is empty or not", function () {
+  function testIfArray(array) {
     view = EmberView['default'].create({
-      array: Ember.A(),
+      array: array,
 
       template: compile['default']("{{#if view.array}}Yep{{/if}}")
     });
@@ -9256,6 +9256,14 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
     });
 
     equal(view.$().text(), "");
+  }
+
+  QUnit.test("The `if` helper updates if an array is empty or not", function () {
+    testIfArray(Ember.A());
+  });
+
+  QUnit.test("The `if` helper updates if an array-like object is empty or not", function () {
+    testIfArray(ArrayProxy['default'].create({ content: Ember.A([]) }));
   });
 
   QUnit.test("The `if` helper updates when the value changes", function () {
@@ -45647,7 +45655,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.ecadea4a", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.2b76aa07", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
