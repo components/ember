@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8039daec
+ * @version   1.13.0-beta.1+canary.44ab9128
  */
 
 (function() {
@@ -14560,6 +14560,25 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
     equal(jQuery['default']("#qunit-fixture #expect-no").text(), "No");
     equal(jQuery['default']("#qunit-fixture #expect-yes").text(), "Yes");
+  });
+
+  QUnit.test("implementing `render` allows pushing into a string buffer", function () {
+    expect(1);
+
+    registry.register("component:non-block", Component['default'].extend({
+      render: function (buffer) {
+        buffer.push("<span id=\"zomg\">Whoop!</span>");
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{non-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#zomg").text(), "Whoop!");
   });
 
 });
@@ -45705,7 +45724,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.8039daec", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.44ab9128", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

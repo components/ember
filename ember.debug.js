@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.8039daec
+ * @version   1.13.0-beta.1+canary.44ab9128
  */
 
 (function() {
@@ -8066,7 +8066,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.8039daec";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44ab9128";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8503,10 +8503,11 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
   exports['default'] = EmberMorph;
 
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, instrumentation_support, getValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, SafeString, instrumentation_support, getValue) {
 
   'use strict';
 
+  exports.handleLegacyRender = handleLegacyRender;
   exports.createComponent = createComponent;
 
   function ComponentNodeManager(component, scope, renderNode, attrs, block, expectElement) {
@@ -8670,12 +8671,31 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
       if (component) {
         var element = this.expectElement && this.renderNode.firstNode;
+        handleLegacyRender(component, element);
         env.renderer.didCreateElement(component, element);
         env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
         env.lifecycleHooks.push({ type: "didInsertElement", view: component });
       }
     }, this);
   };
+  function handleLegacyRender(component, element) {
+    if (!component.render) {
+      return;
+    }
+
+    var content, node, lastChildIndex;
+    var buffer = [];
+    var renderNode = component._renderNode;
+    component.render(buffer);
+    content = buffer.join("");
+    if (element) {
+      lastChildIndex = renderNode.childNodes.length - 1;
+      node = renderNode.childNodes[lastChildIndex];
+    } else {
+      node = renderNode;
+    }
+    node.setContent(new SafeString['default'](content));
+  }
 
   ComponentNodeManager.prototype.rerender = function (_env, attrs, visitor) {
     var component = this.component;
@@ -8798,7 +8818,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   }
 
 });
-enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, property_get, property_set, setProperties, View, attrs_proxy, getCellOrValue, SafeString, instrumentation_support, getValue) {
+enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/hooks/get-value'], function (exports, merge, Ember, buildComponentTemplate, property_get, property_set, setProperties, View, attrs_proxy, getCellOrValue, instrumentation_support, component_node_manager, getValue) {
 
   'use strict';
 
@@ -8905,19 +8925,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       if (component) {
         var element = this.expectElement && this.renderNode.firstNode;
-        if (component.render) {
-          var content, node, lastChildIndex;
-          var buffer = [];
-          component.render(buffer);
-          content = buffer.join("");
-          if (element) {
-            lastChildIndex = this.renderNode.childNodes.length - 1;
-            node = this.renderNode.childNodes[lastChildIndex];
-          } else {
-            node = this.renderNode;
-          }
-          node.setContent(new SafeString['default'](content));
-        }
+        component_node_manager.handleLegacyRender(component, element);
 
         env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
         env.renderer.willInsertElement(component, element);
@@ -12932,7 +12940,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.8039daec
+    @version 1.13.0-beta.1+canary.44ab9128
   */
 
   if ('undefined' === typeof Ember) {
@@ -12961,10 +12969,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.8039daec'
+    @default '1.13.0-beta.1+canary.44ab9128'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.8039daec';
+  Ember.VERSION = '1.13.0-beta.1+canary.44ab9128';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20326,7 +20334,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.8039daec";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44ab9128";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20800,7 +20808,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.8039daec";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44ab9128";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35575,7 +35583,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.8039daec",
+        revision: "Ember@1.13.0-beta.1+canary.44ab9128",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40094,7 +40102,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.8039daec";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.44ab9128";
 
   /**
   @module ember
