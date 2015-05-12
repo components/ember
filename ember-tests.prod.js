@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.5bff8674
+ * @version   1.13.0-beta.1+canary.167fe589
  */
 
 (function() {
@@ -27528,7 +27528,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['ember-routing-html
   });
 
 });
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (run, Namespace, EmberView, jQuery, compile, utils, tests__utils) {
+enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (run, Namespace, Controller, EmberView, jQuery, compile, utils, tests__utils) {
 
   'use strict';
 
@@ -27565,6 +27565,46 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['ember-metal/run_loo
     run['default'](function () {
       top.setOutletState(routerState);
     });
+
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), "HIBYE");
+  });
+
+  QUnit.test("a top-level outlet should always be a view", function () {
+    registry.register("view:toplevel", EmberView['default'].extend({
+      elementId: "top-level"
+    }));
+    var routerState = withTemplate("<h1>HI</h1>{{outlet}}");
+    top.setOutletState(routerState);
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
+    utils.runAppend(top);
+
+    // Replace whitespace for older IE
+    equal(trim(top.$("#top-level").text()), "HIBYE");
+  });
+
+  QUnit.test("a top-level outlet should have access to `{{controller}}`", function () {
+    var routerState = withTemplate("<h1>{{controller.salutation}}</h1>{{outlet}}");
+    routerState.render.controller = Controller['default'].create({
+      salutation: "HI"
+    });
+    top.setOutletState(routerState);
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
+    utils.runAppend(top);
+
+    // Replace whitespace for older IE
+    equal(trim(top.$().text()), "HIBYE");
+  });
+
+  QUnit.test("a non top-level outlet should have access to `{{controller}}`", function () {
+    var routerState = withTemplate("<h1>HI</h1>{{outlet}}");
+    top.setOutletState(routerState);
+    routerState.outlets.main = withTemplate("<p>BYE</p>");
+    routerState.outlets.main.render.controller = Controller['default'].create({
+      salutation: "BYE"
+    });
+
+    utils.runAppend(top);
 
     // Replace whitespace for older IE
     equal(trim(top.$().text()), "HIBYE");
@@ -45570,7 +45610,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.5bff8674", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.167fe589", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
