@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.2b76aa07
+ * @version   1.13.0-beta.1+canary.a20668d2
  */
 
 (function() {
@@ -14685,8 +14685,8 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
           pushHook(label, "willUpdate", options);
         },
 
-        didReceiveAttrs: function (nextAttrs) {
-          pushHook(label, "didReceiveAttrs", nextAttrs);
+        didReceiveAttrs: function (options) {
+          pushHook(label, "didReceiveAttrs", options);
         },
 
         willRender: function () {
@@ -14726,11 +14726,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     ok(component, "The component was inserted");
     equal(jQuery['default']("#qunit-fixture").text(), "Twitter: @tomdale Name: Tom Dale Website: tomdale.net");
 
-    var topAttrs = { attrs: { twitter: "@tomdale" } };
-    var middleAttrs = { attrs: { name: "Tom Dale" } };
-    var bottomAttrs = { attrs: { website: "tomdale.net" } };
+    var topAttrs = { twitter: "@tomdale" };
+    var middleAttrs = { name: "Tom Dale" };
+    var bottomAttrs = { website: "tomdale.net" };
 
-    deepEqual(hooks, [hook("top", "didInitAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willRender"), hook("middle", "didInitAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willRender"), hook("bottom", "didInitAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+    deepEqual(hooks, [hook("top", "didInitAttrs", { attrs: topAttrs }), hook("top", "didReceiveAttrs", { newAttrs: topAttrs }), hook("top", "willRender"), hook("middle", "didInitAttrs", { attrs: middleAttrs }), hook("middle", "didReceiveAttrs", { newAttrs: middleAttrs }), hook("middle", "willRender"), hook("bottom", "didInitAttrs", { attrs: bottomAttrs }), hook("bottom", "didReceiveAttrs", { newAttrs: bottomAttrs }), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
 
     hooks = [];
 
@@ -14798,8 +14798,8 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
           pushHook(label, "willUpdate", options);
         },
 
-        didReceiveAttrs: function (nextAttrs) {
-          pushHook(label, "didReceiveAttrs", nextAttrs);
+        didReceiveAttrs: function (options) {
+          pushHook(label, "didReceiveAttrs", options);
         },
 
         willRender: function () {
@@ -14839,11 +14839,11 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
     ok(component, "The component was inserted");
     equal(jQuery['default']("#qunit-fixture").text(), "Top: Middle: Bottom: @tomdale");
 
-    var topAttrs = { attrs: { twitter: "@tomdale" } };
-    var middleAttrs = { attrs: { twitterTop: "@tomdale" } };
-    var bottomAttrs = { attrs: { twitterMiddle: "@tomdale" } };
+    var topAttrs = { twitter: "@tomdale" };
+    var middleAttrs = { twitterTop: "@tomdale" };
+    var bottomAttrs = { twitterMiddle: "@tomdale" };
 
-    deepEqual(hooks, [hook("top", "didInitAttrs", topAttrs), hook("top", "didReceiveAttrs", topAttrs), hook("top", "willRender"), hook("middle", "didInitAttrs", middleAttrs), hook("middle", "didReceiveAttrs", middleAttrs), hook("middle", "willRender"), hook("bottom", "didInitAttrs", bottomAttrs), hook("bottom", "didReceiveAttrs", bottomAttrs), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
+    deepEqual(hooks, [hook("top", "didInitAttrs", { attrs: topAttrs }), hook("top", "didReceiveAttrs", { newAttrs: topAttrs }), hook("top", "willRender"), hook("middle", "didInitAttrs", { attrs: middleAttrs }), hook("middle", "didReceiveAttrs", { newAttrs: middleAttrs }), hook("middle", "willRender"), hook("bottom", "didInitAttrs", { attrs: bottomAttrs }), hook("bottom", "didReceiveAttrs", { newAttrs: bottomAttrs }), hook("bottom", "willRender"), hook("bottom", "didInsertElement"), hook("bottom", "didRender"), hook("middle", "didInsertElement"), hook("middle", "didRender"), hook("top", "didInsertElement"), hook("top", "didRender")]);
 
     hooks = [];
 
@@ -45655,7 +45655,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.2b76aa07", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.a20668d2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
