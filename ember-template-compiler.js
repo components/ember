@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.a20668d2
+ * @version   1.13.0-beta.1+canary.a0ae04f7
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.a20668d2
+    @version 1.13.0-beta.1+canary.a0ae04f7
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.a20668d2'
+    @default '1.13.0-beta.1+canary.a0ae04f7'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.a20668d2';
+  Ember.VERSION = '1.13.0-beta.1+canary.a0ae04f7';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10419,7 +10419,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.a20668d2",
+        revision: "Ember@1.13.0-beta.1+canary.a0ae04f7",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12808,6 +12808,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
 
   exports['default'] = render;
 
+  var svgNamespace = "http://www.w3.org/2000/svg";
   function render(template, env, scope, options) {
     var dom = env.dom;
     var contextualElement;
@@ -12898,6 +12899,9 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
       hasRendered: false,
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
+        if (tagName === "svg") {
+          dom.setNamespace(svgNamespace);
+        }
         var el1 = dom.createElement(tagName);
 
         for (var key in attributes) {
