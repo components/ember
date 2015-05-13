@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.a0ae04f7
+ * @version   1.13.0-beta.1+canary.bfcc15ee
  */
 
 (function() {
@@ -14624,6 +14624,114 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(view.$("#zomg").text(), "Whoop!");
+  });
+
+  QUnit.test("comopnent should rerender when a property is changed during children's rendering", function () {
+    expectDeprecation(/twice in a single render/);
+
+    var outer, middle;
+
+    registry.register("component:x-outer", Component['default'].extend({
+      value: 1,
+      grabReference: Ember.on("init", function () {
+        outer = this;
+      })
+    }));
+
+    registry.register("component:x-middle", Component['default'].extend({
+      grabReference: Ember.on("init", function () {
+        middle = this;
+      })
+    }));
+
+    registry.register("component:x-inner", Component['default'].extend({
+      pushDataUp: Ember.observer("value", function () {
+        middle.set("value", this.get("value"));
+      })
+    }));
+
+    registry.register("template:components/x-outer", compile['default']("{{#x-middle}}{{x-inner value=value}}{{/x-middle}}"));
+    registry.register("template:components/x-middle", compile['default']("<div id=\"middle-value\">{{value}}</div>{{yield}}"));
+    registry.register("template:components/x-inner", compile['default']("<div id=\"inner-value\">{{value}}</div>"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{x-outer}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#inner-value").text(), "1", "initial render of inner");
+    equal(view.$("#middle-value").text(), "1", "initial render of middle");
+
+    run['default'](function () {
+      return outer.set("value", 2);
+    });
+
+    equal(view.$("#inner-value").text(), "2", "second render of inner");
+    equal(view.$("#middle-value").text(), "2", "second render of middle");
+
+    run['default'](function () {
+      return outer.set("value", 3);
+    });
+
+    equal(view.$("#inner-value").text(), "3", "third render of inner");
+    equal(view.$("#middle-value").text(), "3", "third render of middle");
+  });
+
+  QUnit.test("comopnent should rerender when a property (with a default) is changed during children's rendering", function () {
+    expectDeprecation(/modified value twice in a single render/);
+
+    var outer, middle;
+
+    registry.register("component:x-outer", Component['default'].extend({
+      value: 1,
+      grabReference: Ember.on("init", function () {
+        outer = this;
+      })
+    }));
+
+    registry.register("component:x-middle", Component['default'].extend({
+      value: null,
+      grabReference: Ember.on("init", function () {
+        middle = this;
+      })
+    }));
+
+    registry.register("component:x-inner", Component['default'].extend({
+      value: null,
+      pushDataUp: Ember.observer("value", function () {
+        middle.set("value", this.get("value"));
+      })
+    }));
+
+    registry.register("template:components/x-outer", compile['default']("{{#x-middle}}{{x-inner value=value}}{{/x-middle}}"));
+    registry.register("template:components/x-middle", compile['default']("<div id=\"middle-value\">{{value}}</div>{{yield}}"));
+    registry.register("template:components/x-inner", compile['default']("<div id=\"inner-value\">{{value}}</div>"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{x-outer}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#inner-value").text(), "1", "initial render of inner");
+    equal(view.$("#middle-value").text(), "", "initial render of middle (observers do not run during init)");
+
+    run['default'](function () {
+      return outer.set("value", 2);
+    });
+
+    equal(view.$("#inner-value").text(), "2", "second render of inner");
+    equal(view.$("#middle-value").text(), "2", "second render of middle");
+
+    run['default'](function () {
+      return outer.set("value", 3);
+    });
+
+    equal(view.$("#inner-value").text(), "3", "third render of inner");
+    equal(view.$("#middle-value").text(), "3", "third render of middle");
   });
 
 });
@@ -45809,7 +45917,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.a0ae04f7", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.bfcc15ee", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

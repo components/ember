@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.a0ae04f7
+ * @version   1.13.0-beta.1+canary.bfcc15ee
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.a0ae04f7
+    @version 1.13.0-beta.1+canary.bfcc15ee
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.a0ae04f7'
+    @default '1.13.0-beta.1+canary.bfcc15ee'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.a0ae04f7';
+  Ember.VERSION = '1.13.0-beta.1+canary.bfcc15ee';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -10419,7 +10419,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.a0ae04f7",
+        revision: "Ember@1.13.0-beta.1+canary.bfcc15ee",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12733,6 +12733,8 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     destroyRenderNode: null,
     willCleanupTree: null,
     didCleanupTree: null,
+    willRenderNode: null,
+    didRenderNode: null,
 
     // derived hooks
     attribute: attribute,
@@ -12755,6 +12757,8 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
 
   'use strict';
 
+  var guid = 1;
+
   function HTMLBarsMorph(domHelper, contextualElement) {
     this.super$constructor(domHelper, contextualElement);
 
@@ -12771,6 +12775,7 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
     this.key = null;
     this.linkedParams = null;
     this.rendered = false;
+    this.guid = "range" + guid++;
   }
 
   HTMLBarsMorph.empty = function (domHelper, contextualElement) {
@@ -12998,6 +13003,10 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
       var statement = statements[i];
       var morph = nodes[i];
 
+      if (env.hooks.willRenderNode) {
+        env.hooks.willRenderNode(morph, env, scope);
+      }
+
       switch (statement[0]) {
         case "block":
           visitor.block(statement, morph, env, scope, template, visitor);break;
@@ -13011,6 +13020,10 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           visitor.attribute(statement, morph, env, scope);break;
         case "component":
           visitor.component(statement, morph, env, scope, template, visitor);break;
+      }
+
+      if (env.hooks.didRenderNode) {
+        env.hooks.didRenderNode(morph, env, scope);
       }
     }
   };
@@ -13558,7 +13571,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function preparePath(data, parts, locInfo) {
-    /*jshint -W040 */
     locInfo = this.locInfo(locInfo);
 
     var original = data ? '@' : '',
@@ -13590,7 +13602,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareMustache(path, params, hash, open, strip, locInfo) {
-    /*jshint -W040 */
     // Must use charAt to support IE pre-10
     var escapeFlag = open.charAt(3) || open.charAt(2),
         escaped = escapeFlag !== '{' && escapeFlag !== '&';
@@ -13599,7 +13610,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareRawBlock(openRawBlock, content, close, locInfo) {
-    /*jshint -W040 */
     if (openRawBlock.path.original !== close) {
       var errorNode = { loc: openRawBlock.path.loc };
 
@@ -13613,7 +13623,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
-    /*jshint -W040 */
     // When we are chaining inverse calls, we will not have a close path
     if (close && close.path && openBlock.path.original !== close.path.original) {
       var errorNode = { loc: openBlock.path.loc };
@@ -13649,7 +13658,6 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
 
     'use strict';
 
-    /* jshint ignore:start */
     /* istanbul ignore next */
     /* Jison generated parser */
     var handlebars = (function () {
@@ -14320,7 +14328,6 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
         }Parser.prototype = parser;parser.Parser = Parser;
         return new Parser();
     })();exports['default'] = handlebars;
-    /* jshint ignore:end */
 
 });
 enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception', './ast'], function (exports, Exception, AST) {
