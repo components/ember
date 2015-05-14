@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.3
+ * @version   1.12.0
  */
 
 (function() {
@@ -8190,7 +8190,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8238,7 +8238,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8278,7 +8278,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8326,7 +8326,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8374,7 +8374,7 @@ enifed('ember-htmlbars/templates/select-option', ['exports', 'ember-template-com
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8423,7 +8423,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.3",
+        revision: "Ember@1.12.0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8467,7 +8467,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.3",
+          revision: "Ember@1.12.0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8509,7 +8509,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.3",
+        revision: "Ember@1.12.0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8553,7 +8553,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0-beta.3",
+          revision: "Ember@1.12.0",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8595,7 +8595,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0-beta.3",
+        revision: "Ember@1.12.0",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8637,7 +8637,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0-beta.3",
+      revision: "Ember@1.12.0",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11278,7 +11278,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0-beta.3
+    @version 1.12.0
   */
 
   if ('undefined' === typeof Ember) {
@@ -11307,10 +11307,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0-beta.3'
+    @default '1.12.0'
     @static
   */
-  Ember.VERSION = '1.12.0-beta.3';
+  Ember.VERSION = '1.12.0';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11488,11 +11488,25 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/platform/create', 
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
 
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  "REMOVE_USE_STRICT: true";
+  "REMOVE_USE_STRICT: true"; /**
+                             @module ember-metal
+                             */
 
+  // ..........................................................
+  // DEPENDENT KEYS
+  //
+
+  // data structure:
+  //  meta.deps = {
+  //    'depKey': {
+  //      'keyName': count,
+  //    }
+  //  }
+
+  /*
+    This function returns a map of unique dependencies for a
+    given object and key.
+  */
   function keysForDep(depsMeta, depKey) {
     var keys = depsMeta[depKey];
     if (!keys) {
@@ -11834,11 +11848,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   exports.on = on;
   exports.removeListener = removeListener;
 
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  "REMOVE_USE_STRICT: true";
-
+  "REMOVE_USE_STRICT: true"; /* listener flags */
   var ONCE = 1;
   var SUSPENDED = 2;
 
@@ -13428,11 +13438,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   exports.beforeObserver = beforeObserver;
   exports.Mixin = Mixin;
 
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  "REMOVE_USE_STRICT: true";
-
   /**
     @method mixin
     @for Ember
@@ -13440,7 +13445,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @param mixins*
     @return obj
   */
-  var REQUIRED;
+  "REMOVE_USE_STRICT: true";var REQUIRED;
   var a_slice = [].slice;
 
   function superFunction() {
@@ -14482,11 +14487,21 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
 enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_properties'], function (exports, defineProperties) {
 
   
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  'REMOVE_USE_STRICT: true';
 
+
+  'REMOVE_USE_STRICT: true'; /**
+                             @class platform
+                             @namespace Ember
+                             @static
+                             */
+
+  /**
+    Identical to `Object.create()`. Implements if not available natively.
+
+    @since 1.8.0
+    @method create
+    @for Ember
+  */
   var create;
   // ES5 15.2.3.5
   // http://es5.github.com/#x15.2.3.5
@@ -15536,7 +15551,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     });
     ```
 
-    In this example, we use Ember.run.bind to bind the setupEditor message to the
+    In this example, we use Ember.run.bind to bind the setupEditor method to the
     context of the App.RichTextEditorComponent and to have the invocation of that
     method be safely handled and executed by the Ember run loop.
 
@@ -16627,11 +16642,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.isArray = isArray;
   exports.canInvoke = canInvoke;
 
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  "REMOVE_USE_STRICT: true";
-
   /**
     Generates a universally unique identifier. This method
     is used internally by Ember for assisting with
@@ -16641,6 +16651,17 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     @public
     @return {Number} [description]
    */
+  "REMOVE_USE_STRICT: true"; /**
+                             @module ember-metal
+                             */
+
+  /**
+    Previously we used `Ember.$.uuid`, however `$.uuid` has been removed from
+    jQuery master. We'll just bootstrap our own uuid now.
+
+    @private
+    @return {Number} the uuid
+  */
   var _uuid = 0;
   function uuid() {
     return ++_uuid;
@@ -22460,7 +22481,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       The `location` property determines the type of URL's that your
       application will use.
        The following location types are currently available:
-       * `hash`
+       * `auto`
+      * `hash`
       * `history`
       * `none`
        @property location
@@ -29956,10 +29978,7 @@ enifed('ember-runtime/system/container', ['exports', 'ember-metal/property_set',
 enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-metal/merge', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/platform/create', 'ember-metal/chains', 'ember-metal/events', 'ember-metal/mixin', 'ember-metal/enumerable_utils', 'ember-metal/error', 'ember-metal/platform/define_property', 'ember-metal/keys', 'ember-runtime/mixins/action_handler', 'ember-metal/properties', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/injected_property', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-metal/core', 'ember-runtime/inject'], function (exports, Ember, merge, property_get, utils, o_create, chains, events, mixin, enumerable_utils, EmberError, define_property, keys, ActionHandler, ember_metal__properties, ember_metal__binding, computed, InjectedProperty, run, watching, core, inject) {
 
   
-  // Remove "use strict"; from transpiled module until
-  // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  "REMOVE_USE_STRICT: true";
+
 
   /**
     @module ember
@@ -29968,7 +29987,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
-  var schedule = run['default'].schedule;
+  "REMOVE_USE_STRICT: true";var schedule = run['default'].schedule;
   var applyMixin = mixin.Mixin._apply;
   var finishPartial = mixin.Mixin.finishPartial;
   var reopen = mixin.Mixin.prototype.reopen;
@@ -32853,7 +32872,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.12.0-beta.3";
+    options.revision = "Ember@1.12.0";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 

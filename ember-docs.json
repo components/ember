@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.12.0-beta.3"
+        "version": "1.12.0"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -3948,7 +3948,7 @@
             "namespace": "Ember",
             "file": "packages/ember-views/lib/mixins/text_support.js",
             "line": 11,
-            "description": "`TextSupport` is a shared mixin used by both `Ember.TextField` and\n`Ember.TextArea`. `TextSupport` adds a number of methods that allow you to\nspecify a controller action to invoke when a certain event is fired on your\ntext field or textarea. The specifed controller action would get the current\nvalue of the field passed in as the only argument unless the value of\nthe field is empty. In that case, the instance of the field itself is passed\nin as the only argument.\n\nLet's use the pressing of the escape key as an example. If you wanted to\ninvoke a controller action when a user presses the escape key while on your\nfield, you would use the `escape-press` attribute on your field like so:\n\n```handlebars\n  {{! application.hbs}}\n\n  {{input escape-press='alertUser'}}\n```\n\n```javascript\n    App = Ember.Application.create();\n\n    App.ApplicationController = Ember.Controller.extend({\n      actions: {\n        alertUser: function ( currentValue ) {\n          alert( 'escape pressed, current value: ' + currentValue );\n        }\n      }\n    });\n```\n\nThe following chart is a visual representation of what takes place when the\nescape key is pressed in this scenario:\n\nThe Template\n+---------------------------+\n|                           |\n| escape-press='alertUser'  |\n|                           |          TextSupport Mixin\n+----+----------------------+          +-------------------------------+\n     |                                 | cancel method                 |\n     |      escape button pressed      |                               |\n     +-------------------------------> | checks for the `escape-press` |\n                                       | attribute and pulls out the   |\n     +-------------------------------+ | `alertUser` value             |\n     |     action name 'alertUser'     +-------------------------------+\n     |     sent to controller\n     v\nController\n+------------------------------------------ +\n|                                           |\n|  actions: {                               |\n|     alertUser: function( currentValue ){  |\n|       alert( 'the esc key was pressed!' ) |\n|     }                                     |\n|  }                                        |\n|                                           |\n+-------------------------------------------+\n\nHere are the events that we currently support along with the name of the\nattribute you would need to use on your field. To reiterate, you would use the\nattribute name like so:\n\n```handlebars\n  {{input attribute-name='controllerAction'}}\n```\n\n+--------------------+----------------+\n|                    |                |\n| event              | attribute name |\n+--------------------+----------------+\n| new line inserted  | insert-newline |\n|                    |                |\n| enter key pressed  | insert-newline |\n|                    |                |\n| cancel key pressed | escape-press   |\n|                    |                |\n| focusin            | focus-in       |\n|                    |                |\n| focusout           | focus-out      |\n|                    |                |\n| keypress           | key-press      |\n|                    |                |\n| keyup              | key-up         |\n|                    |                |\n| keydown            | key-down       |\n+--------------------+----------------+",
+            "description": "`TextSupport` is a shared mixin used by both `Ember.TextField` and\n`Ember.TextArea`. `TextSupport` adds a number of methods that allow you to\nspecify a controller action to invoke when a certain event is fired on your\ntext field or textarea. The specifed controller action would get the current\nvalue of the field passed in as the only argument unless the value of\nthe field is empty. In that case, the instance of the field itself is passed\nin as the only argument.\n\nLet's use the pressing of the escape key as an example. If you wanted to\ninvoke a controller action when a user presses the escape key while on your\nfield, you would use the `escape-press` attribute on your field like so:\n\n```handlebars\n  {{! application.hbs}}\n\n  {{input escape-press='alertUser'}}\n```\n\n```javascript\n    App = Ember.Application.create();\n\n    App.ApplicationController = Ember.Controller.extend({\n      actions: {\n        alertUser: function ( currentValue ) {\n          alert( 'escape pressed, current value: ' + currentValue );\n        }\n      }\n    });\n```\n\nThe following chart is a visual representation of what takes place when the\nescape key is pressed in this scenario:\n\n```\nThe Template\n+---------------------------+\n|                           |\n| escape-press='alertUser'  |\n|                           |          TextSupport Mixin\n+----+----------------------+          +-------------------------------+\n     |                                 | cancel method                 |\n     |      escape button pressed      |                               |\n     +-------------------------------> | checks for the `escape-press` |\n                                       | attribute and pulls out the   |\n     +-------------------------------+ | `alertUser` value             |\n     |     action name 'alertUser'     +-------------------------------+\n     |     sent to controller\n     v\nController\n+------------------------------------------ +\n|                                           |\n|  actions: {                               |\n|     alertUser: function( currentValue ){  |\n|       alert( 'the esc key was pressed!' ) |\n|     }                                     |\n|  }                                        |\n|                                           |\n+-------------------------------------------+\n```\n\nHere are the events that we currently support along with the name of the\nattribute you would need to use on your field. To reiterate, you would use the\nattribute name like so:\n\n```handlebars\n  {{input attribute-name='controllerAction'}}\n```\n\n```\n+--------------------+----------------+\n|                    |                |\n| event              | attribute name |\n+--------------------+----------------+\n| new line inserted  | insert-newline |\n|                    |                |\n| enter key pressed  | insert-newline |\n|                    |                |\n| cancel key pressed | escape-press   |\n|                    |                |\n| focusin            | focus-in       |\n|                    |                |\n| focusout           | focus-out      |\n|                    |                |\n| keypress           | key-press      |\n|                    |                |\n| keyup              | key-up         |\n|                    |                |\n| keydown            | key-down       |\n+--------------------+----------------+\n```",
             "uses": [
                 "Ember.TargetActionSupport"
             ],
@@ -9858,7 +9858,7 @@
         {
             "file": "packages/ember-metal/lib/run_loop.js",
             "line": 111,
-            "description": "Allows you to specify which context to call the specified function in while\nadding the execution of that function to the Ember run loop. This ability\nmakes this method a great way to asynchronously integrate third-party libraries\ninto your Ember application.\n\n`run.bind` takes two main arguments, the desired context and the function to\ninvoke in that context. Any additional arguments will be supplied as arguments\nto the function that is passed in.\n\nLet's use the creation of a TinyMCE component as an example. Currently,\nTinyMCE provides a setup configuration option we can use to do some processing\nafter the TinyMCE instance is initialized but before it is actually rendered.\nWe can use that setup option to do some additional setup for our component.\nThe component itself could look something like the following:\n\n```javascript\nApp.RichTextEditorComponent = Ember.Component.extend({\n  initializeTinyMCE: Ember.on('didInsertElement', function() {\n    tinymce.init({\n      selector: '#' + this.$().prop('id'),\n      setup: Ember.run.bind(this, this.setupEditor)\n    });\n  }),\n\n  setupEditor: function(editor) {\n    this.set('editor', editor);\n\n    editor.on('change', function() {\n      console.log('content changed!');\n    });\n  }\n});\n```\n\nIn this example, we use Ember.run.bind to bind the setupEditor message to the\ncontext of the App.RichTextEditorComponent and to have the invocation of that\nmethod be safely handled and executed by the Ember run loop.",
+            "description": "Allows you to specify which context to call the specified function in while\nadding the execution of that function to the Ember run loop. This ability\nmakes this method a great way to asynchronously integrate third-party libraries\ninto your Ember application.\n\n`run.bind` takes two main arguments, the desired context and the function to\ninvoke in that context. Any additional arguments will be supplied as arguments\nto the function that is passed in.\n\nLet's use the creation of a TinyMCE component as an example. Currently,\nTinyMCE provides a setup configuration option we can use to do some processing\nafter the TinyMCE instance is initialized but before it is actually rendered.\nWe can use that setup option to do some additional setup for our component.\nThe component itself could look something like the following:\n\n```javascript\nApp.RichTextEditorComponent = Ember.Component.extend({\n  initializeTinyMCE: Ember.on('didInsertElement', function() {\n    tinymce.init({\n      selector: '#' + this.$().prop('id'),\n      setup: Ember.run.bind(this, this.setupEditor)\n    });\n  }),\n\n  setupEditor: function(editor) {\n    this.set('editor', editor);\n\n    editor.on('change', function() {\n      console.log('content changed!');\n    });\n  }\n});\n```\n\nIn this example, we use Ember.run.bind to bind the setupEditor method to the\ncontext of the App.RichTextEditorComponent and to have the invocation of that\nmethod be safely handled and executed by the Ember run loop.",
             "itemtype": "method",
             "name": "bind",
             "params": [
@@ -13137,7 +13137,7 @@
         {
             "file": "packages/ember-routing/lib/system/router.js",
             "line": 46,
-            "description": "The `location` property determines the type of URL's that your\napplication will use.\n\nThe following location types are currently available:\n\n* `hash`\n* `history`\n* `none`",
+            "description": "The `location` property determines the type of URL's that your\napplication will use.\n\nThe following location types are currently available:\n\n* `auto`\n* `hash`\n* `history`\n* `none`",
             "itemtype": "property",
             "name": "location",
             "default": "'hash'",
@@ -13151,7 +13151,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 62,
+            "line": 63,
             "description": "Represents the URL of the root of the application, often '/'. This prefix is\nassumed on all routes defined on this router.",
             "itemtype": "property",
             "name": "rootURL",
@@ -13163,7 +13163,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 106,
+            "line": 107,
             "description": "Represents the current URL.",
             "itemtype": "method",
             "name": "url",
@@ -13178,7 +13178,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 116,
+            "line": 117,
             "description": "Initializes the current router instance and sets up the change handling\nevent listeners used by the instances `location` implementation.\n\nA property named `initialURL` will be used to determine the initial URL.\nIf no value is found `/` will be used.",
             "itemtype": "method",
             "name": "startRouting",
@@ -13191,7 +13191,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 163,
+            "line": 164,
             "description": "Handles updating the paths and notifying any listeners of the URL\nchange.\n\nTriggers the router level `didTransition` hook.",
             "itemtype": "method",
             "name": "didTransition",
@@ -13205,7 +13205,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 225,
+            "line": 226,
             "description": "Handles notifying any listeners of an impending URL\nchange.\n\nTriggers the router level `willTransition` hook.",
             "itemtype": "method",
             "name": "willTransition",
@@ -13219,7 +13219,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 293,
+            "line": 294,
             "description": "Determines if the supplied route is currently active.",
             "itemtype": "method",
             "name": "isActive",
@@ -13242,7 +13242,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 306,
+            "line": 307,
             "description": "An alternative form of `isActive` that doesn't require\nmanual concatenation of the arguments into a single\narray.",
             "itemtype": "method",
             "name": "isActiveIntent",
@@ -13274,7 +13274,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 327,
+            "line": 328,
             "description": "Does this router instance have the given route.",
             "itemtype": "method",
             "name": "hasRoute",
@@ -13291,7 +13291,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 338,
+            "line": 339,
             "description": "Resets the state of the router by clearing the current route\nhandlers and deactivating them.",
             "access": "private",
             "tagname": "",
@@ -13304,7 +13304,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 553,
+            "line": 554,
             "description": "Returns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
             "class": "Ember.Router",
             "module": "ember",
@@ -13313,7 +13313,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 891,
+            "line": 892,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nand resources in your application. These mappings are defined within the\nsupplied callback function using `this.resource` and `this.route`.\n\n```javascript\nApp.Router.map(function(){\n  this.route('about');\n  this.resource('article');\n});\n```\n\nFor more detailed examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -18789,7 +18789,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 134,
+            "line": 138,
             "description": "The action to be sent when the user presses the return key.\n\nThis is similar to the `{{action}}` helper, but is fired when\nthe user presses the return key when editing a text field, and sends\nthe value of the field as the context.",
             "itemtype": "property",
             "name": "action",
@@ -18802,7 +18802,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 147,
+            "line": 151,
             "description": "The event that should send the action.\n\nOptions are:\n\n* `enter`: the user pressed enter\n* `keyPress`: the user pressed a key",
             "itemtype": "property",
             "name": "onEvent",
@@ -18815,7 +18815,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 161,
+            "line": 165,
             "description": "Whether the `keyUp` event that triggers an `action` to be sent continues\npropagating to other views.\n\nBy default, when the user presses the return key on their keyboard and\nthe text field has an `action` set, the action will be sent to the view's\ncontroller and the key event will stop propagating.\n\nIf you would like parent views to receive the `keyUp` event even after an\naction has been dispatched, set `bubbles` to true.",
             "itemtype": "property",
             "name": "bubbles",
@@ -18828,7 +18828,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 194,
+            "line": 198,
             "description": "Allows you to specify a controller action to invoke when either the `enter`\nkey is pressed or, in the case of the field being a textarea, when a newline\nis inserted. To use this method, give your field an `insert-newline`\nattribute. The value of that attribute should be the name of the action\nin your controller that you wish to invoke.\n\nFor an example on how to use the `insert-newline` attribute, please\nreference the example near the top of this file.",
             "itemtype": "method",
             "name": "insertNewline",
@@ -18846,7 +18846,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 212,
+            "line": 216,
             "description": "Allows you to specify a controller action to invoke when the escape button\nis pressed. To use this method, give your field an `escape-press`\nattribute. The value of that attribute should be the name of the action\nin your controller that you wish to invoke.\n\nFor an example on how to use the `escape-press` attribute, please reference\nthe example near the top of this file.",
             "itemtype": "method",
             "name": "cancel",
@@ -18864,7 +18864,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 228,
+            "line": 232,
             "description": "Allows you to specify a controller action to invoke when a field receives\nfocus. To use this method, give your field a `focus-in` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `focus-in` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "focusIn",
@@ -18882,7 +18882,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 244,
+            "line": 248,
             "description": "Allows you to specify a controller action to invoke when a field loses\nfocus. To use this method, give your field a `focus-out` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `focus-out` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "focusOut",
@@ -18900,7 +18900,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 261,
+            "line": 265,
             "description": "Allows you to specify a controller action to invoke when a key is pressed.\nTo use this method, give your field a `key-press` attribute. The value of\nthat attribute should be the name of the action in your controller you\nthat wish to invoke.\n\nFor an example on how to use the `key-press` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyPress",
@@ -18918,7 +18918,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 277,
+            "line": 281,
             "description": "Allows you to specify a controller action to invoke when a key-up event is\nfired. To use this method, give your field a `key-up` attribute. The value\nof that attribute should be the name of the action in your controller\nthat you wish to invoke.\n\nFor an example on how to use the `key-up` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyUp",
@@ -18936,7 +18936,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/text_support.js",
-            "line": 295,
+            "line": 299,
             "description": "Allows you to specify a controller action to invoke when a key-down event is\nfired. To use this method, give your field a `key-down` attribute. The value\nof that attribute should be the name of the action in your controller that\nyou wish to invoke.\n\nFor an example on how to use the `key-down` attribute, please reference the\nexample near the top of this file.",
             "itemtype": "method",
             "name": "keyDown",
@@ -20941,7 +20941,7 @@
         },
         {
             "message": "Missing item type\nReturns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
-            "line": " packages/ember-routing/lib/system/router.js:553"
+            "line": " packages/ember-routing/lib/system/router.js:554"
         },
         {
             "message": "Missing item type",
