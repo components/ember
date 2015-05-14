@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.6b66cf46
+ * @version   1.13.0-beta.1.ce345f0e
  */
 
 (function() {
@@ -18969,79 +18969,77 @@ enifed('ember-metal/tests/computed_test', ['ember-metal/core', 'ember-metal/test
   // improved-cp-syntax
   //
 
-  
-    QUnit.module('computed - improved cp syntax');
+  QUnit.module('computed - improved cp syntax');
 
-    QUnit.test('setter and getters are passed using an object', function () {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        b: '2',
-        aInt: computed.computed('a', {
-          get: function (keyName) {
-            equal(keyName, 'aInt', 'getter receives the keyName');
-            return parseInt(this.get('a'));
-          },
-          set: function (keyName, value, oldValue) {
-            equal(keyName, 'aInt', 'setter receives the keyName');
-            equal(value, 123, 'setter receives the new value');
-            equal(oldValue, 1, 'setter receives the old value');
-            this.set('a', '' + value); // side effect
-            return parseInt(this.get('a'));
-          }
-        })
-      }).create();
+  QUnit.test('setter and getters are passed using an object', function () {
+    var testObj = Ember['default'].Object.extend({
+      a: '1',
+      b: '2',
+      aInt: computed.computed('a', {
+        get: function (keyName) {
+          equal(keyName, 'aInt', 'getter receives the keyName');
+          return parseInt(this.get('a'));
+        },
+        set: function (keyName, value, oldValue) {
+          equal(keyName, 'aInt', 'setter receives the keyName');
+          equal(value, 123, 'setter receives the new value');
+          equal(oldValue, 1, 'setter receives the old value');
+          this.set('a', '' + value); // side effect
+          return parseInt(this.get('a'));
+        }
+      })
+    }).create();
 
-      ok(testObj.get('aInt') === 1, 'getter works');
-      testObj.set('aInt', 123);
-      ok(testObj.get('a') === '123', 'setter works');
-      ok(testObj.get('aInt') === 123, 'cp has been updated too');
-    });
+    ok(testObj.get('aInt') === 1, 'getter works');
+    testObj.set('aInt', 123);
+    ok(testObj.get('a') === '123', 'setter works');
+    ok(testObj.get('aInt') === 123, 'cp has been updated too');
+  });
 
-    QUnit.test('setter can be omited', function () {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        b: '2',
-        aInt: computed.computed('a', {
-          get: function (keyName) {
-            equal(keyName, 'aInt', 'getter receives the keyName');
-            return parseInt(this.get('a'));
-          }
-        })
-      }).create();
+  QUnit.test('setter can be omited', function () {
+    var testObj = Ember['default'].Object.extend({
+      a: '1',
+      b: '2',
+      aInt: computed.computed('a', {
+        get: function (keyName) {
+          equal(keyName, 'aInt', 'getter receives the keyName');
+          return parseInt(this.get('a'));
+        }
+      })
+    }).create();
 
-      ok(testObj.get('aInt') === 1, 'getter works');
-      ok(testObj.get('a') === '1');
-      testObj.set('aInt', '123');
-      ok(testObj.get('aInt') === '123', 'cp has been updated too');
-    });
+    ok(testObj.get('aInt') === 1, 'getter works');
+    ok(testObj.get('a') === '1');
+    testObj.set('aInt', '123');
+    ok(testObj.get('aInt') === '123', 'cp has been updated too');
+  });
 
-    QUnit.test('the return value of the setter gets cached', function () {
-      var testObj = Ember['default'].Object.extend({
-        a: '1',
-        sampleCP: computed.computed('a', {
-          get: function (keyName) {
-            ok(false, 'The getter should not be invoked');
-            return 'get-value';
-          },
-          set: function (keyName, value, oldValue) {
-            return 'set-value';
-          }
-        })
-      }).create();
+  QUnit.test('the return value of the setter gets cached', function () {
+    var testObj = Ember['default'].Object.extend({
+      a: '1',
+      sampleCP: computed.computed('a', {
+        get: function (keyName) {
+          ok(false, 'The getter should not be invoked');
+          return 'get-value';
+        },
+        set: function (keyName, value, oldValue) {
+          return 'set-value';
+        }
+      })
+    }).create();
 
-      testObj.set('sampleCP', 'abcd');
-      ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
-    });
+    testObj.set('sampleCP', 'abcd');
+    ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
+  });
 
-    QUnit.test('Passing a function that acts both as getter and setter is deprecated', function () {
-      var regex = /Using the same function as getter and setter is deprecated/;
-      expectDeprecation(function () {
-        Ember['default'].Object.extend({
-          aInt: computed.computed('a', function (keyName, value, oldValue) {})
-        });
-      }, regex);
-    });
-  
+  QUnit.test('Passing a function that acts both as getter and setter is deprecated', function () {
+    var regex = /Using the same function as getter and setter is deprecated/;
+    expectDeprecation(function () {
+      Ember['default'].Object.extend({
+        aInt: computed.computed('a', function (keyName, value, oldValue) {})
+      });
+    }, regex);
+  });
 
   // ..........................................................
   // BUGS
@@ -45918,7 +45916,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1.6b66cf46", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1.ce345f0e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
