@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1
+ * @version   1.13.0-beta.1.18e25ff5
  */
 
 (function() {
@@ -45897,8 +45897,10 @@ enifed('ember-template-compiler/tests/plugins/transform-bind-attr-to-attributes-
     expect(1);
 
     expectDeprecation(function () {
-      ember_template_compiler.compile("<div {{bind-attr class=view.foo}}></div>");
-    }, /The `bind-attr` helper is deprecated in favor of HTMLBars-style bound attributes/);
+      ember_template_compiler.compile("<div {{bind-attr class=view.foo}}></div>", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "The `bind-attr` helper ('foo/bar/baz' @ L1:C7) is deprecated in favor of HTMLBars-style bound attributes.");
   });
 
   QUnit.test("Using the `bindAttr` helper throws a deprecation", function () {
@@ -45906,7 +45908,7 @@ enifed('ember-template-compiler/tests/plugins/transform-bind-attr-to-attributes-
 
     expectDeprecation(function () {
       ember_template_compiler.compile("<div {{bindAttr class=view.foo}}></div>");
-    }, /The `bindAttr` helper is deprecated in favor of HTMLBars-style bound attributes/);
+    }, "The `bindAttr` helper (L1:C7) is deprecated in favor of HTMLBars-style bound attributes.");
   });
 
   QUnit.test("asserts for <div class='foo' {{bind-attr class='bar'}}></div>", function () {
@@ -46070,7 +46072,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1.18e25ff5", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

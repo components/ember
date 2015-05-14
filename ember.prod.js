@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1
+ * @version   1.13.0-beta.1.18e25ff5
  */
 
 (function() {
@@ -7729,7 +7729,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.18e25ff5";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12561,7 +12561,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1
+    @version 1.13.0-beta.1.18e25ff5
   */
 
   if ('undefined' === typeof Ember) {
@@ -12590,10 +12590,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1'
+    @default '1.13.0-beta.1.18e25ff5'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1';
+  Ember.VERSION = '1.13.0-beta.1.18e25ff5';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19812,7 +19812,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.18e25ff5";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20282,7 +20282,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.18e25ff5";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -34088,9 +34088,10 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
   @submodule ember-htmlbars
   */
 
-  function TransformBindAttrToAttributes() {
+  function TransformBindAttrToAttributes(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options || {};
   }
 
   /**
@@ -34100,6 +34101,7 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
   */
   TransformBindAttrToAttributes.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var plugin = this;
+    var moduleName = this.options.moduleName;
     var walker = new this.syntax.Walker();
 
     walker.visit(ast, function (node) {
@@ -34107,7 +34109,7 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
         for (var i = 0; i < node.modifiers.length; i++) {
           var modifier = node.modifiers[i];
 
-          if (isBindAttrModifier(modifier)) {
+          if (isBindAttrModifier(modifier, moduleName)) {
             node.modifiers.splice(i--, 1);
             plugin.assignAttrs(node, modifier.hash);
           }
@@ -34208,8 +34210,27 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
     }
   };
 
-  function isBindAttrModifier(modifier) {
+  function isBindAttrModifier(modifier, moduleName) {
     var name = modifier.path.original;
+
+    var _ref = modifier.path.loc.start || {};
+
+    var column = _ref.column;
+    var line = _ref.line;
+
+    var moduleInfo = "";
+
+    if (moduleName) {
+      moduleInfo += "'" + moduleName + "' @ ";
+    }
+
+    if (line && column) {
+      moduleInfo += "L" + line + ":C" + column;
+    }
+
+    if (moduleInfo) {
+      moduleInfo = "(" + moduleInfo + ") ";
+    }
 
     if (name === "bind-attr" || name === "bindAttr") {
             return true;
@@ -35000,7 +35021,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1",
+        revision: "Ember@1.13.0-beta.1.18e25ff5",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38312,7 +38333,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.18e25ff5";
 
   /**
   @module ember
