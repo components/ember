@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.257c2bc8
+ * @version   2.0.0-beta.1+canary.e753dfc8
  */
 
 (function() {
@@ -3593,24 +3593,23 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    
-      if (typeof config === "function") {
-        config.__ember_arity = config.length;
-        this._getter = config;
-        if (config.__ember_arity > 1) {
-          Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
-          });
-          this._setter = config;
-        }
-      } else {
-        this._getter = config.get;
-        this._setter = config.set;
-        if (this._setter && this._setter.__ember_arity === undefined) {
-          this._setter.__ember_arity = this._setter.length;
-        }
+    if (typeof config === "function") {
+      config.__ember_arity = config.length;
+      this._getter = config;
+      if (config.__ember_arity > 1) {
+        Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
+          url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+        });
+        this._setter = config;
       }
-    
+    } else {
+      this._getter = config.get;
+      this._setter = config.set;
+      if (this._setter && this._setter.__ember_arity === undefined) {
+        this._setter.__ember_arity = this._setter.length;
+      }
+    }
+
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
@@ -4060,8 +4059,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     }
 
     var cp = new ComputedProperty(func);
-    // jscs:disable
-    
+
     if (args) {
       cp.property.apply(cp, args);
     }
@@ -4391,7 +4389,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.257c2bc8
+    @version 2.0.0-beta.1+canary.e753dfc8
   */
 
   if ('undefined' === typeof Ember) {
@@ -4420,10 +4418,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.257c2bc8'
+    @default '2.0.0-beta.1+canary.e753dfc8'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.257c2bc8';
+  Ember.VERSION = '2.0.0-beta.1+canary.e753dfc8';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -4464,7 +4462,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': true, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': true, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {

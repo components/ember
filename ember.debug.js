@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.257c2bc8
+ * @version   2.0.0-beta.1+canary.e753dfc8
  */
 
 (function() {
@@ -8097,7 +8097,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e753dfc8";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12201,24 +12201,23 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
-    
-      if (typeof config === "function") {
-        config.__ember_arity = config.length;
-        this._getter = config;
-        if (config.__ember_arity > 1) {
-          Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-            url: "http://emberjs.com/deprecations/v1.x/#toc_computed-properties-with-a-shared-getter-and-setter"
-          });
-          this._setter = config;
-        }
-      } else {
-        this._getter = config.get;
-        this._setter = config.set;
-        if (this._setter && this._setter.__ember_arity === undefined) {
-          this._setter.__ember_arity = this._setter.length;
-        }
+    if (typeof config === "function") {
+      config.__ember_arity = config.length;
+      this._getter = config;
+      if (config.__ember_arity > 1) {
+        Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
+          url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
+        });
+        this._setter = config;
       }
-    
+    } else {
+      this._getter = config.get;
+      this._setter = config.set;
+      if (this._setter && this._setter.__ember_arity === undefined) {
+        this._setter.__ember_arity = this._setter.length;
+      }
+    }
+
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
@@ -12668,8 +12667,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     }
 
     var cp = new ComputedProperty(func);
-    // jscs:disable
-    
+
     if (args) {
       cp.property.apply(cp, args);
     }
@@ -12999,7 +12997,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.257c2bc8
+    @version 2.0.0-beta.1+canary.e753dfc8
   */
 
   if ('undefined' === typeof Ember) {
@@ -13028,10 +13026,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.257c2bc8'
+    @default '2.0.0-beta.1+canary.e753dfc8'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.257c2bc8';
+  Ember.VERSION = '2.0.0-beta.1+canary.e753dfc8';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -13072,7 +13070,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":true,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":true,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -20382,7 +20380,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e753dfc8";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20856,7 +20854,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e753dfc8";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35692,7 +35690,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.257c2bc8",
+        revision: "Ember@2.0.0-beta.1+canary.e753dfc8",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40217,7 +40215,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e753dfc8";
 
   /**
   @module ember
@@ -41619,7 +41617,7 @@ enifed('ember-views/views/text_area', ['exports', 'ember-views/views/component',
   });
 
 });
-enifed('ember-views/views/text_field', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/environment', 'ember-metal/platform/create', 'ember-views/views/component', 'ember-views/mixins/text_support'], function (exports, Ember, computed, environment, create, Component, TextSupport) {
+enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'ember-metal/environment', 'ember-metal/platform/create', 'ember-views/views/component', 'ember-views/mixins/text_support'], function (exports, computed, environment, create, Component, TextSupport) {
 
   'use strict';
 
@@ -41652,25 +41650,6 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/core', 'ember-me
 
     return inputTypes[type] = inputTypeTestElement.type === type;
   }
-
-  function getTypeComputed() {
-    
-      return computed.computed({
-        get: function () {
-          return "text";
-        },
-
-        set: function (key, value) {
-          var type = "text";
-
-          if (canSetTypeOfInput(value)) {
-            type = value;
-          }
-
-          return type;
-        }
-      });
-      }
 
   /**
 
@@ -41714,7 +41693,21 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/core', 'ember-me
       @type String
       @default "text"
     */
-    type: getTypeComputed(),
+    type: computed.computed({
+      get: function () {
+        return "text";
+      },
+
+      set: function (key, value) {
+        var type = "text";
+
+        if (canSetTypeOfInput(value)) {
+          type = value;
+        }
+
+        return type;
+      }
+    }),
 
     /**
       The `size` of the text field in characters.
