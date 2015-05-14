@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1e7f9914
+ * @version   1.13.0-beta.1+canary.2615a955
  */
 
 (function() {
@@ -2632,7 +2632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.1e7f9914
+    @version 1.13.0-beta.1+canary.2615a955
   */
 
   if ('undefined' === typeof Ember) {
@@ -2661,10 +2661,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.1e7f9914'
+    @default '1.13.0-beta.1+canary.2615a955'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.1e7f9914';
+  Ember.VERSION = '1.13.0-beta.1+canary.2615a955';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -2705,7 +2705,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': null, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': true, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'new-computed-syntax': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -8279,6 +8279,9 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
         subscribe(array[i], stream.notify, stream);
       }
 
+      // used by angle bracket components to detect an attribute was provided
+      // as a string literal
+      stream.isConcat = true;
       return stream;
     } else {
       return array.join(separator);
@@ -9402,7 +9405,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
   }
 
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly) {
+enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly, TransformAngleBracketComponents) {
 
 	'use strict';
 
@@ -9416,6 +9419,7 @@ enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-templat
 	plugins.registerPlugin("ast", TransformItemClass['default']);
 	plugins.registerPlugin("ast", TransformComponentAttrsIntoMut['default']);
 	plugins.registerPlugin("ast", TransformComponentCurlyToReadonly['default']);
+	plugins.registerPlugin("ast", TransformAngleBracketComponents['default']);
 
 	exports._Ember = _Ember['default'];
 	exports.precompile = precompile['default'];
@@ -9488,6 +9492,41 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
   }
 
   exports['default'] = plugins;
+
+});
+enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
+
+  'use strict';
+
+  function TransformAngleBracketComponents() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} The AST to be transformed.
+  */
+  TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      node.tag = '<' + node.tag + '>';
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'ComponentNode';
+  }
+
+  exports['default'] = TransformAngleBracketComponents;
 
 });
 enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string'], function (exports, Ember, string) {
@@ -10402,9 +10441,9 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports['default'] = function (_options) {
     var disableComponentGeneration = true;
-    if (Ember['default'].FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+    
       disableComponentGeneration = false;
-    }
+    
 
     var options = _options || {};
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -10419,7 +10458,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.1e7f9914",
+        revision: "Ember@1.13.0-beta.1+canary.2615a955",
         loc: program.loc,
         moduleName: options.moduleName
       };

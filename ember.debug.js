@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.1e7f9914
+ * @version   1.13.0-beta.1+canary.2615a955
  */
 
 (function() {
@@ -6975,13 +6975,21 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-htmlbars/node-manage
 
 
   exports['default'] = componentHook;
-  function componentHook(renderNode, env, scope, tagName, params, attrs, templates, visitor) {
+  function componentHook(renderNode, env, scope, _tagName, params, attrs, templates, visitor) {
     var state = renderNode.state;
 
     // Determine if this is an initial render or a re-render
     if (state.manager) {
       state.manager.rerender(env, attrs, visitor);
       return;
+    }
+
+    var tagName = _tagName;
+    var isAngleBracket = false;
+
+    if (tagName.charAt(0) === "<") {
+      tagName = tagName.slice(1, -1);
+      isAngleBracket = true;
     }
 
     var read = env.hooks.getValue;
@@ -6993,6 +7001,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-htmlbars/node-manage
       attrs: attrs,
       parentView: parentView,
       templates: templates,
+      isAngleBracket: isAngleBracket,
       parentScope: scope
     });
 
@@ -8077,7 +8086,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2615a955";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8531,15 +8540,16 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
   exports['default'] = EmberMorph;
 
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, SafeString, instrumentation_support, getValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, SafeString, instrumentation_support, EmberComponent, getValue) {
 
   'use strict';
 
   exports.handleLegacyRender = handleLegacyRender;
   exports.createComponent = createComponent;
 
-  function ComponentNodeManager(component, scope, renderNode, attrs, block, expectElement) {
+  function ComponentNodeManager(component, isAngleBracket, scope, renderNode, attrs, block, expectElement) {
     this.component = component;
+    this.isAngleBracket = isAngleBracket;
     this.scope = scope;
     this.renderNode = renderNode;
     this.attrs = attrs;
@@ -8555,6 +8565,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var attrs = options.attrs;
     var parentView = options.parentView;
     var parentScope = options.parentScope;
+    var isAngleBracket = options.isAngleBracket;
     var templates = options.templates;
 
     attrs = attrs || {};
@@ -8571,39 +8582,38 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       return component || layout;
     });
 
-    if (component) {
-      var createOptions = { parentView: parentView };
+    component = component || EmberComponent['default'];
 
-      // Map passed attributes (e.g. <my-component id="foo">) to component
-      // properties ({ id: "foo" }).
-      configureCreateOptions(attrs, createOptions);
+    var createOptions = { parentView: parentView };
 
-      // If there is a controller on the scope, pluck it off and save it on the
-      // component. This allows the component to target actions sent via
-      // `sendAction` correctly.
-      if (parentScope.locals.controller) {
-        createOptions._controller = getValue['default'](parentScope.locals.controller);
-      }
+    configureTagName(attrs, tagName, component, isAngleBracket, createOptions);
 
-      // Instantiate the component
-      component = createComponent(component, createOptions, renderNode, env, attrs);
+    // Map passed attributes (e.g. <my-component id="foo">) to component
+    // properties ({ id: "foo" }).
+    configureCreateOptions(attrs, createOptions);
 
-      // If the component specifies its template via the `layout` or `template`
-      // properties instead of using the template looked up in the container, get
-      // them now that we have the component instance.
-      var result = extractComponentTemplates(component, templates);
-      layout = result.layout || layout;
-      templates = result.templates || templates;
-
-      extractPositionalParams(renderNode, component, params, attrs);
+    // If there is a controller on the scope, pluck it off and save it on the
+    // component. This allows the component to target actions sent via
+    // `sendAction` correctly.
+    if (parentScope.locals.controller) {
+      createOptions._controller = getValue['default'](parentScope.locals.controller);
     }
 
-    var results = buildComponentTemplate['default']({ layout: layout, component: component }, attrs, {
-      templates: templates,
-      scope: parentScope
-    });
+    // Instantiate the component
+    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
 
-    return new ComponentNodeManager(component, parentScope, renderNode, attrs, results.block, results.createdElement);
+    // If the component specifies its template via the `layout` or `template`
+    // properties instead of using the template looked up in the container, get
+    // them now that we have the component instance.
+    var result = extractComponentTemplates(component, templates);
+    layout = result.layout || layout;
+    templates = result.templates || templates;
+
+    extractPositionalParams(renderNode, component, params, attrs);
+
+    var results = buildComponentTemplate['default']({ layout: layout, component: component, isAngleBracket: isAngleBracket }, attrs, { templates: templates, scope: parentScope });
+
+    return new ComponentNodeManager(component, isAngleBracket, parentScope, renderNode, attrs, results.block, results.createdElement);
   };
 
   function extractPositionalParams(renderNode, component, params, attrs) {
@@ -8659,15 +8669,20 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return templates;
   }
 
+  function configureTagName(attrs, tagName, component, isAngleBracket, createOptions) {
+    if (isAngleBracket) {
+      createOptions.tagName = tagName;
+    } else if (attrs.tagName) {
+      createOptions.tagName = getValue['default'](attrs.tagName);
+    }
+  }
+
   function configureCreateOptions(attrs, createOptions) {
     // Some attrs are special and need to be set as properties on the component
     // instance. Make sure we use getValue() to get them from `attrs` since
     // they are still streams.
     if (attrs.id) {
       createOptions.elementId = getValue['default'](attrs.id);
-    }
-    if (attrs.tagName) {
-      createOptions.tagName = getValue['default'](attrs.tagName);
     }
     if (attrs._defaultTagName) {
       createOptions._defaultTagName = getValue['default'](attrs._defaultTagName);
@@ -8684,32 +8699,32 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return instrumentation_support.instrument(component, function () {
       var env = _env;
 
-      if (component) {
-        env = merge.assign({ view: component }, env);
+      env = merge.assign({ view: component }, env);
 
-        var snapshot = takeSnapshot(attrs);
-        env.renderer.componentInitAttrs(this.component, snapshot);
-        env.renderer.componentWillRender(component);
-        env.renderedViews.push(component.elementId);
-      }
+      var snapshot = takeSnapshot(attrs);
+      env.renderer.componentInitAttrs(this.component, snapshot);
+      env.renderer.componentWillRender(component);
+      env.renderedViews.push(component.elementId);
 
       if (this.block) {
         this.block(env, [], undefined, this.renderNode, this.scope, visitor);
       }
 
-      if (component) {
-        var element = this.expectElement && this.renderNode.firstNode;
-        handleLegacyRender(component, element);
-        env.renderer.didCreateElement(component, element);
-        env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
-        env.lifecycleHooks.push({ type: "didInsertElement", view: component });
-      }
+      var element = this.expectElement && this.renderNode.firstNode;
+
+      handleLegacyRender(component, element);
+      env.renderer.didCreateElement(component, element);
+      env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
+
+      env.lifecycleHooks.push({ type: "didInsertElement", view: component });
     }, this);
   };
   function handleLegacyRender(component, element) {
     if (!component.render) {
       return;
     }
+
+    Ember['default'].assert("Legacy render functions are not supported with angle-bracket components", !component._isAngleBracket);
 
     var content, node, lastChildIndex;
     var buffer = [];
@@ -8731,60 +8746,63 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return instrumentation_support.instrument(component, function () {
       var env = _env;
 
-      if (component) {
-        env = merge.assign({ view: component }, env);
+      env = merge.assign({ view: component }, env);
 
-        var snapshot = takeSnapshot(attrs);
+      var snapshot = takeSnapshot(attrs);
 
-        if (component._renderNode.shouldReceiveAttrs) {
-          env.renderer.componentUpdateAttrs(component, component.attrs, snapshot);
+      if (component._renderNode.shouldReceiveAttrs) {
+        env.renderer.componentUpdateAttrs(component, component.attrs, snapshot);
 
-          // 2.0TODO: remove legacy semantics for angle-bracket semantics
+        if (!component._isAngleBracket) {
           setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
-
-          component._renderNode.shouldReceiveAttrs = false;
         }
 
-        // Notify component that it has become dirty and is about to change.
-        env.renderer.componentWillUpdate(component, snapshot);
-        env.renderer.componentWillRender(component);
-
-        env.renderedViews.push(component.elementId);
+        component._renderNode.shouldReceiveAttrs = false;
       }
+
+      // Notify component that it has become dirty and is about to change.
+      env.renderer.componentWillUpdate(component, snapshot);
+      env.renderer.componentWillRender(component);
+
+      env.renderedViews.push(component.elementId);
 
       if (this.block) {
         this.block(env, [], undefined, this.renderNode, this.scope, visitor);
       }
 
-      if (component) {
-        env.lifecycleHooks.push({ type: "didUpdate", view: component });
-      }
+      env.lifecycleHooks.push({ type: "didUpdate", view: component });
 
       return env;
     }, this);
   };
-  function createComponent(_component, options, renderNode, env) {
-    var attrs = arguments[4] === undefined ? {} : arguments[4];
+  function createComponent(_component, isAngleBracket, _props, renderNode, env) {
+    var attrs = arguments[5] === undefined ? {} : arguments[5];
 
-    var snapshot = takeSnapshot(attrs);
-    var props = merge.assign({}, options);
-    var hasSuppliedController = ("controller" in attrs); // 2.0TODO remove
+    var props = merge.assign({}, _props);
 
-    Ember['default'].deprecate("controller= is deprecated", !hasSuppliedController);
+    if (!isAngleBracket) {
+      var hasSuppliedController = ("controller" in attrs); // 2.0TODO remove
+      Ember['default'].deprecate("controller= is deprecated", !hasSuppliedController);
 
-    props.attrs = snapshot;
+      var snapshot = takeSnapshot(attrs);
+      props.attrs = snapshot;
 
-    // 2.0TODO deprecate and remove from angle components
-    var proto = _component.proto();
-    mergeBindings(props, shadowedAttrs(proto, snapshot));
+      var proto = _component.proto();
+      mergeBindings(props, shadowedAttrs(proto, snapshot));
+    } else {
+      props._isAngleBracket = true;
+    }
 
     var component = _component.create(props);
 
-    if (options.parentView) {
-      options.parentView.appendChild(component);
+    // for the fallback case
+    component.container = component.container || env.container;
 
-      if (options.viewName) {
-        property_set.set(options.parentView, options.viewName, component);
+    if (props.parentView) {
+      props.parentView.appendChild(component);
+
+      if (props.viewName) {
+        property_set.set(props.parentView, props.viewName, component);
       }
     }
 
@@ -12970,7 +12988,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.1e7f9914
+    @version 1.13.0-beta.1+canary.2615a955
   */
 
   if ('undefined' === typeof Ember) {
@@ -12999,10 +13017,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.1e7f9914'
+    @default '1.13.0-beta.1+canary.2615a955'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.1e7f9914';
+  Ember.VERSION = '1.13.0-beta.1+canary.2615a955';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -13043,7 +13061,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":null,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":true,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-routing-transitioning-classes":true,"new-computed-syntax":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -18617,6 +18635,9 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
         subscribe(array[i], stream.notify, stream);
       }
 
+      // used by angle bracket components to detect an attribute was provided
+      // as a string literal
+      stream.isConcat = true;
       return stream;
     } else {
       return array.join(separator);
@@ -20364,7 +20385,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2615a955";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20838,7 +20859,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2615a955";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -34600,7 +34621,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
   }
 
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly) {
+enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly, TransformAngleBracketComponents) {
 
 	'use strict';
 
@@ -34614,6 +34635,7 @@ enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-templat
 	plugins.registerPlugin("ast", TransformItemClass['default']);
 	plugins.registerPlugin("ast", TransformComponentAttrsIntoMut['default']);
 	plugins.registerPlugin("ast", TransformComponentCurlyToReadonly['default']);
+	plugins.registerPlugin("ast", TransformAngleBracketComponents['default']);
 
 	exports._Ember = _Ember['default'];
 	exports.precompile = precompile['default'];
@@ -34686,6 +34708,41 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
   }
 
   exports['default'] = plugins;
+
+});
+enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
+
+  'use strict';
+
+  function TransformAngleBracketComponents() {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} The AST to be transformed.
+  */
+  TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      node.tag = '<' + node.tag + '>';
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'ComponentNode';
+  }
+
+  exports['default'] = TransformAngleBracketComponents;
 
 });
 enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string'], function (exports, Ember, string) {
@@ -35600,9 +35657,9 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports['default'] = function (_options) {
     var disableComponentGeneration = true;
-    if (Ember['default'].FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+    
       disableComponentGeneration = false;
-    }
+    
 
     var options = _options || {};
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -35617,7 +35674,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.1e7f9914",
+        revision: "Ember@1.13.0-beta.1+canary.2615a955",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36990,7 +37047,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
     },
 
     willWatchProperty: function (key) {
-      if (key === "attrs") {
+      if (this._isAngleBracket || key === "attrs") {
         return;
       }
 
@@ -37000,7 +37057,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
     },
 
     didUnwatchProperty: function (key) {
-      if (key === "attrs") {
+      if (this._isAngleBracket || key === "attrs") {
         return;
       }
 
@@ -37010,6 +37067,10 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
     },
 
     legacyDidReceiveAttrs: events.on("didReceiveAttrs", function () {
+      if (this._isAngleBracket) {
+        return;
+      }
+
       var keys = objectKeys['default'](this.attrs);
 
       for (var i = 0, l = keys.length; i < l; i++) {
@@ -37022,6 +37083,10 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
     }),
 
     unknownProperty: function (key) {
+      if (this._isAngleBracket) {
+        return;
+      }
+
       var attrs = property_get.get(this, "attrs");
 
       if (attrs && key in attrs) {
@@ -37044,6 +37109,10 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
   };
 
   AttrsProxyMixin[property_events.PROPERTY_DID_CHANGE] = function (key) {
+    if (this._isAngleBracket) {
+      return;
+    }
+
     if (this.currentState) {
       this.currentState.legacyPropertyDidChange(this, key);
     }
@@ -38901,6 +38970,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
   function buildComponentTemplate(_ref, attrs, content) {
     var component = _ref.component;
     var layout = _ref.layout;
+    var isAngleBracket = _ref.isAngleBracket;
 
     var blockToRender, tagName, meta;
 
@@ -38924,7 +38994,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
       // element. We use `manualElement` to create a template that represents
       // the wrapping element and yields to the previous block.
       if (tagName !== "") {
-        var attributes = normalizeComponentAttributes(component, attrs);
+        var attributes = normalizeComponentAttributes(component, isAngleBracket, attrs);
         var elementTemplate = htmlbars_runtime.internal.manualElement(tagName, attributes);
         elementTemplate.meta = meta;
 
@@ -39011,7 +39081,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
 
   // Takes a component and builds a normalized set of attribute
   // bindings consumable by HTMLBars' `attribute` hook.
-  function normalizeComponentAttributes(component, attrs) {
+  function normalizeComponentAttributes(component, isAngleBracket, attrs) {
     var normalized = {};
     var attributeBindings = component.attributeBindings;
     var i, l;
@@ -39041,6 +39111,19 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
         Ember.assert("You cannot use class as an attributeBinding, use classNameBindings instead.", attrName !== "class");
 
         normalized[attrName] = expression;
+      }
+    }
+
+    if (isAngleBracket) {
+      for (var prop in attrs) {
+        var val = attrs[prop];
+        if (!val) {
+          continue;
+        }
+
+        if (typeof val === "string" || val.isConcat) {
+          normalized[prop] = ["value", val];
+        }
       }
     }
 
@@ -39863,7 +39946,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports.CONTAINER_MAP = CONTAINER_MAP;
 
 });
-enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/computed_macros'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed, computed_macros) {
+enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed) {
 
   'use strict';
 
@@ -40064,73 +40147,67 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
         }
       }
     }
+
+    /**
+      Returns true when the component was invoked with a block template.
+       Example (`hasBlock` will be `false`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{foo-bar}}
+       {{! templates/components/foo-bar.js }}
+      {{#if hasBlock}}
+        This will not be printed, because no block was provided
+      {{/if}}
+      ```
+       Example (`hasBlock` will be `true`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        Hi!
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.js }}
+      {{#if hasBlock}}
+        This will be printed because a block was provided
+        {{yield}}
+      {{/if}}
+      ```
+       @public
+      @property hasBlock
+      @returns Boolean
+    */
+
+    /**
+      Returns true when the component was invoked with a block parameter
+      supplied.
+       Example (`hasBlockParams` will be `false`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        No block parameter.
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.js }}
+      {{#if hasBlockParams}}
+        This will not be printed, because no block was provided
+        {{yield this}}
+      {{/if}}
+      ```
+       Example (`hasBlockParams` will be `true`):
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar as |foo|}}
+        Hi!
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.js }}
+      {{#if hasBlockParams}}
+        This will be printed because a block was provided
+        {{yield this}}
+      {{/if}}
+      ```
+      @public
+      @property hasBlockParams
+      @returns Boolean
+    */
   });
-
-  if (Ember['default'].FEATURES.isEnabled("ember-views-component-block-info")) {
-    Component.reopen({
-      /**
-        Returns true when the component was invoked with a block template.
-        Example (`hasBlock` will be `false`):
-         ```hbs
-        {{! templates/application.hbs }}
-         {{foo-bar}}
-         {{! templates/components/foo-bar.js }}
-        {{#if hasBlock}}
-          This will not be printed, because no block was provided
-        {{/if}}
-        ```
-        Example (`hasBlock` will be `true`):
-         ```hbs
-        {{! templates/application.hbs }}
-         {{#foo-bar}}
-          Hi!
-        {{/foo-bar}}
-         {{! templates/components/foo-bar.js }}
-        {{#if hasBlock}}
-          This will be printed because a block was provided
-          {{yield}}
-        {{/if}}
-        ```
-        @public
-        @property hasBlock
-        @returns Boolean
-      */
-      hasBlock: computed_macros.bool("template"),
-
-      /**
-        Returns true when the component was invoked with a block parameter
-        supplied.
-         Example (`hasBlockParams` will be `false`):
-         ```hbs
-        {{! templates/application.hbs }}
-         {{#foo-bar}}
-          No block parameter.
-        {{/foo-bar}}
-         {{! templates/components/foo-bar.js }}
-        {{#if hasBlockParams}}
-          This will not be printed, because no block was provided
-          {{yield this}}
-        {{/if}}
-        ```
-         Example (`hasBlockParams` will be `true`):
-         ```hbs
-        {{! templates/application.hbs }}
-         {{#foo-bar as |foo|}}
-          Hi!
-        {{/foo-bar}}
-         {{! templates/components/foo-bar.js }}
-        {{#if hasBlockParams}}
-          This will be printed because a block was provided
-          {{yield this}}
-        {{/if}}
-        ```
-        @public
-        @property hasBlockParams
-        @returns Boolean
-      */
-      hasBlockParams: computed_macros.bool("template.blockParams")
-    });
-  }
 
   exports['default'] = Component;
 
@@ -40139,7 +40216,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.2615a955";
 
   /**
   @module ember
