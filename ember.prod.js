@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.9936dc4e
+ * @version   1.13.0-beta.1+canary.1e7f9914
  */
 
 (function() {
@@ -6253,7 +6253,7 @@ enifed('ember-htmlbars/helpers/bind-attr', function () {
   */
 
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-htmlbars/utils/normalize-self'], function (exports, property_get, enumerable_utils, normalizeSelf) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display'], function (exports, property_get, enumerable_utils, normalizeSelf, shouldDisplay) {
 
   'use strict';
 
@@ -6263,23 +6263,19 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'e
     var list = params[0];
     var keyPath = hash.key;
 
-    // TODO: Correct falsy semantics
-    if (!list || property_get.get(list, "length") === 0) {
-      if (blocks.inverse.yield) {
-        blocks.inverse.yield();
-      }
-      return;
+    if (shouldDisplay['default'](list)) {
+      enumerable_utils.forEach(list, function (item, i) {
+        var self;
+        if (blocks.template.arity === 0) {
+                    self = normalizeSelf['default'](item);
+        }
+
+        var key = keyPath ? property_get.get(item, keyPath) : String(i);
+        blocks.template.yieldItem(key, [item, i], self);
+      });
+    } else if (blocks.inverse.yield) {
+      blocks.inverse.yield();
     }
-
-    enumerable_utils.forEach(list, function (item, i) {
-      var self;
-      if (blocks.template.arity === 0) {
-                self = normalizeSelf['default'](item);
-      }
-
-      var key = keyPath ? property_get.get(item, keyPath) : String(i);
-      blocks.template.yieldItem(key, [item, i], self);
-    });
   }
 
   var deprecation = "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.";
@@ -7767,7 +7763,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.9936dc4e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12607,7 +12603,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1+canary.9936dc4e
+    @version 1.13.0-beta.1+canary.1e7f9914
   */
 
   if ('undefined' === typeof Ember) {
@@ -12636,10 +12632,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.13.0-beta.1+canary.9936dc4e'
+    @default '1.13.0-beta.1+canary.1e7f9914'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1+canary.9936dc4e';
+  Ember.VERSION = '1.13.0-beta.1+canary.1e7f9914';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19863,7 +19859,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.9936dc4e";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20333,7 +20329,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.9936dc4e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35015,7 +35011,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1+canary.9936dc4e",
+        revision: "Ember@1.13.0-beta.1+canary.1e7f9914",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38307,7 +38303,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.9936dc4e";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1+canary.1e7f9914";
 
   /**
   @module ember

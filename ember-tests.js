@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1+canary.9936dc4e
+ * @version   1.13.0-beta.1+canary.1e7f9914
  */
 
 (function() {
@@ -8744,7 +8744,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     assertText(view, "I'm empty");
   });
 
-  QUnit.test("it supports {{else}}", function () {
+  QUnit.test("it uses {{else}} when replacing model with an empty array", function () {
     utils.runDestroy(view);
     view = EmberView['default'].create({
       template: templateFor("{{#each view.items}}{{this}}{{else}}Nothing{{/each}}"),
@@ -8757,6 +8757,26 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
     run['default'](function () {
       view.set("items", native_array.A());
+    });
+
+    assertHTML(view, "Nothing");
+  });
+
+  QUnit.test("it uses {{else}} when removing all items in an array", function () {
+    var items = native_array.A(["one", "two"]);
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      template: templateFor("{{#each view.items}}{{this}}{{else}}Nothing{{/each}}"),
+      items: items
+    });
+
+    utils.runAppend(view);
+
+    assertHTML(view, "onetwo");
+
+    run['default'](function () {
+      items.shiftObject();
+      items.shiftObject();
     });
 
     assertHTML(view, "Nothing");
@@ -45917,7 +45937,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.9936dc4e", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+canary.1e7f9914", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
