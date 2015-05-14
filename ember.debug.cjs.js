@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.f2540bf3
+ * @version   2.0.0-beta.1+canary.257c2bc8
  */
 
 (function() {
@@ -3604,7 +3604,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   });
 
 });
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, EnumerableUtils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, outlet, EmberView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, ContainerDebugAdapter, environment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, EnumerableUtils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, outlet, EmberView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, TextField, TextArea, Checkbox, LegacyEachView, LinkToComponent, RoutingService, ContainerDebugAdapter, environment) {
 
   'use strict';
 
@@ -4514,6 +4514,17 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.injection('controller', '_bucketCache', '-bucket-cache:main');
 
       registry.injection('route', 'router', 'router:main');
+
+      registry.register('component:-text-field', TextField['default']);
+      registry.register('component:-text-area', TextArea['default']);
+      registry.register('component:-checkbox', Checkbox['default']);
+      registry.register('view:-legacy-each', LegacyEachView['default']);
+      registry.register('component:-link-to', LinkToComponent['default']);
+
+      // Register the routing service...
+      registry.register('service:-routing', RoutingService['default']);
+      // Then inject the app router into it
+      registry.injection('service:-routing', 'router', 'router:main');
 
       // DEBUGGING
       registry.register('resolver-for-debugging:main', registry.resolver.__resolver__, { instantiate: false });
@@ -8086,7 +8097,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.f2540bf3";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12988,7 +12999,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.f2540bf3
+    @version 2.0.0-beta.1+canary.257c2bc8
   */
 
   if ('undefined' === typeof Ember) {
@@ -13017,10 +13028,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.f2540bf3'
+    @default '2.0.0-beta.1+canary.257c2bc8'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.f2540bf3';
+  Ember.VERSION = '2.0.0-beta.1+canary.257c2bc8';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20341,7 +20352,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
   }
 
 });
-enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-views/initializers/link-to-component', 'ember-routing-views/views/link', 'ember-routing-views/views/outlet'], function (exports, Ember, __dep1__, LinkView, outlet) {
+enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-views/views/link', 'ember-routing-views/views/outlet'], function (exports, Ember, LinkView, outlet) {
 
   'use strict';
 
@@ -20362,20 +20373,6 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-vie
   exports['default'] = Ember['default'];
 
 });
-enifed('ember-routing-views/initializers/link-to-component', ['ember-runtime/system/lazy_load', 'ember-routing-views/views/link'], function (lazy_load, linkToComponent) {
-
-  'use strict';
-
-  lazy_load.onLoad("Ember.Application", function (Application) {
-    Application.initializer({
-      name: "link-to-component",
-      initialize: function (registry) {
-        registry.register("component:-link-to", linkToComponent['default']);
-      }
-    });
-  });
-
-});
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, Ember, property_get, property_set, computed, utils, EmberComponent, inject, ControllerMixin, linkToTemplate) {
 
   'use strict';
@@ -20385,7 +20382,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.f2540bf3";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20859,7 +20856,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.f2540bf3";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35695,7 +35692,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.f2540bf3",
+        revision: "Ember@2.0.0-beta.1+canary.257c2bc8",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36960,7 +36957,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
   exports['default'] = Test;
 
 });
-enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/compat/render_buffer', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views/renderer', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/select', 'ember-views/initializers/components', 'ember-views/compat/metamorph_view', 'ember-views/views/legacy_each_view'], function (exports, Ember, jQuery, utils, RenderBuffer, __dep4__, states, Renderer, core_view, View, ContainerView, CollectionView, Component, EventDispatcher, ViewTargetActionSupport, ComponentLookup, Checkbox, TextSupport, TextField, TextArea, select, __dep20__, metamorph_view, LegacyEachView) {
+enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/compat/render_buffer', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views/renderer', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/select', 'ember-views/compat/metamorph_view', 'ember-views/views/legacy_each_view'], function (exports, Ember, jQuery, utils, RenderBuffer, __dep4__, states, Renderer, core_view, View, ContainerView, CollectionView, Component, EventDispatcher, ViewTargetActionSupport, ComponentLookup, Checkbox, TextSupport, TextField, TextArea, select, metamorph_view, LegacyEachView) {
 
   'use strict';
 
@@ -37775,23 +37772,6 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-ru
       var templateFullName = "template:components/" + name;
       return container.lookup(templateFullName);
     }
-  });
-
-});
-enifed('ember-views/initializers/components', ['ember-runtime/system/lazy_load', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view'], function (lazy_load, TextField, TextArea, Checkbox, LegacyEachView) {
-
-  'use strict';
-
-  lazy_load.onLoad("Ember.Application", function (Application) {
-    Application.initializer({
-      name: "ember-views-components",
-      initialize: function (registry) {
-        registry.register("component:-text-field", TextField['default']);
-        registry.register("component:-text-area", TextArea['default']);
-        registry.register("component:-checkbox", Checkbox['default']);
-        registry.register("view:-legacy-each", LegacyEachView['default']);
-      }
-    });
   });
 
 });
@@ -40237,7 +40217,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.f2540bf3";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.257c2bc8";
 
   /**
   @module ember
