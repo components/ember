@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0-beta.3
+ * @version   1.13.0-beta.1
  */
 
 (function() {
@@ -110,7 +110,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, utils, EmberError, Logger, environment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
 
   'use strict';
 
@@ -126,10 +126,34 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
     @method _warnIfUsingStrippedFeatureFlags
     @return {void}
   */
+  function isPlainFunction(test) {
+    return typeof test === "function" && test.PrototypeMixin === undefined;
+  }
+
+  /**
+    Define an assertion that will throw an exception if the condition is not
+    met. Ember build tools will remove any calls to `Ember.assert()` when
+    doing a production build. Example:
+
+    ```javascript
+    // Test for truthiness
+    Ember.assert('Must pass a valid object', obj);
+
+    // Fail unconditionally
+    Ember.assert('This code path should never be run');
+    ```
+
+    @method assert
+    @param {String} desc A description of the assertion. This will become
+      the text of the Error thrown if the assertion fails.
+    @param {Boolean|Function} test Must be truthy for the assertion to pass. If
+      falsy, an exception will be thrown. If this is a function, it will be executed and
+      its return value will be used as condition.
+  */
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (utils.typeOf(test) === "function") {
+    if (isPlainFunction(test)) {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -189,7 +213,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].deprecate = function (message, test, options) {
     var noDeprecation;
 
-    if (typeof test === "function") {
+    if (isPlainFunction(test)) {
       noDeprecation = test();
     } else {
       noDeprecation = test;
@@ -308,7 +332,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
     _warnIfUsingStrippedFeatureFlags(Ember['default'].ENV.FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
-    var isFirefox = typeof InstallTrigger !== "undefined";
+    var isFirefox = environment['default'].isFirefox;
     var isChrome = environment['default'].isChrome;
 
     if (typeof window !== "undefined" && (isFirefox || isChrome) && window.addEventListener) {
