@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.5b3b67e5
+ * @version   2.0.0-beta.1+canary.23423536
  */
 
 (function() {
@@ -4389,7 +4389,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.5b3b67e5
+    @version 2.0.0-beta.1+canary.23423536
   */
 
   if ('undefined' === typeof Ember) {
@@ -4418,10 +4418,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.5b3b67e5'
+    @default '2.0.0-beta.1+canary.23423536'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.5b3b67e5';
+  Ember.VERSION = '2.0.0-beta.1+canary.23423536';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -15026,7 +15026,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
     /**
       Returns an array with all of the items in the enumeration where the passed
-      function returns false. This method is the inverse of filter().
+      function returns true. This method is the inverse of filter().
        The callback method you provide should have the following signature (all
       parameters are optional):
        ```javascript
@@ -15035,7 +15035,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        - *item* is the current item in the iteration.
       - *index* is the current index in the iteration
       - *enumerable* is the enumerable object itself.
-       It should return a falsey value to include the item in the results.
+       It should return the a falsey value to include the item in the results.
        Note that in addition to a callback, you can also pass an optional target
       object that will be set as "this" on the context. This is a good way
       to give your iterator function access to the current object.
