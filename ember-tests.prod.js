@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.7b335140
+ * @version   2.0.0-beta.1+canary.5b3b67e5
  */
 
 (function() {
@@ -46036,7 +46036,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.7b335140", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.5b3b67e5", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -51421,21 +51421,6 @@ enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'embe
     select.$("option").get(0).selected = true;
     select.$().trigger("change");
     deepEqual(select.get("selection"), content.get("firstObject"));
-  });
-
-  QUnit.test("select with group works for initial value", function () {
-    var content = Ember.A([{ id: 1, firstName: "Yehuda", organization: "Tilde" }, { id: 2, firstName: "Tom", organization: "Tilde" }, { id: 3, firstName: "Keith", organization: "Envato" }]);
-
-    run['default'](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionValuePath", "content.id");
-      select.set("value", 2);
-    });
-
-    append();
-
-    equal(select.$().val(), 2, "Initial value is set properly");
   });
 
   QUnit.test("select with group observes its content", function () {
