@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6380e230
+ * @version   2.0.0-beta.1+canary.7b335140
  */
 
 (function() {
@@ -6268,55 +6268,6 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'e
 
   'use strict';
 
-  /**
-    The `{{#each}}` helper loops over elements in a collection. It is an extension
-    of the base Handlebars `{{#each}}` helper.
-
-    The default behavior of `{{#each}}` is to yield its inner block once for every
-    item in an array.
-
-    ```javascript
-    var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
-    ```
-
-    ```handlebars
-    {{#each developers as |person|}}
-      {{person.name}}
-      {{! `this` is whatever it was outside the #each }}
-    {{/each}}
-    ```
-
-    The same rules apply to arrays of primitives.
-
-    ```javascript
-    var developerNames = ['Yehuda', 'Tom', 'Paul']
-    ```
-
-    ```handlebars
-    {{#each developerNames as |name|}}
-      {{name}}
-    {{/each}}
-    ```
-
-    ### {{else}} condition
-
-    `{{#each}}` can have a matching `{{else}}`. The contents of this block will render
-    if the collection is empty.
-
-    ```handlebars
-    {{#each developers as |person|}}
-      {{person.name}}
-    {{else}}
-      <p>Sorry, nobody is available for this task.</p>
-    {{/each}}
-    ```
-
-    @method each
-    @for Ember.Handlebars.helpers
-    @param [name] {String} name for item (used with `as`)
-    @param [path] {String} path
-    @param [options] {Object} Handlebars key/value pairs of options
-  */
   exports['default'] = eachHelper;
 
   function eachHelper(params, hash, blocks) {
@@ -6466,28 +6417,35 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/utils/normaliz
     Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful
     for semantic clarity as it allows you to retain default scope or to reference a property from another
     `{{with}}` block.
-
     If the aliased property is "falsey", for example: `false`, `undefined` `null`, `""`, `0` or
     an empty array, the block will not be rendered.
-
     ```handlebars
-    {{! Will only render if user.posts contains items}}
+    // will only render if user.posts contains items
     {{#with user.posts as |blogPosts|}}
       <div class="notice">
         There are {{blogPosts.length}} blog posts written by {{user.name}}.
       </div>
-      {{#each blogPosts as |post|}}
+      {{#each post in blogPosts}}
         <li>{{post.title}}</li>
       {{/each}}
     {{/with}}
     ```
-
     Without the `as` operator, it would be impossible to reference `user.name` in the example above.
-
     NOTE: The alias should not reuse a name from the bound property path.
-    For example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using
-    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
-
+    For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
+    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
+    ### `controller` option
+    Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
+    the specified controller wrapping the aliased keyword.
+    This is very similar to using an `itemController` option with the `{{each}}` helper.
+    ```handlebars
+    {{#with users.posts controller='userBlogPosts' as |posts|}}
+      {{!- `posts` is wrapped in our controller instance }}
+    {{/with}}
+    ```
+    In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
+    which provides an elegant way to decorate the context with custom
+    functions/properties.
     @method with
     @for Ember.Handlebars.helpers
     @param {Function} context
@@ -7825,7 +7783,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6380e230";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7b335140";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12671,7 +12629,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.6380e230
+    @version 2.0.0-beta.1+canary.7b335140
   */
 
   if ('undefined' === typeof Ember) {
@@ -12700,10 +12658,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.6380e230'
+    @default '2.0.0-beta.1+canary.7b335140'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.6380e230';
+  Ember.VERSION = '2.0.0-beta.1+canary.7b335140';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19916,7 +19874,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6380e230";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7b335140";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20386,7 +20344,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6380e230";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7b335140";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35125,7 +35083,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.6380e230",
+        revision: "Ember@2.0.0-beta.1+canary.7b335140",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38420,7 +38378,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6380e230";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7b335140";
 
   /**
   @module ember
