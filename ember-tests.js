@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e6a165e1
+ * @version   2.0.0-beta.1+canary.7d5c8a71
  */
 
 (function() {
@@ -45225,27 +45225,6 @@ enifed('ember-runtime/tests/system/string/camelize_test', ['ember-metal/core', '
     }
   });
 
-  QUnit.test("camelize namespaced classified string", function () {
-    deepEqual(string.camelize("PrivateDocs/OwnerInvoice"), "privateDocs/ownerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("PrivateDocs/OwnerInvoice".camelize(), "privateDocs/ownerInvoice");
-    }
-  });
-
-  QUnit.test("camelize namespaced underscored string", function () {
-    deepEqual(string.camelize("private_docs/owner_invoice"), "privateDocs/ownerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private_docs/owner_invoice".camelize(), "privateDocs/ownerInvoice");
-    }
-  });
-
-  QUnit.test("camelize namespaced dasherized string", function () {
-    deepEqual(string.camelize("private-docs/owner-invoice"), "privateDocs/ownerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private-docs/owner-invoice".camelize(), "privateDocs/ownerInvoice");
-    }
-  });
-
 });
 enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -45294,27 +45273,6 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-metal/core',
     }
   });
 
-  QUnit.test("capitalize namespaced camelized string", function () {
-    deepEqual(string.capitalize("privateDocs/ownerInvoice"), "PrivateDocs/OwnerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("privateDocs/ownerInvoice".capitalize(), "PrivateDocs/OwnerInvoice");
-    }
-  });
-
-  QUnit.test("capitalize namespaced underscored string", function () {
-    deepEqual(string.capitalize("private_docs/owner_invoice"), "Private_docs/Owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private_docs/owner_invoice".capitalize(), "Private_docs/Owner_invoice");
-    }
-  });
-
-  QUnit.test("capitalize namespaced dasherized string", function () {
-    deepEqual(string.capitalize("private-docs/owner-invoice"), "Private-docs/Owner-invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private-docs/owner-invoice".capitalize(), "Private-docs/Owner-invoice");
-    }
-  });
-
 });
 enifed('ember-runtime/tests/system/string/classify_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -45353,27 +45311,6 @@ enifed('ember-runtime/tests/system/string/classify_test', ['ember-metal/core', '
     deepEqual(string.classify("InnerHTML"), "InnerHTML");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("InnerHTML".classify(), "InnerHTML");
-    }
-  });
-
-  QUnit.test("classify namespaced camelized string", function () {
-    deepEqual(string.classify("privateDocs/ownerInvoice"), "PrivateDocs/OwnerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("privateDocs/ownerInvoice".classify(), "PrivateDocs/OwnerInvoice");
-    }
-  });
-
-  QUnit.test("classify namespaced underscored string", function () {
-    deepEqual(string.classify("private_docs/owner_invoice"), "PrivateDocs/OwnerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private_docs/owner_invoice".classify(), "PrivateDocs/OwnerInvoice");
-    }
-  });
-
-  QUnit.test("classify namespaced dasherized string", function () {
-    deepEqual(string.classify("private-docs/owner-invoice"), "PrivateDocs/OwnerInvoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private-docs/owner-invoice".classify(), "PrivateDocs/OwnerInvoice");
     }
   });
 
@@ -45425,27 +45362,6 @@ enifed('ember-runtime/tests/system/string/dasherize_test', ['ember-metal/core', 
     }
   });
 
-  QUnit.test("dasherize namespaced classified string", function () {
-    deepEqual(string.dasherize("PrivateDocs/OwnerInvoice"), "private-docs/owner-invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("PrivateDocs/OwnerInvoice".dasherize(), "private-docs/owner-invoice");
-    }
-  });
-
-  QUnit.test("dasherize namespaced camelized string", function () {
-    deepEqual(string.dasherize("privateDocs/ownerInvoice"), "private-docs/owner-invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("privateDocs/ownerInvoice".dasherize(), "private-docs/owner-invoice");
-    }
-  });
-
-  QUnit.test("dasherize namespaced underscored string", function () {
-    deepEqual(string.dasherize("private_docs/owner_invoice"), "private-docs/owner-invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private_docs/owner_invoice".dasherize(), "private-docs/owner-invoice");
-    }
-  });
-
 });
 enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -45491,20 +45407,6 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-metal/core',
     deepEqual(string.decamelize("size160Url"), "size160_url");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("size160Url".decamelize(), "size160_url");
-    }
-  });
-
-  QUnit.test("decamelize namespaced classified string", function () {
-    deepEqual(string.decamelize("PrivateDocs/OwnerInvoice"), "private_docs/owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("PrivateDocs/OwnerInvoice".decamelize(), "private_docs/owner_invoice");
-    }
-  });
-
-  QUnit.test("decamelize namespaced camelized string", function () {
-    deepEqual(string.decamelize("privateDocs/ownerInvoice"), "private_docs/owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("privateDocs/ownerInvoice".decamelize(), "private_docs/owner_invoice");
     }
   });
 
@@ -45655,27 +45557,6 @@ enifed('ember-runtime/tests/system/string/underscore_test', ['ember-metal/core',
     deepEqual(string.underscore("innerHTML"), "inner_html");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("innerHTML".underscore(), "inner_html");
-    }
-  });
-
-  QUnit.test("underscore namespaced classified string", function () {
-    deepEqual(string.underscore("PrivateDocs/OwnerInvoice"), "private_docs/owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("PrivateDocs/OwnerInvoice".underscore(), "private_docs/owner_invoice");
-    }
-  });
-
-  QUnit.test("underscore namespaced camelized string", function () {
-    deepEqual(string.underscore("privateDocs/ownerInvoice"), "private_docs/owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("privateDocs/ownerInvoice".underscore(), "private_docs/owner_invoice");
-    }
-  });
-
-  QUnit.test("underscore namespaced dasherized string", function () {
-    deepEqual(string.underscore("private-docs/owner-invoice"), "private_docs/owner_invoice");
-    if (Ember['default'].EXTEND_PROTOTYPES) {
-      deepEqual("private-docs/owner-invoice".underscore(), "private_docs/owner_invoice");
     }
   });
 
@@ -46309,7 +46190,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e6a165e1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.7d5c8a71", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

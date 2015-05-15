@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e6a165e1
+ * @version   2.0.0-beta.1+canary.7d5c8a71
  */
 
 (function() {
@@ -8143,7 +8143,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e6a165e1";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7d5c8a71";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13043,7 +13043,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.e6a165e1
+    @version 2.0.0-beta.1+canary.7d5c8a71
   */
 
   if ('undefined' === typeof Ember) {
@@ -13072,10 +13072,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.e6a165e1'
+    @default '2.0.0-beta.1+canary.7d5c8a71'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.e6a165e1';
+  Ember.VERSION = '2.0.0-beta.1+canary.7d5c8a71';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -20426,7 +20426,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e6a165e1";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7d5c8a71";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20900,7 +20900,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e6a165e1";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7d5c8a71";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -33809,48 +33809,42 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     return decamelize(key).replace(STRING_DASHERIZE_REGEXP, "-");
   });
 
-  var STRING_CAMELIZE_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
-  var STRING_CAMELIZE_REGEXP_2 = /(^|\/)([A-Z])/g;
-
   var CAMELIZE_CACHE = new Cache['default'](1000, function (key) {
-    return key.replace(STRING_CAMELIZE_REGEXP_1, function (match, separator, chr) {
+    return key.replace(STRING_CAMELIZE_REGEXP, function (match, separator, chr) {
       return chr ? chr.toUpperCase() : "";
-    }).replace(STRING_CAMELIZE_REGEXP_2, function (match, separator, chr) {
+    }).replace(/^([A-Z])/, function (match, separator, chr) {
       return match.toLowerCase();
     });
   });
 
-  var STRING_CLASSIFY_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
-  var STRING_CLASSIFY_REGEXP_2 = /(^|\/|\.)([a-z])/g;
-
   var CLASSIFY_CACHE = new Cache['default'](1000, function (str) {
-    return str.replace(STRING_CLASSIFY_REGEXP_1, function (match, separator, chr) {
-      return chr ? chr.toUpperCase() : "";
-    }).replace(STRING_CLASSIFY_REGEXP_2, function (match, separator, chr) {
-      return match.toUpperCase();
-    });
-  });
+    var parts = str.split(".");
+    var out = [];
 
-  var STRING_UNDERSCORE_REGEXP_1 = /([a-z\d])([A-Z]+)/g;
-  var STRING_UNDERSCORE_REGEXP_2 = /\-|\s+/g;
+    for (var i = 0, l = parts.length; i < l; i++) {
+      var camelized = camelize(parts[i]);
+      out.push(camelized.charAt(0).toUpperCase() + camelized.substr(1));
+    }
+
+    return out.join(".");
+  });
 
   var UNDERSCORE_CACHE = new Cache['default'](1000, function (str) {
     return str.replace(STRING_UNDERSCORE_REGEXP_1, "$1_$2").replace(STRING_UNDERSCORE_REGEXP_2, "_").toLowerCase();
   });
 
-  var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z])/g;
-
   var CAPITALIZE_CACHE = new Cache['default'](1000, function (str) {
-    return str.replace(STRING_CAPITALIZE_REGEXP, function (match, separator, chr) {
-      return match.toUpperCase();
-    });
+    return str.charAt(0).toUpperCase() + str.substr(1);
   });
-
-  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
 
   var DECAMELIZE_CACHE = new Cache['default'](1000, function (str) {
     return str.replace(STRING_DECAMELIZE_REGEXP, "$1_$2").toLowerCase();
   });
+
+  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
+  var STRING_CAMELIZE_REGEXP = /(\-|_|\.|\s)+(.)?/g;
+  var STRING_UNDERSCORE_REGEXP_1 = /([a-z\d])([A-Z]+)/g;
+  var STRING_UNDERSCORE_REGEXP_2 = /\-|\s+/g;
 
   function fmt(str, formats) {
     var cachedFormats = formats;
@@ -34010,7 +34004,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.dasherize();        // 'action-name'
       'css-class-name'.dasherize();     // 'css-class-name'
       'my favorite items'.dasherize();  // 'my-favorite-items'
-      'privateDocs/ownerInvoice'.dasherize(); // 'private-docs/owner-invoice'
       ```
        @method dasherize
       @param {String} str The string to dasherize.
@@ -34026,7 +34019,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'css-class-name'.camelize();     // 'cssClassName'
       'my favorite items'.camelize();  // 'myFavoriteItems'
       'My Favorite Items'.camelize();  // 'myFavoriteItems'
-      'private-docs/owner-invoice'.camelize(); // 'privateDocs/ownerInvoice'
       ```
        @method camelize
       @param {String} str The string to camelize.
@@ -34041,7 +34033,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.classify();        // 'ActionName'
       'css-class-name'.classify();     // 'CssClassName'
       'my favorite items'.classify();  // 'MyFavoriteItems'
-      'private-docs/owner-invoice'.classify(); // 'PrivateDocs/OwnerInvoice'
       ```
        @method classify
       @param {String} str the string to classify
@@ -34057,7 +34048,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.underscore();        // 'action_name'
       'css-class-name'.underscore();     // 'css_class_name'
       'my favorite items'.underscore();  // 'my_favorite_items'
-      'privateDocs/ownerInvoice'.underscore(); // 'private_docs/owner_invoice'
       ```
        @method underscore
       @param {String} str The string to underscore.
@@ -34072,7 +34062,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.capitalize()       // 'Action_name'
       'css-class-name'.capitalize()    // 'Css-class-name'
       'my favorite items'.capitalize() // 'My favorite items'
-      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'
       ```
        @method capitalize
       @param {String} str The string to capitalize.
@@ -35747,7 +35736,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.e6a165e1",
+        revision: "Ember@2.0.0-beta.1+canary.7d5c8a71",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40272,7 +40261,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e6a165e1";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.7d5c8a71";
 
   /**
   @module ember
