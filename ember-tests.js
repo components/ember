@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e711174b
+ * @version   2.0.0-beta.1+canary.5fdcedd2
  */
 
 (function() {
@@ -8044,6 +8044,138 @@ enifed('ember-htmlbars/tests/helpers/debug_test', ['ember-metal/core', 'ember-me
     strictEqual(logCalls[3], "two");
     strictEqual(logCalls[4], true);
   });
+
+});
+enifed('ember-htmlbars/tests/helpers/each_in_test', ['ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/platform/create', 'ember-runtime/tests/utils'], function (Component, compile, run, create, utils) {
+
+  'use strict';
+
+  var component;
+
+  QUnit.module("ember-htmlbars: {{#each-in}} helper", {
+    teardown: function () {
+      if (component) {
+        utils.runDestroy(component);
+      }
+    }
+  });
+
+  function renderTemplate(_template, props) {
+    var template = compile['default'](_template);
+
+    component = Component['default'].create(props, {
+      layout: template
+    });
+
+    utils.runAppend(component);
+  }
+
+  if (Ember.FEATURES.isEnabled("ember-htmlbars-each-in")) {
+    QUnit.test("it renders the template for each item in a hash", function (assert) {
+      var categories = {
+        "Smartphones": 8203,
+        "JavaScript Frameworks": Infinity
+      };
+
+      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+      assert.equal(component.$("li").length, 2, "renders 2 lis");
+      assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly");
+      assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly");
+
+      run['default'](function () {
+        component.rerender();
+      });
+
+      assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
+      assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly after rerender");
+      assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly after rerender");
+
+      run['default'](function () {
+        component.set("categories", {
+          "Smartphones": 100
+        });
+      });
+
+      assert.equal(component.$("li").length, 1, "removes unused item after data changes");
+      assert.equal(component.$("li").first().text(), "Smartphones: 100", "correctly updates item after data changes");
+
+      run['default'](function () {
+        component.set("categories", {
+          "Programming Languages": 199303,
+          "Good Programming Languages": 123,
+          "Bad Programming Languages": 456
+        });
+      });
+
+      assert.equal(component.$("li").length, 3, "renders 3 lis after updating data");
+      assert.equal(component.$("li").first().text(), "Programming Languages: 199303", "renders first item correctly after rerender");
+      assert.equal(component.$("li:eq(1)").text(), "Good Programming Languages: 123", "renders second item correctly after rerender");
+      assert.equal(component.$("li:eq(2)").text(), "Bad Programming Languages: 456", "renders third item correctly after rerender");
+    });
+
+    QUnit.test("it only iterates over an object's own properties", function (assert) {
+      var protoCategories = {
+        "Smartphones": 8203,
+        "JavaScript Frameworks": Infinity
+      };
+
+      var categories = create['default'](protoCategories);
+      categories["Televisions"] = 183;
+      categories["Alarm Clocks"] = 999;
+
+      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+      assert.equal(component.$("li").length, 2, "renders 2 lis");
+      assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly");
+      assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly");
+
+      run['default'](function () {
+        return component.rerender();
+      });
+
+      assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
+      assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly after rerender");
+      assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly after rerender");
+    });
+
+    QUnit.test("it emits nothing if the passed argument is not an object", function (assert) {
+      var categories = null;
+
+      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+      assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed");
+
+      run['default'](function () {
+        return component.rerender();
+      });
+      assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed after rerender");
+    });
+
+    QUnit.test("it supports rendering an inverse", function (assert) {
+      var categories = null;
+
+      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{else}}\n        <li>No categories.</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+      assert.equal(component.$("li").length, 1, "one li is rendered");
+      assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+
+      run['default'](function () {
+        return component.rerender();
+      });
+      assert.equal(component.$("li").length, 1, "one li is rendered");
+      assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+
+      run['default'](function () {
+        component.set("categories", {
+          "First Category": 123
+        });
+      });
+
+      assert.equal(component.$("li").length, 1, "one li is rendered");
+      assert.equal(component.$("li").text(), "First Category: 123", "the list is rendered after being set");
+    });
+  }
 
 });
 enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (Ember, EmberObject, run, EmberView, LegacyEachView, computed, ArrayController, native_array, EmberController, ObjectController, system__container, property_get, property_set, utils, compile, each) {
@@ -46309,7 +46441,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e711174b", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.5fdcedd2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
