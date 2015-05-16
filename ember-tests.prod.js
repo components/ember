@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6dba87af
+ * @version   2.0.0-beta.1+canary.e711174b
  */
 
 (function() {
@@ -46155,7 +46155,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.6dba87af", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e711174b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -49906,7 +49906,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
   });
 
 });
-enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/views/component'], function (property_set, run, EmberObject, Service, system__container, inject, property_get, EmberView, Component) {
+enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/compat/attrs-proxy'], function (property_set, run, EmberObject, Service, system__container, inject, property_get, EmberView, Component, attrs_proxy) {
 
   'use strict';
 
@@ -50058,6 +50058,19 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
     });
 
     component.sendAction("action", argument);
+  });
+
+  QUnit.test("Calling sendAction on a component with a mut attr calls the function with arguments", function () {
+    var _mut;
+
+    var mut = (_mut = {}, _mut.value = "didStartPlaying", _mut[attrs_proxy.MUTABLE_CELL] = true, _mut);
+    property_set.set(component, "playing", null);
+    property_set.set(component, "attrs", { playing: mut });
+
+    component.sendAction("playing");
+
+    equal(sendCount, 1, "send was called once");
+    equal(actionCounts["didStartPlaying"], 1, "named action was sent");
   });
 
   QUnit.test("Calling sendAction with a named action uses the component's property as the action name", function () {

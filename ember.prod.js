@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6dba87af
+ * @version   2.0.0-beta.1+canary.e711174b
  */
 
 (function() {
@@ -7829,7 +7829,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6dba87af";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e711174b";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12675,7 +12675,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.6dba87af
+    @version 2.0.0-beta.1+canary.e711174b
   */
 
   if ('undefined' === typeof Ember) {
@@ -12704,10 +12704,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.6dba87af'
+    @default '2.0.0-beta.1+canary.e711174b'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.6dba87af';
+  Ember.VERSION = '2.0.0-beta.1+canary.e711174b';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -19920,7 +19920,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6dba87af";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e711174b";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20390,7 +20390,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6dba87af";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e711174b";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35140,7 +35140,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.6dba87af",
+        revision: "Ember@2.0.0-beta.1+canary.e711174b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38162,10 +38162,107 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports.CONTAINER_MAP = CONTAINER_MAP;
 
 });
-enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed) {
+enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-views/compat/attrs-proxy'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed, attrs_proxy) {
 
   'use strict';
 
+  function validateAction(component, actionName) {
+    if (actionName && actionName[attrs_proxy.MUTABLE_CELL]) {
+      actionName = actionName.value;
+    }
+        return actionName;
+  }
+
+  /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
+    An `Ember.Component` is a view that is completely
+    isolated. Properties accessed in its templates go
+    to the view object and actions are targeted at
+    the view object. There is no access to the
+    surrounding context or outer controller; all
+    contextual information must be passed in.
+
+    The easiest way to create an `Ember.Component` is via
+    a template. If you name a template
+    `components/my-foo`, you will be able to use
+    `{{my-foo}}` in other templates, which will make
+    an instance of the isolated component.
+
+    ```handlebars
+    {{app-profile person=currentUser}}
+    ```
+
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    <img {{bind-attr src=person.avatar}}>
+    <p class='signature'>{{person.signature}}</p>
+    ```
+
+    You can use `yield` inside a template to
+    include the **contents** of any block attached to
+    the component. The block will be executed in the
+    context of the surrounding context or outer controller:
+
+    ```handlebars
+    {{#app-profile person=currentUser}}
+      <p>Admin mode</p>
+      {{! Executed in the controller's context. }}
+    {{/app-profile}}
+    ```
+
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    {{! Executed in the components context. }}
+    {{yield}} {{! block contents }}
+    ```
+
+    If you want to customize the component, in order to
+    handle events or actions, you implement a subclass
+    of `Ember.Component` named after the name of the
+    component. Note that `Component` needs to be appended to the name of
+    your subclass like `AppProfileComponent`.
+
+    For example, you could implement the action
+    `hello` for the `app-profile` component:
+
+    ```javascript
+    App.AppProfileComponent = Ember.Component.extend({
+      actions: {
+        hello: function(name) {
+          console.log("Hello", name);
+        }
+      }
+    });
+    ```
+
+    And then use it in the component's template:
+
+    ```handlebars
+    <!-- app-profile template -->
+
+    <h1>{{person.title}}</h1>
+    {{yield}} <!-- block contents -->
+
+    <button {{action 'hello' person.name}}>
+      Say Hello to {{person.name}}
+    </button>
+    ```
+
+    Components must have a `-` in their name to avoid
+    conflicts with built-in controls that wrap HTML
+    elements. This is consistent with the same
+    requirement in web components.
+
+    @class Component
+    @namespace Ember
+    @extends Ember.View
+  */
   var Component = View['default'].extend(TargetActionSupport['default'], ComponentTemplateDeprecation['default'], {
     /*
       This is set so that the proto inspection in appendTemplatedView does not
@@ -38316,10 +38413,10 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 
       // Send the default action
       if (action === undefined) {
-        actionName = property_get.get(this, "action");
-              } else {
-        actionName = property_get.get(this, "attrs." + action) || property_get.get(this, action);
-              }
+        action = "action";
+      }
+      actionName = property_get.get(this, "attrs." + action) || property_get.get(this, action);
+      actionName = validateAction(this, actionName);
 
       // If no action name for that action could be found, just abort.
       if (actionName === undefined) {
@@ -38428,7 +38525,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.6dba87af";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e711174b";
 
   /**
   @module ember
