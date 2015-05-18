@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.0a1a2386
+ * @version   1.13.0-beta.1.7a3ab0d2
  */
 
 (function() {
@@ -15212,7 +15212,7 @@ enifed('ember-htmlbars/tests/integration/component_lookup_test', ['ember-views/v
 
     expectAssertion(function () {
       utils.runAppend(view);
-    }, /You canot use 'dashless' as a component name. Component names must contain a hyphen./);
+    }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
   });
 
 });
@@ -16182,6 +16182,52 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['ember-m
     });
 
     equal(view.$().text(), "");
+  });
+
+});
+enifed('ember-htmlbars/tests/integration/void-element-component-test', ['ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (EmberView, system__container, compile, utils, ComponentLookup, Component) {
+
+  'use strict';
+
+  var registry, container, view;
+
+  QUnit.module("ember-htmlbars: components for void elements", {
+    setup: function () {
+      registry = new system__container.Registry();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("a void element does not have childNodes", function () {
+    var component;
+    registry.register("component:x-foo", Component['default'].extend({
+      tagName: "input",
+
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-foo}}")
+    });
+
+    utils.runAppend(view);
+
+    deepEqual(component.element.childNodes.length, 0, "no childNodes are added for `<input>`");
   });
 
 });
@@ -44951,6 +44997,27 @@ enifed('ember-runtime/tests/system/string/camelize_test', ['ember-metal/core', '
     }
   });
 
+  QUnit.test("camelize namespaced classified string", function () {
+    deepEqual(string.camelize("PrivateDocs/OwnerInvoice"), "privateDocs/ownerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("PrivateDocs/OwnerInvoice".camelize(), "privateDocs/ownerInvoice");
+    }
+  });
+
+  QUnit.test("camelize namespaced underscored string", function () {
+    deepEqual(string.camelize("private_docs/owner_invoice"), "privateDocs/ownerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private_docs/owner_invoice".camelize(), "privateDocs/ownerInvoice");
+    }
+  });
+
+  QUnit.test("camelize namespaced dasherized string", function () {
+    deepEqual(string.camelize("private-docs/owner-invoice"), "privateDocs/ownerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private-docs/owner-invoice".camelize(), "privateDocs/ownerInvoice");
+    }
+  });
+
 });
 enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -44999,6 +45066,27 @@ enifed('ember-runtime/tests/system/string/capitalize_test', ['ember-metal/core',
     }
   });
 
+  QUnit.test("capitalize namespaced camelized string", function () {
+    deepEqual(string.capitalize("privateDocs/ownerInvoice"), "PrivateDocs/OwnerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("privateDocs/ownerInvoice".capitalize(), "PrivateDocs/OwnerInvoice");
+    }
+  });
+
+  QUnit.test("capitalize namespaced underscored string", function () {
+    deepEqual(string.capitalize("private_docs/owner_invoice"), "Private_docs/Owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private_docs/owner_invoice".capitalize(), "Private_docs/Owner_invoice");
+    }
+  });
+
+  QUnit.test("capitalize namespaced dasherized string", function () {
+    deepEqual(string.capitalize("private-docs/owner-invoice"), "Private-docs/Owner-invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private-docs/owner-invoice".capitalize(), "Private-docs/Owner-invoice");
+    }
+  });
+
 });
 enifed('ember-runtime/tests/system/string/classify_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -45037,6 +45125,27 @@ enifed('ember-runtime/tests/system/string/classify_test', ['ember-metal/core', '
     deepEqual(string.classify("InnerHTML"), "InnerHTML");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("InnerHTML".classify(), "InnerHTML");
+    }
+  });
+
+  QUnit.test("classify namespaced camelized string", function () {
+    deepEqual(string.classify("privateDocs/ownerInvoice"), "PrivateDocs/OwnerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("privateDocs/ownerInvoice".classify(), "PrivateDocs/OwnerInvoice");
+    }
+  });
+
+  QUnit.test("classify namespaced underscored string", function () {
+    deepEqual(string.classify("private_docs/owner_invoice"), "PrivateDocs/OwnerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private_docs/owner_invoice".classify(), "PrivateDocs/OwnerInvoice");
+    }
+  });
+
+  QUnit.test("classify namespaced dasherized string", function () {
+    deepEqual(string.classify("private-docs/owner-invoice"), "PrivateDocs/OwnerInvoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private-docs/owner-invoice".classify(), "PrivateDocs/OwnerInvoice");
     }
   });
 
@@ -45088,6 +45197,27 @@ enifed('ember-runtime/tests/system/string/dasherize_test', ['ember-metal/core', 
     }
   });
 
+  QUnit.test("dasherize namespaced classified string", function () {
+    deepEqual(string.dasherize("PrivateDocs/OwnerInvoice"), "private-docs/owner-invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("PrivateDocs/OwnerInvoice".dasherize(), "private-docs/owner-invoice");
+    }
+  });
+
+  QUnit.test("dasherize namespaced camelized string", function () {
+    deepEqual(string.dasherize("privateDocs/ownerInvoice"), "private-docs/owner-invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("privateDocs/ownerInvoice".dasherize(), "private-docs/owner-invoice");
+    }
+  });
+
+  QUnit.test("dasherize namespaced underscored string", function () {
+    deepEqual(string.dasherize("private_docs/owner_invoice"), "private-docs/owner-invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private_docs/owner_invoice".dasherize(), "private-docs/owner-invoice");
+    }
+  });
+
 });
 enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-metal/core', 'ember-runtime/system/string'], function (Ember, string) {
 
@@ -45133,6 +45263,20 @@ enifed('ember-runtime/tests/system/string/decamelize_test', ['ember-metal/core',
     deepEqual(string.decamelize("size160Url"), "size160_url");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("size160Url".decamelize(), "size160_url");
+    }
+  });
+
+  QUnit.test("decamelize namespaced classified string", function () {
+    deepEqual(string.decamelize("PrivateDocs/OwnerInvoice"), "private_docs/owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("PrivateDocs/OwnerInvoice".decamelize(), "private_docs/owner_invoice");
+    }
+  });
+
+  QUnit.test("decamelize namespaced camelized string", function () {
+    deepEqual(string.decamelize("privateDocs/ownerInvoice"), "private_docs/owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("privateDocs/ownerInvoice".decamelize(), "private_docs/owner_invoice");
     }
   });
 
@@ -45283,6 +45427,27 @@ enifed('ember-runtime/tests/system/string/underscore_test', ['ember-metal/core',
     deepEqual(string.underscore("innerHTML"), "inner_html");
     if (Ember['default'].EXTEND_PROTOTYPES) {
       deepEqual("innerHTML".underscore(), "inner_html");
+    }
+  });
+
+  QUnit.test("underscore namespaced classified string", function () {
+    deepEqual(string.underscore("PrivateDocs/OwnerInvoice"), "private_docs/owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("PrivateDocs/OwnerInvoice".underscore(), "private_docs/owner_invoice");
+    }
+  });
+
+  QUnit.test("underscore namespaced camelized string", function () {
+    deepEqual(string.underscore("privateDocs/ownerInvoice"), "private_docs/owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("privateDocs/ownerInvoice".underscore(), "private_docs/owner_invoice");
+    }
+  });
+
+  QUnit.test("underscore namespaced dasherized string", function () {
+    deepEqual(string.underscore("private-docs/owner-invoice"), "private_docs/owner_invoice");
+    if (Ember['default'].EXTEND_PROTOTYPES) {
+      deepEqual("private-docs/owner-invoice".underscore(), "private_docs/owner_invoice");
     }
   });
 
@@ -45916,7 +46081,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1.0a1a2386", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1.7a3ab0d2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -49594,7 +49759,7 @@ enifed('ember-views/tests/views/collection_test', ['ember-metal/core', 'ember-me
   });
 
 });
-enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/views/component'], function (property_set, run, EmberObject, Service, system__container, inject, property_get, EmberView, Component) {
+enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/compat/attrs-proxy'], function (property_set, run, EmberObject, Service, system__container, inject, property_get, EmberView, Component, attrs_proxy) {
 
   'use strict';
 
@@ -49746,6 +49911,19 @@ enifed('ember-views/tests/views/component_test', ['ember-metal/property_set', 'e
     });
 
     component.sendAction("action", argument);
+  });
+
+  QUnit.test("Calling sendAction on a component with a mut attr calls the function with arguments", function () {
+    var _mut;
+
+    var mut = (_mut = {}, _mut.value = "didStartPlaying", _mut[attrs_proxy.MUTABLE_CELL] = true, _mut);
+    property_set.set(component, "playing", null);
+    property_set.set(component, "attrs", { playing: mut });
+
+    component.sendAction("playing");
+
+    equal(sendCount, 1, "send was called once");
+    equal(actionCounts["didStartPlaying"], 1, "named action was sent");
   });
 
   QUnit.test("Calling sendAction with a named action uses the component's property as the action name", function () {
@@ -51228,6 +51406,21 @@ enifed('ember-views/tests/views/select_test', ['ember-views/views/select', 'embe
     select.$("option").get(0).selected = true;
     select.$().trigger("change");
     deepEqual(select.get("selection"), content.get("firstObject"));
+  });
+
+  QUnit.test("select with group works for initial value", function () {
+    var content = Ember.A([{ id: 1, firstName: "Yehuda", organization: "Tilde" }, { id: 2, firstName: "Tom", organization: "Tilde" }, { id: 3, firstName: "Keith", organization: "Envato" }]);
+
+    run['default'](function () {
+      select.set("content", content);
+      select.set("optionGroupPath", "organization");
+      select.set("optionValuePath", "content.id");
+      select.set("value", 2);
+    });
+
+    append();
+
+    equal(select.$().val(), 2, "Initial value is set properly");
   });
 
   QUnit.test("select with group observes its content", function () {
@@ -53483,6 +53676,18 @@ enifed('ember-views/tests/views/view/class_name_bindings_test', ['ember-metal/pr
     });
 
     equal(view.$().attr("class"), "ember-view", "no class is added when property is true and the class is empty");
+  });
+
+  QUnit.test("uses all provided static class names (issue #11193)", function () {
+    view = EmberView['default'].create({
+      classNameBindings: [":class-one", ":class-two"]
+    });
+
+    run['default'](function () {
+      view.createElement();
+    });
+
+    equal(view.$().attr("class"), "ember-view class-one class-two", "both classes are added");
   });
 
   QUnit.test("classNames should not be duplicated on rerender", function () {

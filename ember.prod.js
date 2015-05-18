@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.0a1a2386
+ * @version   1.13.0-beta.1.7a3ab0d2
  */
 
 (function() {
@@ -6225,6 +6225,55 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'e
 
   'use strict';
 
+  /**
+    The `{{#each}}` helper loops over elements in a collection. It is an extension
+    of the base Handlebars `{{#each}}` helper.
+
+    The default behavior of `{{#each}}` is to yield its inner block once for every
+    item in an array.
+
+    ```javascript
+    var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
+    ```
+
+    ```handlebars
+    {{#each developers as |person|}}
+      {{person.name}}
+      {{! `this` is whatever it was outside the #each }}
+    {{/each}}
+    ```
+
+    The same rules apply to arrays of primitives.
+
+    ```javascript
+    var developerNames = ['Yehuda', 'Tom', 'Paul']
+    ```
+
+    ```handlebars
+    {{#each developerNames as |name|}}
+      {{name}}
+    {{/each}}
+    ```
+
+    ### {{else}} condition
+
+    `{{#each}}` can have a matching `{{else}}`. The contents of this block will render
+    if the collection is empty.
+
+    ```handlebars
+    {{#each developers as |person|}}
+      {{person.name}}
+    {{else}}
+      <p>Sorry, nobody is available for this task.</p>
+    {{/each}}
+    ```
+
+    @method each
+    @for Ember.Handlebars.helpers
+    @param [name] {String} name for item (used with `as`)
+    @param [path] {String} path
+    @param [options] {Object} Handlebars key/value pairs of options
+  */
   exports['default'] = eachHelper;
 
   function eachHelper(params, hash, blocks) {
@@ -6268,6 +6317,10 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'embe
   }
 
   /**
+    The `unless` helper is the inverse of the `if` helper. Its block will be
+    rendered if the expression contains a falsey value.  All forms of the `if`
+    helper can also be used with `unless`.
+
     @method unless
     @for Ember.Handlebars.helpers
   */
@@ -6374,35 +6427,28 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/utils/normaliz
     Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful
     for semantic clarity as it allows you to retain default scope or to reference a property from another
     `{{with}}` block.
+
     If the aliased property is "falsey", for example: `false`, `undefined` `null`, `""`, `0` or
     an empty array, the block will not be rendered.
+
     ```handlebars
-    // will only render if user.posts contains items
+    {{! Will only render if user.posts contains items}}
     {{#with user.posts as |blogPosts|}}
       <div class="notice">
         There are {{blogPosts.length}} blog posts written by {{user.name}}.
       </div>
-      {{#each post in blogPosts}}
+      {{#each blogPosts as |post|}}
         <li>{{post.title}}</li>
       {{/each}}
     {{/with}}
     ```
+
     Without the `as` operator, it would be impossible to reference `user.name` in the example above.
+
     NOTE: The alias should not reuse a name from the bound property path.
-    For example: `{{#with foo.bar as foo}}` is not supported because it attempts to alias using
-    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as baz}}`.
-    ### `controller` option
-    Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-    the specified controller wrapping the aliased keyword.
-    This is very similar to using an `itemController` option with the `{{each}}` helper.
-    ```handlebars
-    {{#with users.posts controller='userBlogPosts' as |posts|}}
-      {{!- `posts` is wrapped in our controller instance }}
-    {{/with}}
-    ```
-    In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
-    which provides an elegant way to decorate the context with custom
-    functions/properties.
+    For example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using
+    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
+
     @method with
     @for Ember.Handlebars.helpers
     @param {Function} context
@@ -6872,7 +6918,7 @@ enifed('ember-htmlbars/hooks/get-root', ['exports', 'ember-metal/core', 'ember-m
       return [!!(scope.blocks["default"] && scope.blocks["default"].arity)];
     } else if (path_cache.isGlobal(key) && Ember['default'].lookup[key]) {
       return [getGlobal(key)];
-    } else if (scope.locals[key]) {
+    } else if (key in scope.locals) {
       return [scope.locals[key]];
     } else {
       return [getKey(scope, key)];
@@ -7740,7 +7786,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.0a1a2386";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.7a3ab0d2";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -9780,7 +9826,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "view.groupView"]], ["content", ["get", "group.content"], "label", ["get", "group.label"], "selection", ["get", "view.selection"], "multiple", ["get", "view.multiple"], "optionLabelPath", ["get", "view.optionLabelPath"], "optionValuePath", ["get", "view.optionValuePath"], "optionView", ["get", "view.optionView"]]]],
+          statements: [["inline", "view", [["get", "view.groupView"]], ["content", ["get", "group.content"], "label", ["get", "group.label"], "selection", ["get", "view.selection"], "value", ["get", "view.value"], "multiple", ["get", "view.multiple"], "optionLabelPath", ["get", "view.optionLabelPath"], "optionValuePath", ["get", "view.optionValuePath"], "optionView", ["get", "view.optionView"]]]],
           locals: ["group"],
           templates: []
         };
@@ -12554,23 +12600,21 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   */
 
   /**
-    All Ember methods and functions are defined inside of this namespace. You
-    generally should not add new properties to this namespace as it may be
-    overwritten by future versions of Ember.
+    This namespace contains all Ember methods and functions. Future versions of
+    Ember may overwrite this namespace and therefore, you should avoid adding any
+    new properties.
 
     You can also use the shorthand `Em` instead of `Ember`.
 
-    Ember-Runtime is a framework that provides core functions for Ember including
-    cross-platform functions, support for property observing and objects. Its
-    focus is on small size and performance. You can use this in place of or
-    along-side other cross-platform libraries such as jQuery.
-
-    The core Runtime framework is based on the jQuery API with a number of
-    performance optimizations.
+    At the heart of Ember is Ember-Runtime, a set of core functions that provide
+    cross-platform compatibility and object property observing.  Ember-Runtime is
+    small and performance-focused so you can use it alongside other
+    cross-platform libraries such as jQuery. For more details, see
+    [Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).
 
     @class Ember
     @static
-    @version 1.13.0-beta.1.0a1a2386
+    @version 1.13.0-beta.1.7a3ab0d2
   */
 
   if ('undefined' === typeof Ember) {
@@ -12597,19 +12641,21 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   };
 
   /**
+    The semantic version.
+
     @property VERSION
     @type String
-    @default '1.13.0-beta.1.0a1a2386'
+    @default '1.13.0-beta.1.7a3ab0d2'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1.0a1a2386';
+  Ember.VERSION = '1.13.0-beta.1.7a3ab0d2';
 
   /**
-    Standard environmental variables. You can define these in a global `EmberENV`
-    variable before loading Ember to control various configuration settings.
-
-    For backwards compatibility with earlier versions of Ember the global `ENV`
-    variable will be used if `EmberENV` is not defined.
+    The hash of environment variables used to control various configuration
+    settings. To specify your own or override default settings, add the
+    desired properties to a global hash named `EmberENV` (or `ENV` for
+    backwards compatibility with earlier versions of Ember). The `EmberENV`
+    hash must be created before loading Ember.
 
     @property ENV
     @type Hash
@@ -12633,9 +12679,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Hash of enabled Canary features. Add to this before creating your application.
+    The hash of enabled Canary features. Add to this, any canary features
+    before creating your application.
 
-    You can also define `EmberENV.FEATURES` if you need to enable features flagged at runtime.
+    Alternatively (and recommended), you can also define `EmberENV.FEATURES`
+    if you need to enable features flagged at runtime.
 
     @class FEATURES
     @namespace Ember
@@ -12653,8 +12701,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Test that a feature is enabled. Parsed by Ember's build tools to leave
-    experimental features out of beta/stable builds.
+    Determine whether the specified `feature` is enabled. Used by Ember's
+    build tools to exclude experimental features from beta/stable builds.
 
     You can define the following configuration options:
 
@@ -12663,7 +12711,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
       enabled/disabled.
 
     @method isEnabled
-    @param {String} feature
+    @param {String} feature The feature to check
     @return {Boolean}
     @for Ember.FEATURES
     @since 1.1.0
@@ -12688,14 +12736,17 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   //
 
   /**
-    Determines whether Ember should enhance some built-in object prototypes to
-    provide a more friendly API. If enabled, a few methods will be added to
-    `Function`, `String`, and `Array`. `Object.prototype` will not be enhanced,
-    which is the one that causes most trouble for people.
+    Determines whether Ember should add to `Array`, `Function`, and `String`
+    native object prototypes, a few extra methods in order to provide a more
+    friendly API.
 
-    In general we recommend leaving this option set to true since it rarely
-    conflicts with other code. If you need to turn it off however, you can
-    define an `EmberENV.EXTEND_PROTOTYPES` config to disable it.
+    We generally recommend leaving this option set to true however, if you need
+    to turn it off, you can add the configuration property
+    `EXTEND_PROTOTYPES` to `EmberENV` and set it to `false`.
+
+    Note, when disabled (the default configuration for Ember Addons), you will
+    instead have to access all methods and functions from the Ember
+    namespace.
 
     @property EXTEND_PROTOTYPES
     @type Boolean
@@ -12709,7 +12760,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Determines whether Ember logs a full stack trace during deprecation warnings
+    The `LOG_STACKTRACE_ON_DEPRECATION` property, when true, tells Ember to log
+    a full stack trace during deprecation warnings.
 
     @property LOG_STACKTRACE_ON_DEPRECATION
     @type Boolean
@@ -12718,7 +12770,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.LOG_STACKTRACE_ON_DEPRECATION = Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false;
 
   /**
-    Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
+    The `SHIM_ES5` property, when true, tells Ember to add ECMAScript 5 Array
+    shims to older browsers.
 
     @property SHIM_ES5
     @type Boolean
@@ -12727,7 +12780,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.SHIM_ES5 = Ember.ENV.SHIM_ES5 === false ? false : Ember.EXTEND_PROTOTYPES;
 
   /**
-    Determines whether Ember logs info about version of used libraries
+    The `LOG_VERSION` property, when true, tells Ember to log versions of all
+    dependent libraries in use.
 
     @property LOG_VERSION
     @type Boolean
@@ -12736,7 +12790,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.LOG_VERSION = Ember.ENV.LOG_VERSION === false ? false : true;
 
   /**
-    Empty function. Useful for some operations. Always returns `this`.
+    An empty function useful for some operations. Always returns `this`.
 
     @method K
     @private
@@ -19807,7 +19861,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.0a1a2386";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.7a3ab0d2";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20277,7 +20331,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.0a1a2386";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.7a3ab0d2";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -28701,7 +28755,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
     /**
       Returns an array with all of the items in the enumeration where the passed
-      function returns true. This method is the inverse of filter().
+      function returns false. This method is the inverse of filter().
        The callback method you provide should have the following signature (all
       parameters are optional):
        ```javascript
@@ -28710,7 +28764,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        - *item* is the current item in the iteration.
       - *index* is the current index in the iteration
       - *enumerable* is the enumerable object itself.
-       It should return the a falsey value to include the item in the results.
+       It should return a falsey value to include the item in the results.
        Note that in addition to a callback, you can also pass an optional target
       object that will be set as "this" on the context. This is a good way
       to give your iterator function access to the current object.
@@ -33097,42 +33151,48 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     return decamelize(key).replace(STRING_DASHERIZE_REGEXP, "-");
   });
 
+  var STRING_CAMELIZE_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
+  var STRING_CAMELIZE_REGEXP_2 = /(^|\/)([A-Z])/g;
+
   var CAMELIZE_CACHE = new Cache['default'](1000, function (key) {
-    return key.replace(STRING_CAMELIZE_REGEXP, function (match, separator, chr) {
+    return key.replace(STRING_CAMELIZE_REGEXP_1, function (match, separator, chr) {
       return chr ? chr.toUpperCase() : "";
-    }).replace(/^([A-Z])/, function (match, separator, chr) {
+    }).replace(STRING_CAMELIZE_REGEXP_2, function (match, separator, chr) {
       return match.toLowerCase();
     });
   });
 
+  var STRING_CLASSIFY_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
+  var STRING_CLASSIFY_REGEXP_2 = /(^|\/|\.)([a-z])/g;
+
   var CLASSIFY_CACHE = new Cache['default'](1000, function (str) {
-    var parts = str.split(".");
-    var out = [];
-
-    for (var i = 0, l = parts.length; i < l; i++) {
-      var camelized = camelize(parts[i]);
-      out.push(camelized.charAt(0).toUpperCase() + camelized.substr(1));
-    }
-
-    return out.join(".");
+    return str.replace(STRING_CLASSIFY_REGEXP_1, function (match, separator, chr) {
+      return chr ? chr.toUpperCase() : "";
+    }).replace(STRING_CLASSIFY_REGEXP_2, function (match, separator, chr) {
+      return match.toUpperCase();
+    });
   });
+
+  var STRING_UNDERSCORE_REGEXP_1 = /([a-z\d])([A-Z]+)/g;
+  var STRING_UNDERSCORE_REGEXP_2 = /\-|\s+/g;
 
   var UNDERSCORE_CACHE = new Cache['default'](1000, function (str) {
     return str.replace(STRING_UNDERSCORE_REGEXP_1, "$1_$2").replace(STRING_UNDERSCORE_REGEXP_2, "_").toLowerCase();
   });
 
+  var STRING_CAPITALIZE_REGEXP = /(^|\/)([a-z])/g;
+
   var CAPITALIZE_CACHE = new Cache['default'](1000, function (str) {
-    return str.charAt(0).toUpperCase() + str.substr(1);
+    return str.replace(STRING_CAPITALIZE_REGEXP, function (match, separator, chr) {
+      return match.toUpperCase();
+    });
   });
+
+  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
 
   var DECAMELIZE_CACHE = new Cache['default'](1000, function (str) {
     return str.replace(STRING_DECAMELIZE_REGEXP, "$1_$2").toLowerCase();
   });
-
-  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
-  var STRING_CAMELIZE_REGEXP = /(\-|_|\.|\s)+(.)?/g;
-  var STRING_UNDERSCORE_REGEXP_1 = /([a-z\d])([A-Z]+)/g;
-  var STRING_UNDERSCORE_REGEXP_2 = /\-|\s+/g;
 
   function fmt(str, formats) {
     var cachedFormats = formats;
@@ -33292,6 +33352,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.dasherize();        // 'action-name'
       'css-class-name'.dasherize();     // 'css-class-name'
       'my favorite items'.dasherize();  // 'my-favorite-items'
+      'privateDocs/ownerInvoice'.dasherize(); // 'private-docs/owner-invoice'
       ```
        @method dasherize
       @param {String} str The string to dasherize.
@@ -33307,6 +33368,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'css-class-name'.camelize();     // 'cssClassName'
       'my favorite items'.camelize();  // 'myFavoriteItems'
       'My Favorite Items'.camelize();  // 'myFavoriteItems'
+      'private-docs/owner-invoice'.camelize(); // 'privateDocs/ownerInvoice'
       ```
        @method camelize
       @param {String} str The string to camelize.
@@ -33321,6 +33383,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.classify();        // 'ActionName'
       'css-class-name'.classify();     // 'CssClassName'
       'my favorite items'.classify();  // 'MyFavoriteItems'
+      'private-docs/owner-invoice'.classify(); // 'PrivateDocs/OwnerInvoice'
       ```
        @method classify
       @param {String} str the string to classify
@@ -33336,6 +33399,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.underscore();        // 'action_name'
       'css-class-name'.underscore();     // 'css_class_name'
       'my favorite items'.underscore();  // 'my_favorite_items'
+      'privateDocs/ownerInvoice'.underscore(); // 'private_docs/owner_invoice'
       ```
        @method underscore
       @param {String} str The string to underscore.
@@ -33350,6 +33414,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       'action_name'.capitalize()       // 'Action_name'
       'css-class-name'.capitalize()    // 'Css-class-name'
       'my favorite items'.capitalize() // 'My favorite items'
+      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'
       ```
        @method capitalize
       @param {String} str The string to capitalize.
@@ -35016,7 +35081,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1.0a1a2386",
+        revision: "Ember@1.13.0-beta.1.7a3ab0d2",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37323,7 +37388,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
       // Legacy :class microsyntax for static class names
       if (propName === "") {
         output.push(activeClass);
-        return;
+        continue;
       }
 
       // 2.0TODO: Remove deprecated global path
@@ -37893,18 +37958,11 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 
           view = this.createChildView(itemViewClass, itemViewProps);
 
-          
-            if (this.blockParams > 0) {
-              view._blockArguments = [item];
-            }
-          
-
           addedViews.push(view);
         }
 
         this.replace(start, 0, addedViews);
-
-              }
+      }
     },
 
     /**
@@ -38045,10 +38103,107 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports.CONTAINER_MAP = CONTAINER_MAP;
 
 });
-enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed) {
+enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-views/compat/attrs-proxy'], function (exports, Ember, ComponentTemplateDeprecation, TargetActionSupport, View, property_get, property_set, isNone, computed, attrs_proxy) {
 
   'use strict';
 
+  function validateAction(component, actionName) {
+    if (actionName && actionName[attrs_proxy.MUTABLE_CELL]) {
+      actionName = actionName.value;
+    }
+        return actionName;
+  }
+
+  /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
+    An `Ember.Component` is a view that is completely
+    isolated. Properties accessed in its templates go
+    to the view object and actions are targeted at
+    the view object. There is no access to the
+    surrounding context or outer controller; all
+    contextual information must be passed in.
+
+    The easiest way to create an `Ember.Component` is via
+    a template. If you name a template
+    `components/my-foo`, you will be able to use
+    `{{my-foo}}` in other templates, which will make
+    an instance of the isolated component.
+
+    ```handlebars
+    {{app-profile person=currentUser}}
+    ```
+
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    <img {{bind-attr src=person.avatar}}>
+    <p class='signature'>{{person.signature}}</p>
+    ```
+
+    You can use `yield` inside a template to
+    include the **contents** of any block attached to
+    the component. The block will be executed in the
+    context of the surrounding context or outer controller:
+
+    ```handlebars
+    {{#app-profile person=currentUser}}
+      <p>Admin mode</p>
+      {{! Executed in the controller's context. }}
+    {{/app-profile}}
+    ```
+
+    ```handlebars
+    <!-- app-profile template -->
+    <h1>{{person.title}}</h1>
+    {{! Executed in the components context. }}
+    {{yield}} {{! block contents }}
+    ```
+
+    If you want to customize the component, in order to
+    handle events or actions, you implement a subclass
+    of `Ember.Component` named after the name of the
+    component. Note that `Component` needs to be appended to the name of
+    your subclass like `AppProfileComponent`.
+
+    For example, you could implement the action
+    `hello` for the `app-profile` component:
+
+    ```javascript
+    App.AppProfileComponent = Ember.Component.extend({
+      actions: {
+        hello: function(name) {
+          console.log("Hello", name);
+        }
+      }
+    });
+    ```
+
+    And then use it in the component's template:
+
+    ```handlebars
+    <!-- app-profile template -->
+
+    <h1>{{person.title}}</h1>
+    {{yield}} <!-- block contents -->
+
+    <button {{action 'hello' person.name}}>
+      Say Hello to {{person.name}}
+    </button>
+    ```
+
+    Components must have a `-` in their name to avoid
+    conflicts with built-in controls that wrap HTML
+    elements. This is consistent with the same
+    requirement in web components.
+
+    @class Component
+    @namespace Ember
+    @extends Ember.View
+  */
   var Component = View['default'].extend(TargetActionSupport['default'], ComponentTemplateDeprecation['default'], {
     /*
       This is set so that the proto inspection in appendTemplatedView does not
@@ -38199,10 +38354,10 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 
       // Send the default action
       if (action === undefined) {
-        actionName = property_get.get(this, "action");
-              } else {
-        actionName = property_get.get(this, "attrs." + action) || property_get.get(this, action);
-              }
+        action = "action";
+      }
+      actionName = property_get.get(this, "attrs." + action) || property_get.get(this, action);
+      actionName = validateAction(this, actionName);
 
       // If no action name for that action could be found, just abort.
       if (actionName === undefined) {
@@ -38311,7 +38466,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.0a1a2386";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.1.7a3ab0d2";
 
   /**
   @module ember
@@ -39851,8 +40006,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
   */
   Ember['default'].TEMPLATES = {};
 
-  var EMPTY_ARRAY = [];
-
   /**
     `Ember.View` is the class in Ember responsible for encapsulating templates of
     HTML content, combining templates with data to render as sections of a page's
@@ -40549,16 +40702,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
         return value;
       }
     }),
-
-    _yield: function (context, options, morph) {
-      var template = property_get.get(this, "template");
-
-      if (template) {
-        return template.render(context, options, { contextualElement: morph.contextualElement }).fragment;
-      }
-    },
-
-    _blockArguments: EMPTY_ARRAY,
 
     templateForName: function (name, type) {
       if (!name) {
@@ -42344,7 +42487,7 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
   exports['default'] = HTMLBarsMorph;
 
 });
-enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils) {
+enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils', '../htmlbars-util/void-tag-names'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils, voidMap) {
 
   'use strict';
 
@@ -42457,9 +42600,13 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           dom.setAttribute(el1, key, attributes[key]);
         }
 
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
+        if (!voidMap['default'][tagName]) {
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+        }
+
         dom.appendChild(el0, el1);
+
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment) {
@@ -43194,6 +43341,20 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     morph.lastYielded = null;
     morph.childNodes = null;
   }
+
+});
+enifed('htmlbars-util/void-tag-names', ['exports', './array-utils'], function (exports, array_utils) {
+
+  'use strict';
+
+  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
+  var voidMap = {};
+
+  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
+    voidMap[tagName] = true;
+  });
+
+  exports['default'] = voidMap;
 
 });
 enifed('morph-attr', ['exports', './morph-attr/sanitize-attribute-value', './dom-helper/prop', './dom-helper/build-html-dom', './htmlbars-util'], function (exports, sanitize_attribute_value, prop, build_html_dom, htmlbars_util) {

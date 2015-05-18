@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.0a1a2386
+ * @version   1.13.0-beta.1.7a3ab0d2
  */
 
 (function() {
@@ -2595,23 +2595,21 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   */
 
   /**
-    All Ember methods and functions are defined inside of this namespace. You
-    generally should not add new properties to this namespace as it may be
-    overwritten by future versions of Ember.
+    This namespace contains all Ember methods and functions. Future versions of
+    Ember may overwrite this namespace and therefore, you should avoid adding any
+    new properties.
 
     You can also use the shorthand `Em` instead of `Ember`.
 
-    Ember-Runtime is a framework that provides core functions for Ember including
-    cross-platform functions, support for property observing and objects. Its
-    focus is on small size and performance. You can use this in place of or
-    along-side other cross-platform libraries such as jQuery.
-
-    The core Runtime framework is based on the jQuery API with a number of
-    performance optimizations.
+    At the heart of Ember is Ember-Runtime, a set of core functions that provide
+    cross-platform compatibility and object property observing.  Ember-Runtime is
+    small and performance-focused so you can use it alongside other
+    cross-platform libraries such as jQuery. For more details, see
+    [Ember-Runtime](http://emberjs.com/api/modules/ember-runtime.html).
 
     @class Ember
     @static
-    @version 1.13.0-beta.1.0a1a2386
+    @version 1.13.0-beta.1.7a3ab0d2
   */
 
   if ('undefined' === typeof Ember) {
@@ -2638,19 +2636,21 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   };
 
   /**
+    The semantic version.
+
     @property VERSION
     @type String
-    @default '1.13.0-beta.1.0a1a2386'
+    @default '1.13.0-beta.1.7a3ab0d2'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1.0a1a2386';
+  Ember.VERSION = '1.13.0-beta.1.7a3ab0d2';
 
   /**
-    Standard environmental variables. You can define these in a global `EmberENV`
-    variable before loading Ember to control various configuration settings.
-
-    For backwards compatibility with earlier versions of Ember the global `ENV`
-    variable will be used if `EmberENV` is not defined.
+    The hash of environment variables used to control various configuration
+    settings. To specify your own or override default settings, add the
+    desired properties to a global hash named `EmberENV` (or `ENV` for
+    backwards compatibility with earlier versions of Ember). The `EmberENV`
+    hash must be created before loading Ember.
 
     @property ENV
     @type Hash
@@ -2675,9 +2675,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Hash of enabled Canary features. Add to this before creating your application.
+    The hash of enabled Canary features. Add to this, any canary features
+    before creating your application.
 
-    You can also define `EmberENV.FEATURES` if you need to enable features flagged at runtime.
+    Alternatively (and recommended), you can also define `EmberENV.FEATURES`
+    if you need to enable features flagged at runtime.
 
     @class FEATURES
     @namespace Ember
@@ -2695,8 +2697,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Test that a feature is enabled. Parsed by Ember's build tools to leave
-    experimental features out of beta/stable builds.
+    Determine whether the specified `feature` is enabled. Used by Ember's
+    build tools to exclude experimental features from beta/stable builds.
 
     You can define the following configuration options:
 
@@ -2705,7 +2707,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
       enabled/disabled.
 
     @method isEnabled
-    @param {String} feature
+    @param {String} feature The feature to check
     @return {Boolean}
     @for Ember.FEATURES
     @since 1.1.0
@@ -2730,14 +2732,17 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   //
 
   /**
-    Determines whether Ember should enhance some built-in object prototypes to
-    provide a more friendly API. If enabled, a few methods will be added to
-    `Function`, `String`, and `Array`. `Object.prototype` will not be enhanced,
-    which is the one that causes most trouble for people.
+    Determines whether Ember should add to `Array`, `Function`, and `String`
+    native object prototypes, a few extra methods in order to provide a more
+    friendly API.
 
-    In general we recommend leaving this option set to true since it rarely
-    conflicts with other code. If you need to turn it off however, you can
-    define an `EmberENV.EXTEND_PROTOTYPES` config to disable it.
+    We generally recommend leaving this option set to true however, if you need
+    to turn it off, you can add the configuration property
+    `EXTEND_PROTOTYPES` to `EmberENV` and set it to `false`.
+
+    Note, when disabled (the default configuration for Ember Addons), you will
+    instead have to access all methods and functions from the Ember
+    namespace.
 
     @property EXTEND_PROTOTYPES
     @type Boolean
@@ -2751,7 +2756,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   }
 
   /**
-    Determines whether Ember logs a full stack trace during deprecation warnings
+    The `LOG_STACKTRACE_ON_DEPRECATION` property, when true, tells Ember to log
+    a full stack trace during deprecation warnings.
 
     @property LOG_STACKTRACE_ON_DEPRECATION
     @type Boolean
@@ -2760,7 +2766,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.LOG_STACKTRACE_ON_DEPRECATION = Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false;
 
   /**
-    Determines whether Ember should add ECMAScript 5 Array shims to older browsers.
+    The `SHIM_ES5` property, when true, tells Ember to add ECMAScript 5 Array
+    shims to older browsers.
 
     @property SHIM_ES5
     @type Boolean
@@ -2769,7 +2776,8 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.SHIM_ES5 = Ember.ENV.SHIM_ES5 === false ? false : Ember.EXTEND_PROTOTYPES;
 
   /**
-    Determines whether Ember logs info about version of used libraries
+    The `LOG_VERSION` property, when true, tells Ember to log versions of all
+    dependent libraries in use.
 
     @property LOG_VERSION
     @type Boolean
@@ -2778,7 +2786,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   Ember.LOG_VERSION = Ember.ENV.LOG_VERSION === false ? false : true;
 
   /**
-    Empty function. Useful for some operations. Always returns `this`.
+    An empty function useful for some operations. Always returns `this`.
 
     @method K
     @private
@@ -10453,7 +10461,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1.0a1a2386",
+        revision: "Ember@1.13.0-beta.1.7a3ab0d2",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12837,7 +12845,7 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
   exports['default'] = HTMLBarsMorph;
 
 });
-enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils) {
+enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils', '../htmlbars-util/void-tag-names'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils, voidMap) {
 
   'use strict';
 
@@ -12950,9 +12958,13 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           dom.setAttribute(el1, key, attributes[key]);
         }
 
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
+        if (!voidMap['default'][tagName]) {
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+        }
+
         dom.appendChild(el0, el1);
+
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment) {
@@ -13605,6 +13617,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function preparePath(data, parts, locInfo) {
+    /*jshint -W040 */
     locInfo = this.locInfo(locInfo);
 
     var original = data ? '@' : '',
@@ -13636,6 +13649,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareMustache(path, params, hash, open, strip, locInfo) {
+    /*jshint -W040 */
     // Must use charAt to support IE pre-10
     var escapeFlag = open.charAt(3) || open.charAt(2),
         escaped = escapeFlag !== '{' && escapeFlag !== '&';
@@ -13644,6 +13658,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareRawBlock(openRawBlock, content, close, locInfo) {
+    /*jshint -W040 */
     if (openRawBlock.path.original !== close) {
       var errorNode = { loc: openRawBlock.path.loc };
 
@@ -13657,6 +13672,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
+    /*jshint -W040 */
     // When we are chaining inverse calls, we will not have a close path
     if (close && close.path && openBlock.path.original !== close.path.original) {
       var errorNode = { loc: openBlock.path.loc };
@@ -13692,6 +13708,7 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
 
     'use strict';
 
+    /* jshint ignore:start */
     /* istanbul ignore next */
     /* Jison generated parser */
     var handlebars = (function () {
@@ -14362,6 +14379,7 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
         }Parser.prototype = parser;parser.Parser = Parser;
         return new Parser();
     })();exports['default'] = handlebars;
+    /* jshint ignore:end */
 
 });
 enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception', './ast'], function (exports, Exception, AST) {
@@ -15122,19 +15140,10 @@ enifed('htmlbars-syntax/parser', ['exports', './handlebars/compiler/base', './to
   };
 
 });
-enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-utils', './builders', './utils'], function (exports, array_utils, builders, utils) {
+enifed('htmlbars-syntax/token-handlers', ['exports', './builders', './utils', '../htmlbars-util/void-tag-names'], function (exports, builders, utils, voidMap) {
 
   'use strict';
 
-  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
-  var voidMap = {};
-
-  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
-    voidMap[tagName] = true;
-  });
-
-  // Except for `mustache`, all tokens are only allowed outside of
-  // a start or end tag.
   var tokenHandlers = {
     Comment: function (token) {
       var current = this.currentElement();
@@ -15156,7 +15165,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
       };
 
       this.elementStack.push(element);
-      if (voidMap.hasOwnProperty(tag.tagName) || tag.selfClosing) {
+      if (voidMap['default'].hasOwnProperty(tag.tagName) || tag.selfClosing) {
         tokenHandlers.EndTag.call(this, tag, true);
       }
     },
@@ -15233,7 +15242,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
   function validateEndTag(tag, element, selfClosing) {
     var error;
 
-    if (voidMap[tag.tagName] && !selfClosing) {
+    if (voidMap['default'][tag.tagName] && !selfClosing) {
       // EngTag is also called by StartTag for void and self-closing tags (i.e.
       // <input> or <br />, so we need to check for that here. Otherwise, we would
       // throw an error for those cases.
@@ -16228,6 +16237,20 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     morph.lastYielded = null;
     morph.childNodes = null;
   }
+
+});
+enifed('htmlbars-util/void-tag-names', ['exports', './array-utils'], function (exports, array_utils) {
+
+  'use strict';
+
+  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
+  var voidMap = {};
+
+  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
+    voidMap[tagName] = true;
+  });
+
+  exports['default'] = voidMap;
 
 });
 enifed('morph-range', ['exports', './morph-range/utils'], function (exports, utils) {
