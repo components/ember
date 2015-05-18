@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.7a3ab0d2
+ * @version   1.13.0-beta.1.c806d5cf
  */
 
 (function() {
@@ -4371,7 +4371,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1.7a3ab0d2
+    @version 1.13.0-beta.1.c806d5cf
   */
 
   if ('undefined' === typeof Ember) {
@@ -4402,10 +4402,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.1.7a3ab0d2'
+    @default '1.13.0-beta.1.c806d5cf'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1.7a3ab0d2';
+  Ember.VERSION = '1.13.0-beta.1.c806d5cf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8314,7 +8314,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   exports.PROPERTY_DID_CHANGE = PROPERTY_DID_CHANGE;
 
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property', 'ember-metal/utils'], function (exports, Ember, EmberError, path_cache, define_property, utils) {
+enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property', 'ember-metal/utils', 'ember-metal/is_none'], function (exports, Ember, EmberError, path_cache, define_property, utils, isNone) {
 
   'use strict';
 
@@ -8371,7 +8371,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     Ember['default'].assert("Cannot call get with " + keyName + " key.", !!keyName);
     Ember['default'].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
-    if (!obj) {
+    if (isNone['default'](obj)) {
       return _getPath(obj, keyName);
     }
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.7a3ab0d2
+ * @version   1.13.0-beta.1.c806d5cf
  */
 
 (function() {
@@ -17136,6 +17136,7 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
           }
         },
         falseValue: false,
+        emptyString: '',
         Wuz: {
           nar: 'foo'
         }
@@ -17196,6 +17197,10 @@ enifed('ember-metal/tests/accessors/get_path_test', ['ember-metal/property_get']
 
   QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
     equal(property_get.get(obj, 'falseValue.notDefined'), undefined);
+  });
+
+  QUnit.test('[obj, emptyString.length] -> 0', function () {
+    equal(property_get.get(obj, 'emptyString.length'), 0);
   });
 
   // ..........................................................
@@ -46081,7 +46086,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1.7a3ab0d2", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1.c806d5cf", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
