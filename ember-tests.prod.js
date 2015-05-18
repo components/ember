@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0
+ * @version   1.12.0.e8e207c0
  */
 
 (function() {
@@ -17646,7 +17646,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0",
+        revision: "Ember@1.12.0.e8e207c0",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53144,7 +53144,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0.e8e207c0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -53394,7 +53394,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
   'use strict';
 
-  var App, find, click, fillIn, currentRoute, visit, originalAdapter, andThen, indexHitCount;
+  var App, find, click, fillIn, currentRoute, currentURL, visit, originalAdapter, andThen, indexHitCount;
 
   QUnit.module("ember-testing Acceptance", {
     setup: function () {
@@ -53465,6 +53465,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
       fillIn = window.fillIn;
       visit = window.visit;
       andThen = window.andThen;
+      currentURL = window.currentURL;
 
       originalAdapter = Test['default'].adapter;
     },
@@ -53481,12 +53482,13 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
   });
 
   QUnit.test("helpers can be chained with then", function () {
-    expect(5);
+    expect(6);
 
     currentRoute = "index";
 
     visit("/posts").then(function () {
       equal(currentRoute, "posts", "Successfully visited posts route");
+      equal(currentURL(), "/posts", "posts URL is correct");
       return click("a:contains(\"Comments\")");
     }).then(function () {
       equal(currentRoute, "comments", "visit chained with click");
@@ -53505,12 +53507,13 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
   // Keep this for backwards compatibility
 
   QUnit.test("helpers can be chained to each other", function () {
-    expect(5);
+    expect(7);
 
     currentRoute = "index";
 
     visit("/posts").click("a:first", "#comments-link").fillIn(".ember-text-field", "hello").then(function () {
       equal(currentRoute, "comments", "Successfully visited comments route");
+      equal(currentURL(), "/comments", "Comments URL is correct");
       equal(jQuery['default'](".ember-text-field").val(), "hello", "Fillin successfully works");
       find(".ember-text-field").one("keypress", function (e) {
         equal(e.keyCode, 13, "keyevent chained with correct keyCode.");
@@ -53518,11 +53521,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
       });
     }).keyEvent(".ember-text-field", "keypress", 13).visit("/posts").then(function () {
       equal(currentRoute, "posts", "Thens can also be chained to helpers");
+      equal(currentURL(), "/posts", "URL is set correct on chained helpers");
     });
   });
 
   QUnit.test("helpers don't need to be chained", function () {
-    expect(3);
+    expect(5);
 
     currentRoute = "index";
 
@@ -53534,6 +53538,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "comments", "Successfully visited comments route");
+      equal(currentURL(), "/comments", "Comments URL is correct");
       equal(find(".ember-text-field").val(), "hello", "Fillin successfully works");
     });
 
@@ -53541,11 +53546,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "posts");
+      equal(currentURL(), "/posts");
     });
   });
 
   QUnit.test("Nested async helpers", function () {
-    expect(3);
+    expect(5);
 
     currentRoute = "index";
 
@@ -53559,6 +53565,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "comments", "Successfully visited comments route");
+      equal(currentURL(), "/comments", "Comments URL is correct");
       equal(find(".ember-text-field").val(), "hello", "Fillin successfully works");
     });
 
@@ -53566,11 +53573,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "posts");
+      equal(currentURL(), "/posts");
     });
   });
 
   QUnit.test("Multiple nested async helpers", function () {
-    expect(2);
+    expect(3);
 
     visit("/posts");
 
@@ -53584,11 +53592,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
     andThen(function () {
       equal(find(".ember-text-field").val(), "goodbye", "Fillin successfully works");
       equal(currentRoute, "comments", "Successfully visited comments route");
+      equal(currentURL(), "/comments", "Comments URL is correct");
     });
   });
 
   QUnit.test("Helpers nested in thens", function () {
-    expect(3);
+    expect(5);
 
     currentRoute = "index";
 
@@ -53602,6 +53611,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "comments", "Successfully visited comments route");
+      equal(currentURL(), "/comments", "Comments URL is correct");
       equal(find(".ember-text-field").val(), "hello", "Fillin successfully works");
     });
 
@@ -53609,6 +53619,7 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
 
     andThen(function () {
       equal(currentRoute, "posts");
+      equal(currentURL(), "/posts", "Posts URL is correct");
     });
   });
 
@@ -53661,16 +53672,21 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
   });
 
   QUnit.test("should not start routing on the root URL when visiting another", function () {
+    expect(4);
+
     visit("/posts");
 
     andThen(function () {
       ok(find("#comments-link"), "found comments-link");
       equal(currentRoute, "posts", "Successfully visited posts route");
+      equal(currentURL(), "/posts", "Posts URL is correct");
       equal(indexHitCount, 0, "should not hit index route when visiting another route");
     });
   });
 
   QUnit.test("only enters the index route once when visiting /", function () {
+    expect(1);
+
     visit("/");
 
     andThen(function () {
@@ -53679,6 +53695,8 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
   });
 
   QUnit.test("test must not finish while asyncHelpers are pending", function () {
+    expect(2);
+
     var async = 0;
     var innerRan = false;
 
