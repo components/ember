@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.003caee5
+ * @version   2.0.0-beta.1+canary.235516e9
  */
 
 (function() {
@@ -9270,6 +9270,299 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
 
   testEachWithItem("{{#each foo in bar}}", false);
   testEachWithItem("{{#each bar as |foo|}}", true);
+
+});
+enifed('ember-htmlbars/tests/helpers/get_test', ['ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (run, system__container, compile, utils, EmberView) {
+
+  'use strict';
+
+  var view, registry, container;
+
+  // jscs:disable validateIndentation
+  if (Ember.FEATURES.isEnabled("ember-htmlbars-get-helper")) {
+
+    QUnit.module("ember-htmlbars: {{get}} helper", {
+      setup: function () {
+        registry = new system__container.Registry();
+        container = registry.container();
+        registry.optionsForType("template", { instantiate: false });
+      },
+      teardown: function () {
+        run['default'](function () {
+          Ember.TEMPLATES = {};
+        });
+        utils.runDestroy(view);
+        utils.runDestroy(container);
+        registry = container = view = null;
+      }
+    });
+
+    QUnit.test("should be able to get an object value with a static key", function () {
+      var context = {
+        colors: { apple: "red", banana: "yellow" }
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors 'apple'}}");
+
+      run['default'](function () {
+        view.set("context.colors", { apple: "green", banana: "purple" });
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}}");
+    });
+
+    QUnit.test("should be able to get an object value with a bound/dynamic key", function () {
+      var context = {
+        colors: { apple: "red", banana: "yellow" },
+        key: "apple"
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors key}}] [{{if true (get colors key)}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors key}}  (key = 'apple')");
+
+      run['default'](function () {
+        view.set("context.key", "banana");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
+
+      run['default'](function () {
+        view.set("context.colors", { apple: "green", banana: "purple" });
+      });
+
+      equal(view.$().text(), "[purple] [purple]", "should return 'purple' for {{get colors key}} (key = 'banana')");
+
+      run['default'](function () {
+        view.set("context.key", "apple");
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors key}} (key = 'apple')");
+    });
+
+    QUnit.test("should be able to get an object value with a GetStream key", function () {
+      var context = {
+        colors: { apple: "red", banana: "yellow" },
+        key: "key1",
+        possibleKeys: { key1: "apple", key2: "banana" }
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+      run['default'](function () {
+        view.set("context.key", "key2");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
+
+      run['default'](function () {
+        view.set("context.colors", { apple: "green", banana: "purple" });
+      });
+
+      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
+
+      run['default'](function () {
+        view.set("context.key", "key1");
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green'");
+    });
+
+    QUnit.test("should be able to get an object value with a GetStream value and bound/dynamic key", function () {
+      var context = {
+        possibleValues: {
+          colors1: { apple: "red", banana: "yellow" },
+          colors2: { apple: "green", banana: "purple" }
+        },
+        objectKey: "colors1",
+        key: "apple"
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors2");
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors1");
+      });
+
+      equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+      run['default'](function () {
+        view.set("context.key", "banana");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors2");
+      });
+
+      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors1");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+    });
+
+    QUnit.test("should be able to get an object value with a GetStream value and GetStream key", function () {
+      var context = {
+        possibleValues: {
+          colors1: { apple: "red", banana: "yellow" },
+          colors2: { apple: "green", banana: "purple" }
+        },
+        objectKey: "colors1",
+        possibleKeys: {
+          key1: "apple",
+          key2: "banana"
+        },
+        key: "key1"
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors2");
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors1");
+      });
+
+      equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+      run['default'](function () {
+        view.set("context.key", "key2");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors2");
+      });
+
+      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
+
+      run['default'](function () {
+        view.set("context.objectKey", "colors1");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+    });
+
+    QUnit.test("should handle object values as nulls", function () {
+      var context = {
+        colors: null
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
+
+      run['default'](function () {
+        view.set("context.colors", { apple: "green", banana: "purple" });
+      });
+
+      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}} (colors = { apple: 'green', banana: 'purple' })");
+
+      run['default'](function () {
+        view.set("context.colors", null);
+      });
+
+      equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
+    });
+
+    QUnit.test("should handle object keys as nulls", function () {
+      var context = {
+        colors: { apple: "red", banana: "yellow" },
+        key: null
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors key}}] [{{if true (get colors key)}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
+
+      run['default'](function () {
+        view.set("context.key", "banana");
+      });
+
+      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow' for {{get colors key}} (key = 'banana')");
+
+      run['default'](function () {
+        view.set("context.key", null);
+      });
+
+      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
+    });
+
+    QUnit.test("should handle object values and keys as nulls", function () {
+      var context = {
+        colors: null,
+        key: null
+      };
+
+      view = EmberView['default'].create({
+        context: context,
+        template: compile['default']("[{{get colors key}}] [{{if true (get colors key)}}]")
+      });
+
+      utils.runAppend(view);
+
+      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (colors=null, key = null)");
+    });
+  }
+  // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-metal/enumerable_utils', 'ember-runtime/tests/utils'], function (run, Namespace, system__container, EmberView, ObjectProxy, EmberObject, compile, ArrayProxy, property_set, string, utils, enumerable_utils, tests__utils) {
@@ -46487,7 +46780,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.003caee5", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.235516e9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.003caee5
+ * @version   2.0.0-beta.1+canary.235516e9
  */
 
 (function() {
@@ -5730,7 +5730,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
   });
 
 });
-enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, DOMHelper) {
+enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, getHelper, DOMHelper) {
 
   'use strict';
 
@@ -5748,6 +5748,9 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   helpers.registerHelper("-concat", concatHelper['default']);
   helpers.registerHelper("-join-classes", joinClassesHelper['default']);
   helpers.registerHelper("-legacy-each-with-controller", legacyEachWithControllerHelper['default']);
+  if (Ember['default'].FEATURES.isEnabled("ember-htmlbars-get-helper")) {
+    helpers.registerHelper("-get", getHelper['default']);
+  }
 
   Ember['default'].HTMLBars = {
     _registerHelper: helpers.registerHelper,
@@ -6170,7 +6173,7 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
   }
 
 });
-enifed('ember-htmlbars/env', ['exports', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/real_outlet', 'ember-htmlbars/keywords/customized_outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/template', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly'], function (exports, environment, htmlbars_runtime, merge, subexpr, concat, linkRenderNode, createFreshScope, bindShadowScope, bindSelf, bindScope, bindLocal, updateSelf, getRoot, getChild, getValue, getCellOrValue, cleanupRenderNode, destroyRenderNode, didRenderNode, willCleanupTree, didCleanupTree, classify, component, lookupHelper, hasHelper, invokeHelper, element, helpers, keywords, DOMHelper, debuggerKeyword, withKeyword, outlet, realOutlet, customizedOutlet, unbound, view, componentKeyword, partial, input, textarea, collection, templateKeyword, legacyYield, mut, each, readonly) {
+enifed('ember-htmlbars/env', ['exports', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/real_outlet', 'ember-htmlbars/keywords/customized_outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/template', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, environment, htmlbars_runtime, merge, subexpr, concat, linkRenderNode, createFreshScope, bindShadowScope, bindSelf, bindScope, bindLocal, updateSelf, getRoot, getChild, getValue, getCellOrValue, cleanupRenderNode, destroyRenderNode, didRenderNode, willCleanupTree, didCleanupTree, classify, component, lookupHelper, hasHelper, invokeHelper, element, helpers, keywords, DOMHelper, debuggerKeyword, withKeyword, outlet, realOutlet, customizedOutlet, unbound, view, componentKeyword, partial, input, textarea, collection, templateKeyword, legacyYield, mut, each, readonly, getKeyword) {
 
   'use strict';
 
@@ -6220,6 +6223,9 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal/environment', 'htmlbars-ru
   keywords.registerKeyword("@mut", mut.privateMut);
   keywords.registerKeyword("each", each['default']);
   keywords.registerKeyword("readonly", readonly['default']);
+  if (Ember.FEATURES.isEnabled("ember-htmlbars-get-helper")) {
+    keywords.registerKeyword("get", getKeyword['default']);
+  }
 
   exports['default'] = {
     hooks: emberHooks,
@@ -6300,6 +6306,26 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   function concat(params, hash) {
     return params.join(hash.separator);
   }
+
+});
+enifed('ember-htmlbars/helpers/-get', ['exports'], function (exports) {
+
+  'use strict';
+
+  /** @private
+    this private helper is used in conjuntion with the get keyword
+  */
+
+  if (Ember.FEATURES.isEnabled('ember-htmlbars-get-helper')) {
+
+    var getHelper = function getHelper(_ref) {
+      var value = _ref[0];
+
+      return value;
+    };
+  }
+
+  exports['default'] = getHelper;
 
 });
 enifed('ember-htmlbars/helpers/-join-classes', ['exports'], function (exports) {
@@ -7945,6 +7971,94 @@ enifed('ember-htmlbars/keywords/each', ['exports', 'ember-htmlbars/hooks/get-val
   }
 
 });
+enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/platform/create', 'ember-metal/merge', 'htmlbars-util/safe-string'], function (exports, Stream, utils, create, merge, SafeString) {
+
+  'use strict';
+
+  if (Ember.FEATURES.isEnabled("ember-htmlbars-get-helper")) {
+
+    var getKeyword = function getKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
+      var objParam = params[0];
+      var pathParam = params[1];
+
+      Ember.assert("The first argument to {{get}} must be a stream", utils.isStream(objParam));
+      Ember.assert("{{get}} requires at least two arguments", params.length > 1);
+
+      var getStream = new GetStream(objParam, pathParam);
+
+      if (morph === null) {
+        return getStream;
+      } else {
+        env.hooks.inline(morph, env, scope, "-get", [getStream], hash, visitor);
+      }
+
+      return true;
+    };
+
+    var workaroundValue = function workaroundValue(value) {
+      // this is used to compensate for the following line of code
+      //     if (result && result.value) {
+      // in the 'inline' hook. If the stream returns a falsy value after
+      // previously returning a truthy value, this line causes the value not
+      // to be updated
+
+      // so for falsey values we need to enforce something that evalutes to
+      // truthy but returns an empty string.
+
+      // this can be removed if the `inline` hook handles it.
+
+      return value || new SafeString['default']("");
+    };
+
+    var GetStream = function GetStream(obj, path) {
+      this.init("(get " + utils.labelFor(obj) + " " + utils.labelFor(path) + ")");
+
+      this.objectParam = obj;
+      this.pathParam = path;
+      this.lastPathValue = undefined;
+      this.valueDep = this.addMutableDependency();
+
+      this.addDependency(path);
+
+      // This next line is currently only required when the keyword
+      // is executed in a subexpression. More investigation required
+      // to remove the additional dependency
+      this.addDependency(obj);
+    };
+
+    GetStream.prototype = create['default'](Stream['default'].prototype);
+
+    merge['default'](GetStream.prototype, {
+      updateValueDependency: function () {
+        var pathValue = utils.read(this.pathParam);
+
+        if (this.lastPathValue !== pathValue) {
+          if (typeof pathValue === "string") {
+            this.valueDep.replace(this.objectParam.get(pathValue));
+          } else {
+            this.valueDep.replace();
+          }
+
+          this.lastPathValue = pathValue;
+        }
+      },
+
+      compute: function () {
+        this.updateValueDependency();
+        return workaroundValue(this.valueDep.getValue());
+      },
+
+      setValue: function (value) {
+        this.updateValueDependency();
+        this.valueDep.setValue(value);
+      }
+
+    });
+  }
+
+  exports['default'] = getKeyword;
+
+});
 enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/core', 'ember-metal/merge'], function (exports, Ember, merge) {
 
   'use strict';
@@ -8178,7 +8292,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.235516e9";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13076,7 +13190,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.003caee5
+    @version 2.0.0-beta.1+canary.235516e9
   */
 
   if ('undefined' === typeof Ember) {
@@ -13107,10 +13221,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.003caee5'
+    @default '2.0.0-beta.1+canary.235516e9'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.003caee5';
+  Ember.VERSION = '2.0.0-beta.1+canary.235516e9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13153,7 +13267,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @static
     @since 1.1.0
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":true,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":true,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true,"ember-htmlbars-get-helper":null}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -20469,7 +20583,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.235516e9";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20943,7 +21057,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.235516e9";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35790,7 +35904,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.003caee5",
+        revision: "Ember@2.0.0-beta.1+canary.235516e9",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40404,7 +40518,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.235516e9";
 
   /**
   @module ember
