@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0.e8e207c0
+ * @version   1.12.0.94b8cb6c
  */
 
 (function() {
@@ -2592,7 +2592,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0.e8e207c0
+    @version 1.12.0.94b8cb6c
   */
 
   if ('undefined' === typeof Ember) {
@@ -2621,10 +2621,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0.e8e207c0'
+    @default '1.12.0.94b8cb6c'
     @static
   */
-  Ember.VERSION = '1.12.0.e8e207c0';
+  Ember.VERSION = '1.12.0.94b8cb6c';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -6493,7 +6493,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   }
 
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property'], function (exports, Ember, EmberError, path_cache, define_property) {
+enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property', 'ember-metal/is_none'], function (exports, Ember, EmberError, path_cache, define_property, isNone) {
 
   'use strict';
 
@@ -6548,7 +6548,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     Ember['default'].assert("Cannot call get with " + keyName + " key.", !!keyName);
     Ember['default'].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
-    if (!obj) {
+    if (isNone['default'](obj)) {
       return _getPath(obj, keyName);
     }
 
@@ -9378,7 +9378,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.12.0.e8e207c0";
+    options.revision = "Ember@1.12.0.94b8cb6c";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
