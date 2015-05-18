@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.cebcd8bf
+ * @version   2.0.0-beta.1+canary.003caee5
  */
 
 (function() {
@@ -7864,7 +7864,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.cebcd8bf";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12708,7 +12708,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.cebcd8bf
+    @version 2.0.0-beta.1+canary.003caee5
   */
 
   if ('undefined' === typeof Ember) {
@@ -12739,10 +12739,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.cebcd8bf'
+    @default '2.0.0-beta.1+canary.003caee5'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.cebcd8bf';
+  Ember.VERSION = '2.0.0-beta.1+canary.003caee5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19963,7 +19963,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.cebcd8bf";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20433,7 +20433,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.cebcd8bf";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35183,7 +35183,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.cebcd8bf",
+        revision: "Ember@2.0.0-beta.1+canary.003caee5",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38568,7 +38568,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.cebcd8bf";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.003caee5";
 
   /**
   @module ember
@@ -42589,7 +42589,7 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
   exports['default'] = HTMLBarsMorph;
 
 });
-enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils) {
+enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils', '../htmlbars-util/void-tag-names'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils, voidMap) {
 
   'use strict';
 
@@ -42702,9 +42702,13 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           dom.setAttribute(el1, key, attributes[key]);
         }
 
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
+        if (!voidMap['default'][tagName]) {
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+        }
+
         dom.appendChild(el0, el1);
+
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment) {
@@ -43439,6 +43443,20 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     morph.lastYielded = null;
     morph.childNodes = null;
   }
+
+});
+enifed('htmlbars-util/void-tag-names', ['exports', './array-utils'], function (exports, array_utils) {
+
+  'use strict';
+
+  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
+  var voidMap = {};
+
+  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
+    voidMap[tagName] = true;
+  });
+
+  exports['default'] = voidMap;
 
 });
 enifed('morph-attr', ['exports', './morph-attr/sanitize-attribute-value', './dom-helper/prop', './dom-helper/build-html-dom', './htmlbars-util'], function (exports, sanitize_attribute_value, prop, build_html_dom, htmlbars_util) {

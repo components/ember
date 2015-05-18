@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.cebcd8bf
+ * @version   2.0.0-beta.1+canary.003caee5
  */
 
 (function() {
@@ -2628,7 +2628,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.cebcd8bf
+    @version 2.0.0-beta.1+canary.003caee5
   */
 
   if ('undefined' === typeof Ember) {
@@ -2659,10 +2659,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.cebcd8bf'
+    @default '2.0.0-beta.1+canary.003caee5'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.cebcd8bf';
+  Ember.VERSION = '2.0.0-beta.1+canary.003caee5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10485,7 +10485,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.cebcd8bf",
+        revision: "Ember@2.0.0-beta.1+canary.003caee5",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12869,7 +12869,7 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
   exports['default'] = HTMLBarsMorph;
 
 });
-enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils) {
+enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '../htmlbars-util/morph-utils', './expression-visitor', './morph', '../htmlbars-util/template-utils', '../htmlbars-util/void-tag-names'], function (exports, array_utils, morph_utils, ExpressionVisitor, Morph, template_utils, voidMap) {
 
   'use strict';
 
@@ -12982,9 +12982,13 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           dom.setAttribute(el1, key, attributes[key]);
         }
 
-        var el2 = dom.createComment("");
-        dom.appendChild(el1, el2);
+        if (!voidMap['default'][tagName]) {
+          var el2 = dom.createComment("");
+          dom.appendChild(el1, el2);
+        }
+
         dom.appendChild(el0, el1);
+
         return el0;
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment) {
@@ -13637,6 +13641,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function preparePath(data, parts, locInfo) {
+    /*jshint -W040 */
     locInfo = this.locInfo(locInfo);
 
     var original = data ? '@' : '',
@@ -13668,6 +13673,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareMustache(path, params, hash, open, strip, locInfo) {
+    /*jshint -W040 */
     // Must use charAt to support IE pre-10
     var escapeFlag = open.charAt(3) || open.charAt(2),
         escaped = escapeFlag !== '{' && escapeFlag !== '&';
@@ -13676,6 +13682,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareRawBlock(openRawBlock, content, close, locInfo) {
+    /*jshint -W040 */
     if (openRawBlock.path.original !== close) {
       var errorNode = { loc: openRawBlock.path.loc };
 
@@ -13689,6 +13696,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
+    /*jshint -W040 */
     // When we are chaining inverse calls, we will not have a close path
     if (close && close.path && openBlock.path.original !== close.path.original) {
       var errorNode = { loc: openBlock.path.loc };
@@ -13724,6 +13732,7 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
 
     'use strict';
 
+    /* jshint ignore:start */
     /* istanbul ignore next */
     /* Jison generated parser */
     var handlebars = (function () {
@@ -14394,6 +14403,7 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
         }Parser.prototype = parser;parser.Parser = Parser;
         return new Parser();
     })();exports['default'] = handlebars;
+    /* jshint ignore:end */
 
 });
 enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception', './ast'], function (exports, Exception, AST) {
@@ -15154,19 +15164,10 @@ enifed('htmlbars-syntax/parser', ['exports', './handlebars/compiler/base', './to
   };
 
 });
-enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-utils', './builders', './utils'], function (exports, array_utils, builders, utils) {
+enifed('htmlbars-syntax/token-handlers', ['exports', './builders', './utils', '../htmlbars-util/void-tag-names'], function (exports, builders, utils, voidMap) {
 
   'use strict';
 
-  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
-  var voidMap = {};
-
-  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
-    voidMap[tagName] = true;
-  });
-
-  // Except for `mustache`, all tokens are only allowed outside of
-  // a start or end tag.
   var tokenHandlers = {
     Comment: function (token) {
       var current = this.currentElement();
@@ -15188,7 +15189,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
       };
 
       this.elementStack.push(element);
-      if (voidMap.hasOwnProperty(tag.tagName) || tag.selfClosing) {
+      if (voidMap['default'].hasOwnProperty(tag.tagName) || tag.selfClosing) {
         tokenHandlers.EndTag.call(this, tag, true);
       }
     },
@@ -15265,7 +15266,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', '../htmlbars-util/array-uti
   function validateEndTag(tag, element, selfClosing) {
     var error;
 
-    if (voidMap[tag.tagName] && !selfClosing) {
+    if (voidMap['default'][tag.tagName] && !selfClosing) {
       // EngTag is also called by StartTag for void and self-closing tags (i.e.
       // <input> or <br />, so we need to check for that here. Otherwise, we would
       // throw an error for those cases.
@@ -16260,6 +16261,20 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     morph.lastYielded = null;
     morph.childNodes = null;
   }
+
+});
+enifed('htmlbars-util/void-tag-names', ['exports', './array-utils'], function (exports, array_utils) {
+
+  'use strict';
+
+  var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
+  var voidMap = {};
+
+  array_utils.forEach(voidTagNames.split(" "), function (tagName) {
+    voidMap[tagName] = true;
+  });
+
+  exports['default'] = voidMap;
 
 });
 enifed('morph-range', ['exports', './morph-range/utils'], function (exports, utils) {

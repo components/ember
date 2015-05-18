@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.cebcd8bf
+ * @version   2.0.0-beta.1+canary.003caee5
  */
 
 (function() {
@@ -16421,6 +16421,52 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['ember-m
     });
 
     equal(view.$().text(), "");
+  });
+
+});
+enifed('ember-htmlbars/tests/integration/void-element-component-test', ['ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (EmberView, system__container, compile, utils, ComponentLookup, Component) {
+
+  'use strict';
+
+  var registry, container, view;
+
+  QUnit.module("ember-htmlbars: components for void elements", {
+    setup: function () {
+      registry = new system__container.Registry();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("a void element does not have childNodes", function () {
+    var component;
+    registry.register("component:x-foo", Component['default'].extend({
+      tagName: "input",
+
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      }
+    }));
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{x-foo}}")
+    });
+
+    utils.runAppend(view);
+
+    deepEqual(component.element.childNodes.length, 0, "no childNodes are added for `<input>`");
   });
 
 });
@@ -46287,7 +46333,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.cebcd8bf", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.003caee5", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
