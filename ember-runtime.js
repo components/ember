@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6a39f56a
+ * @version   2.0.0-beta.1+canary.c81ba6b5
  */
 
 (function() {
@@ -4387,7 +4387,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.6a39f56a
+    @version 2.0.0-beta.1+canary.c81ba6b5
   */
 
   if ('undefined' === typeof Ember) {
@@ -4418,10 +4418,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.6a39f56a'
+    @default '2.0.0-beta.1+canary.c81ba6b5'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.6a39f56a';
+  Ember.VERSION = '2.0.0-beta.1+canary.c81ba6b5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5717,11 +5717,11 @@ enifed('ember-metal/is_none', ['exports'], function (exports) {
     @param {Object} obj Value to test
     @return {Boolean}
   */
+  exports['default'] = isNone;
+
   function isNone(obj) {
     return obj === null || obj === undefined;
   }
-
-  exports['default'] = isNone;
 
 });
 enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (exports, isBlank) {
