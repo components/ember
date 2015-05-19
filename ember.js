@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.c56f6b39
+ * @version   2.0.0-beta.1+canary.e09b0ef6
  */
 
 (function() {
@@ -8295,7 +8295,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c56f6b39";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e09b0ef6";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -10509,27 +10509,30 @@ enifed('ember-htmlbars/templates/top-level-view', ['exports', 'ember-template-co
   })());
 
 });
-enifed('ember-htmlbars/utils/is-component', ['exports'], function (exports) {
+enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/lookup-helper'], function (exports, lookup_helper) {
 
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
+
 
   /*
    Given a path name, returns whether or not a component with that
    name was found in the container.
   */
   exports['default'] = isComponent;
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
 
   function isComponent(env, scope, path) {
     var container = env.container;
     if (!container) {
       return false;
     }
-
+    if (lookup_helper.ISNT_HELPER_CACHE.get(path)) {
+      return false;
+    }
     return container._registry.has('component:' + path) || container._registry.has('template:components/' + path);
   }
 
@@ -13193,7 +13196,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.c56f6b39
+    @version 2.0.0-beta.1+canary.e09b0ef6
   */
 
   if ('undefined' === typeof Ember) {
@@ -13224,10 +13227,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.c56f6b39'
+    @default '2.0.0-beta.1+canary.e09b0ef6'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.c56f6b39';
+  Ember.VERSION = '2.0.0-beta.1+canary.e09b0ef6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20586,7 +20589,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c56f6b39";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e09b0ef6";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21060,7 +21063,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c56f6b39";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e09b0ef6";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35909,7 +35912,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.c56f6b39",
+        revision: "Ember@2.0.0-beta.1+canary.e09b0ef6",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40525,7 +40528,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c56f6b39";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e09b0ef6";
 
   /**
   @module ember

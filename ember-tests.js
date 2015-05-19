@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.c56f6b39
+ * @version   2.0.0-beta.1+canary.e09b0ef6
  */
 
 (function() {
@@ -7974,6 +7974,21 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       });
       equal(view.$().text(), "Max - Max|James - James|", "component was updated and re-rendered");
     });
+
+    QUnit.test("dashless components should not be found", function () {
+      expect(1);
+
+      registry.register("template:components/dashless", compile['default']("Do not render me!"));
+
+      view = EmberView['default'].extend({
+        template: compile['default']("{{component \"dashless\"}}"),
+        container: container
+      }).create();
+
+      expectAssertion(function () {
+        utils.runAppend(view);
+      }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
+    });
   
 
 });
@@ -14404,6 +14419,16 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['ember-meta
     equal(view.$('i').text(), 'second, second - computed', 'view rerenders when bound properties change');
   });
 
+  QUnit.test('should allow rendering of undefined props', function () {
+    view = EmberView['default'].create({
+      template: compile['default']('{{name}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), '', 'rendered undefined binding');
+  });
+
   QUnit.test('should cleanup bound properties on rerender', function () {
     view = EmberView['default'].create({
       controller: EmberObject['default'].create({ name: 'wycats' }),
@@ -14725,6 +14750,43 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
+  });
+
+  QUnit.test("lookup of component takes priority over property", function () {
+    expect(1);
+
+    registry.register("template:components/some-component", compile['default']("some-component"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{some-prop}} {{some-component}}"),
+      container: container,
+      context: {
+        "some-component": "not-some-component",
+        "some-prop": "some-prop"
+      }
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "some-prop some-component");
+  });
+
+  QUnit.test("component without dash is not looked up", function () {
+    expect(1);
+
+    registry.register("template:components/somecomponent", compile['default']("somecomponent"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{somecomponent}}"),
+      container: container,
+      context: {
+        "somecomponent": "notsomecomponent"
+      }
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "notsomecomponent");
   });
 
   QUnit.test("rerendering component with attrs from parent", function () {
@@ -15706,46 +15768,6 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
   // TODO: Write a test that involves deep mutability: the component plucks something
   // from inside the attrs hash out into state and passes it as attrs into a child
   // component. The hooks should run correctly.
-
-});
-enifed('ember-htmlbars/tests/integration/component_lookup_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (EmberView, Registry, compile, ComponentLookup, utils) {
-
-  'use strict';
-
-  var registry, container, view;
-
-  QUnit.module("component - lookup", {
-    setup: function () {
-      registry = new Registry['default']();
-      container = registry.container();
-      registry.optionsForType("component", { singleton: false });
-      registry.optionsForType("view", { singleton: false });
-      registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
-      registry.register("component-lookup:main", ComponentLookup['default']);
-    },
-
-    teardown: function () {
-      utils.runDestroy(container);
-      utils.runDestroy(view);
-      registry = container = view = null;
-    }
-  });
-
-  QUnit.test("dashless components should not be found", function () {
-    expect(1);
-
-    registry.register("template:components/dashless", compile['default']("Do not render me!"));
-
-    view = EmberView['default'].extend({
-      template: compile['default']("{{dashless}}"),
-      container: container
-    }).create();
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
-  });
 
 });
 enifed('ember-htmlbars/tests/integration/escape_integration_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-metal/platform/create', 'ember-runtime/tests/utils'], function (run, EmberView, compile, property_set, o_create, utils) {
@@ -46813,7 +46835,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.c56f6b39", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e09b0ef6", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
