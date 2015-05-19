@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.76f5665c
+ * @version   2.0.0-beta.1+canary.c56f6b39
  */
 
 (function() {
@@ -31786,6 +31786,34 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
 
   commonSortTests();
 
+  QUnit.test("updating sort properties detaches observers for old sort properties", function () {
+    var objectToRemove = property_get.get(obj, "items").objectAt(3);
+
+    run['default'](function () {
+      sorted = property_get.get(obj, "sortedItems");
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Cersei", "Jaime", "Bran", "Robb"], "precond - array is initially sorted");
+
+    run['default'](function () {
+      property_set.set(obj, "itemSorting", Ember['default'].A(["fname:desc"]));
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei", "Bran"], "after updating sort properties array is updated");
+
+    run['default'](function () {
+      property_get.get(obj, "items").removeObject(objectToRemove);
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei"], "after removing item array is updated");
+
+    run['default'](function () {
+      property_set.set(objectToRemove, "lname", "Updated-Stark");
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei"], "after changing removed item array is not updated");
+  });
+
   QUnit.test("updating sort properties updates the sorted array", function () {
     run['default'](function () {
       sorted = property_get.get(obj, "sortedItems");
@@ -46631,7 +46659,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.76f5665c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.c56f6b39", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
