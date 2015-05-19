@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e09b0ef6
+ * @version   2.0.0-beta.1+canary.0d569009
  */
 
 (function() {
@@ -11294,6 +11294,30 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
       var link = links[i];
       equal(link.protocol, 'unsafe:', 'properly escaped');
     }
+  });
+
+  QUnit.module('ember-htmlbars: {{#unbound}} helper with container present', {
+    setup: function () {
+      Ember['default'].lookup = lookup = { Ember: Ember['default'] };
+
+      view = EmberView['default'].create({
+        container: new system__container.Registry().container,
+        template: compile['default']('{{unbound foo}}'),
+        context: EmberObject['default'].create({
+          foo: 'bleep'
+        })
+      });
+    },
+
+    teardown: function () {
+      utils.runDestroy(view);
+      Ember['default'].lookup = originalLookup;
+    }
+  });
+
+  QUnit.test('it should render the current value of a property path on the context', function () {
+    utils.runAppend(view);
+    equal(view.$().text(), 'bleep', 'should render the current value of a property path');
   });
 
   QUnit.module('ember-htmlbars: {{#unbound}} subexpression', {
@@ -46835,7 +46859,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e09b0ef6", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.0d569009", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
