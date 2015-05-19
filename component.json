@@ -1,7 +1,7 @@
 {
   "name": "ember",
   "repo": "components/ember",
-  "version": "1.10.1.intercom",
+  "version": "1.10.1.intercom.1",
   "main": "ember.debug.js",
   "scripts": [
     "ember.debug.js"

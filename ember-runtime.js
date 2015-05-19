@@ -1124,9 +1124,9 @@ define("container/container",
       this.typeInjections = dictionary(parent ? parent.typeInjections : null);
       this.injections     = dictionary(null);
       this.normalizeCache = dictionary(null);
-
+      
         this.validationCache = dictionary(parent ? parent.validationCache : null);
-
+      
 
       this.factoryTypeInjections = dictionary(parent ? parent.factoryTypeInjections : null);
       this.factoryInjections     = dictionary(null);
@@ -1273,9 +1273,9 @@ define("container/container",
         delete this.factoryCache[normalizedName];
         delete this.resolveCache[normalizedName];
         delete this._options[normalizedName];
-
+        
           delete this.validationCache[normalizedName];
-
+        
       },
 
       /**
@@ -1923,7 +1923,7 @@ define("container/container",
             'Most likely an improperly defined class or an invalid module export.');
         }
 
-
+        
           validationCache = container.validationCache;
 
           // Ensure that all lazy injections are valid at instantiation time
@@ -1934,7 +1934,7 @@ define("container/container",
           }
 
           validationCache[fullName] = true;
-
+        
 
         if (typeof factory.extend === 'function') {
           // assume the factory was extendable and is already injected
@@ -2299,9 +2299,9 @@ define("ember-metal",
     Ember.isEmpty = isEmpty;
     Ember.isBlank = isBlank;
 
-
+    
       Ember.isPresent = isPresent;
-
+    
 
     Ember.merge = merge;
 
@@ -4882,7 +4882,7 @@ define("ember-metal/core",
       @default '1.10.0'
       @static
     */
-    Ember.VERSION = '1.10.1.intercom';
+    Ember.VERSION = '1.10.0';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
@@ -5937,7 +5937,7 @@ define("ember-metal/expand_properties",
           'e.g. `user.{firstName, lastName}` should be `user.{firstName,lastName}`');
       }
 
-
+      
         return newExpandProperties(pattern, callback);
           }
 
@@ -6454,7 +6454,7 @@ define("ember-metal/is_present",
     var isBlank = __dependency1__["default"];
     var isPresent;
 
-
+    
       /**
         A value is present if it not `isBlank`.
 
@@ -6481,7 +6481,7 @@ define("ember-metal/is_present",
       isPresent = function isPresent(obj) {
         return !isBlank(obj);
       };
-
+    
 
     __exports__["default"] = isPresent;
   });
@@ -7314,7 +7314,7 @@ define("ember-metal/merge",
       @return {Object}
     */
     __exports__["default"] = function merge(original, updates) {
-      if (!updates || typeof updates !== 'object') {
+      if (!updates || typeof updates !== 'object') { 
         return original;
       }
 
@@ -8904,7 +8904,7 @@ define("ember-metal/properties",
         value = desc;
 
         descs[keyName] = desc;
-
+        
           if (watching && hasPropertyAccessors) {
             objectDefineProperty(obj, keyName, {
               configurable: true,
@@ -8921,7 +8921,7 @@ define("ember-metal/properties",
         if (desc == null) {
           value = data;
 
-
+          
             if (watching && hasPropertyAccessors) {
               meta.values[keyName] = data;
               objectDefineProperty(obj, keyName, {
@@ -9339,13 +9339,13 @@ define("ember-metal/property_get",
       if (desc) {
         return desc.get(obj, keyName);
       } else {
-
+        
           if (hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
             ret = meta.values[keyName];
           } else {
             ret = obj[keyName];
           }
-
+        
         if (ret === undefined &&
             'object' === typeof obj && !(keyName in obj) && 'function' === typeof obj.unknownProperty) {
           return obj.unknownProperty(keyName);
@@ -9504,7 +9504,7 @@ define("ember-metal/property_set",
           obj.setUnknownProperty(keyName, value);
         } else if (meta && meta.watching[keyName] > 0) {
           if (meta.proto !== obj) {
-
+            
               if (hasPropertyAccessors) {
                 currentValue = meta.values[keyName];
               } else {
@@ -9514,7 +9514,7 @@ define("ember-metal/property_set",
           // only trigger a change if the value has changed
           if (value !== currentValue) {
             propertyWillChange(obj, keyName);
-
+            
               if (hasPropertyAccessors) {
                 if (
                   (currentValue === undefined && !(keyName in obj)) ||
@@ -11040,11 +11040,11 @@ define("ember-metal/utils",
     // Placeholder for non-writable metas.
     var EMPTY_META = new Meta(null);
 
-
+    
       if (hasPropertyAccessors) {
         EMPTY_META.values = {};
       }
-
+    
 
     /**
       Retrieves the meta hash for an object. If `writable` is true ensures the
@@ -11073,11 +11073,11 @@ define("ember-metal/utils",
 
         ret = new Meta(obj);
 
-
+        
           if (hasPropertyAccessors) {
             ret.values = {};
           }
-
+        
 
         obj['__ember_meta__'] = ret;
 
@@ -11094,11 +11094,11 @@ define("ember-metal/utils",
         ret.cacheMeta = {};
         ret.source    = obj;
 
-
+        
           if (hasPropertyAccessors) {
             ret.values = o_create(ret.values);
           }
-
+        
 
         obj['__ember_meta__'] = ret;
       }
@@ -11701,18 +11701,18 @@ define("ember-metal/watch_key",
           obj.willWatchProperty(keyName);
         }
 
-
+        
           if (hasPropertyAccessors) {
             handleMandatorySetter(m, obj, keyName);
           }
-
+        
       } else {
         watching[keyName] = (watching[keyName] || 0) + 1;
       }
     }
 
     __exports__.watchKey = watchKey;
-
+    
       var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
         var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
         var configurable = descriptor ? descriptor.configurable : true;
@@ -11730,7 +11730,7 @@ define("ember-metal/watch_key",
           });
         }
       };
-
+    
 
     function unwatchKey(obj, keyName, meta) {
       var m = meta || metaFor(obj);
@@ -11746,7 +11746,7 @@ define("ember-metal/watch_key",
           obj.didUnwatchProperty(keyName);
         }
 
-
+        
           if (hasPropertyAccessors && keyName in obj) {
             o_defineProperty(obj, keyName, {
               configurable: true,
@@ -11764,7 +11764,7 @@ define("ember-metal/watch_key",
               get: DEFAULT_GETTER_FUNCTION(keyName)
             });
           }
-
+        
       } else if (watching[keyName] > 1) {
         watching[keyName]--;
       }
@@ -12023,9 +12023,9 @@ define("ember-runtime",
     Ember.copy = copy;
     Ember.isEqual = isEqual;
 
-
+    
       Ember.inject = inject;
-
+    
 
     Ember.Array = EmberArray;
 
@@ -12098,9 +12098,9 @@ define("ember-runtime",
     Ember.Controller = Controller;
     Ember.ControllerMixin = ControllerMixin;
 
-
+    
       Ember.Service = Service;
-
+    
 
     Ember._ProxyMixin = _ProxyMixin;
 
@@ -14356,7 +14356,7 @@ define("ember-runtime/controllers/array_controller",
           parentController = this;
         }
 
-
+        
           fullName = 'controller:' + controllerClass;
 
           if (!container.has(fullName)) {
@@ -14368,7 +14368,7 @@ define("ember-runtime/controllers/array_controller",
             parentController: parentController,
             model: object
           });
-
+        
 
         subControllers[idx] = subController;
 
@@ -14428,7 +14428,7 @@ define("ember-runtime/controllers/controller",
                    "non-controller is not allowed.", Controller.detect(factory));
     }
 
-
+    
       /**
         Creates a property that lazily looks up another controller in the container.
         Can only be used when defining another controller.
@@ -14459,7 +14459,7 @@ define("ember-runtime/controllers/controller",
         @return {Ember.InjectedProperty} injection descriptor instance
         */
       createInjectionHelper('controller', controllerInjectionHelper);
-
+    
 
     __exports__["default"] = Controller;
   });
@@ -16518,7 +16518,7 @@ define("ember-runtime/mixins/enumerable",
         var found = this.find(function(item) {
           return item === obj;
         });
-
+        
         return found !== undefined;
       },
 
@@ -17284,7 +17284,7 @@ define("ember-runtime/mixins/enumerable",
         var didChange  = (opts && opts.didChange) || 'enumerableDidChange';
         var hasObservers = get(this, 'hasEnumerableObservers');
 
-        if (!hasObservers) {
+        if (!hasObservers) { 
           propertyWillChange(this, 'hasEnumerableObservers');
         }
 
@@ -19944,7 +19944,7 @@ define("ember-runtime/system/core_object",
                 if (typeof this.setUnknownProperty === 'function' && !(keyName in this)) {
                   this.setUnknownProperty(keyName, value);
                 } else {
-
+                  
                     if (hasPropertyAccessors) {
                       defineProperty(this, keyName, null, value); // setup mandatory setter
                     } else {
@@ -20578,7 +20578,7 @@ define("ember-runtime/system/core_object",
         ```
 
         This will return the original hash that was passed to `meta()`.
-
+        
         @static
         @method metaForProperty
         @param key {String} property name
@@ -20614,7 +20614,7 @@ define("ember-runtime/system/core_object",
       /**
         Iterate over each computed property for the class, passing its name
         and any associated metadata (see `metaForProperty`) to the callback.
-
+        
         @static
         @method eachComputedProperty
         @param {Function} callback
@@ -20650,7 +20650,7 @@ define("ember-runtime/system/core_object",
       });
     }
 
-
+    
       addOnLookupHandler();
 
       /**
@@ -20675,7 +20675,7 @@ define("ember-runtime/system/core_object",
 
         return injections;
       };
-
+    
 
     var ClassMixin = Mixin.create(ClassMixinProps);
 
@@ -21548,7 +21548,7 @@ define("ember-runtime/system/service",
 
     var Service;
 
-
+    
       /**
         @class Service
         @namespace Ember
@@ -21583,7 +21583,7 @@ define("ember-runtime/system/service",
         @return {Ember.InjectedProperty} injection descriptor instance
       */
       createInjectionHelper('service');
-
+    
 
     __exports__["default"] = Service;
   });

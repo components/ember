@@ -144,7 +144,7 @@ define("ember-metal/core",
       @default '1.10.0'
       @static
     */
-    Ember.VERSION = '1.10.1.intercom';
+    Ember.VERSION = '1.10.1.intercom.1';
 
     /**
       Standard environmental variables. You can define these in a global `EmberENV`
