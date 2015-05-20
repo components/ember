@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.d5a4719f
+ * @version   2.0.0-beta.1+canary.afe178fc
  */
 
 (function() {
@@ -8295,7 +8295,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d5a4719f";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -10001,7 +10001,7 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "attrs.emptyViewClass"]], ["_defaultTagName", ["get", "view._itemTagName"]]]],
+          statements: [["inline", "view", [["get", "view._emptyView"]], ["_defaultTagName", ["get", "view._itemTagName"]]]],
           locals: [],
           templates: []
         };
@@ -10024,7 +10024,7 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "attrs.emptyViewClass"]], [], 0, null]],
+        statements: [["block", "if", [["get", "view._emptyView"]], [], 0, null]],
         locals: [],
         templates: [child0]
       };
@@ -13196,7 +13196,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.d5a4719f
+    @version 2.0.0-beta.1+canary.afe178fc
   */
 
   if ('undefined' === typeof Ember) {
@@ -13227,10 +13227,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.d5a4719f'
+    @default '2.0.0-beta.1+canary.afe178fc'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.d5a4719f';
+  Ember.VERSION = '2.0.0-beta.1+canary.afe178fc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20589,7 +20589,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d5a4719f";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21063,7 +21063,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d5a4719f";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35912,7 +35912,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.d5a4719f",
+        revision: "Ember@2.0.0-beta.1+canary.afe178fc",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38150,6 +38150,62 @@ enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-m
   });
 
 });
+enifed('ember-views/mixins/empty_view_support', ['exports', 'ember-metal/mixin', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed'], function (exports, mixin, View, property_get, property_set, computed) {
+
+  'use strict';
+
+  /**
+   @module ember
+   @submodule ember-views
+   */
+
+  exports['default'] = mixin.Mixin.create({
+    /**
+     This provides metadata about what kind of empty view class this
+     collection would like if it is being instantiated from another
+     system (like Handlebars)
+      @private
+     @property emptyViewClass
+     */
+    emptyViewClass: View['default'],
+
+    /**
+     An optional view to display if content is set to an empty array.
+      @property emptyView
+     @type Ember.View
+     @default null
+     */
+    emptyView: null,
+
+    _emptyView: computed.computed("emptyView", "attrs.emptyViewClass", "emptyViewClass", function () {
+      var emptyView = property_get.get(this, "emptyView");
+      var attrsEmptyViewClass = this.getAttr("emptyViewClass");
+      var emptyViewClass = property_get.get(this, "emptyViewClass");
+      var inverse = property_get.get(this, "_itemViewInverse");
+      var actualEmpty = emptyView || attrsEmptyViewClass;
+
+      // Somehow, our previous semantics differed depending on whether the
+      // `emptyViewClass` was provided on the JavaScript class or via the
+      // Handlebars template.
+      // In Glimmer, we disambiguate between the two by checking first (and
+      // preferring) the attrs-supplied class.
+      // If not present, we fall back to the class's `emptyViewClass`, but only
+      // if an inverse has been provided via an `{{else}}`.
+      if (inverse && actualEmpty) {
+        if (actualEmpty.extend) {
+          return actualEmpty.extend({ template: inverse });
+        } else {
+          property_set.set(actualEmpty, "template", inverse);
+        }
+      } else if (inverse && emptyViewClass) {
+        return emptyViewClass.extend({ template: inverse });
+      }
+
+      return actualEmpty;
+    })
+  });
+
+});
 enifed('ember-views/mixins/instrumentation_support', ['exports', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/property_get'], function (exports, mixin, computed, property_get) {
 
   'use strict';
@@ -39882,7 +39938,7 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
   });
 
 });
-enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'ember-views/views/container_view', 'ember-views/views/view', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/utils'], function (exports, Ember, ContainerView, View, EmberArray, property_get, property_set, string, computed, mixin, utils) {
+enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'ember-views/views/container_view', 'ember-views/views/view', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/utils', 'ember-views/mixins/empty_view_support'], function (exports, Ember, ContainerView, View, EmberArray, property_get, property_set, string, computed, mixin, utils, EmptyViewSupport) {
 
   'use strict';
 
@@ -39891,7 +39947,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   @submodule ember-views
   */
 
-  var CollectionView = ContainerView['default'].extend({
+  var CollectionView = ContainerView['default'].extend(EmptyViewSupport['default'], {
 
     /**
       A list of items to be displayed by the `Ember.CollectionView`.
@@ -39900,23 +39956,6 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       @default null
     */
     content: null,
-
-    /**
-      This provides metadata about what kind of empty view class this
-      collection would like if it is being instantiated from another
-      system (like Handlebars)
-       @private
-      @property emptyViewClass
-    */
-    emptyViewClass: View['default'],
-
-    /**
-      An optional view to display if content is set to an empty array.
-       @property emptyView
-      @type Ember.View
-      @default null
-    */
-    emptyView: null,
 
     /**
       @property itemViewClass
@@ -40097,33 +40136,6 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
         property_set.set(this, "emptyView", this.getAttr("emptyView"));
       }
     },
-
-    _emptyView: computed.computed("emptyView", "attrs.emptyViewClass", "emptyViewClass", function () {
-      var emptyView = property_get.get(this, "emptyView");
-      var attrsEmptyViewClass = this.getAttr("emptyViewClass");
-      var emptyViewClass = property_get.get(this, "emptyViewClass");
-      var inverse = property_get.get(this, "_itemViewInverse");
-      var actualEmpty = emptyView || attrsEmptyViewClass;
-
-      // Somehow, our previous semantics differed depending on whether the
-      // `emptyViewClass` was provided on the JavaScript class or via the
-      // Handlebars template.
-      // In Glimmer, we disambiguate between the two by checking first (and
-      // preferring) the attrs-supplied class.
-      // If not present, we fall back to the class's `emptyViewClass`, but only
-      // if an inverse has been provided via an `{{else}}`.
-      if (inverse && actualEmpty) {
-        if (actualEmpty.extend) {
-          return actualEmpty.extend({ template: inverse });
-        } else {
-          property_set.set(actualEmpty, "template", inverse);
-        }
-      } else if (inverse && emptyViewClass) {
-        return emptyViewClass.extend({ template: inverse });
-      }
-
-      return actualEmpty;
-    }),
 
     _emptyViewTagName: computed.computed("tagName", function () {
       var tagName = property_get.get(this, "tagName");
@@ -40557,7 +40569,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d5a4719f";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
 
   /**
   @module ember
@@ -40988,7 +41000,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal-views/renderer', 
   exports.DeprecatedCoreView = DeprecatedCoreView;
 
 });
-enifed('ember-views/views/legacy_each_view', ['exports', 'ember-htmlbars/templates/legacy-each', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/collection_view'], function (exports, legacyEachTemplate, property_get, property_set, computed, View, collection_view) {
+enifed('ember-views/views/legacy_each_view', ['exports', 'ember-htmlbars/templates/legacy-each', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/collection_view', 'ember-views/mixins/empty_view_support'], function (exports, legacyEachTemplate, property_get, property_set, computed, View, collection_view, EmptyViewSupport) {
 
   'use strict';
 
@@ -40996,7 +41008,7 @@ enifed('ember-views/views/legacy_each_view', ['exports', 'ember-htmlbars/templat
   //This is a fallback path for the `{{#each}}` helper that supports deprecated
   //behavior such as itemController.
 
-  exports['default'] = View['default'].extend({
+  exports['default'] = View['default'].extend(EmptyViewSupport['default'], {
     template: legacyEachTemplate['default'],
     tagName: "",
 
