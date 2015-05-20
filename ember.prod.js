@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.a96dda15
+ * @version   2.0.0-beta.1+canary.79e764e4
  */
 
 (function() {
@@ -7979,7 +7979,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.a96dda15";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.79e764e4";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12826,7 +12826,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.a96dda15
+    @version 2.0.0-beta.1+canary.79e764e4
   */
 
   if ('undefined' === typeof Ember) {
@@ -12857,10 +12857,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.a96dda15'
+    @default '2.0.0-beta.1+canary.79e764e4'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.a96dda15';
+  Ember.VERSION = '2.0.0-beta.1+canary.79e764e4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20081,7 +20081,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.a96dda15";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.79e764e4";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20551,7 +20551,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.a96dda15";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.79e764e4";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35303,7 +35303,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.a96dda15",
+        revision: "Ember@2.0.0-beta.1+canary.79e764e4",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36191,6 +36191,33 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-ru
   });
 
 });
+enifed('ember-views/mixins/aria_role_support', ['exports', 'ember-metal/mixin'], function (exports, mixin) {
+
+  'use strict';
+
+  /**
+   @module ember
+   @submodule ember-views
+   */
+
+  exports['default'] = mixin.Mixin.create({
+    attributeBindings: ["ariaRole:role"],
+
+    /**
+     The WAI-ARIA role of the control represented by this view. For example, a
+     button may have a role of type 'button', or a pane may have a role of
+     type 'alertdialog'. This property is used by assistive software to help
+     visually challenged users navigate rich web applications.
+      The full list of valid WAI-ARIA roles is available at:
+     [http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)
+      @property ariaRole
+     @type String
+     @default null
+     */
+    ariaRole: null
+  });
+
+});
 enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-runtime/system/native_array', 'ember-metal/utils'], function (exports, Ember, mixin, native_array, utils) {
 
   'use strict';
@@ -37007,17 +37034,17 @@ enifed('ember-views/mixins/visibility_support', ['exports', 'ember-metal/mixin',
   'use strict';
 
   /**
-  @module ember
-  @submodule ember-views
-  */
+   @module ember
+   @submodule ember-views
+   */
   function K() {
     return this;
   }
 
   /**
-    @class VisibilitySupport
-    @namespace Ember
-  */
+   @class VisibilitySupport
+   @namespace Ember
+   */
   var VisibilitySupport = mixin.Mixin.create({
     /**
       If `false`, the view will appear hidden in DOM.
@@ -38688,7 +38715,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.a96dda15";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.79e764e4";
 
   /**
   @module ember
@@ -40199,7 +40226,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'embe
   });
 
 });
-enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy'], function (exports, Ember, Evented, EmberObject, EmberError, property_get, run, ember_metal__observer, utils, computed, mixin, deprecate_property, jQuery, __dep12__, CoreView, ViewContextSupport, ViewChildViewsSupport, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, LegacyViewSupport, InstrumentationSupport, VisibilitySupport, CompatAttrsProxy) {
+enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/evented', 'ember-runtime/system/object', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/deprecate_property', 'ember-views/system/jquery', 'ember-views/system/ext', 'ember-views/views/core_view', 'ember-views/mixins/view_context_support', 'ember-views/mixins/view_child_views_support', 'ember-views/mixins/view_state_support', 'ember-views/mixins/template_rendering_support', 'ember-views/mixins/class_names_support', 'ember-views/mixins/legacy_view_support', 'ember-views/mixins/instrumentation_support', 'ember-views/mixins/aria_role_support', 'ember-views/mixins/visibility_support', 'ember-views/compat/attrs-proxy'], function (exports, Ember, Evented, EmberObject, EmberError, property_get, run, ember_metal__observer, utils, computed, mixin, deprecate_property, jQuery, __dep12__, CoreView, ViewContextSupport, ViewChildViewsSupport, ViewStateSupport, TemplateRenderingSupport, ClassNamesSupport, LegacyViewSupport, InstrumentationSupport, AriaRoleSupport, VisibilitySupport, CompatAttrsProxy) {
 
   'use strict';
 
@@ -40838,9 +40865,10 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     @uses Ember.LegacyViewSupport
     @uses Ember.InstrumentationSupport
     @uses Ember.VisibilitySupport
+    @uses Ember.AriaRoleSupport
   */
   // jscs:disable validateIndentation
-  var View = CoreView['default'].extend(ViewContextSupport['default'], ViewChildViewsSupport['default'], ViewStateSupport['default'], TemplateRenderingSupport['default'], ClassNamesSupport['default'], LegacyViewSupport['default'], InstrumentationSupport['default'], VisibilitySupport['default'], CompatAttrsProxy['default'], {
+  var View = CoreView['default'].extend(ViewContextSupport['default'], ViewChildViewsSupport['default'], ViewStateSupport['default'], TemplateRenderingSupport['default'], ClassNamesSupport['default'], LegacyViewSupport['default'], InstrumentationSupport['default'], VisibilitySupport['default'], CompatAttrsProxy['default'], AriaRoleSupport['default'], {
     concatenatedProperties: ["attributeBindings"],
 
     /**
@@ -41338,19 +41366,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
        @property _defaultTagName
       @private
     */
-
-    /**
-      The WAI-ARIA role of the control represented by this view. For example, a
-      button may have a role of type 'button', or a pane may have a role of
-      type 'alertdialog'. This property is used by assistive software to help
-      visually challenged users navigate rich web applications.
-       The full list of valid WAI-ARIA roles is available at:
-      [http://www.w3.org/TR/wai-aria/roles#roles_categorization](http://www.w3.org/TR/wai-aria/roles#roles_categorization)
-       @property ariaRole
-      @type String
-      @default null
-    */
-    ariaRole: null,
 
     /**
       Normally, Ember's component model is "write-only". The component takes a

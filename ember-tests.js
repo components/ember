@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.a96dda15
+ * @version   2.0.0-beta.1+canary.79e764e4
  */
 
 (function() {
@@ -14900,6 +14900,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here - In template");
+  });
+
+  QUnit.test("with ariaRole specified", function () {
+    expect(1);
+
+    registry.register("template:components/aria-test", compile['default']("Here!"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{aria-test id=\"aria-test\" ariaRole=\"main\"}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#aria-test").attr("role"), "main", "role attribute is applied");
   });
 
   
@@ -46859,7 +46874,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.a96dda15", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.79e764e4", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -54361,6 +54376,24 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     appendView();
 
     equal(view.$().attr("href"), "a new href", "expect value from subclass attribute binding");
+  });
+
+  QUnit.test("role attribute is included if provided as ariaRole", function () {
+    view = EmberView['default'].create({
+      ariaRole: "main"
+    });
+
+    appendView();
+
+    equal(view.$().attr("role"), "main");
+  });
+
+  QUnit.test("role attribute is not included if not provided", function () {
+    view = EmberView['default'].create();
+
+    appendView();
+
+    ok(!view.element.hasAttribute("role"), "role attribute is not present");
   });
 
 });
