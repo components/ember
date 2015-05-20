@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.c6758398
+ * @version   2.0.0-beta.1+canary.1ce6034a
  */
 
 (function() {
@@ -46752,7 +46752,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.c6758398", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.1ce6034a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -55309,7 +55309,7 @@ enifed('ember-views/tests/views/view/inject_test', ['ember-runtime/system/servic
   });
 
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view'], function (property_get, property_set, run, EmberView, ContainerView) {
+enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-metal/computed'], function (property_get, property_set, run, EmberView, ContainerView, computed) {
 
   'use strict';
 
@@ -55378,6 +55378,29 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
 
     ok(view.$().is(":visible"), "view should be visible");
 
+    run['default'](function () {
+      view.remove();
+    });
+  });
+
+  QUnit.test("should hide views when isVisible is a CP returning false", function () {
+    view = EmberView['default'].extend({
+      isVisible: computed.computed(function () {
+        return false;
+      })
+    }).create();
+
+    run['default'](function () {
+      view.append();
+    });
+
+    ok(view.$().is(":hidden"), "the view is hidden");
+
+    run['default'](function () {
+      property_set.set(view, "isVisible", true);
+    });
+
+    ok(view.$().is(":visible"), "the view is visible");
     run['default'](function () {
       view.remove();
     });
