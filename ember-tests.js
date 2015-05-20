@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.79e764e4
+ * @version   2.0.0-beta.1+canary.d5a4719f
  */
 
 (function() {
@@ -8759,7 +8759,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     assertText(view, "Steve HoltAnnabelle");
   });
 
-  QUnit.test("it supports {{itemViewClass=}} with tagName (DEPRECATED)", function () {
+  QUnit.test("it supports {{itemViewClass=}} with each view tagName (DEPRECATED)", function () {
     utils.runDestroy(view);
     view = EmberView['default'].create({
       template: templateFor("{{each view.people itemViewClass=MyView tagName=\"ul\"}}"),
@@ -8768,6 +8768,25 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     });
 
     utils.runAppend(view);
+    equal(view.$("ul").length, 1, "rendered ul tag");
+    equal(view.$("ul li").length, 2, "rendered 2 li tags");
+    equal(view.$("ul li").text(), "Steve HoltAnnabelle");
+  });
+
+  QUnit.test("it supports {{itemViewClass=}} with tagName in itemViewClass (DEPRECATED)", function () {
+    utils.runDestroy(view);
+    registry.register("view:li-view", EmberView['default'].extend({
+      tagName: "li"
+    }));
+
+    view = EmberView['default'].create({
+      template: templateFor("<ul>{{#each view.people itemViewClass=\"li-view\" as |item|}}{{item.name}}{{/each}}</ul>"),
+      people: people,
+      container: container
+    });
+
+    utils.runAppend(view);
+
     equal(view.$("ul").length, 1, "rendered ul tag");
     equal(view.$("ul li").length, 2, "rendered 2 li tags");
     equal(view.$("ul li").text(), "Steve HoltAnnabelle");
@@ -46874,7 +46893,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.79e764e4", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.d5a4719f", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
