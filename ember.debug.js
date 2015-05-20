@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.afe178fc
+ * @version   2.0.0-beta.1+canary.c6758398
  */
 
 (function() {
@@ -5733,7 +5733,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
   });
 
 });
-enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, getHelper, DOMHelper) {
+enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, legacyEachWithKeywordHelper, getHelper, DOMHelper) {
 
   'use strict';
 
@@ -5751,6 +5751,7 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   helpers.registerHelper("-concat", concatHelper['default']);
   helpers.registerHelper("-join-classes", joinClassesHelper['default']);
   helpers.registerHelper("-legacy-each-with-controller", legacyEachWithControllerHelper['default']);
+  helpers.registerHelper("-legacy-each-with-keyword", legacyEachWithKeywordHelper['default']);
   if (Ember['default'].FEATURES.isEnabled("ember-htmlbars-get-helper")) {
     helpers.registerHelper("-get", getHelper['default']);
   }
@@ -6393,6 +6394,43 @@ enifed('ember-htmlbars/helpers/-legacy-each-with-controller', ['exports', 'ember
       hasBoundController: true,
       self: controller ? controller : undefined
     };
+  }
+
+  var deprecation = "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.";
+
+  exports.deprecation = deprecation;
+
+});
+enifed('ember-htmlbars/helpers/-legacy-each-with-keyword', ['exports', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-views/streams/should_display'], function (exports, property_get, enumerable_utils, shouldDisplay) {
+
+  'use strict';
+
+  exports['default'] = legacyEachWithKeywordHelper;
+
+  function legacyEachWithKeywordHelper(params, hash, blocks) {
+    var list = params[0];
+    var keyPath = hash.key;
+    var legacyKeyword = hash["-legacy-keyword"];
+
+    if (shouldDisplay['default'](list)) {
+      enumerable_utils.forEach(list, function (item, i) {
+        var self;
+        if (legacyKeyword) {
+          self = bindKeyword(self, legacyKeyword, item);
+        }
+
+        var key = keyPath ? property_get.get(item, keyPath) : String(i);
+        blocks.template.yieldItem(key, [item, i], self);
+      });
+    } else if (blocks.inverse.yield) {
+      blocks.inverse.yield();
+    }
+  }
+
+  function bindKeyword(self, keyword, item) {
+    var _ref;
+
+    return (_ref = {}, _ref.self = self, _ref[keyword] = item, _ref);
   }
 
   var deprecation = "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.";
@@ -7950,7 +7988,7 @@ enifed('ember-htmlbars/keywords/debugger', ['exports', 'ember-metal/logger'], fu
   }
 
 });
-enifed('ember-htmlbars/keywords/each', ['exports', 'ember-htmlbars/hooks/get-value', 'ember-runtime/controllers/array_controller'], function (exports, getValue, ArrayController) {
+enifed('ember-htmlbars/keywords/each', ['exports', 'ember-runtime/controllers/array_controller'], function (exports, ArrayController) {
 
   'use strict';
 
@@ -7963,10 +8001,17 @@ enifed('ember-htmlbars/keywords/each', ['exports', 'ember-htmlbars/hooks/get-val
   */
 
   function each(morph, env, scope, params, hash, template, inverse, visitor) {
-    var firstParam = params[0] && getValue['default'](params[0]);
+    var getValue = env.hooks.getValue;
+    var firstParam = params[0] && getValue(params[0]);
+    var keyword = hash['-legacy-keyword'] && getValue(hash['-legacy-keyword']);
 
     if (firstParam && firstParam instanceof ArrayController['default']) {
-      env.hooks.block(morph, env, scope, "-legacy-each-with-controller", params, hash, template, inverse, visitor);
+      env.hooks.block(morph, env, scope, '-legacy-each-with-controller', params, hash, template, inverse, visitor);
+      return true;
+    }
+
+    if (keyword) {
+      env.hooks.block(morph, env, scope, '-legacy-each-with-keyword', params, hash, template, inverse, visitor);
       return true;
     }
 
@@ -8295,7 +8340,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c6758398";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -9888,6 +9933,54 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
     var child0 = (function () {
       var child0 = (function () {
         var child0 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {},
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createComment("");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+                dom.insertBoundary(fragment, 0);
+                dom.insertBoundary(fragment, null);
+                return morphs;
+              },
+              statements: [["inline", "legacy-yield", [["get", "item"]], []]],
+              locals: [],
+              templates: []
+            };
+          })();
+          return {
+            meta: {},
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+              dom.insertBoundary(fragment, 0);
+              dom.insertBoundary(fragment, null);
+              return morphs;
+            },
+            statements: [["block", "view", [["get", "attrs.itemViewClass"]], ["_defaultTagName", ["get", "view._itemTagName"]], 0, null]],
+            locals: [],
+            templates: [child0]
+          };
+        })();
+        var child1 = (function () {
           return {
             meta: {},
             arity: 0,
@@ -9929,12 +10022,84 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "view", [["get", "attrs.itemViewClass"]], ["controller", ["get", "item"], "_defaultTagName", ["get", "view._itemTagName"]], 0, null]],
+          statements: [["block", "if", [["get", "attrs.itemViewClass"]], [], 0, 1]],
           locals: [],
-          templates: [child0]
+          templates: [child0, child1]
         };
       })();
       var child1 = (function () {
+        var child0 = (function () {
+          var child0 = (function () {
+            return {
+              meta: {},
+              arity: 0,
+              cachedFragment: null,
+              hasRendered: false,
+              buildFragment: function buildFragment(dom) {
+                var el0 = dom.createDocumentFragment();
+                var el1 = dom.createComment("");
+                dom.appendChild(el0, el1);
+                return el0;
+              },
+              buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+                var morphs = new Array(1);
+                morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+                dom.insertBoundary(fragment, 0);
+                dom.insertBoundary(fragment, null);
+                return morphs;
+              },
+              statements: [["inline", "legacy-yield", [["get", "item"]], []]],
+              locals: [],
+              templates: []
+            };
+          })();
+          return {
+            meta: {},
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+              dom.insertBoundary(fragment, 0);
+              dom.insertBoundary(fragment, null);
+              return morphs;
+            },
+            statements: [["block", "view", [["get", "attrs.itemViewClass"]], ["controller", ["get", "item"], "_defaultTagName", ["get", "view._itemTagName"]], 0, null]],
+            locals: [],
+            templates: [child0]
+          };
+        })();
+        var child1 = (function () {
+          return {
+            meta: {},
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createComment("");
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var morphs = new Array(1);
+              morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+              dom.insertBoundary(fragment, 0);
+              dom.insertBoundary(fragment, null);
+              return morphs;
+            },
+            statements: [["inline", "legacy-yield", [["get", "item"]], ["controller", ["get", "item"]]]],
+            locals: [],
+            templates: []
+          };
+        })();
         return {
           meta: {},
           arity: 0,
@@ -9953,9 +10118,9 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "legacy-yield", [["get", "item"]], ["controller", ["get", "item"]]]],
+          statements: [["block", "if", [["get", "attrs.itemViewClass"]], [], 0, 1]],
           locals: [],
-          templates: []
+          templates: [child0, child1]
         };
       })();
       return {
@@ -9976,7 +10141,7 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "attrs.itemViewClass"]], [], 0, 1]],
+        statements: [["block", "if", [["get", "keyword"]], [], 0, 1]],
         locals: ["item"],
         templates: [child0, child1]
       };
@@ -10047,7 +10212,7 @@ enifed('ember-htmlbars/templates/legacy-each', ['exports', 'ember-template-compi
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "each", [["get", "view._arrangedContent"]], [], 0, 1]],
+      statements: [["block", "each", [["get", "view._arrangedContent"]], ["-legacy-keyword", ["get", "keyword"]], 0, 1]],
       locals: [],
       templates: [child0, child1]
     };
@@ -13196,7 +13361,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.afe178fc
+    @version 2.0.0-beta.1+canary.c6758398
   */
 
   if ('undefined' === typeof Ember) {
@@ -13227,10 +13392,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.afe178fc'
+    @default '2.0.0-beta.1+canary.c6758398'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.afe178fc';
+  Ember.VERSION = '2.0.0-beta.1+canary.c6758398';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20589,7 +20754,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c6758398";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21063,7 +21228,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c6758398";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35912,7 +36077,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.afe178fc",
+        revision: "Ember@2.0.0-beta.1+canary.c6758398",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40569,7 +40734,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.afe178fc";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.c6758398";
 
   /**
   @module ember

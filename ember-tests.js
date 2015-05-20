@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.afe178fc
+ * @version   2.0.0-beta.1+canary.c6758398
  */
 
 (function() {
@@ -8806,21 +8806,20 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     equal(view.$().text(), "No records!");
   });
 
-  QUnit.test("it supports {{itemViewClass=}} with in format", function () {
-    MyView = EmberView['default'].extend({
-      template: templateFor("{{person.name}}")
-    });
-
+  QUnit.test("it supports non-context switching with {{itemViewClass=}} (DEPRECATED)", function () {
     utils.runDestroy(view);
+    registry.register("view:foo-view", EmberView['default'].extend({
+      template: templateFor("{{person.name}}")
+    }));
+
     view = EmberView['default'].create({
-      container: registry.container(),
-      template: templateFor("{{each person in view.people itemViewClass=\"my-view\"}}"),
-      people: people
+      template: templateFor("{{each person in view.people itemViewClass=\"foo-view\"}}"),
+      people: people,
+      container: container
     });
 
     utils.runAppend(view);
-
-    assertText(view, "Steve HoltAnnabelle");
+    equal(view.$().text(), "Steve HoltAnnabelle");
   });
 
   QUnit.test("it supports {{emptyView=}}", function () {
@@ -46907,7 +46906,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.afe178fc", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.c6758398", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
