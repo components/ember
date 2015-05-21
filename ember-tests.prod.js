@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.1ce6034a
+ * @version   2.0.0-beta.1+canary.2a5efd6a
  */
 
 (function() {
@@ -5514,13 +5514,22 @@ enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', '
   });
 
 });
-enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (compat__helper, EmberView, Component, makeViewHelper, helpers, compile, utils) {
+enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-views/component_lookup'], function (compat__helper, EmberView, Component, makeViewHelper, helpers, compile, utils, Registry, ComponentLookup) {
 
   'use strict';
 
-  var view;
+  var view, registry, container;
 
   QUnit.module("ember-htmlbars: compat - Handlebars compatible helpers", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
     teardown: function () {
       utils.runDestroy(view);
 
@@ -5563,6 +5572,49 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
         value: "foo"
       },
       template: compile['default']("{{test}}")
+    });
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test("combines `env` and `options` for the wrapped helper", function () {
+    expect(1);
+
+    function someHelper(options) {
+      equal(options.data.view, view);
+    }
+
+    compat__helper.registerHandlebarsCompatibleHelper("test", someHelper);
+
+    view = EmberView['default'].create({
+      controller: {
+        value: "foo"
+      },
+      template: compile['default']("{{test}}")
+    });
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test("has the correct options.data.view within a components layout", function () {
+    expect(1);
+    var component;
+
+    registry.register("component:foo-bar", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      }
+    }));
+
+    registry.register("template:components/foo-bar", compile['default']("{{my-thing}}"));
+    registry.register("helper:my-thing", function (options) {
+      equal(options.data.view, component, "passed in view should match the current component");
+    });
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{foo-bar}}")
     });
 
     utils.runAppend(view);
@@ -17392,12 +17444,9 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
       template: {},
       inverse: {}
     };
-    var fakeEnv = {
-      data: {
-        view: {}
-      }
-    };
-    actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
+    var fakeEnv = {};
+    var fakeScope = {};
+    actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv, fakeScope);
 
     ok(called, "HTMLBars compatible wrapper is wraping the provided function");
   });
@@ -46752,7 +46801,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.1ce6034a", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.2a5efd6a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
