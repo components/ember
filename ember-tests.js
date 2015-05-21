@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.2a5efd6a
+ * @version   2.0.0-beta.1+canary.e82eb27c
  */
 
 (function() {
@@ -26578,6 +26578,26 @@ enifed('ember-metal/tests/utils/try_invoke_test', ['ember-metal/utils'], functio
   });
 
 });
+enifed('ember-metal/tests/utils_test', ['ember-metal/utils'], function (utils) {
+
+  'use strict';
+
+  QUnit.module("Ember Metal Utils");
+
+  QUnit.test("inspect outputs the toString() representation of Symbols", function () {
+    // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
+    // for it's existence (where a simple `if (Symbol)` would ReferenceError)
+    var Symbol = Symbol || null;
+
+    if (Symbol) {
+      var symbol = Symbol("test");
+      equal(utils.inspect(symbol), "Symbol(test)");
+    } else {
+      expect(0);
+    }
+  });
+
+});
 enifed('ember-metal/tests/watching/is_watching_test', ['ember-metal/computed', 'ember-metal/property_get', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/watching'], function (computed, property_get, properties, mixin, observer, watching) {
 
   'use strict';
@@ -46955,7 +46975,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.2a5efd6a", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e82eb27c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
