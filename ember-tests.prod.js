@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.8a829189
+ * @version   2.0.0-beta.1+canary.10f772a2
  */
 
 (function() {
@@ -2694,6 +2694,28 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
         });
       });
     }
+
+    QUnit.test("Initializers get an instance on app reset", function () {
+      expect(2);
+
+      var MyApplication = Application['default'].extend();
+
+      MyApplication.instanceInitializer({
+        name: "giveMeAnInstance",
+        initialize: function (instance) {
+          ok(!!instance, "Initializer got an instance");
+        }
+      });
+
+      run['default'](function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: "#qunit-fixture"
+        });
+      });
+
+      run['default'](app, "reset");
+    });
   
 
 });
@@ -46833,7 +46855,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.8a829189", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.10f772a2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
