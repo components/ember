@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.93da9c57
+ * @version   2.0.0-beta.1+canary.15952904
  */
 
 (function() {
@@ -46987,7 +46987,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.93da9c57", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.15952904", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -61789,7 +61789,9 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
       Ember.run(function () {
         App = Ember.Application.create({
           name: "App",
-          rootElement: "#qunit-fixture"
+          rootElement: "#qunit-fixture",
+          // fake a modules resolver
+          Resolver: Ember.DefaultResolver.extend({ moduleBasedResolver: true })
         });
 
         App.deferReadiness();
@@ -62176,9 +62178,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
 
       expect(2);
 
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
-
       var appDeferred = Ember.RSVP.defer();
 
       App.ApplicationRoute = Ember.Route.extend({
@@ -62205,9 +62204,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
     QUnit.test("Slow promises returned from ApplicationRoute#model enter application_loading if template present", function () {
 
       expect(3);
-
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
 
       templates["application_loading"] = "TOPLEVEL LOADING";
 
@@ -62242,9 +62238,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
     QUnit.test("Default error event moves into nested route, prioritizing more specifically named error route", function () {
 
       expect(5);
-
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
 
       templates["grandma"] = "GRANDMA {{outlet}}";
       templates["grandma/error"] = "ERROR: {{model.msg}}";
@@ -62290,9 +62283,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
 
       expect(2);
 
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
-
       templates["foo/bar_loading"] = "FOOBAR LOADING";
       templates["foo/bar/index"] = "YAY";
 
@@ -62323,9 +62313,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
     QUnit.test("Prioritized loading substate entry works with preserved-namespace nested routes", function () {
 
       expect(2);
-
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
 
       templates["foo/bar_loading"] = "FOOBAR LOADING";
       templates["foo/bar"] = "YAY";
@@ -62358,9 +62345,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
 
       expect(1);
 
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
-
       templates["foo/bar_error"] = "FOOBAR ERROR: {{model.msg}}";
       templates["foo/bar"] = "YAY";
 
@@ -62388,9 +62372,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
     QUnit.test("Prioritized loading substate entry works with auto-generated index routes", function () {
 
       expect(2);
-
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
 
       templates["foo/index_loading"] = "FOO LOADING";
       templates["foo/index"] = "YAY";
@@ -62429,9 +62410,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
 
       expect(1);
 
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
-
       templates["foo/index_error"] = "FOO ERROR: {{model.msg}}";
       templates["foo/index"] = "YAY";
       templates["foo"] = "{{outlet}}";
@@ -62465,9 +62443,6 @@ enifed('ember/tests/routing/substates_test', ['ember', 'ember-htmlbars/compat'],
     QUnit.test("Rejected promises returned from ApplicationRoute transition into top-level application_error", function () {
 
       expect(2);
-
-      // fake a modules resolver
-      App.registry.resolver.moduleBasedResolver = true;
 
       templates["application_error"] = "<p id=\"toplevel-error\">TOPLEVEL ERROR: {{model.msg}}</p>";
 
