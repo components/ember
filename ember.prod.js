@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e82eb27c
+ * @version   2.0.0-beta.1+canary.5c0fb159
  */
 
 (function() {
@@ -8024,7 +8024,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e82eb27c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.5c0fb159";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12991,7 +12991,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.e82eb27c
+    @version 2.0.0-beta.1+canary.5c0fb159
   */
 
   if ('undefined' === typeof Ember) {
@@ -13022,10 +13022,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.e82eb27c'
+    @default '2.0.0-beta.1+canary.5c0fb159'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.e82eb27c';
+  Ember.VERSION = '2.0.0-beta.1+canary.5c0fb159';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20247,7 +20247,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e82eb27c";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.5c0fb159";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -20717,7 +20717,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e82eb27c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.5c0fb159";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -21924,13 +21924,13 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
 
   function supportsHistory(userAgent, history) {
     // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-    // The stock browser on Android 2.2 & 2.3 returns positive on history support
+    // The stock browser on Android 2.2 & 2.3, and 4.0.x returns positive on history support
     // Unfortunately support is really buggy and there is no clean way to detect
     // these bugs, so we fall back to a user agent sniff :(
 
-    // We only want Android 2, stock browser, and not Chrome which identifies
-    // itself as 'Mobile Safari' as well
-    if (userAgent.indexOf('Android 2') !== -1 && userAgent.indexOf('Mobile Safari') !== -1 && userAgent.indexOf('Chrome') === -1) {
+    // We only want Android 2 and 4.0, stock browser, and not Chrome which identifies
+    // itself as 'Mobile Safari' as well, nor Windows Phone.
+    if ((userAgent.indexOf('Android 2.') !== -1 || userAgent.indexOf('Android 4.0') !== -1) && userAgent.indexOf('Mobile Safari') !== -1 && userAgent.indexOf('Chrome') === -1 && userAgent.indexOf('Windows Phone') === -1) {
       return false;
     }
 
@@ -35469,7 +35469,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.e82eb27c",
+        revision: "Ember@2.0.0-beta.1+canary.5c0fb159",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38893,7 +38893,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.e82eb27c";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.5c0fb159";
 
   /**
   @module ember

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.e82eb27c
+ * @version   2.0.0-beta.1+canary.5c0fb159
  */
 
 (function() {
@@ -30397,12 +30397,24 @@ enifed('ember-routing/tests/location/util_test', ['ember-metal/merge', 'ember-ro
     equal(util.supportsHashChange(8, { onhashchange: function () {} }), true, "When in IE8+, use onhashchange existence as evidence of the feature");
   });
 
+  // jscs:disable
   QUnit.test("Feature-detecting the history API", function () {
     equal(util.supportsHistory("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
     equal(util.supportsHistory("", {}), false, "returns false if history.pushState doesn't exist");
     equal(util.supportsHistory("", undefined), false, "returns false if history doesn't exist");
-    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android Gingerbread stock browser claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
+
+    // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
+    equal(util.supportsHistory("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
   });
+  // jscs:enable
 
 });
 enifed('ember-routing/tests/system/controller_for_test', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (Ember, property_get, property_set, run, Registry, Namespace, string, Controller, ObjectController, ArrayController, controllerFor, generateController) {
@@ -46821,7 +46833,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.e82eb27c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.5c0fb159", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
