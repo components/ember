@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.15952904
+ * @version   2.0.0-beta.1+canary.8a829189
  */
 
 (function() {
@@ -1352,6 +1352,10 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     return obj && typeof obj === "object";
   }
 
+  function isVolatile(obj) {
+    return !(isObject(obj) && obj.isDescriptor && obj._cacheable);
+  }
+
   var pendingQueue = [];
   function flushPendingChains() {
     if (pendingQueue.length === 0) {
@@ -1452,27 +1456,21 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     }
 
     var meta = obj["__ember_meta__"];
+
     // check if object meant only to be a prototype
     if (meta && meta.proto === obj) {
       return;
     }
 
-    if (key === "@each") {
+    // Use `get` if the return value is an EachProxy or an uncacheable value.
+    if (key === "@each" || isVolatile(obj[key])) {
       return property_get.get(obj, key);
-    }
-
-    // if a CP only return cached value
-    var possibleDesc = obj[key];
-    var desc = possibleDesc !== null && typeof possibleDesc === "object" && possibleDesc.isDescriptor ? possibleDesc : undefined;
-    if (desc && desc._cacheable) {
+      // Otherwise attempt to get the cached value of the computed property
+    } else {
       if (meta.cache && key in meta.cache) {
         return meta.cache[key];
-      } else {
-        return;
       }
     }
-
-    return property_get.get(obj, key);
   }
 
   ChainNode.prototype = {
@@ -2628,7 +2626,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.15952904
+    @version 2.0.0-beta.1+canary.8a829189
   */
 
   if ('undefined' === typeof Ember) {
@@ -2659,10 +2657,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.15952904'
+    @default '2.0.0-beta.1+canary.8a829189'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.15952904';
+  Ember.VERSION = '2.0.0-beta.1+canary.8a829189';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10486,7 +10484,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.15952904",
+        revision: "Ember@2.0.0-beta.1+canary.8a829189",
         loc: program.loc,
         moduleName: options.moduleName
       };
