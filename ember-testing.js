@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.c806d5cf
+ * @version   1.13.0-beta.1.8860b89a
  */
 
 (function() {
@@ -1189,9 +1189,11 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
        @public
       @method promise
       @param {Function} resolver The function used to resolve the promise.
+      @param {String} label An optional string for identifying the promise.
     */
-    promise: function (resolver) {
-      return new Test.Promise(resolver);
+    promise: function (resolver, label) {
+      var fullLabel = "Ember.Test.promise: " + (label || "<Unknown Promise>");
+      return new Test.Promise(resolver, fullLabel);
     },
 
     /**

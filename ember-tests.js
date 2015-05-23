@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.c806d5cf
+ * @version   1.13.0-beta.1.8860b89a
  */
 
 (function() {
@@ -2694,6 +2694,28 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
         });
       });
     }
+
+    QUnit.test("Initializers get an instance on app reset", function () {
+      expect(2);
+
+      var MyApplication = Application['default'].extend();
+
+      MyApplication.instanceInitializer({
+        name: "giveMeAnInstance",
+        initialize: function (instance) {
+          ok(!!instance, "Initializer got an instance");
+        }
+      });
+
+      run['default'](function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: "#qunit-fixture"
+        });
+      });
+
+      run['default'](app, "reset");
+    });
   
 
 });
@@ -5407,13 +5429,22 @@ enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['ember-metal/core', '
   });
 
 });
-enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (compat__helper, EmberView, Component, makeViewHelper, helpers, compile, utils) {
+enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-views/component_lookup'], function (compat__helper, EmberView, Component, makeViewHelper, helpers, compile, utils, Registry, ComponentLookup) {
 
   'use strict';
 
-  var view;
+  var view, registry, container;
 
   QUnit.module("ember-htmlbars: compat - Handlebars compatible helpers", {
+    setup: function () {
+      registry = new Registry['default']();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", ComponentLookup['default']);
+    },
     teardown: function () {
       utils.runDestroy(view);
 
@@ -5456,6 +5487,49 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['ember-htmlbars/compat/helper
         value: "foo"
       },
       template: compile['default']("{{test}}")
+    });
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test("combines `env` and `options` for the wrapped helper", function () {
+    expect(1);
+
+    function someHelper(options) {
+      equal(options.data.view, view);
+    }
+
+    compat__helper.registerHandlebarsCompatibleHelper("test", someHelper);
+
+    view = EmberView['default'].create({
+      controller: {
+        value: "foo"
+      },
+      template: compile['default']("{{test}}")
+    });
+
+    utils.runAppend(view);
+  });
+
+  QUnit.test("has the correct options.data.view within a components layout", function () {
+    expect(1);
+    var component;
+
+    registry.register("component:foo-bar", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      }
+    }));
+
+    registry.register("template:components/foo-bar", compile['default']("{{my-thing}}"));
+    registry.register("helper:my-thing", function (options) {
+      equal(options.data.view, component, "passed in view should match the current component");
+    });
+
+    view = EmberView['default'].create({
+      container: container,
+      template: compile['default']("{{foo-bar}}")
     });
 
     utils.runAppend(view);
@@ -7867,6 +7941,21 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       });
       equal(view.$().text(), "Max - Max|James - James|", "component was updated and re-rendered");
     });
+
+    QUnit.test("dashless components should not be found", function () {
+      expect(1);
+
+      registry.register("template:components/dashless", compile['default']("Do not render me!"));
+
+      view = EmberView['default'].extend({
+        template: compile['default']("{{component \"dashless\"}}"),
+        container: container
+      }).create();
+
+      expectAssertion(function () {
+        utils.runAppend(view);
+      }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
+    });
   
 
 });
@@ -8505,7 +8594,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     assertText(view, "Steve HoltAnnabelle");
   });
 
-  QUnit.test("it supports {{itemViewClass=}} with tagName (DEPRECATED)", function () {
+  QUnit.test("it supports {{itemViewClass=}} with each view tagName (DEPRECATED)", function () {
     utils.runDestroy(view);
     view = EmberView['default'].create({
       template: templateFor("{{each view.people itemViewClass=MyView tagName=\"ul\"}}"),
@@ -8519,21 +8608,53 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     equal(view.$("ul li").text(), "Steve HoltAnnabelle");
   });
 
-  QUnit.test("it supports {{itemViewClass=}} with in format", function () {
-    MyView = EmberView['default'].extend({
-      template: templateFor("{{person.name}}")
-    });
-
+  QUnit.test("it supports {{itemViewClass=}} with tagName in itemViewClass (DEPRECATED)", function () {
     utils.runDestroy(view);
+    registry.register("view:li-view", EmberView['default'].extend({
+      tagName: "li"
+    }));
+
     view = EmberView['default'].create({
-      container: registry.container(),
-      template: templateFor("{{each person in view.people itemViewClass=\"my-view\"}}"),
-      people: people
+      template: templateFor("<ul>{{#each view.people itemViewClass=\"li-view\" as |item|}}{{item.name}}{{/each}}</ul>"),
+      people: people,
+      container: container
     });
 
     utils.runAppend(view);
 
-    assertText(view, "Steve HoltAnnabelle");
+    equal(view.$("ul").length, 1, "rendered ul tag");
+    equal(view.$("ul li").length, 2, "rendered 2 li tags");
+    equal(view.$("ul li").text(), "Steve HoltAnnabelle");
+  });
+
+  QUnit.test("it supports {{itemViewClass=}} with {{else}} block (DEPRECATED)", function () {
+    utils.runDestroy(view);
+
+    view = EmberView['default'].create({
+      template: templateFor("\n      {{~#each view.people itemViewClass=\"my-view\" as |item|~}}\n        {{item.name}}\n      {{~else~}}\n        No records!\n      {{~/each}}"),
+      people: native_array.A(),
+      container: container
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "No records!");
+  });
+
+  QUnit.test("it supports non-context switching with {{itemViewClass=}} (DEPRECATED)", function () {
+    utils.runDestroy(view);
+    registry.register("view:foo-view", EmberView['default'].extend({
+      template: templateFor("{{person.name}}")
+    }));
+
+    view = EmberView['default'].create({
+      template: templateFor("{{each person in view.people itemViewClass=\"foo-view\"}}"),
+      people: people,
+      container: container
+    });
+
+    utils.runAppend(view);
+    equal(view.$().text(), "Steve HoltAnnabelle");
   });
 
   QUnit.test("it supports {{emptyView=}}", function () {
@@ -9890,7 +10011,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
   
 
 });
-enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox'], function (run, property_set, View, utils, compile, Registry, ComponentLookup, TextField, Checkbox) {
+enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher'], function (run, property_set, View, utils, compile, Registry, ComponentLookup, TextField, Checkbox, EventDispatcher) {
 
   'use strict';
 
@@ -9902,7 +10023,11 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     registry.register("component:-text-field", TextField['default']);
     registry.register("component:-checkbox", Checkbox['default']);
     registry.register("component-lookup:main", ComponentLookup['default']);
+    registry.register("event_dispatcher:main", EventDispatcher['default']);
     container = registry.container();
+
+    var dispatcher = container.lookup("event_dispatcher:main");
+    dispatcher.setup({}, "#qunit-fixture");
   }
 
   QUnit.module("{{input type='text'}}", {
@@ -9929,6 +10054,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10045,6 +10171,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10080,6 +10207,32 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     equal(view.$("input").attr("tabindex"), "5", "renders text field with the tabindex");
   });
 
+  QUnit.test("specifying `on=\"someevent\" action=\"foo\"` triggers the action", function () {
+    expect(2);
+    utils.runDestroy(view);
+    expectDeprecation("Using '{{input on=\"focus-in\" action=\"doFoo\"}} 'foo.hbs' @L1:C0 is deprecated. Please use '{{input focus-in=\"doFoo\"}}' instead.");
+
+    controller = {
+      send: function (actionName, value, sender) {
+        equal(actionName, "doFoo", "text field sent correct action name");
+      }
+    };
+
+    view = View['default'].create({
+      container: container,
+      controller: controller,
+
+      template: compile['default']("{{input type=\"text\" on=\"focus-in\" action=\"doFoo\"}}", { moduleName: "foo.hbs" })
+    });
+
+    utils.runAppend(view);
+
+    run['default'](function () {
+      var textField = view.$("input");
+      textField.trigger("focusin");
+    });
+  });
+
   QUnit.module("{{input type='text'}} - dynamic type", {
     setup: function () {
       commonSetup();
@@ -10099,6 +10252,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10133,6 +10287,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10161,6 +10316,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10205,6 +10361,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10234,6 +10391,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10268,6 +10426,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10294,6 +10453,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10747,6 +10907,30 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['ember-views/views/view', '
       var link = links[i];
       equal(link.protocol, 'unsafe:', 'properly escaped');
     }
+  });
+
+  QUnit.module('ember-htmlbars: {{#unbound}} helper with container present', {
+    setup: function () {
+      Ember['default'].lookup = lookup = { Ember: Ember['default'] };
+
+      view = EmberView['default'].create({
+        container: new system__container.Registry().container,
+        template: compile['default']('{{unbound foo}}'),
+        context: EmberObject['default'].create({
+          foo: 'bleep'
+        })
+      });
+    },
+
+    teardown: function () {
+      utils.runDestroy(view);
+      Ember['default'].lookup = originalLookup;
+    }
+  });
+
+  QUnit.test('it should render the current value of a property path on the context', function () {
+    utils.runAppend(view);
+    equal(view.$().text(), 'bleep', 'should render the current value of a property path');
   });
 
   QUnit.module('ember-htmlbars: {{#unbound}} subexpression', {
@@ -13872,6 +14056,16 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['ember-meta
     equal(view.$('i').text(), 'second, second - computed', 'view rerenders when bound properties change');
   });
 
+  QUnit.test('should allow rendering of undefined props', function () {
+    view = EmberView['default'].create({
+      template: compile['default']('{{name}}')
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), '', 'rendered undefined binding');
+  });
+
   QUnit.test('should cleanup bound properties on rerender', function () {
     view = EmberView['default'].create({
       controller: EmberObject['default'].create({ name: 'wycats' }),
@@ -14195,6 +14389,43 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
   });
 
+  QUnit.test("lookup of component takes priority over property", function () {
+    expect(1);
+
+    registry.register("template:components/some-component", compile['default']("some-component"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{some-prop}} {{some-component}}"),
+      container: container,
+      context: {
+        "some-component": "not-some-component",
+        "some-prop": "some-prop"
+      }
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "some-prop some-component");
+  });
+
+  QUnit.test("component without dash is not looked up", function () {
+    expect(1);
+
+    registry.register("template:components/somecomponent", compile['default']("somecomponent"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{somecomponent}}"),
+      container: container,
+      context: {
+        "somecomponent": "notsomecomponent"
+      }
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "notsomecomponent");
+  });
+
   QUnit.test("rerendering component with attrs from parent", function () {
     var willUpdate = 0;
     var didReceiveAttrs = 0;
@@ -14282,6 +14513,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here - In template");
+  });
+
+  QUnit.test("with ariaRole specified", function () {
+    expect(1);
+
+    registry.register("template:components/aria-test", compile['default']("Here!"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{aria-test id=\"aria-test\" ariaRole=\"main\"}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#aria-test").attr("role"), "main", "role attribute is applied");
   });
 
   
@@ -15174,46 +15420,6 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
   // TODO: Write a test that involves deep mutability: the component plucks something
   // from inside the attrs hash out into state and passes it as attrs into a child
   // component. The hooks should run correctly.
-
-});
-enifed('ember-htmlbars/tests/integration/component_lookup_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (EmberView, Registry, compile, ComponentLookup, utils) {
-
-  'use strict';
-
-  var registry, container, view;
-
-  QUnit.module("component - lookup", {
-    setup: function () {
-      registry = new Registry['default']();
-      container = registry.container();
-      registry.optionsForType("component", { singleton: false });
-      registry.optionsForType("view", { singleton: false });
-      registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
-      registry.register("component-lookup:main", ComponentLookup['default']);
-    },
-
-    teardown: function () {
-      utils.runDestroy(container);
-      utils.runDestroy(view);
-      registry = container = view = null;
-    }
-  });
-
-  QUnit.test("dashless components should not be found", function () {
-    expect(1);
-
-    registry.register("template:components/dashless", compile['default']("Do not render me!"));
-
-    view = EmberView['default'].extend({
-      template: compile['default']("{{dashless}}"),
-      container: container
-    }).create();
-
-    expectAssertion(function () {
-      utils.runAppend(view);
-    }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
-  });
 
 });
 enifed('ember-htmlbars/tests/integration/escape_integration_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-metal/platform/create', 'ember-runtime/tests/utils'], function (run, EmberView, compile, property_set, o_create, utils) {
@@ -16767,12 +16973,9 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['ember-htmlbars/system
       template: {},
       inverse: {}
     };
-    var fakeEnv = {
-      data: {
-        view: {}
-      }
-    };
-    actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv);
+    var fakeEnv = {};
+    var fakeScope = {};
+    actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv, fakeScope);
 
     ok(called, "HTMLBars compatible wrapper is wraping the provided function");
   });
@@ -26496,6 +26699,40 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       innerComponent.fireAction();
     });
 
+    QUnit.test("array arguments are passed correctly to action", function (assert) {
+      assert.expect(3);
+
+      var first = "foo";
+      var second = [3, 5];
+      var third = [4, 9];
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit(second, third);
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action outerSubmit first)}}\n      "),
+        innerComponent: innerComponent,
+        value: "",
+        outerSubmit: function (actualFirst, actualSecond, actualThird) {
+          assert.equal(actualFirst, first, "action has the correct first arg");
+          assert.equal(actualSecond, second, "action has the correct second arg");
+          assert.equal(actualThird, third, "action has the correct third arg");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        outerComponent.set("first", first);
+        outerComponent.set("second", second);
+      });
+
+      innerComponent.fireAction();
+    });
+
     QUnit.test("mut values can be wrapped in actions, are settable", function (assert) {
       assert.expect(1);
 
@@ -29797,12 +30034,24 @@ enifed('ember-routing/tests/location/util_test', ['ember-metal/merge', 'ember-ro
     equal(util.supportsHashChange(8, { onhashchange: function () {} }), true, "When in IE8+, use onhashchange existence as evidence of the feature");
   });
 
+  // jscs:disable
   QUnit.test("Feature-detecting the history API", function () {
     equal(util.supportsHistory("", { pushState: true }), true, "returns true if not Android Gingerbread and history.pushState exists");
     equal(util.supportsHistory("", {}), false, "returns false if history.pushState doesn't exist");
     equal(util.supportsHistory("", undefined), false, "returns false if history doesn't exist");
-    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android Gingerbread stock browser claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 2.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), false, "returns false if Android 2.x stock browser (not Chrome) claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 4.0.3; nl-nl; GT-N7000 Build/IML74K) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30", { pushState: true }), false, "returns false for Android 4.0.x stock browser (not Chrome) claiming to support pushState");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; U; Android 20.3.5; en-us; HTC Vision Build/GRI40) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1", { pushState: true }), true, "returns true if Android version begins with 2, but is greater than 2");
+
+    equal(util.supportsHistory("Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19", { pushState: true }), true, "returns true for Chrome (not stock browser) on Android 4.0.x");
+
+    // Windows Phone UA and History API: https://github.com/Modernizr/Modernizr/issues/1471
+    equal(util.supportsHistory("Mozilla/5.0 (Mobile; Windows Phone 8.1; Android 4.0; ARM; Trident/7.0; Touch; rv:11.0; IEMobile/11.0; Microsoft; Virtual) like iPhone OS 7_0_3 Mac OS X AppleWebKit/537 (KHTML, like Gecko) Mobile Safari/537", { pushState: true }), true, "returns true for Windows Phone 8.1 with misleading user agent string");
   });
+  // jscs:enable
 
 });
 enifed('ember-routing/tests/system/controller_for_test', ['ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (Ember, property_get, property_set, run, Registry, Namespace, string, Controller, ObjectController, ArrayController, controllerFor, generateController) {
@@ -31347,6 +31596,34 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['ember-metal
   });
 
   commonSortTests();
+
+  QUnit.test("updating sort properties detaches observers for old sort properties", function () {
+    var objectToRemove = property_get.get(obj, "items").objectAt(3);
+
+    run['default'](function () {
+      sorted = property_get.get(obj, "sortedItems");
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Cersei", "Jaime", "Bran", "Robb"], "precond - array is initially sorted");
+
+    run['default'](function () {
+      property_set.set(obj, "itemSorting", Ember['default'].A(["fname:desc"]));
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei", "Bran"], "after updating sort properties array is updated");
+
+    run['default'](function () {
+      property_get.get(obj, "items").removeObject(objectToRemove);
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei"], "after removing item array is updated");
+
+    run['default'](function () {
+      property_set.set(objectToRemove, "lname", "Updated-Stark");
+    });
+
+    deepEqual(sorted.mapBy("fname"), ["Robb", "Jaime", "Cersei"], "after changing removed item array is not updated");
+  });
 
   QUnit.test("updating sort properties updates the sorted array", function () {
     run['default'](function () {
@@ -46155,6 +46432,53 @@ enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-tes
   }
 
 });
+enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-template-compiler'], function (ember_template_compiler) {
+
+  'use strict';
+
+  QUnit.module("ember-template-compiler: transform-input-on");
+
+  QUnit.test("Using `action` without `on` provides a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input enter=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `action` with `on` provides a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"focus-in\" action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"focus-in\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input focus-in=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `on='keyPress'` does not clobber `keyPress`", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"keyPress\" action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"keyPress\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input key-press=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `on='foo'` without `action='asdf'` raises specific deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"asdf\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"asdf\" ...}}' without specifying an action 'foo/bar/baz' @L1:C0 will do nothing.");
+  });
+
+});
 enifed('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test', ['ember-template-compiler'], function (ember_template_compiler) {
 
   'use strict';
@@ -46240,7 +46564,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1.c806d5cf", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1.8860b89a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -53653,6 +53977,24 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['ember-metal/cor
     equal(view.$().attr("href"), "a new href", "expect value from subclass attribute binding");
   });
 
+  QUnit.test("role attribute is included if provided as ariaRole", function () {
+    view = EmberView['default'].create({
+      ariaRole: "main"
+    });
+
+    appendView();
+
+    equal(view.$().attr("role"), "main");
+  });
+
+  QUnit.test("role attribute is not included if not provided", function () {
+    view = EmberView['default'].create();
+
+    appendView();
+
+    ok(!view.element.hasAttribute("role"), "role attribute is not present");
+  });
+
 });
 enifed('ember-views/tests/views/view/child_views_test', ['ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler'], function (run, EmberView, ember_template_compiler) {
 
@@ -54688,7 +55030,7 @@ enifed('ember-views/tests/views/view/inject_test', ['ember-runtime/system/servic
   });
 
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view'], function (property_get, property_set, run, EmberView, ContainerView) {
+enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-metal/computed'], function (property_get, property_set, run, EmberView, ContainerView, computed) {
 
   'use strict';
 
@@ -54757,6 +55099,29 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
 
     ok(view.$().is(":visible"), "view should be visible");
 
+    run['default'](function () {
+      view.remove();
+    });
+  });
+
+  QUnit.test("should hide views when isVisible is a CP returning false", function () {
+    view = EmberView['default'].extend({
+      isVisible: computed.computed(function () {
+        return false;
+      })
+    }).create();
+
+    run['default'](function () {
+      view.append();
+    });
+
+    ok(view.$().is(":hidden"), "the view is hidden");
+
+    run['default'](function () {
+      property_set.set(view, "isVisible", true);
+    });
+
+    ok(view.$().is(":visible"), "the view is visible");
     run['default'](function () {
       view.remove();
     });

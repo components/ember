@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.c806d5cf
+ * @version   1.13.0-beta.1.8860b89a
  */
 
 (function() {
@@ -2609,7 +2609,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.1.c806d5cf
+    @version 1.13.0-beta.1.8860b89a
   */
 
   if ('undefined' === typeof Ember) {
@@ -2640,10 +2640,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.1.c806d5cf'
+    @default '1.13.0-beta.1.8860b89a'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.1.c806d5cf';
+  Ember.VERSION = '1.13.0-beta.1.8860b89a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9387,7 +9387,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
   }
 
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly, TransformAngleBracketComponents) {
+enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/compat'], function (exports, _Ember, precompile, compile, template, plugins, TransformEachInToBlockParams, TransformWithAsToHash, TransformBindAttrToAttributes, TransformEachIntoCollection, TransformSingleArgEach, TransformOldBindingSyntax, TransformOldClassBindingSyntax, TransformItemClass, TransformComponentAttrsIntoMut, TransformComponentCurlyToReadonly, TransformAngleBracketComponents, TransformInputOnToOnEvent) {
 
 	'use strict';
 
@@ -9402,6 +9402,7 @@ enifed('ember-template-compiler', ['exports', 'ember-metal/core', 'ember-templat
 	plugins.registerPlugin("ast", TransformComponentAttrsIntoMut['default']);
 	plugins.registerPlugin("ast", TransformComponentCurlyToReadonly['default']);
 	plugins.registerPlugin("ast", TransformAngleBracketComponents['default']);
+	plugins.registerPlugin("ast", TransformInputOnToOnEvent['default']);
 
 	exports._Ember = _Ember['default'];
 	exports.precompile = precompile['default'];
@@ -10014,6 +10015,143 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
   }
 
 });
+enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports'], function (exports) {
+
+  'use strict';
+
+  /**
+   @module ember
+   @submodule ember-htmlbars
+  */
+
+  /**
+    An HTMLBars AST transformation that replaces all instances of
+
+    ```handlebars
+   {{input on="enter" action="doStuff"}}
+   {{input on="key-press" action="doStuff"}}
+    ```
+
+    with
+
+    ```handlebars
+   {{input enter="doStuff"}}
+   {{input key-press="doStuff"}}
+    ```
+
+    @private
+    @class TransformInputOnToOnEvent
+  */
+  function TransformInputOnToOnEvent(options) {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+    this.options = options || {};
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} The AST to be transformed.
+  */
+  TransformInputOnToOnEvent.prototype.transform = function TransformInputOnToOnEvent_transform(ast) {
+    var pluginContext = this;
+    var b = pluginContext.syntax.builders;
+    var walker = new pluginContext.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (pluginContext.validate(node)) {
+        var action = hashPairForKey(node.hash, 'action');
+        var on = hashPairForKey(node.hash, 'on');
+        var onEvent = hashPairForKey(node.hash, 'onEvent');
+        var normalizedOn = on || onEvent;
+        var moduleInfo = pluginContext.calculateModuleInfo(node.loc);
+
+        if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
+          Ember.deprecate('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + ' is deprecated.');
+
+          normalizedOn.key = 'onEvent';
+          return; // exit early, as we cannot transform further
+        }
+
+        removeFromHash(node.hash, normalizedOn);
+        removeFromHash(node.hash, action);
+
+        if (!action) {
+          Ember.deprecate('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + ' will do nothing.');
+
+          return; // exit early, if no action was available there is nothing to do
+        }
+
+        var specifiedOn = normalizedOn ? '' + normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
+        if (normalizedOn && normalizedOn.value.value === 'keyPress') {
+          // using `keyPress` in the root of the component will
+          // clobber the keyPress event handler
+          normalizedOn.value.value = 'key-press';
+        }
+
+        var expected = '' + (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
+
+        Ember.deprecate('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}} ' + moduleInfo + ' is deprecated. Please use \'{{input ' + expected + '}}\' instead.');
+        if (!normalizedOn) {
+          normalizedOn = b.pair('onEvent', b.string('enter'));
+        }
+
+        node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
+      }
+    });
+
+    return ast;
+  };
+
+  TransformInputOnToOnEvent.prototype.validate = function TransformWithAsToHash_validate(node) {
+    return node.type === 'MustacheStatement' && node.path.original === 'input' && (hashPairForKey(node.hash, 'action') || hashPairForKey(node.hash, 'on') || hashPairForKey(node.hash, 'onEvent'));
+  };
+
+  TransformInputOnToOnEvent.prototype.calculateModuleInfo = function TransformInputOnToOnEvent_calculateModuleInfo(loc) {
+    var _ref = loc.start || {};
+
+    var column = _ref.column;
+    var line = _ref.line;
+
+    var moduleInfo = '';
+    if (this.options.moduleName) {
+      moduleInfo += '\'' + this.options.moduleName + '\' ';
+    }
+
+    if (line !== undefined && column !== undefined) {
+      moduleInfo += '@L' + line + ':C' + column;
+    }
+
+    return moduleInfo;
+  };
+
+  function hashPairForKey(hash, key) {
+    for (var i = 0, l = hash.pairs.length; i < l; i++) {
+      var pair = hash.pairs[i];
+      if (pair.key === key) {
+        return pair;
+      }
+    }
+
+    return false;
+  }
+
+  function removeFromHash(hash, pairToRemove) {
+    var newPairs = [];
+    for (var i = 0, l = hash.pairs.length; i < l; i++) {
+      var pair = hash.pairs[i];
+
+      if (pair !== pairToRemove) {
+        newPairs.push(pair);
+      }
+    }
+
+    hash.pairs = newPairs;
+  }
+
+  exports['default'] = TransformInputOnToOnEvent;
+
+});
 enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], function (exports) {
 
   'use strict';
@@ -10461,7 +10599,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.1.c806d5cf",
+        revision: "Ember@1.13.0-beta.1.8860b89a",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12424,6 +12562,10 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   }
 
   function handleRedirect(morph, env, scope, path, params, hash, template, inverse, visitor) {
+    if (!path) {
+      return false;
+    }
+
     var redirect = env.hooks.classify(env, scope, path);
     if (redirect) {
       switch (redirect) {
