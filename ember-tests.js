@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.10f772a2
+ * @version   2.0.0-beta.1+canary.37f43250
  */
 
 (function() {
@@ -10543,7 +10543,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
   
 
 });
-enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox'], function (run, property_set, View, utils, compile, Registry, ComponentLookup, TextField, Checkbox) {
+enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher'], function (run, property_set, View, utils, compile, Registry, ComponentLookup, TextField, Checkbox, EventDispatcher) {
 
   'use strict';
 
@@ -10555,7 +10555,11 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     registry.register("component:-text-field", TextField['default']);
     registry.register("component:-checkbox", Checkbox['default']);
     registry.register("component-lookup:main", ComponentLookup['default']);
+    registry.register("event_dispatcher:main", EventDispatcher['default']);
     container = registry.container();
+
+    var dispatcher = container.lookup("event_dispatcher:main");
+    dispatcher.setup({}, "#qunit-fixture");
   }
 
   QUnit.module("{{input type='text'}}", {
@@ -10582,6 +10586,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10698,6 +10703,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10733,6 +10739,32 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
     equal(view.$("input").attr("tabindex"), "5", "renders text field with the tabindex");
   });
 
+  QUnit.test("specifying `on=\"someevent\" action=\"foo\"` triggers the action", function () {
+    expect(2);
+    utils.runDestroy(view);
+    expectDeprecation("Using '{{input on=\"focus-in\" action=\"doFoo\"}} 'foo.hbs' @L1:C0 is deprecated. Please use '{{input focus-in=\"doFoo\"}}' instead.");
+
+    controller = {
+      send: function (actionName, value, sender) {
+        equal(actionName, "doFoo", "text field sent correct action name");
+      }
+    };
+
+    view = View['default'].create({
+      container: container,
+      controller: controller,
+
+      template: compile['default']("{{input type=\"text\" on=\"focus-in\" action=\"doFoo\"}}", { moduleName: "foo.hbs" })
+    });
+
+    utils.runAppend(view);
+
+    run['default'](function () {
+      var textField = view.$("input");
+      textField.trigger("focusin");
+    });
+  });
+
   QUnit.module("{{input type='text'}} - dynamic type", {
     setup: function () {
       commonSetup();
@@ -10752,6 +10784,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10786,6 +10819,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10814,6 +10848,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10858,6 +10893,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10887,6 +10923,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10921,6 +10958,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -10947,6 +10985,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
 
     teardown: function () {
       utils.runDestroy(view);
+      utils.runDestroy(container);
     }
   });
 
@@ -46924,6 +46963,53 @@ enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-tes
   }
 
 });
+enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-template-compiler'], function (ember_template_compiler) {
+
+  'use strict';
+
+  QUnit.module("ember-template-compiler: transform-input-on");
+
+  QUnit.test("Using `action` without `on` provides a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input enter=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `action` with `on` provides a deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"focus-in\" action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"focus-in\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input focus-in=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `on='keyPress'` does not clobber `keyPress`", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"keyPress\" action=\"foo\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"keyPress\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input key-press=\"foo\"}}' instead.");
+  });
+
+  QUnit.test("Using `on='foo'` without `action='asdf'` raises specific deprecation", function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      ember_template_compiler.compile("{{input on=\"asdf\"}}", {
+        moduleName: "foo/bar/baz"
+      });
+    }, "Using '{{input on=\"asdf\" ...}}' without specifying an action 'foo/bar/baz' @L1:C0 will do nothing.");
+  });
+
+});
 enifed('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test', ['ember-template-compiler'], function (ember_template_compiler) {
 
   'use strict';
@@ -47009,7 +47095,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.10f772a2", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.37f43250", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
