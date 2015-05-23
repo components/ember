@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.37f43250
+ * @version   2.0.0-beta.1+canary.84689f46
  */
 
 (function() {
@@ -27157,6 +27157,40 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       innerComponent.fireAction();
     });
 
+    QUnit.test("array arguments are passed correctly to action", function (assert) {
+      assert.expect(3);
+
+      var first = "foo";
+      var second = [3, 5];
+      var third = [4, 9];
+
+      innerComponent = EmberComponent['default'].extend({
+        fireAction: function () {
+          this.attrs.submit(second, third);
+        }
+      }).create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action outerSubmit first)}}\n      "),
+        innerComponent: innerComponent,
+        value: "",
+        outerSubmit: function (actualFirst, actualSecond, actualThird) {
+          assert.equal(actualFirst, first, "action has the correct first arg");
+          assert.equal(actualSecond, second, "action has the correct second arg");
+          assert.equal(actualThird, third, "action has the correct third arg");
+        }
+      }).create();
+
+      utils.runAppend(outerComponent);
+
+      run['default'](function () {
+        outerComponent.set("first", first);
+        outerComponent.set("second", second);
+      });
+
+      innerComponent.fireAction();
+    });
+
     QUnit.test("mut values can be wrapped in actions, are settable", function (assert) {
       assert.expect(1);
 
@@ -46941,7 +46975,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.37f43250", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.84689f46", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
