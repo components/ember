@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.d9889a26
+ * @version   2.0.0-beta.1+canary.d905afaf
  */
 
 (function() {
@@ -1552,7 +1552,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
   });
 
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, Logger, Controller, EmberObject, Namespace, Application, helpers) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-runtime/system/string', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/views/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, enumerable_utils, string, Logger, Controller, Route, Component, View, Service, EmberObject, Namespace, Application, helpers) {
 
   'use strict';
 
@@ -1743,6 +1743,37 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     equal(registry.describe("controller:foo"), "App.FooController", "Type gets appended at the end");
     equal(registry.describe("controller:foo.bar"), "App.FooBarController", "dots are removed");
     equal(registry.describe("model:foo"), "App.Foo", "models don't get appended at the end");
+  });
+
+  QUnit.test("validating resolved objects", function () {
+    var types = ["route", "component", "view", "service"];
+
+    // Valid setup
+    application.FooRoute = Route['default'].extend();
+    application.FooComponent = Component['default'].extend();
+    application.FooView = View['default'].extend();
+    application.FooService = Service['default'].extend();
+
+    enumerable_utils.forEach(types, function (type) {
+      // No errors when resolving correct object types
+      registry.resolve("" + type + ":foo");
+
+      // Unregister to clear cache
+      registry.unregister("" + type + ":foo");
+    });
+
+    // Invalid setup
+    application.FooRoute = Component['default'].extend();
+    application.FooComponent = View['default'].extend();
+    application.FooView = Service['default'].extend();
+    application.FooService = Route['default'].extend();
+
+    enumerable_utils.forEach(types, function (type) {
+      var matcher = new RegExp("to resolve to an Ember." + string.capitalize(type));
+      expectAssertion(function () {
+        registry.resolve("" + type + ":foo");
+      }, matcher, "Should assert for " + type);
+    });
   });
 
 });
@@ -47129,7 +47160,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.d9889a26", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.d905afaf", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

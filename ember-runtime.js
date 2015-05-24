@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.d9889a26
+ * @version   2.0.0-beta.1+canary.d905afaf
  */
 
 (function() {
@@ -4385,7 +4385,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.d9889a26
+    @version 2.0.0-beta.1+canary.d905afaf
   */
 
   if ('undefined' === typeof Ember) {
@@ -4416,10 +4416,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.d9889a26'
+    @default '2.0.0-beta.1+canary.d905afaf'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.d9889a26';
+  Ember.VERSION = '2.0.0-beta.1+canary.d905afaf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19065,7 +19065,13 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
     @extends Ember.Object
     @since 1.10.0
   */
-  exports['default'] = Object['default'].extend();
+  var Service = Object['default'].extend();
+
+  Service.reopenClass({
+    isServiceFactory: true
+  });
+
+  exports['default'] = Service;
 
 });
 enifed('ember-runtime/system/set', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/is_none', 'ember-runtime/system/string', 'ember-runtime/system/core_object', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-metal/error', 'ember-metal/property_events', 'ember-metal/mixin', 'ember-metal/computed'], function (exports, Ember, property_get, property_set, utils, isNone, string, CoreObject, MutableEnumerable, Enumerable, Copyable, freezable, EmberError, property_events, mixin, computed) {

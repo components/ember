@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.d9889a26
+ * @version   2.0.0-beta.1+canary.d905afaf
  */
 
 (function() {
@@ -4646,7 +4646,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
   exports['default'] = Application;
 
 });
-enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/logger', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-htmlbars/helpers', 'ember-metal/dictionary'], function (exports, Ember, property_get, Logger, string, EmberObject, Namespace, helpers, dictionary) {
+enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/logger', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-htmlbars/helpers', 'ember-application/utils/validate-type', 'ember-metal/dictionary'], function (exports, Ember, property_get, Logger, string, EmberObject, Namespace, helpers, validateType, dictionary) {
 
   'use strict';
 
@@ -4730,6 +4730,10 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
 
       if (parsedName.root && parsedName.root.LOG_RESOLVER) {
         this._logLookup(resolved, parsedName);
+      }
+
+      if (resolved) {
+        validateType['default'](resolved, parsedName);
       }
 
       return resolved;
@@ -4955,6 +4959,40 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
   });
 
   exports.Resolver = Resolver;
+
+});
+enifed('ember-application/utils/validate-type', ['exports'], function (exports) {
+
+  'use strict';
+
+
+
+  exports['default'] = validateType;
+  /**
+  @module ember
+  @submodule ember-application
+  */
+
+  var VALIDATED_TYPES = {
+    route: ['isRouteFactory', 'Ember.Route'],
+    component: ['isComponentFactory', 'Ember.Component'],
+    view: ['isViewFactory', 'Ember.View'],
+    service: ['isServiceFactory', 'Ember.Service']
+  };
+  function validateType(resolvedType, parsedName) {
+    var validationAttributes = VALIDATED_TYPES[parsedName.type];
+
+    if (!validationAttributes) {
+      return;
+    }
+
+    var factoryFlag = validationAttributes[0];
+    var expectedType = validationAttributes[1];
+
+    Ember.assert('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but instead it was ' + resolvedType + '.', function () {
+      return resolvedType[factoryFlag];
+    });
+  }
 
 });
 enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment'], function (exports, Ember, EmberError, Logger, environment) {
@@ -8340,7 +8378,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d9889a26";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d905afaf";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13360,7 +13398,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-beta.1+canary.d9889a26
+    @version 2.0.0-beta.1+canary.d905afaf
   */
 
   if ('undefined' === typeof Ember) {
@@ -13391,10 +13429,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+canary.d9889a26'
+    @default '2.0.0-beta.1+canary.d905afaf'
     @static
   */
-  Ember.VERSION = '2.0.0-beta.1+canary.d9889a26';
+  Ember.VERSION = '2.0.0-beta.1+canary.d905afaf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20755,7 +20793,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d9889a26";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d905afaf";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21229,7 +21267,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d9889a26";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d905afaf";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -24542,6 +24580,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         run['default'].once(this.router, "_setOutlets");
       }
     }
+  });
+
+  Route.reopenClass({
+    isRouteFactory: true
   });
 
   var defaultQPMeta = {
@@ -33744,7 +33786,13 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
     @extends Ember.Object
     @since 1.10.0
   */
-  exports['default'] = Object['default'].extend();
+  var Service = Object['default'].extend();
+
+  Service.reopenClass({
+    isServiceFactory: true
+  });
+
+  exports['default'] = Service;
 
 });
 enifed('ember-runtime/system/set', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/is_none', 'ember-runtime/system/string', 'ember-runtime/system/core_object', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-metal/error', 'ember-metal/property_events', 'ember-metal/mixin', 'ember-metal/computed'], function (exports, Ember, property_get, property_set, utils, isNone, string, CoreObject, MutableEnumerable, Enumerable, Copyable, freezable, EmberError, property_events, mixin, computed) {
@@ -36216,7 +36264,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+canary.d9889a26",
+        revision: "Ember@2.0.0-beta.1+canary.d905afaf",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39021,7 +39069,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       var view;
       attrs.renderer = this.renderer;
 
-      if (maybeViewClass.isViewClass) {
+      if (maybeViewClass.isViewFactory) {
         attrs.container = this.container;
 
         view = maybeViewClass.create(attrs);
@@ -40866,6 +40914,10 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     */
   });
 
+  Component.reopenClass({
+    isComponentFactory: true
+  });
+
   exports['default'] = Component;
 
 });
@@ -40873,7 +40925,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d9889a26";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-beta.1+canary.d905afaf";
 
   /**
   @module ember
@@ -41284,7 +41336,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal-views/renderer', 
   });
 
   CoreView.reopenClass({
-    isViewClass: true
+    isViewFactory: true
   });
 
   var DeprecatedCoreView = CoreView.extend({
