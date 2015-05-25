@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5effe055
+ * @version   2.0.0-canary+2e0936f9
  */
 
 (function() {
@@ -15943,7 +15943,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
 
     // Because the `twitter` attr is only used by the topmost component,
     // and not passed down, we do not expect to see lifecycle hooks
-    // called for child components. If the `willReceiveAttrs` hook used
+    // called for child components. If the `didReceiveAttrs` hook used
     // the new attribute to rerender itself imperatively, that would result
     // in lifecycle hooks being invoked for the child.
 
@@ -47120,7 +47120,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+5effe055", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+2e0936f9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -51680,7 +51680,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      willRender: function () {
+      _willRender: function () {
         this.count++;
       },
       template: compile['default']("{{view.label}}")
@@ -51709,7 +51709,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      willRender: function () {
+      _willRender: function () {
         this.count++;
       },
       template: compile['default']("{{view.label}}")
