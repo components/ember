@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.d905afaf
+ * @version   2.0.0-beta.1+canary.20580343
  */
 
 (function() {
@@ -15420,6 +15420,44 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
 
     equal(view.$("#inner-value").text(), "3", "third render of inner");
     equal(view.$("#middle-value").text(), "3", "third render of middle");
+  });
+
+  QUnit.test("components in template of a yielding component should have the proper parentView", function () {
+    var outer, innerTemplate, innerLayout;
+
+    registry.register("component:x-outer", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        outer = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-template", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerTemplate = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-layout", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerLayout = this;
+      }
+    }));
+
+    registry.register("template:components/x-outer", compile['default']("{{x-inner-in-layout}}{{yield}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(innerTemplate.parentView, outer, "receives the wrapping component as its parentView in template blocks");
+    equal(innerLayout.parentView, outer, "receives the wrapping component as its parentView in layout");
+    equal(outer.parentView, view, "x-outer receives the ambient scope as its parentView");
   });
 
   QUnit.test("comopnent should rerender when a property (with a default) is changed during children's rendering", function () {
@@ -47160,7 +47198,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.d905afaf", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.20580343", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
