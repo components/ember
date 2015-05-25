@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6c4e5aee
+ * @version   2.0.0-beta.1+canary.20580343
  */
 
 (function() {
@@ -14305,7 +14305,7 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['ember-views/component_look
 
   var view, registry, container;
 
-  if (Ember.FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+  
     QUnit.module("ember-htmlbars: component hook", {
       setup: function () {
         registry = new Registry['default']();
@@ -14345,7 +14345,7 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['ember-views/component_look
         utils.runAppend(view);
       }, /Could not find component named "foo-bar" \(no component or template with that name was found\)/);
     });
-  }
+  
 
 });
 enifed('ember-htmlbars/tests/hooks/element_test', ['ember-views/views/view', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (EmberView, helpers, utils, compile) {
@@ -15516,7 +15516,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
   });
 
   // jscs:disable validateIndentation
-  if (Ember.FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+  
 
     QUnit.module("component - invocation (angle brackets)", {
       setup: function () {
@@ -15745,7 +15745,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
         appendViewFor("<non-block />");
       });
     });
-  }
+  
 
 });
 enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
@@ -16566,7 +16566,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
   });
 
   // jscs:disable validateIndentation
-  if (Ember.FEATURES.isEnabled("ember-htmlbars-component-generation")) {
+  
 
     QUnit.test("mutable bindings work as angle-bracket component attributes", function (assert) {
       var middle;
@@ -16642,7 +16642,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
       assert.strictEqual(view.$("p.bottom").text(), "13");
       assert.strictEqual(view.get("val"), 13, "the set propagated back up");
     });
-  }
+  
   // jscs:enable validateIndentation
 
 });
@@ -47198,7 +47198,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.6c4e5aee", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.20580343", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
