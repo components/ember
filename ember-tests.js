@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6c4e5aee
+ * @version   2.0.0-canary+4218f01c
  */
 
 (function() {
@@ -4167,10 +4167,10 @@ enifed('ember-dev/test-helper/setup-qunit', ['exports'], function (exports) {
 
   'use strict';
 
-  /* globals QUnit */
+
 
   exports['default'] = setupQUnit;
-
+  /* globals QUnit */
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -21731,6 +21731,8 @@ enifed('ember-metal/tests/main_test', ['ember-metal/core'], function (Ember) {
 
   'use strict';
 
+  var SEMVER_REGEX = /^\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b$/;
+
   QUnit.module('ember-metal/core/main');
 
   QUnit.test('Ember registers itself', function () {
@@ -21738,6 +21740,26 @@ enifed('ember-metal/tests/main_test', ['ember-metal/core'], function (Ember) {
 
     equal(lib.name, 'Ember');
     equal(lib.version, Ember['default'].VERSION);
+  });
+
+  QUnit.test('Ember.VERSION is in alignment with SemVer v2.0.0', function () {
+    ok(SEMVER_REGEX.test(Ember['default'].VERSION), 'Ember.VERSION (' + Ember['default'].VERSION + ')is valid SemVer v2.0.0');
+  });
+
+  QUnit.test('SEMVER_REGEX properly validates and invalidates version numbers', function () {
+    function validateVersionString(versionString, expectedResult) {
+      equal(SEMVER_REGEX.test(versionString), expectedResult);
+    }
+
+    // Postive test cases
+    validateVersionString('1.11.3', true);
+    validateVersionString('1.0.0-beta.16.1', true);
+    validateVersionString('1.12.1+canary.aba1412', true);
+    validateVersionString('2.0.0-beta.1+canary.bb344775', true);
+
+    // Negative test cases
+    validateVersionString('1.11.3.aba18a', false);
+    validateVersionString('1.11', false);
   });
 
 });
@@ -47198,7 +47220,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+canary.6c4e5aee", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4218f01c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -62977,6 +62999,9 @@ enifed('htmlbars-test-helpers', ['exports', '../simple-html-tokenizer', '../html
       return el[textProperty];
     }
   }
+
+  // IE8 does not have Object.create, so use a polyfill if needed.
+  // Polyfill based on Mozilla's (MDN)
 
   function createObject(obj) {
     if (typeof Object.create === "function") {

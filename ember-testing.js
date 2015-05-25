@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+canary.6c4e5aee
+ * @version   2.0.0-canary+4218f01c
  */
 
 (function() {
@@ -116,16 +116,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
-  /**
-    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
-    any specific FEATURES flag is truthy.
-
-    This method is called automatically in debug canary builds.
-
-    @private
-    @method _warnIfUsingStrippedFeatureFlags
-    @return {void}
-  */
   function isPlainFunction(test) {
     return typeof test === "function" && test.PrototypeMixin === undefined;
   }
@@ -309,6 +299,17 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
   Ember['default'].runInDebug = function (func) {
     func();
   };
+
+  /**
+    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+    any specific FEATURES flag is truthy.
+
+    This method is called automatically in debug canary builds.
+
+    @private
+    @method _warnIfUsingStrippedFeatureFlags
+    @return {void}
+  */
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
       Ember['default'].warn("Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_ALL_FEATURES);
@@ -988,18 +989,6 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
   'use strict';
 
 
-
-  /**
-    Sets Ember up for testing. This is useful to perform
-    basic setup steps in order to unit test.
-
-    Use `App.setupForTesting` to perform integration tests (full
-    application testing).
-
-    @method setupForTesting
-    @namespace Ember
-    @since 1.5.0
-  */
   exports['default'] = setupForTesting;
   var Test, requests;
 
@@ -1016,6 +1005,18 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     }
     Test.pendingAjaxRequests = requests.length;
   }
+
+  /**
+    Sets Ember up for testing. This is useful to perform
+    basic setup steps in order to unit test.
+
+    Use `App.setupForTesting` to perform integration tests (full
+    application testing).
+
+    @method setupForTesting
+    @namespace Ember
+    @since 1.5.0
+  */
   function setupForTesting() {
     if (!Test) {
       Test = requireModule("ember-testing/test")["default"];
