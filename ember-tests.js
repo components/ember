@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+850aba37
+ * @version   2.0.0-canary+9407d4c0
  */
 
 (function() {
@@ -1746,7 +1746,8 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test("validating resolved objects", function () {
-    var types = ["route", "component", "view", "service"];
+    // 2.0TODO: Add service to this list
+    var types = ["route", "component", "view"];
 
     // Valid setup
     application.FooRoute = Route['default'].extend();
@@ -1774,6 +1775,18 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
         registry.resolve("" + type + ":foo");
       }, matcher, "Should assert for " + type);
     });
+  });
+
+  QUnit.test("deprecation warning for service factories without isServiceFactory property", function () {
+    expectDeprecation(/service factories must have an `isServiceFactory` property/);
+    application.FooService = EmberObject['default'].extend();
+    registry.resolve("service:foo");
+  });
+
+  QUnit.test("no deprecation warning for service factories that extend from Ember.Service", function () {
+    expectNoDeprecation();
+    application.FooService = Service['default'].extend();
+    registry.resolve("service:foo");
   });
 
 });
@@ -47261,7 +47274,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+850aba37", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+9407d4c0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
