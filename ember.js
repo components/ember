@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4218f01c
+ * @version   2.0.0-canary+1d91c95f
  */
 
 (function() {
@@ -8181,7 +8181,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4218f01c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1d91c95f";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8886,6 +8886,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
 
     props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup("renderer:-dom");
+    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
+
     var component = _component.create(props);
 
     // for the fallback case
@@ -9127,6 +9129,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       mergeBindings(props, shadowedAttrs(proto, snapshot));
       props.container = options.parentView ? options.parentView.container : env.container;
       props.renderer = options.parentView ? options.parentView.renderer : props.container && props.container.lookup("renderer:-dom");
+      props._viewRegistry = options.parentView ? options.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
 
       if (proto.controller !== defaultController || hasSuppliedController) {
         delete props._context;
@@ -13487,7 +13490,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+4218f01c
+    @version 2.0.0-canary+1d91c95f
   */
 
   if ('undefined' === typeof Ember) {
@@ -13518,10 +13521,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+4218f01c'
+    @default '2.0.0-canary+1d91c95f'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+4218f01c';
+  Ember.VERSION = '2.0.0-canary+1d91c95f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21428,7 +21431,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+4218f01c";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+1d91c95f";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21902,7 +21905,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4218f01c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1d91c95f";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37242,7 +37245,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+4218f01c",
+        revision: "Ember@2.0.0-canary+1d91c95f",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41926,7 +41929,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4218f01c";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1d91c95f";
 
   /**
   @module ember

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4218f01c
+ * @version   2.0.0-canary+1d91c95f
  */
 
 (function() {
@@ -15458,6 +15458,47 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(innerTemplate.parentView, outer, "receives the wrapping component as its parentView in template blocks");
     equal(innerLayout.parentView, outer, "receives the wrapping component as its parentView in layout");
     equal(outer.parentView, view, "x-outer receives the ambient scope as its parentView");
+  });
+
+  QUnit.test("components should receive the viewRegistry from the parent view", function () {
+    var outer, innerTemplate, innerLayout;
+
+    var viewRegistry = {};
+
+    registry.register("component:x-outer", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        outer = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-template", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerTemplate = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-layout", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerLayout = this;
+      }
+    }));
+
+    registry.register("template:components/x-outer", compile['default']("{{x-inner-in-layout}}{{yield}}"));
+
+    view = EmberView['default'].extend({
+      _viewRegistry: viewRegistry,
+      template: compile['default']("{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(innerTemplate._viewRegistry, viewRegistry);
+    equal(innerLayout._viewRegistry, viewRegistry);
+    equal(outer._viewRegistry, viewRegistry);
   });
 
   QUnit.test("comopnent should rerender when a property (with a default) is changed during children's rendering", function () {
@@ -47220,7 +47261,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+4218f01c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+1d91c95f", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
