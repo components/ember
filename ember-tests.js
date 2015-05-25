@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.1.8860b89a
+ * @version   1.13.0-beta.1+43c45f39
  */
 
 (function() {
@@ -1552,7 +1552,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
   });
 
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, Logger, Controller, EmberObject, Namespace, Application, helpers) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-runtime/system/string', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/views/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, enumerable_utils, string, Logger, Controller, Route, Component, View, Service, EmberObject, Namespace, Application, helpers) {
 
   'use strict';
 
@@ -1743,6 +1743,37 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     equal(registry.describe("controller:foo"), "App.FooController", "Type gets appended at the end");
     equal(registry.describe("controller:foo.bar"), "App.FooBarController", "dots are removed");
     equal(registry.describe("model:foo"), "App.Foo", "models don't get appended at the end");
+  });
+
+  QUnit.test("validating resolved objects", function () {
+    var types = ["route", "component", "view", "service"];
+
+    // Valid setup
+    application.FooRoute = Route['default'].extend();
+    application.FooComponent = Component['default'].extend();
+    application.FooView = View['default'].extend();
+    application.FooService = Service['default'].extend();
+
+    enumerable_utils.forEach(types, function (type) {
+      // No errors when resolving correct object types
+      registry.resolve("" + type + ":foo");
+
+      // Unregister to clear cache
+      registry.unregister("" + type + ":foo");
+    });
+
+    // Invalid setup
+    application.FooRoute = Component['default'].extend();
+    application.FooComponent = View['default'].extend();
+    application.FooView = Service['default'].extend();
+    application.FooService = Route['default'].extend();
+
+    enumerable_utils.forEach(types, function (type) {
+      var matcher = new RegExp("to resolve to an Ember." + string.capitalize(type));
+      expectAssertion(function () {
+        registry.resolve("" + type + ":foo");
+      }, matcher, "Should assert for " + type);
+    });
   });
 
 });
@@ -4029,10 +4060,10 @@ enifed('ember-dev/test-helper/setup-qunit', ['exports'], function (exports) {
 
   'use strict';
 
-  /* globals QUnit */
+
 
   exports['default'] = setupQUnit;
-
+  /* globals QUnit */
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -13743,47 +13774,6 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['ember-views/component_look
   var view, registry, container;
 
   
-    QUnit.module("ember-htmlbars: component hook", {
-      setup: function () {
-        registry = new Registry['default']();
-        container = registry.container();
-
-        registry.optionsForType("template", { instantiate: false });
-        registry.register("component-lookup:main", ComponentLookup['default']);
-      },
-
-      teardown: function () {
-        utils.runDestroy(view);
-        utils.runDestroy(container);
-        registry = container = view = null;
-      }
-    });
-
-    QUnit.test("component is looked up from the container", function () {
-      registry.register("template:components/foo-bar", compile['default']("yippie!"));
-
-      view = EmberView['default'].create({
-        container: container,
-        template: compile['default']("<foo-bar />")
-      });
-
-      utils.runAppend(view);
-
-      equal(view.$().text(), "yippie!", "component was looked up and rendered");
-    });
-
-    QUnit.test("asserts if component is not found", function () {
-      view = EmberView['default'].create({
-        container: container,
-        template: compile['default']("<foo-bar />")
-      });
-
-      expectAssertion(function () {
-        utils.runAppend(view);
-      }, /Could not find component named "foo-bar" \(no component or template with that name was found\)/);
-    });
-  
-
 });
 enifed('ember-htmlbars/tests/hooks/element_test', ['ember-views/views/view', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (EmberView, helpers, utils, compile) {
 
@@ -14859,6 +14849,44 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(view.$("#middle-value").text(), "3", "third render of middle");
   });
 
+  QUnit.test("components in template of a yielding component should have the proper parentView", function () {
+    var outer, innerTemplate, innerLayout;
+
+    registry.register("component:x-outer", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        outer = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-template", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerTemplate = this;
+      }
+    }));
+
+    registry.register("component:x-inner-in-layout", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerLayout = this;
+      }
+    }));
+
+    registry.register("template:components/x-outer", compile['default']("{{x-inner-in-layout}}{{yield}}"));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(innerTemplate.parentView, outer, "receives the wrapping component as its parentView in template blocks");
+    equal(innerLayout.parentView, outer, "receives the wrapping component as its parentView in layout");
+    equal(outer.parentView, view, "x-outer receives the ambient scope as its parentView");
+  });
+
   QUnit.test("comopnent should rerender when a property (with a default) is changed during children's rendering", function () {
     expectDeprecation(/modified value twice in a single render/);
 
@@ -14916,236 +14944,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
 
   // jscs:disable validateIndentation
   
-
-    QUnit.module("component - invocation (angle brackets)", {
-      setup: function () {
-        commonSetup();
-      },
-
-      teardown: function () {
-        commonTeardown();
-      }
-    });
-
-    QUnit.test("non-block without properties", function () {
-      registry.register("template:components/non-block", compile['default']("In layout"));
-
-      view = appendViewFor("<non-block />");
-
-      equal(view.$().text(), "In layout");
-      ok(view.$("non-block.ember-view").length === 1, "The non-block tag name was used");
-    });
-
-    QUnit.test("block without properties", function () {
-      registry.register("template:components/with-block", compile['default']("In layout - {{yield}}"));
-
-      view = appendViewFor("<with-block>In template</with-block>");
-
-      equal(view.$("with-block.ember-view").text(), "In layout - In template", "Both the layout and template are rendered");
-    });
-
-    QUnit.test("non-block with properties on attrs", function () {
-      registry.register("template:components/non-block", compile['default']("In layout"));
-
-      view = appendViewFor("<non-block static-prop=\"static text\" concat-prop=\"{{view.dynamic}} text\" dynamic-prop={{view.dynamic}} />", {
-        dynamic: "dynamic"
-      });
-
-      var el = view.$("non-block.ember-view");
-      ok(el, "precond - the view was rendered");
-      equal(el.attr("static-prop"), "static text");
-      equal(el.attr("concat-prop"), "dynamic text");
-      equal(el.attr("dynamic-prop"), undefined);
-
-      //equal(jQuery('#qunit-fixture').text(), 'In layout - someProp: something here');
-    });
-
-    QUnit.test("attributes are not installed on the top level", function () {
-      var component = undefined;
-
-      registry.register("template:components/non-block", compile['default']("In layout - {{attrs.text}}"));
-      registry.register("component:non-block", Component['default'].extend({
-        text: null,
-        dynamic: null,
-
-        didInitAttrs: function () {
-          component = this;
-        }
-      }));
-
-      view = appendViewFor("<non-block text=\"texting\" dynamic={{view.dynamic}} />", {
-        dynamic: "dynamic"
-      });
-
-      var el = view.$("non-block.ember-view");
-      ok(el, "precond - the view was rendered");
-
-      equal(el.text(), "In layout - texting");
-      equal(component.attrs.text, "texting");
-      equal(component.attrs.dynamic, "dynamic");
-      strictEqual(property_get.get(component, "text"), null);
-      strictEqual(property_get.get(component, "dynamic"), null);
-
-      run['default'](function () {
-        return view.rerender();
-      });
-
-      equal(el.text(), "In layout - texting");
-      equal(component.attrs.text, "texting");
-      equal(component.attrs.dynamic, "dynamic");
-      strictEqual(property_get.get(component, "text"), null);
-      strictEqual(property_get.get(component, "dynamic"), null);
-    });
-
-    QUnit.test("non-block with properties on attrs and component class", function () {
-      registry.register("component:non-block", Component['default'].extend());
-      registry.register("template:components/non-block", compile['default']("In layout - someProp: {{attrs.someProp}}"));
-
-      view = appendViewFor("<non-block someProp=\"something here\" />");
-
-      equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here");
-    });
-
-    QUnit.test("rerendering component with attrs from parent", function () {
-      var willUpdate = 0;
-      var didReceiveAttrs = 0;
-
-      registry.register("component:non-block", Component['default'].extend({
-        didReceiveAttrs: function () {
-          didReceiveAttrs++;
-        },
-
-        willUpdate: function () {
-          willUpdate++;
-        }
-      }));
-
-      registry.register("template:components/non-block", compile['default']("In layout - someProp: {{attrs.someProp}}"));
-
-      view = appendViewFor("<non-block someProp={{view.someProp}} />", {
-        someProp: "wycats"
-      });
-
-      equal(didReceiveAttrs, 1, "The didReceiveAttrs hook fired");
-
-      equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: wycats");
-
-      run['default'](function () {
-        view.set("someProp", "tomdale");
-      });
-
-      equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
-      equal(didReceiveAttrs, 2, "The didReceiveAttrs hook fired again");
-      equal(willUpdate, 1, "The willUpdate hook fired once");
-
-      Ember.run(view, "rerender");
-
-      equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: tomdale");
-      equal(didReceiveAttrs, 3, "The didReceiveAttrs hook fired again");
-      equal(willUpdate, 2, "The willUpdate hook fired again");
-    });
-
-    QUnit.test("block with properties on attrs", function () {
-      registry.register("template:components/with-block", compile['default']("In layout - someProp: {{attrs.someProp}} - {{yield}}"));
-
-      view = appendViewFor("<with-block someProp=\"something here\">In template</with-block>");
-
-      equal(jQuery['default']("#qunit-fixture").text(), "In layout - someProp: something here - In template");
-    });
-
-    QUnit.test("moduleName is available on _renderNode when a layout is present", function () {
-      expect(1);
-
-      var layoutModuleName = "my-app-name/templates/components/sample-component";
-      var sampleComponentLayout = compile['default']("Sample Component - {{yield}}", {
-        moduleName: layoutModuleName
-      });
-      registry.register("template:components/sample-component", sampleComponentLayout);
-      registry.register("component:sample-component", Component['default'].extend({
-        didInsertElement: function () {
-          equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
-        }
-      }));
-
-      view = EmberView['default'].extend({
-        layout: compile['default']("<sample-component />"),
-        container: container
-      }).create();
-
-      utils.runAppend(view);
-    });
-
-    QUnit.test("moduleName is available on _renderNode when no layout is present", function () {
-      expect(1);
-
-      var templateModuleName = "my-app-name/templates/application";
-      registry.register("component:sample-component", Component['default'].extend({
-        didInsertElement: function () {
-          equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
-        }
-      }));
-
-      view = EmberView['default'].extend({
-        layout: compile['default']("{{#sample-component}}Derp{{/sample-component}}", {
-          moduleName: templateModuleName
-        }),
-        container: container
-      }).create();
-
-      utils.runAppend(view);
-    });
-
-    QUnit.test("parameterized hasBlock default", function () {
-      registry.register("template:components/check-block", compile['default']("{{#if (hasBlock)}}Yes{{else}}No{{/if}}"));
-
-      view = appendViewFor("<check-block id=\"expect-yes-1\" />  <check-block id=\"expect-yes-2\"></check-block>");
-
-      equal(view.$("#expect-yes-1").text(), "Yes");
-      equal(view.$("#expect-yes-2").text(), "Yes");
-    });
-
-    QUnit.test("non-expression hasBlock ", function () {
-      registry.register("template:components/check-block", compile['default']("{{#if hasBlock}}Yes{{else}}No{{/if}}"));
-
-      view = appendViewFor("<check-block id=\"expect-yes-1\" />  <check-block id=\"expect-yes-2\"></check-block>");
-
-      equal(view.$("#expect-yes-1").text(), "Yes");
-      equal(view.$("#expect-yes-2").text(), "Yes");
-    });
-
-    QUnit.test("parameterized hasBlockParams", function () {
-      registry.register("template:components/check-params", compile['default']("{{#if (hasBlockParams)}}Yes{{else}}No{{/if}}"));
-
-      view = appendViewFor("<check-params id=\"expect-no\"/>  <check-params id=\"expect-yes\" as |foo|></check-params>");
-
-      equal(view.$("#expect-no").text(), "No");
-      equal(view.$("#expect-yes").text(), "Yes");
-    });
-
-    QUnit.test("non-expression hasBlockParams", function () {
-      registry.register("template:components/check-params", compile['default']("{{#if hasBlockParams}}Yes{{else}}No{{/if}}"));
-
-      view = appendViewFor("<check-params id=\"expect-no\" />  <check-params id=\"expect-yes\" as |foo|></check-params>");
-
-      equal(view.$("#expect-no").text(), "No");
-      equal(view.$("#expect-yes").text(), "Yes");
-    });
-
-    QUnit.test("implementing `render` allows pushing into a string buffer", function () {
-      expect(1);
-
-      registry.register("component:non-block", Component['default'].extend({
-        render: function (buffer) {
-          buffer.push("<span id=\"zomg\">Whoop!</span>");
-        }
-      }));
-
-      expectAssertion(function () {
-        appendViewFor("<non-block />");
-      });
-    });
-  
-
 });
 enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (Registry, jQuery, compile, ComponentLookup, Component, utils, run, EmberView) {
 
@@ -15965,84 +15763,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['ember-views/vi
   });
 
   // jscs:disable validateIndentation
-  
-
-    QUnit.test("mutable bindings work as angle-bracket component attributes", function (assert) {
-      var middle;
-
-      registry.register("component:middle-mut", Component['default'].extend({
-        // no longer mutable
-        layout: compile['default']("<bottom-mut setMe={{attrs.value}} />"),
-
-        didInsertElement: function () {
-          middle = this;
-        }
-      }));
-
-      registry.register("component:bottom-mut", Component['default'].extend({
-        layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>")
-      }));
-
-      view = EmberView['default'].create({
-        container: container,
-        template: compile['default']("<middle-mut value={{mut view.val}} />"),
-        val: 12
-      });
-
-      utils.runAppend(view);
-
-      assert.strictEqual(view.$("p.bottom").text(), "12");
-
-      run['default'](function () {
-        return middle.attrs.value.update(13);
-      });
-
-      assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
-      assert.strictEqual(view.$("p.bottom").text(), "13");
-      assert.strictEqual(view.get("val"), 13, "the set propagated back up");
-    });
-
-    QUnit.test("a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components", function (assert) {
-      var middle, bottom;
-
-      registry.register("component:middle-mut", Component['default'].extend({
-        // no longer mutable
-        layout: compile['default']("<bottom-mut setMe={{attrs.value}} />"),
-
-        didInsertElement: function () {
-          middle = this;
-        }
-      }));
-
-      registry.register("component:bottom-mut", Component['default'].extend({
-        layout: compile['default']("<p class=\"bottom\">{{attrs.setMe}}</p>"),
-
-        didInsertElement: function () {
-          bottom = this;
-        }
-      }));
-
-      view = EmberView['default'].create({
-        container: container,
-        template: compile['default']("<middle-mut value={{mut view.val}} />"),
-        val: 12
-      });
-
-      utils.runAppend(view);
-
-      assert.strictEqual(view.$("p.bottom").text(), "12");
-
-      run['default'](function () {
-        return middle.attrs.value.update(13);
-      });
-
-      assert.strictEqual(middle.attrs.value.value, 13, "precond - the set took effect");
-      assert.strictEqual(bottom.attrs.setMe, 13, "the mutable binding has been converted to an immutable cell");
-      assert.strictEqual(view.$("p.bottom").text(), "13");
-      assert.strictEqual(view.get("val"), 13, "the set propagated back up");
-    });
-  
-  // jscs:enable validateIndentation
+    // jscs:enable validateIndentation
 
 });
 enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (EmberObject, run, EmberView, EventDispatcher, computed, Namespace, ArrayController, ArrayProxy, SelectView, compile, utils) {
@@ -21117,6 +20838,8 @@ enifed('ember-metal/tests/main_test', ['ember-metal/core'], function (Ember) {
 
   'use strict';
 
+  var SEMVER_REGEX = /^\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b$/;
+
   QUnit.module('ember-metal/core/main');
 
   QUnit.test('Ember registers itself', function () {
@@ -21124,6 +20847,26 @@ enifed('ember-metal/tests/main_test', ['ember-metal/core'], function (Ember) {
 
     equal(lib.name, 'Ember');
     equal(lib.version, Ember['default'].VERSION);
+  });
+
+  QUnit.test('Ember.VERSION is in alignment with SemVer v2.0.0', function () {
+    ok(SEMVER_REGEX.test(Ember['default'].VERSION), 'Ember.VERSION (' + Ember['default'].VERSION + ')is valid SemVer v2.0.0');
+  });
+
+  QUnit.test('SEMVER_REGEX properly validates and invalidates version numbers', function () {
+    function validateVersionString(versionString, expectedResult) {
+      equal(SEMVER_REGEX.test(versionString), expectedResult);
+    }
+
+    // Postive test cases
+    validateVersionString('1.11.3', true);
+    validateVersionString('1.0.0-beta.16.1', true);
+    validateVersionString('1.12.1+canary.aba1412', true);
+    validateVersionString('2.0.0-beta.1+canary.bb344775', true);
+
+    // Negative test cases
+    validateVersionString('1.11.3.aba18a', false);
+    validateVersionString('1.11', false);
   });
 
 });
@@ -46564,7 +46307,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.1.8860b89a", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.1+43c45f39", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -62277,6 +62020,9 @@ enifed('htmlbars-test-helpers', ['exports', '../simple-html-tokenizer', '../html
       return el[textProperty];
     }
   }
+
+  // IE8 does not have Object.create, so use a polyfill if needed.
+  // Polyfill based on Mozilla's (MDN)
 
   function createObject(obj) {
     if (typeof Object.create === "function") {
