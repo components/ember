@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5effe055
+ * @version   2.0.0-canary+9407d4c0
  */
 
 (function() {
@@ -9288,7 +9288,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
       var template;
       expectDeprecation(function () {
         template = templateFor("{{#EACH|people|person|itemController=\"person\"}}{{controllerName}} - {{person.controllerName}} - {{/each}}", useBlockParams);
-      }, /Using 'itemController' with '{{each}}'/);
+      }, /Using 'itemController' with '{{each}}' @L1/);
 
       view = EmberView['default'].create({
         template: template,
@@ -10786,7 +10786,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['ember-metal/run_loop', 'embe
   QUnit.test("specifying `on=\"someevent\" action=\"foo\"` triggers the action", function () {
     expect(2);
     utils.runDestroy(view);
-    expectDeprecation("Using '{{input on=\"focus-in\" action=\"doFoo\"}}' ('foo.hbs' @ L1:C0) is deprecated. Please use '{{input focus-in=\"doFoo\"}}' instead.");
+    expectDeprecation("Using '{{input on=\"focus-in\" action=\"doFoo\"}} 'foo.hbs' @L1:C0 is deprecated. Please use '{{input focus-in=\"doFoo\"}}' instead.");
 
     controller = {
       send: function (actionName, value, sender) {
@@ -12184,7 +12184,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
     var compiled = undefined;
     expectDeprecation(function () {
       compiled = compile['default']("{{#view borfBinding=view.snork}}<p id='lol'>{{view.borf}}</p>{{/view}}");
-    }, "You're using legacy binding syntax: borfBinding=view.snork (L1:C8) . Please replace with borf=view.snork");
+    }, "You're using legacy binding syntax: borfBinding=view.snork @ 1:8 in (inline). Please replace with borf=view.snork");
 
     view = EmberView['default'].extend({
       template: compiled,
@@ -12212,7 +12212,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
     var compiled = undefined;
     expectDeprecation(function () {
       compiled = compile['default']("<h1>{{view view.Subview colorBinding=\"view.color\"}}</h1>");
-    }, "You're using legacy binding syntax: colorBinding=\"view.color\" (L1:C24) . Please replace with color=view.color");
+    }, "You're using legacy binding syntax: colorBinding=\"view.color\" @ 1:24 in (inline). Please replace with color=view.color");
 
     var View = EmberView['default'].extend({
       color: "mauve",
@@ -12767,7 +12767,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
         template: compile['default']("{{view attributeBindings=\"one two\"}}")
       });
       utils.runAppend(view);
-    }, /Setting 'attributeBindings' via template helpers is not allowed/);
+    }, "Setting 'attributeBindings' via template helpers is not allowed @ 1:7 in (inline)");
   });
 
   QUnit.test("{{view}} should be able to point to a local view", function () {
@@ -13431,7 +13431,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['ember-views/views/view', 'emb
         if (deprecated) {
           expectDeprecation(function () {
             template = compile['default'](templateString);
-          }, "Using {{with}} without block syntax (L1:C0) is deprecated. Please use standard block form (`{{#with foo as |bar|}}`) instead.");
+          }, "Using {{with}} without block syntax is deprecated. Please use standard block form (`{{#with foo as |bar|}}`) instead.");
         } else {
           template = compile['default'](templateString);
         }
@@ -16901,7 +16901,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
   }
 
   QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using valueBinding [DEPRECATED]", function () {
-    expectDeprecation("You're using legacy binding syntax: valueBinding=\"view.val\" (L1:C176) . Please replace with value=view.val");
+    expectDeprecation("You're using legacy binding syntax: valueBinding=\"view.val\" @ 1:176 in (inline). Please replace with value=view.val");
 
     testValueBinding("{{view view.selectView viewName=\"select\"" + "    contentBinding=\"view.collection\"" + "    optionLabelPath=\"content.name\"" + "    optionValuePath=\"content.value\"" + "    prompt=\"Please wait...\"" + "    valueBinding=\"view.val\"}}");
   });
@@ -16939,7 +16939,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['ember-runti
   }
 
   QUnit.test("select element should correctly initialize and update selectedIndex and bound properties when using selectionBinding [DEPRECATED]", function () {
-    expectDeprecation("You're using legacy binding syntax: contentBinding=\"view.collection\" (L1:C44) . Please replace with content=view.collection");
+    expectDeprecation("You're using legacy binding syntax: contentBinding=\"view.collection\" @ 1:44 in (inline). Please replace with content=view.collection");
 
     testSelectionBinding("{{view view.selectView viewName=\"select\"" + "    contentBinding=\"view.collection\"" + "    optionLabelPath=\"content.name\"" + "    optionValuePath=\"content.value\"" + "    prompt=\"Please wait...\"" + "    selectionBinding=\"view.selection\"}}");
   });
@@ -47118,7 +47118,7 @@ enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-tes
         ember_template_compiler.compile('\n\n    {{#each model ' + attr + '="foo" as |item|}}{{item}}{{/each}}', {
           moduleName: 'lol-wat-app/index/template'
         });
-      }, 'Using \'' + attr + '\' with \'{{each}}\' (\'lol-wat-app/index/template\' @ L3:C18) is deprecated.  Please refactor to a component.');
+      }, 'Using \'' + attr + '\' with \'{{each}}\' \'lol-wat-app/index/template\' @L3:C18 is deprecated.  Please refactor to a component.');
     });
   }
 
@@ -47130,7 +47130,7 @@ enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-tes
         ember_template_compiler.compile('\n\n    {{each model ' + attr + '="foo"}}', {
           moduleName: 'lol-wat-app/index/template'
         });
-      }, 'Using \'' + attr + '\' with \'{{each}}\' (\'lol-wat-app/index/template\' @ L3:C17) is deprecated.  Please refactor to a component.');
+      }, 'Using \'' + attr + '\' with \'{{each}}\' \'lol-wat-app/index/template\' @L3:C17 is deprecated.  Please refactor to a component.');
     });
   }
 
@@ -47155,7 +47155,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-
       ember_template_compiler.compile("{{input action=\"foo\"}}", {
         moduleName: "foo/bar/baz"
       });
-    }, "Using '{{input action=\"foo\"}}' ('foo/bar/baz' @ L1:C0) is deprecated. Please use '{{input enter=\"foo\"}}' instead.");
+    }, "Using '{{input action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input enter=\"foo\"}}' instead.");
   });
 
   QUnit.test("Using `action` with `on` provides a deprecation", function () {
@@ -47165,7 +47165,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-
       ember_template_compiler.compile("{{input on=\"focus-in\" action=\"foo\"}}", {
         moduleName: "foo/bar/baz"
       });
-    }, "Using '{{input on=\"focus-in\" action=\"foo\"}}' ('foo/bar/baz' @ L1:C0) is deprecated. Please use '{{input focus-in=\"foo\"}}' instead.");
+    }, "Using '{{input on=\"focus-in\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input focus-in=\"foo\"}}' instead.");
   });
 
   QUnit.test("Using `on='keyPress'` does not clobber `keyPress`", function () {
@@ -47175,7 +47175,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-
       ember_template_compiler.compile("{{input on=\"keyPress\" action=\"foo\"}}", {
         moduleName: "foo/bar/baz"
       });
-    }, "Using '{{input on=\"keyPress\" action=\"foo\"}}' ('foo/bar/baz' @ L1:C0) is deprecated. Please use '{{input key-press=\"foo\"}}' instead.");
+    }, "Using '{{input on=\"keyPress\" action=\"foo\"}} 'foo/bar/baz' @L1:C0 is deprecated. Please use '{{input key-press=\"foo\"}}' instead.");
   });
 
   QUnit.test("Using `on='foo'` without `action='asdf'` raises specific deprecation", function () {
@@ -47185,7 +47185,7 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['ember-
       ember_template_compiler.compile("{{input on=\"asdf\"}}", {
         moduleName: "foo/bar/baz"
       });
-    }, "Using '{{input on=\"asdf\" ...}}' without specifying an action ('foo/bar/baz' @ L1:C0) will do nothing.");
+    }, "Using '{{input on=\"asdf\" ...}}' without specifying an action 'foo/bar/baz' @L1:C0 will do nothing.");
   });
 
 });
@@ -47274,7 +47274,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+5effe055", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+9407d4c0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58046,7 +58046,7 @@ enifed('ember/tests/controller_test', ['ember', 'ember-htmlbars/compat'], functi
   QUnit.test("{{#each}} inside outlet can have an itemController", function (assert) {
     expectDeprecation(function () {
       templates.index = compile("\n      {{#each model itemController='thing'}}\n        <p>hi</p>\n      {{/each}}\n    ");
-    }, "Using 'itemController' with '{{each}}' (L2:C20) is deprecated.  Please refactor to a component.");
+    }, "Using 'itemController' with '{{each}}' @L2:C20 is deprecated.  Please refactor to a component.");
 
     App.IndexController = Ember.Controller.extend({
       model: Ember.A([1, 2, 3])
