@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2e0936f9
+ * @version   2.0.0-canary+10816074
  */
 
 (function() {
@@ -12311,12 +12311,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("Should apply class without condition always", function () {
-    expectDeprecation(function () {
-      view = EmberView['default'].create({
-        controller: Ember.Object.create(),
-        template: compile['default']("{{#view id=\"foo\" classBinding=\":foo\"}} Foo{{/view}}")
-      });
-    }, /legacy class binding syntax/);
+    view = EmberView['default'].create({
+      controller: Ember.Object.create(),
+      template: compile['default']("{{#view id=\"foo\" classBinding=\":foo\"}} Foo{{/view}}")
+    });
 
     utils.runAppend(view);
 
@@ -12796,12 +12794,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
       });
     });
 
-    expectDeprecation(function () {
-      view = EmberView['default'].create({
-        textField: TextField['default'],
-        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled\"}}")
-      });
-    }, /legacy class binding/);
+    view = EmberView['default'].create({
+      textField: TextField['default'],
+      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled\"}}")
+    });
 
     expectDeprecation(function () {
       utils.runAppend(view);
@@ -12827,16 +12823,14 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("{{view}} should evaluate class bindings set in the current context", function () {
-    expectDeprecation(function () {
-      view = EmberView['default'].create({
-        isView: true,
-        isEditable: true,
-        directClass: "view-direct",
-        isEnabled: true,
-        textField: TextField['default'],
-        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"view.isEditable:editable view.directClass view.isView view.isEnabled:enabled:disabled\"}}")
-      });
-    }, /legacy class binding syntax/);
+    view = EmberView['default'].create({
+      isView: true,
+      isEditable: true,
+      directClass: "view-direct",
+      isEnabled: true,
+      textField: TextField['default'],
+      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"view.isEditable:editable view.directClass view.isView view.isEnabled:enabled:disabled\"}}")
+    });
 
     utils.runAppend(view);
 
@@ -12867,12 +12861,10 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
       });
     });
 
-    expectDeprecation(function () {
-      view = EmberView['default'].create({
-        textField: TextField['default'],
-        template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.isEnabled:enabled:disabled\" classNameBindings=\"App.isGreat:really-great App.isEnabled:really-enabled:really-disabled\"}}")
-      });
-    }, /legacy class binding/);
+    view = EmberView['default'].create({
+      textField: TextField['default'],
+      template: compile['default']("{{view view.textField class=\"unbound\" classBinding=\"App.isGreat:great App.isEnabled:enabled:disabled\" classNameBindings=\"App.isGreat:really-great App.isEnabled:really-enabled:really-disabled\"}}")
+    });
 
     expectDeprecation(function () {
       utils.runAppend(view);
@@ -12937,9 +12929,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("{{view}} should be able to bind class names to truthy properties", function () {
-    expectDeprecation(function () {
-      registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy\"}}foo{{/view}}"));
-    }, /legacy class binding syntax/);
+    registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy\"}}foo{{/view}}"));
 
     var ClassBindingView = EmberView['default'].extend();
 
@@ -12962,9 +12952,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['ember-views/views/view', 'emb
   });
 
   QUnit.test("{{view}} should be able to bind class names to truthy or falsy properties", function () {
-    expectDeprecation(function () {
-      registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy:is-falsy\"}}foo{{/view}}"));
-    }, /legacy class binding syntax/);
+    registry.register("template:template", compile['default']("{{#view view.classBindingView classBinding=\"view.number:is-truthy:is-falsy\"}}foo{{/view}}"));
 
     var ClassBindingView = EmberView['default'].extend();
 
@@ -47274,7 +47262,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+2e0936f9", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+10816074", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

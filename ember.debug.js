@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2e0936f9
+ * @version   2.0.0-canary+10816074
  */
 
 (function() {
@@ -8187,7 +8187,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+2e0936f9";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+10816074";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13484,7 +13484,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+2e0936f9
+    @version 2.0.0-canary+10816074
   */
 
   if ('undefined' === typeof Ember) {
@@ -13515,10 +13515,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+2e0936f9'
+    @default '2.0.0-canary+10816074'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+2e0936f9';
+  Ember.VERSION = '2.0.0-canary+10816074';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21425,7 +21425,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+2e0936f9";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+10816074";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21899,7 +21899,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+2e0936f9";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+10816074";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36849,11 +36849,9 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
 
   'use strict';
-
-
 
   exports['default'] = TransformOldClassBindingSyntax;
 
@@ -36865,7 +36863,6 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
   TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
-    var moduleName = this.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (!validate(node)) {
@@ -36909,10 +36906,8 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
         var loc = _ref.loc;
 
         var sexprs = [];
-        var sourceInformation = calculateLocationDisplay['default'](moduleName, loc);
-
-        // TODO: Parse the microsyntax and offer the correct information
-        Ember['default'].deprecate('You\'re using legacy class binding syntax: classBinding=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with class=""');
+        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
+        // be removed.
 
         if (value.type === 'StringLiteral') {
           var microsyntax = parseMicrosyntax(value.original);
@@ -36991,15 +36986,6 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     }
 
     return segments;
-  }
-
-  function exprToString(expr) {
-    switch (expr.type) {
-      case 'StringLiteral':
-        return '"' + expr.original + '"';
-      case 'PathExpression':
-        return expr.original;
-    }
   }
 
 });
@@ -37178,7 +37164,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+2e0936f9",
+        revision: "Ember@2.0.0-canary+10816074",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41862,7 +41848,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+2e0936f9";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+10816074";
 
   /**
   @module ember
