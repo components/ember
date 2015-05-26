@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+10816074
+ * @version   2.0.0-canary+cc832513
  */
 
 (function() {
@@ -2991,7 +2991,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+10816074
+    @version 2.0.0-canary+cc832513
   */
 
   if ('undefined' === typeof Ember) {
@@ -3022,10 +3022,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+10816074'
+    @default '2.0.0-canary+cc832513'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+10816074';
+  Ember.VERSION = '2.0.0-canary+cc832513';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10725,36 +10725,14 @@ enifed('ember-template-compiler/plugins/transform-component-curly-to-readonly', 
   exports['default'] = TransformComponentCurlyToReadonly;
 
 });
-enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-
-    ```handlebars
-    {{#each item in items}}
-    {{/each}}
-    ```
-
-    with
-
-    ```handlebars
-    {{#each items as |item|}}
-    {{/each}}
-    ```
-
-    @class TransformEachInToBlockParams
-    @private
-  */
-  function TransformEachInToBlockParams() {
+  function TransformEachInToBlockParams(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options;
   }
 
   /**
@@ -10765,22 +10743,30 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
   TransformEachInToBlockParams.prototype.transform = function TransformEachInToBlockParams_transform(ast) {
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
+    var moduleName = this.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (validate(node)) {
 
         var removedParams = node.params.splice(0, 2);
         var keyword = removedParams[0].original;
+        var moduleInfo = undefined;
 
-        if (node.type === 'BlockStatement') {
+        if (node.type === "BlockStatement") {
+          moduleInfo = calculateLocationDisplay['default'](moduleName, node.program.loc);
+
           if (node.program.blockParams.length) {
-            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
+            throw new Error("You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time " + moduleInfo + ".");
           }
 
           node.program.blockParams = [keyword];
         } else {
-          node.hash.pairs.push(b.pair('keyword', b.string(keyword)));
+          moduleInfo = calculateLocationDisplay['default'](moduleName, node.loc);
+
+          node.hash.pairs.push(b.pair("keyword", b.string(keyword)));
         }
+
+        Ember['default'].deprecate("Using the '{{each item in model}}' form of the {{each}} helper " + moduleInfo + "is deprecated. " + "Please use the block param form instead ('{{each model as |item|}}').", false, { url: "http://emberjs.com/guides/deprecations/#toc_code-in-code-syntax-for-code-each-code" });
       }
     });
 
@@ -10788,7 +10774,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
   };
 
   function validate(node) {
-    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each' && node.params.length === 3 && node.params[1].type === 'PathExpression' && node.params[1].original === 'in';
+    return (node.type === "BlockStatement" || node.type === "MustacheStatement") && node.path.original === "each" && node.params.length === 3 && node.params[1].type === "PathExpression" && node.params[1].original === "in";
   }
 
   exports['default'] = TransformEachInToBlockParams;
@@ -10934,7 +10920,7 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-template-compiler/system/calculate-location-display'], function (exports, calculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
@@ -10957,16 +10943,16 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
-        var action = hashPairForKey(node.hash, 'action');
-        var on = hashPairForKey(node.hash, 'on');
-        var onEvent = hashPairForKey(node.hash, 'onEvent');
+        var action = hashPairForKey(node.hash, "action");
+        var on = hashPairForKey(node.hash, "on");
+        var onEvent = hashPairForKey(node.hash, "onEvent");
         var normalizedOn = on || onEvent;
         var moduleInfo = calculateLocationDisplay['default'](moduleName, node.loc);
 
-        if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-          Ember.deprecate('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.');
+        if (normalizedOn && normalizedOn.value.type !== "StringLiteral") {
+          Ember['default'].deprecate("Using a dynamic value for '#{normalizedOn.key}=' with the '{{input}}' helper " + moduleInfo + "is deprecated.");
 
-          normalizedOn.key = 'onEvent';
+          normalizedOn.key = "onEvent";
           return; // exit early, as we cannot transform further
         }
 
@@ -10974,23 +10960,23 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
         removeFromHash(node.hash, action);
 
         if (!action) {
-          Ember.deprecate('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.');
+          Ember['default'].deprecate("Using '{{input " + normalizedOn.key + "=\"" + normalizedOn.value.value + "\" ...}}' without specifying an action " + moduleInfo + "will do nothing.");
 
           return; // exit early, if no action was available there is nothing to do
         }
 
-        var specifiedOn = normalizedOn ? '' + normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-        if (normalizedOn && normalizedOn.value.value === 'keyPress') {
+        var specifiedOn = normalizedOn ? "" + normalizedOn.key + "=\"" + normalizedOn.value.value + "\" " : "";
+        if (normalizedOn && normalizedOn.value.value === "keyPress") {
           // using `keyPress` in the root of the component will
           // clobber the keyPress event handler
-          normalizedOn.value.value = 'key-press';
+          normalizedOn.value.value = "key-press";
         }
 
-        var expected = '' + (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
+        var expected = "" + (normalizedOn ? normalizedOn.value.value : "enter") + "=\"" + action.value.original + "\"";
 
-        Ember.deprecate('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.');
+        Ember['default'].deprecate("Using '{{input " + specifiedOn + "action=\"" + action.value.original + "\"}}' " + moduleInfo + "is deprecated. Please use '{{input " + expected + "}}' instead.");
         if (!normalizedOn) {
-          normalizedOn = b.pair('onEvent', b.string('enter'));
+          normalizedOn = b.pair("onEvent", b.string("enter"));
         }
 
         node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
@@ -11001,7 +10987,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
   };
 
   TransformInputOnToOnEvent.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'input' && (hashPairForKey(node.hash, 'action') || hashPairForKey(node.hash, 'on') || hashPairForKey(node.hash, 'onEvent'));
+    return node.type === "MustacheStatement" && node.path.original === "input" && (hashPairForKey(node.hash, "action") || hashPairForKey(node.hash, "on") || hashPairForKey(node.hash, "onEvent"));
   };
 
   function hashPairForKey(hash, key) {
@@ -11472,7 +11458,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+10816074",
+        revision: "Ember@2.0.0-canary+cc832513",
         loc: program.loc,
         moduleName: options.moduleName
       };
