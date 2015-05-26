@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2
+ * @version   1.13.0-beta.2+a3d14115
  */
 
 (function() {
@@ -4902,6 +4902,11 @@ enifed('ember-application/utils/validate-type', ['exports'], function (exports) 
       return;
     }
 
+    // 2.0TODO: Remove this deprecation warning
+    if (parsedName.type === 'service') {
+            return;
+    }
+
     var factoryFlag = validationAttributes[0];
     var expectedType = validationAttributes[1];
 
@@ -6261,11 +6266,14 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'e
     var list = params[0];
     var keyPath = hash.key;
 
+    if (blocks.template.arity === 0) {
+          }
+
     if (shouldDisplay['default'](list)) {
       enumerable_utils.forEach(list, function (item, i) {
         var self;
         if (blocks.template.arity === 0) {
-                    self = normalizeSelf['default'](item);
+          self = normalizeSelf['default'](item);
         }
 
         var key = keyPath ? property_get.get(item, keyPath) : String(i);
@@ -7666,7 +7674,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8346,6 +8354,9 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       props._isAngleBracket = true;
     }
 
+    props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup("renderer:-dom");
+    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
+
     var component = _component.create(props);
 
     // for the fallback case
@@ -8576,6 +8587,8 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       mergeBindings(props, shadowedAttrs(proto, snapshot));
       props.container = options.parentView ? options.parentView.container : env.container;
+      props.renderer = options.parentView ? options.parentView.renderer : props.container && props.container.lookup("renderer:-dom");
+      props._viewRegistry = options.parentView ? options.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
 
       if (proto.controller !== defaultController || hasSuppliedController) {
         delete props._context;
@@ -8740,8 +8753,8 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
     bootstrap(jQuery['default'](document));
   }
 
-  function registerComponentLookup(registry) {
-    registry.register("component-lookup:main", ComponentLookup['default']);
+  function registerComponentLookup(app) {
+    app.registry.register("component-lookup:main", ComponentLookup['default']);
   }
 
   /*
@@ -8761,9 +8774,8 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
       initialize: environment['default'].hasDOM ? _bootstrap : function () {}
     });
 
-    Application.initializer({
+    Application.instanceInitializer({
       name: "registerComponentLookup",
-      after: "domTemplates",
       initialize: registerComponentLookup
     });
   });
@@ -12903,7 +12915,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2
+    @version 1.13.0-beta.2+a3d14115
   */
 
   if ('undefined' === typeof Ember) {
@@ -12934,10 +12946,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2'
+    @default '1.13.0-beta.2+a3d14115'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2';
+  Ember.VERSION = '1.13.0-beta.2+a3d14115';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20697,7 +20709,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21167,7 +21179,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -35331,7 +35343,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   exports['default'] = TransformAngleBracketComponents;
 
 });
-enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string'], function (exports, Ember, string) {
+enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, string, calculateLocationDisplay) {
 
   'use strict';
 
@@ -35465,24 +35477,7 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
   function isBindAttrModifier(modifier, moduleName) {
     var name = modifier.path.original;
 
-    var _ref = modifier.path.loc.start || {};
-
-    var column = _ref.column;
-    var line = _ref.line;
-
-    var moduleInfo = "";
-
-    if (moduleName) {
-      moduleInfo += "'" + moduleName + "' @ ";
-    }
-
-    if (line && column) {
-      moduleInfo += "L" + line + ":C" + column;
-    }
-
-    if (moduleInfo) {
-      moduleInfo = "(" + moduleInfo + ") ";
-    }
+    var moduleInfo = calculateLocationDisplay['default'](moduleName, modifier.path.loc);
 
     if (name === "bind-attr" || name === "bindAttr") {
             return true;
@@ -35610,36 +35605,14 @@ enifed('ember-template-compiler/plugins/transform-component-curly-to-readonly', 
   exports['default'] = TransformComponentCurlyToReadonly;
 
 });
-enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-
-    ```handlebars
-    {{#each item in items}}
-    {{/each}}
-    ```
-
-    with
-
-    ```handlebars
-    {{#each items as |item|}}
-    {{/each}}
-    ```
-
-    @class TransformEachInToBlockParams
-    @private
-  */
-  function TransformEachInToBlockParams() {
+  function TransformEachInToBlockParams(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
+    this.options = options;
   }
 
   /**
@@ -35650,30 +35623,37 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
   TransformEachInToBlockParams.prototype.transform = function TransformEachInToBlockParams_transform(ast) {
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
+    var moduleName = this.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (validate(node)) {
 
         var removedParams = node.params.splice(0, 2);
         var keyword = removedParams[0].original;
+        var moduleInfo = undefined;
 
-        if (node.type === 'BlockStatement') {
+        if (node.type === "BlockStatement") {
+          moduleInfo = calculateLocationDisplay['default'](moduleName, node.program.loc);
+
           if (node.program.blockParams.length) {
-            throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
+            throw new Error("You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time " + moduleInfo + ".");
           }
 
           node.program.blockParams = [keyword];
         } else {
-          node.hash.pairs.push(b.pair('keyword', b.string(keyword)));
+          moduleInfo = calculateLocationDisplay['default'](moduleName, node.loc);
+
+          node.hash.pairs.push(b.pair("keyword", b.string(keyword)));
         }
-      }
+
+              }
     });
 
     return ast;
   };
 
   function validate(node) {
-    return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each' && node.params.length === 3 && node.params[1].type === 'PathExpression' && node.params[1].original === 'in';
+    return (node.type === "BlockStatement" || node.type === "MustacheStatement") && node.path.original === "each" && node.params.length === 3 && node.params[1].type === "PathExpression" && node.params[1].original === "in";
   }
 
   exports['default'] = TransformEachInToBlockParams;
@@ -35751,7 +35731,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   exports['default'] = TransformEachInToHash;
 
 });
-enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports', 'ember-metal/core'], function (exports, Ember) {
+enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
@@ -35765,7 +35745,7 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
   }
 
   TransformEachIntoCollection.prototype.transform = function TransformEachIntoCollection_transform(ast) {
-    var options = this.options;
+    var moduleName = this.options.moduleName;
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
 
@@ -35775,19 +35755,7 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
         return;
       }
 
-      var _ref = legacyHashKey.loc.start || {};
-
-      var column = _ref.column;
-      var line = _ref.line;
-
-      var moduleInfo = '';
-      if (options.moduleName) {
-        moduleInfo += '\'' + options.moduleName + '\' ';
-      }
-
-      if (line && column) {
-        moduleInfo += '@L' + line + ':C' + column;
-      }
+      var moduleInfo = calculateLocationDisplay['default'](moduleName, legacyHashKey.loc);
 
       
       var list = node.params.shift();
@@ -35830,33 +35798,10 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
-  /**
-   @module ember
-   @submodule ember-htmlbars
-  */
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-
-    ```handlebars
-   {{input on="enter" action="doStuff"}}
-   {{input on="key-press" action="doStuff"}}
-    ```
-
-    with
-
-    ```handlebars
-   {{input enter="doStuff"}}
-   {{input key-press="doStuff"}}
-    ```
-
-    @private
-    @class TransformInputOnToOnEvent
-  */
   function TransformInputOnToOnEvent(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
@@ -35872,18 +35817,19 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
     var pluginContext = this;
     var b = pluginContext.syntax.builders;
     var walker = new pluginContext.syntax.Walker();
+    var moduleName = pluginContext.options.moduleName;
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
-        var action = hashPairForKey(node.hash, 'action');
-        var on = hashPairForKey(node.hash, 'on');
-        var onEvent = hashPairForKey(node.hash, 'onEvent');
+        var action = hashPairForKey(node.hash, "action");
+        var on = hashPairForKey(node.hash, "on");
+        var onEvent = hashPairForKey(node.hash, "onEvent");
         var normalizedOn = on || onEvent;
-        var moduleInfo = pluginContext.calculateModuleInfo(node.loc);
+        var moduleInfo = calculateLocationDisplay['default'](moduleName, node.loc);
 
-        if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
+        if (normalizedOn && normalizedOn.value.type !== "StringLiteral") {
           
-          normalizedOn.key = 'onEvent';
+          normalizedOn.key = "onEvent";
           return; // exit early, as we cannot transform further
         }
 
@@ -35895,17 +35841,17 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
           return; // exit early, if no action was available there is nothing to do
         }
 
-        var specifiedOn = normalizedOn ? '' + normalizedOn.key + '="' + normalizedOn.value.value + '" ' : '';
-        if (normalizedOn && normalizedOn.value.value === 'keyPress') {
+        var specifiedOn = normalizedOn ? "" + normalizedOn.key + "=\"" + normalizedOn.value.value + "\" " : "";
+        if (normalizedOn && normalizedOn.value.value === "keyPress") {
           // using `keyPress` in the root of the component will
           // clobber the keyPress event handler
-          normalizedOn.value.value = 'key-press';
+          normalizedOn.value.value = "key-press";
         }
 
-        var expected = '' + (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
+        var expected = "" + (normalizedOn ? normalizedOn.value.value : "enter") + "=\"" + action.value.original + "\"";
 
                 if (!normalizedOn) {
-          normalizedOn = b.pair('onEvent', b.string('enter'));
+          normalizedOn = b.pair("onEvent", b.string("enter"));
         }
 
         node.hash.pairs.push(b.pair(normalizedOn.value.value, action.value));
@@ -35916,25 +35862,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
   };
 
   TransformInputOnToOnEvent.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'MustacheStatement' && node.path.original === 'input' && (hashPairForKey(node.hash, 'action') || hashPairForKey(node.hash, 'on') || hashPairForKey(node.hash, 'onEvent'));
-  };
-
-  TransformInputOnToOnEvent.prototype.calculateModuleInfo = function TransformInputOnToOnEvent_calculateModuleInfo(loc) {
-    var _ref = loc.start || {};
-
-    var column = _ref.column;
-    var line = _ref.line;
-
-    var moduleInfo = '';
-    if (this.options.moduleName) {
-      moduleInfo += '\'' + this.options.moduleName + '\' ';
-    }
-
-    if (line !== undefined && column !== undefined) {
-      moduleInfo += '@L' + line + ':C' + column;
-    }
-
-    return moduleInfo;
+    return node.type === "MustacheStatement" && node.path.original === "input" && (hashPairForKey(node.hash, "action") || hashPairForKey(node.hash, "on") || hashPairForKey(node.hash, "onEvent"));
   };
 
   function hashPairForKey(hash, key) {
@@ -36019,7 +35947,7 @@ enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], func
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-metal/core'], function (exports, Ember) {
+enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, Ember, calculateLocationDisplay) {
 
   'use strict';
 
@@ -36027,11 +35955,13 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
 
   exports['default'] = TransformOldBindingSyntax;
 
-  function TransformOldBindingSyntax() {
+  function TransformOldBindingSyntax(options) {
     this.syntax = null;
+    this.options = options;
   }
 
   TransformOldBindingSyntax.prototype.transform = function TransformOldBindingSyntax_transform(ast) {
+    var moduleName = this.options.moduleName;
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
 
@@ -36044,15 +35974,7 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
         var key = pair.key;
         var value = pair.value;
 
-        var sourceInformation = '';
-
-        if (pair.loc) {
-          var _pair$loc = pair.loc;
-          var start = _pair$loc.start;
-          var source = _pair$loc.source;
-
-          sourceInformation = '@ ' + start.line + ':' + start.column + ' in ' + (source || '(inline)');
-        }
+        var sourceInformation = calculateLocationDisplay['default'](moduleName, pair.loc);
 
         if (key === 'classBinding') {
           return;
@@ -36094,16 +36016,15 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports', 'ember-metal/core'], function (exports, Ember) {
+enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['exports'], function (exports) {
 
   'use strict';
 
-
-
   exports['default'] = TransformOldClassBindingSyntax;
 
-  function TransformOldClassBindingSyntax() {
+  function TransformOldClassBindingSyntax(options) {
     this.syntax = null;
+    this.options = options;
   }
 
   TransformOldClassBindingSyntax.prototype.transform = function TransformOldClassBindingSyntax_transform(ast) {
@@ -36152,17 +36073,9 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
         var loc = _ref.loc;
 
         var sexprs = [];
+        // TODO: add helpful deprecation when both `classNames` and `classNameBindings` can
+        // be removed.
 
-        var sourceInformation = '';
-        if (loc) {
-          var start = loc.start;
-          var source = loc.source;
-
-          sourceInformation = '@ ' + start.line + ':' + start.column + ' in ' + (source || '(inline)');
-        }
-
-        // TODO: Parse the microsyntax and offer the correct information
-        
         if (value.type === 'StringLiteral') {
           var microsyntax = parseMicrosyntax(value.original);
 
@@ -36242,15 +36155,6 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     return segments;
   }
 
-  function exprToString(expr) {
-    switch (expr.type) {
-      case 'StringLiteral':
-        return '"' + expr.original + '"';
-      case 'PathExpression':
-        return expr.original;
-    }
-  }
-
 });
 enifed('ember-template-compiler/plugins/transform-single-arg-each', ['exports'], function (exports) {
 
@@ -36282,7 +36186,7 @@ enifed('ember-template-compiler/plugins/transform-single-arg-each', ['exports'],
   }
 
 });
-enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 'ember-template-compiler/system/calculate-location-display'], function (exports, calculateLocationDisplay) {
 
   'use strict';
 
@@ -36291,24 +36195,6 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   @submodule ember-htmlbars
   */
 
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-
-    ```handlebars
-    {{#with foo.bar as bar}}
-    {{/with}}
-    ```
-
-    with
-
-    ```handlebars
-    {{#with foo.bar as |bar|}}
-    {{/with}}
-    ```
-
-    @private
-    @class TransformWithAsToHash
-  */
   function TransformWithAsToHash(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
@@ -36332,6 +36218,8 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
           throw new Error("You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.");
         }
 
+        var moduleInfo = calculateLocationDisplay['default'](moduleName, node.program.loc);
+
         
         var removedParams = node.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -36347,6 +36235,41 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   };
 
   exports['default'] = TransformWithAsToHash;
+
+});
+enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
+
+  'use strict';
+
+  exports['default'] = calculateLocationDisplay;
+
+  function calculateLocationDisplay(moduleName, _loc) {
+    var loc = _loc || {};
+
+    var _ref = loc.start || {};
+
+    var column = _ref.column;
+    var line = _ref.line;
+
+    var moduleInfo = '';
+    if (moduleName) {
+      moduleInfo += '\'' + moduleName + '\' ';
+    }
+
+    if (line !== undefined && column !== undefined) {
+      if (moduleName) {
+        // only prepend @ if the moduleName was present
+        moduleInfo += '@ ';
+      }
+      moduleInfo += 'L' + line + ':C' + column;
+    }
+
+    if (moduleInfo) {
+      moduleInfo = '(' + moduleInfo + ') ';
+    }
+
+    return moduleInfo;
+  }
 
 });
 enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, compileOptions, template) {
@@ -36404,7 +36327,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2",
+        revision: "Ember@1.13.0-beta.2+a3d14115",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39855,7 +39778,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
 
   /**
   @module ember
