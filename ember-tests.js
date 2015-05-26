@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cc832513
+ * @version   2.0.0-canary+444d3e19
  */
 
 (function() {
@@ -47254,7 +47254,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+cc832513", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+444d3e19", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -48406,7 +48406,7 @@ enifed('ember-testing/tests/helpers_test', ['ember-metal/core', 'ember-metal/run
     });
   });
 
-  QUnit.skip("`fillIn` focuses on the element", function () {
+  QUnit.test("`fillIn` focuses on the element", function () {
     expect(2);
     var fillIn, find, visit, andThen;
 
