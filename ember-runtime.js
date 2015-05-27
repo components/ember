@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d42eecab
+ * @version   2.0.0-canary+a0acc6ef
  */
 
 (function() {
@@ -4749,7 +4749,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+d42eecab
+    @version 2.0.0-canary+a0acc6ef
   */
 
   if ('undefined' === typeof Ember) {
@@ -4780,10 +4780,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+d42eecab'
+    @default '2.0.0-canary+a0acc6ef'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+d42eecab';
+  Ember.VERSION = '2.0.0-canary+a0acc6ef';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5093,7 +5093,7 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
   }
 
 });
-enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], function (exports, ember_metal__array) {
+enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-metal/array'], function (exports, Ember, ember_metal__array) {
 
   'use strict';
 
@@ -5116,6 +5116,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    *
    * @class EnumerableUtils
    * @namespace Ember
+   * @deprecated
    * @static
    * */
 
@@ -5124,6 +5125,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * uses `Ember.ArrayPolyfill`'s-map method when necessary.
    *
    * @method map
+   * @deprecated Use ES5's Array.prototype.map instead.
    * @param {Object} obj The object that should be mapped
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -5134,11 +5136,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.map ? obj.map(callback, thisArg) : ember_metal__array.map.call(obj, callback, thisArg);
   }
 
+  var deprecatedMap = Ember['default'].deprecateFunc('Ember.EnumberableUtils.map is deprecated, please refactor to use Array.prototype.map.', map);
+
   /**
    * Calls the forEach function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-forEach method when necessary.
    *
    * @method forEach
+   * @deprecated Use ES5's Array.prototype.forEach instead.
    * @param {Object} obj The object to call forEach on
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -5148,11 +5153,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.forEach ? obj.forEach(callback, thisArg) : ember_metal__array.forEach.call(obj, callback, thisArg);
   }
 
+  var deprecatedForEach = Ember['default'].deprecateFunc('Ember.EnumberableUtils.forEach is deprecated, please refactor to use Array.prototype.forEach.', forEach);
+
   /**
    * Calls the filter function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-filter method when necessary.
    *
    * @method filter
+   * @deprecated Use ES5's Array.prototype.filter instead.
    * @param {Object} obj The object to call filter on
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -5164,11 +5172,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.filter ? obj.filter(callback, thisArg) : ember_metal__array.filter.call(obj, callback, thisArg);
   }
 
+  var deprecatedFilter = Ember['default'].deprecateFunc('Ember.EnumberableUtils.filter is deprecated, please refactor to use Array.prototype.filter.', filter);
+
   /**
    * Calls the indexOf function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-indexOf method when necessary.
    *
    * @method indexOf
+   * @deprecated Use ES5's Array.prototype.indexOf instead.
    * @param {Object} obj The object to call indexOn on
    * @param {Function} callback The callback to execute
    * @param {Object} index The index to start searching from
@@ -5177,6 +5188,8 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
   function indexOf(obj, element, index) {
     return obj.indexOf ? obj.indexOf(element, index) : ember_metal__array.indexOf.call(obj, element, index);
   }
+
+  var deprecatedIndexOf = Ember['default'].deprecateFunc('Ember.EnumberableUtils.indexOf is deprecated, please refactor to use Array.prototype.indexOf.', indexOf);
 
   /**
    * Returns an array of indexes of the first occurrences of the passed elements
@@ -5191,6 +5204,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method indexesOf
+   * @deprecated
    * @param {Object} obj The object to check for element indexes
    * @param {Array} elements The elements to search for on *obj*
    *
@@ -5203,11 +5217,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     });
   }
 
+  var deprecatedIndexesOf = Ember['default'].deprecateFunc('Ember.EnumerableUtils.indexesOf is deprecated.', indexesOf);
+
   /**
    * Adds an object to an array. If the array already includes the object this
    * method has no effect.
    *
    * @method addObject
+   * @deprecated
    * @param {Array} array The array the passed item should be added to
    * @param {Object} item The item to add to the passed array
    *
@@ -5220,11 +5237,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  var deprecatedAddObject = Ember['default'].deprecateFunc('Ember.EnumerableUtils.addObject is deprecated.', addObject);
+
   /**
    * Removes an object from an array. If the array does not contain the passed
    * object this method has no effect.
    *
    * @method removeObject
+   * @deprecated
    * @param {Array} array The array to remove the item from.
    * @param {Object} item The item to remove from the passed array.
    *
@@ -5237,6 +5257,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  var deprecatedRemoveObject = Ember['default'].deprecateFunc('Ember.EnumerableUtils.removeObject is deprecated.', removeObject);
   function _replace(array, idx, amt, objects) {
     var args = [].concat(objects);
     var ret = [];
@@ -5278,6 +5299,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method replace
+   * @deprecated
    * @param {Array} array The array the objects should be inserted into.
    * @param {Number} idx Starting index in the array to replace. If *idx* >=
    * length, then append to the end of the array.
@@ -5295,6 +5317,8 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
       return _replace(array, idx, amt, objects);
     }
   }
+
+  var deprecatedReplace = Ember['default'].deprecateFunc('Ember.EnumerableUtils.replace is deprecated.', replace);
 
   /**
    * Calculates the intersection of two arrays. This method returns a new array
@@ -5314,6 +5338,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method intersection
+   * @deprecated
    * @param {Array} array1 The first array
    * @param {Array} array2 The second array
    *
@@ -5330,19 +5355,21 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return result;
   }
 
+  var deprecatedIntersection = Ember['default'].deprecateFunc('Ember.EnumerableUtils.intersection is deprecated.', intersection);
+
   // TODO: this only exists to maintain the existing api, as we move forward it
   // should only be part of the "global build" via some shim
   exports['default'] = {
     _replace: _replace,
-    addObject: addObject,
-    filter: filter,
-    forEach: forEach,
-    indexOf: indexOf,
-    indexesOf: indexesOf,
-    intersection: intersection,
-    map: map,
-    removeObject: removeObject,
-    replace: replace
+    addObject: deprecatedAddObject,
+    filter: deprecatedFilter,
+    forEach: deprecatedForEach,
+    indexOf: deprecatedIndexOf,
+    indexesOf: deprecatedIndexesOf,
+    intersection: deprecatedIntersection,
+    map: deprecatedMap,
+    removeObject: deprecatedRemoveObject,
+    replace: deprecatedReplace
   };
 
 });
@@ -20918,7 +20945,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
   };
 
 });
-enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-metal/enumerable_utils'], function (exports, EmberError, EnumerableUtils) {
+enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-metal/enumerable_utils'], function (exports, EmberError, enumerable_utils) {
 
   'use strict';
 
@@ -21083,7 +21110,7 @@ enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-
 
     toString: function () {
       var str = "";
-      EnumerableUtils['default'].forEach(this._operations, function (operation) {
+      enumerable_utils.forEach(this._operations, function (operation) {
         str += " " + operation.type + ":" + operation.count;
       });
       return str.substring(1);

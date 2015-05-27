@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d42eecab
+ * @version   2.0.0-canary+a0acc6ef
  */
 
 (function() {
@@ -24825,7 +24825,7 @@ enifed('ember-metal/tests/platform/create_test', ['ember-metal/platform/create']
   });
 
 });
-enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform/define_property', 'ember-metal/enumerable_utils'], function (define_property, EnumerableUtils) {
+enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform/define_property', 'ember-metal/enumerable_utils'], function (define_property, enumerable_utils) {
 
   'use strict';
 
@@ -24836,7 +24836,7 @@ enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform
         keys.push(key);
       }
     }
-    return EnumerableUtils['default'].indexOf(keys, keyName) >= 0;
+    return enumerable_utils.indexOf(keys, keyName) >= 0;
   }
 
   QUnit.module('defineProperty()');
@@ -41168,7 +41168,7 @@ enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-ru
   exports['default'] = suite;
 
 });
-enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, suites__suite, EnumerableUtils, property_get, utils) {
+enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, suites__suite, enumerable_utils, property_get, utils) {
 
   'use strict';
 
@@ -41182,7 +41182,7 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/t
 
   suite.test('map should iterate over list', function () {
     var obj = this.newObject();
-    var ary = EnumerableUtils['default'].map(this.toArray(obj), mapFunc);
+    var ary = enumerable_utils.map(this.toArray(obj), mapFunc);
     var found = [];
 
     found = obj.map(mapFunc);
@@ -45809,7 +45809,7 @@ enifed('ember-runtime/tests/system/set/enumerable_suite_test', ['ember-runtime/t
   }).run();
 
 });
-enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/system/set'], function (EnumerableUtils, property_get, observer, Set) {
+enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/system/set'], function (enumerable_utils, property_get, observer, Set) {
 
   'use strict';
 
@@ -45827,7 +45827,7 @@ enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_uti
 
     equal(property_get.get(aSet, "length"), 3, "should have three items");
     aSet.forEach(function (x) {
-      ok(EnumerableUtils['default'].indexOf(ary, x) >= 0, "should find passed item in array");
+      ok(enumerable_utils.indexOf(ary, x) >= 0, "should find passed item in array");
       count++;
     });
     equal(count, 3, "iterating should have returned three objects");
@@ -47113,7 +47113,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+d42eecab", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+a0acc6ef", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
