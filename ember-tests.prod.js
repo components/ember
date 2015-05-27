@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a0acc6ef
+ * @version   2.0.0-canary+a8ba1eb4
  */
 
 (function() {
@@ -1054,7 +1054,7 @@ enifed('container/tests/registry_test', ['container/tests/container_helper', 'co
   });
 
 });
-enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, jQuery, compile) {
+enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, EmberRoute, jQuery, compile) {
 
   'use strict';
 
@@ -1169,6 +1169,40 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
     });
 
     equal(jQuery['default']("#qunit-fixture h1").text(), "Hi from index");
+  });
+
+  QUnit.test("ready hook is called before routing begins", function () {
+    expect(2);
+
+    run['default'](function () {
+      function registerRoute(application, name, callback) {
+        var route = EmberRoute['default'].extend({
+          activate: callback
+        });
+
+        application.register("route:" + name, route);
+      }
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          registerRoute(this, "index", function () {
+            ok(true, "last-minite route is activated");
+          });
+        }
+      });
+
+      app = MyApplication.create({
+        rootElement: "#qunit-fixture"
+      });
+
+      app.Router.reopen({
+        location: "none"
+      });
+
+      registerRoute(app, "application", function () {
+        ok(true, "normal route is activated");
+      });
+    });
   });
 
   QUnit.test("initialize application via initialize call", function () {
@@ -2713,6 +2747,33 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       SecondApp.instanceInitializer({
         name: "shouldNotCollide",
         initialize: function (registry) {}
+      });
+    });
+
+    QUnit.test("initializers are run before ready hook", function () {
+      expect(2);
+
+      var readyWasCalled = false;
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          ok(true, "ready is called");
+          readyWasCalled = true;
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: "initializer",
+        initialize: function () {
+          ok(!readyWasCalled, "ready is not yet called");
+        }
+      });
+
+      run['default'](function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: "#qunit-fixture"
+        });
       });
     });
 
@@ -47113,7 +47174,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+a0acc6ef", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+a8ba1eb4", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

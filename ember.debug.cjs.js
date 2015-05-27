@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a0acc6ef
+ * @version   2.0.0-canary+a8ba1eb4
  */
 
 (function() {
@@ -3854,11 +3854,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
           // tamper with the default `Ember.Router`.
           // 2.0TODO: Can we move this into a globals-mode-only library?
           this.Router = (this.Router || Router['default']).extend();
-          this.waitForDOMReady(this.buildDefaultInstance());
+          this.buildDefaultInstance();
+          this.waitForDOMReady();
         }
       } else {
         this.Router = (this.Router || Router['default']).extend();
-        this.waitForDOMReady(this.buildDefaultInstance());
+        this.buildDefaultInstance();
+        this.waitForDOMReady();
       }
     },
 
@@ -3915,13 +3917,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       `advanceReadiness()` once all of your code has finished
       loading.
        @private
-      @method scheduleInitialize
+      @method waitForDOMReady
     */
-    waitForDOMReady: function (_instance) {
+    waitForDOMReady: function () {
       if (!this.$ || this.$.isReady) {
-        run['default'].schedule('actions', this, 'domReady', _instance);
+        run['default'].schedule('actions', this, 'domReady');
       } else {
-        this.$().ready(run['default'].bind(this, 'domReady', _instance));
+        this.$().ready(run['default'].bind(this, 'domReady'));
       }
     },
 
@@ -4077,18 +4079,14 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       choose to defer readiness. For example, an authentication hook might want
       to defer readiness until the auth token has been retrieved.
        @private
-      @method _initialize
+      @method domReady
     */
-    domReady: function (_instance) {
+    domReady: function () {
       if (this.isDestroyed) {
         return;
       }
 
-      var app = this;
-
-      this.boot().then(function () {
-        app.runInstanceInitializers(_instance);
-      });
+      this.boot();
 
       return this;
     },
@@ -4225,6 +4223,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
           this.__deprecatedInstance__.setupEventDispatcher();
         }
 
+        this.runInstanceInitializers(this.__deprecatedInstance__);
         this.ready(); // user hook
         this.__deprecatedInstance__.startRouting();
 
@@ -4241,8 +4240,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Called when the Application has become ready.
-      The call will be delayed until the DOM has become ready.
+      Called when the Application has become ready, immediately before routing
+      begins. The call will be delayed until the DOM has become ready.
        @event ready
     */
     ready: function () {
@@ -8190,7 +8189,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a0acc6ef";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13487,7 +13486,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+a0acc6ef
+    @version 2.0.0-canary+a8ba1eb4
   */
 
   if ('undefined' === typeof Ember) {
@@ -13518,10 +13517,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+a0acc6ef'
+    @default '2.0.0-canary+a8ba1eb4'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+a0acc6ef';
+  Ember.VERSION = '2.0.0-canary+a8ba1eb4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21455,7 +21454,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+a0acc6ef";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21929,7 +21928,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a0acc6ef";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37180,7 +37179,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+a0acc6ef",
+        revision: "Ember@2.0.0-canary+a8ba1eb4",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41864,7 +41863,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a0acc6ef";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
 
   /**
   @module ember
