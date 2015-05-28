@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+a3d14115
+ * @version   1.13.0-beta.2+456fdcbe
  */
 
 (function() {
@@ -1054,7 +1054,7 @@ enifed('container/tests/registry_test', ['container/tests/container_helper', 'co
   });
 
 });
-enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, jQuery, compile) {
+enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, EmberRoute, jQuery, compile) {
 
   'use strict';
 
@@ -1169,6 +1169,40 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
     });
 
     equal(jQuery['default']("#qunit-fixture h1").text(), "Hi from index");
+  });
+
+  QUnit.test("ready hook is called before routing begins", function () {
+    expect(2);
+
+    run['default'](function () {
+      function registerRoute(application, name, callback) {
+        var route = EmberRoute['default'].extend({
+          activate: callback
+        });
+
+        application.register("route:" + name, route);
+      }
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          registerRoute(this, "index", function () {
+            ok(true, "last-minite route is activated");
+          });
+        }
+      });
+
+      app = MyApplication.create({
+        rootElement: "#qunit-fixture"
+      });
+
+      app.Router.reopen({
+        location: "none"
+      });
+
+      registerRoute(app, "application", function () {
+        ok(true, "normal route is activated");
+      });
+    });
   });
 
   QUnit.test("initialize application via initialize call", function () {
@@ -2713,6 +2747,33 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       SecondApp.instanceInitializer({
         name: "shouldNotCollide",
         initialize: function (registry) {}
+      });
+    });
+
+    QUnit.test("initializers are run before ready hook", function () {
+      expect(2);
+
+      var readyWasCalled = false;
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          ok(true, "ready is called");
+          readyWasCalled = true;
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: "initializer",
+        initialize: function () {
+          ok(!readyWasCalled, "ready is not yet called");
+        }
+      });
+
+      run['default'](function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: "#qunit-fixture"
+        });
       });
     });
 
@@ -15117,7 +15178,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['container/
 
     // Because the `twitter` attr is only used by the topmost component,
     // and not passed down, we do not expect to see lifecycle hooks
-    // called for child components. If the `willReceiveAttrs` hook used
+    // called for child components. If the `didReceiveAttrs` hook used
     // the new attribute to rerender itself imperatively, that would result
     // in lifecycle hooks being invoked for the child.
 
@@ -23932,7 +23993,7 @@ enifed('ember-metal/tests/platform/create_test', ['ember-metal/platform/create']
   });
 
 });
-enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform/define_property', 'ember-metal/enumerable_utils'], function (define_property, EnumerableUtils) {
+enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform/define_property', 'ember-metal/enumerable_utils'], function (define_property, enumerable_utils) {
 
   'use strict';
 
@@ -23943,7 +24004,7 @@ enifed('ember-metal/tests/platform/define_property_test', ['ember-metal/platform
         keys.push(key);
       }
     }
-    return EnumerableUtils['default'].indexOf(keys, keyName) >= 0;
+    return enumerable_utils.indexOf(keys, keyName) >= 0;
   }
 
   QUnit.module('defineProperty()');
@@ -40255,7 +40316,7 @@ enifed('ember-runtime/tests/suites/enumerable/lastObject', ['exports', 'ember-ru
   exports['default'] = suite;
 
 });
-enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, suites__suite, EnumerableUtils, property_get, utils) {
+enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, suites__suite, enumerable_utils, property_get, utils) {
 
   'use strict';
 
@@ -40269,7 +40330,7 @@ enifed('ember-runtime/tests/suites/enumerable/map', ['exports', 'ember-runtime/t
 
   suite.test('map should iterate over list', function () {
     var obj = this.newObject();
-    var ary = EnumerableUtils['default'].map(this.toArray(obj), mapFunc);
+    var ary = enumerable_utils.map(this.toArray(obj), mapFunc);
     var found = [];
 
     found = obj.map(mapFunc);
@@ -44896,7 +44957,7 @@ enifed('ember-runtime/tests/system/set/enumerable_suite_test', ['ember-runtime/t
   }).run();
 
 });
-enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/system/set'], function (EnumerableUtils, property_get, observer, Set) {
+enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_utils', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/system/set'], function (enumerable_utils, property_get, observer, Set) {
 
   'use strict';
 
@@ -44914,7 +44975,7 @@ enifed('ember-runtime/tests/system/set/extra_test', ['ember-metal/enumerable_uti
 
     equal(property_get.get(aSet, "length"), 3, "should have three items");
     aSet.forEach(function (x) {
-      ok(EnumerableUtils['default'].indexOf(ary, x) >= 0, "should find passed item in array");
+      ok(enumerable_utils.indexOf(ary, x) >= 0, "should find passed item in array");
       count++;
     });
     equal(count, 3, "iterating should have returned three objects");
@@ -46200,7 +46261,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+a3d14115", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+456fdcbe", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -50669,7 +50730,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      willRender: function () {
+      _willRender: function () {
         this.count++;
       },
       template: compile['default']("{{view.label}}")
@@ -50698,7 +50759,7 @@ enifed('ember-views/tests/views/container_view_test', ['ember-metal/property_get
 
     var Child = View['default'].extend({
       count: 0,
-      willRender: function () {
+      _willRender: function () {
         this.count++;
       },
       template: compile['default']("{{view.label}}")
@@ -59063,6 +59124,76 @@ enifed('ember/tests/homepage_example_test', ['ember', 'ember-htmlbars/compat'], 
     equal($fixture.find("li").length, 2);
     equal($fixture.find("li:nth-of-type(1)").text(), "Hello, Tom Dale!");
     equal($fixture.find("li:nth-of-type(2)").text(), "Hello, Yehuda Katz!");
+  });
+
+});
+enifed('ember/tests/integration/multiple-app-test', ['ember-template-compiler/system/compile', 'ember-metal/run_loop'], function (compile, run) {
+
+  'use strict';
+
+  var App1, App2, actions;
+
+  function startApp(rootElement) {
+    var application;
+
+    run['default'](function () {
+      application = Ember.Application.create({
+        rootElement: rootElement
+      });
+      application.deferReadiness();
+
+      application.Router.reopen({
+        location: "none"
+      });
+
+      var registry = application.__container__._registry;
+
+      registry.register("component:special-button", Ember.Component.extend({
+        actions: {
+          doStuff: function () {
+            actions.push(rootElement);
+          }
+        }
+      }));
+      registry.register("template:application", compile['default']("{{outlet}}", { moduleName: "application" }));
+      registry.register("template:index", compile['default']("<h1>Node 1</h1>{{special-button}}", { moduleName: "index" }));
+      registry.register("template:components/special-button", compile['default']("<button class='do-stuff' {{action 'doStuff'}}>Button</button>", { moduleName: "components/special-button" }));
+    });
+
+    return application;
+  }
+
+  function handleURL(application, path) {
+    var router = application.__container__.lookup("router:main");
+    return run['default'](router, "handleURL", path);
+  }
+
+  QUnit.module("View Integration", {
+    setup: function () {
+      actions = [];
+      Ember.$("#qunit-fixture").html("<div id=\"app-1\"></div><div id=\"app-2\"></div>");
+      App1 = startApp("#app-1");
+      App2 = startApp("#app-2");
+    },
+
+    teardown: function () {
+      run['default'](App1, "destroy");
+      run['default'](App2, "destroy");
+      App1 = App2 = null;
+    }
+  });
+
+  QUnit.test("booting multiple applications can properly handle events", function (assert) {
+    run['default'](App1, "advanceReadiness");
+    run['default'](App2, "advanceReadiness");
+
+    handleURL(App1, "/");
+    handleURL(App2, "/");
+
+    Ember.$("#app-2 .do-stuff").click();
+    Ember.$("#app-1 .do-stuff").click();
+
+    assert.deepEqual(actions, ["#app-2", "#app-1"]);
   });
 
 });

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+a3d14115
+ * @version   1.13.0-beta.2+456fdcbe
  */
 
 (function() {
@@ -3585,7 +3585,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   });
 
 });
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, EnumerableUtils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, outlet, EmberView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, TextField, TextArea, Checkbox, LegacyEachView, LinkToComponent, RoutingService, ContainerDebugAdapter, environment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-runtime/mixins/deferred', 'ember-application/system/resolver', 'ember-metal/platform/create', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal/enumerable_utils', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, DAG, Registry, Ember, property_get, property_set, lazy_load, Namespace, DeferredMixin, DefaultResolver, create, run, utils, Controller, enumerable_utils, ObjectController, ArrayController, Renderer, DOMHelper, SelectView, outlet, EmberView, EventDispatcher, jQuery, Route, Router, HashLocation, HistoryLocation, AutoLocation, NoneLocation, BucketCache, ApplicationInstance, TextField, TextArea, Checkbox, LegacyEachView, LinkToComponent, RoutingService, ContainerDebugAdapter, environment) {
 
   'use strict';
 
@@ -3830,7 +3830,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
       
         this.Router = (this.Router || Router['default']).extend();
-        this.waitForDOMReady(this.buildDefaultInstance());
+        this.buildDefaultInstance();
+        this.waitForDOMReady();
       
     },
 
@@ -3887,13 +3888,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       `advanceReadiness()` once all of your code has finished
       loading.
        @private
-      @method scheduleInitialize
+      @method waitForDOMReady
     */
-    waitForDOMReady: function (_instance) {
+    waitForDOMReady: function () {
       if (!this.$ || this.$.isReady) {
-        run['default'].schedule('actions', this, 'domReady', _instance);
+        run['default'].schedule('actions', this, 'domReady');
       } else {
-        this.$().ready(run['default'].bind(this, 'domReady', _instance));
+        this.$().ready(run['default'].bind(this, 'domReady'));
       }
     },
 
@@ -4045,18 +4046,14 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       choose to defer readiness. For example, an authentication hook might want
       to defer readiness until the auth token has been retrieved.
        @private
-      @method _initialize
+      @method domReady
     */
-    domReady: function (_instance) {
+    domReady: function () {
       if (this.isDestroyed) {
         return;
       }
 
-      var app = this;
-
-      this.boot().then(function () {
-        app.runInstanceInitializers(_instance);
-      });
+      this.boot();
 
       return this;
     },
@@ -4191,6 +4188,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
           this.__deprecatedInstance__.setupEventDispatcher();
         }
 
+        this.runInstanceInitializers(this.__deprecatedInstance__);
         this.ready(); // user hook
         this.__deprecatedInstance__.startRouting();
 
@@ -4207,8 +4205,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Called when the Application has become ready.
-      The call will be delayed until the DOM has become ready.
+      Called when the Application has become ready, immediately before routing
+      begins. The call will be delayed until the DOM has become ready.
        @event ready
     */
     ready: function () {
@@ -4531,7 +4529,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       Ember['default'].LOG_VERSION = false;
       var libs = Ember['default'].libraries._registry;
 
-      var nameLengths = EnumerableUtils['default'].map(libs, function (item) {
+      var nameLengths = enumerable_utils.map(libs, function (item) {
         return property_get.get(item, 'name.length');
       });
 
@@ -7674,7 +7672,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+456fdcbe";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8355,7 +8353,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
 
     props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup("renderer:-dom");
-    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
+    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup("-view-registry:main");
 
     var component = _component.create(props);
 
@@ -8514,7 +8512,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       if (component) {
         var snapshot = takeSnapshot(attrs);
         env.renderer.setAttrs(this.component, snapshot);
-        env.renderer.willCreateElement(component);
         env.renderer.willRender(component);
         env.renderedViews.push(component.elementId);
       }
@@ -8560,10 +8557,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       }
       if (this.block) {
         this.block(newEnv, [], undefined, this.renderNode, this.scope, visitor);
-      }
-
-      if (component) {
-        env.lifecycleHooks.push({ type: "didUpdate", view: component });
       }
 
       return newEnv;
@@ -10174,9 +10167,6 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     this.prerenderTopLevelView(view, morph);
   };
 
-  // inBuffer
-  Renderer.prototype.willCreateElement = function () {};
-
   Renderer.prototype.didCreateElement = function (view, element) {
     if (element) {
       view.element = element;
@@ -10226,10 +10216,6 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   };
 
   Renderer.prototype.updateAttrs = function (view, attrs) {
-    if (view.willReceiveAttrs) {
-      view.willReceiveAttrs(attrs);
-    }
-
     this.setAttrs(view, attrs);
   }; // setting new attrs
 
@@ -10241,8 +10227,8 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   };
 
   Renderer.prototype.willUpdate = function (view, attrs) {
-    if (view.willUpdate) {
-      view.willUpdate(attrs);
+    if (view._willUpdate) {
+      view._willUpdate(attrs);
     }
   };
 
@@ -10251,8 +10237,8 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   };
 
   Renderer.prototype.willRender = function (view) {
-    if (view.willRender) {
-      view.willRender();
+    if (view._willRender) {
+      view._willRender();
     }
   };
 
@@ -10322,7 +10308,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   }; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
 
   exports['default'] = Renderer;
-  /*view*/ /*view*/
+  /*view*/
 
 });
 enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/enumerable_utils', 'ember-metal/cache', 'ember-metal/platform/define_property', 'ember-metal/platform/create', 'ember-metal/array', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/keys', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, Ember, merge, instrumentation, utils, EmberError, EnumerableUtils, Cache, define_property, create, array, Logger, property_get, events, ObserverSet, property_events, properties, property_set, map, getProperties, setProperties, watch_key, chains, watch_path, watching, expandProperties, computed, alias, computed_macros, observer, mixin, binding, run, Libraries, isNone, isEmpty, isBlank, isPresent, keys, Backburner, streams__utils, Stream) {
@@ -12915,7 +12901,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2+a3d14115
+    @version 1.13.0-beta.2+456fdcbe
   */
 
   if ('undefined' === typeof Ember) {
@@ -12946,10 +12932,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+a3d14115'
+    @default '1.13.0-beta.2+456fdcbe'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2+a3d14115';
+  Ember.VERSION = '1.13.0-beta.2+456fdcbe';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13257,7 +13243,7 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
   }
 
 });
-enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], function (exports, ember_metal__array) {
+enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-metal/array'], function (exports, Ember, ember_metal__array) {
 
   'use strict';
 
@@ -13280,6 +13266,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    *
    * @class EnumerableUtils
    * @namespace Ember
+   * @deprecated
    * @static
    * */
 
@@ -13288,6 +13275,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * uses `Ember.ArrayPolyfill`'s-map method when necessary.
    *
    * @method map
+   * @deprecated Use ES5's Array.prototype.map instead.
    * @param {Object} obj The object that should be mapped
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -13298,11 +13286,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.map ? obj.map(callback, thisArg) : ember_metal__array.map.call(obj, callback, thisArg);
   }
 
+  var deprecatedMap = Ember['default'].deprecateFunc('Ember.EnumberableUtils.map is deprecated, please refactor to use Array.prototype.map.', map);
+
   /**
    * Calls the forEach function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-forEach method when necessary.
    *
    * @method forEach
+   * @deprecated Use ES5's Array.prototype.forEach instead.
    * @param {Object} obj The object to call forEach on
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -13312,11 +13303,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.forEach ? obj.forEach(callback, thisArg) : ember_metal__array.forEach.call(obj, callback, thisArg);
   }
 
+  var deprecatedForEach = Ember['default'].deprecateFunc('Ember.EnumberableUtils.forEach is deprecated, please refactor to use Array.prototype.forEach.', forEach);
+
   /**
    * Calls the filter function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-filter method when necessary.
    *
    * @method filter
+   * @deprecated Use ES5's Array.prototype.filter instead.
    * @param {Object} obj The object to call filter on
    * @param {Function} callback The callback to execute
    * @param {Object} thisArg Value to use as this when executing *callback*
@@ -13328,11 +13322,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return obj.filter ? obj.filter(callback, thisArg) : ember_metal__array.filter.call(obj, callback, thisArg);
   }
 
+  var deprecatedFilter = Ember['default'].deprecateFunc('Ember.EnumberableUtils.filter is deprecated, please refactor to use Array.prototype.filter.', filter);
+
   /**
    * Calls the indexOf function on the passed object with a specified callback. This
    * uses `Ember.ArrayPolyfill`'s-indexOf method when necessary.
    *
    * @method indexOf
+   * @deprecated Use ES5's Array.prototype.indexOf instead.
    * @param {Object} obj The object to call indexOn on
    * @param {Function} callback The callback to execute
    * @param {Object} index The index to start searching from
@@ -13341,6 +13338,8 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
   function indexOf(obj, element, index) {
     return obj.indexOf ? obj.indexOf(element, index) : ember_metal__array.indexOf.call(obj, element, index);
   }
+
+  var deprecatedIndexOf = Ember['default'].deprecateFunc('Ember.EnumberableUtils.indexOf is deprecated, please refactor to use Array.prototype.indexOf.', indexOf);
 
   /**
    * Returns an array of indexes of the first occurrences of the passed elements
@@ -13355,6 +13354,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method indexesOf
+   * @deprecated
    * @param {Object} obj The object to check for element indexes
    * @param {Array} elements The elements to search for on *obj*
    *
@@ -13367,11 +13367,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     });
   }
 
+  var deprecatedIndexesOf = Ember['default'].deprecateFunc('Ember.EnumerableUtils.indexesOf is deprecated.', indexesOf);
+
   /**
    * Adds an object to an array. If the array already includes the object this
    * method has no effect.
    *
    * @method addObject
+   * @deprecated
    * @param {Array} array The array the passed item should be added to
    * @param {Object} item The item to add to the passed array
    *
@@ -13384,11 +13387,14 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  var deprecatedAddObject = Ember['default'].deprecateFunc('Ember.EnumerableUtils.addObject is deprecated.', addObject);
+
   /**
    * Removes an object from an array. If the array does not contain the passed
    * object this method has no effect.
    *
    * @method removeObject
+   * @deprecated
    * @param {Array} array The array to remove the item from.
    * @param {Object} item The item to remove from the passed array.
    *
@@ -13401,6 +13407,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  var deprecatedRemoveObject = Ember['default'].deprecateFunc('Ember.EnumerableUtils.removeObject is deprecated.', removeObject);
   function _replace(array, idx, amt, objects) {
     var args = [].concat(objects);
     var ret = [];
@@ -13442,6 +13449,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method replace
+   * @deprecated
    * @param {Array} array The array the objects should be inserted into.
    * @param {Number} idx Starting index in the array to replace. If *idx* >=
    * length, then append to the end of the array.
@@ -13459,6 +13467,8 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
       return _replace(array, idx, amt, objects);
     }
   }
+
+  var deprecatedReplace = Ember['default'].deprecateFunc('Ember.EnumerableUtils.replace is deprecated.', replace);
 
   /**
    * Calculates the intersection of two arrays. This method returns a new array
@@ -13478,6 +13488,7 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    * ```
    *
    * @method intersection
+   * @deprecated
    * @param {Array} array1 The first array
    * @param {Array} array2 The second array
    *
@@ -13494,19 +13505,21 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return result;
   }
 
+  var deprecatedIntersection = Ember['default'].deprecateFunc('Ember.EnumerableUtils.intersection is deprecated.', intersection);
+
   // TODO: this only exists to maintain the existing api, as we move forward it
   // should only be part of the "global build" via some shim
   exports['default'] = {
     _replace: _replace,
-    addObject: addObject,
-    filter: filter,
-    forEach: forEach,
-    indexOf: indexOf,
-    indexesOf: indexesOf,
-    intersection: intersection,
-    map: map,
-    removeObject: removeObject,
-    replace: replace
+    addObject: deprecatedAddObject,
+    filter: deprecatedFilter,
+    forEach: deprecatedForEach,
+    indexOf: deprecatedIndexOf,
+    indexesOf: deprecatedIndexesOf,
+    intersection: deprecatedIntersection,
+    map: deprecatedMap,
+    removeObject: deprecatedRemoveObject,
+    replace: deprecatedReplace
   };
 
 });
@@ -20709,7 +20722,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+456fdcbe";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21179,7 +21192,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+456fdcbe";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -34573,7 +34586,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
   };
 
 });
-enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-metal/enumerable_utils'], function (exports, EmberError, EnumerableUtils) {
+enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-metal/enumerable_utils'], function (exports, EmberError, enumerable_utils) {
 
   'use strict';
 
@@ -34738,7 +34751,7 @@ enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error', 'ember-
 
     toString: function () {
       var str = "";
-      EnumerableUtils['default'].forEach(this._operations, function (operation) {
+      enumerable_utils.forEach(this._operations, function (operation) {
         str += " " + operation.type + ":" + operation.count;
       });
       return str.substring(1);
@@ -36327,7 +36340,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2+a3d14115",
+        revision: "Ember@1.13.0-beta.2+456fdcbe",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37927,6 +37940,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       var attrs = _attrs || {};
       var view;
       attrs.renderer = this.renderer;
+      attrs._viewRegistry = this._viewRegistry;
 
       if (maybeViewClass.isViewFactory) {
         attrs.container = this.container;
@@ -38875,9 +38889,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
     */
     setupHandler: function (rootElement, event, eventName) {
       var self = this;
+      var viewRegistry = this.container && this.container.lookup("-view-registry:main") || View['default'].views;
 
       rootElement.on(event + ".ember", ".ember-view", function (evt, triggeringManager) {
-        var view = View['default'].views[this.id];
+        var view = viewRegistry[this.id];
         var result = true;
 
         var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
@@ -39326,7 +39341,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       return view;
     },
 
-    willRender: function () {
+    _willRender: function () {
       var attrs = this.attrs;
       var itemProps = buildItemViewProps(this._itemViewTemplate, attrs);
       this._itemViewProps = itemProps;
@@ -39778,7 +39793,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+a3d14115";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+456fdcbe";
 
   /**
   @module ember
@@ -40221,7 +40236,7 @@ enifed('ember-views/views/legacy_each_view', ['exports', 'ember-htmlbars/templat
       return controller;
     }),
 
-    willUpdate: function (attrs) {
+    _willUpdate: function (attrs) {
       var itemController = this.getAttrFor(attrs, "itemController");
 
       if (itemController) {
@@ -40266,7 +40281,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
 
     content: null,
 
-    willRender: function () {
+    _willRender: function () {
       this.labelPathDidChange();
       this.valuePathDidChange();
     },
@@ -40875,7 +40890,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/enumerable_utils', '
       }
     },
 
-    willRender: function () {
+    _willRender: function () {
       this._setDefaults();
     },
 
