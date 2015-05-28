@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4d97d612
+ * @version   2.0.0-canary+391c565b
  */
 
 (function() {
@@ -4973,10 +4973,10 @@ enifed('ember-application/utils/validate-type', ['exports'], function (exports) 
   */
 
   var VALIDATED_TYPES = {
-    route: ['isRouteFactory', 'Ember.Route'],
-    component: ['isComponentFactory', 'Ember.Component'],
-    view: ['isViewFactory', 'Ember.View'],
-    service: ['isServiceFactory', 'Ember.Service']
+    route: ['assert', 'isRouteFactory', 'Ember.Route'],
+    component: ['deprecate', 'isComponentFactory', 'Ember.Component'],
+    view: ['deprecate', 'isViewFactory', 'Ember.View'],
+    service: ['deprecate', 'isServiceFactory', 'Ember.Service']
   };
   function validateType(resolvedType, parsedName) {
     var validationAttributes = VALIDATED_TYPES[parsedName.type];
@@ -4985,18 +4985,17 @@ enifed('ember-application/utils/validate-type', ['exports'], function (exports) 
       return;
     }
 
-    // 2.0TODO: Remove this deprecation warning
-    if (parsedName.type === 'service') {
-      Ember.deprecate('In Ember 2.0 service factories must have an `isServiceFactory` ' + ('property set to true. You registered ' + resolvedType + ' as a service ') + 'factory. Either add the `isServiceFactory` property to this factory or ' + 'extend from Ember.Service.', resolvedType.isServiceFactory);
-      return;
+    var action = validationAttributes[0];
+    var factoryFlag = validationAttributes[1];
+    var expectedType = validationAttributes[2];
+
+    if (action === 'deprecate') {
+      Ember.deprecate('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), resolvedType[factoryFlag]);
+    } else {
+      Ember.assert('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), function () {
+        return resolvedType[factoryFlag];
+      });
     }
-
-    var factoryFlag = validationAttributes[0];
-    var expectedType = validationAttributes[1];
-
-    Ember.assert('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but instead it was ' + resolvedType + '.', function () {
-      return resolvedType[factoryFlag];
-    });
   }
 
 });
@@ -8189,7 +8188,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+391c565b";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13486,7 +13485,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+4d97d612
+    @version 2.0.0-canary+391c565b
   */
 
   if ('undefined' === typeof Ember) {
@@ -13517,10 +13516,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+4d97d612'
+    @default '2.0.0-canary+391c565b'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+4d97d612';
+  Ember.VERSION = '2.0.0-canary+391c565b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21454,7 +21453,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+391c565b";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21928,7 +21927,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+391c565b";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37179,7 +37178,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+4d97d612",
+        revision: "Ember@2.0.0-canary+391c565b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41865,7 +41864,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+391c565b";
 
   /**
   @module ember

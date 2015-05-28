@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4d97d612
+ * @version   2.0.0-canary+391c565b
  */
 
 (function() {
@@ -1586,7 +1586,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
   });
 
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/enumerable_utils', 'ember-runtime/system/string', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/views/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, enumerable_utils, string, Logger, Controller, Route, Component, View, Service, EmberObject, Namespace, Application, helpers) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/views/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helpers'], function (Ember, run, Logger, Controller, Route, Component, View, Service, EmberObject, Namespace, Application, helpers) {
 
   'use strict';
 
@@ -1779,36 +1779,18 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     equal(registry.describe("model:foo"), "App.Foo", "models don't get appended at the end");
   });
 
-  QUnit.test("validating resolved objects", function () {
-    // 2.0TODO: Add service to this list
-    var types = ["route", "component", "view"];
-
-    // Valid setup
-    application.FooRoute = Route['default'].extend();
-    application.FooComponent = Component['default'].extend();
-    application.FooView = View['default'].extend();
-    application.FooService = Service['default'].extend();
-
-    enumerable_utils.forEach(types, function (type) {
-      // No errors when resolving correct object types
-      registry.resolve("" + type + ":foo");
-
-      // Unregister to clear cache
-      registry.unregister("" + type + ":foo");
-    });
-
-    // Invalid setup
+  QUnit.test("assertion for routes without isRouteFactory property", function () {
     application.FooRoute = Component['default'].extend();
-    application.FooComponent = View['default'].extend();
-    application.FooView = Service['default'].extend();
-    application.FooService = Route['default'].extend();
 
-    enumerable_utils.forEach(types, function (type) {
-      var matcher = new RegExp("to resolve to an Ember." + string.capitalize(type));
-      expectAssertion(function () {
-        registry.resolve("" + type + ":foo");
-      }, matcher, "Should assert for " + type);
-    });
+    expectAssertion(function () {
+      registry.resolve("route:foo");
+    }, /to resolve to an Ember.Route/, "Should assert");
+  });
+
+  QUnit.test("no assertion for routes that extend from Ember.Route", function () {
+    expect(0);
+    application.FooRoute = Route['default'].extend();
+    registry.resolve("route:foo");
   });
 
   QUnit.test("deprecation warning for service factories without isServiceFactory property", function () {
@@ -1821,6 +1803,30 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     expectNoDeprecation();
     application.FooService = Service['default'].extend();
     registry.resolve("service:foo");
+  });
+
+  QUnit.test("deprecation warning for view factories without isViewFactory property", function () {
+    expectDeprecation(/view factories must have an `isViewFactory` property/);
+    application.FooView = EmberObject['default'].extend();
+    registry.resolve("view:foo");
+  });
+
+  QUnit.test("no deprecation warning for view factories that extend from Ember.View", function () {
+    expectNoDeprecation();
+    application.FooView = View['default'].extend();
+    registry.resolve("view:foo");
+  });
+
+  QUnit.test("deprecation warning for component factories without isComponentFactory property", function () {
+    expectDeprecation(/component factories must have an `isComponentFactory` property/);
+    application.FooComponent = View['default'].extend();
+    registry.resolve("component:foo");
+  });
+
+  QUnit.test("no deprecation warning for component factories that extend from Ember.Component", function () {
+    expectNoDeprecation();
+    application.FooView = Component['default'].extend();
+    registry.resolve("component:foo");
   });
 
 });
@@ -47328,7 +47334,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+4d97d612", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+391c565b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
