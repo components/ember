@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+391c565b
+ * @version   2.0.0-canary+96ae8bbc
  */
 
 (function() {
@@ -9930,6 +9930,30 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
 
   QUnit.test("The `if` helper updates if an array-like object is empty or not", function () {
     testIfArray(ArrayProxy['default'].create({ content: Ember.A([]) }));
+  });
+
+  QUnit.test("The `unless` helper updates if an array-like object is empty or not", function () {
+    view = EmberView['default'].create({
+      array: ArrayProxy['default'].create({ content: Ember.A([]) }),
+
+      template: compile['default']("{{#unless view.array}}Yep{{/unless}}")
+    });
+
+    tests__utils.runAppend(view);
+
+    equal(view.$().text(), "Yep");
+
+    run['default'](function () {
+      view.get("array").pushObject(1);
+    });
+
+    equal(view.$().text(), "");
+
+    run['default'](function () {
+      view.get("array").removeObject(1);
+    });
+
+    equal(view.$().text(), "Yep");
   });
 
   QUnit.test("The `if` helper updates when the value changes", function () {
@@ -47180,7 +47204,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+391c565b", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+96ae8bbc", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
