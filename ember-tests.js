@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+96ae8bbc
+ * @version   2.0.0-canary+3f7cf55e
  */
 
 (function() {
@@ -6626,6 +6626,63 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['ember-htmlbars/compat'],
     result = precompile(template, false);
     equal(typeof result, "string");
   });
+
+});
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (system__container, Component, compile, utils) {
+
+  'use strict';
+
+  /* globals EmberDev */
+  var component, registry, container, warnings, originalWarn;
+
+  QUnit.module("ember-htmlbars: {{-html-safe}} helper", {
+    setup: function () {
+      registry = new system__container.Registry();
+      container = registry.container();
+      registry.optionsForType("helper", { instantiate: false });
+
+      warnings = [];
+      originalWarn = Ember.warn;
+      Ember.warn = function (message, test) {
+        if (!test) {
+          warnings.push(message);
+        }
+      };
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(component);
+      Ember.warn = originalWarn;
+    }
+  });
+
+  QUnit.test("adds the attribute to the element", function () {
+    component = Component['default'].create({
+      container: container,
+
+      template: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
+    });
+
+    utils.runAppend(component);
+
+    equal(component.$("div").css("display"), "none", "attribute was set");
+  });
+
+  if (!EmberDev.runningProdBuild) {
+
+    QUnit.test("adds the attribute to the element", function () {
+      component = Component['default'].create({
+        container: container,
+
+        template: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
+      });
+
+      utils.runAppend(component);
+
+      deepEqual(warnings, [], "no warnings were triggered");
+    });
+  }
 
 });
 enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-htmlbars/utils/string', 'ember-htmlbars/morphs/attr-morph', 'ember-template-compiler/system/compile'], function (Ember, run, Namespace, EmberView, EmberObject, native_array, computed, observer, system__container, property_set, utils, string, attr_morph, compile) {
@@ -47358,7 +47415,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+96ae8bbc", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+3f7cf55e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -55921,8 +55978,19 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
 
   var View, view, parentBecameVisible, childBecameVisible, grandchildBecameVisible;
   var parentBecameHidden, childBecameHidden, grandchildBecameHidden;
+  var warnings, originalWarn;
 
   QUnit.module("EmberView#isVisible", {
+    setup: function () {
+      warnings = [];
+      originalWarn = Ember.warn;
+      Ember.warn = function (message, test) {
+        if (!test) {
+          warnings.push(message);
+        }
+      };
+    },
+
     teardown: function () {
       if (view) {
         run['default'](function () {
@@ -55951,6 +56019,8 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
     run['default'](function () {
       view.remove();
     });
+
+    deepEqual(warnings, [], "no warnings were triggered");
   });
 
   QUnit.test("should hide element if isVisible is false before element is created", function () {
@@ -55987,6 +56057,8 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
     run['default'](function () {
       view.remove();
     });
+
+    deepEqual(warnings, [], "no warnings were triggered");
   });
 
   QUnit.test("should hide views when isVisible is a CP returning false", function () {
@@ -56010,6 +56082,8 @@ enifed('ember-views/tests/views/view/is_visible_test', ['ember-metal/property_ge
     run['default'](function () {
       view.remove();
     });
+
+    deepEqual(warnings, [], "no warnings were triggered");
   });
 
   QUnit.test("doesn't overwrite existing style attribute bindings", function () {

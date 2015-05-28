@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+96ae8bbc
+ * @version   2.0.0-canary+3f7cf55e
  */
 
 (function() {
@@ -5474,7 +5474,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
   });
 
 });
-enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, legacyEachWithKeywordHelper, getHelper, DOMHelper) {
+enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (Ember, ember_template_compiler, makeViewHelper, makeBoundHelper, helpers, if_unless, withHelper, locHelper, logHelper, eachHelper, eachInHelper, bindAttrClassHelper, normalizeClassHelper, concatHelper, joinClassesHelper, legacyEachWithControllerHelper, legacyEachWithKeywordHelper, getHelper, htmlSafeHelper, DOMHelper) {
 
   'use strict';
 
@@ -5496,6 +5496,7 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   if (Ember['default'].FEATURES.isEnabled("ember-htmlbars-get-helper")) {
     helpers.registerHelper("-get", getHelper['default']);
   }
+  helpers.registerHelper("-html-safe", htmlSafeHelper['default']);
 
   Ember['default'].HTMLBars = {
     _registerHelper: helpers.registerHelper,
@@ -6033,6 +6034,19 @@ enifed('ember-htmlbars/helpers/-get', ['exports'], function (exports) {
   }
 
   exports['default'] = getHelper;
+
+});
+enifed('ember-htmlbars/helpers/-html-safe', ['exports', 'htmlbars-util/safe-string'], function (exports, SafeString) {
+
+  'use strict';
+
+
+  exports['default'] = htmlSafeHelper;
+  function htmlSafeHelper(_ref) {
+    var value = _ref[0];
+
+    return new SafeString['default'](value);
+  }
 
 });
 enifed('ember-htmlbars/helpers/-join-classes', ['exports'], function (exports) {
@@ -7868,7 +7882,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+96ae8bbc";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+3f7cf55e";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13111,7 +13125,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+96ae8bbc
+    @version 2.0.0-canary+3f7cf55e
   */
 
   if ('undefined' === typeof Ember) {
@@ -13142,10 +13156,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+96ae8bbc'
+    @default '2.0.0-canary+3f7cf55e'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+96ae8bbc';
+  Ember.VERSION = '2.0.0-canary+3f7cf55e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20941,7 +20955,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+96ae8bbc";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+3f7cf55e";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21411,7 +21425,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+96ae8bbc";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+3f7cf55e";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36562,7 +36576,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+96ae8bbc",
+        revision: "Ember@2.0.0-canary+3f7cf55e",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38893,7 +38907,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
     }
 
     if (property_get.get(component, "isVisible") === false) {
-      var hiddenStyle = ["value", "display: none;"];
+      var hiddenStyle = ["subexpr", "-html-safe", ["display: none;"], []];
       var existingStyle = normalized.style;
 
       if (existingStyle) {
@@ -40015,7 +40029,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+96ae8bbc";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+3f7cf55e";
 
   /**
   @module ember
