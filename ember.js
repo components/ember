@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a8ba1eb4
+ * @version   2.0.0-canary+4d97d612
  */
 
 (function() {
@@ -8189,7 +8189,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8894,7 +8894,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
 
     props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup("renderer:-dom");
-    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : props.container && props.container.lookup("-view-registry:main");
+    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup("-view-registry:main");
 
     var component = _component.create(props);
 
@@ -13486,7 +13486,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+a8ba1eb4
+    @version 2.0.0-canary+4d97d612
   */
 
   if ('undefined' === typeof Ember) {
@@ -13517,10 +13517,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+a8ba1eb4'
+    @default '2.0.0-canary+4d97d612'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+a8ba1eb4';
+  Ember.VERSION = '2.0.0-canary+4d97d612';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21454,7 +21454,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21928,7 +21928,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37179,7 +37179,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+a8ba1eb4",
+        revision: "Ember@2.0.0-canary+4d97d612",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39983,6 +39983,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       var attrs = _attrs || {};
       var view;
       attrs.renderer = this.renderer;
+      attrs._viewRegistry = this._viewRegistry;
 
       if (maybeViewClass.isViewFactory) {
         attrs.container = this.container;
@@ -40953,9 +40954,10 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
     */
     setupHandler: function (rootElement, event, eventName) {
       var self = this;
+      var viewRegistry = this.container && this.container.lookup("-view-registry:main") || View['default'].views;
 
       rootElement.on(event + ".ember", ".ember-view", function (evt, triggeringManager) {
-        var view = View['default'].views[this.id];
+        var view = viewRegistry[this.id];
         var result = true;
 
         var manager = self.canDispatchToEventManager ? self._findNearestEventManager(view, eventName) : null;
@@ -41863,7 +41865,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+a8ba1eb4";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d97d612";
 
   /**
   @module ember

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a8ba1eb4
+ * @version   2.0.0-canary+4d97d612
  */
 
 (function() {
@@ -47174,7 +47174,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+a8ba1eb4", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4d97d612", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -60128,6 +60128,76 @@ enifed('ember/tests/homepage_example_test', ['ember', 'ember-htmlbars/compat'], 
     equal($fixture.find("li").length, 2);
     equal($fixture.find("li:nth-of-type(1)").text(), "Hello, Tom Dale!");
     equal($fixture.find("li:nth-of-type(2)").text(), "Hello, Yehuda Katz!");
+  });
+
+});
+enifed('ember/tests/integration/multiple-app-test', ['ember-template-compiler/system/compile', 'ember-metal/run_loop'], function (compile, run) {
+
+  'use strict';
+
+  var App1, App2, actions;
+
+  function startApp(rootElement) {
+    var application;
+
+    run['default'](function () {
+      application = Ember.Application.create({
+        rootElement: rootElement
+      });
+      application.deferReadiness();
+
+      application.Router.reopen({
+        location: "none"
+      });
+
+      var registry = application.__container__._registry;
+
+      registry.register("component:special-button", Ember.Component.extend({
+        actions: {
+          doStuff: function () {
+            actions.push(rootElement);
+          }
+        }
+      }));
+      registry.register("template:application", compile['default']("{{outlet}}", { moduleName: "application" }));
+      registry.register("template:index", compile['default']("<h1>Node 1</h1>{{special-button}}", { moduleName: "index" }));
+      registry.register("template:components/special-button", compile['default']("<button class='do-stuff' {{action 'doStuff'}}>Button</button>", { moduleName: "components/special-button" }));
+    });
+
+    return application;
+  }
+
+  function handleURL(application, path) {
+    var router = application.__container__.lookup("router:main");
+    return run['default'](router, "handleURL", path);
+  }
+
+  QUnit.module("View Integration", {
+    setup: function () {
+      actions = [];
+      Ember.$("#qunit-fixture").html("<div id=\"app-1\"></div><div id=\"app-2\"></div>");
+      App1 = startApp("#app-1");
+      App2 = startApp("#app-2");
+    },
+
+    teardown: function () {
+      run['default'](App1, "destroy");
+      run['default'](App2, "destroy");
+      App1 = App2 = null;
+    }
+  });
+
+  QUnit.test("booting multiple applications can properly handle events", function (assert) {
+    run['default'](App1, "advanceReadiness");
+    run['default'](App2, "advanceReadiness");
+
+    handleURL(App1, "/");
+    handleURL(App2, "/");
+
+    Ember.$("#app-2 .do-stuff").click();
+    Ember.$("#app-1 .do-stuff").click();
+
+    assert.deepEqual(actions, ["#app-2", "#app-1"]);
   });
 
 });
