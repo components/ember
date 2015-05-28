@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0.1cad2ea4
+ * @version   1.12.0.69b88062
  */
 
 (function() {
@@ -1274,7 +1274,7 @@ enifed('ember-application/system/resolver.jshint', function () {
   });
 
 });
-enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, jQuery, compile) {
+enifed('ember-application/tests/system/application_test', ['ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (Ember, run, Application, DefaultResolver, Router, View, Controller, NoneLocation, EmberObject, EmberRoute, jQuery, compile) {
 
   'use strict';
 
@@ -1390,6 +1390,40 @@ enifed('ember-application/tests/system/application_test', ['ember-metal/core', '
     });
 
     equal(jQuery['default']("#qunit-fixture h1").text(), "Hi from index");
+  });
+
+  QUnit.test("ready hook is called before routing begins", function () {
+    expect(2);
+
+    run['default'](function () {
+      function registerRoute(application, name, callback) {
+        var route = EmberRoute['default'].extend({
+          activate: callback
+        });
+
+        application.register("route:" + name, route);
+      }
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          registerRoute(this, "index", function () {
+            ok(true, "last-minite route is activated");
+          });
+        }
+      });
+
+      app = MyApplication.create({
+        rootElement: "#qunit-fixture"
+      });
+
+      app.Router.reopen({
+        location: "none"
+      });
+
+      registerRoute(app, "application", function () {
+        ok(true, "normal route is activated");
+      });
+    });
   });
 
   QUnit.test("initialize application via initialize call", function () {
@@ -3035,6 +3069,33 @@ enifed('ember-application/tests/system/instance_initializers_test', ['ember-meta
       });
     });
 
+    QUnit.test("initializers are run before ready hook", function () {
+      expect(2);
+
+      var readyWasCalled = false;
+
+      var MyApplication = Application['default'].extend({
+        ready: function () {
+          ok(true, "ready is called");
+          readyWasCalled = true;
+        }
+      });
+
+      MyApplication.instanceInitializer({
+        name: "initializer",
+        initialize: function () {
+          ok(!readyWasCalled, "ready is not yet called");
+        }
+      });
+
+      run['default'](function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: "#qunit-fixture"
+        });
+      });
+    });
+
     if (initializeContextFeatureEnabled) {
       QUnit.test("initializers should be executed in their own context", function () {
         expect(1);
@@ -4564,10 +4625,10 @@ enifed('ember-dev/test-helper/setup-qunit', ['exports'], function (exports) {
 
   'use strict';
 
-  /* globals QUnit */
+
 
   exports['default'] = setupQUnit;
-
+  /* globals QUnit */
   function setupQUnit(assertion, _qunitGlobal) {
     var qunitGlobal = QUnit;
 
@@ -17668,7 +17729,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0.1cad2ea4",
+        revision: "Ember@1.12.0.69b88062",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -53325,7 +53386,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0.1cad2ea4", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0.69b88062", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
