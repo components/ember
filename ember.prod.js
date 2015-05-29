@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cb5b850e
+ * @version   2.0.0-canary+1b5adaa6
  */
 
 (function() {
@@ -7882,7 +7882,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+cb5b850e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1b5adaa6";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13125,7 +13125,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+cb5b850e
+    @version 2.0.0-canary+1b5adaa6
   */
 
   if ('undefined' === typeof Ember) {
@@ -13156,10 +13156,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+cb5b850e'
+    @default '2.0.0-canary+1b5adaa6'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+cb5b850e';
+  Ember.VERSION = '2.0.0-canary+1b5adaa6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20955,7 +20955,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+cb5b850e";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+1b5adaa6";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21425,7 +21425,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+cb5b850e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1b5adaa6";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36578,7 +36578,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+cb5b850e",
+        revision: "Ember@2.0.0-canary+1b5adaa6",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40031,7 +40031,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+cb5b850e";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1b5adaa6";
 
   /**
   @module ember
@@ -41620,9 +41620,9 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     MyView = Ember.View.extend({
       classNameBindings: ['propertyA', 'propertyB'],
       propertyA: 'from-a',
-      propertyB: function() {
+      propertyB: Ember.computed(function() {
         if (someLogic) { return 'from-b'; }
-      }.property()
+      })
     });
     ```
 
@@ -41835,13 +41835,13 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
     MyTextInput = Ember.View.extend({
       tagName: 'input',
       attributeBindings: ['disabled'],
-      disabled: function() {
+      disabled: Ember.computed(function() {
         if (someLogic) {
           return true;
         } else {
           return false;
         }
-      }.property()
+      })
     });
     ```
 
@@ -41957,9 +41957,9 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
 
     aController = Ember.Object.create({
       firstName: 'Barry',
-      excitedGreeting: function() {
-        return this.get("content.firstName") + "!!!"
-      }.property()
+      excitedGreeting: Ember.computed('content.firstName', function() {
+        return this.get('content.firstName') + '!!!';
+      })
     });
 
     aView = AView.create({
@@ -42554,10 +42554,10 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
       instantiated:
        ```javascript
         export default Ember.Component.extend({
-          setElementId: function() {
+          setElementId: Ember.on('init', function() {
             var index = this.get('index');
             this.set('elementId', 'component-id' + index);
-          }.on('init')
+          })
         });
       ```
        @property elementId
