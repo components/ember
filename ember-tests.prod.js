@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0.60a08f9f
+ * @version   1.12.0.feaf31a1
  */
 
 (function() {
@@ -17746,7 +17746,7 @@ enifed('ember-htmlbars/tests/system/render_view_test', ['ember-runtime/tests/uti
     view = EmberView['default'].create({
       template: {
         isHTMLBars: true,
-        revision: "Ember@1.12.0.60a08f9f",
+        revision: "Ember@1.12.0.feaf31a1",
         render: function (view, env, contextualElement, blockArguments) {
           for (var i = 0, l = keyNames.length; i < l; i++) {
             var keyName = keyNames[i];
@@ -32688,6 +32688,22 @@ enifed('ember-routing/tests/location/auto_location_test', ['ember-metal/property
     expectAssertion(function () {
       location.detect();
     }, expectedMsg);
+  });
+
+  QUnit.test("AutoLocation provides its rootURL to the concreteImplementation", function () {
+    expect(1);
+    var browserLocation = mockBrowserLocation({
+      pathname: "/some/subdir/derp"
+    });
+    var browserHistory = mockBrowserHistory();
+
+    location = createLocation(browserLocation, browserHistory);
+    location.rootURL = "/some/subdir/";
+
+    location.detect();
+
+    var concreteLocation = property_get.get(location, "concreteImplementation");
+    equal(location.rootURL, concreteLocation.rootURL);
   });
 
   QUnit.test("getHistoryPath() should return a normalized, HistoryLocation-supported path", function () {
@@ -53249,7 +53265,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.revision, "Ember@1.12.0.60a08f9f", "revision is included in generated template");
+    equal(actual.revision, "Ember@1.12.0.feaf31a1", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
