@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e88ed220
+ * @version   2.0.0-canary+7e9cec43
  */
 
 (function() {
@@ -47108,23 +47108,23 @@ enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-
 
     throws(function () {
       ember_template_compiler.compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
-    }, /You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\ ./);
+    }, /You cannot use keyword \(`{{#each foo in bar}}`\) and block params \(`{{#each bar as \|foo\|}}`\) at the same time\ ./);
   });
 
-  QUnit.test('using {{each in}} syntax is deprecated for blocks', function () {
+  QUnit.test('using {{#each in}} syntax is deprecated for blocks', function () {
     expect(1);
 
     expectDeprecation(function () {
       ember_template_compiler.compile('\n\n   {{#each foo in model}}{{/each}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{each item in model}}\' form of the {{each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{each model as |item|}}\').');
+    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
   });
 
-  QUnit.test('using {{each in}} syntax is deprecated for non-block statemens', function () {
+  QUnit.test('using {{#each in}} syntax is deprecated for non-block statemens', function () {
     expect(1);
 
     expectDeprecation(function () {
       ember_template_compiler.compile('\n\n   {{each foo in model}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{each item in model}}\' form of the {{each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{each model as |item|}}\').');
+    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
   });
 
 });
@@ -47300,7 +47300,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+e88ed220", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+7e9cec43", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

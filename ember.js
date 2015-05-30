@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e88ed220
+ * @version   2.0.0-canary+7e9cec43
  */
 
 (function() {
@@ -8188,7 +8188,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7e9cec43";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13485,7 +13485,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+e88ed220
+    @version 2.0.0-canary+7e9cec43
   */
 
   if ('undefined' === typeof Ember) {
@@ -13516,10 +13516,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+e88ed220'
+    @default '2.0.0-canary+7e9cec43'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+e88ed220';
+  Ember.VERSION = '2.0.0-canary+7e9cec43';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21453,7 +21453,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+7e9cec43";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21927,7 +21927,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7e9cec43";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36478,7 +36478,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
           moduleInfo = calculateLocationDisplay['default'](moduleName, node.program.loc);
 
           if (node.program.blockParams.length) {
-            throw new Error("You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time " + moduleInfo + ".");
+            throw new Error("You cannot use keyword (`{{#each foo in bar}}`) and block params (`{{#each bar as |foo|}}`) at the same time " + moduleInfo + ".");
           }
 
           node.program.blockParams = [keyword];
@@ -36488,7 +36488,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
           node.hash.pairs.push(b.pair("keyword", b.string(keyword)));
         }
 
-        Ember['default'].deprecate("Using the '{{each item in model}}' form of the {{each}} helper " + moduleInfo + "is deprecated. " + "Please use the block param form instead ('{{each model as |item|}}').", false, { url: "http://emberjs.com/guides/deprecations/#toc_code-in-code-syntax-for-code-each-code" });
+        Ember['default'].deprecate("Using the '{{#each item in model}}' form of the {{#each}} helper " + moduleInfo + "is deprecated. " + "Please use the block param form instead ('{{#each model as |item|}}').", false, { url: "http://emberjs.com/guides/deprecations/#toc_code-in-code-syntax-for-code-each-code" });
       }
     });
 
@@ -37180,7 +37180,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+e88ed220",
+        revision: "Ember@2.0.0-canary+7e9cec43",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41866,7 +41866,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7e9cec43";
 
   /**
   @module ember
