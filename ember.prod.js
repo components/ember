@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+990820ee
+ * @version   2.0.0-canary+e88ed220
  */
 
 (function() {
@@ -7566,7 +7566,7 @@ enifed('ember-htmlbars/keywords/each', ['exports', 'ember-runtime/controllers/ar
   }
 
 });
-enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/platform/create', 'ember-metal/merge', 'htmlbars-util/safe-string'], function (exports, Stream, utils, create, merge, SafeString) {
+enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/platform/create', 'ember-metal/merge'], function (exports, Stream, utils, create, merge) {
 
   'use strict';
 
@@ -7586,21 +7586,6 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/streams/stream', 
       }
 
       return true;
-    };
-
-    var workaroundValue = function workaroundValue(value) {
-      // this is used to compensate for the following line of code
-      //     if (result && result.value) {
-      // in the 'inline' hook. If the stream returns a falsy value after
-      // previously returning a truthy value, this line causes the value not
-      // to be updated
-
-      // so for falsey values we need to enforce something that evalutes to
-      // truthy but returns an empty string.
-
-      // this can be removed if the `inline` hook handles it.
-
-      return value || new SafeString['default']("");
     };
 
     var GetStream = function GetStream(obj, path) {
@@ -7638,7 +7623,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/streams/stream', 
 
       compute: function () {
         this.updateValueDependency();
-        return workaroundValue(this.valueDep.getValue());
+        return this.valueDep.getValue();
       },
 
       setValue: function (value) {
@@ -7882,7 +7867,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+990820ee";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13125,7 +13110,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+990820ee
+    @version 2.0.0-canary+e88ed220
   */
 
   if ('undefined' === typeof Ember) {
@@ -13156,10 +13141,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+990820ee'
+    @default '2.0.0-canary+e88ed220'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+990820ee';
+  Ember.VERSION = '2.0.0-canary+e88ed220';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20955,7 +20940,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+990820ee";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21425,7 +21410,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+990820ee";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36578,7 +36563,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+990820ee",
+        revision: "Ember@2.0.0-canary+e88ed220",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40031,7 +40016,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+990820ee";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+e88ed220";
 
   /**
   @module ember
