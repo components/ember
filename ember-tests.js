@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1b5adaa6
+ * @version   2.0.0-canary+990820ee
  */
 
 (function() {
@@ -10717,6 +10717,29 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
 
       run['default'](function () {
         view.set("conditional", []);
+      });
+
+      equal(view.$().text(), "falsy");
+    });
+
+    QUnit.test("`if` helper with inline form: updates when given a falsey second argument", function () {
+      view = EmberView['default'].create({
+        conditional: false,
+        template: compile['default']("{{if view.conditional \"\" \"falsy\"}}")
+      });
+
+      tests__utils.runAppend(view);
+
+      equal(view.$().text(), "falsy");
+
+      run['default'](function () {
+        view.set("conditional", true);
+      });
+
+      equal(view.$().text(), "");
+
+      run['default'](function () {
+        view.set("conditional", false);
       });
 
       equal(view.$().text(), "falsy");
@@ -47431,7 +47454,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+1b5adaa6", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+990820ee", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
