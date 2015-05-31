@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7e9cec43
+ * @version   2.0.0-canary+f9328616
  */
 
 (function() {
@@ -5265,7 +5265,8 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { url: "javascript://example.com" },
             template: subject.unquotedTemplate
           });
-          utils.runAppend(view);
+
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -5275,7 +5276,8 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { url: "javascript://example.com" },
             template: subject.quotedTemplate
           });
-          utils.runAppend(view);
+
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -5287,7 +5289,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
           });
 
           try {
-            utils.runAppend(view);
+            view.createElement();
 
             equal(view.element.firstChild.getAttribute(subject.attr), "javascript://example.com", "attribute is output");
           } catch (e) {
@@ -5301,7 +5303,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { protocol: "javascript:", path: "//example.com" },
             template: subject.multipartTemplate
           });
-          utils.runAppend(view);
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -47300,7 +47302,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+7e9cec43", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+f9328616", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
