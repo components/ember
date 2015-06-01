@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "1.12.0.feaf31a1",
+  "version": "1.12.1",
   "main": [
     "./ember.debug.js"
   ],
