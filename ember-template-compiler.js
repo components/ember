@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+958f913c
+ * @version   1.13.0-beta.2+70a206e1
  */
 
 (function() {
@@ -2974,7 +2974,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2+958f913c
+    @version 1.13.0-beta.2+70a206e1
   */
 
   if ('undefined' === typeof Ember) {
@@ -3005,10 +3005,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+958f913c'
+    @default '1.13.0-beta.2+70a206e1'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2+958f913c';
+  Ember.VERSION = '1.13.0-beta.2+70a206e1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10760,7 +10760,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
           moduleInfo = calculateLocationDisplay['default'](moduleName, node.program.loc);
 
           if (node.program.blockParams.length) {
-            throw new Error("You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time " + moduleInfo + ".");
+            throw new Error("You cannot use keyword (`{{#each foo in bar}}`) and block params (`{{#each bar as |foo|}}`) at the same time " + moduleInfo + ".");
           }
 
           node.program.blockParams = [keyword];
@@ -10770,7 +10770,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
           node.hash.pairs.push(b.pair("keyword", b.string(keyword)));
         }
 
-        Ember['default'].deprecate("Using the '{{each item in model}}' form of the {{each}} helper " + moduleInfo + "is deprecated. " + "Please use the block param form instead ('{{each model as |item|}}').", false, { url: "http://emberjs.com/guides/deprecations/#toc_code-in-code-syntax-for-code-each-code" });
+        Ember['default'].deprecate("Using the '{{#each item in model}}' form of the {{#each}} helper " + moduleInfo + "is deprecated. " + "Please use the block param form instead ('{{#each model as |item|}}').", false, { url: "http://emberjs.com/guides/deprecations/#toc_code-in-code-syntax-for-code-each-code" });
       }
     });
 
@@ -11459,7 +11459,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2+958f913c",
+        revision: "Ember@1.13.0-beta.2+70a206e1",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13704,7 +13704,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     var helper = env.hooks.lookupHelper(env, scope, path);
     var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
 
-    if (result && result.value) {
+    if (result && "value" in result) {
       var value = result.value;
       if (morph.lastValue !== value) {
         morph.setContent(value);
@@ -13885,7 +13885,7 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   function subexpr(env, scope, helperName, params, hash) {
     var helper = env.hooks.lookupHelper(env, scope, helperName);
     var result = env.hooks.invokeHelper(null, env, scope, null, params, hash, helper, {});
-    if (result && result.value) {
+    if (result && "value" in result) {
       return result.value;
     }
   }

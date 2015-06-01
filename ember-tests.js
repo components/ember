@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+958f913c
+ * @version   1.13.0-beta.2+70a206e1
  */
 
 (function() {
@@ -5158,7 +5158,8 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { url: "javascript://example.com" },
             template: subject.unquotedTemplate
           });
-          utils.runAppend(view);
+
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -5168,7 +5169,8 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { url: "javascript://example.com" },
             template: subject.quotedTemplate
           });
-          utils.runAppend(view);
+
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -5180,7 +5182,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
           });
 
           try {
-            utils.runAppend(view);
+            view.createElement();
 
             equal(view.element.firstChild.getAttribute(subject.attr), "javascript://example.com", "attribute is output");
           } catch (e) {
@@ -5194,7 +5196,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['ember-views/views/vie
             context: { protocol: "javascript:", path: "//example.com" },
             template: subject.multipartTemplate
           });
-          utils.runAppend(view);
+          view.createElement();
 
           equal(view.element.firstChild.getAttribute(subject.attr), "unsafe:javascript://example.com", "attribute is output");
         });
@@ -10185,6 +10187,29 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['ember-metal/run_loop', '
 
       run['default'](function () {
         view.set("conditional", []);
+      });
+
+      equal(view.$().text(), "falsy");
+    });
+
+    QUnit.test("`if` helper with inline form: updates when given a falsey second argument", function () {
+      view = EmberView['default'].create({
+        conditional: false,
+        template: compile['default']("{{if view.conditional \"\" \"falsy\"}}")
+      });
+
+      tests__utils.runAppend(view);
+
+      equal(view.$().text(), "falsy");
+
+      run['default'](function () {
+        view.set("conditional", true);
+      });
+
+      equal(view.$().text(), "");
+
+      run['default'](function () {
+        view.set("conditional", false);
       });
 
       equal(view.$().text(), "falsy");
@@ -46310,23 +46335,23 @@ enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-
 
     throws(function () {
       ember_template_compiler.compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
-    }, /You cannot use keyword \(`{{each foo in bar}}`\) and block params \(`{{each bar as \|foo\|}}`\) at the same time\ ./);
+    }, /You cannot use keyword \(`{{#each foo in bar}}`\) and block params \(`{{#each bar as \|foo\|}}`\) at the same time\ ./);
   });
 
-  QUnit.test('using {{each in}} syntax is deprecated for blocks', function () {
+  QUnit.test('using {{#each in}} syntax is deprecated for blocks', function () {
     expect(1);
 
     expectDeprecation(function () {
       ember_template_compiler.compile('\n\n   {{#each foo in model}}{{/each}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{each item in model}}\' form of the {{each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{each model as |item|}}\').');
+    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
   });
 
-  QUnit.test('using {{each in}} syntax is deprecated for non-block statemens', function () {
+  QUnit.test('using {{#each in}} syntax is deprecated for non-block statemens', function () {
     expect(1);
 
     expectDeprecation(function () {
       ember_template_compiler.compile('\n\n   {{each foo in model}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{each item in model}}\' form of the {{each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{each model as |item|}}\').');
+    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
   });
 
 });
@@ -46502,7 +46527,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+958f913c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+70a206e1", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
