@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.12.0"
+        "version": "1.12.1"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -5045,7 +5045,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 303,
+            "line": 305,
             "description": "Build and configure the registry for the current application.",
             "access": "private",
             "tagname": "",
@@ -5062,7 +5062,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 316,
+            "line": 318,
             "description": "Create a container for the current application's registry.",
             "access": "private",
             "tagname": "",
@@ -5079,12 +5079,12 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 347,
+            "line": 349,
             "description": "Automatically initialize the application once the DOM has\nbecome ready.\n\nThe initialization itself is scheduled on the actions queue\nwhich ensures that application loading finishes before\nbooting.\n\nIf you are asynchronously loading code, you should call\n`deferReadiness()` to defer booting, and then call\n`advanceReadiness()` once all of your code has finished\nloading.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
-            "name": "scheduleInitialize",
+            "name": "waitForDOMReady",
             "class": "Ember.Application",
             "module": "ember",
             "submodule": "ember-application",
@@ -5092,7 +5092,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 371,
+            "line": 373,
             "description": "Use this to defer readiness until some condition is true.\n\nExample:\n\n```javascript\nvar App = Ember.Application.create();\n\nApp.deferReadiness();\n\n// Ember.$ is a reference to the jQuery object/function\nEmber.$.getJSON('/auth-token', function(token) {\n  App.token = token;\n  App.advanceReadiness();\n});\n```\n\nThis allows you to perform asynchronous setup logic and defer\nbooting your application until the setup has finished.\n\nHowever, if the setup requires a loading UI, it might be better\nto use the router for this purpose.",
             "itemtype": "method",
             "name": "deferReadiness",
@@ -5103,7 +5103,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 402,
+            "line": 404,
             "description": "Call `advanceReadiness` after any asynchronous setup logic has completed.\nEach call to `deferReadiness` must be matched by a call to `advanceReadiness`\nor the application will never become ready and routing will not begin.",
             "itemtype": "method",
             "name": "advanceReadiness",
@@ -5117,7 +5117,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 419,
+            "line": 421,
             "description": "Registers a factory that can be used for dependency injection (with\n`App.inject`) or for service lookup. Each factory is registered with\na full name including two parts: `type:name`.\n\nA simple example:\n\n```javascript\nvar App = Ember.Application.create();\n\nApp.Orange = Ember.Object.extend();\nApp.register('fruit:favorite', App.Orange);\n```\n\nEmber will resolve factories from the `App` namespace automatically.\nFor example `App.CarsController` will be discovered and returned if\nan application requests `controller:cars`.\n\nAn example of registering a controller with a non-standard name:\n\n```javascript\nvar App = Ember.Application.create();\nvar Session = Ember.Controller.extend();\n\nApp.register('controller:session', Session);\n\n// The Session controller can now be treated like a normal controller,\n// despite its non-standard name.\nApp.ApplicationController = Ember.Controller.extend({\n  needs: ['session']\n});\n```\n\nRegistered factories are **instantiated** by having `create`\ncalled on them. Additionally they are **singletons**, each time\nthey are looked up they return the same instance.\n\nSome examples modifying that default behavior:\n\n```javascript\nvar App = Ember.Application.create();\n\nApp.Person = Ember.Object.extend();\nApp.Orange = Ember.Object.extend();\nApp.Email = Ember.Object.extend();\nApp.session = Ember.Object.create();\n\nApp.register('model:user', App.Person, { singleton: false });\nApp.register('fruit:favorite', App.Orange);\nApp.register('communication:main', App.Email, { singleton: false });\nApp.register('session', App.session, { instantiate: false });\n```",
             "itemtype": "method",
             "name": "register",
@@ -5145,7 +5145,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 481,
+            "line": 483,
             "description": "Define a dependency injection onto a specific factory or all factories\nof a type.\n\nWhen Ember instantiates a controller, view, or other framework component\nit can attach a dependency to that component. This is often used to\nprovide services to a set of framework components.\n\nAn example of providing a session object to all controllers:\n\n```javascript\nvar App = Ember.Application.create();\nvar Session = Ember.Object.extend({ isAuthenticated: false });\n\n// A factory must be registered before it can be injected\nApp.register('session:main', Session);\n\n// Inject 'session:main' onto all factories of the type 'controller'\n// with the name 'session'\nApp.inject('controller', 'session', 'session:main');\n\nApp.IndexController = Ember.Controller.extend({\n  isLoggedIn: Ember.computed.alias('session.isAuthenticated')\n});\n```\n\nInjections can also be performed on specific factories.\n\n```javascript\nApp.inject(<full_name or type>, <property name>, <full_name>)\nApp.inject('route', 'source', 'source:main')\nApp.inject('route:application', 'email', 'model:email')\n```\n\nIt is important to note that injections can only be performed on\nclasses that are instantiated by Ember itself. Instantiating a class\ndirectly (via `create` or `new`) bypasses the dependency injection\nsystem.\n\n**Note:** Ember-Data instantiates its models in a unique manner, and consequently\ninjections onto models (or all models) will not work as expected. Injections\non models can be enabled by setting `Ember.MODEL_FACTORY_INJECTIONS`\nto `true`.",
             "itemtype": "method",
             "name": "inject",
@@ -5173,7 +5173,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 534,
+            "line": 536,
             "description": "Calling initialize manually is not supported.\n\nPlease see Ember.Application#advanceReadiness and\nEmber.Application#deferReadiness.",
             "access": "private",
             "tagname": "",
@@ -5187,12 +5187,12 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 548,
+            "line": 550,
             "description": "Initialize the application. This happens automatically.\n\nRun any initializers and run the application load hook. These hooks may\nchoose to defer readiness. For example, an authentication hook might want\nto defer readiness until the auth token has been retrieved.",
             "access": "private",
             "tagname": "",
             "itemtype": "method",
-            "name": "_initialize",
+            "name": "domReady",
             "class": "Ember.Application",
             "module": "ember",
             "submodule": "ember-application",
@@ -5200,7 +5200,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 585,
+            "line": 583,
             "description": "Reset the application. This is typically used only in tests. It cleans up\nthe application in the following order:\n\n1. Deactivate existing routes\n2. Destroy all objects in the container\n3. Create a new application container\n4. Re-route to the existing url\n\nTypical Example:\n\n```javascript\nvar App;\n\nrun(function() {\n  App = Ember.Application.create();\n});\n\nmodule('acceptance test', {\n  setup: function() {\n    App.reset();\n  }\n});\n\ntest('first test', function() {\n  // App is freshly reset\n});\n\ntest('second test', function() {\n  // App is again freshly reset\n});\n```\n\nAdvanced Example:\n\nOccasionally you may want to prevent the app from initializing during\nsetup. This could enable extra configuration, or enable asserting prior\nto the app becoming ready.\n\n```javascript\nvar App;\n\nrun(function() {\n  App = Ember.Application.create();\n});\n\nmodule('acceptance test', {\n  setup: function() {\n    run(function() {\n      App.reset();\n      App.deferReadiness();\n    });\n  }\n});\n\ntest('first test', function() {\n  ok(true, 'something before app is initialized');\n\n  run(function() {\n    App.advanceReadiness();\n  });\n\n  ok(true, 'something after app is initialized');\n});\n```",
             "itemtype": "method",
             "name": "reset",
@@ -5211,7 +5211,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 671,
+            "line": 667,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5223,7 +5223,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 712,
+            "line": 708,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5235,8 +5235,8 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 737,
-            "description": "Called when the Application has become ready.\nThe call will be delayed until the DOM has become ready.",
+            "line": 734,
+            "description": "Called when the Application has become ready, immediately before routing\nbegins. The call will be delayed until the DOM has become ready.",
             "itemtype": "event",
             "name": "ready",
             "class": "Ember.Application",
@@ -5246,7 +5246,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 745,
+            "line": 742,
             "deprecated": true,
             "deprecationMessage": "Use 'Resolver' instead\nSet this to provide an alternate class to `Ember.DefaultResolver`",
             "itemtype": "property",
@@ -5258,7 +5258,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 754,
+            "line": 751,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "itemtype": "property",
             "name": "resolver",
@@ -5269,7 +5269,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 774,
+            "line": 771,
             "itemtype": "method",
             "name": "then",
             "access": "private",
@@ -5282,7 +5282,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 800,
+            "line": 797,
             "description": "Creates a new instance of the application and instructs it to route to the\nspecified initial URL. This method returns a promise that will be resolved\nonce rendering is complete. That promise is resolved with the instance.\n\n```js\nApp.visit('/users').then(function(instance) {\n  var view = instance.view;\n  view.appendTo('#qunit-test-fixtures');\n});\n     ```",
             "itemtype": "method",
             "name": "visit",
@@ -5295,7 +5295,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 839,
+            "line": 836,
             "description": "Initializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the initializer is registered.\nThis must be a unique name, as trying to register two initializers with the\nsame name will result in an error.\n\n```javascript\nEmber.Application.initializer({\n  name: 'namedInitializer',\n\n  initialize: function(container, application) {\n    Ember.debug('Running namedInitializer!');\n  }\n});\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\nAn example of ordering initializers, we create an initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'first',\n\n  initialize: function(container, application) {\n    Ember.debug('First initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n```\n\nWe add another initializer named `second`, specifying that it should run\nafter the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'second',\n  after: 'first',\n\n  initialize: function(container, application) {\n    Ember.debug('Second initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nAfterwards we add a further initializer named `pre`, this time specifying\nthat it should run before the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'pre',\n  before: 'first',\n\n  initialize: function(container, application) {\n    Ember.debug('Pre initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nFinally we add an initializer named `post`, specifying it should run after\nboth the `first` and the `second` initializers:\n\n```javascript\nEmber.Application.initializer({\n  name: 'post',\n  after: ['first', 'second'],\n\n  initialize: function(container, application) {\n    Ember.debug('Post initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n// DEBUG: Post initializer!\n```\n\n* `initialize` is a callback function that receives two arguments, `container`\nand `application` on which you can operate.\n\nExample of using `container` to preload data into the store:\n\n```javascript\nEmber.Application.initializer({\n  name: 'preload-data',\n\n  initialize: function(container, application) {\n    var store = container.lookup('store:main');\n\n    store.pushPayload(preloadedData);\n  }\n});\n```\n\nExample of using `application` to register an adapter:\n\n```javascript\nEmber.Application.initializer({\n  name: 'api-adapter',\n\n  initialize: function(container, application) {\n    application.register('api-adapter:main', ApiAdapter);\n  }\n});\n```",
             "itemtype": "method",
             "name": "initializer",
@@ -5313,7 +5313,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 964,
+            "line": 961,
             "description": "This creates a registry with the default Ember naming conventions.\n\nIt also configures the registry:\n\n* registered views are created every time they are looked up (they are\n  not singletons)\n* registered templates are not factories; the registered value is\n  returned directly.\n* the router receives the application as its `namespace` property\n* all controllers receive the router as their `target` and `controllers`\n  properties\n* all controllers receive the application as their `namespace` property\n* the application view receives the application controller as its\n  `controller` property\n* the application view receives the application template as its\n  `defaultTemplate` property",
             "access": "private",
             "tagname": "",
@@ -5338,7 +5338,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1055,
+            "line": 1052,
             "description": "This function defines the default lookup rules for container lookups:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after classifying the name.\n  For example, `controller:post` looks up `App.PostController` by default.\n* if the default lookup fails, look for registered classes on the container\n\nThis allows the application to register default injections in the container\nthat could be overridden by the normal naming convention.",
             "access": "private",
             "tagname": "",
@@ -9716,7 +9716,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 23,
+            "line": 24,
             "description": "Gets the value of a property on an object. If the property is computed,\nthe function will be invoked. If the property is not defined but the\nobject implements the `unknownProperty` method then that will be invoked.\n\nIf you plan to run on IE8 and older browsers then you should use this\nmethod anytime you want to retrieve a property on an object that you don't\nknow for sure is private. (Properties beginning with an underscore '_'\nare considered private.)\n\nOn all newer browsers, you only need to use this method to retrieve\nproperties if the property might not be defined on the object and you want\nto respect the `unknownProperty` handler. Otherwise you can ignore this\nmethod.\n\nNote that if the object itself is `undefined`, this method will throw\nan error.",
             "itemtype": "method",
             "name": "get",
@@ -9741,7 +9741,7 @@
         },
         {
             "file": "packages/ember-metal/lib/property_get.js",
-            "line": 96,
+            "line": 97,
             "description": "Normalizes a target/path pair to reflect that actual target/path that should\nbe observed, etc. This takes into account passing in global property\npaths (i.e. a path beginning with a capital letter not defined on the\ntarget).",
             "access": "private",
             "tagname": "",
@@ -11611,7 +11611,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 163,
+            "line": 165,
             "description": "Given the browser's `location`, `history` and `userAgent`, and a configured\nroot URL, this function detects whether the browser supports the [History\nAPI](https://developer.mozilla.org/en-US/docs/Web/API/History) and returns a\nstring representing the Location object to use based on its determination.\n\nFor example, if the page loads in an evergreen browser, this function would\nreturn the string \"history\", meaning the history API and thus HistoryLocation\nshould be used. If the page is loaded in IE8, it will return the string\n\"hash,\" indicating that the History API should be simulated by manipulating the\nhash portion of the location.",
             "class": "Ember.AutoLocation",
             "module": "ember",
@@ -11620,7 +11620,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 228,
+            "line": 230,
             "access": "private",
             "tagname": "Returns the current path as it should appear for HistoryLocation supported\nbrowsers. This may very well differ from the real current path (e.g. if it\nstarts off as a hashed URL)",
             "class": "Ember.AutoLocation",
@@ -11630,7 +11630,7 @@
         },
         {
             "file": "packages/ember-routing/lib/location/auto_location.js",
-            "line": 272,
+            "line": 274,
             "access": "private",
             "tagname": "Returns the current path as it should appear for HashLocation supported\nbrowsers. This may very well differ from the real current path.",
             "itemtype": "method",
@@ -17949,7 +17949,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 234,
+            "line": 236,
             "description": "Loads a route, sets up any controllers, and renders any templates associated\nwith the route as though a real user had triggered the route change while\nusing your app.\n\nExample:\n\n```javascript\nvisit('posts/index').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "visit",
@@ -17970,7 +17970,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 253,
+            "line": 255,
             "description": "Clicks an element and triggers any actions triggered by the element's `click`\nevent.\n\nExample:\n\n```javascript\nclick('.some-jQuery-selector').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "click",
@@ -17991,7 +17991,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 272,
+            "line": 274,
             "description": "Checks a checkbox. Ensures the presence of the `checked` attribute\n\nExample:\n\n```javascript\ncheck('#remember-me').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "check",
@@ -18012,7 +18012,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 290,
+            "line": 292,
             "description": "Unchecks a checkbox. Ensures the absence of the `checked` attribute\n\nExample:\n\n```javascript\nuncheck('#remember-me').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "check",
@@ -18033,7 +18033,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 308,
+            "line": 310,
             "description": "Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode\n\nExample:\n\n```javascript\nkeyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {\n // assert something\n});\n```",
             "itemtype": "method",
             "name": "keyEvent",
@@ -18065,7 +18065,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 328,
+            "line": 330,
             "description": "Fills in an input element with some text.\n\nExample:\n\n```javascript\nfillIn('#email', 'you@example.com').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "fillIn",
@@ -18091,7 +18091,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 347,
+            "line": 349,
             "description": "Finds an element in the context of the app's container element. A simple alias\nfor `app.$(selector)`.\n\nExample:\n\n```javascript\nvar $el = find('.my-selector');\n```",
             "itemtype": "method",
             "name": "find",
@@ -18112,7 +18112,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 363,
+            "line": 365,
             "description": "Like `find`, but throws an error if the element selector returns no results.\n\nExample:\n\n```javascript\nvar $el = findWithAssert('.doesnt-exist'); // throws error\n```",
             "itemtype": "method",
             "name": "findWithAssert",
@@ -18137,7 +18137,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 380,
+            "line": 382,
             "description": "Causes the run loop to process any pending events. This is used to ensure that\nany async operations from other helpers (or your assertions) have been processed.\n\nThis is most often used as the return value for the helper functions (see 'click',\n'fillIn','visit',etc).\n\nExample:\n\n```javascript\nEmber.Test.registerAsyncHelper('loginUser', function(app, username, password) {\n  visit('secured/path/here')\n  .fillIn('#username', username)\n  .fillIn('#password', password)\n  .click('.submit')\n\n  return app.testHelpers.wait();\n});",
             "itemtype": "method",
             "name": "wait",
@@ -18158,7 +18158,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 407,
+            "line": 409,
             "description": "Returns the currently active route name.\n\nExample:\n\n```javascript\nfunction validateRouteName() {\nequal(currentRouteName(), 'some.path', \"correct route was transitioned into.\");\n}\n\nvisit('/some/path').then(validateRouteName)\n```",
             "itemtype": "method",
             "name": "currentRouteName",
@@ -18173,7 +18173,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 426,
+            "line": 428,
             "description": "Returns the current path.\n\nExample:\n\n```javascript\nfunction validateURL() {\nequal(currentPath(), 'some.path.index', \"correct path was transitioned into.\");\n}\n\nclick('#some-link-id').then(validateURL);\n```",
             "itemtype": "method",
             "name": "currentPath",
@@ -18188,7 +18188,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 445,
+            "line": 447,
             "description": "Returns the current URL.\n\nExample:\n\n```javascript\nfunction validateURL() {\nequal(currentURL(), '/some/path', \"correct URL was transitioned into.\");\n}\n\nclick('#some-link-id').then(validateURL);\n```",
             "itemtype": "method",
             "name": "currentURL",
@@ -18203,7 +18203,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 464,
+            "line": 466,
             "description": "Pauses the current test - this is useful for debugging while testing or for test-driving.\nIt allows you to inspect the state of your application at any point.\n\nExample (The test will pause before clicking the button):\n\n```javascript\nvisit('/')\nreturn pauseTest();\n\nclick('.btn');\n```",
             "since": "1.9.0",
             "itemtype": "method",
@@ -18218,7 +18218,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 483,
+            "line": 485,
             "description": "Triggers the given DOM event on the element identified by the provided selector.\n\nExample:\n\n```javascript\ntriggerEvent('#some-elem-id', 'blur');\n```\n\nThis is actually used internally by the `keyEvent` helper like so:\n\n```javascript\ntriggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });\n```",
             "itemtype": "method",
             "name": "triggerEvent",
@@ -20917,11 +20917,11 @@
         },
         {
             "message": "Missing item type\nGiven the browser's `location`, `history` and `userAgent`, and a configured\nroot URL, this function detects whether the browser supports the [History\nAPI](https://developer.mozilla.org/en-US/docs/Web/API/History) and returns a\nstring representing the Location object to use based on its determination.\n\nFor example, if the page loads in an evergreen browser, this function would\nreturn the string \"history\", meaning the history API and thus HistoryLocation\nshould be used. If the page is loaded in IE8, it will return the string\n\"hash,\" indicating that the History API should be simulated by manipulating the\nhash portion of the location.",
-            "line": " packages/ember-routing/lib/location/auto_location.js:163"
+            "line": " packages/ember-routing/lib/location/auto_location.js:165"
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-routing/lib/location/auto_location.js:228"
+            "line": " packages/ember-routing/lib/location/auto_location.js:230"
         },
         {
             "message": "Missing item type",

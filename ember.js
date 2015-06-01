@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0
+ * @version   1.12.1
  */
 
 (function() {
@@ -3773,7 +3773,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
       
         this.Router = (this.Router || Router['default']).extend();
-        this.waitForDOMReady(this.buildDefaultInstance());
+        this.buildDefaultInstance();
+        this.waitForDOMReady();
       
     },
 
@@ -3830,13 +3831,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       `advanceReadiness()` once all of your code has finished
       loading.
        @private
-      @method scheduleInitialize
+      @method waitForDOMReady
     */
-    waitForDOMReady: function (_instance) {
+    waitForDOMReady: function () {
       if (!this.$ || this.$.isReady) {
-        run['default'].schedule('actions', this, 'domReady', _instance);
+        run['default'].schedule('actions', this, 'domReady');
       } else {
-        this.$().ready(run['default'].bind(this, 'domReady', _instance));
+        this.$().ready(run['default'].bind(this, 'domReady'));
       }
     },
 
@@ -3992,18 +3993,14 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       choose to defer readiness. For example, an authentication hook might want
       to defer readiness until the auth token has been retrieved.
        @private
-      @method _initialize
+      @method domReady
     */
-    domReady: function (_instance) {
+    domReady: function () {
       if (this.isDestroyed) {
         return;
       }
 
-      var app = this;
-
-      this.boot().then(function () {
-        app.runInstanceInitializers(_instance);
-      });
+      this.boot();
 
       return this;
     },
@@ -4087,9 +4084,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       function handleReset() {
         run['default'](instance, 'destroy');
 
-        this.buildDefaultInstance();
-
-        run['default'].schedule('actions', this, 'domReady');
+        run['default'].schedule('actions', this, 'domReady', this.buildDefaultInstance());
       }
 
       run['default'].join(this, handleReset);
@@ -4142,6 +4137,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
           this.__deprecatedInstance__.setupEventDispatcher();
         }
 
+        this.runInstanceInitializers(this.__deprecatedInstance__);
         this.ready(); // user hook
         this.__deprecatedInstance__.startRouting();
 
@@ -4158,8 +4154,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Called when the Application has become ready.
-      The call will be delayed until the DOM has become ready.
+      Called when the Application has become ready, immediately before routing
+      begins. The call will be delayed until the DOM has become ready.
        @event ready
     */
     ready: function () {
@@ -4831,16 +4827,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
-  /**
-    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
-    any specific FEATURES flag is truthy.
-
-    This method is called automatically in debug canary builds.
-
-    @private
-    @method _warnIfUsingStrippedFeatureFlags
-    @return {void}
-  */
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
@@ -5000,6 +4986,17 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].runInDebug = function (func) {
     func();
   };
+
+  /**
+    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+    any specific FEATURES flag is truthy.
+
+    This method is called automatically in debug canary builds.
+
+    @private
+    @method _warnIfUsingStrippedFeatureFlags
+    @return {void}
+  */
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
       Ember['default'].warn("Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_ALL_FEATURES);
@@ -5630,6 +5627,8 @@ enifed('ember-htmlbars/compat/handlebars-get', ['exports'], function (exports) {
 
   'use strict';
 
+
+  exports['default'] = handlebarsGet;
   /**
   @module ember
   @submodule ember-htmlbars
@@ -5647,8 +5646,6 @@ enifed('ember-htmlbars/compat/handlebars-get', ['exports'], function (exports) {
     @param {Object} options The template's option hash
     @deprecated
   */
-  exports['default'] = handlebarsGet;
-
   function handlebarsGet(root, path, options) {
     Ember.deprecate('Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.');
 
@@ -5779,33 +5776,6 @@ enifed('ember-htmlbars/compat/make-bound-helper', ['exports', 'ember-metal/core'
   'use strict';
 
 
-
-  /**
-    A helper function used by `registerBoundHelper`. Takes the
-    provided Handlebars helper function fn and returns it in wrapped
-    bound helper form.
-
-    The main use case for using this outside of `registerBoundHelper`
-    is for registering helpers on the container:
-
-    ```js
-    var boundHelperFn = Ember.Handlebars.makeBoundHelper(function(word) {
-      return word.toUpperCase();
-    });
-
-    container.register('helper:my-bound-helper', boundHelperFn);
-    ```
-
-    In the above example, if the helper function hadn't been wrapped in
-    `makeBoundHelper`, the registered helper would be unbound.
-
-    @method makeBoundHelper
-    @for Ember.Handlebars
-    @param {Function} function
-    @param {String} dependentKeys*
-    @since 1.2.0
-    @deprecated
-  */
   exports['default'] = makeBoundHelper;
   /**
   @module ember
@@ -5904,6 +5874,13 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
   'use strict';
 
 
+  exports['default'] = registerBoundHelper;
+  /**
+  @module ember
+  @submodule ember-htmlbars
+  */
+
+  var slice = [].slice;
 
   /**
     Register a bound handlebars helper. Bound helpers behave similarly to regular
@@ -6014,13 +5991,6 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
     @param {Function} function
     @param {String} dependentKeys*
   */
-  exports['default'] = registerBoundHelper;
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  var slice = [].slice;
   function registerBoundHelper(name, fn) {
     var boundHelperArgs = slice.call(arguments, 1);
     var boundFn = makeBoundHelper['default'].apply(this, boundHelperArgs);
@@ -6063,14 +6033,13 @@ enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/platform/create', 'emb
 
   exports.registerHelper = registerHelper;
 
-  /**
-    @private
-    @method _registerHelper
-    @for Ember.HTMLBars
-    @param {String} name
-    @param {Object|Function} helperFunc the helper function to add
-  */
-  var helpers = o_create['default'](null);
+  var helpers = o_create['default'](null); /**
+                                  @private
+                                  @method _registerHelper
+                                  @for Ember.HTMLBars
+                                  @param {String} name
+                                  @param {Object|Function} helperFunc the helper function to add
+                                */
   function registerHelper(name, helperFunc) {
     var helper;
 
@@ -6179,129 +6148,6 @@ enifed('ember-htmlbars/helpers/collection', ['exports', 'ember-metal/core', 'emb
 
   exports.collectionHelper = collectionHelper;
 
-  /**
-    `{{collection}}` is a `Ember.Handlebars` helper for adding instances of
-    `Ember.CollectionView` to a template. See [Ember.CollectionView](/api/classes/Ember.CollectionView.html)
-     for additional information on how a `CollectionView` functions.
-
-    `{{collection}}`'s primary use is as a block helper with a `contentBinding`
-    option pointing towards an `Ember.Array`-compatible object. An `Ember.View`
-    instance will be created for each item in its `content` property. Each view
-    will have its own `content` property set to the appropriate item in the
-    collection.
-
-    The provided block will be applied as the template for each item's view.
-
-    Given an empty `<body>` the following template:
-
-    ```handlebars
-    {{! application.hbs }}
-    {{#collection content=model}}
-      Hi {{view.content.name}}
-    {{/collection}}
-    ```
-
-    And the following application code
-
-    ```javascript
-    App = Ember.Application.create();
-    App.ApplicationRoute = Ember.Route.extend({
-      model: function() {
-        return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
-      }
-    });
-    ```
-
-    The following HTML will result:
-
-    ```html
-    <div class="ember-view">
-      <div class="ember-view">Hi Yehuda</div>
-      <div class="ember-view">Hi Tom</div>
-      <div class="ember-view">Hi Peter</div>
-    </div>
-    ```
-
-    ### Non-block version of collection
-
-    If you provide an `itemViewClass` option that has its own `template` you may
-    omit the block.
-
-    The following template:
-
-    ```handlebars
-    {{! application.hbs }}
-    {{collection content=model itemViewClass="an-item"}}
-    ```
-
-    And application code
-
-    ```javascript
-    App = Ember.Application.create();
-    App.ApplicationRoute = Ember.Route.extend({
-      model: function() {
-        return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
-      }
-    });
-
-    App.AnItemView = Ember.View.extend({
-      template: Ember.Handlebars.compile("Greetings {{view.content.name}}")
-    });
-    ```
-
-    Will result in the HTML structure below
-
-    ```html
-    <div class="ember-view">
-      <div class="ember-view">Greetings Yehuda</div>
-      <div class="ember-view">Greetings Tom</div>
-      <div class="ember-view">Greetings Peter</div>
-    </div>
-    ```
-
-    ### Specifying a CollectionView subclass
-
-    By default the `{{collection}}` helper will create an instance of
-    `Ember.CollectionView`. You can supply a `Ember.CollectionView` subclass to
-    the helper by passing it as the first argument:
-
-    ```handlebars
-    {{#collection "my-custom-collection" content=model}}
-      Hi {{view.content.name}}
-    {{/collection}}
-    ```
-
-    This example would look for the class `App.MyCustomCollection`.
-
-    ### Forwarded `item.*`-named Options
-
-    As with the `{{view}}`, helper options passed to the `{{collection}}` will be
-    set on the resulting `Ember.CollectionView` as properties. Additionally,
-    options prefixed with `item` will be applied to the views rendered for each
-    item (note the camelcasing):
-
-    ```handlebars
-    {{#collection content=model
-                  itemTagName="p"
-                  itemClassNames="greeting"}}
-      Howdy {{view.content.name}}
-    {{/collection}}
-    ```
-
-    Will result in the following HTML structure:
-
-    ```html
-    <div class="ember-view">
-      <p class="ember-view greeting">Howdy Yehuda</p>
-      <p class="ember-view greeting">Howdy Tom</p>
-      <p class="ember-view greeting">Howdy Peter</p>
-    </div>
-    ```
-
-    @method collection
-    @for Ember.Handlebars.helpers
-    @deprecated Use `{{each}}` helper instead.
-  */
   function collectionHelper(params, hash, options, env) {
     var path = params[0];
 
@@ -6417,56 +6263,6 @@ enifed('ember-htmlbars/helpers/component', ['exports', 'ember-metal/core', 'embe
 
   exports.componentHelper = componentHelper;
 
-  /**
-    The `{{component}}` helper lets you add instances of `Ember.Component` to a
-    template. See [Ember.Component](/api/classes/Ember.Component.html) for
-    additional information on how a `Component` functions.
-
-    `{{component}}`'s primary use is for cases where you want to dynamically
-    change which type of component is rendered as the state of your application
-    changes.
-
-    The provided block will be applied as the template for the component.
-
-    Given an empty `<body>` the following template:
-
-    ```handlebars
-    {{! application.hbs }}
-    {{component infographicComponentName}}
-    ```
-
-    And the following application code
-
-    ```javascript
-    App = Ember.Application.create();
-    App.ApplicationController = Ember.Controller.extend({
-      infographicComponentName: function() {
-        if (this.get('isMarketOpen')) {
-          return "live-updating-chart";
-        } else {
-          return "market-close-summary";
-        }
-      }.property('isMarketOpen')
-    });
-    ```
-
-    The `live-updating-chart` component will be appended when `isMarketOpen` is
-    `true`, and the `market-close-summary` component will be appended when
-    `isMarketOpen` is `false`. If the value changes while the app is running,
-    the component will be automatically swapped out accordingly.
-
-    Note: You should not use this helper when you are consistently rendering the same
-    component. In that case, use standard component syntax, for example:
-
-    ```handlebars
-    {{! application.hbs }}
-    {{live-updating-chart}}
-    ```
-
-    @method component
-    @since 1.11.0
-    @for Ember.Handlebars.helpers
-  */
   function componentHelper(params, hash, options, env) {
     Ember['default'].assert("The `component` helper expects exactly one argument, plus name/property values.", params.length === 1);
 
@@ -6504,49 +6300,6 @@ enifed('ember-htmlbars/helpers/debugger', ['exports', 'ember-metal/logger'], fun
 
   exports.debuggerHelper = debuggerHelper;
 
-  /**
-    Execute the `debugger` statement in the current template's context.
-
-    ```handlebars
-    {{debugger}}
-    ```
-
-    When using the debugger helper you will have access to a `get` function. This
-    function retrieves values available in the context of the template.
-
-    For example, if you're wondering why a value `{{foo}}` isn't rendering as
-    expected within a template, you could place a `{{debugger}}` statement and,
-    when the `debugger;` breakpoint is hit, you can attempt to retrieve this value:
-
-    ```
-    > get('foo')
-    ```
-
-    `get` is also aware of keywords. So in this situation
-
-    ```handlebars
-    {{#each items as |item|}}
-      {{debugger}}
-    {{/each}}
-    ```
-
-    you'll be able to get values from the current item:
-
-    ```
-    > get('item.name')
-    ```
-
-    You can also access the context of the view to make sure it is the object that
-    you expect:
-
-    ```
-    > context
-    ```
-
-    @method debugger
-    @for Ember.Handlebars.helpers
-    @param {String} property
-  */
   function debuggerHelper(params, hash, options, env) {
 
     /* jshint unused: false */
@@ -6679,190 +6432,6 @@ enifed('ember-htmlbars/helpers/input', ['exports', 'ember-views/views/checkbox',
 
   exports.inputHelper = inputHelper;
 
-  // Ember.assert
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-
-    The `{{input}}` helper inserts an HTML `<input>` tag into the template,
-    with a `type` value of either `text` or `checkbox`. If no `type` is provided,
-    `text` will be the default value applied. The attributes of `{{input}}`
-    match those of the native HTML tag as closely as possible for these two types.
-
-    ## Use as text field
-    An `{{input}}` with no `type` or a `type` of `text` will render an HTML text input.
-    The following HTML attributes can be set via the helper:
-
-   <table>
-    <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>
-    <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>
-    <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>
-    <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>
-    <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>
-    <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>
-    <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>
-    <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>
-    <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>
-    <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>
-   </table>
-
-
-    When set to a quoted string, these values will be directly applied to the HTML
-    element. When left unquoted, these values will be bound to a property on the
-    template's current rendering context (most typically a controller instance).
-
-    ## Unbound:
-
-    ```handlebars
-    {{input value="http://www.facebook.com"}}
-    ```
-
-
-    ```html
-    <input type="text" value="http://www.facebook.com"/>
-    ```
-
-    ## Bound:
-
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
-      firstName: "Stanley",
-      entryNotAllowed: true
-    });
-    ```
-
-
-    ```handlebars
-    {{input type="text" value=firstName disabled=entryNotAllowed size="50"}}
-    ```
-
-
-    ```html
-    <input type="text" value="Stanley" disabled="disabled" size="50"/>
-    ```
-
-    ## Actions
-
-    The helper can send multiple actions based on user events.
-
-    The action property defines the action which is sent when
-    the user presses the return key.
-
-    ```handlebars
-    {{input action="submit"}}
-    ```
-
-    The helper allows some user events to send actions.
-
-  * `enter`
-  * `insert-newline`
-  * `escape-press`
-  * `focus-in`
-  * `focus-out`
-  * `key-press`
-  * `key-up`
-
-
-    For example, if you desire an action to be sent when the input is blurred,
-    you only need to setup the action name to the event name property.
-
-    ```handlebars
-    {{input focus-in="alertMessage"}}
-    ```
-
-    See more about [Text Support Actions](/api/classes/Ember.TextField.html)
-
-    ## Extension
-
-    Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
-    arguments from the helper to `Ember.TextField`'s `create` method. You can extend the
-    capabilities of text inputs in your applications by reopening this class. For example,
-    if you are building a Bootstrap project where `data-*` attributes are used, you
-    can add one to the `TextField`'s `attributeBindings` property:
-
-
-    ```javascript
-    Ember.TextField.reopen({
-      attributeBindings: ['data-error']
-    });
-    ```
-
-    Keep in mind when writing `Ember.TextField` subclasses that `Ember.TextField`
-    itself extends `Ember.Component`, meaning that it does NOT inherit
-    the `controller` of the parent view.
-
-    See more about [Ember components](/api/classes/Ember.Component.html)
-
-
-    ## Use as checkbox
-
-    An `{{input}}` with a `type` of `checkbox` will render an HTML checkbox input.
-    The following HTML attributes can be set via the helper:
-
-  * `checked`
-  * `disabled`
-  * `tabindex`
-  * `indeterminate`
-  * `name`
-  * `autofocus`
-  * `form`
-
-
-    When set to a quoted string, these values will be directly applied to the HTML
-    element. When left unquoted, these values will be bound to a property on the
-    template's current rendering context (most typically a controller instance).
-
-    ## Unbound:
-
-    ```handlebars
-    {{input type="checkbox" name="isAdmin"}}
-    ```
-
-    ```html
-    <input type="checkbox" name="isAdmin" />
-    ```
-
-    ## Bound:
-
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
-      isAdmin: true
-    });
-    ```
-
-
-    ```handlebars
-    {{input type="checkbox" checked=isAdmin }}
-    ```
-
-
-    ```html
-    <input type="checkbox" checked="checked" />
-    ```
-
-    ## Extension
-
-    Internally, `{{input type="checkbox"}}` creates an instance of `Ember.Checkbox`, passing
-    arguments from the helper to `Ember.Checkbox`'s `create` method. You can extend the
-    capablilties of checkbox inputs in your applications by reopening this class. For example,
-    if you wanted to add a css class to all checkboxes in your application:
-
-
-    ```javascript
-    Ember.Checkbox.reopen({
-      classNames: ['my-app-checkbox']
-    });
-    ```
-
-
-    @method input
-    @for Ember.Handlebars.helpers
-    @param {Hash} options
-  */
   function inputHelper(params, hash, options, env) {
     Ember['default'].assert("You can only pass attributes to the `input` helper, not arguments", params.length === 0);
 
@@ -6892,43 +6461,6 @@ enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-metal/core', 'ember-runt
 
   exports.locHelper = locHelper;
 
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
-    provided string.
-
-    This is a convenient way to localize text within a template:
-
-    ```javascript
-    Ember.STRINGS = {
-      '_welcome_': 'Bonjour'
-    };
-    ```
-
-    ```handlebars
-    <div class='message'>
-      {{loc '_welcome_'}}
-    </div>
-    ```
-
-    ```html
-    <div class='message'>
-      Bonjour
-    </div>
-    ```
-
-    See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
-    set up localized string references.
-
-    @method loc
-    @for Ember.Handlebars.helpers
-    @param {String} str The string to format
-    @see {Ember.String#loc}
-  */
   function locHelper(params, hash, options, env) {
     Ember['default'].assert('You cannot pass bindings to `loc` helper', (function ifParamsContainBindings() {
       for (var i = 0, l = params.length; i < l; i++) {
@@ -6949,18 +6481,6 @@ enifed('ember-htmlbars/helpers/log', ['exports', 'ember-metal/logger', 'ember-me
 
   exports.logHelper = logHelper;
 
-  /**
-    `log` allows you to output the value of variables in the current rendering
-    context. `log` also accepts primitive types such as strings or numbers.
-
-    ```handlebars
-    {{log "myVariable:" myVariable }}
-    ```
-
-    @method log
-    @for Ember.Handlebars.helpers
-    @param {String} property
-  */
   function logHelper(params, hash, options, env) {
     var logger = Logger['default'].log;
     var values = [];
@@ -6978,51 +6498,6 @@ enifed('ember-htmlbars/helpers/partial', ['exports', 'ember-metal/property_get',
   'use strict';
 
   exports.partialHelper = partialHelper;
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    The `partial` helper renders another template without
-    changing the template context:
-
-    ```handlebars
-    {{foo}}
-    {{partial "nav"}}
-    ```
-
-    The above example template will render a template named
-    "_nav", which has the same context as the parent template
-    it's rendered into, so if the "_nav" template also referenced
-    `{{foo}}`, it would print the same thing as the `{{foo}}`
-    in the above example.
-
-    If a "_nav" template isn't found, the `partial` helper will
-    fall back to a template named "nav".
-
-    ## Bound template names
-
-    The parameter supplied to `partial` can also be a path
-    to a property containing a template name, e.g.:
-
-    ```handlebars
-    {{partial someTemplateName}}
-    ```
-
-    The above example will look up the value of `someTemplateName`
-    on the template context (e.g. a controller) and use that
-    value as the name of the template to render. If the resolved
-    value is falsy, nothing will be rendered. If `someTemplateName`
-    changes, the partial will be re-rendered using the new template
-    name.
-
-
-    @method partial
-    @for Ember.Handlebars.helpers
-    @param {String} partialName the name of the template to render minus the leading underscore
-  */
 
   function partialHelper(params, hash, options, env) {
     var view = env.data.view;
@@ -7048,19 +6523,6 @@ enifed('ember-htmlbars/helpers/template', ['exports', 'ember-metal/core'], funct
 
   exports.templateHelper = templateHelper;
 
-  // Ember.deprecate;
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    @deprecated
-    @method template
-    @for Ember.Handlebars.helpers
-    @param {String} templateName the template to render
-  */
   function templateHelper(params, hash, options, env) {
     Ember['default'].deprecate("The `template` helper has been deprecated in favor of the `partial` helper." + " Please use `partial` instead, which will work the same way.");
 
@@ -7076,191 +6538,6 @@ enifed('ember-htmlbars/helpers/text_area', ['exports', 'ember-metal/core', 'embe
 
   exports.textareaHelper = textareaHelper;
 
-  /**
-    `{{textarea}}` inserts a new instance of `<textarea>` tag into the template.
-    The attributes of `{{textarea}}` match those of the native HTML tags as
-    closely as possible.
-
-    The following HTML attributes can be set:
-
-      * `value`
-      * `name`
-      * `rows`
-      * `cols`
-      * `placeholder`
-      * `disabled`
-      * `maxlength`
-      * `tabindex`
-      * `selectionEnd`
-      * `selectionStart`
-      * `selectionDirection`
-      * `wrap`
-      * `readonly`
-      * `autofocus`
-      * `form`
-      * `spellcheck`
-      * `required`
-
-    When set to a quoted string, these value will be directly applied to the HTML
-    element. When left unquoted, these values will be bound to a property on the
-    template's current rendering context (most typically a controller instance).
-
-    Unbound:
-
-    ```handlebars
-    {{textarea value="Lots of static text that ISN'T bound"}}
-    ```
-
-    Would result in the following HTML:
-
-    ```html
-    <textarea class="ember-text-area">
-      Lots of static text that ISN'T bound
-    </textarea>
-    ```
-
-    Bound:
-
-    In the following example, the `writtenWords` property on `App.ApplicationController`
-    will be updated live as the user types 'Lots of text that IS bound' into
-    the text area of their browser's window.
-
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
-      writtenWords: "Lots of text that IS bound"
-    });
-    ```
-
-    ```handlebars
-    {{textarea value=writtenWords}}
-    ```
-
-     Would result in the following HTML:
-
-    ```html
-    <textarea class="ember-text-area">
-      Lots of text that IS bound
-    </textarea>
-    ```
-
-    If you wanted a one way binding between the text area and a div tag
-    somewhere else on your screen, you could use `Ember.computed.oneWay`:
-
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
-      writtenWords: "Lots of text that IS bound",
-      outputWrittenWords: Ember.computed.oneWay("writtenWords")
-    });
-    ```
-
-    ```handlebars
-    {{textarea value=writtenWords}}
-
-    <div>
-      {{outputWrittenWords}}
-    </div>
-    ```
-
-    Would result in the following HTML:
-
-    ```html
-    <textarea class="ember-text-area">
-      Lots of text that IS bound
-    </textarea>
-
-    <-- the following div will be updated in real time as you type -->
-
-    <div>
-      Lots of text that IS bound
-    </div>
-    ```
-
-    Finally, this example really shows the power and ease of Ember when two
-    properties are bound to eachother via `Ember.computed.alias`. Type into
-    either text area box and they'll both stay in sync. Note that
-    `Ember.computed.alias` costs more in terms of performance, so only use it when
-    your really binding in both directions:
-
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
-      writtenWords: "Lots of text that IS bound",
-      twoWayWrittenWords: Ember.computed.alias("writtenWords")
-    });
-    ```
-
-    ```handlebars
-    {{textarea value=writtenWords}}
-    {{textarea value=twoWayWrittenWords}}
-    ```
-
-    ```html
-    <textarea id="ember1" class="ember-text-area">
-      Lots of text that IS bound
-    </textarea>
-
-    <-- both updated in real time -->
-
-    <textarea id="ember2" class="ember-text-area">
-      Lots of text that IS bound
-    </textarea>
-    ```
-
-    ## Actions
-
-    The helper can send multiple actions based on user events.
-
-    The action property defines the action which is send when
-    the user presses the return key.
-
-    ```handlebars
-    {{input action="submit"}}
-    ```
-
-    The helper allows some user events to send actions.
-
-  * `enter`
-  * `insert-newline`
-  * `escape-press`
-  * `focus-in`
-  * `focus-out`
-  * `key-press`
-
-    For example, if you desire an action to be sent when the input is blurred,
-    you only need to setup the action name to the event name property.
-
-    ```handlebars
-    {{textarea focus-in="alertMessage"}}
-    ```
-
-    See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
-
-    ## Extension
-
-    Internally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing
-    arguments from the helper to `Ember.TextArea`'s `create` method. You can
-    extend the capabilities of text areas in your application by reopening this
-    class. For example, if you are building a Bootstrap project where `data-*`
-    attributes are used, you can globally add support for a `data-*` attribute
-    on all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or
-    `Ember.TextSupport` and adding it to the `attributeBindings` concatenated
-    property:
-
-    ```javascript
-    Ember.TextArea.reopen({
-      attributeBindings: ['data-error']
-    });
-    ```
-
-    Keep in mind when writing `Ember.TextArea` subclasses that `Ember.TextArea`
-    itself extends `Ember.Component`, meaning that it does NOT inherit
-    the `controller` of the parent view.
-
-    See more about [Ember components](/api/classes/Ember.Component.html)
-
-    @method textarea
-    @for Ember.Handlebars.helpers
-    @param {Hash} options
-  */
   function textareaHelper(params, hash, options, env) {
     Ember['default'].assert("You can only pass attributes to the `textarea` helper, not arguments", params.length === 0);
 
@@ -7274,31 +6551,6 @@ enifed('ember-htmlbars/helpers/unbound', ['exports', 'ember-metal/error', 'ember
 
   exports.unboundHelper = unboundHelper;
 
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    `unbound` allows you to output a property without binding. *Important:* The
-    output will not be updated if the property changes. Use with caution.
-
-    ```handlebars
-    <div>{{unbound somePropertyThatDoesntChange}}</div>
-    ```
-
-    `unbound` can also be used in conjunction with a bound helper to
-    render it in its unbound form:
-
-    ```handlebars
-    <div>{{unbound helperName somePropertyThatDoesntChange}}</div>
-    ```
-
-    @method unbound
-    @for Ember.Handlebars.helpers
-    @param {String} property
-    @return {String} HTML string
-  */
   function unboundHelper(params, hash, options, env) {
     Ember.assert("The `unbound` helper expects at least one argument, " + "e.g. `{{unbound user.name}}`.", params.length > 0);
 
@@ -7356,181 +6608,6 @@ enifed('ember-htmlbars/helpers/view', ['exports', 'ember-metal/core', 'ember-met
 
   exports.viewHelper = viewHelper;
 
-  /**
-    `{{view}}` inserts a new instance of an `Ember.View` into a template passing its
-    options to the `Ember.View`'s `create` method and using the supplied block as
-    the view's own template.
-
-    An empty `<body>` and the following template:
-
-    ```handlebars
-    A span:
-    {{#view tagName="span"}}
-      hello.
-    {{/view}}
-    ```
-
-    Will result in HTML structure:
-
-    ```html
-    <body>
-      <!-- Note: the handlebars template script
-           also results in a rendered Ember.View
-           which is the outer <div> here -->
-
-      <div class="ember-view">
-        A span:
-        <span id="ember1" class="ember-view">
-          Hello.
-        </span>
-      </div>
-    </body>
-    ```
-
-    ### `parentView` setting
-
-    The `parentView` property of the new `Ember.View` instance created through
-    `{{view}}` will be set to the `Ember.View` instance of the template where
-    `{{view}}` was called.
-
-    ```javascript
-    aView = Ember.View.create({
-      template: Ember.Handlebars.compile("{{#view}} my parent: {{parentView.elementId}} {{/view}}")
-    });
-
-    aView.appendTo('body');
-    ```
-
-    Will result in HTML structure:
-
-    ```html
-    <div id="ember1" class="ember-view">
-      <div id="ember2" class="ember-view">
-        my parent: ember1
-      </div>
-    </div>
-    ```
-
-    ### Setting CSS id and class attributes
-
-    The HTML `id` attribute can be set on the `{{view}}`'s resulting element with
-    the `id` option. This option will _not_ be passed to `Ember.View.create`.
-
-    ```handlebars
-    {{#view tagName="span" id="a-custom-id"}}
-      hello.
-    {{/view}}
-    ```
-
-    Results in the following HTML structure:
-
-    ```html
-    <div class="ember-view">
-      <span id="a-custom-id" class="ember-view">
-        hello.
-      </span>
-    </div>
-    ```
-
-    The HTML `class` attribute can be set on the `{{view}}`'s resulting element
-    with the `class` or `classNameBindings` options. The `class` option will
-    directly set the CSS `class` attribute and will not be passed to
-    `Ember.View.create`. `classNameBindings` will be passed to `create` and use
-    `Ember.View`'s class name binding functionality:
-
-    ```handlebars
-    {{#view tagName="span" class="a-custom-class"}}
-      hello.
-    {{/view}}
-    ```
-
-    Results in the following HTML structure:
-
-    ```html
-    <div class="ember-view">
-      <span id="ember2" class="ember-view a-custom-class">
-        hello.
-      </span>
-    </div>
-    ```
-
-    ### Supplying a different view class
-
-    `{{view}}` can take an optional first argument before its supplied options to
-    specify a path to a custom view class.
-
-    ```handlebars
-    {{#view "custom"}}{{! will look up App.CustomView }}
-      hello.
-    {{/view}}
-    ```
-
-    The first argument can also be a relative path accessible from the current
-    context.
-
-    ```javascript
-    MyApp = Ember.Application.create({});
-    MyApp.OuterView = Ember.View.extend({
-      innerViewClass: Ember.View.extend({
-        classNames: ['a-custom-view-class-as-property']
-      }),
-      template: Ember.Handlebars.compile('{{#view view.innerViewClass}} hi {{/view}}')
-    });
-
-    MyApp.OuterView.create().appendTo('body');
-    ```
-
-    Will result in the following HTML:
-
-    ```html
-    <div id="ember1" class="ember-view">
-      <div id="ember2" class="ember-view a-custom-view-class-as-property">
-        hi
-      </div>
-    </div>
-    ```
-
-    ### Blockless use
-
-    If you supply a custom `Ember.View` subclass that specifies its own template
-    or provide a `templateName` option to `{{view}}` it can be used without
-    supplying a block. Attempts to use both a `templateName` option and supply a
-    block will throw an error.
-
-    ```javascript
-    var App = Ember.Application.create();
-    App.WithTemplateDefinedView = Ember.View.extend({
-      templateName: 'defined-template'
-    });
-    ```
-
-    ```handlebars
-    {{! application.hbs }}
-    {{view 'with-template-defined'}}
-    ```
-
-    ```handlebars
-    {{! defined-template.hbs }}
-    Some content for the defined template view.
-    ```
-
-    ### `viewName` property
-
-    You can supply a `viewName` option to `{{view}}`. The `Ember.View` instance
-    will be referenced as a property of its parent view by this name.
-
-    ```javascript
-    aView = Ember.View.create({
-      template: Ember.Handlebars.compile('{{#view viewName="aChildByName"}} hi {{/view}}')
-    });
-
-    aView.appendTo('body');
-    aView.get('aChildByName') // the instance of Ember.View created by {{view}} helper
-    ```
-
-    @method view
-    @for Ember.Handlebars.helpers
-  */
   function viewHelper(params, hash, options, env) {
     Ember['default'].assert("The `view` helper expects zero or one arguments.", params.length <= 2);
 
@@ -7566,53 +6643,6 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-metal/core', 'ember-vie
 
   exports.withHelper = withHelper;
 
-  /**
-    Use the `{{with}}` helper when you want to aliases the to a new name. It's helpful
-    for semantic clarity and to retain default scope or to reference from another
-    `{{with}}` block.
-
-    ```handlebars
-    // posts might not be
-    {{#with user.posts as |blogPosts|}}
-      <div class="notice">
-        There are {{blogPosts.length}} blog posts written by {{user.name}}.
-      </div>
-
-      {{#each blogPosts as |post|}}
-        <li>{{post.title}}</li>
-      {{/each}}
-    {{/with}}
-    ```
-
-    Without the `as` operator, it would be impossible to reference `user.name` in the example above.
-
-    NOTE: The alias should not reuse a name from the bound property path.
-    For example: `{{#with foo as |foo.bar|}}` is not supported because it attempts to alias using
-    the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
-
-    ### `controller` option
-
-    Adding `controller='something'` instructs the `{{with}}` helper to create and use an instance of
-    the specified controller wrapping the aliased keyword.
-
-    This is very similar to using an `itemController` option with the `{{each}}` helper.
-
-    ```handlebars
-    {{#with users.posts controller='userBlogPosts' as |posts|}}
-      {{!- `posts` is wrapped in our controller instance }}
-    {{/with}}
-    ```
-
-    In the above example, the `posts` keyword is now wrapped in the `userBlogPost` controller,
-    which provides an elegant way to decorate the context with custom
-    functions/properties.
-
-    @method with
-    @for Ember.Handlebars.helpers
-    @param {Function} context
-    @param {Hash} options
-    @return {String} HTML string
-  */
   function withHelper(params, hash, options, env) {
     Ember['default'].assert("{{#with}} must be called with an argument. For example, `{{#with foo as |bar|}}{{/with}}`", params.length === 1);
 
@@ -7647,88 +6677,6 @@ enifed('ember-htmlbars/helpers/yield', ['exports', 'ember-metal/core', 'ember-me
 
   exports.yieldHelper = yieldHelper;
 
-  /**
-    `{{yield}}` denotes an area of a template that will be rendered inside
-    of another template. It has two main uses:
-
-    ### Use with `layout`
-    When used in a Handlebars template that is assigned to an `Ember.View`
-    instance's `layout` property Ember will render the layout template first,
-    inserting the view's own rendered output at the `{{yield}}` location.
-
-    An empty `<body>` and the following application code:
-
-    ```javascript
-    AView = Ember.View.extend({
-      classNames: ['a-view-with-layout'],
-      layout: Ember.Handlebars.compile('<div class="wrapper">{{yield}}</div>'),
-      template: Ember.Handlebars.compile('<span>I am wrapped</span>')
-    });
-
-    aView = AView.create();
-    aView.appendTo('body');
-    ```
-
-    Will result in the following HTML output:
-
-    ```html
-    <body>
-      <div class='ember-view a-view-with-layout'>
-        <div class="wrapper">
-          <span>I am wrapped</span>
-        </div>
-      </div>
-    </body>
-    ```
-
-    The `yield` helper cannot be used outside of a template assigned to an
-    `Ember.View`'s `layout` property and will throw an error if attempted.
-
-    ```javascript
-    BView = Ember.View.extend({
-      classNames: ['a-view-with-layout'],
-      template: Ember.Handlebars.compile('{{yield}}')
-    });
-
-    bView = BView.create();
-    bView.appendTo('body');
-
-    // throws
-    // Uncaught Error: assertion failed:
-    // You called yield in a template that was not a layout
-    ```
-
-    ### Use with Ember.Component
-    When designing components `{{yield}}` is used to denote where, inside the component's
-    template, an optional block passed to the component should render:
-
-    ```handlebars
-    <!-- application.hbs -->
-    {{#labeled-textfield value=someProperty}}
-      First name:
-    {{/labeled-textfield}}
-    ```
-
-    ```handlebars
-    <!-- components/labeled-textfield.hbs -->
-    <label>
-      {{yield}} {{input value=value}}
-    </label>
-    ```
-
-    Result:
-
-    ```html
-    <label>
-      First name: <input type="text" />
-    </label>
-    ```
-
-    @method yield
-    @for Ember.Handlebars.helpers
-    @param {Hash} options
-    @return {String} HTML string
-  */
   function yieldHelper(params, hash, options, env) {
     var view = env.data.view;
     var layoutView = view;
@@ -7898,6 +6846,23 @@ enifed('ember-htmlbars/hooks/element', ['exports', 'ember-metal/core', 'ember-me
   @submodule ember-htmlbars
   */
 
+  var fakeElement;
+
+  function updateElementAttributesFromString(dom, element, string) {
+    if (!fakeElement) {
+      fakeElement = document.createElement("div");
+    }
+
+    fakeElement.innerHTML = "<" + element.tagName + " " + string + "><" + "/" + element.tagName + ">";
+
+    var attrs = fakeElement.firstChild.attributes;
+    for (var i = 0, l = attrs.length; i < l; i++) {
+      var attr = attrs[i];
+      if (attr.specified) {
+        dom.setAttribute(element, attr.name, attr.value);
+      }
+    }
+  }
   function element(env, domElement, view, path, params, hash) {
     //jshint ignore:line
     var helper = lookupHelper['default'](path, view, env);
@@ -7915,17 +6880,7 @@ enifed('ember-htmlbars/hooks/element', ['exports', 'ember-metal/core', 'ember-me
     var value = utils.read(valueOrLazyValue);
     if (value) {
       Ember['default'].deprecate("Returning a string of attributes from a helper inside an element is deprecated.");
-
-      var parts = value.toString().split(/\s+/);
-      for (var i = 0, l = parts.length; i < l; i++) {
-        var attrParts = parts[i].split("=");
-        var attrName = attrParts[0];
-        var attrValue = attrParts[1];
-
-        attrValue = attrValue.replace(/^['"]/, "").replace(/['"]$/, "");
-
-        env.dom.setAttribute(domElement, attrName, attrValue);
-      }
+      updateElementAttributesFromString(env.dom, domElement, value);
     }
   }
 
@@ -7934,13 +6889,13 @@ enifed('ember-htmlbars/hooks/get', ['exports'], function (exports) {
 
   'use strict';
 
+
+
+  exports['default'] = get;
   /**
   @module ember
   @submodule ember-htmlbars
   */
-
-  exports['default'] = get;
-
   function get(env, view, path) {
     return view.getStream(path);
   }
@@ -7977,13 +6932,13 @@ enifed('ember-htmlbars/hooks/set', ['exports'], function (exports) {
 
   'use strict';
 
+
+
+  exports['default'] = set;
   /**
   @module ember
   @submodule ember-htmlbars
   */
-
-  exports['default'] = set;
-
   function set(env, view, name, value) {
     view._keywords[name] = value;
   }
@@ -8152,21 +7107,6 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
 
   'use strict';
 
-  /**
-    Used to lookup/resolve handlebars helpers. The lookup order is:
-
-    * Look for a registered helper
-    * If a dash exists in the name:
-      * Look for a helper registed in the container
-      * Use Ember.ComponentLookup to find an Ember.Component that resolves
-        to the given name
-
-    @private
-    @method resolveHelper
-    @param {Container} container
-    @param {String} name the name of the helper to lookup
-    @return {Handlebars Helper}
-  */
   exports['default'] = lookupHelper;
   /**
   @module ember
@@ -8175,7 +7115,9 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
 
   var ISNT_HELPER_CACHE = new Cache['default'](1000, function (key) {
     return key.indexOf("-") === -1;
-  });function lookupHelper(name, view, env) {
+  });
+
+  function lookupHelper(name, view, env) {
     var helper = env.helpers[name];
     if (helper) {
       return helper;
@@ -8217,18 +7159,6 @@ enifed('ember-htmlbars/system/make-view-helper', ['exports', 'ember-metal/core',
   'use strict';
 
 
-
-  /**
-    Returns a helper function that renders the provided ViewClass.
-
-    Used internally by Ember.Handlebars.helper and other methods
-    involving helper/component registration.
-
-    @private
-    @method makeViewHelper
-    @param {Function} ViewClass view class constructor
-    @since 1.2.0
-  */
   exports['default'] = makeViewHelper;
   /**
   @module ember
@@ -8251,50 +7181,6 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/core'
   'use strict';
 
 
-
-  /**
-    Create a bound helper. Accepts a function that receives the ordered and hash parameters
-    from the template. If a bound property was provided in the template it will be resolved to its
-    value and any changes to the bound property cause the helper function to be re-run with the updated
-    values.
-
-    * `params` - An array of resolved ordered parameters.
-    * `hash` - An object containing the hash parameters.
-
-    For example:
-
-    * With an unquoted ordered parameter:
-
-      ```javascript
-      {{x-capitalize foo}}
-      ```
-
-      Assuming `foo` was set to `"bar"`, the bound helper would receive `["bar"]` as its first argument, and
-      an empty hash as its second.
-
-    * With a quoted ordered parameter:
-
-      ```javascript
-      {{x-capitalize "foo"}}
-      ```
-
-      The bound helper would receive `["foo"]` as its first argument, and an empty hash as its second.
-
-    * With an unquoted hash parameter:
-
-      ```javascript
-      {{x-repeat "foo" count=repeatCount}}
-      ```
-
-      Assuming that `repeatCount` resolved to 2, the bound helper would receive `["foo"]` as its first argument,
-      and { count: 2 } as its second.
-
-    @private
-    @method makeBoundHelper
-    @for Ember.HTMLBars
-    @param {Function} function
-    @since 1.10.0
-  */
   exports['default'] = makeBoundHelper;
   /**
   @module ember
@@ -8472,7 +7358,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-metal/core', 'emb
   }
 
   function renderHTMLBarsTemplate(view, buffer, template) {
-    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.0` (this revision).", template.revision === "Ember@1.12.0");
+    Ember['default'].assert("The template being rendered by `" + view + "` was compiled with `" + template.revision + "` which does not match `Ember@1.12.1` (this revision).", template.revision === "Ember@1.12.1");
 
     var contextualElement = buffer.innerContextualElement();
     var args = view._blockArguments;
@@ -8511,7 +7397,7 @@ enifed('ember-htmlbars/templates/component', ['exports', 'ember-template-compile
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8559,7 +7445,7 @@ enifed('ember-htmlbars/templates/empty', ['exports', 'ember-template-compiler/sy
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8599,7 +7485,7 @@ enifed('ember-htmlbars/templates/link-to-escaped', ['exports', 'ember-template-c
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8647,7 +7533,7 @@ enifed('ember-htmlbars/templates/link-to-unescaped', ['exports', 'ember-template
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8695,7 +7581,7 @@ enifed('ember-htmlbars/templates/select-option', ['exports', 'ember-template-com
   exports['default'] = template['default']((function () {
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -8744,7 +7630,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     var child0 = (function () {
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0",
+        revision: "Ember@1.12.1",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8788,7 +7674,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0",
+          revision: "Ember@1.12.1",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8830,7 +7716,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0",
+        revision: "Ember@1.12.1",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8874,7 +7760,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       var child0 = (function () {
         return {
           isHTMLBars: true,
-          revision: "Ember@1.12.0",
+          revision: "Ember@1.12.1",
           blockParams: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -8916,7 +7802,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
       })();
       return {
         isHTMLBars: true,
-        revision: "Ember@1.12.0",
+        revision: "Ember@1.12.1",
         blockParams: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -8958,7 +7844,7 @@ enifed('ember-htmlbars/templates/select', ['exports', 'ember-template-compiler/s
     })();
     return {
       isHTMLBars: true,
-      revision: "Ember@1.12.0",
+      revision: "Ember@1.12.1",
       blockParams: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -9812,150 +8698,6 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/prope
   exports.oneWay = oneWay;
   exports.Binding = Binding;
 
-  /**
-    An `Ember.Binding` connects the properties of two objects so that whenever
-    the value of one property changes, the other property will be changed also.
-
-    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties
-
-    You do not usually create Binding objects directly but instead describe
-    bindings in your class or object definition using automatic binding
-    detection.
-
-    Properties ending in a `Binding` suffix will be converted to `Ember.Binding`
-    instances. The value of this property should be a string representing a path
-    to another object or a custom binding instance created using Binding helpers
-    (see "One Way Bindings"):
-
-    ```
-    valueBinding: "MyApp.someController.title"
-    ```
-
-    This will create a binding from `MyApp.someController.title` to the `value`
-    property of your object instance automatically. Now the two values will be
-    kept in sync.
-
-    ## One Way Bindings
-
-    One especially useful binding customization you can use is the `oneWay()`
-    helper. This helper tells Ember that you are only interested in
-    receiving changes on the object you are binding from. For example, if you
-    are binding to a preference and you want to be notified if the preference
-    has changed, but your object will not be changing the preference itself, you
-    could do:
-
-    ```
-    bigTitlesBinding: Ember.Binding.oneWay("MyApp.preferencesController.bigTitles")
-    ```
-
-    This way if the value of `MyApp.preferencesController.bigTitles` changes the
-    `bigTitles` property of your object will change also. However, if you
-    change the value of your `bigTitles` property, it will not update the
-    `preferencesController`.
-
-    One way bindings are almost twice as fast to setup and twice as fast to
-    execute because the binding only has to worry about changes to one side.
-
-    You should consider using one way bindings anytime you have an object that
-    may be created frequently and you do not intend to change a property; only
-    to monitor it for changes (such as in the example above).
-
-    ## Adding Bindings Manually
-
-    All of the examples above show you how to configure a custom binding, but the
-    result of these customizations will be a binding template, not a fully active
-    Binding instance. The binding will actually become active only when you
-    instantiate the object the binding belongs to. It is useful however, to
-    understand what actually happens when the binding is activated.
-
-    For a binding to function it must have at least a `from` property and a `to`
-    property. The `from` property path points to the object/key that you want to
-    bind from while the `to` path points to the object/key you want to bind to.
-
-    When you define a custom binding, you are usually describing the property
-    you want to bind from (such as `MyApp.someController.value` in the examples
-    above). When your object is created, it will automatically assign the value
-    you want to bind `to` based on the name of your binding key. In the
-    examples above, during init, Ember objects will effectively call
-    something like this on your binding:
-
-    ```javascript
-    binding = Ember.Binding.from("valueBinding").to("value");
-    ```
-
-    This creates a new binding instance based on the template you provide, and
-    sets the to path to the `value` property of the new object. Now that the
-    binding is fully configured with a `from` and a `to`, it simply needs to be
-    connected to become active. This is done through the `connect()` method:
-
-    ```javascript
-    binding.connect(this);
-    ```
-
-    Note that when you connect a binding you pass the object you want it to be
-    connected to. This object will be used as the root for both the from and
-    to side of the binding when inspecting relative paths. This allows the
-    binding to be automatically inherited by subclassed objects as well.
-
-    This also allows you to bind between objects using the paths you declare in
-    `from` and `to`:
-
-    ```javascript
-    // Example 1
-    binding = Ember.Binding.from("App.someObject.value").to("value");
-    binding.connect(this);
-
-    // Example 2
-    binding = Ember.Binding.from("parentView.value").to("App.someObject.value");
-    binding.connect(this);
-    ```
-
-    Now that the binding is connected, it will observe both the from and to side
-    and relay changes.
-
-    If you ever needed to do so (you almost never will, but it is useful to
-    understand this anyway), you could manually create an active binding by
-    using the `Ember.bind()` helper method. (This is the same method used by
-    to setup your bindings on objects):
-
-    ```javascript
-    Ember.bind(MyApp.anotherObject, "value", "MyApp.someController.value");
-    ```
-
-    Both of these code fragments have the same effect as doing the most friendly
-    form of binding creation like so:
-
-    ```javascript
-    MyApp.anotherObject = Ember.Object.create({
-      valueBinding: "MyApp.someController.value",
-
-      // OTHER CODE FOR THIS OBJECT...
-    });
-    ```
-
-    Ember's built in binding creation method makes it easy to automatically
-    create bindings for you. You should always use the highest-level APIs
-    available, even if you understand how it works underneath.
-
-    @class Binding
-    @namespace Ember
-    @since Ember 0.9
-  */
-  // Ember.Binding = Binding; ES6TODO: where to put this?
-
-  /**
-    Global helper method to create a new binding. Just pass the root object
-    along with a `to` and `from` path to create and connect the binding.
-
-    @method bind
-    @for Ember
-    @param {Object} obj The root object of the transform.
-    @param {String} to The path to the 'to' side of the binding.
-      Must be relative to obj.
-    @param {String} from The path to the 'from' side of the binding.
-      Must be relative to obj or a global path.
-    @return {Ember.Binding} binding instance
-  */
   Ember['default'].LOG_BINDINGS = false || !!Ember['default'].ENV.LOG_BINDINGS;
 
   /**
@@ -10243,10 +8985,164 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/prope
     }
 
   });
+  /**
+    An `Ember.Binding` connects the properties of two objects so that whenever
+    the value of one property changes, the other property will be changed also.
+
+    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties
+
+    You do not usually create Binding objects directly but instead describe
+    bindings in your class or object definition using automatic binding
+    detection.
+
+    Properties ending in a `Binding` suffix will be converted to `Ember.Binding`
+    instances. The value of this property should be a string representing a path
+    to another object or a custom binding instance created using Binding helpers
+    (see "One Way Bindings"):
+
+    ```
+    valueBinding: "MyApp.someController.title"
+    ```
+
+    This will create a binding from `MyApp.someController.title` to the `value`
+    property of your object instance automatically. Now the two values will be
+    kept in sync.
+
+    ## One Way Bindings
+
+    One especially useful binding customization you can use is the `oneWay()`
+    helper. This helper tells Ember that you are only interested in
+    receiving changes on the object you are binding from. For example, if you
+    are binding to a preference and you want to be notified if the preference
+    has changed, but your object will not be changing the preference itself, you
+    could do:
+
+    ```
+    bigTitlesBinding: Ember.Binding.oneWay("MyApp.preferencesController.bigTitles")
+    ```
+
+    This way if the value of `MyApp.preferencesController.bigTitles` changes the
+    `bigTitles` property of your object will change also. However, if you
+    change the value of your `bigTitles` property, it will not update the
+    `preferencesController`.
+
+    One way bindings are almost twice as fast to setup and twice as fast to
+    execute because the binding only has to worry about changes to one side.
+
+    You should consider using one way bindings anytime you have an object that
+    may be created frequently and you do not intend to change a property; only
+    to monitor it for changes (such as in the example above).
+
+    ## Adding Bindings Manually
+
+    All of the examples above show you how to configure a custom binding, but the
+    result of these customizations will be a binding template, not a fully active
+    Binding instance. The binding will actually become active only when you
+    instantiate the object the binding belongs to. It is useful however, to
+    understand what actually happens when the binding is activated.
+
+    For a binding to function it must have at least a `from` property and a `to`
+    property. The `from` property path points to the object/key that you want to
+    bind from while the `to` path points to the object/key you want to bind to.
+
+    When you define a custom binding, you are usually describing the property
+    you want to bind from (such as `MyApp.someController.value` in the examples
+    above). When your object is created, it will automatically assign the value
+    you want to bind `to` based on the name of your binding key. In the
+    examples above, during init, Ember objects will effectively call
+    something like this on your binding:
+
+    ```javascript
+    binding = Ember.Binding.from("valueBinding").to("value");
+    ```
+
+    This creates a new binding instance based on the template you provide, and
+    sets the to path to the `value` property of the new object. Now that the
+    binding is fully configured with a `from` and a `to`, it simply needs to be
+    connected to become active. This is done through the `connect()` method:
+
+    ```javascript
+    binding.connect(this);
+    ```
+
+    Note that when you connect a binding you pass the object you want it to be
+    connected to. This object will be used as the root for both the from and
+    to side of the binding when inspecting relative paths. This allows the
+    binding to be automatically inherited by subclassed objects as well.
+
+    This also allows you to bind between objects using the paths you declare in
+    `from` and `to`:
+
+    ```javascript
+    // Example 1
+    binding = Ember.Binding.from("App.someObject.value").to("value");
+    binding.connect(this);
+
+    // Example 2
+    binding = Ember.Binding.from("parentView.value").to("App.someObject.value");
+    binding.connect(this);
+    ```
+
+    Now that the binding is connected, it will observe both the from and to side
+    and relay changes.
+
+    If you ever needed to do so (you almost never will, but it is useful to
+    understand this anyway), you could manually create an active binding by
+    using the `Ember.bind()` helper method. (This is the same method used by
+    to setup your bindings on objects):
+
+    ```javascript
+    Ember.bind(MyApp.anotherObject, "value", "MyApp.someController.value");
+    ```
+
+    Both of these code fragments have the same effect as doing the most friendly
+    form of binding creation like so:
+
+    ```javascript
+    MyApp.anotherObject = Ember.Object.create({
+      valueBinding: "MyApp.someController.value",
+
+      // OTHER CODE FOR THIS OBJECT...
+    });
+    ```
+
+    Ember's built in binding creation method makes it easy to automatically
+    create bindings for you. You should always use the highest-level APIs
+    available, even if you understand how it works underneath.
+
+    @class Binding
+    @namespace Ember
+    @since Ember 0.9
+  */
+  // Ember.Binding = Binding; ES6TODO: where to put this?
+
+  /**
+    Global helper method to create a new binding. Just pass the root object
+    along with a `to` and `from` path to create and connect the binding.
+
+    @method bind
+    @for Ember
+    @param {Object} obj The root object of the transform.
+    @param {String} to The path to the 'to' side of the binding.
+      Must be relative to obj.
+    @param {String} from The path to the 'from' side of the binding.
+      Must be relative to obj or a global path.
+    @return {Ember.Binding} binding instance
+  */
   function bind(obj, to, from) {
     return new Binding(to, from).connect(obj);
   }
 
+  /**
+    @method oneWay
+    @for Ember
+    @param {Object} obj The root object of the transform.
+    @param {String} to The path to the 'to' side of the binding.
+      Must be relative to obj.
+    @param {String} from The path to the 'from' side of the binding.
+      Must be relative to obj or a global path.
+    @return {Ember.Binding} binding instance
+  */
   function oneWay(obj, to, from) {
     return new Binding(to, from).oneWay().connect(obj);
   }
@@ -10320,9 +9216,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   exports.removeChainWatcher = removeChainWatcher;
   exports.ChainNode = ChainNode;
 
-  // attempts to add the pendingQueue chains again. If some of them end up
-  // back in the queue and reschedule is true, schedules a timeout to try
-  // again.
   var warn = Ember['default'].warn;
   var FIRST_KEY = /^([^\.]+)/;
 
@@ -10335,6 +9228,11 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   }
 
   var pendingQueue = [];
+
+  // attempts to add the pendingQueue chains again. If some of them end up
+  // back in the queue and reschedule is true, schedules a timeout to try
+  // again.
+
   function flushPendingChains() {
     if (pendingQueue.length === 0) {
       return;
@@ -11358,6 +10256,28 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
   exports.defaultTo = defaultTo;
   exports.deprecatingAlias = deprecatingAlias;
 
+  function getProperties(self, propertyNames) {
+    var ret = {};
+    for (var i = 0; i < propertyNames.length; i++) {
+      ret[propertyNames[i]] = property_get.get(self, propertyNames[i]);
+    }
+    return ret;
+  }
+
+  function generateComputedWithProperties(macro) {
+    return function () {
+      for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
+        properties[_key] = arguments[_key];
+      }
+
+      var computedFunc = computed.computed(function () {
+        return macro.apply(this, [getProperties(this, properties)]);
+      });
+
+      return computedFunc.property.apply(computedFunc, properties);
+    };
+  }
+
   /**
     A computed property that returns true if the value of the dependent
     property is null, an empty string, empty array, or empty function.
@@ -11385,57 +10305,165 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     @return {Ember.ComputedProperty} computed property which negate
     the original value for property
   */
-  function getProperties(self, propertyNames) {
-    var ret = {};
-    for (var i = 0; i < propertyNames.length; i++) {
-      ret[propertyNames[i]] = property_get.get(self, propertyNames[i]);
-    }
-    return ret;
-  }
-
-  function generateComputedWithProperties(macro) {
-    return function () {
-      for (var _len = arguments.length, properties = Array(_len), _key = 0; _key < _len; _key++) {
-        properties[_key] = arguments[_key];
-      }
-
-      var computedFunc = computed.computed(function () {
-        return macro.apply(this, [getProperties(this, properties)]);
-      });
-
-      return computedFunc.property.apply(computedFunc, properties);
-    };
-  }
   function empty(dependentKey) {
     return computed.computed(dependentKey + ".length", function () {
       return isEmpty['default'](property_get.get(this, dependentKey));
     });
   }
 
+  /**
+    A computed property that returns true if the value of the dependent
+    property is NOT null, an empty string, empty array, or empty function.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      hasStuff: Ember.computed.notEmpty('backpack')
+    });
+
+    var hamster = Hamster.create({ backpack: ['Food', 'Sleeping Bag', 'Tent'] });
+
+    hamster.get('hasStuff');         // true
+    hamster.get('backpack').clear(); // []
+    hamster.get('hasStuff');         // false
+    ```
+
+    @method notEmpty
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which returns true if
+    original value for property is not empty.
+  */
   function notEmpty(dependentKey) {
     return computed.computed(dependentKey + ".length", function () {
       return !isEmpty['default'](property_get.get(this, dependentKey));
     });
   }
 
+  /**
+    A computed property that returns true if the value of the dependent
+    property is null or undefined. This avoids errors from JSLint complaining
+    about use of ==, which can be technically confusing.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      isHungry: Ember.computed.none('food')
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('isHungry'); // true
+    hamster.set('food', 'Banana');
+    hamster.get('isHungry'); // false
+    hamster.set('food', null);
+    hamster.get('isHungry'); // true
+    ```
+
+    @method none
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which
+    returns true if original value for property is null or undefined.
+  */
   function none(dependentKey) {
     return computed.computed(dependentKey, function () {
       return isNone['default'](property_get.get(this, dependentKey));
     });
   }
 
+  /**
+    A computed property that returns the inverse boolean value
+    of the original value for the dependent property.
+
+    Example
+
+    ```javascript
+    var User = Ember.Object.extend({
+      isAnonymous: Ember.computed.not('loggedIn')
+    });
+
+    var user = User.create({loggedIn: false});
+
+    user.get('isAnonymous'); // true
+    user.set('loggedIn', true);
+    user.get('isAnonymous'); // false
+    ```
+
+    @method not
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which returns
+    inverse of the original value for property
+  */
   function not(dependentKey) {
     return computed.computed(dependentKey, function () {
       return !property_get.get(this, dependentKey);
     });
   }
 
+  /**
+    A computed property that converts the provided dependent property
+    into a boolean value.
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      hasBananas: Ember.computed.bool('numBananas')
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('hasBananas'); // false
+    hamster.set('numBananas', 0);
+    hamster.get('hasBananas'); // false
+    hamster.set('numBananas', 1);
+    hamster.get('hasBananas'); // true
+    hamster.set('numBananas', null);
+    hamster.get('hasBananas'); // false
+    ```
+
+    @method bool
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which converts
+    to boolean the original value for property
+  */
   function bool(dependentKey) {
     return computed.computed(dependentKey, function () {
       return !!property_get.get(this, dependentKey);
     });
   }
 
+  /**
+    A computed property which matches the original value for the
+    dependent property against a given RegExp, returning `true`
+    if they values matches the RegExp and `false` if it does not.
+
+    Example
+
+    ```javascript
+    var User = Ember.Object.extend({
+      hasValidEmail: Ember.computed.match('email', /^.+@.+\..+$/)
+    });
+
+    var user = User.create({loggedIn: false});
+
+    user.get('hasValidEmail'); // false
+    user.set('email', '');
+    user.get('hasValidEmail'); // false
+    user.set('email', 'ember_hamster@example.com');
+    user.get('hasValidEmail'); // true
+    ```
+
+    @method match
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {RegExp} regexp
+    @return {Ember.ComputedProperty} computed property which match
+    the original value for property against a given RegExp
+  */
   function match(dependentKey, regexp) {
     return computed.computed(dependentKey, function () {
       var value = property_get.get(this, dependentKey);
@@ -11444,30 +10472,165 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     });
   }
 
+  /**
+    A computed property that returns true if the provided dependent property
+    is equal to the given value.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      napTime: Ember.computed.equal('state', 'sleepy')
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('napTime'); // false
+    hamster.set('state', 'sleepy');
+    hamster.get('napTime'); // true
+    hamster.set('state', 'hungry');
+    hamster.get('napTime'); // false
+    ```
+
+    @method equal
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {String|Number|Object} value
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the original value for property is equal to the given value.
+  */
   function equal(dependentKey, value) {
     return computed.computed(dependentKey, function () {
       return property_get.get(this, dependentKey) === value;
     });
   }
 
+  /**
+    A computed property that returns true if the provided dependent property
+    is greater than the provided value.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      hasTooManyBananas: Ember.computed.gt('numBananas', 10)
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('hasTooManyBananas'); // false
+    hamster.set('numBananas', 3);
+    hamster.get('hasTooManyBananas'); // false
+    hamster.set('numBananas', 11);
+    hamster.get('hasTooManyBananas'); // true
+    ```
+
+    @method gt
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {Number} value
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the original value for property is greater than given value.
+  */
   function gt(dependentKey, value) {
     return computed.computed(dependentKey, function () {
       return property_get.get(this, dependentKey) > value;
     });
   }
 
+  /**
+    A computed property that returns true if the provided dependent property
+    is greater than or equal to the provided value.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      hasTooManyBananas: Ember.computed.gte('numBananas', 10)
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('hasTooManyBananas'); // false
+    hamster.set('numBananas', 3);
+    hamster.get('hasTooManyBananas'); // false
+    hamster.set('numBananas', 10);
+    hamster.get('hasTooManyBananas'); // true
+    ```
+
+    @method gte
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {Number} value
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the original value for property is greater or equal then given value.
+  */
   function gte(dependentKey, value) {
     return computed.computed(dependentKey, function () {
       return property_get.get(this, dependentKey) >= value;
     });
   }
 
+  /**
+    A computed property that returns true if the provided dependent property
+    is less than the provided value.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      needsMoreBananas: Ember.computed.lt('numBananas', 3)
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('needsMoreBananas'); // true
+    hamster.set('numBananas', 3);
+    hamster.get('needsMoreBananas'); // false
+    hamster.set('numBananas', 2);
+    hamster.get('needsMoreBananas'); // true
+    ```
+
+    @method lt
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {Number} value
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the original value for property is less then given value.
+  */
   function lt(dependentKey, value) {
     return computed.computed(dependentKey, function () {
       return property_get.get(this, dependentKey) < value;
     });
   }
 
+  /**
+    A computed property that returns true if the provided dependent property
+    is less than or equal to the provided value.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      needsMoreBananas: Ember.computed.lte('numBananas', 3)
+    });
+
+    var hamster = Hamster.create();
+
+    hamster.get('needsMoreBananas'); // true
+    hamster.set('numBananas', 5);
+    hamster.get('needsMoreBananas'); // false
+    hamster.set('numBananas', 3);
+    hamster.get('needsMoreBananas'); // true
+    ```
+
+    @method lte
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {Number} value
+    @return {Ember.ComputedProperty} computed property which returns true if
+    the original value for property is less or equal than given value.
+  */
   function lte(dependentKey, value) {
     return computed.computed(dependentKey, function () {
       return property_get.get(this, dependentKey) <= value;
@@ -11543,14 +10706,88 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
       }
     }
     return res;
-  });function oneWay(dependentKey) {
+  });
+
+  function oneWay(dependentKey) {
     return alias['default'](dependentKey).oneWay();
   }
 
+  /**
+    This is a more semantically meaningful alias of `computed.oneWay`,
+    whose name is somewhat ambiguous as to which direction the data flows.
+
+    @method reads
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which creates a
+      one way computed property to the original value for property.
+   */
+
+  /**
+    Where `computed.oneWay` provides oneWay bindings, `computed.readOnly` provides
+    a readOnly one way binding. Very often when using `computed.oneWay` one does
+    not also want changes to propagate back up, as they will replace the value.
+
+    This prevents the reverse flow, and also throws an exception when it occurs.
+
+    Example
+
+    ```javascript
+    var User = Ember.Object.extend({
+      firstName: null,
+      lastName: null,
+      nickName: Ember.computed.readOnly('firstName')
+    });
+
+    var teddy = User.create({
+      firstName: 'Teddy',
+      lastName:  'Zeenny'
+    });
+
+    teddy.get('nickName');              // 'Teddy'
+    teddy.set('nickName', 'TeddyBear'); // throws Exception
+    // throw new Ember.Error('Cannot Set: nickName on: <User:ember27288>' );`
+    teddy.get('firstName');             // 'Teddy'
+    ```
+
+    @method readOnly
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which creates a
+    one way computed property to the original value for property.
+    @since 1.5.0
+  */
   function readOnly(dependentKey) {
     return alias['default'](dependentKey).readOnly();
   }
 
+  /**
+    A computed property that acts like a standard getter and setter,
+    but returns the value at the provided `defaultPath` if the
+    property itself has not been set to a value
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      wishList: Ember.computed.defaultTo('favoriteFood')
+    });
+
+    var hamster = Hamster.create({ favoriteFood: 'Banana' });
+
+    hamster.get('wishList');                     // 'Banana'
+    hamster.set('wishList', 'More Unit Tests');
+    hamster.get('wishList');                     // 'More Unit Tests'
+    hamster.get('favoriteFood');                 // 'Banana'
+    ```
+
+    @method defaultTo
+    @for Ember.computed
+    @param {String} defaultPath
+    @return {Ember.ComputedProperty} computed property which acts like
+    a standard getter and setter, but defaults to the value from `defaultPath`.
+    @deprecated Use `Ember.computed.oneWay` or custom CP with default instead.
+  */
   function defaultTo(defaultPath) {
     return computed.computed({
       get: function (key) {
@@ -11565,6 +10802,19 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     });
   }
 
+  /**
+    Creates a new property that is an alias for another property
+    on an object. Calls to `get` or `set` this property behave as
+    though they were called on the original property, but also
+    print a deprecation warning.
+
+    @method deprecatingAlias
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computed property which creates an
+    alias with a deprecation to the original value for property.
+    @since 1.7.0
+  */
   function deprecatingAlias(dependentKey) {
     return computed.computed(dependentKey, {
       get: function (key) {
@@ -11615,7 +10865,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.12.0
+    @version 1.12.1
   */
 
   if ('undefined' === typeof Ember) {
@@ -11644,10 +10894,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.12.0'
+    @default '1.12.1'
     @static
   */
-  Ember.VERSION = '1.12.0';
+  Ember.VERSION = '1.12.1';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -11913,18 +11163,6 @@ enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/core', 'ember-
 
   exports.deprecateProperty = deprecateProperty;
 
-  /**
-    Used internally to allow changing properties in a backwards compatible way, and print a helpful
-    deprecation warning.
-
-    @method deprecateProperty
-    @param {Object} object The object to add the deprecated property to.
-    @param {String} deprecatedKey The property to add (and print deprecation warnings upon accessing).
-    @param {String} newKey The property that will be aliased.
-    @private
-    @since 1.7.0
-  */
-
   function deprecateProperty(object, deprecatedKey, newKey) {
     function deprecate() {
       Ember['default'].deprecate("Usage of `" + deprecatedKey + "` is deprecated, use `" + newKey + "` instead.");
@@ -11952,12 +11190,6 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
   'use strict';
 
 
-
-  // the delete is meant to hint at runtimes that this object should remain in
-  // dictionary mode. This is clearly a runtime specific hack, but currently it
-  // appears worthwhile in some usecases. Please note, these deletes do increase
-  // the cost of creation dramatically over a plain Object.create. And as this
-  // only makes sense for long-lived dictionaries that aren't instantiated often.
   exports['default'] = makeDictionary;
   function makeDictionary(parent) {
     var dict = create['default'](parent);
@@ -11982,6 +11214,8 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
   exports.replace = replace;
   exports.intersection = intersection;
 
+  var splice = Array.prototype.splice;
+
   /**
    * Defines some convenience methods for working with Enumerables.
    * `Ember.EnumerableUtils` uses `Ember.ArrayPolyfills` when necessary.
@@ -12002,29 +11236,89 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
    *
    * @return {Array} An array of mapped values.
    */
-  var splice = Array.prototype.splice;
   function map(obj, callback, thisArg) {
     return obj.map ? obj.map(callback, thisArg) : ember_metal__array.map.call(obj, callback, thisArg);
   }
 
+  /**
+   * Calls the forEach function on the passed object with a specified callback. This
+   * uses `Ember.ArrayPolyfill`'s-forEach method when necessary.
+   *
+   * @method forEach
+   * @param {Object} obj The object to call forEach on
+   * @param {Function} callback The callback to execute
+   * @param {Object} thisArg Value to use as this when executing *callback*
+   *
+   */
   function forEach(obj, callback, thisArg) {
     return obj.forEach ? obj.forEach(callback, thisArg) : ember_metal__array.forEach.call(obj, callback, thisArg);
   }
 
+  /**
+   * Calls the filter function on the passed object with a specified callback. This
+   * uses `Ember.ArrayPolyfill`'s-filter method when necessary.
+   *
+   * @method filter
+   * @param {Object} obj The object to call filter on
+   * @param {Function} callback The callback to execute
+   * @param {Object} thisArg Value to use as this when executing *callback*
+   *
+   * @return {Array} An array containing the filtered values
+   * @since 1.4.0
+   */
   function filter(obj, callback, thisArg) {
     return obj.filter ? obj.filter(callback, thisArg) : ember_metal__array.filter.call(obj, callback, thisArg);
   }
 
+  /**
+   * Calls the indexOf function on the passed object with a specified callback. This
+   * uses `Ember.ArrayPolyfill`'s-indexOf method when necessary.
+   *
+   * @method indexOf
+   * @param {Object} obj The object to call indexOn on
+   * @param {Function} callback The callback to execute
+   * @param {Object} index The index to start searching from
+   *
+   */
   function indexOf(obj, element, index) {
     return obj.indexOf ? obj.indexOf(element, index) : ember_metal__array.indexOf.call(obj, element, index);
   }
 
+  /**
+   * Returns an array of indexes of the first occurrences of the passed elements
+   * on the passed object.
+   *
+   * ```javascript
+   *  var array = [1, 2, 3, 4, 5];
+   *  Ember.EnumerableUtils.indexesOf(array, [2, 5]); // [1, 4]
+   *
+   *  var fubar = "Fubarr";
+   *  Ember.EnumerableUtils.indexesOf(fubar, ['b', 'r']); // [2, 4]
+   * ```
+   *
+   * @method indexesOf
+   * @param {Object} obj The object to check for element indexes
+   * @param {Array} elements The elements to search for on *obj*
+   *
+   * @return {Array} An array of indexes.
+   *
+   */
   function indexesOf(obj, elements) {
     return elements === undefined ? [] : map(elements, function (item) {
       return indexOf(obj, item);
     });
   }
 
+  /**
+   * Adds an object to an array. If the array already includes the object this
+   * method has no effect.
+   *
+   * @method addObject
+   * @param {Array} array The array the passed item should be added to
+   * @param {Object} item The item to add to the passed array
+   *
+   * @return 'undefined'
+   */
   function addObject(array, item) {
     var index = indexOf(array, item);
     if (index === -1) {
@@ -12032,6 +11326,16 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  /**
+   * Removes an object from an array. If the array does not contain the passed
+   * object this method has no effect.
+   *
+   * @method removeObject
+   * @param {Array} array The array to remove the item from.
+   * @param {Object} item The item to remove from the passed array.
+   *
+   * @return 'undefined'
+   */
   function removeObject(array, item) {
     var index = indexOf(array, item);
     if (index !== -1) {
@@ -12065,6 +11369,31 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     return ret;
   }
 
+  /**
+   * Replaces objects in an array with the passed objects.
+   *
+   * ```javascript
+   *   var array = [1,2,3];
+   *   Ember.EnumerableUtils.replace(array, 1, 2, [4, 5]); // [1, 4, 5]
+   *
+   *   var array = [1,2,3];
+   *   Ember.EnumerableUtils.replace(array, 1, 1, [4, 5]); // [1, 4, 5, 3]
+   *
+   *   var array = [1,2,3];
+   *   Ember.EnumerableUtils.replace(array, 10, 1, [4, 5]); // [1, 2, 3, 4, 5]
+   * ```
+   *
+   * @method replace
+   * @param {Array} array The array the objects should be inserted into.
+   * @param {Number} idx Starting index in the array to replace. If *idx* >=
+   * length, then append to the end of the array.
+   * @param {Number} amt Number of elements that should be removed from the array,
+   * starting at *idx*
+   * @param {Array} objects An array of zero or more objects that should be
+   * inserted into the array at *idx*
+   *
+   * @return {Array} The modified array.
+   */
   function replace(array, idx, amt, objects) {
     if (array.replace) {
       return array.replace(idx, amt, objects);
@@ -12073,6 +11402,29 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/array'], functio
     }
   }
 
+  /**
+   * Calculates the intersection of two arrays. This method returns a new array
+   * filled with the records that the two passed arrays share with each other.
+   * If there is no intersection, an empty array will be returned.
+   *
+   * ```javascript
+   * var array1 = [1, 2, 3, 4, 5];
+   * var array2 = [1, 3, 5, 6, 7];
+   *
+   * Ember.EnumerableUtils.intersection(array1, array2); // [1, 3, 5]
+   *
+   * var array1 = [1, 2, 3];
+   * var array2 = [4, 5, 6];
+   *
+   * Ember.EnumerableUtils.intersection(array1, array2); // []
+   * ```
+   *
+   * @method intersection
+   * @param {Array} array1 The first array
+   * @param {Array} array2 The second array
+   *
+   * @return {Array} The intersection of the two passed arrays.
+   */
   function intersection(array1, array2) {
     var result = [];
     forEach(array1, function (element) {
@@ -12275,6 +11627,17 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return newActions;
   }
 
+  /**
+    Add an event listener
+
+    @method addListener
+    @for Ember
+    @param obj
+    @param {String} eventName
+    @param {Object|Function} target A target object or a function
+    @param {Function|String} method A function or the name of a function to be called on `target`
+    @param {Boolean} once A flag whether a function should only be called once
+  */
   function addListener(obj, eventName, target, method, once) {
     Ember['default'].assert("You must pass at least an object and event name to Ember.addListener", !!obj && !!eventName);
 
@@ -12352,6 +11715,25 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
       }
     }
   }
+
+  /**
+    Suspend listener during callback.
+
+    This should only be used by the target of the event listener
+    when it is taking an action that would cause the event, e.g.
+    an object might suspend its property change listener while it is
+    setting that property.
+
+    @method suspendListener
+    @for Ember
+
+    @private
+    @param obj
+    @param {String} eventName
+    @param {Object|Function} target A target object or a function
+    @param {Function|String} method A function or the name of a function to be called on `target`
+    @param {Function} callback
+  */
   function suspendListener(obj, eventName, target, method, callback) {
     if (!method && "function" === typeof target) {
       method = target;
@@ -12377,6 +11759,19 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return utils.tryFinally(tryable, finalizer);
   }
 
+  /**
+    Suspends multiple listeners during a callback.
+
+    @method suspendListeners
+    @for Ember
+
+    @private
+    @param obj
+    @param {Array} eventNames Array of event names
+    @param {Object|Function} target A target object or a function
+    @param {Function|String} method A function or the name of a function to be called on `target`
+    @param {Function} callback
+  */
   function suspendListeners(obj, eventNames, target, method, callback) {
     if (!method && "function" === typeof target) {
       method = target;
@@ -12413,6 +11808,14 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return utils.tryFinally(tryable, finalizer);
   }
 
+  /**
+    Return a list of currently watched events
+
+    @private
+    @method watchedEvents
+    @for Ember
+    @param obj
+  */
   function watchedEvents(obj) {
     var listeners = obj["__ember_meta__"].listeners;
     var ret = [];
@@ -12427,6 +11830,20 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return ret;
   }
 
+  /**
+    Send an event. The execution of suspended listeners
+    is skipped, and once listeners are removed. A listener without
+    a target is executed on the passed object. If an array of actions
+    is not passed, the actions stored on the passed object are invoked.
+
+    @method sendEvent
+    @for Ember
+    @param obj
+    @param {String} eventName
+    @param {Array} params Optional parameters for each listener.
+    @param {Array} actions Optional array of actions (listeners).
+    @return true
+  */
   function sendEvent(obj, eventName, params, actions) {
     // first give object a chance to handle it
     if (obj !== Ember['default'] && "function" === typeof obj.sendEvent) {
@@ -12477,6 +11894,13 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return true;
   }
 
+  /**
+    @private
+    @method hasListeners
+    @for Ember
+    @param obj
+    @param {String} eventName
+  */
   function hasListeners(obj, eventName) {
     var meta = obj["__ember_meta__"];
     var actions = meta && meta.listeners && meta.listeners[eventName];
@@ -12484,6 +11908,13 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return !!(actions && actions.length);
   }
 
+  /**
+    @private
+    @method listenersFor
+    @for Ember
+    @param obj
+    @param {String} eventName
+  */
   function listenersFor(obj, eventName) {
     var ret = [];
     var meta = obj["__ember_meta__"];
@@ -12502,6 +11933,29 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
     return ret;
   }
 
+  /**
+    Define a property as a function that should be executed when
+    a specified event or events are triggered.
+
+
+    ``` javascript
+    var Job = Ember.Object.extend({
+      logCompleted: Ember.on('completed', function() {
+        console.log('Job completed!');
+      })
+    });
+
+    var job = Job.create();
+
+    Ember.sendEvent(job, 'completed'); // Logs 'Job completed!'
+   ```
+
+    @method on
+    @for Ember
+    @param {String} eventNames*
+    @param {Function} func
+    @return func
+  */
   function on() {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
@@ -12519,6 +11973,9 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
   'use strict';
 
 
+  exports['default'] = expandProperties;
+
+  var SPLIT_REGEX = /\{|\}/;
 
   /**
     Expands `pattern`, invoking `callback` for each expansion.
@@ -12546,9 +12003,6 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     @param {Function} callback The callback to invoke.  It is invoked once per
     expansion, and is passed the expansion.
     */
-  exports['default'] = expandProperties;
-
-  var SPLIT_REGEX = /\{|\}/;
   function expandProperties(pattern, callback) {
     if (pattern.indexOf(' ') > -1) {
       throw new EmberError['default']('Brace expanded properties cannot contain spaces, e.g. \'user.{firstName, lastName}\' should be \'user.{firstName,lastName}\'');
@@ -12592,29 +12046,6 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get', 'em
   'use strict';
 
 
-
-  /**
-    To get multiple properties at once, call `Ember.getProperties`
-    with an object followed by a list of strings or an array:
-
-    ```javascript
-    Ember.getProperties(record, 'firstName', 'lastName', 'zipCode');
-    // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
-    ```
-
-    is equivalent to:
-
-    ```javascript
-    Ember.getProperties(record, ['firstName', 'lastName', 'zipCode']);
-    // { firstName: 'John', lastName: 'Doe', zipCode: '10011' }
-    ```
-
-    @method getProperties
-    @for Ember
-    @param {Object} obj
-    @param {String...|Array} list of keys to get
-    @return {Object}
-  */
   exports['default'] = getProperties;
   function getProperties(obj) {
     var ret = {};
@@ -12679,17 +12110,6 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
   exports.unsubscribe = unsubscribe;
   exports.reset = reset;
 
-  /**
-    Notifies event's subscribers, calls `before` and `after` hooks.
-
-    @method instrument
-    @namespace Ember.Instrumentation
-
-    @param {String} [name] Namespaced event name.
-    @param {Object} payload
-    @param {Function} callback Function that you're instrumenting.
-    @param {Object} binding Context that instrument function is called with.
-  */
   var subscribers = [];
   var cache = {};
 
@@ -12716,6 +12136,18 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
       return +new Date();
     };
   })();
+
+  /**
+    Notifies event's subscribers, calls `before` and `after` hooks.
+
+    @method instrument
+    @namespace Ember.Instrumentation
+
+    @param {String} [name] Namespaced event name.
+    @param {Object} payload
+    @param {Function} callback Function that you're instrumenting.
+    @param {Object} binding Context that instrument function is called with.
+  */
   function instrument(name, _payload, callback, binding) {
     if (arguments.length <= 3 && typeof _payload === "function") {
       binding = callback;
@@ -12741,6 +12173,8 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
       return callback.call(binding);
     }
   }
+
+  // private for now
 
   function _instrumentStart(name, _payload) {
     var listeners = cache[name];
@@ -12785,6 +12219,17 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     };
   }
 
+  /**
+    Subscribes to a particular event or instrumented block of code.
+
+    @method subscribe
+    @namespace Ember.Instrumentation
+
+    @param {String} [pattern] Namespaced event name.
+    @param {Object} [object] Before and After hooks.
+
+    @return {Subscriber}
+  */
   function subscribe(pattern, object) {
     var paths = pattern.split(".");
     var path;
@@ -12814,6 +12259,14 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     return subscriber;
   }
 
+  /**
+    Unsubscribes from a particular event or instrumented block of code.
+
+    @method unsubscribe
+    @namespace Ember.Instrumentation
+
+    @param {Object} [subscriber]
+  */
   function unsubscribe(subscriber) {
     var index;
 
@@ -12827,6 +12280,12 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     cache = {};
   }
 
+  /**
+    Resets `Ember.Instrumentation` by flushing list of subscribers.
+
+    @method reset
+    @namespace Ember.Instrumentation
+  */
   function reset() {
     subscribers.length = 0;
     cache = {};
@@ -12840,30 +12299,6 @@ enifed('ember-metal/is_blank', ['exports', 'ember-metal/is_empty'], function (ex
   'use strict';
 
 
-
-  /**
-    A value is blank if it is empty or a whitespace string.
-
-    ```javascript
-    Ember.isBlank();                // true
-    Ember.isBlank(null);            // true
-    Ember.isBlank(undefined);       // true
-    Ember.isBlank('');              // true
-    Ember.isBlank([]);              // true
-    Ember.isBlank('\n\t');          // true
-    Ember.isBlank('  ');            // true
-    Ember.isBlank({});              // false
-    Ember.isBlank('\n\t Hello');    // false
-    Ember.isBlank('Hello world');   // false
-    Ember.isBlank([1,2,3]);         // false
-    ```
-
-    @method isBlank
-    @for Ember
-    @param {Object} obj Value to test
-    @return {Boolean}
-    @since 1.5.0
-    */
   exports['default'] = isBlank;
   function isBlank(obj) {
     return isEmpty['default'](obj) || typeof obj === 'string' && obj.match(/\S/) === null;
@@ -12945,30 +12380,6 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
   'use strict';
 
 
-
-  /**
-    A value is present if it not `isBlank`.
-
-    ```javascript
-    Ember.isPresent();                // false
-    Ember.isPresent(null);            // false
-    Ember.isPresent(undefined);       // false
-    Ember.isPresent('');              // false
-    Ember.isPresent([]);              // false
-    Ember.isPresent('\n\t');          // false
-    Ember.isPresent('  ');            // false
-    Ember.isPresent({});              // true
-    Ember.isPresent('\n\t Hello');    // true
-    Ember.isPresent('Hello world');   // true
-    Ember.isPresent([1,2,3]);         // true
-    ```
-
-    @method isPresent
-    @for Ember
-    @param {Object} obj Value to test
-    @return {Boolean}
-    @since 1.8.0
-    */
   exports['default'] = isPresent;
   function isPresent(obj) {
     return !isBlank['default'](obj);
@@ -13737,23 +13148,6 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
   'use strict';
 
 
-
-  /**
-    Merge the contents of two objects together into the first object.
-
-    ```javascript
-    Ember.merge({first: 'Tom'}, {last: 'Dale'}); // {first: 'Tom', last: 'Dale'}
-    var a = {first: 'Yehuda'};
-    var b = {last: 'Katz'};
-    Ember.merge(a, b); // a == {first: 'Yehuda', last: 'Katz'}, b == {last: 'Katz'}
-    ```
-
-    @method merge
-    @for Ember
-    @param {Object} original The object to merge into
-    @param {Object} updates The object to copy properties from
-    @return {Object}
-  */
   exports['default'] = merge;
   function merge(original, updates) {
     if (!updates || typeof updates !== 'object') {
@@ -13784,13 +13178,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   exports.beforeObserver = beforeObserver;
   exports.Mixin = Mixin;
 
-  /**
-    @method mixin
-    @for Ember
-    @param obj
-    @param mixins*
-    @return obj
-  */
   "REMOVE_USE_STRICT: true";var REQUIRED;
   var a_slice = [].slice;
 
@@ -14242,6 +13629,14 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
 
     return obj;
   }
+
+  /**
+    @method mixin
+    @for Ember
+    @param obj
+    @param mixins*
+    @return obj
+  */
   function mixin(obj) {
     for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
       args[_key - 1] = arguments[_key];
@@ -14517,6 +13912,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   REQUIRED.toString = function () {
     return "(Required Property)";
   };
+
+  /**
+    Denotes a required property for a mixin
+
+    @method required
+    @for Ember
+  */
   function required() {
     Ember['default'].deprecate("Ember.required is deprecated as its behavior is inconsistent and unreliable.", false);
     return REQUIRED;
@@ -14528,10 +13930,59 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   }
 
   Alias.prototype = new ember_metal__properties.Descriptor();
+
+  /**
+    Makes a method available via an additional name.
+
+    ```javascript
+    App.Person = Ember.Object.extend({
+      name: function() {
+        return 'Tomhuda Katzdale';
+      },
+      moniker: Ember.aliasMethod('name')
+    });
+
+    var goodGuy = App.Person.create();
+
+    goodGuy.name();    // 'Tomhuda Katzdale'
+    goodGuy.moniker(); // 'Tomhuda Katzdale'
+    ```
+
+    @method aliasMethod
+    @for Ember
+    @param {String} methodName name of the method to alias
+  */
   function aliasMethod(methodName) {
     return new Alias(methodName);
   }
 
+  // ..........................................................
+  // OBSERVER HELPER
+  //
+
+  /**
+    Specify a method that observes property changes.
+
+    ```javascript
+    Ember.Object.extend({
+      valueObserver: Ember.observer('value', function() {
+        // Executes whenever the "value" property changes
+      })
+    });
+    ```
+
+    In the future this method may become asynchronous. If you want to ensure
+    synchronous behavior, use `immediateObserver`.
+
+    Also available as `Function.prototype.observes` if prototype extensions are
+    enabled.
+
+    @method observer
+    @for Ember
+    @param {String} propertyNames*
+    @param {Function} func
+    @return func
+  */
   function observer() {
     for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       args[_key4] = arguments[_key4];
@@ -14566,6 +14017,29 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     return func;
   }
 
+  /**
+    Specify a method that observes property changes.
+
+    ```javascript
+    Ember.Object.extend({
+      valueObserver: Ember.immediateObserver('value', function() {
+        // Executes whenever the "value" property changes
+      })
+    });
+    ```
+
+    In the future, `Ember.observer` may become asynchronous. In this event,
+    `Ember.immediateObserver` will maintain the synchronous behavior.
+
+    Also available as `Function.prototype.observesImmediately` if prototype extensions are
+    enabled.
+
+    @method immediateObserver
+    @for Ember
+    @param {String} propertyNames*
+    @param {Function} func
+    @return func
+  */
   function immediateObserver() {
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
@@ -14575,6 +14049,48 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     return observer.apply(this, arguments);
   }
 
+  /**
+    When observers fire, they are called with the arguments `obj`, `keyName`.
+
+    Note, `@each.property` observer is called per each add or replace of an element
+    and it's not called with a specific enumeration item.
+
+    A `beforeObserver` fires before a property changes.
+
+    A `beforeObserver` is an alternative form of `.observesBefore()`.
+
+    ```javascript
+    App.PersonView = Ember.View.extend({
+      friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
+
+      valueWillChange: Ember.beforeObserver('content.value', function(obj, keyName) {
+        this.changingFrom = obj.get(keyName);
+      }),
+
+      valueDidChange: Ember.observer('content.value', function(obj, keyName) {
+          // only run if updating a value already in the DOM
+          if (this.get('state') === 'inDOM') {
+            var color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';
+            // logic
+          }
+      }),
+
+      friendsDidChange: Ember.observer('friends.@each.name', function(obj, keyName) {
+        // some logic
+        // obj.get(keyName) returns friends array
+      })
+    });
+    ```
+
+    Also available as `Function.prototype.observesBefore` if prototype extensions are
+    enabled.
+
+    @method beforeObserver
+    @for Ember
+    @param {String} propertyNames*
+    @param {Function} func
+    @return func
+  */
   function beforeObserver() {
     for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
       args[_key5] = arguments[_key5];
@@ -14629,14 +14145,6 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
   exports.beforeObserversFor = beforeObserversFor;
   exports.removeBeforeObserver = removeBeforeObserver;
 
-  /**
-    @method addObserver
-    @for Ember
-    @param obj
-    @param {String} path
-    @param {Object|Function} targetOrMethod
-    @param {Function|String} [method]
-  */
   var AFTER_OBSERVERS = ":change";
   var BEFORE_OBSERVERS = ":before";
 
@@ -14647,6 +14155,15 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
   function beforeEvent(keyName) {
     return keyName + BEFORE_OBSERVERS;
   }
+
+  /**
+    @method addObserver
+    @for Ember
+    @param obj
+    @param {String} path
+    @param {Object|Function} targetOrMethod
+    @param {Function|String} [method]
+  */
   function addObserver(obj, _path, target, method) {
     ember_metal__events.addListener(obj, changeEvent(_path), target, method);
     watching.watch(obj, _path);
@@ -14658,6 +14175,14 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     return ember_metal__events.listenersFor(obj, changeEvent(path));
   }
 
+  /**
+    @method removeObserver
+    @for Ember
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+  */
   function removeObserver(obj, path, target, method) {
     watching.unwatch(obj, path);
     ember_metal__events.removeListener(obj, changeEvent(path), target, method);
@@ -14665,12 +14190,25 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     return this;
   }
 
+  /**
+    @method addBeforeObserver
+    @for Ember
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+  */
   function addBeforeObserver(obj, path, target, method) {
     ember_metal__events.addListener(obj, beforeEvent(path), target, method);
     watching.watch(obj, path);
 
     return this;
   }
+
+  // Suspend observer during callback.
+  //
+  // This should only be used by the target of the observer
+  // while it is setting the observed path.
 
   function _suspendBeforeObserver(obj, path, target, method, callback) {
     return ember_metal__events.suspendListener(obj, beforeEvent(path), target, method, callback);
@@ -14694,6 +14232,14 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     return ember_metal__events.listenersFor(obj, beforeEvent(path));
   }
 
+  /**
+    @method removeBeforeObserver
+    @for Ember
+    @param obj
+    @param {String} path
+    @param {Object|Function} target
+    @param {Function|String} [method]
+  */
   function removeBeforeObserver(obj, path, target, method) {
     watching.unwatch(obj, path);
     ember_metal__events.removeListener(obj, beforeEvent(path), target, method);
@@ -15112,17 +14658,13 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/core', 'ember-metal/ut
   exports.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;
   exports.defineProperty = defineProperty;
 
-  // ..........................................................
-  // DESCRIPTOR
-  //
-
-  /**
-    Objects of this type can implement an interface to respond to requests to
-    get and set. The default implementation handles simple properties.
-  */
   function Descriptor() {
     this.isDescriptor = true;
   }
+
+  // ..........................................................
+  // DEFINING PROPERTIES API
+  //
 
   function MANDATORY_SETTER_FUNCTION(name) {
     return function SETTER_FUNCTION(value) {
@@ -15137,6 +14679,51 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/core', 'ember-metal/ut
     };
   }
 
+  /**
+    NOTE: This is a low-level method used by other parts of the API. You almost
+    never want to call this method directly. Instead you should use
+    `Ember.mixin()` to define new properties.
+
+    Defines a property on an object. This method works much like the ES5
+    `Object.defineProperty()` method except that it can also accept computed
+    properties and other special descriptors.
+
+    Normally this method takes only three parameters. However if you pass an
+    instance of `Descriptor` as the third param then you can pass an
+    optional value as the fourth parameter. This is often more efficient than
+    creating new descriptor hashes for each property.
+
+    ## Examples
+
+    ```javascript
+    // ES5 compatible mode
+    Ember.defineProperty(contact, 'firstName', {
+      writable: true,
+      configurable: false,
+      enumerable: true,
+      value: 'Charles'
+    });
+
+    // define a simple property
+    Ember.defineProperty(contact, 'lastName', undefined, 'Jolley');
+
+    // define a computed property
+    Ember.defineProperty(contact, 'fullName', Ember.computed(function() {
+      return this.firstName+' '+this.lastName;
+    }).property('firstName', 'lastName'));
+    ```
+
+    @private
+    @method defineProperty
+    @for Ember
+    @param {Object} obj the object to define this property on. This may be a prototype.
+    @param {String} keyName the name of the property
+    @param {Descriptor} [desc] an instance of `Descriptor` (typically a
+      computed property) or an ES5 descriptor.
+      You must provide this or `data` but not both.
+    @param {*} [data] something other than a descriptor, that will
+      become the explicit value of this property.
+  */
   function defineProperty(obj, keyName, desc, data, meta) {
     var possibleDesc, existingDesc, watching, value;
 
@@ -15516,7 +15103,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   }
 
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property'], function (exports, Ember, EmberError, path_cache, define_property) {
+enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/platform/define_property', 'ember-metal/is_none'], function (exports, Ember, EmberError, path_cache, define_property, isNone) {
 
   'use strict';
 
@@ -15524,6 +15111,8 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
   exports.normalizeTuple = normalizeTuple;
   exports._getPath = _getPath;
   exports.getWithDefault = getWithDefault;
+
+  var FIRST_KEY = /^([^\.]+)/;
 
   // ..........................................................
   // GET AND SET
@@ -15556,7 +15145,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     @param {String} keyName The property key to retrieve
     @return {Object} the property value or `null`.
   */
-  var FIRST_KEY = /^([^\.]+)/;
   function get(obj, keyName) {
     // Helpers that operate with 'this' within an #each
     if (keyName === "") {
@@ -15571,7 +15159,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     Ember['default'].assert("Cannot call get with " + keyName + " key.", !!keyName);
     Ember['default'].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
-    if (!obj) {
+    if (isNone['default'](obj)) {
       return _getPath(obj, keyName);
     }
 
@@ -15602,6 +15190,19 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     }
   }
 
+  /**
+    Normalizes a target/path pair to reflect that actual target/path that should
+    be observed, etc. This takes into account passing in global property
+    paths (i.e. a path beginning with a capital letter not defined on the
+    target).
+
+    @private
+    @method normalizeTuple
+    @for Ember
+    @param {Object} target The current target. May be `null`.
+    @param {String} path A path on the target or a global property path.
+    @return {Array} a temporary array with the normalized target/path pair.
+  */
   function normalizeTuple(target, path) {
     var hasThis = path_cache.hasThis(path);
     var isGlobal = !hasThis && path_cache.isGlobal(path);
@@ -15679,19 +15280,6 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
   exports.set = set;
   exports.trySet = trySet;
 
-  /**
-    Sets the value of a property on an object, respecting computed properties
-    and notifying observers and other listeners of the change. If the
-    property is not defined but the object implements the `setUnknownProperty`
-    method then that will be invoked as well.
-
-    @method set
-    @for Ember
-    @param {Object} obj The object to modify.
-    @param {String} keyName The property key to set
-    @param {Object} value The value to set
-    @return {Object} the passed value.
-  */
   function set(obj, keyName, value, tolerant) {
     if (typeof obj === "string") {
       Ember['default'].assert("Path '" + obj + "' must be global if no obj is given.", path_cache.isGlobalPath(obj));
@@ -15796,6 +15384,20 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
 
     return set(root, keyName, value);
   }
+
+  /**
+    Error-tolerant form of `Ember.set`. Will not blow up if any part of the
+    chain is `undefined`, `null`, or destroyed.
+
+    This is primarily used when syncing bindings, which may try to update after
+    an object has been destroyed.
+
+    @method trySet
+    @for Ember
+    @param {Object} obj The object to modify.
+    @param {String} path The property path to set
+    @param {Object} value The value to set
+  */
   function trySet(root, path, value) {
     return set(root, path, value, true);
   }
@@ -16462,27 +16064,6 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
   'use strict';
 
 
-
-  /**
-    Set a list of properties on an object. These properties are set inside
-    a single `beginPropertyChanges` and `endPropertyChanges` batch, so
-    observers will be buffered.
-
-    ```javascript
-    var anObject = Ember.Object.create();
-
-    anObject.setProperties({
-      firstName: 'Stanley',
-      lastName: 'Stuart',
-      age: 21
-    });
-    ```
-
-    @method setProperties
-    @param obj
-    @param {Object} properties
-    @return obj
-  */
   exports['default'] = setProperties;
   function setProperties(obj, properties) {
     if (!properties || typeof properties !== "object") {
@@ -16904,31 +16485,55 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   exports.concat = concat;
   exports.chain = chain;
 
-  /*
-   Check whether an object is a stream or not
-
-   @public
-   @for Ember.stream
-   @function isStream
-   @param {Object|Stream} object object to check whether it is a stream
-   @return {Boolean} `true` if the object is a stream, `false` otherwise
-  */
   function isStream(object) {
     return object && object.isStream;
   }
 
+  /*
+   A method of subscribing to a stream which is safe for use with a non-stream
+   object. If a non-stream object is passed, the function does nothing.
+
+   @public
+   @for Ember.stream
+   @function subscribe
+   @param {Object|Stream} object object or stream to potentially subscribe to
+   @param {Function} callback function to run when stream value changes
+   @param {Object} [context] the callback will be executed with this context if it
+                             is provided
+   */
   function subscribe(object, callback, context) {
     if (object && object.isStream) {
       object.subscribe(callback, context);
     }
   }
 
+  /*
+   A method of unsubscribing from a stream which is safe for use with a non-stream
+   object. If a non-stream object is passed, the function does nothing.
+
+   @public
+   @for Ember.stream
+   @function unsubscribe
+   @param {Object|Stream} object object or stream to potentially unsubscribe from
+   @param {Function} callback function originally passed to `subscribe()`
+   @param {Object} [context] object originally passed to `subscribe()`
+   */
   function unsubscribe(object, callback, context) {
     if (object && object.isStream) {
       object.unsubscribe(callback, context);
     }
   }
 
+  /*
+   Retrieve the value of a stream, or in the case a non-stream object is passed,
+   return the object itself.
+
+   @public
+   @for Ember.stream
+   @function read
+   @param {Object|Stream} object object to return the value of
+   @return the stream's current value, or the non-stream object itself
+   */
   function read(object) {
     if (object && object.isStream) {
       return object.value();
@@ -16937,6 +16542,18 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
+  /*
+   Map an array, replacing any streams with their values.
+
+   @public
+   @for Ember.stream
+   @function readArray
+   @param {Array} array The array to read values from
+   @return {Array} a new array of the same length with the values of non-stream
+                   objects mapped from their original positions untouched, and
+                   the values of stream objects retaining their original position
+                   and replaced with the stream's current value.
+   */
   function readArray(array) {
     var length = array.length;
     var ret = new Array(length);
@@ -16946,6 +16563,19 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return ret;
   }
 
+  /*
+   Map a hash, replacing any stream property values with the current value of that
+   stream.
+
+   @public
+   @for Ember.stream
+   @function readHash
+   @param {Object} object The hash to read keys and values from
+   @return {Object} a new object with the same keys as the passed object. The
+                    property values in the new object are the original values in
+                    the case of non-stream objects, and the streams' current
+                    values in the case of stream objects.
+   */
   function readHash(object) {
     var ret = {};
     for (var key in object) {
@@ -16954,6 +16584,16 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return ret;
   }
 
+  /*
+   Check whether an array contains any stream values
+
+   @public
+   @for Ember.stream
+   @function scanArray
+   @param {Array} array array given to a handlebars helper
+   @return {Boolean} `true` if the array contains a stream/bound value, `false`
+                     otherwise
+  */
   function scanArray(array) {
     var length = array.length;
     var containsStream = false;
@@ -16968,6 +16608,16 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return containsStream;
   }
 
+  /*
+   Check whether a hash has any stream property values
+
+   @public
+   @for Ember.stream
+   @function scanHash
+   @param {Object} hash "hash" argument given to a handlebars helper
+   @return {Boolean} `true` if the object contains a stream/bound value, `false`
+                     otherwise
+   */
   function scanHash(hash) {
     var containsStream = false;
 
@@ -16981,6 +16631,19 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     return containsStream;
   }
 
+  /*
+   Join an array, with any streams replaced by their current values
+
+   @public
+   @for Ember.stream
+   @function concat
+   @param {Array} array An array containing zero or more stream objects and
+                        zero or more non-stream objects
+   @param {String} separator string to be used to join array elements
+   @return {String} String with array elements concatenated and joined by the
+                    provided separator, and any stream array members having been
+                    replaced by the current value of the stream
+   */
   function concat(array, separator) {
     // TODO: Create subclass ConcatStream < Stream. Defer
     // subscribing to streams until the value() is called.
@@ -17001,6 +16664,38 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
     }
   }
 
+  /*
+   Generate a new stream by providing a source stream and a function that can
+   be used to transform the stream's value. In the case of a non-stream object,
+   returns the result of the function.
+
+   The value to transform would typically be available to the function you pass
+   to `chain()` via scope. For example:
+
+   ```javascript
+       var source = ...;  // stream returning a number
+                              // or a numeric (non-stream) object
+       var result = chain(source, function() {
+         var currentValue = read(source);
+         return currentValue + 1;
+       });
+   ```
+
+   In the example, result is a stream if source is a stream, or a number of
+   source was numeric.
+
+   @public
+   @for Ember.stream
+   @function chain
+   @param {Object|Stream} value A stream or non-stream object
+   @param {Function} fn function to be run when the stream value changes, or to
+                        be run once in the case of a non-stream object
+   @return {Object|Stream} In the case of a stream `value` parameter, a new
+                           stream that will be updated with the return value of
+                           the provided function `fn`. In the case of a
+                           non-stream object, the return value of the provided
+                           function `fn`.
+   */
   function chain(value, fn) {
     if (isStream(value)) {
       var stream = new Stream['default'](fn);
@@ -17032,15 +16727,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   exports.isArray = isArray;
   exports.canInvoke = canInvoke;
 
-  /**
-    Generates a universally unique identifier. This method
-    is used internally by Ember for assisting with
-    the generation of GUID's and other unique identifiers
-    such as `bind-attr` data attributes.
-
-    @public
-    @return {Number} [description]
-   */
   "REMOVE_USE_STRICT: true"; /**
                              @module ember-metal
                              */
@@ -17053,6 +16739,16 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     @return {Number} the uuid
   */
   var _uuid = 0;
+
+  /**
+    Generates a universally unique identifier. This method
+    is used internally by Ember for assisting with
+    the generation of GUID's and other unique identifiers
+    such as `bind-attr` data attributes.
+
+    @public
+    @return {Number} [description]
+   */
   function uuid() {
     return ++_uuid;
   }
@@ -17178,7 +16874,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   var NEXT_SUPER_PROPERTY = {
     name: "__nextSuper",
     descriptor: undefinedDescriptor
-  };function generateGuid(obj, prefix) {
+  };
+
+  function generateGuid(obj, prefix) {
     if (!prefix) {
       prefix = GUID_PREFIX;
     }
@@ -17199,6 +16897,20 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     return ret;
   }
 
+  /**
+    Returns a unique id for the object. If the object does not yet have a guid,
+    one will be assigned to it. You can call this on any object,
+    `Ember.Object`-based or not, but be aware that it will add a `_guid`
+    property.
+
+    You can also use this method on DOM Element objects.
+
+    @private
+    @method guidFor
+    @for Ember
+    @param {Object} obj any object, string, number, Element, or primitive
+    @return {String} the unique guid for this instance.
+  */
   function guidFor(obj) {
 
     // special cases where we don't want to add a key to object
@@ -17384,6 +17096,39 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     return value;
   }
 
+  /**
+    @deprecated
+    @private
+
+    In order to store defaults for a class, a prototype may need to create
+    a default meta object, which will be inherited by any objects instantiated
+    from the class's constructor.
+
+    However, the properties of that meta object are only shallow-cloned,
+    so if a property is a hash (like the event system's `listeners` hash),
+    it will by default be shared across all instances of that class.
+
+    This method allows extensions to deeply clone a series of nested hashes or
+    other complex objects. For instance, the event system might pass
+    `['listeners', 'foo:change', 'ember157']` to `prepareMetaPath`, which will
+    walk down the keys provided.
+
+    For each key, if the key does not exist, it is created. If it already
+    exists and it was inherited from its constructor, the constructor's
+    key is cloned.
+
+    You can also pass false for `writable`, which will simply return
+    undefined if `prepareMetaPath` discovers any part of the path that
+    shared or undefined.
+
+    @method metaPath
+    @for Ember
+    @param {Object} obj The object whose meta we are examining
+    @param {Array} path An array of keys to walk down
+    @param {Boolean} writable whether or not to create a new meta
+      (or meta property) if one does not already exist or if it's
+      shared with its constructor
+  */
   function metaPath(obj, path, writable) {
     Ember['default'].deprecate("Ember.metaPath is deprecated and will be removed from future releases.");
     var _meta = meta(obj, writable);
@@ -17412,6 +17157,18 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     return value;
   }
 
+  /**
+    Wraps the passed function so that `this._super` will point to the superFunc
+    when the function is invoked. This is the primitive we use to implement
+    calls to super.
+
+    @private
+    @method wrap
+    @for Ember
+    @param {Function} func The function to call
+    @param {Function} superFunc The super function.
+    @return {Function} wrapped function.
+  */
   function wrap(func, superFunc) {
     function superWrapper() {
       var ret;
@@ -17506,6 +17263,29 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     }
     return false;
   }
+
+  /**
+    Forces the passed object to be part of an array. If the object is already
+    an array or array-like, it will return the object. Otherwise, it will add the object to
+    an array. If obj is `null` or `undefined`, it will return an empty array.
+
+    ```javascript
+    Ember.makeArray();            // []
+    Ember.makeArray(null);        // []
+    Ember.makeArray(undefined);   // []
+    Ember.makeArray('lindsay');   // ['lindsay']
+    Ember.makeArray([1, 2, 42]);  // [1, 2, 42]
+
+    var controller = Ember.ArrayProxy.create({ content: [] });
+
+    Ember.makeArray(controller) === controller;  // true
+    ```
+
+    @method makeArray
+    @for Ember
+    @param {Object} obj the object
+    @return {Array}
+  */
   function makeArray(obj) {
     if (obj === null || obj === undefined) {
       return [];
@@ -17533,6 +17313,26 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   function canInvoke(obj, methodName) {
     return !!(obj && typeof obj[methodName] === "function");
   }
+
+  /**
+    Checks to see if the `methodName` exists on the `obj`,
+    and if it does, invokes it with the arguments passed.
+
+    ```javascript
+    var d = new Date('03/15/2013');
+
+    Ember.tryInvoke(d, 'getTime');              // 1363320000000
+    Ember.tryInvoke(d, 'setFullYear', [2014]);  // 1394856000000
+    Ember.tryInvoke(d, 'noSuchMethod', [2014]); // undefined
+    ```
+
+    @method tryInvoke
+    @for Ember
+    @param {Object} obj The object to check for the method
+    @param {String} methodName The method name to check for
+    @param {Array} [args] The arguments to pass to the method
+    @return {*} the return value of the invoked method or undefined if it cannot be invoked
+  */
   function tryInvoke(obj, methodName, args) {
     if (canInvoke(obj, methodName)) {
       return args ? applyStr(obj, methodName, args) : applyStr(obj, methodName);
@@ -17809,6 +17609,20 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
 
     return ret;
   }
+
+  /**
+    Convenience method to inspect an object. This method will attempt to
+    convert the object into a useful string description.
+
+    It is a pretty simple implementation. If you want something more robust,
+    use something like JSDump: https://github.com/NV/jsDump
+
+    @method inspect
+    @for Ember
+    @param {Object} obj The object you want to inspect.
+    @return {String} A description of the object
+    @since 1.4.0
+  */
   function inspect(obj) {
     var type = typeOf(obj);
     if (type === "array") {
@@ -17840,6 +17654,13 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     return "{" + ret.join(", ") + "}";
   }
 
+  // The following functions are intentionally minified to keep the functions
+  // below Chrome's function body size inlining limit of 600 chars.
+  /**
+    @param {Object} target
+    @param {Function} method
+    @param {Array} args
+  */
   function apply(t, m, a) {
     var l = a && a.length;
     if (!a || !l) {
@@ -17861,6 +17682,11 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
     }
   }
 
+  /**
+    @param {Object} target
+    @param {String} method
+    @param {Array} args
+  */
   function applyStr(t, m, a) {
     var l = a && a.length;
     if (!a || !l) {
@@ -17963,7 +17789,8 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/core', 'ember-metal/uti
 
   // This is super annoying, but required until
   // https://github.com/babel/babel/issues/906 is resolved
-  ;
+  ; // jshint ignore:line
+
   function unwatchKey(obj, keyName, meta) {
     var m = meta || utils.meta(obj);
     var watching = m.watching;
@@ -18096,6 +17923,16 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
   }
 
   var NODE_STACK = [];
+
+  /**
+    Tears down the meta on an object so that it can be garbage collected.
+    Multiple calls will have no effect.
+
+    @method destroy
+    @for Ember
+    @param {Object} obj  the object to destroy
+    @return {void}
+  */
   function destroy(obj) {
     var meta = obj["__ember_meta__"];
     var node, nodes, key, nodeObject;
@@ -18158,6 +17995,107 @@ enifed('ember-routing-htmlbars/helpers/action', ['exports', 'ember-metal/core', 
   'use strict';
 
   exports.actionHelper = actionHelper;
+
+  function actionArgs(parameters, actionName) {
+    var ret, i, l;
+
+    if (actionName === undefined) {
+      ret = new Array(parameters.length);
+      for (i = 0, l = parameters.length; i < l; i++) {
+        ret[i] = streams__utils.readUnwrappedModel(parameters[i]);
+      }
+    } else {
+      ret = new Array(parameters.length + 1);
+      ret[0] = actionName;
+      for (i = 0, l = parameters.length; i < l; i++) {
+        ret[i + 1] = streams__utils.readUnwrappedModel(parameters[i]);
+      }
+    }
+
+    return ret;
+  }
+
+  var ActionHelper = {};
+
+  // registeredActions is re-exported for compatibility with older plugins
+  // that were using this undocumented API.
+  ActionHelper.registeredActions = ActionManager['default'].registeredActions;
+
+  var keys = ["alt", "shift", "meta", "ctrl"];
+
+  var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
+
+  var isAllowedEvent = function (event, allowedKeys) {
+    if (typeof allowedKeys === "undefined") {
+      if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
+        return system__utils.isSimpleClick(event);
+      } else {
+        allowedKeys = "";
+      }
+    }
+
+    if (allowedKeys.indexOf("any") >= 0) {
+      return true;
+    }
+
+    for (var i = 0, l = keys.length; i < l; i++) {
+      if (event[keys[i] + "Key"] && allowedKeys.indexOf(keys[i]) === -1) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  ActionHelper.registerAction = function (actionNameOrStream, options, allowedKeys) {
+    var actionId = utils.uuid();
+    var eventName = options.eventName;
+    var parameters = options.parameters;
+
+    ActionManager['default'].registeredActions[actionId] = {
+      eventName: eventName,
+      handler: function (event) {
+        if (!isAllowedEvent(event, allowedKeys)) {
+          return true;
+        }
+
+        if (options.preventDefault !== false) {
+          event.preventDefault();
+        }
+
+        if (options.bubbles === false) {
+          event.stopPropagation();
+        }
+
+        var target = options.target.value();
+
+        var actionName;
+
+        if (ember_metal__streams__utils.isStream(actionNameOrStream)) {
+          actionName = actionNameOrStream.value();
+
+          Ember['default'].assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string");
+        } else {
+          actionName = actionNameOrStream;
+        }
+
+        run['default'](function runRegisteredAction() {
+          if (target.send) {
+            target.send.apply(target, actionArgs(parameters, actionName));
+          } else {
+            Ember['default'].assert("The action '" + actionName + "' did not exist on " + target, typeof target[actionName] === "function");
+            target[actionName].apply(target, actionArgs(parameters));
+          }
+        });
+      }
+    };
+
+    options.view.on("willClearRender", function () {
+      delete ActionManager['default'].registeredActions[actionId];
+    });
+
+    return actionId;
+  };
 
   /**
     The `{{action}}` helper provides a useful shortcut for registering an HTML
@@ -18322,106 +18260,6 @@ enifed('ember-routing-htmlbars/helpers/action', ['exports', 'ember-metal/core', 
     @param {Object} [context]*
     @param {Hash} options
   */
-  function actionArgs(parameters, actionName) {
-    var ret, i, l;
-
-    if (actionName === undefined) {
-      ret = new Array(parameters.length);
-      for (i = 0, l = parameters.length; i < l; i++) {
-        ret[i] = streams__utils.readUnwrappedModel(parameters[i]);
-      }
-    } else {
-      ret = new Array(parameters.length + 1);
-      ret[0] = actionName;
-      for (i = 0, l = parameters.length; i < l; i++) {
-        ret[i + 1] = streams__utils.readUnwrappedModel(parameters[i]);
-      }
-    }
-
-    return ret;
-  }
-
-  var ActionHelper = {};
-
-  // registeredActions is re-exported for compatibility with older plugins
-  // that were using this undocumented API.
-  ActionHelper.registeredActions = ActionManager['default'].registeredActions;
-
-  var keys = ["alt", "shift", "meta", "ctrl"];
-
-  var POINTER_EVENT_TYPE_REGEX = /^click|mouse|touch/;
-
-  var isAllowedEvent = function (event, allowedKeys) {
-    if (typeof allowedKeys === "undefined") {
-      if (POINTER_EVENT_TYPE_REGEX.test(event.type)) {
-        return system__utils.isSimpleClick(event);
-      } else {
-        allowedKeys = "";
-      }
-    }
-
-    if (allowedKeys.indexOf("any") >= 0) {
-      return true;
-    }
-
-    for (var i = 0, l = keys.length; i < l; i++) {
-      if (event[keys[i] + "Key"] && allowedKeys.indexOf(keys[i]) === -1) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  ActionHelper.registerAction = function (actionNameOrStream, options, allowedKeys) {
-    var actionId = utils.uuid();
-    var eventName = options.eventName;
-    var parameters = options.parameters;
-
-    ActionManager['default'].registeredActions[actionId] = {
-      eventName: eventName,
-      handler: function (event) {
-        if (!isAllowedEvent(event, allowedKeys)) {
-          return true;
-        }
-
-        if (options.preventDefault !== false) {
-          event.preventDefault();
-        }
-
-        if (options.bubbles === false) {
-          event.stopPropagation();
-        }
-
-        var target = options.target.value();
-
-        var actionName;
-
-        if (ember_metal__streams__utils.isStream(actionNameOrStream)) {
-          actionName = actionNameOrStream.value();
-
-          Ember['default'].assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string");
-        } else {
-          actionName = actionNameOrStream;
-        }
-
-        run['default'](function runRegisteredAction() {
-          if (target.send) {
-            target.send.apply(target, actionArgs(parameters, actionName));
-          } else {
-            Ember['default'].assert("The action '" + actionName + "' did not exist on " + target, typeof target[actionName] === "function");
-            target[actionName].apply(target, actionArgs(parameters));
-          }
-        });
-      }
-    };
-
-    options.view.on("willClearRender", function () {
-      delete ActionManager['default'].registeredActions[actionId];
-    });
-
-    return actionId;
-  };
   function actionHelper(params, hash, options, env) {
     var view = env.data.view;
     var target;
@@ -18541,71 +18379,6 @@ enifed('ember-routing-htmlbars/helpers/outlet', ['exports', 'ember-metal/core'],
 
   exports.outletHelper = outletHelper;
 
-  // assert
-
-  /**
-    The `outlet` helper is a placeholder that the router will fill in with
-    the appropriate template based on the current state of the application.
-
-    ``` handlebars
-    {{outlet}}
-    ```
-
-    By default, a template based on Ember's naming conventions will be rendered
-    into the `outlet` (e.g. `App.PostsRoute` will render the `posts` template).
-
-    You can render a different template by using the `render()` method in the
-    route's `renderTemplate` hook. The following will render the `favoritePost`
-    template into the `outlet`.
-
-    ``` javascript
-    App.PostsRoute = Ember.Route.extend({
-      renderTemplate: function() {
-        this.render('favoritePost');
-      }
-    });
-    ```
-
-    You can create custom named outlets for more control.
-
-    ``` handlebars
-    {{outlet 'favoritePost'}}
-    {{outlet 'posts'}}
-    ```
-
-    Then you can define what template is rendered into each outlet in your
-    route.
-
-
-    ``` javascript
-    App.PostsRoute = Ember.Route.extend({
-      renderTemplate: function() {
-        this.render('favoritePost', { outlet: 'favoritePost' });
-        this.render('posts', { outlet: 'posts' });
-      }
-    });
-    ```
-
-    You can specify the view that the outlet uses to contain and manage the
-    templates rendered into it.
-
-    ``` handlebars
-    {{outlet view='sectionContainer'}}
-    ```
-
-    ``` javascript
-    App.SectionContainer = Ember.ContainerView.extend({
-      tagName: 'section',
-      classNames: ['special']
-    });
-    ```
-
-    @method outlet
-    @for Ember.Handlebars.helpers
-    @param {String} property the property on the controller
-      that holds the view for this outlet
-    @return {String} HTML string
-  */
   function outletHelper(params, hash, options, env) {
     var viewName;
     var viewClass;
@@ -18638,19 +18411,6 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
 
   exports.queryParamsHelper = queryParamsHelper;
 
-  /**
-    This is a sub-expression to be used in conjunction with the link-to helper.
-    It will supply url query parameters to the target route.
-
-    Example
-
-    {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
-
-    @method query-params
-    @for Ember.Handlebars.helpers
-    @param {Object} hash takes a hash of query parameters
-    @return {String} HTML string
-  */
   function queryParamsHelper(params, hash) {
     Ember['default'].assert("The `query-params` helper only accepts hash parameters, e.g. (query-params queryParamPropertyName='foo') as opposed to just (query-params 'foo')", params.length === 0);
 
@@ -18666,76 +18426,6 @@ enifed('ember-routing-htmlbars/helpers/render', ['exports', 'ember-metal/core', 
 
   exports.renderHelper = renderHelper;
 
-  /**
-    Calling ``{{render}}`` from within a template will insert another
-    template that matches the provided name. The inserted template will
-    access its properties on its own controller (rather than the controller
-    of the parent template).
-
-    If a view class with the same name exists, the view class also will be used.
-
-    Note: A given controller may only be used *once* in your app in this manner.
-    A singleton instance of the controller will be created for you.
-
-    Example:
-
-    ```javascript
-    App.NavigationController = Ember.Controller.extend({
-      who: "world"
-    });
-    ```
-
-    ```handlebars
-    <!-- navigation.hbs -->
-    Hello, {{who}}.
-    ```
-
-    ```handlebars
-    <!-- application.hbs -->
-    <h1>My great app</h1>
-    {{render "navigation"}}
-    ```
-
-    ```html
-    <h1>My great app</h1>
-    <div class='ember-view'>
-      Hello, world.
-    </div>
-    ```
-
-    Optionally you may provide a second argument: a property path
-    that will be bound to the `model` property of the controller.
-
-    If a `model` property path is specified, then a new instance of the
-    controller will be created and `{{render}}` can be used multiple times
-    with the same name.
-
-   For example if you had this `author` template.
-
-   ```handlebars
-  <div class="author">
-  Written by {{firstName}} {{lastName}}.
-  Total Posts: {{postCount}}
-  </div>
-  ```
-
-  You could render it inside the `post` template using the `render` helper.
-
-  ```handlebars
-  <div class="post">
-  <h1>{{title}}</h1>
-  <div>{{body}}</div>
-  {{render "author" author}}
-  </div>
-   ```
-
-    @method render
-    @for Ember.Handlebars.helpers
-    @param {String} name
-    @param {Object?} context
-    @param {Hash} options
-    @return {String} HTML string
-  */
   function renderHelper(params, hash, options, env) {
     var currentView = env.data.view;
     var container, router, controller, view, initialContext;
@@ -20092,13 +19782,6 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
   exports.getHistoryPath = getHistoryPath;
   exports.getHashPath = getHashPath;
 
-  /**
-    @private
-
-    Returns the current path as it should appear for HistoryLocation supported
-    browsers. This may very well differ from the real current path (e.g. if it
-    starts off as a hashed URL)
-  */
   exports['default'] = EmberObject['default'].extend({
     /**
       @private
@@ -20182,6 +19865,8 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
       }
 
       var concrete = this.container.lookup("location:" + implementation);
+      property_set.set(concrete, "rootURL", rootURL);
+
       Ember['default'].assert("Could not find location '" + implementation + "'.", !!concrete);
 
       property_set.set(this, "concreteImplementation", concrete);
@@ -20279,6 +19964,14 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
 
     return implementation;
   }
+
+  /**
+    @private
+
+    Returns the current path as it should appear for HistoryLocation supported
+    browsers. This may very well differ from the real current path (e.g. if it
+    starts off as a hashed URL)
+  */
   function getHistoryPath(rootURL, location) {
     var path = util.getPath(location);
     var hash = util.getHash(location);
@@ -20316,6 +20009,14 @@ enifed('ember-routing/location/auto_location', ['exports', 'ember-metal/core', '
     return path;
   }
 
+  /**
+    @private
+
+    Returns the current path as it should appear for HashLocation supported
+    browsers. This may very well differ from the real current path.
+
+    @method _getHashPath
+  */
   function getHashPath(rootURL, location) {
     var path = rootURL;
     var historyPath = getHistoryPath(rootURL, location);
@@ -20754,11 +20455,6 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
   exports.supportsHistory = supportsHistory;
   exports.replacePath = replacePath;
 
-  /**
-    @private
-
-    Returns the current `location.pathname`, normalized for IE inconsistencies.
-  */
   function getPath(location) {
     var pathname = location.pathname;
     // Various versions of IE/Opera don't always return a leading slash
@@ -20769,10 +20465,25 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
     return pathname;
   }
 
+  /**
+    @private
+
+    Returns the current `location.search`.
+  */
   function getQuery(location) {
     return location.search;
   }
 
+  /**
+    @private
+
+    Returns the current `location.hash` by parsing location.href since browsers
+    inconsistently URL-decode `location.hash`.
+
+    Should be passed the browser's `location` object as the first argument.
+
+    https://bugzilla.mozilla.org/show_bug.cgi?id=483304
+  */
   function getHash(location) {
     var href = location.href;
     var hashIndex = href.indexOf('#');
@@ -20803,10 +20514,28 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
     return origin;
   }
 
+  /*
+    `documentMode` only exist in Internet Explorer, and it's tested because IE8 running in
+    IE7 compatibility mode claims to support `onhashchange` but actually does not.
+
+    `global` is an object that may have an `onhashchange` property.
+
+    @private
+    @function supportsHashChange
+  */
   function supportsHashChange(documentMode, global) {
     return 'onhashchange' in global && (documentMode === undefined || documentMode > 7);
   }
 
+  /*
+    `userAgent` is a user agent string. We use user agent testing here, because
+    the stock Android browser in Gingerbread has a buggy versions of this API,
+    Before feature detecting, we blacklist a browser identifying as both Android 2
+    and Mobile Safari, but not Chrome.
+
+    @private
+    @function supportsHistory
+  */
   function supportsHistory(userAgent, history) {
     // Boosted from Modernizr: https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
     // The stock browser on Android 2.2 & 2.3 returns positive on history support
@@ -20822,6 +20551,12 @@ enifed('ember-routing/location/util', ['exports'], function (exports) {
     return !!(history && 'pushState' in history);
   }
 
+  /**
+    Replaces the current location, making sure we explicitly include the origin
+    to prevent redirecting to a different origin.
+
+    @private
+  */
   function replacePath(location, path) {
     location.replace(getOrigin(location) + path);
   }
@@ -20865,6 +20600,8 @@ enifed('ember-routing/system/controller_for', ['exports'], function (exports) {
 
   'use strict';
 
+
+  exports['default'] = controllerFor;
   /**
   @module ember
   @submodule ember-routing
@@ -20878,8 +20615,6 @@ enifed('ember-routing/system/controller_for', ['exports'], function (exports) {
     @method controllerFor
     @private
   */
-  exports['default'] = controllerFor;
-
   function controllerFor(container, controllerName, lookupOptions) {
     return container.lookup('controller:' + controllerName, lookupOptions);
   }
@@ -21016,27 +20751,6 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
 
   exports.generateControllerFactory = generateControllerFactory;
 
-  /**
-  @module ember
-  @submodule ember-routing
-  */
-
-  /**
-    Generates a controller factory
-
-    The type of the generated controller factory is derived
-    from the context. If the context is an array an array controller
-    is generated, if an object, an object controller otherwise, a basic
-    controller is generated.
-
-    You can customize your generated controllers by defining
-    `App.ObjectController` or `App.ArrayController`.
-
-    @for Ember
-    @method generateControllerFactory
-    @private
-  */
-
   exports['default'] = generateController;
   function generateControllerFactory(container, controllerName, context) {
     var Factory, fullName, factoryName, controllerType;
@@ -21065,6 +20779,19 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
     return Factory;
   }
 
+  /**
+    Generates and instantiates a controller.
+
+    The type of the generated controller factory is derived
+    from the context. If the context is an array an array controller
+    is generated, if an object, an object controller otherwise, a basic
+    controller is generated.
+
+    @for Ember
+    @method generateController
+    @private
+    @since 1.3.0
+  */
   function generateController(container, controllerName, context) {
     generateControllerFactory(container, controllerName, context);
     var fullName = "controller:" + controllerName;
@@ -24223,6 +23950,28 @@ enifed('ember-runtime/compare', ['exports', 'ember-metal/utils', 'ember-runtime/
   'use strict';
 
 
+  exports['default'] = compare;
+  var TYPE_ORDER = {
+    'undefined': 0,
+    'null': 1,
+    'boolean': 2,
+    'number': 3,
+    'string': 4,
+    'array': 5,
+    'object': 6,
+    'instance': 7,
+    'function': 8,
+    'class': 9,
+    'date': 10
+  };
+
+  //
+  // the spaceship operator
+  //
+  function spaceship(a, b) {
+    var diff = a - b;
+    return (diff > 0) - (diff < 0);
+  }
 
   /**
    This will compare two javascript values of possibly different types.
@@ -24247,28 +23996,6 @@ enifed('ember-runtime/compare', ['exports', 'ember-metal/utils', 'ember-runtime/
    @param {Object} w Second value to compare
    @return {Number} -1 if v < w, 0 if v = w and 1 if v > w.
   */
-  exports['default'] = compare;
-  var TYPE_ORDER = {
-    'undefined': 0,
-    'null': 1,
-    'boolean': 2,
-    'number': 3,
-    'string': 4,
-    'array': 5,
-    'object': 6,
-    'instance': 7,
-    'function': 8,
-    'class': 9,
-    'date': 10
-  };
-
-  //
-  // the spaceship operator
-  //
-  function spaceship(a, b) {
-    var diff = a - b;
-    return (diff > 0) - (diff < 0);
-  }
   function compare(v, w) {
     if (v === w) {
       return 0;
@@ -24526,191 +24253,6 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   exports.reduceComputed = reduceComputed;
   exports.ReduceComputedProperty = ReduceComputedProperty;
 
-  /**
-    Creates a computed property which operates on dependent arrays and
-    is updated with "one at a time" semantics. When items are added or
-    removed from the dependent array(s) a reduce computed only operates
-    on the change instead of re-evaluating the entire array.
-
-    If there are more than one arguments the first arguments are
-    considered to be dependent property keys. The last argument is
-    required to be an options object. The options object can have the
-    following four properties:
-
-    `initialValue` - A value or function that will be used as the initial
-    value for the computed. If this property is a function the result of calling
-    the function will be used as the initial value. This property is required.
-
-    `initialize` - An optional initialize function. Typically this will be used
-    to set up state on the instanceMeta object.
-
-    `removedItem` - A function that is called each time an element is removed
-    from the array.
-
-    `addedItem` - A function that is called each time an element is added to
-    the array.
-
-
-    The `initialize` function has the following signature:
-
-    ```javascript
-    function(initialValue, changeMeta, instanceMeta)
-    ```
-
-    `initialValue` - The value of the `initialValue` property from the
-    options object.
-
-    `changeMeta` - An object which contains meta information about the
-    computed. It contains the following properties:
-
-       - `property` the computed property
-       - `propertyName` the name of the property on the object
-
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-
-
-    The `removedItem` and `addedItem` functions both have the following signature:
-
-    ```javascript
-    function(accumulatedValue, item, changeMeta, instanceMeta)
-    ```
-
-    `accumulatedValue` - The value returned from the last time
-    `removedItem` or `addedItem` was called or `initialValue`.
-
-    `item` - the element added or removed from the array
-
-    `changeMeta` - An object which contains meta information about the
-    change. It contains the following properties:
-
-      - `property` the computed property
-      - `propertyName` the name of the property on the object
-      - `index` the index of the added or removed item
-      - `item` the added or removed item: this is exactly the same as
-        the second arg
-      - `arrayChanged` the array that triggered the change. Can be
-        useful when depending on multiple arrays.
-
-    For property changes triggered on an item property change (when
-    depKey is something like `someArray.@each.someProperty`),
-    `changeMeta` will also contain the following property:
-
-      - `previousValues` an object whose keys are the properties that changed on
-      the item, and whose values are the item's previous values.
-
-    `previousValues` is important Ember coalesces item property changes via
-    Ember.run.once. This means that by the time removedItem gets called, item has
-    the new values, but you may need the previous value (eg for sorting &
-    filtering).
-
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-
-    The `removedItem` and `addedItem` functions should return the accumulated
-    value. It is acceptable to not return anything (ie return undefined)
-    to invalidate the computation. This is generally not a good idea for
-    arrayComputed but it's used in eg max and min.
-
-    Note that observers will be fired if either of these functions return a value
-    that differs from the accumulated value.  When returning an object that
-    mutates in response to array changes, for example an array that maps
-    everything from some other array (see `Ember.computed.map`), it is usually
-    important that the *same* array be returned to avoid accidentally triggering observers.
-
-    Example
-
-    ```javascript
-    Ember.computed.max = function(dependentKey) {
-      return Ember.reduceComputed(dependentKey, {
-        initialValue: -Infinity,
-
-        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          return Math.max(accumulatedValue, item);
-        },
-
-        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          if (item < accumulatedValue) {
-            return accumulatedValue;
-          }
-        }
-      });
-    };
-    ```
-
-    Dependent keys may refer to `@this` to observe changes to the object itself,
-    which must be array-like, rather than a property of the object.  This is
-    mostly useful for array proxies, to ensure objects are retrieved via
-    `objectAtContent`.  This is how you could sort items by properties defined on an item controller.
-
-    Example
-
-    ```javascript
-    App.PeopleController = Ember.ArrayController.extend({
-      itemController: 'person',
-
-      sortedPeople: Ember.computed.sort('@this.@each.reversedName', function(personA, personB) {
-        // `reversedName` isn't defined on Person, but we have access to it via
-        // the item controller App.PersonController.  If we'd used
-        // `content.@each.reversedName` above, we would be getting the objects
-        // directly and not have access to `reversedName`.
-        //
-        var reversedNameA = get(personA, 'reversedName');
-        var reversedNameB = get(personB, 'reversedName');
-
-        return Ember.compare(reversedNameA, reversedNameB);
-      })
-    });
-
-    App.PersonController = Ember.ObjectController.extend({
-      reversedName: function() {
-        return reverse(get(this, 'name'));
-      }.property('name')
-    });
-    ```
-
-    Dependent keys whose values are not arrays are treated as regular
-    dependencies: when they change, the computed property is completely
-    recalculated.  It is sometimes useful to have dependent arrays with similar
-    semantics.  Dependent keys which end in `.[]` do not use "one at a time"
-    semantics.  When an item is added or removed from such a dependency, the
-    computed property is completely recomputed.
-
-    When the computed property is completely recomputed, the `accumulatedValue`
-    is discarded, it starts with `initialValue` again, and each item is passed
-    to `addedItem` in turn.
-
-    Example
-
-    ```javascript
-    Ember.Object.extend({
-      // When `string` is changed, `computed` is completely recomputed.
-      string: 'a string',
-
-      // When an item is added to `array`, `addedItem` is called.
-      array: [],
-
-      // When an item is added to `anotherArray`, `computed` is completely
-      // recomputed.
-      anotherArray: [],
-
-      computed: Ember.reduceComputed('string', 'array', 'anotherArray.[]', {
-        addedItem: addedItemCallback,
-        removedItem: removedItemCallback
-      })
-    });
-    ```
-
-    @method reduceComputed
-    @for Ember
-    @param {String} [dependentKeys*]
-    @param {Object} options
-    @return {Ember.ComputedProperty}
-  */
   var cacheSet = computed.cacheFor.set;
   var cacheGet = computed.cacheFor.get;
   var cacheRemove = computed.cacheFor.remove;
@@ -25348,6 +24890,192 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
 
     return computed.ComputedProperty.prototype.property.apply(this, propertyArgsToArray);
   };
+
+  /**
+    Creates a computed property which operates on dependent arrays and
+    is updated with "one at a time" semantics. When items are added or
+    removed from the dependent array(s) a reduce computed only operates
+    on the change instead of re-evaluating the entire array.
+
+    If there are more than one arguments the first arguments are
+    considered to be dependent property keys. The last argument is
+    required to be an options object. The options object can have the
+    following four properties:
+
+    `initialValue` - A value or function that will be used as the initial
+    value for the computed. If this property is a function the result of calling
+    the function will be used as the initial value. This property is required.
+
+    `initialize` - An optional initialize function. Typically this will be used
+    to set up state on the instanceMeta object.
+
+    `removedItem` - A function that is called each time an element is removed
+    from the array.
+
+    `addedItem` - A function that is called each time an element is added to
+    the array.
+
+
+    The `initialize` function has the following signature:
+
+    ```javascript
+    function(initialValue, changeMeta, instanceMeta)
+    ```
+
+    `initialValue` - The value of the `initialValue` property from the
+    options object.
+
+    `changeMeta` - An object which contains meta information about the
+    computed. It contains the following properties:
+
+       - `property` the computed property
+       - `propertyName` the name of the property on the object
+
+    `instanceMeta` - An object that can be used to store meta
+    information needed for calculating your computed. For example a
+    unique computed might use this to store the number of times a given
+    element is found in the dependent array.
+
+
+    The `removedItem` and `addedItem` functions both have the following signature:
+
+    ```javascript
+    function(accumulatedValue, item, changeMeta, instanceMeta)
+    ```
+
+    `accumulatedValue` - The value returned from the last time
+    `removedItem` or `addedItem` was called or `initialValue`.
+
+    `item` - the element added or removed from the array
+
+    `changeMeta` - An object which contains meta information about the
+    change. It contains the following properties:
+
+      - `property` the computed property
+      - `propertyName` the name of the property on the object
+      - `index` the index of the added or removed item
+      - `item` the added or removed item: this is exactly the same as
+        the second arg
+      - `arrayChanged` the array that triggered the change. Can be
+        useful when depending on multiple arrays.
+
+    For property changes triggered on an item property change (when
+    depKey is something like `someArray.@each.someProperty`),
+    `changeMeta` will also contain the following property:
+
+      - `previousValues` an object whose keys are the properties that changed on
+      the item, and whose values are the item's previous values.
+
+    `previousValues` is important Ember coalesces item property changes via
+    Ember.run.once. This means that by the time removedItem gets called, item has
+    the new values, but you may need the previous value (eg for sorting &
+    filtering).
+
+    `instanceMeta` - An object that can be used to store meta
+    information needed for calculating your computed. For example a
+    unique computed might use this to store the number of times a given
+    element is found in the dependent array.
+
+    The `removedItem` and `addedItem` functions should return the accumulated
+    value. It is acceptable to not return anything (ie return undefined)
+    to invalidate the computation. This is generally not a good idea for
+    arrayComputed but it's used in eg max and min.
+
+    Note that observers will be fired if either of these functions return a value
+    that differs from the accumulated value.  When returning an object that
+    mutates in response to array changes, for example an array that maps
+    everything from some other array (see `Ember.computed.map`), it is usually
+    important that the *same* array be returned to avoid accidentally triggering observers.
+
+    Example
+
+    ```javascript
+    Ember.computed.max = function(dependentKey) {
+      return Ember.reduceComputed(dependentKey, {
+        initialValue: -Infinity,
+
+        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
+          return Math.max(accumulatedValue, item);
+        },
+
+        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
+          if (item < accumulatedValue) {
+            return accumulatedValue;
+          }
+        }
+      });
+    };
+    ```
+
+    Dependent keys may refer to `@this` to observe changes to the object itself,
+    which must be array-like, rather than a property of the object.  This is
+    mostly useful for array proxies, to ensure objects are retrieved via
+    `objectAtContent`.  This is how you could sort items by properties defined on an item controller.
+
+    Example
+
+    ```javascript
+    App.PeopleController = Ember.ArrayController.extend({
+      itemController: 'person',
+
+      sortedPeople: Ember.computed.sort('@this.@each.reversedName', function(personA, personB) {
+        // `reversedName` isn't defined on Person, but we have access to it via
+        // the item controller App.PersonController.  If we'd used
+        // `content.@each.reversedName` above, we would be getting the objects
+        // directly and not have access to `reversedName`.
+        //
+        var reversedNameA = get(personA, 'reversedName');
+        var reversedNameB = get(personB, 'reversedName');
+
+        return Ember.compare(reversedNameA, reversedNameB);
+      })
+    });
+
+    App.PersonController = Ember.ObjectController.extend({
+      reversedName: function() {
+        return reverse(get(this, 'name'));
+      }.property('name')
+    });
+    ```
+
+    Dependent keys whose values are not arrays are treated as regular
+    dependencies: when they change, the computed property is completely
+    recalculated.  It is sometimes useful to have dependent arrays with similar
+    semantics.  Dependent keys which end in `.[]` do not use "one at a time"
+    semantics.  When an item is added or removed from such a dependency, the
+    computed property is completely recomputed.
+
+    When the computed property is completely recomputed, the `accumulatedValue`
+    is discarded, it starts with `initialValue` again, and each item is passed
+    to `addedItem` in turn.
+
+    Example
+
+    ```javascript
+    Ember.Object.extend({
+      // When `string` is changed, `computed` is completely recomputed.
+      string: 'a string',
+
+      // When an item is added to `array`, `addedItem` is called.
+      array: [],
+
+      // When an item is added to `anotherArray`, `computed` is completely
+      // recomputed.
+      anotherArray: [],
+
+      computed: Ember.reduceComputed('string', 'array', 'anotherArray.[]', {
+        addedItem: addedItemCallback,
+        removedItem: removedItemCallback
+      })
+    });
+    ```
+
+    @method reduceComputed
+    @for Ember
+    @param {String} [dependentKeys*]
+    @param {Object} options
+    @return {Ember.ComputedProperty}
+  */
   function reduceComputed(options) {
     var args;
 
@@ -25390,6 +25118,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   exports.setDiff = setDiff;
   exports.sort = sort;
 
+  var a_slice = [].slice;
+
   /**
    A computed property that returns the sum of the value
    in the dependent array.
@@ -25400,8 +25130,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
    @return {Ember.ComputedProperty} computes the sum of all values in the dependentKey's array
    @since 1.4.0
   */
-
-  var a_slice = [].slice;
   function sum(dependentKey) {
     return reduce_computed.reduceComputed(dependentKey, {
       initialValue: 0,
@@ -25416,6 +25144,39 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
   }
 
+  /**
+    A computed property that calculates the maximum value in the
+    dependent array. This will return `-Infinity` when the dependent
+    array is empty.
+
+    ```javascript
+    var Person = Ember.Object.extend({
+      childAges: Ember.computed.mapBy('children', 'age'),
+      maxChildAge: Ember.computed.max('childAges')
+    });
+
+    var lordByron = Person.create({ children: [] });
+
+    lordByron.get('maxChildAge'); // -Infinity
+    lordByron.get('children').pushObject({
+      name: 'Augusta Ada Byron', age: 7
+    });
+    lordByron.get('maxChildAge'); // 7
+    lordByron.get('children').pushObjects([{
+      name: 'Allegra Byron',
+      age: 5
+    }, {
+      name: 'Elizabeth Medora Leigh',
+      age: 8
+    }]);
+    lordByron.get('maxChildAge'); // 8
+    ```
+
+    @method max
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computes the largest value in the dependentKey's array
+  */
   function max(dependentKey) {
     return reduce_computed.reduceComputed(dependentKey, {
       initialValue: -Infinity,
@@ -25432,6 +25193,39 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
   }
 
+  /**
+    A computed property that calculates the minimum value in the
+    dependent array. This will return `Infinity` when the dependent
+    array is empty.
+
+    ```javascript
+    var Person = Ember.Object.extend({
+      childAges: Ember.computed.mapBy('children', 'age'),
+      minChildAge: Ember.computed.min('childAges')
+    });
+
+    var lordByron = Person.create({ children: [] });
+
+    lordByron.get('minChildAge'); // Infinity
+    lordByron.get('children').pushObject({
+      name: 'Augusta Ada Byron', age: 7
+    });
+    lordByron.get('minChildAge'); // 7
+    lordByron.get('children').pushObjects([{
+      name: 'Allegra Byron',
+      age: 5
+    }, {
+      name: 'Elizabeth Medora Leigh',
+      age: 8
+    }]);
+    lordByron.get('minChildAge'); // 5
+    ```
+
+    @method min
+    @for Ember.computed
+    @param {String} dependentKey
+    @return {Ember.ComputedProperty} computes the smallest value in the dependentKey's array
+  */
   function min(dependentKey) {
     return reduce_computed.reduceComputed(dependentKey, {
       initialValue: Infinity,
@@ -25448,6 +25242,39 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
   }
 
+  /**
+    Returns an array mapped via the callback
+
+    The callback method you provide should have the following signature.
+    `item` is the current item in the iteration.
+    `index` is the integer index of the current item in the iteration.
+
+    ```javascript
+    function(item, index);
+    ```
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      excitingChores: Ember.computed.map('chores', function(chore, index) {
+        return chore.toUpperCase() + '!';
+      })
+    });
+
+    var hamster = Hamster.create({
+      chores: ['clean', 'write more unit tests']
+    });
+
+    hamster.get('excitingChores'); // ['CLEAN!', 'WRITE MORE UNIT TESTS!']
+    ```
+
+    @method map
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {Function} callback
+    @return {Ember.ComputedProperty} an array mapped via the callback
+  */
   function map(dependentKey, callback) {
     var options = {
       addedItem: function (array, item, changeMeta, instanceMeta) {
@@ -25464,6 +25291,35 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return array_computed.arrayComputed(dependentKey, options);
   }
 
+  /**
+    Returns an array mapped to the specified key.
+
+    ```javascript
+    var Person = Ember.Object.extend({
+      childAges: Ember.computed.mapBy('children', 'age')
+    });
+
+    var lordByron = Person.create({ children: [] });
+
+    lordByron.get('childAges'); // []
+    lordByron.get('children').pushObject({ name: 'Augusta Ada Byron', age: 7 });
+    lordByron.get('childAges'); // [7]
+    lordByron.get('children').pushObjects([{
+      name: 'Allegra Byron',
+      age: 5
+    }, {
+      name: 'Elizabeth Medora Leigh',
+      age: 8
+    }]);
+    lordByron.get('childAges'); // [7, 5, 8]
+    ```
+
+    @method mapBy
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {String} propertyKey
+    @return {Ember.ComputedProperty} an array mapped to the specified key
+  */
   function mapBy(dependentKey, propertyKey) {
     var callback = function (item) {
       return property_get.get(item, propertyKey);
@@ -25478,7 +25334,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @param dependentKey
     @param propertyKey
   */
-  var mapProperty = mapBy;function filter(dependentKey, callback) {
+  var mapProperty = mapBy;
+
+  function filter(dependentKey, callback) {
     var options = {
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.filteredArrayIndexes = new SubArray['default']();
@@ -25509,6 +25367,32 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return array_computed.arrayComputed(dependentKey, options);
   }
 
+  /**
+    Filters the array by the property and value
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      remainingChores: Ember.computed.filterBy('chores', 'done', false)
+    });
+
+    var hamster = Hamster.create({
+      chores: [
+        { name: 'cook', done: true },
+        { name: 'clean', done: true },
+        { name: 'write more unit tests', done: false }
+      ]
+    });
+
+    hamster.get('remainingChores'); // [{ name: 'write more unit tests', done: false }]
+    ```
+
+    @method filterBy
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {String} propertyKey
+    @param {*} value
+    @return {Ember.ComputedProperty} the filtered array
+  */
   function filterBy(dependentKey, propertyKey, value) {
     var callback;
 
@@ -25533,7 +25417,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @param value
     @deprecated Use `Ember.computed.filterBy` instead
   */
-  var filterProperty = filterBy;function uniq() {
+  var filterProperty = filterBy;
+
+  function uniq() {
     var args = a_slice.call(arguments);
 
     args.push({
@@ -25577,7 +25463,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @return {Ember.ComputedProperty} computes a new array with all the
     unique elements from the dependent array
   */
-  var union = uniq;function intersect() {
+  var union = uniq;
+
+  function intersect() {
     var args = a_slice.call(arguments);
 
     args.push({
@@ -25634,6 +25522,37 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return array_computed.arrayComputed.apply(null, args);
   }
 
+  /**
+    A computed property which returns a new array with all the
+    properties from the first dependent array that are not in the second
+    dependent array.
+
+    Example
+
+    ```javascript
+    var Hamster = Ember.Object.extend({
+      likes: ['banana', 'grape', 'kale'],
+      wants: Ember.computed.setDiff('likes', 'fruits')
+    });
+
+    var hamster = Hamster.create({
+      fruits: [
+        'grape',
+        'kale',
+      ]
+    });
+
+    hamster.get('wants'); // ['banana']
+    ```
+
+    @method setDiff
+    @for Ember.computed
+    @param {String} setAProperty
+    @param {String} setBProperty
+    @return {Ember.ComputedProperty} computes a new array with all the
+    items from the first dependent array that are not in the second
+    dependent array
+  */
   function setDiff(setAProperty, setBProperty) {
     if (arguments.length !== 2) {
       throw new EmberError['default']('setDiff requires exactly two dependent arrays.');
@@ -25711,6 +25630,71 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
     return mid;
   }
+
+  /**
+    A computed property which returns a new array with all the
+    properties from the first dependent array sorted based on a property
+    or sort function.
+
+    The callback method you provide should have the following signature:
+
+    ```javascript
+    function(itemA, itemB);
+    ```
+
+    - `itemA` the first item to compare.
+    - `itemB` the second item to compare.
+
+    This function should return negative number (e.g. `-1`) when `itemA` should come before
+    `itemB`. It should return positive number (e.g. `1`) when `itemA` should come after
+    `itemB`. If the `itemA` and `itemB` are equal this function should return `0`.
+
+    Therefore, if this function is comparing some numeric values, simple `itemA - itemB` or
+    `itemA.get( 'foo' ) - itemB.get( 'foo' )` can be used instead of series of `if`.
+
+    Example
+
+    ```javascript
+    var ToDoList = Ember.Object.extend({
+      // using standard ascending sort
+      todosSorting: ['name'],
+      sortedTodos: Ember.computed.sort('todos', 'todosSorting'),
+
+      // using descending sort
+      todosSortingDesc: ['name:desc'],
+      sortedTodosDesc: Ember.computed.sort('todos', 'todosSortingDesc'),
+
+      // using a custom sort function
+      priorityTodos: Ember.computed.sort('todos', function(a, b){
+        if (a.priority > b.priority) {
+          return 1;
+        } else if (a.priority < b.priority) {
+          return -1;
+        }
+
+        return 0;
+      })
+    });
+
+    var todoList = ToDoList.create({todos: [
+      { name: 'Unit Test', priority: 2 },
+      { name: 'Documentation', priority: 3 },
+      { name: 'Release', priority: 1 }
+    ]});
+
+    todoList.get('sortedTodos');      // [{ name:'Documentation', priority:3 }, { name:'Release', priority:1 }, { name:'Unit Test', priority:2 }]
+    todoList.get('sortedTodosDesc');  // [{ name:'Unit Test', priority:2 }, { name:'Release', priority:1 }, { name:'Documentation', priority:3 }]
+    todoList.get('priorityTodos');    // [{ name:'Release', priority:1 }, { name:'Unit Test', priority:2 }, { name:'Documentation', priority:3 }]
+    ```
+
+    @method sort
+    @for Ember.computed
+    @param {String} dependentKey
+    @param {String or Function} sortDefinition a dependent key to an
+    array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
+    @return {Ember.ComputedProperty} computes a new sorted array based
+    on the sort property array or callback function
+  */
   function sort(itemsKey, sortDefinition) {
     Ember['default'].assert('Ember.computed.sort requires two arguments: an array key to sort and ' + 'either a sort properties key or sort function', arguments.length === 2);
 
@@ -26119,22 +26103,6 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal/enumerable_utils', 'ember-
   'use strict';
 
 
-
-  /**
-    Creates a clone of the passed object. This function can take just about
-    any type of object and create a clone of it, including primitive values
-    (which are not actually cloned because they are immutable).
-
-    If the passed object implements the `copy()` method, then this function
-    will simply call that method and return the result. Please see
-    `Ember.Copyable` for further details.
-
-    @method copy
-    @for Ember
-    @param {Object} obj The object to clone
-    @param {Boolean} deep If true, a deep copy of the object is made
-    @return {Object} The cloned object
-  */
   exports['default'] = copy;
   function _copy(obj, deep, seen, copies) {
     var ret, loc, key;
@@ -26193,6 +26161,22 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal/enumerable_utils', 'ember-
 
     return ret;
   }
+
+  /**
+    Creates a clone of the passed object. This function can take just about
+    any type of object and create a clone of it, including primitive values
+    (which are not actually cloned because they are immutable).
+
+    If the passed object implements the `copy()` method, then this function
+    will simply call that method and return the result. Please see
+    `Ember.Copyable` for further details.
+
+    @method copy
+    @for Ember
+    @param {Object} obj The object to clone
+    @param {Boolean} deep If true, a deep copy of the object is made
+    @return {Object} The cloned object
+  */
   function copy(obj, deep) {
     // fast paths
     if ('object' !== typeof obj || obj === null) {
@@ -26213,29 +26197,6 @@ enifed('ember-runtime/core', ['exports'], function (exports) {
 
   exports.isEqual = isEqual;
 
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  /**
-    Compares two objects, returning true if they are logically equal. This is
-    a deeper comparison than a simple triple equal. For sets it will compare the
-    internal objects. For any other object that implements `isEqual()` it will
-    respect that method.
-
-    ```javascript
-    Ember.isEqual('hello', 'hello');  // true
-    Ember.isEqual(1, 2);              // false
-    Ember.isEqual([4, 2], [4, 2]);    // false
-    ```
-
-    @method isEqual
-    @for Ember
-    @param {Object} a first object to compare
-    @param {Object} b second object to compare
-    @return {Boolean}
-  */
   function isEqual(a, b) {
     if (a && typeof a.isEqual === 'function') {
       return a.isEqual(b);
@@ -26620,6 +26581,13 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal/core', 'ember-metal/enum
   exports.createInjectionHelper = createInjectionHelper;
   exports.validatePropertyInjections = validatePropertyInjections;
 
+  function inject() {
+    Ember['default'].assert("Injected properties must be created through helpers, see `" + keys['default'](inject).join("`, `") + "`");
+  }
+
+  // Dictionary of injection validations by type, added to by `createInjectionHelper`
+  var typeValidators = {};
+
   /**
     This method allows other Ember modules to register injection helpers for a
     given container type. Helpers are exported to the `inject` namespace as the
@@ -26632,12 +26600,6 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal/core', 'ember-metal/enum
     @param {String} type The container type the helper will inject
     @param {Function} validator A validation callback that is executed at mixin-time
   */
-  function inject() {
-    Ember['default'].assert("Injected properties must be created through helpers, see `" + keys['default'](inject).join("`, `") + "`");
-  }
-
-  // Dictionary of injection validations by type, added to by `createInjectionHelper`
-  var typeValidators = {};
   function createInjectionHelper(type, validator) {
     typeValidators[type] = validator;
 
@@ -26646,6 +26608,16 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal/core', 'ember-metal/enum
     };
   }
 
+  /**
+    Validation function that runs per-type validation functions once for each
+    injected type encountered.
+
+    @private
+    @method validatePropertyInjections
+    @since 1.10.0
+    @for Ember
+    @param {Object} factory The factory object
+  */
   function validatePropertyInjections(factory) {
     var proto = factory.proto();
     var types = [];
@@ -31549,6 +31521,9 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   exports.onLoad = onLoad;
   exports.runLoadHooks = runLoadHooks;
 
+  var loadHooks = Ember['default'].ENV.EMBER_LOAD_HOOKS || {};
+  var loaded = {};
+
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Handlebars')
     has fully loaded and is available for extension.
@@ -31567,8 +31542,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
     @param name {String} name of hook
     @param callback {Function} callback to be called
   */
-  var loadHooks = Ember['default'].ENV.EMBER_LOAD_HOOKS || {};
-  var loaded = {};
   function onLoad(name, callback) {
     var object;
 
@@ -31580,6 +31553,15 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
     }
   }
 
+  /**
+    Called when an Ember.js package (e.g Ember.Handlebars) has finished
+    loading. Triggers any callbacks registered for this event.
+
+    @method runLoadHooks
+    @for Ember
+    @param name {String} name of hook
+    @param object {Object} object to pass to callbacks
+  */
   function runLoadHooks(name, object) {
     loaded[name] = object;
 
@@ -33225,15 +33207,16 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
   exports.registerPlugin = registerPlugin;
 
+  var plugins = {
+    ast: []
+  };
+
   /**
     Adds an AST plugin to be used by Ember.HTMLBars.compile.
 
     @private
     @method registerASTPlugin
   */
-  var plugins = {
-    ast: []
-  };
   function registerPlugin(type, Plugin) {
     if (!plugins[type]) {
       throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
@@ -33435,7 +33418,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
       options = {};
     }
 
-    options.revision = "Ember@1.12.0";
+    options.revision = "Ember@1.12.1";
     options.disableComponentGeneration = disableComponentGeneration;
     options.plugins = plugins['default'];
 
@@ -33639,13 +33622,15 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function visit(app, url) {
     var router = app.__container__.lookup("router:main");
+    app.boot().then(function () {
+      router.location.setURL(url);
+    });
 
     if (app._readinessDeferrals > 0) {
       router["initialURL"] = url;
       run['default'](app, "advanceReadiness");
       delete router["initialURL"];
     } else {
-      router.location.setURL(url);
       run['default'](app.__deprecatedInstance__, "handleURL", url);
     }
 
@@ -34081,18 +34066,6 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
   'use strict';
 
 
-
-  /**
-    Sets Ember up for testing. This is useful to perform
-    basic setup steps in order to unit test.
-
-    Use `App.setupForTesting` to perform integration tests (full
-    application testing).
-
-    @method setupForTesting
-    @namespace Ember
-    @since 1.5.0
-  */
   exports['default'] = setupForTesting;
   var Test, requests;
 
@@ -34109,6 +34082,18 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     }
     Test.pendingAjaxRequests = requests.length;
   }
+
+  /**
+    Sets Ember up for testing. This is useful to perform
+    basic setup steps in order to unit test.
+
+    Use `App.setupForTesting` to perform integration tests (full
+    application testing).
+
+    @method setupForTesting
+    @namespace Ember
+    @since 1.5.0
+  */
   function setupForTesting() {
     if (!Test) {
       Test = requireModule("ember-testing/test")["default"];
@@ -36168,25 +36153,6 @@ enifed('ember-views/streams/class_name_binding', ['exports', 'ember-metal/stream
   exports.classStringForValue = classStringForValue;
   exports.streamifyClassNameBinding = streamifyClassNameBinding;
 
-  /**
-    Parse a path and return an object which holds the parsed properties.
-
-    For example a path like "content.isEnabled:enabled:disabled" will return the
-    following object:
-
-    ```javascript
-    {
-      path: "content.isEnabled",
-      className: "enabled",
-      falsyClassName: "disabled",
-      classNames: ":enabled:disabled"
-    }
-    ```
-
-    @method parsePropertyPath
-    @static
-    @private
-  */
   function parsePropertyPath(path) {
     var split = path.split(":");
     var propertyPath = split[0];
@@ -36214,6 +36180,30 @@ enifed('ember-views/streams/class_name_binding', ['exports', 'ember-metal/stream
     };
   }
 
+  /**
+    Get the class name for a given value, based on the path, optional
+    `className` and optional `falsyClassName`.
+
+    - if a `className` or `falsyClassName` has been specified:
+      - if the value is truthy and `className` has been specified,
+        `className` is returned
+      - if the value is falsy and `falsyClassName` has been specified,
+        `falsyClassName` is returned
+      - otherwise `null` is returned
+    - if the value is `true`, the dasherized last part of the supplied path
+      is returned
+    - if the value is not `false`, `undefined` or `null`, the `value`
+      is returned
+    - if none of the above rules apply, `null` is returned
+
+    @method classStringForValue
+    @param path
+    @param val
+    @param className
+    @param falsyClassName
+    @static
+    @private
+  */
   function classStringForValue(path, val, className, falsyClassName) {
     if (ember_metal__utils.isArray(val)) {
       val = property_get.get(val, "length") !== 0;
@@ -36825,7 +36815,7 @@ enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal/core'], fun
 
   'use strict';
 
-  // Ember.assert
+
 
   exports['default'] = lookupPartial;
   function lookupPartial(view, templateName) {
@@ -37564,11 +37554,6 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
   exports.getViewClientRects = getViewClientRects;
   exports.getViewBoundingClientRect = getViewBoundingClientRect;
 
-  /**
-  @module ember
-  @submodule ember-views
-  */
-
   function isSimpleClick(event) {
     var modifier = event.shiftKey || event.metaKey || event.altKey || event.ctrlKey;
     var secondaryClick = event.which > 1; // IE9 may return undefined
@@ -37587,11 +37572,34 @@ enifed('ember-views/system/utils', ['exports'], function (exports) {
     range.setEndAfter(view._morph.lastNode);
     return range;
   }
+
+  /**
+    `getViewClientRects` provides information about the position of the border
+    box edges of a view relative to the viewport.
+
+    It is only intended to be used by development tools like the Ember Inspector
+    and may not work on older browsers.
+
+    @private
+    @method getViewClientRects
+    @param {Ember.View} view
+  */
   function getViewClientRects(view) {
     var range = getViewRange(view);
     return range.getClientRects();
   }
 
+  /**
+    `getViewBoundingClientRect` provides information about the position of the
+    bounding border box edges of a view relative to the viewport.
+
+    It is only intended to be used by development tools like the Ember Inpsector
+    and may not work on older browsers.
+
+    @private
+    @method getViewBoundingClientRect
+    @param {Ember.View} view
+  */
   function getViewBoundingClientRect(view) {
     var range = getViewRange(view);
     return range.getBoundingClientRect();
