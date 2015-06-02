@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4bd690ec
+ * @version   2.0.0-canary+7ac9950e
  */
 
 (function() {
@@ -8188,7 +8188,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4bd690ec";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7ac9950e";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -10833,7 +10833,9 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
       view.trigger("willClearRender");
     }
 
-    view._transitionTo("destroying", false);
+    if (view._transitionTo) {
+      view._transitionTo("destroying", false);
+    }
 
     var childViews = view.childViews;
     if (childViews) {
@@ -10850,7 +10852,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     // However if we're just destroying an element on a view (as is the case when
     // using View#remove) then the view should go to a preRender state so that
     // it can be rendered again later.
-    if (view._state !== "destroying") {
+    if (view._state !== "destroying" && view._transitionTo) {
       view._transitionTo("preRender");
     }
 
@@ -13485,7 +13487,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+4bd690ec
+    @version 2.0.0-canary+7ac9950e
   */
 
   if ('undefined' === typeof Ember) {
@@ -13516,10 +13518,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+4bd690ec'
+    @default '2.0.0-canary+7ac9950e'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+4bd690ec';
+  Ember.VERSION = '2.0.0-canary+7ac9950e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21453,7 +21455,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+4bd690ec";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+7ac9950e";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21927,7 +21929,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4bd690ec";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7ac9950e";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37180,7 +37182,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+4bd690ec",
+        revision: "Ember@2.0.0-canary+7ac9950e",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41876,7 +41878,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4bd690ec";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+7ac9950e";
 
   /**
   @module ember
