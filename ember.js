@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f9328616
+ * @version   2.0.0-canary+1ce57963
  */
 
 (function() {
@@ -8188,7 +8188,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+f9328616";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1ce57963";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13485,7 +13485,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+f9328616
+    @version 2.0.0-canary+1ce57963
   */
 
   if ('undefined' === typeof Ember) {
@@ -13516,10 +13516,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+f9328616'
+    @default '2.0.0-canary+1ce57963'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+f9328616';
+  Ember.VERSION = '2.0.0-canary+1ce57963';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21453,7 +21453,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+f9328616";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+1ce57963";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21927,7 +21927,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+f9328616";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1ce57963";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37180,7 +37180,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+f9328616",
+        revision: "Ember@2.0.0-canary+1ce57963",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40463,7 +40463,7 @@ enifed('ember-views/streams/should_display', ['exports', 'ember-metal/platform/c
   });
 
 });
-enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/path_cache', 'ember-runtime/system/string', 'ember-metal/streams/utils', 'ember-views/views/view', 'ember-runtime/mixins/controller'], function (exports, Ember, property_get, path_cache, string, utils, View, ControllerMixin) {
+enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/path_cache', 'ember-runtime/system/string', 'ember-metal/streams/utils', 'ember-runtime/mixins/controller'], function (exports, Ember, property_get, path_cache, string, utils, ControllerMixin) {
 
   'use strict';
 
@@ -40487,7 +40487,9 @@ enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal
       viewClass = value;
     }
 
-    Ember['default'].assert(string.fmt(value + " must be a subclass or an instance of Ember.View, not %@", [viewClass]), View['default'].detect(viewClass) || View['default'].detectInstance(viewClass));
+    Ember['default'].assert(string.fmt(value + " must be a subclass or an instance of Ember.View, not %@", [viewClass]), (function (viewClass) {
+      return viewClass && (viewClass.isViewFactory || viewClass.isView || viewClass.isComponentFactory || viewClass.isComponent);
+    })(viewClass));
 
     return viewClass;
   }
@@ -41599,6 +41601,8 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     @extends Ember.View
   */
   var Component = View['default'].extend(TargetActionSupport['default'], ComponentTemplateDeprecation['default'], {
+    isComponent: true,
+
     /*
       This is set so that the proto inspection in appendTemplatedView does not
       think that it should set the components `context` to that of the parent view.
@@ -41866,7 +41870,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+f9328616";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1ce57963";
 
   /**
   @module ember
