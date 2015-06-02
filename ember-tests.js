@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1ce57963
+ * @version   2.0.0-canary+4bd690ec
  */
 
 (function() {
@@ -47456,7 +47456,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+1ce57963", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4bd690ec", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -47524,6 +47524,8 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
           this.route("comments");
 
           this.route("abort_transition");
+
+          this.route("redirect");
         });
 
         App.IndexRoute = EmberRoute['default'].extend({
@@ -47558,6 +47560,12 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
         App.AbortTransitionRoute = EmberRoute['default'].extend({
           beforeModel: function (transition) {
             transition.abort();
+          }
+        });
+
+        App.RedirectRoute = EmberRoute['default'].extend({
+          beforeModel: function () {
+            this.transitionTo("comments");
           }
         });
 
@@ -47839,6 +47847,22 @@ enifed('ember-testing/tests/acceptance_test', ['ember-metal/run_loop', 'ember-vi
         Test['default'].adapter.asyncEnd();
       });
     }
+  });
+
+  QUnit.test("visiting a URL and then visiting a second URL with a transition should yield the correct URL", function () {
+    expect(2);
+
+    visit("/posts");
+
+    andThen(function () {
+      equal(currentURL(), "/posts", "First visited URL is correct");
+    });
+
+    visit("/redirect");
+
+    andThen(function () {
+      equal(currentURL(), "/comments", "Redirected to Comments URL");
+    });
   });
 
 });
