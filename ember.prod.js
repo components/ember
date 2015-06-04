@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+502ae954
+ * @version   2.0.0-canary+544da2a5
  */
 
 (function() {
@@ -5886,7 +5886,7 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
     @method registerBoundHelper
     @for Ember.Handlebars
     @param {String} name
-    @param {Function} function
+    @param {Function} fn
     @param {String} dependentKeys*
   */
   function registerBoundHelper(name, fn) {
@@ -6346,7 +6346,7 @@ enifed('ember-htmlbars/helpers/bind-attr', function () {
     @method bind-attr
     @for Ember.Handlebars.helpers
     @deprecated
-    @param {Hash} options
+    @param {Object} options
     @return {String} HTML string
   */
 
@@ -6357,7 +6357,7 @@ enifed('ember-htmlbars/helpers/bind-attr', function () {
     @for Ember.Handlebars.helpers
     @deprecated
     @param {Function} context
-    @param {Hash} options
+    @param {Object} options
     @return {String} HTML string
   */
 
@@ -7394,7 +7394,7 @@ enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime', 'ember-metal/p
     @method _registerHelper
     @for Ember.HTMLBars
     @param {String} name
-    @param {Object|Function} helperFunc the helper function to add
+    @param {Object|Function} keyword the keyword to add
   */
   function registerKeyword(name, keyword) {
     keywords[name] = keyword;
@@ -7901,7 +7901,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+544da2a5";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12241,7 +12241,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     via the `metaForProperty()` function.
 
     @method meta
-    @param {Hash} meta
+    @param {Object} meta
     @chainable
   */
 
@@ -13217,7 +13217,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+502ae954
+    @version 2.0.0-canary+544da2a5
   */
 
   if ('undefined' === typeof Ember) {
@@ -13248,10 +13248,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+502ae954'
+    @default '2.0.0-canary+544da2a5'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+502ae954';
+  Ember.VERSION = '2.0.0-canary+544da2a5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13261,7 +13261,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     hash must be created before loading Ember.
 
     @property ENV
-    @type Hash
+    @type Object
   */
 
   if (Ember.ENV) {
@@ -13647,7 +13647,6 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-me
    * @method indexOf
    * @deprecated Use ES5's Array.prototype.indexOf instead.
    * @param {Object} obj The object to call indexOn on
-   * @param {Function} callback The callback to execute
    * @param {Object} index The index to start searching from
    *
    */
@@ -14530,7 +14529,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     @namespace Ember.Instrumentation
 
     @param {String} [name] Namespaced event name.
-    @param {Object} payload
+    @param {Object} _payload
     @param {Function} callback Function that you're instrumenting.
     @param {Object} binding Context that instrument function is called with.
   */
@@ -16566,8 +16565,8 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     @method addObserver
     @for Ember
     @param obj
-    @param {String} path
-    @param {Object|Function} targetOrMethod
+    @param {String} _path
+    @param {Object|Function} target
     @param {Function|String} [method]
   */
   function addObserver(obj, _path, target, method) {
@@ -17769,7 +17768,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
 
     @method trySet
     @for Ember
-    @param {Object} obj The object to modify.
+    @param {Object} root The object to modify.
     @param {String} path The property path to set
     @param {Object} value The value to set
   */
@@ -20197,9 +20196,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // The following functions are intentionally minified to keep the functions
   // below Chrome's function body size inlining limit of 600 chars.
   /**
-    @param {Object} target
-    @param {Function} method
-    @param {Array} args
+    @param {Object} t target
+    @param {Function} m method
+    @param {Array} a args
   */
   function apply(t, m, a) {
     var l = a && a.length;
@@ -20223,9 +20222,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   }
 
   /**
-    @param {Object} target
-    @param {String} method
-    @param {Array} args
+    @param {Object} t target
+    @param {String} m method
+    @param {Array} a args
   */
   function applyStr(t, m, a) {
     var l = a && a.length;
@@ -21054,7 +21053,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+544da2a5";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21524,7 +21523,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+544da2a5";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -23190,7 +23189,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       ```
        @property queryParams
       @for Ember.Route
-      @type Hash
+      @type Object
     */
     queryParams: {},
 
@@ -27997,7 +27996,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
     @method sort
     @for Ember.computed
-    @param {String} dependentKey
+    @param {String} itemsKey
     @param {String or Function} sortDefinition a dependent key to an
     array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
     @return {Ember.ComputedProperty} computes a new sorted array based
@@ -29128,7 +29127,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', '
       });
       ```
        @property actions
-      @type Hash
+      @type Object
       @default null
     */
 
@@ -29380,8 +29379,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       arr.slice(1, 100);  // ['green', 'blue']
       ```
        @method slice
-      @param {Integer} beginIndex (Optional) index to begin slicing from.
-      @param {Integer} endIndex (Optional) index to end the slice at (but not included).
+      @param {Number} beginIndex (Optional) index to begin slicing from.
+      @param {Number} endIndex (Optional) index to end the slice at (but not included).
       @return {Array} New array with specified slice
     */
     slice: function (beginIndex, endIndex) {
@@ -29511,7 +29510,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       target.
        @method addArrayObserver
       @param {Object} target The observer object.
-      @param {Hash} opts Optional hash of configuration options including
+      @param {Object} opts Optional hash of configuration options including
         `willChange` and `didChange` option.
       @return {Ember.Array} receiver
     */
@@ -29526,7 +29525,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       have no effect.
        @method removeArrayObserver
       @param {Object} target The object observing the array.
-      @param {Hash} opts Optional hash of configuration options including
+      @param {Object} opts Optional hash of configuration options including
         `willChange` and `didChange` option.
       @return {Ember.Array} receiver
     */
@@ -29700,7 +29699,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
        @method compare
       @param a {Object} the first object to compare
       @param b {Object} the second object to compare
-      @return {Integer} the result of the comparison
+      @return {Number} the result of the comparison
     */
     compare: null
   });
@@ -30743,7 +30742,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       mixin.
        @method addEnumerableObserver
       @param {Object} target
-      @param {Hash} [opts]
+      @param {Object} [opts]
       @return this
     */
     addEnumerableObserver: function (target, opts) {
@@ -30769,7 +30768,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       Removes a registered enumerable observer.
        @method removeEnumerableObserver
       @param {Object} target
-      @param {Hash} [opts]
+      @param {Object} [opts]
       @return this
     */
     removeEnumerableObserver: function (target, opts) {
@@ -31526,7 +31525,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
       ```
        @method getProperties
       @param {String...|Array} list of keys to get
-      @return {Hash}
+      @return {Object}
     */
     getProperties: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -31586,7 +31585,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
       record.setProperties({ firstName: 'Charles', lastName: 'Jolley' });
       ```
        @method setProperties
-      @param {Hash} hash the hash of keys and values to set
+      @param {Object} hash the hash of keys and values to set
       @return {Ember.Observable}
     */
     setProperties: function (hash) {
@@ -32354,7 +32353,7 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-metal/co
     });
     ```
      @method triggerAction
-    @param opts {Hash} (optional, with the optional keys action, target and/or actionContext)
+    @param opts {Object} (optional, with the optional keys action, target and/or actionContext)
     @return {Boolean} true if the action was sent successfully and did not return false
     */
     triggerAction: function (opts) {
@@ -34754,7 +34753,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
 
     @property STRINGS
     @for Ember
-    @type Hash
+    @type Object
   */
   Ember['default'].STRINGS = {};
 
@@ -35387,7 +35386,7 @@ enifed('ember-runtime/system/tracked_array', ['exports', 'ember-metal/property_g
 
     @method ArrayOperation
     @private
-    @param {String} type The type of the operation.  One of
+    @param {String} operation The type of the operation.  One of
     `Ember.TrackedArray.{RETAIN, INSERT, DELETE}`
     @param {Number} count The number of items in this operation.
     @param {Array} items The items of the operation, if included.  RETAIN and
@@ -35667,7 +35666,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var walker = new this.syntax.Walker();
@@ -35708,7 +35707,7 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformBindAttrToAttributes.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var plugin = this;
@@ -35865,7 +35864,7 @@ enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['e
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformComponentAttrsIntoMut.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var b = this.syntax.builders;
@@ -35913,7 +35912,7 @@ enifed('ember-template-compiler/plugins/transform-component-curly-to-readonly', 
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
     var b = this.syntax.builders;
@@ -35965,7 +35964,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformEachInToBlockParams.prototype.transform = function TransformEachInToBlockParams_transform(ast) {
     var b = this.syntax.builders;
@@ -36042,7 +36041,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
     var pluginContext = this;
@@ -36158,7 +36157,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformInputOnToOnEvent.prototype.transform = function TransformInputOnToOnEvent_transform(ast) {
     var pluginContext = this;
@@ -36551,7 +36550,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
     var pluginContext = this;
@@ -36677,7 +36676,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+502ae954",
+        revision: "Ember@2.0.0-canary+544da2a5",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37063,7 +37062,6 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
 
     @method renderBuffer
     @namespace Ember
-    @param {String} tagName tag name (such as 'div' or 'p') used for the buffer
   */
 
   var RenderBuffer = function (domHelper) {
@@ -38262,7 +38260,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       act as a child of the parent.
        @method createChildView
       @param {Class|String} viewClass
-      @param {Hash} [attrs] Attributes to add
+      @param {Object} [attrs] Attributes to add
       @return {Ember.View} new instance
     */
     createChildView: function (maybeViewClass, _attrs) {
@@ -39187,7 +39185,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
       dispatcher's `root` property.
        @private
       @method setup
-      @param addedEvents {Hash}
+      @param addedEvents {Object}
     */
     setup: function (addedEvents, rootElement) {
       var event;
@@ -39662,7 +39660,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       passed in.
        @method createChildView
       @param {Class} viewClass
-      @param {Hash} [attrs] Attributes to add
+      @param {Object} [attrs] Attributes to add
       @return {Ember.View} new instance
     */
     createChildView: function (_view, attrs) {
@@ -39709,7 +39707,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
     a particular parent tag to default to a child tag.
 
     @property CONTAINER_MAP
-    @type Hash
+    @type Object
     @static
     @final
   */
@@ -40145,7 +40143,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+544da2a5";
 
   /**
   @module ember
@@ -41681,7 +41679,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
 
     @property TEMPLATES
     @for Ember
-    @type Hash
+    @type Object
   */
   Ember['default'].TEMPLATES = {};
 
@@ -43054,7 +43052,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-runtime/
 
     @property views
     @static
-    @type Hash
+    @type Object
   */
   View.views = {};
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+502ae954
+ * @version   2.0.0-canary+544da2a5
  */
 
 (function() {
@@ -2011,7 +2011,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     via the `metaForProperty()` function.
 
     @method meta
-    @param {Hash} meta
+    @param {Object} meta
     @chainable
   */
 
@@ -2991,7 +2991,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+502ae954
+    @version 2.0.0-canary+544da2a5
   */
 
   if ('undefined' === typeof Ember) {
@@ -3022,10 +3022,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+502ae954'
+    @default '2.0.0-canary+544da2a5'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+502ae954';
+  Ember.VERSION = '2.0.0-canary+544da2a5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3035,7 +3035,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     hash must be created before loading Ember.
 
     @property ENV
-    @type Hash
+    @type Object
   */
 
   if (Ember.ENV) {
@@ -3423,7 +3423,6 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-me
    * @method indexOf
    * @deprecated Use ES5's Array.prototype.indexOf instead.
    * @param {Object} obj The object to call indexOn on
-   * @param {Function} callback The callback to execute
    * @param {Object} index The index to start searching from
    *
    */
@@ -4309,7 +4308,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     @namespace Ember.Instrumentation
 
     @param {String} [name] Namespaced event name.
-    @param {Object} payload
+    @param {Object} _payload
     @param {Function} callback Function that you're instrumenting.
     @param {Object} binding Context that instrument function is called with.
   */
@@ -6354,8 +6353,8 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     @method addObserver
     @for Ember
     @param obj
-    @param {String} path
-    @param {Object|Function} targetOrMethod
+    @param {String} _path
+    @param {Object|Function} target
     @param {Function|String} [method]
   */
   function addObserver(obj, _path, target, method) {
@@ -7594,7 +7593,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
 
     @method trySet
     @for Ember
-    @param {Object} obj The object to modify.
+    @param {Object} root The object to modify.
     @param {String} path The property path to set
     @param {Object} value The value to set
   */
@@ -10050,9 +10049,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // The following functions are intentionally minified to keep the functions
   // below Chrome's function body size inlining limit of 600 chars.
   /**
-    @param {Object} target
-    @param {Function} method
-    @param {Array} args
+    @param {Object} t target
+    @param {Function} m method
+    @param {Array} a args
   */
   function apply(t, m, a) {
     var l = a && a.length;
@@ -10076,9 +10075,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   }
 
   /**
-    @param {Object} target
-    @param {String} method
-    @param {Array} args
+    @param {Object} t target
+    @param {String} m method
+    @param {Array} a args
   */
   function applyStr(t, m, a) {
     var l = a && a.length;
@@ -10465,7 +10464,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var walker = new this.syntax.Walker();
@@ -10506,7 +10505,7 @@ enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['ex
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformBindAttrToAttributes.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var plugin = this;
@@ -10666,7 +10665,7 @@ enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['e
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformComponentAttrsIntoMut.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
     var b = this.syntax.builders;
@@ -10714,7 +10713,7 @@ enifed('ember-template-compiler/plugins/transform-component-curly-to-readonly', 
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformComponentCurlyToReadonly.prototype.transform = function TransformComponetnCurlyToReadonly_transform(ast) {
     var b = this.syntax.builders;
@@ -10766,7 +10765,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformEachInToBlockParams.prototype.transform = function TransformEachInToBlockParams_transform(ast) {
     var b = this.syntax.builders;
@@ -10844,7 +10843,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformEachInToHash.prototype.transform = function TransformEachInToHash_transform(ast) {
     var pluginContext = this;
@@ -10961,7 +10960,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformInputOnToOnEvent.prototype.transform = function TransformInputOnToOnEvent_transform(ast) {
     var pluginContext = this;
@@ -11359,7 +11358,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 
   /**
     @private
     @method transform
-    @param {AST} The AST to be transformed.
+    @param {AST} ast The AST to be transformed.
   */
   TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
     var pluginContext = this;
@@ -11486,7 +11485,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+502ae954",
+        revision: "Ember@2.0.0-canary+544da2a5",
         loc: program.loc,
         moduleName: options.moduleName
       };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+502ae954
+ * @version   2.0.0-canary+544da2a5
  */
 
 (function() {
@@ -3769,7 +3769,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
     via the `metaForProperty()` function.
 
     @method meta
-    @param {Hash} meta
+    @param {Object} meta
     @chainable
   */
 
@@ -4749,7 +4749,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+502ae954
+    @version 2.0.0-canary+544da2a5
   */
 
   if ('undefined' === typeof Ember) {
@@ -4780,10 +4780,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+502ae954'
+    @default '2.0.0-canary+544da2a5'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+502ae954';
+  Ember.VERSION = '2.0.0-canary+544da2a5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4793,7 +4793,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     hash must be created before loading Ember.
 
     @property ENV
-    @type Hash
+    @type Object
   */
 
   if (Ember.ENV) {
@@ -5181,7 +5181,6 @@ enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-me
    * @method indexOf
    * @deprecated Use ES5's Array.prototype.indexOf instead.
    * @param {Object} obj The object to call indexOn on
-   * @param {Function} callback The callback to execute
    * @param {Object} index The index to start searching from
    *
    */
@@ -6067,7 +6066,7 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     @namespace Ember.Instrumentation
 
     @param {String} [name] Namespaced event name.
-    @param {Object} payload
+    @param {Object} _payload
     @param {Function} callback Function that you're instrumenting.
     @param {Object} binding Context that instrument function is called with.
   */
@@ -8112,8 +8111,8 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     @method addObserver
     @for Ember
     @param obj
-    @param {String} path
-    @param {Object|Function} targetOrMethod
+    @param {String} _path
+    @param {Object|Function} target
     @param {Function|String} [method]
   */
   function addObserver(obj, _path, target, method) {
@@ -9352,7 +9351,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
 
     @method trySet
     @for Ember
-    @param {Object} obj The object to modify.
+    @param {Object} root The object to modify.
     @param {String} path The property path to set
     @param {Object} value The value to set
   */
@@ -11808,9 +11807,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   // The following functions are intentionally minified to keep the functions
   // below Chrome's function body size inlining limit of 600 chars.
   /**
-    @param {Object} target
-    @param {Function} method
-    @param {Array} args
+    @param {Object} t target
+    @param {Function} m method
+    @param {Array} a args
   */
   function apply(t, m, a) {
     var l = a && a.length;
@@ -11834,9 +11833,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/platfor
   }
 
   /**
-    @param {Object} target
-    @param {String} method
-    @param {Array} args
+    @param {Object} t target
+    @param {String} m method
+    @param {Array} a args
   */
   function applyStr(t, m, a) {
     var l = a && a.length;
@@ -13968,7 +13967,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
     @method sort
     @for Ember.computed
-    @param {String} dependentKey
+    @param {String} itemsKey
     @param {String or Function} sortDefinition a dependent key to an
     array of sort properties (add `:desc` to the arrays sort properties to sort descending) or a function to use when sorting
     @return {Ember.ComputedProperty} computes a new sorted array based
@@ -15119,7 +15118,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', '
       });
       ```
        @property actions
-      @type Hash
+      @type Object
       @default null
     */
 
@@ -15374,8 +15373,8 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       arr.slice(1, 100);  // ['green', 'blue']
       ```
        @method slice
-      @param {Integer} beginIndex (Optional) index to begin slicing from.
-      @param {Integer} endIndex (Optional) index to end the slice at (but not included).
+      @param {Number} beginIndex (Optional) index to begin slicing from.
+      @param {Number} endIndex (Optional) index to end the slice at (but not included).
       @return {Array} New array with specified slice
     */
     slice: function (beginIndex, endIndex) {
@@ -15505,7 +15504,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       target.
        @method addArrayObserver
       @param {Object} target The observer object.
-      @param {Hash} opts Optional hash of configuration options including
+      @param {Object} opts Optional hash of configuration options including
         `willChange` and `didChange` option.
       @return {Ember.Array} receiver
     */
@@ -15520,7 +15519,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       have no effect.
        @method removeArrayObserver
       @param {Object} target The object observing the array.
-      @param {Hash} opts Optional hash of configuration options including
+      @param {Object} opts Optional hash of configuration options including
         `willChange` and `didChange` option.
       @return {Ember.Array} receiver
     */
@@ -15694,7 +15693,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
        @method compare
       @param a {Object} the first object to compare
       @param b {Object} the second object to compare
-      @return {Integer} the result of the comparison
+      @return {Number} the result of the comparison
     */
     compare: null
   });
@@ -16739,7 +16738,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       mixin.
        @method addEnumerableObserver
       @param {Object} target
-      @param {Hash} [opts]
+      @param {Object} [opts]
       @return this
     */
     addEnumerableObserver: function (target, opts) {
@@ -16765,7 +16764,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       Removes a registered enumerable observer.
        @method removeEnumerableObserver
       @param {Object} target
-      @param {Hash} [opts]
+      @param {Object} [opts]
       @return this
     */
     removeEnumerableObserver: function (target, opts) {
@@ -17522,7 +17521,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
       ```
        @method getProperties
       @param {String...|Array} list of keys to get
-      @return {Hash}
+      @return {Object}
     */
     getProperties: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -17582,7 +17581,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
       record.setProperties({ firstName: 'Charles', lastName: 'Jolley' });
       ```
        @method setProperties
-      @param {Hash} hash the hash of keys and values to set
+      @param {Object} hash the hash of keys and values to set
       @return {Ember.Observable}
     */
     setProperties: function (hash) {
@@ -18354,7 +18353,7 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-metal/co
     });
     ```
      @method triggerAction
-    @param opts {Hash} (optional, with the optional keys action, target and/or actionContext)
+    @param opts {Object} (optional, with the optional keys action, target and/or actionContext)
     @return {Boolean} true if the action was sent successfully and did not return false
     */
     triggerAction: function (opts) {
@@ -20780,7 +20779,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
 
     @property STRINGS
     @for Ember
-    @type Hash
+    @type Object
   */
   Ember['default'].STRINGS = {};
 
@@ -21413,7 +21412,7 @@ enifed('ember-runtime/system/tracked_array', ['exports', 'ember-metal/property_g
 
     @method ArrayOperation
     @private
-    @param {String} type The type of the operation.  One of
+    @param {String} operation The type of the operation.  One of
     `Ember.TrackedArray.{RETAIN, INSERT, DELETE}`
     @param {Number} count The number of items in this operation.
     @param {Array} items The items of the operation, if included.  RETAIN and
