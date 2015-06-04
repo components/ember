@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b1551676
+ * @version   2.0.0-canary+5e7a7d17
  */
 
 (function() {
@@ -27955,6 +27955,39 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       });
     });
 
+    QUnit.test("provides a helpful error if an action is not present", function (assert) {
+      assert.expect(1);
+
+      innerComponent = EmberComponent['default'].create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action 'doesNotExist')}}\n      "),
+        innerComponent: innerComponent,
+        actions: {
+          something: function () {}
+        }
+      }).create();
+
+      throws(function () {
+        utils.runAppend(outerComponent);
+      }, /An action named 'doesNotExist' was not found in /);
+    });
+
+    QUnit.test("provides a helpful error if actions hash is not present", function (assert) {
+      assert.expect(1);
+
+      innerComponent = EmberComponent['default'].create();
+
+      outerComponent = EmberComponent['default'].extend({
+        layout: compile['default']("\n        {{view innerComponent submit=(action 'doesNotExist')}}\n      "),
+        innerComponent: innerComponent
+      }).create();
+
+      throws(function () {
+        utils.runAppend(outerComponent);
+      }, /An action named 'doesNotExist' was not found in /);
+    });
+
     QUnit.test("action can create closures over actions with target", function (assert) {
       assert.expect(1);
 
@@ -28119,6 +28152,10 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['ember-metal
       });
     });
   
+
+  // this is present to ensure `actions` hash is present
+  // a different error is triggered if `actions` is missing
+  // completely
 
 });
 enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (Ember, property_set, run, EventDispatcher, ActionManager, system__container, EmberObject, EmberController, EmberArrayController, compile, EmberView, EmberComponent, jQuery, element_action, each, utils) {
@@ -47735,7 +47772,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+b1551676", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+5e7a7d17", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
