@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5e7a7d17
+ * @version   2.0.0-canary+502ae954
  */
 
 (function() {
@@ -4446,6 +4446,20 @@ enifed('ember-extension-support/tests/data_adapter_test', ['ember-metal/core', '
     };
 
     adapter.watchModelTypes(modelTypesAdded);
+  });
+
+  QUnit.test("getRecords gets a model name as second argument", function () {
+    App.Post = Model.extend();
+
+    adapter = App.__container__.lookup("data-adapter:main");
+    adapter.reopen({
+      getRecords: function (klass, name) {
+        equal(name, "post");
+        return Ember['default'].A([]);
+      }
+    });
+
+    adapter.watchModelTypes(function () {});
   });
 
   QUnit.test("Model types added with custom container-debug-adapter", function () {
@@ -47618,7 +47632,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+5e7a7d17", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+502ae954", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

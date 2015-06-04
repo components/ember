@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5e7a7d17
+ * @version   2.0.0-canary+502ae954
  */
 
 (function() {
@@ -5085,6 +5085,20 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     attributeLimit: 3,
 
     /**
+     * Ember Data > v1.0.0-beta.18
+     * requires string model names to be passed
+     * around instead of the actual factories.
+     *
+     * This is a stamp for the Ember Inspector
+     * to differentiate between the versions
+     * to be able to support older versions too.
+     *
+     * @public
+     * @property acceptsModelName
+     */
+    acceptsModelName: true,
+
+    /**
       Stores all methods that clear observers.
       These methods will be called on destruction.
        @private
@@ -5126,7 +5140,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       typesToSend = modelTypes.map(function (type) {
         var klass = type.klass;
         var wrapped = _this.wrapModelType(klass, type.name);
-        releaseMethods.push(_this.observeModelType(klass, typesUpdated));
+        releaseMethods.push(_this.observeModelType(type.name, typesUpdated));
         return wrapped;
       });
 
@@ -5153,6 +5167,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Fetch the records of a given type and observe them for changes.
        @public
       @method watchRecords
+       @param {String} modelName The model name
        @param {Function} recordsAdded Callback to call to add records.
       Takes an array of objects containing wrapped records.
       The object should have the following properties:
@@ -5166,11 +5181,12 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
         count: the number of records removed
        @return {Function} Method to call to remove all observers
     */
-    watchRecords: function (type, recordsAdded, recordsUpdated, recordsRemoved) {
+    watchRecords: function (modelName, recordsAdded, recordsUpdated, recordsRemoved) {
       var _this2 = this;
 
       var releaseMethods = native_array.A();
-      var records = this.getRecords(type);
+      var klass = this._nameToClass(modelName);
+      var records = this.getRecords(klass, modelName);
       var release;
 
       var recordUpdated = function (updatedRecord) {
@@ -5256,18 +5272,19 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Adds observers to a model type class.
        @private
       @method observeModelType
-      @param {Class} type The model type class
+      @param {String} modelName The model type name
       @param {Function} typesUpdated Called when a type is modified.
       @return {Function} The function to call to remove observers
     */
 
-    observeModelType: function (type, typesUpdated) {
+    observeModelType: function (modelName, typesUpdated) {
       var _this3 = this;
 
-      var records = this.getRecords(type);
+      var klass = this._nameToClass(modelName);
+      var records = this.getRecords(klass, modelName);
 
       var onChange = function () {
-        typesUpdated([_this3.wrapModelType(type)]);
+        typesUpdated([_this3.wrapModelType(klass, modelName)]);
       };
       var observer = {
         didChange: function () {
@@ -5291,8 +5308,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Wraps a given model type and observes changes to it.
        @private
       @method wrapModelType
-      @param {Class} type A model class
-      @param {String}  Optional name of the class
+      @param {Class} klass A model class
+      @param {String} modelName Name of the class
       @return {Object} contains the wrapped type and the function to remove observers
       Format:
         type: {Object} the wrapped type
@@ -5303,15 +5320,15 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
             object: {Class} the actual Model type class
         release: {Function} The function to remove observers
     */
-    wrapModelType: function (type, name) {
-      var records = this.getRecords(type);
+    wrapModelType: function (klass, name) {
+      var records = this.getRecords(klass, name);
       var typeToSend;
 
       typeToSend = {
-        name: name || type.toString(),
+        name: name,
         count: property_get.get(records, "length"),
-        columns: this.columnsForType(type),
-        object: type
+        columns: this.columnsForType(klass),
+        object: klass
       };
 
       return typeToSend;
@@ -5368,7 +5385,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
             continue;
           }
           // Even though we will filter again in `getModelTypes`,
-          // we should not call `lookupContainer` on non-models
+          // we should not call `lookupFactory` on non-models
           // (especially when `Ember.MODEL_FACTORY_INJECTIONS` is `true`)
           if (!_this5.detect(namespace[key])) {
             continue;
@@ -7884,7 +7901,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+5e7a7d17";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13200,7 +13217,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+5e7a7d17
+    @version 2.0.0-canary+502ae954
   */
 
   if ('undefined' === typeof Ember) {
@@ -13231,10 +13248,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+5e7a7d17'
+    @default '2.0.0-canary+502ae954'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+5e7a7d17';
+  Ember.VERSION = '2.0.0-canary+502ae954';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21037,7 +21054,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+5e7a7d17";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21507,7 +21524,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+5e7a7d17";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36660,7 +36677,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+5e7a7d17",
+        revision: "Ember@2.0.0-canary+502ae954",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40128,7 +40145,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+5e7a7d17";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+502ae954";
 
   /**
   @module ember
