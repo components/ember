@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+dd3331cb
+ * @version   1.13.0-beta.2+31a00349
  */
 
 (function() {
@@ -6267,7 +6267,7 @@ enifed('ember-htmlbars/helpers/bind-attr', function () {
   */
 
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display'], function (exports, property_get, enumerable_utils, normalizeSelf, shouldDisplay) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-metal/utils', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display'], function (exports, property_get, enumerable_utils, utils, normalizeSelf, shouldDisplay) {
 
   'use strict';
 
@@ -6287,7 +6287,25 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/property_get', 'e
           self = normalizeSelf['default'](item);
         }
 
-        var key = keyPath ? property_get.get(item, keyPath) : String(i);
+        var key;
+        switch (keyPath) {
+          case "@index":
+            key = i;
+            break;
+          case "@guid":
+            key = utils.guidFor(item);
+            break;
+          case "@item":
+            key = item;
+            break;
+          default:
+            key = keyPath ? property_get.get(item, keyPath) : i;
+        }
+
+        if (typeof key === "number") {
+          key = String(key);
+        }
+
         blocks.template.yieldItem(key, [item, i], self);
       });
     } else if (blocks.inverse.yield) {
@@ -7685,7 +7703,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+dd3331cb";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+31a00349";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -12985,7 +13003,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2+dd3331cb
+    @version 1.13.0-beta.2+31a00349
   */
 
   if ('undefined' === typeof Ember) {
@@ -13016,10 +13034,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+dd3331cb'
+    @default '1.13.0-beta.2+31a00349'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2+dd3331cb';
+  Ember.VERSION = '1.13.0-beta.2+31a00349';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20807,7 +20825,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+dd3331cb";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+31a00349";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21277,7 +21295,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+dd3331cb";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+31a00349";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36425,7 +36443,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2+dd3331cb",
+        revision: "Ember@1.13.0-beta.2+31a00349",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39893,7 +39911,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+dd3331cb";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+31a00349";
 
   /**
   @module ember
