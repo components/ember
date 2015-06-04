@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+fd51a87c
+ * @version   1.13.0-beta.2+1a235a0e
  */
 
 (function() {
@@ -6932,8 +6932,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-htmlbars/node-manage
       isAngleBracket = true;
     }
 
-    var read = env.hooks.getValue;
-    var parentView = read(scope.view);
+    var parentView = env.view;
 
     var manager = ComponentNodeManager['default'].create(renderNode, env, {
       tagName: tagName,
@@ -8002,7 +8001,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+fd51a87c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+1a235a0e";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8023,8 +8022,8 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
       return { outletState: selectedOutletState, hasParentOutlet: env.hasParentOutlet };
     },
 
-    childEnv: function (state) {
-      return { outletState: state.outletState && state.outletState.outlets, hasParentOutlet: true };
+    childEnv: function (state, env) {
+      return env.childWithOutletState(state.outletState && state.outletState.outlets, true);
     },
 
     isStable: function (lastState, nextState) {
@@ -8360,6 +8359,8 @@ enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/core', 'dom-
 
   function EmberAttrMorph(element, attrName, domHelper, namespace) {
     HTMLBarsAttrMorph.call(this, element, attrName, domHelper, namespace);
+
+    this.streamUnsubscribers = null;
   }
 
   var proto = EmberAttrMorph.prototype = o_create['default'](HTMLBarsAttrMorph.prototype);
@@ -8610,9 +8611,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var attrs = this.attrs;
 
     return instrumentation_support.instrument(component, function () {
-      var env = _env;
-
-      env = merge.assign({ view: component }, env);
+      var env = _env.childWithView(component);
 
       var snapshot = takeSnapshot(attrs);
       env.renderer.componentInitAttrs(this.component, snapshot);
@@ -8664,7 +8663,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       var snapshot = takeSnapshot(attrs);
 
       if (component._renderNode.shouldReceiveAttrs) {
-        env.renderer.componentUpdateAttrs(component, component.attrs, snapshot);
+        env.renderer.componentUpdateAttrs(component, snapshot);
 
         if (!component._isAngleBracket) {
           setProperties['default'](component, mergeBindings({}, shadowedAttrs(component, snapshot)));
@@ -8869,8 +8868,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       var newEnv = env;
       if (component) {
-        newEnv = merge['default']({}, env);
-        newEnv.view = component;
+        newEnv = env.childWithView(component);
       }
 
       if (component) {
@@ -8901,8 +8899,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     return instrumentation_support.instrument(component, function () {
       var newEnv = env;
       if (component) {
-        newEnv = merge['default']({}, env);
-        newEnv.view = component;
+        newEnv = env.childWithView(component);
 
         var snapshot = takeSnapshot(attrs);
 
@@ -9328,26 +9325,80 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-htmlbars/sy
   }
 
 });
-enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/env', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, defaultEnv, view_node_manager) {
+enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env'], function (exports, defaultEnv) {
+
+  'use strict';
+
+
+
+  exports['default'] = RenderEnv;
+
+  function RenderEnv(options) {
+    this.lifecycleHooks = options.lifecycleHooks || [];
+    this.renderedViews = options.renderedViews || [];
+    this.renderedNodes = options.renderedNodes || {};
+    this.hasParentOutlet = options.hasParentOutlet || false;
+
+    this.view = options.view;
+    this.outletState = options.outletState;
+    this.container = options.container;
+    this.renderer = options.renderer;
+    this.dom = options.dom;
+
+    this.hooks = defaultEnv['default'].hooks;
+    this.helpers = defaultEnv['default'].helpers;
+    this.useFragmentCache = defaultEnv['default'].useFragmentCache;
+  }
+
+  RenderEnv.build = function (view) {
+    return new RenderEnv({
+      view: view,
+      outletState: view.outletState,
+      container: view.container,
+      renderer: view.renderer,
+      dom: view.renderer._dom
+    });
+  };
+
+  RenderEnv.prototype.childWithView = function (view) {
+    return new RenderEnv({
+      view: view,
+      outletState: this.outletState,
+      container: this.container,
+      renderer: this.renderer,
+      dom: this.dom,
+      lifecycleHooks: this.lifecycleHooks,
+      renderedViews: this.renderedViews,
+      renderedNodes: this.renderedNodes,
+      hasParentOutlet: this.hasParentOutlet
+    });
+  };
+
+  RenderEnv.prototype.childWithOutletState = function (outletState) {
+    var hasParentOutlet = arguments[1] === undefined ? this.hasParentOutlet : arguments[1];
+
+    return new RenderEnv({
+      view: this.view,
+      outletState: outletState,
+      container: this.container,
+      renderer: this.renderer,
+      dom: this.dom,
+      lifecycleHooks: this.lifecycleHooks,
+      renderedViews: this.renderedViews,
+      renderedNodes: this.renderedNodes,
+      hasParentOutlet: hasParentOutlet
+    });
+  };
+
+});
+enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/system/render-env'], function (exports, view_node_manager, RenderEnv) {
 
   'use strict';
 
   exports.renderHTMLBarsBlock = renderHTMLBarsBlock;
 
   function renderHTMLBarsBlock(view, block, renderNode) {
-    var env = {
-      lifecycleHooks: [],
-      renderedViews: [],
-      renderedNodes: {},
-      view: view,
-      outletState: view.outletState,
-      container: view.container,
-      renderer: view.renderer,
-      dom: view.renderer._dom,
-      hooks: defaultEnv['default'].hooks,
-      helpers: defaultEnv['default'].helpers,
-      useFragmentCache: defaultEnv['default'].useFragmentCache
-    };
+    var env = RenderEnv['default'].build(view);
 
     view.env = env;
     view_node_manager.createOrUpdateComponent(view, {}, null, renderNode, env);
@@ -10427,7 +10478,7 @@ enifed('ember-metal-views', ['exports', 'ember-metal-views/renderer'], function 
 	exports.Renderer = Renderer['default'];
 
 });
-enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/build-component-template', 'ember-metal/enumerable_utils'], function (exports, run, property_get, property_set, buildComponentTemplate, enumerable_utils) {
+enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/merge', 'ember-metal/set_properties', 'ember-views/system/build-component-template', 'ember-metal/enumerable_utils'], function (exports, run, property_get, property_set, merge, setProperties, buildComponentTemplate, enumerable_utils) {
 
   'use strict';
 
@@ -10588,8 +10639,15 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     this.setAttrs(view, attrs);
   }; // setting new attrs
 
-  Renderer.prototype.componentUpdateAttrs = function (component, oldAttrs, newAttrs) {
-    property_set.set(component, "attrs", newAttrs);
+  Renderer.prototype.componentUpdateAttrs = function (component, newAttrs) {
+    var oldAttrs = null;
+
+    if (component.attrs) {
+      oldAttrs = merge.assign({}, component.attrs);
+      setProperties['default'](component.attrs, newAttrs);
+    } else {
+      property_set.set(component, "attrs", newAttrs);
+    }
 
     component.trigger("didUpdateAttrs", { oldAttrs: oldAttrs, newAttrs: newAttrs });
     component.trigger("didReceiveAttrs", { oldAttrs: oldAttrs, newAttrs: newAttrs });
@@ -13285,7 +13343,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2+fd51a87c
+    @version 1.13.0-beta.2+1a235a0e
   */
 
   if ('undefined' === typeof Ember) {
@@ -13316,10 +13374,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+fd51a87c'
+    @default '1.13.0-beta.2+1a235a0e'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2+fd51a87c';
+  Ember.VERSION = '1.13.0-beta.2+1a235a0e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15638,10 +15696,11 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
         continue;
       }
 
-      for (var prop in arg) {
-        if (arg.hasOwnProperty(prop)) {
-          original[prop] = arg[prop];
-        }
+      var updates = keys['default'](arg);
+
+      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
       }
     }
 
@@ -21024,8 +21083,8 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
       };
     },
 
-    childEnv: function (state) {
-      return { outletState: state.childOutletState };
+    childEnv: function (state, env) {
+      return env.childWithOutletState(state.childOutletState);
     },
 
     isStable: function (lastState, nextState) {
@@ -21244,7 +21303,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+fd51a87c";
+  linkToTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+1a235a0e";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21718,7 +21777,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+fd51a87c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+1a235a0e";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36966,7 +37025,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2+fd51a87c",
+        revision: "Ember@1.13.0-beta.2+1a235a0e",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41619,7 +41678,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+fd51a87c";
+  containerViewTemplate['default'].meta.revision = "Ember@1.13.0-beta.2+1a235a0e";
 
   /**
   @module ember
@@ -44795,6 +44854,12 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templates, visitor);
+    },
+
+    // [ 'attributes', template ]
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      var template = node[1];
+      env.hooks.attributes(morph, env, scope, template, parentMorph, visitor);
     }
   });
 
@@ -44839,11 +44904,18 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
       dirtyCheck(env, morph, visitor, function (visitor) {
         AlwaysDirtyVisitor.component(node, morph, env, scope, template, visitor);
       });
-    } });
+    },
 
-  function dirtyCheck(env, morph, visitor, callback) {
+    // [ 'attributes', template ]
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      AlwaysDirtyVisitor.attributes(node, morph, env, scope, parentMorph, visitor);
+    }
+  });
+
+  function dirtyCheck(_env, morph, visitor, callback) {
     var isDirty = morph.isDirty;
     var isSubtreeDirty = morph.isSubtreeDirty;
+    var env = _env;
 
     if (isSubtreeDirty) {
       visitor = AlwaysDirtyVisitor;
@@ -44852,8 +44924,8 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
     if (isDirty || isSubtreeDirty) {
       callback(visitor);
     } else {
-      if (morph.lastEnv) {
-        env = object_utils.merge(object_utils.shallowCopy(morph.lastEnv), env);
+      if (morph.buildChildEnv) {
+        env = morph.buildChildEnv(morph.state, env);
       }
       morph_utils.validateChildMorphs(env, morph, visitor);
     }
@@ -44991,6 +45063,20 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       renderState.morphListStart = currentMorph;
     }
 
+    // This helper function assumes that the morph was already rendered; if this is
+    // called and the morph does not exist, it will result in an infinite loop
+    function advanceToKey(key) {
+      var seek = currentMorph;
+
+      while (seek.key !== key) {
+        renderState.deletionCandidates[seek.key] = seek;
+        seek = seek.nextMorph;
+      }
+
+      currentMorph = seek.nextMorph;
+      return seek;
+    }
+
     return function (key, blockArguments, self) {
       if (typeof key !== "string") {
         throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
@@ -45007,22 +45093,34 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       morphList = morph.morphList;
       morphMap = morph.morphMap;
 
+      var candidates = renderState.deletionCandidates;
+      var handledMorphs = renderState.handledMorphs;
+
       if (currentMorph && currentMorph.key === key) {
         yieldTemplate(template, env, parentScope, currentMorph, renderState, visitor)(blockArguments, self);
         currentMorph = currentMorph.nextMorph;
-      } else if (currentMorph && morphMap[key] !== undefined) {
+        handledMorphs[key] = currentMorph;
+      } else if (morphMap[key] !== undefined) {
         var foundMorph = morphMap[key];
+
+        if (key in candidates) {
+          // If we already saw this morph, move it forward to this position
+          morphList.insertBeforeMorph(foundMorph, currentMorph);
+        } else {
+          // Otherwise, move the pointer forward to the existing morph for this key
+          advanceToKey(key);
+        }
+
+        handledMorphs[foundMorph.key] = foundMorph;
         yieldTemplate(template, env, parentScope, foundMorph, renderState, visitor)(blockArguments, self);
-        morphList.insertBeforeMorph(foundMorph, currentMorph);
       } else {
         var childMorph = render.createChildMorph(env.dom, morph);
         childMorph.key = key;
-        morphMap[key] = childMorph;
+        morphMap[key] = handledMorphs[key] = childMorph;
         morphList.insertBeforeMorph(childMorph, currentMorph);
         yieldTemplate(template, env, parentScope, childMorph, renderState, visitor)(blockArguments, self);
       }
 
-      renderState.morphListStart = currentMorph;
       renderState.clearMorph = morph.childNodes;
       morph.childNodes = null;
     };
@@ -45080,7 +45178,10 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   }
 
   function optionsFor(template, inverse, env, scope, morph, visitor) {
-    var renderState = { morphListStart: null, clearMorph: morph, shadowOptions: null };
+    // If there was a template yielded last time, set clearMorph so it will be cleared
+    // if no template is yielded on this render.
+    var clearMorph = morph.lastResult ? morph : null;
+    var renderState = new template_utils.RenderState(clearMorph);
 
     return {
       templates: {
@@ -45385,8 +45486,14 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     }
 
     if (keyword.childEnv) {
-      morph.lastEnv = keyword.childEnv(morph.state);
-      env = object_utils.merge(object_utils.shallowCopy(morph.lastEnv), env);
+      // Build the child environment...
+      env = keyword.childEnv(morph.state, env);
+
+      // ..then save off the child env builder on the render node. If the render
+      // node tree is re-rendered and this node is not dirty, the child env
+      // builder will still be invoked so that child dirty render nodes still get
+      // the correct child env.
+      morph.buildChildEnv = keyword.childEnv;
     }
 
     var firstTime = !morph.rendered;
@@ -45496,13 +45603,28 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       return;
     }
 
-    var options = optionsFor(null, null, env, scope, morph);
+    var value = undefined,
+        hasValue = undefined;
+    if (morph.linkedResult) {
+      value = env.hooks.getValue(morph.linkedResult);
+      hasValue = true;
+    } else {
+      var options = optionsFor(null, null, env, scope, morph);
 
-    var helper = env.hooks.lookupHelper(env, scope, path);
-    var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
+      var helper = env.hooks.lookupHelper(env, scope, path);
+      var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
 
-    if (result && "value" in result) {
-      var value = result.value;
+      if (result && "value" in result) {
+        value = result.value;
+        hasValue = true;
+      }
+
+      if (result && result.link) {
+        morph.linkedResult = result.value;
+      }
+    }
+
+    if (hasValue) {
       if (morph.lastValue !== value) {
         morph.setContent(value);
       }
@@ -45855,11 +45977,13 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
     this.lastYielded = null;
     this.lastResult = null;
     this.lastValue = null;
-    this.lastEnv = null;
+    this.buildChildEnv = null;
     this.morphList = null;
     this.morphMap = null;
     this.key = null;
     this.linkedParams = null;
+    this.linkedResult = null;
+    this.childNodes = null;
     this.rendered = false;
     this.guid = "range" + guid++;
   }
@@ -45894,6 +46018,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
   'use strict';
 
   exports.manualElement = manualElement;
+  exports.attachAttributes = attachAttributes;
   exports.createChildMorph = createChildMorph;
   exports.getCachedFragment = getCachedFragment;
 
@@ -45926,11 +46051,17 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
 
     this.nodes = nodes;
     this.template = template;
+    this.statements = template.statements.slice();
     this.env = env;
     this.scope = scope;
     this.shouldSetContent = shouldSetContent;
 
     this.bindScope();
+
+    if (options.attributes !== undefined) {
+      nodes.push({ state: {} });
+      this.statements.push(["attributes", attachAttributes(options.attributes)]);
+    }
 
     if (options.self !== undefined) {
       this.bindSelf(options.self);
@@ -46033,12 +46164,62 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
     return template;
   }
 
+  function attachAttributes(attributes) {
+    var statements = [];
+
+    for (var key in attributes) {
+      if (typeof attributes[key] === "string") {
+        continue;
+      }
+      statements.push(["attribute", key, attributes[key]]);
+    }
+
+    var template = {
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = this.element;
+        if (el0.namespaceURI === "http://www.w3.org/2000/svg") {
+          dom.setNamespace(svgNamespace);
+        }
+        for (var key in attributes) {
+          if (typeof attributes[key] !== "string") {
+            continue;
+          }
+          dom.setAttribute(el0, key, attributes[key]);
+        }
+
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom) {
+        var element = this.element;
+        var morphs = [];
+
+        for (var key in attributes) {
+          if (typeof attributes[key] === "string") {
+            continue;
+          }
+          morphs.push(dom.createAttrMorph(element, key));
+        }
+
+        return morphs;
+      },
+      statements: statements,
+      locals: [],
+      templates: [],
+      element: null
+    };
+
+    return template;
+  }
+
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
     this.populateNodes(ExpressionVisitor.AlwaysDirtyVisitor);
 
-    if (this.shouldSetContent) {
+    if (this.shouldSetContent && this.root.setContent) {
       this.root.setContent(this.fragment);
     }
   };
@@ -46086,7 +46267,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
     var scope = this.scope;
     var template = this.template;
     var nodes = this.nodes;
-    var statements = template.statements;
+    var statements = this.statements;
     var i, l;
 
     for (i = 0, l = statements.length; i < l; i++) {
@@ -46110,6 +46291,8 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           visitor.attribute(statement, morph, env, scope);break;
         case "component":
           visitor.component(statement, morph, env, scope, template, visitor);break;
+        case "attributes":
+          visitor.attributes(statement, morph, env, scope, this.root, visitor);break;
       }
 
       if (env.hooks.didRenderNode) {
@@ -46628,16 +46811,25 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
 
   'use strict';
 
+  exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
+
+  function RenderState(renderNode) {
+    this.morphListStart = null;
+    this.deletionCandidates = {};
+    this.handledMorphs = {};
+    this.clearMorph = renderNode;
+    this.shadowOptions = null;
+  }
 
   function blockFor(render, template, blockOptions) {
     var block = function (env, blockArguments, self, renderNode, parentScope, visitor) {
       if (renderNode.lastResult) {
         renderNode.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
       } else {
-        var options = { renderState: { morphListStart: null, clearMorph: renderNode, shadowOptions: null } };
+        var options = { renderState: new RenderState(renderNode) };
 
         var scope = blockOptions.scope;
         var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
@@ -46686,16 +46878,25 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
       return;
     }
 
-    var item = options.renderState.morphListStart;
     var toClear = options.renderState.clearMorph;
+    var handledMorphs = options.renderState.handledMorphs;
     var morphMap = morph.morphMap;
+    var morphList = morph.morphList;
 
-    while (item) {
-      var next = item.nextMorph;
-      delete morphMap[item.key];
-      clearMorph(item, env, true);
-      item.destroy();
-      item = next;
+    if (morphList) {
+      var item = morphList.firstChildMorph;
+
+      while (item) {
+        var next = item.nextMorph;
+
+        if (!(item.key in handledMorphs)) {
+          delete morphMap[item.key];
+          clearMorph(item, env, true);
+          item.destroy();
+        }
+
+        item = next;
+      }
     }
 
     if (toClear) {
@@ -46813,10 +47014,16 @@ enifed('morph-attr', ['exports', './morph-attr/sanitize-attribute-value', './dom
     this.namespace = namespace !== undefined ? namespace : htmlbars_util.getAttrNamespace(attrName);
     this.state = {};
     this.isDirty = false;
+    this.isSubtreeDirty = false;
     this.escaped = true;
     this.lastValue = UNSET;
+    this.lastResult = null;
+    this.lastYielded = null;
+    this.childNodes = null;
     this.linkedParams = null;
+    this.linkedResult = null;
     this.guid = "attr" + guid++;
+    this.ownerNode = null;
     this.rendered = false;
     this._renderedInitially = false;
 
@@ -46827,13 +47034,13 @@ enifed('morph-attr', ['exports', './morph-attr/sanitize-attribute-value', './dom
       this.attrName = attrName;
     } else {
       if (element.namespaceURI === build_html_dom.svgNamespace || attrName === "style" || !normalizedAttrName) {
-        this.attrName = attrName;
         this._update = updateAttribute;
         this._get = getAttribute;
+        this.attrName = attrName;
       } else {
-        this.attrName = normalizedAttrName;
         this._update = updateProperty;
         this._get = getProperty;
+        this.attrName = normalizedAttrName;
       }
     }
   }

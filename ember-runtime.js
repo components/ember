@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+fd51a87c
+ * @version   1.13.0-beta.2+1a235a0e
  */
 
 (function() {
@@ -4735,7 +4735,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.13.0-beta.2+fd51a87c
+    @version 1.13.0-beta.2+1a235a0e
   */
 
   if ('undefined' === typeof Ember) {
@@ -4766,10 +4766,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+fd51a87c'
+    @default '1.13.0-beta.2+1a235a0e'
     @static
   */
-  Ember.VERSION = '1.13.0-beta.2+fd51a87c';
+  Ember.VERSION = '1.13.0-beta.2+1a235a0e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7088,10 +7088,11 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
         continue;
       }
 
-      for (var prop in arg) {
-        if (arg.hasOwnProperty(prop)) {
-          original[prop] = arg[prop];
-        }
+      var updates = keys['default'](arg);
+
+      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
       }
     }
 

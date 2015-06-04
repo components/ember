@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+fd51a87c
+ * @version   1.13.0-beta.2+1a235a0e
  */
 
 (function() {
@@ -46373,7 +46373,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+fd51a87c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+1a235a0e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -56628,7 +56628,7 @@ enifed('ember/tests/application_lifecycle', ['ember'], function () {
   });
 
 });
-enifed('ember/tests/component_registration_test', ['ember', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers'], function (__dep0__, compile, helpers) {
+enifed('ember/tests/component_registration_test', ['ember', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (__dep0__, compile, helpers, outlet) {
 
   'use strict';
 
@@ -56670,6 +56670,8 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
   });
 
   function boot(callback) {
+    var startURL = arguments[1] === undefined ? "/" : arguments[1];
+
     Ember.run(function () {
       App = Ember.Application.create({
         name: "App",
@@ -56694,7 +56696,7 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
 
     Ember.run(App, "advanceReadiness");
     Ember.run(function () {
-      router.handleURL("/");
+      router.handleURL(startURL);
     });
   }
 
@@ -56977,6 +56979,33 @@ enifed('ember/tests/component_registration_test', ['ember', 'ember-template-comp
     });
 
     Ember.$("#fizzbuzz", "#wrapper").click();
+  });
+
+  QUnit.test("Components receive the top-level view as their ownerView", function (assert) {
+    Ember.TEMPLATES.application = compile['default']("{{outlet}}");
+    Ember.TEMPLATES.index = compile['default']("{{my-component}}");
+    Ember.TEMPLATES["components/my-component"] = compile['default']("<div></div>");
+
+    var component = undefined;
+
+    boot(function () {
+      registry.register("component:my-component", Ember.Component.extend({
+        init: function () {
+          this._super();
+          component = this;
+        }
+      }));
+    });
+
+    // Theses tests are intended to catch a regression where the owner view was
+    // not configured properly. Future refactors may break these tests, which
+    // should not be considered a breaking change to public APIs.
+    var ownerView = component.ownerView;
+    assert.ok(ownerView, "owner view was set");
+    assert.ok(ownerView instanceof outlet.OutletView, "owner view has no parent view");
+    assert.notStrictEqual(component, ownerView, "owner view is not itself");
+
+    assert.ok(ownerView._outlets, "owner view has an internal array of outlets");
   });
 
 });
