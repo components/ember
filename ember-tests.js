@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+1a235a0e
+ * @version   1.13.0-beta.2+2d8bea82
  */
 
 (function() {
@@ -6556,7 +6556,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['ember-runtime/system/co
     component = Component['default'].create({
       container: container,
 
-      template: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
+      layout: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
     });
 
     utils.runAppend(component);
@@ -6566,11 +6566,11 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['ember-runtime/system/co
 
   if (!EmberDev.runningProdBuild) {
 
-    QUnit.test("adds the attribute to the element", function () {
+    QUnit.test("no warnings are triggered from setting style attribute", function () {
       component = Component['default'].create({
         container: container,
 
-        template: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
+        layout: compile['default']("<div style={{-html-safe \"display: none;\"}}></div>")
       });
 
       utils.runAppend(component);
@@ -14681,6 +14681,78 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(view.$("#aria-test").attr("role"), "main", "role attribute is applied");
+  });
+
+  QUnit.test("`template` is true when block supplied", function () {
+    expect(3);
+
+    var innerComponent = undefined;
+    registry.register("component:with-block", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerComponent = this;
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{#with-block}}In template{{/with-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In template");
+
+    var template = undefined;
+    expectDeprecation(function () {
+      template = property_get.get(innerComponent, "template");
+    }, /Accessing 'template' in .+ is deprecated. To determine if a block was specified to .+ please use '{{#if hasBlock}}' in the components layout./);
+
+    ok(template, "template property is truthy when a block was provided");
+  });
+
+  QUnit.test("`template` is false when no block supplied", function () {
+    expect(2);
+
+    var innerComponent = undefined;
+    registry.register("component:without-block", Component['default'].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        innerComponent = this;
+      }
+    }));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{without-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    var template = undefined;
+    expectDeprecation(function () {
+      template = property_get.get(innerComponent, "template");
+    }, /Accessing 'template' in .+ is deprecated. To determine if a block was specified to .+ please use '{{#if hasBlock}}' in the components layout./);
+
+    ok(!template, "template property is falsey when a block was not provided");
+  });
+
+  QUnit.test("`template` specified in a component is overridden by block", function () {
+    expect(1);
+
+    registry.register("component:with-block", Component['default'].extend({
+      layout: compile['default']("{{yield}}"),
+      template: compile['default']("Oh, noes!")
+    }));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{#with-block}}Whoop, whoop!{{/with-block}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "Whoop, whoop!", "block provided always overrides template property");
   });
 
   
@@ -46527,7 +46599,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+1a235a0e", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+2d8bea82", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
