@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e89dc6da
+ * @version   2.0.0-canary+308ca404
  */
 
 (function() {
@@ -2991,7 +2991,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+e89dc6da
+    @version 2.0.0-canary+308ca404
   */
 
   if ('undefined' === typeof Ember) {
@@ -3022,10 +3022,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+e89dc6da'
+    @default '2.0.0-canary+308ca404'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+e89dc6da';
+  Ember.VERSION = '2.0.0-canary+308ca404';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5349,10 +5349,11 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
         continue;
       }
 
-      for (var prop in arg) {
-        if (arg.hasOwnProperty(prop)) {
-          original[prop] = arg[prop];
-        }
+      var updates = keys['default'](arg);
+
+      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
       }
     }
 
@@ -11485,7 +11486,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+e89dc6da",
+        revision: "Ember@2.0.0-canary+308ca404",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13024,6 +13025,12 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templates, visitor);
+    },
+
+    // [ 'attributes', template ]
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      var template = node[1];
+      env.hooks.attributes(morph, env, scope, template, parentMorph, visitor);
     }
   });
 
@@ -13068,11 +13075,18 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
       dirtyCheck(env, morph, visitor, function (visitor) {
         AlwaysDirtyVisitor.component(node, morph, env, scope, template, visitor);
       });
-    } });
+    },
 
-  function dirtyCheck(env, morph, visitor, callback) {
+    // [ 'attributes', template ]
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      AlwaysDirtyVisitor.attributes(node, morph, env, scope, parentMorph, visitor);
+    }
+  });
+
+  function dirtyCheck(_env, morph, visitor, callback) {
     var isDirty = morph.isDirty;
     var isSubtreeDirty = morph.isSubtreeDirty;
+    var env = _env;
 
     if (isSubtreeDirty) {
       visitor = AlwaysDirtyVisitor;
@@ -13081,8 +13095,8 @@ enifed('htmlbars-runtime/expression-visitor', ['exports', '../htmlbars-util/obje
     if (isDirty || isSubtreeDirty) {
       callback(visitor);
     } else {
-      if (morph.lastEnv) {
-        env = object_utils.merge(object_utils.shallowCopy(morph.lastEnv), env);
+      if (morph.buildChildEnv) {
+        env = morph.buildChildEnv(morph.state, env);
       }
       morph_utils.validateChildMorphs(env, morph, visitor);
     }
@@ -13220,6 +13234,20 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       renderState.morphListStart = currentMorph;
     }
 
+    // This helper function assumes that the morph was already rendered; if this is
+    // called and the morph does not exist, it will result in an infinite loop
+    function advanceToKey(key) {
+      var seek = currentMorph;
+
+      while (seek.key !== key) {
+        renderState.deletionCandidates[seek.key] = seek;
+        seek = seek.nextMorph;
+      }
+
+      currentMorph = seek.nextMorph;
+      return seek;
+    }
+
     return function (key, blockArguments, self) {
       if (typeof key !== "string") {
         throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
@@ -13236,22 +13264,34 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       morphList = morph.morphList;
       morphMap = morph.morphMap;
 
+      var candidates = renderState.deletionCandidates;
+      var handledMorphs = renderState.handledMorphs;
+
       if (currentMorph && currentMorph.key === key) {
         yieldTemplate(template, env, parentScope, currentMorph, renderState, visitor)(blockArguments, self);
         currentMorph = currentMorph.nextMorph;
-      } else if (currentMorph && morphMap[key] !== undefined) {
+        handledMorphs[key] = currentMorph;
+      } else if (morphMap[key] !== undefined) {
         var foundMorph = morphMap[key];
+
+        if (key in candidates) {
+          // If we already saw this morph, move it forward to this position
+          morphList.insertBeforeMorph(foundMorph, currentMorph);
+        } else {
+          // Otherwise, move the pointer forward to the existing morph for this key
+          advanceToKey(key);
+        }
+
+        handledMorphs[foundMorph.key] = foundMorph;
         yieldTemplate(template, env, parentScope, foundMorph, renderState, visitor)(blockArguments, self);
-        morphList.insertBeforeMorph(foundMorph, currentMorph);
       } else {
         var childMorph = render.createChildMorph(env.dom, morph);
         childMorph.key = key;
-        morphMap[key] = childMorph;
+        morphMap[key] = handledMorphs[key] = childMorph;
         morphList.insertBeforeMorph(childMorph, currentMorph);
         yieldTemplate(template, env, parentScope, childMorph, renderState, visitor)(blockArguments, self);
       }
 
-      renderState.morphListStart = currentMorph;
       renderState.clearMorph = morph.childNodes;
       morph.childNodes = null;
     };
@@ -13309,7 +13349,10 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
   }
 
   function optionsFor(template, inverse, env, scope, morph, visitor) {
-    var renderState = { morphListStart: null, clearMorph: morph, shadowOptions: null };
+    // If there was a template yielded last time, set clearMorph so it will be cleared
+    // if no template is yielded on this render.
+    var clearMorph = morph.lastResult ? morph : null;
+    var renderState = new template_utils.RenderState(clearMorph);
 
     return {
       templates: {
@@ -13614,8 +13657,14 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
     }
 
     if (keyword.childEnv) {
-      morph.lastEnv = keyword.childEnv(morph.state);
-      env = object_utils.merge(object_utils.shallowCopy(morph.lastEnv), env);
+      // Build the child environment...
+      env = keyword.childEnv(morph.state, env);
+
+      // ..then save off the child env builder on the render node. If the render
+      // node tree is re-rendered and this node is not dirty, the child env
+      // builder will still be invoked so that child dirty render nodes still get
+      // the correct child env.
+      morph.buildChildEnv = keyword.childEnv;
     }
 
     var firstTime = !morph.rendered;
@@ -13725,13 +13774,28 @@ enifed('htmlbars-runtime/hooks', ['exports', './render', '../morph-range/morph-l
       return;
     }
 
-    var options = optionsFor(null, null, env, scope, morph);
+    var value = undefined,
+        hasValue = undefined;
+    if (morph.linkedResult) {
+      value = env.hooks.getValue(morph.linkedResult);
+      hasValue = true;
+    } else {
+      var options = optionsFor(null, null, env, scope, morph);
 
-    var helper = env.hooks.lookupHelper(env, scope, path);
-    var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
+      var helper = env.hooks.lookupHelper(env, scope, path);
+      var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
 
-    if (result && "value" in result) {
-      var value = result.value;
+      if (result && "value" in result) {
+        value = result.value;
+        hasValue = true;
+      }
+
+      if (result && result.link) {
+        morph.linkedResult = result.value;
+      }
+    }
+
+    if (hasValue) {
       if (morph.lastValue !== value) {
         morph.setContent(value);
       }
@@ -14084,11 +14148,13 @@ enifed('htmlbars-runtime/morph', ['exports', '../morph-range', '../htmlbars-util
     this.lastYielded = null;
     this.lastResult = null;
     this.lastValue = null;
-    this.lastEnv = null;
+    this.buildChildEnv = null;
     this.morphList = null;
     this.morphMap = null;
     this.key = null;
     this.linkedParams = null;
+    this.linkedResult = null;
+    this.childNodes = null;
     this.rendered = false;
     this.guid = "range" + guid++;
   }
@@ -14123,6 +14189,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
   'use strict';
 
   exports.manualElement = manualElement;
+  exports.attachAttributes = attachAttributes;
   exports.createChildMorph = createChildMorph;
   exports.getCachedFragment = getCachedFragment;
 
@@ -14155,11 +14222,17 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
 
     this.nodes = nodes;
     this.template = template;
+    this.statements = template.statements.slice();
     this.env = env;
     this.scope = scope;
     this.shouldSetContent = shouldSetContent;
 
     this.bindScope();
+
+    if (options.attributes !== undefined) {
+      nodes.push({ state: {} });
+      this.statements.push(["attributes", attachAttributes(options.attributes)]);
+    }
 
     if (options.self !== undefined) {
       this.bindSelf(options.self);
@@ -14262,12 +14335,62 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
     return template;
   }
 
+  function attachAttributes(attributes) {
+    var statements = [];
+
+    for (var key in attributes) {
+      if (typeof attributes[key] === "string") {
+        continue;
+      }
+      statements.push(["attribute", key, attributes[key]]);
+    }
+
+    var template = {
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = this.element;
+        if (el0.namespaceURI === "http://www.w3.org/2000/svg") {
+          dom.setNamespace(svgNamespace);
+        }
+        for (var key in attributes) {
+          if (typeof attributes[key] !== "string") {
+            continue;
+          }
+          dom.setAttribute(el0, key, attributes[key]);
+        }
+
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom) {
+        var element = this.element;
+        var morphs = [];
+
+        for (var key in attributes) {
+          if (typeof attributes[key] === "string") {
+            continue;
+          }
+          morphs.push(dom.createAttrMorph(element, key));
+        }
+
+        return morphs;
+      },
+      statements: statements,
+      locals: [],
+      templates: [],
+      element: null
+    };
+
+    return template;
+  }
+
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
     this.populateNodes(ExpressionVisitor.AlwaysDirtyVisitor);
 
-    if (this.shouldSetContent) {
+    if (this.shouldSetContent && this.root.setContent) {
       this.root.setContent(this.fragment);
     }
   };
@@ -14315,7 +14438,7 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
     var scope = this.scope;
     var template = this.template;
     var nodes = this.nodes;
-    var statements = template.statements;
+    var statements = this.statements;
     var i, l;
 
     for (i = 0, l = statements.length; i < l; i++) {
@@ -14339,6 +14462,8 @@ enifed('htmlbars-runtime/render', ['exports', '../htmlbars-util/array-utils', '.
           visitor.attribute(statement, morph, env, scope);break;
         case "component":
           visitor.component(statement, morph, env, scope, template, visitor);break;
+        case "attributes":
+          visitor.attributes(statement, morph, env, scope, this.root, visitor);break;
       }
 
       if (env.hooks.didRenderNode) {
@@ -14894,7 +15019,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function preparePath(data, parts, locInfo) {
-    /*jshint -W040 */
     locInfo = this.locInfo(locInfo);
 
     var original = data ? '@' : '',
@@ -14926,7 +15050,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareMustache(path, params, hash, open, strip, locInfo) {
-    /*jshint -W040 */
     // Must use charAt to support IE pre-10
     var escapeFlag = open.charAt(3) || open.charAt(2),
         escaped = escapeFlag !== '{' && escapeFlag !== '&';
@@ -14935,7 +15058,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareRawBlock(openRawBlock, content, close, locInfo) {
-    /*jshint -W040 */
     if (openRawBlock.path.original !== close) {
       var errorNode = { loc: openRawBlock.path.loc };
 
@@ -14949,7 +15071,6 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
   }
 
   function prepareBlock(openBlock, program, inverseAndProgram, close, inverted, locInfo) {
-    /*jshint -W040 */
     // When we are chaining inverse calls, we will not have a close path
     if (close && close.path && openBlock.path.original !== close.path.original) {
       var errorNode = { loc: openBlock.path.loc };
@@ -14985,7 +15106,6 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
 
     'use strict';
 
-    /* jshint ignore:start */
     /* istanbul ignore next */
     /* Jison generated parser */
     var handlebars = (function () {
@@ -15656,7 +15776,6 @@ enifed('htmlbars-syntax/handlebars/compiler/parser', ['exports'], function (expo
         }Parser.prototype = parser;parser.Parser = Parser;
         return new Parser();
     })();exports['default'] = handlebars;
-    /* jshint ignore:end */
 
 });
 enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception', './ast'], function (exports, Exception, AST) {
@@ -16362,7 +16481,7 @@ enifed('htmlbars-syntax/parser', ['exports', './handlebars/compiler/base', './to
   function HTMLProcessor(source, options) {
     this.options = options || {};
     this.elementStack = [];
-    this.tokenizer = new tokenizer.Tokenizer("", new EntityParser['default'](fullCharRefs['default']));
+    this.tokenizer = new tokenizer.Tokenizer(new EntityParser['default'](fullCharRefs['default']));
     this.nodeHandlers = nodeHandlers['default'];
     this.tokenHandlers = tokenHandlers['default'];
 
@@ -16439,7 +16558,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', './builders', './utils', '.
     StartTag: function (tag) {
       var element = builders.buildElement(tag.tagName, tag.attributes, tag.modifiers || [], []);
       element.loc = {
-        start: { line: tag.firstLine, column: tag.firstColumn },
+        start: { line: tag.loc.start.line, column: tag.loc.start.column },
         end: { line: null, column: null }
       };
 
@@ -16538,7 +16657,7 @@ enifed('htmlbars-syntax/token-handlers', ['exports', './builders', './utils', '.
   }
 
   function formatEndTagInfo(tag) {
-    return "`" + tag.tagName + "` (on line " + tag.lastLine + ")";
+    return "`" + tag.tagName + "` (on line " + tag.loc.end.line + ")";
   }
 
   exports['default'] = tokenHandlers;
@@ -17405,16 +17524,25 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
 
   'use strict';
 
+  exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
+
+  function RenderState(renderNode) {
+    this.morphListStart = null;
+    this.deletionCandidates = {};
+    this.handledMorphs = {};
+    this.clearMorph = renderNode;
+    this.shadowOptions = null;
+  }
 
   function blockFor(render, template, blockOptions) {
     var block = function (env, blockArguments, self, renderNode, parentScope, visitor) {
       if (renderNode.lastResult) {
         renderNode.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
       } else {
-        var options = { renderState: { morphListStart: null, clearMorph: renderNode, shadowOptions: null } };
+        var options = { renderState: new RenderState(renderNode) };
 
         var scope = blockOptions.scope;
         var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
@@ -17463,16 +17591,25 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
       return;
     }
 
-    var item = options.renderState.morphListStart;
     var toClear = options.renderState.clearMorph;
+    var handledMorphs = options.renderState.handledMorphs;
     var morphMap = morph.morphMap;
+    var morphList = morph.morphList;
 
-    while (item) {
-      var next = item.nextMorph;
-      delete morphMap[item.key];
-      clearMorph(item, env, true);
-      item.destroy();
-      item = next;
+    if (morphList) {
+      var item = morphList.firstChildMorph;
+
+      while (item) {
+        var next = item.nextMorph;
+
+        if (!(item.key in handledMorphs)) {
+          delete morphMap[item.key];
+          clearMorph(item, env, true);
+          item.destroy();
+        }
+
+        item = next;
+      }
     }
 
     if (toClear) {
@@ -20275,8 +20412,8 @@ enifed('simple-html-tokenizer/tokenize', ['exports', './tokenizer', './entity-pa
 
   exports['default'] = tokenize;
   function tokenize(input) {
-    var tokenizer = new Tokenizer['default'](input, new EntityParser['default'](namedCodepoints['default']));
-    return tokenizer.tokenize();
+    var tokenizer = new Tokenizer['default'](new EntityParser['default'](namedCodepoints['default']));
+    return tokenizer.tokenize(input);
   }
 
 });
@@ -20284,61 +20421,108 @@ enifed('simple-html-tokenizer/tokenizer', ['exports', './utils', './tokens'], fu
 
   'use strict';
 
-  function Tokenizer(input, entityParser) {
-    this.input = utils.preprocessInput(input);
+  function Tokenizer(entityParser) {
     this.entityParser = entityParser;
-    this["char"] = 0;
-    this.line = 1;
-    this.column = 0;
 
-    this.state = 'data';
+    this.input = null;
+    this.state = null;
     this.token = null;
+
+    this["char"] = -1;
+    this.line = -1;
+    this.column = -1;
+
+    this.startLine = -1;
+    this.startColumn = -1;
+
+    this.reset();
   }
 
   Tokenizer.prototype = {
-    tokenize: function () {
-      var tokens = [],
-          token;
+    reset: function () {
+      this.input = '';
+      this.state = 'data';
+      this.token = null;
 
-      while (true) {
-        token = this.lex();
-        if (token === 'EOF') {
-          break;
-        }
-        if (token) {
-          tokens.push(token);
-        }
-      }
+      this["char"] = 0;
+      this.line = 1;
+      this.column = 0;
 
-      if (this.token) {
-        tokens.push(this.token);
+      this.startLine = 1;
+      this.startColumn = 0;
+    },
+
+    tokenize: function (input) {
+      this.reset();
+
+      var tokens = this.tokenizePart(input);
+      var trailingToken = this.tokenizeEOF();
+
+      if (trailingToken) {
+        tokens.push(trailingToken);
       }
 
       return tokens;
     },
 
-    tokenizePart: function (string) {
-      this.input += utils.preprocessInput(string);
-      var tokens = [],
-          token;
+    tokenizePart: function (input) {
+      this.input += utils.preprocessInput(input);
 
-      while (this["char"] < this.input.length) {
-        token = this.lex();
+      var tokens = [];
+
+      while (true) {
+        var token = this.lex();
+
         if (token) {
           tokens.push(token);
+        } else {
+          break;
         }
       }
 
-      this.tokens = (this.tokens || []).concat(tokens);
       return tokens;
     },
 
     tokenizeEOF: function () {
-      var token = this.token;
-      if (token) {
-        this.token = null;
-        return token;
+      return this.emitToken();
+    },
+
+    lex: function () {
+      while (this["char"] < this.input.length) {
+        var char = this.input.charAt(this["char"]++);
+        if (char) {
+          if (char === '\n') {
+            this.line++;
+            this.column = 0;
+          } else {
+            this.column++;
+          }
+
+          var token = this.states[this.state].call(this, char);
+          if (token) {
+            return token;
+          }
+        }
       }
+    },
+
+    addLocInfo: function (_endLine, _endColumn) {
+      var endLine = _endLine === undefined ? this.line : _endLine;
+      var endColumn = _endColumn === undefined ? this.column : _endColumn;
+
+      this.token.loc = {
+        start: {
+          line: this.startLine,
+          column: this.startColumn
+        },
+        end: {
+          line: endLine,
+          column: endColumn
+        }
+      };
+
+      this.startLine = endLine;
+      this.startColumn = endColumn;
     },
 
     createTag: function (Type, char) {
@@ -20403,75 +20587,49 @@ enifed('simple-html-tokenizer/tokenizer', ['exports', './utils', './tokens'], fu
       if (this.token.type === 'StartTag') {
         this.finalizeAttributeValue();
       }
-      return this.token;
     },
 
     emitData: function () {
-      this.addLocInfo(this.line, this.column - 1);
-      var lastToken = this.token;
+      var token = this.token;
+      if (token) {
+        this.addLocInfo(this.line, this.column - 1);
+      }
+
       this.token = null;
       this.state = 'tagOpen';
-      return lastToken;
+
+      return token;
     },
 
     emitToken: function () {
-      this.addLocInfo();
-      var lastToken = this.finalizeToken();
+      var token = this.token;
+      if (token) {
+        this.addLocInfo();
+        this.finalizeToken();
+      }
+
       this.token = null;
       this.state = 'data';
-      return lastToken;
+
+      return token;
     },
 
     addData: function (char) {
       if (this.token === null) {
         this.token = new ___tokens.Chars();
-        this.markFirst();
       }
 
       this.addChar(char);
-    },
-
-    markFirst: function (line, column) {
-      this.firstLine = line === 0 ? 0 : line || this.line;
-      this.firstColumn = column === 0 ? 0 : column || this.column;
-    },
-
-    addLocInfo: function (line, column) {
-      if (!this.token) {
-        return;
-      }
-      this.token.firstLine = this.firstLine;
-      this.token.firstColumn = this.firstColumn;
-      this.token.lastLine = line === 0 ? 0 : line || this.line;
-      this.token.lastColumn = column === 0 ? 0 : column || this.column;
     },
 
     consumeCharRef: function () {
       return this.entityParser.parse(this);
     },
 
-    lex: function () {
-      var char = this.input.charAt(this["char"]++);
-
-      if (char) {
-        if (char === '\n') {
-          this.line++;
-          this.column = 0;
-        } else {
-          this.column++;
-        }
-        return this.states[this.state].call(this, char);
-      } else {
-        this.addLocInfo(this.line, this.column);
-        return 'EOF';
-      }
-    },
-
     states: {
       data: function (char) {
         if (char === '<') {
           var chars = this.emitData();
-          this.markFirst();
           return chars;
         } else if (char === '&') {
           this.addData(this.consumeCharRef() || '&');
