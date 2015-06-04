@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+308ca404
+ * @version   2.0.0-canary+87fdde9b
  */
 
 (function() {
@@ -7866,7 +7866,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+308ca404";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+87fdde9b";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8358,6 +8358,14 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       createOptions._controller = getValue['default'](parentScope.locals.controller);
     }
 
+    // this flag is set when a block was provided so that components can see if
+    // `this.get('template')` is truthy.  this is added for backwards compat only
+    // and accessing `template` prop on a component will trigger a deprecation
+    // 2.0TODO: remove
+    if (templates["default"]) {
+      createOptions._deprecatedFlagForBlockProvided = true;
+    }
+
     // Instantiate the component
     component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
 
@@ -8394,7 +8402,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // The component may also provide a `template` property we should
     // respect (though this behavior is deprecated).
     var componentLayout = property_get.get(component, "layout");
-    var componentTemplate = property_get.get(component, "template");
+    var hasBlock = _templates && _templates["default"];
+    var componentTemplate = hasBlock ? null : property_get.get(component, "_template");
     var layout = undefined,
         templates = undefined;
 
@@ -8417,7 +8426,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     // There is no block template provided but the component has a
     // `template` property.
-    if ((!templates || !templates["default"]) && componentTemplate) {
+    if ((!_templates || !_templates["default"]) && componentTemplate) {
             templates = { "default": componentTemplate.raw };
     } else {
       templates = _templates;
@@ -8670,13 +8679,14 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       if (layout) {
         componentInfo.layout = layout;
         if (!contentTemplate) {
-          var template = property_get.get(component, "template");
+          var template = getTemplate(component);
+
           if (template) {
                         contentTemplate = template.raw;
           }
         }
       } else {
-        componentInfo.layout = property_get.get(component, "template") || componentInfo.layout;
+        componentInfo.layout = getTemplate(component) || componentInfo.layout;
       }
 
       renderNode.emberView = component;
@@ -8754,6 +8764,10 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       return newEnv;
     }, this);
   };
+
+  function getTemplate(componentOrView) {
+    return componentOrView.isComponent ? property_get.get(componentOrView, "_template") : property_get.get(componentOrView, "template");
+  }
   function createOrUpdateComponent(component, options, createOptions, renderNode, env) {
     var attrs = arguments[5] === undefined ? {} : arguments[5];
 
@@ -10320,7 +10334,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     view._renderNode = renderNode;
 
     var layout = property_get.get(view, "layout");
-    var template = property_get.get(view, "template");
+    var template = view.isComponent ? property_get.get(view, "_template") : property_get.get(view, "template");
 
     var componentInfo = { component: view, layout: layout };
 
@@ -13170,7 +13184,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+308ca404
+    @version 2.0.0-canary+87fdde9b
   */
 
   if ('undefined' === typeof Ember) {
@@ -13201,10 +13215,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+308ca404'
+    @default '2.0.0-canary+87fdde9b'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+308ca404';
+  Ember.VERSION = '2.0.0-canary+87fdde9b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21001,7 +21015,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+308ca404";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+87fdde9b";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21471,7 +21485,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+308ca404";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+87fdde9b";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36624,7 +36638,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+308ca404",
+        revision: "Ember@2.0.0-canary+87fdde9b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39813,7 +39827,6 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
   */
   var Component = View['default'].extend(TargetActionSupport['default'], ComponentTemplateDeprecation['default'], {
     isComponent: true,
-
     /*
       This is set so that the proto inspection in appendTemplatedView does not
       think that it should set the components `context` to that of the parent view.
@@ -39849,8 +39862,22 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
      @deprecated
     @property template
     */
-    template: computed.computed("templateName", {
+    template: computed.computed("_template", {
       get: function () {
+        
+        return property_get.get(this, "_template");
+      },
+
+      set: function (key, value) {
+        return property_set.set(this, "_template", value);
+      }
+    }),
+
+    _template: computed.computed("templateName", {
+      get: function () {
+        if (property_get.get(this, "_deprecatedFlagForBlockProvided")) {
+          return true;
+        }
         var templateName = property_get.get(this, "templateName");
         var template = this.templateForName(templateName, "template");
 
@@ -40079,7 +40106,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+308ca404";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+87fdde9b";
 
   /**
   @module ember
