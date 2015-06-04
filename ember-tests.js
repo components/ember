@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+2d8bea82
+ * @version   1.13.0-beta.2+dd3331cb
  */
 
 (function() {
@@ -15218,6 +15218,31 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(view.$("#middle-value").text(), "3", "third render of middle");
   });
 
+  QUnit.test("non-block with each rendering child components", function () {
+    expect(2);
+
+    registry.register("template:components/non-block", compile['default']("In layout. {{#each attrs.items as |item|}}[{{child-non-block item=item}}]{{/each}}"));
+    registry.register("template:components/child-non-block", compile['default']("Child: {{attrs.item}}."));
+
+    var items = Ember.A(["Tom", "Dick", "Harry"]);
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{non-block items=view.items}}"),
+      container: container,
+      items: items
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout. [Child: Tom.][Child: Dick.][Child: Harry.]");
+
+    run['default'](function () {
+      items.pushObject("James");
+    });
+
+    equal(jQuery['default']("#qunit-fixture").text(), "In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: James.]");
+  });
+
   // jscs:disable validateIndentation
   
 });
@@ -17291,6 +17316,122 @@ enifed('ember-htmlbars/tests/system/make_view_helper_test', ['ember-htmlbars/sys
     utils.runAppend(view);
 
     equal(view.$().text(), "Some Random Class - Template");
+  });
+
+});
+enifed('ember-htmlbars/tests/system/render_env_test', ['ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/system/render-env', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (EmberView, Registry, compile, ComponentLookup, Component, RenderEnv, utils, run) {
+
+  'use strict';
+
+  var registry, container, view, components;
+
+  function commonSetup() {
+    registry = new Registry['default']();
+    container = registry.container();
+    registry.optionsForType("component", { singleton: false });
+    registry.optionsForType("view", { singleton: false });
+    registry.optionsForType("template", { instantiate: false });
+    registry.optionsForType("helper", { instantiate: false });
+    registry.register("component-lookup:main", ComponentLookup['default']);
+  }
+
+  function commonTeardown() {
+    utils.runDestroy(container);
+    utils.runDestroy(view);
+    registry = container = view = null;
+  }
+
+  function appendViewFor(template) {
+    var hash = arguments[1] === undefined ? {} : arguments[1];
+
+    var view = EmberView['default'].extend({
+      template: compile['default'](template),
+      container: container
+    }).create(hash);
+
+    utils.runAppend(view);
+
+    return view;
+  }
+
+  function constructComponent(label) {
+    return Component['default'].extend({
+      init: function () {
+        this.label = label;
+        components[label] = this;
+        this._super.apply(this, arguments);
+      }
+    });
+  }
+
+  function extractEnv(component) {
+    return component._renderNode.lastResult.env;
+  }
+
+  QUnit.module("ember-htmlbars: RenderEnv", {
+    setup: function () {
+      commonSetup();
+    },
+
+    teardown: function () {
+      commonTeardown();
+    }
+  });
+
+  QUnit.test("non-block component test", function () {
+    components = {};
+
+    registry.register("component:non-block", constructComponent("nonblock"));
+    registry.register("template:components/non-block", compile['default']("In layout"));
+
+    view = appendViewFor("{{non-block}}");
+
+    ok(view.env instanceof RenderEnv['default'], "initial render: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.nonblock) instanceof RenderEnv['default'], "initial render: {{#non-block}} environment should be an instance of RenderEnv");
+
+    run['default'](components.nonblock, "rerender");
+
+    ok(view.env instanceof RenderEnv['default'], "rerender: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.nonblock) instanceof RenderEnv['default'], "rerender: {{#non-block}} environment should be an instance of RenderEnv");
+  });
+
+  QUnit.test("block component test", function () {
+    components = {};
+
+    registry.register("component:block-component", constructComponent("block"));
+    registry.register("template:components/block-component", compile['default']("In layout {{yield}}"));
+
+    view = appendViewFor("{{#block-component}}content{{/block-component}}");
+
+    ok(view.env instanceof RenderEnv['default'], "initial render: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.block) instanceof RenderEnv['default'], "initial render: {{#block-component}} environment should be an instance of RenderEnv");
+
+    run['default'](components.block, "rerender");
+
+    ok(view.env instanceof RenderEnv['default'], "rerender: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.block) instanceof RenderEnv['default'], "rerender: {{#block-component}} environment should be an instance of RenderEnv");
+  });
+
+  QUnit.test("block component with child component test", function () {
+    components = {};
+
+    registry.register("component:block-component", constructComponent("block"));
+    registry.register("component:child-component", constructComponent("child"));
+
+    registry.register("template:components/block-component", compile['default']("In layout {{yield}}"));
+    registry.register("template:components/child-component", compile['default']("Child Component"));
+
+    view = appendViewFor("{{#block-component}}{{child-component}}{{/block-component}}");
+
+    ok(view.env instanceof RenderEnv['default'], "initial render: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.block) instanceof RenderEnv['default'], "initial render: {{#block-component}} environment should be an instance of RenderEnv");
+    ok(extractEnv(components.child) instanceof RenderEnv['default'], "initial render: {{child-component}} environment should be an instance of RenderEnv");
+
+    run['default'](components.block, "rerender");
+
+    ok(view.env instanceof RenderEnv['default'], "rerender: View environment should be an instance of RenderEnv");
+    ok(extractEnv(components.block) instanceof RenderEnv['default'], "rerender: {{#block-component}} environment should be an instance of RenderEnv");
+    ok(extractEnv(components.child) instanceof RenderEnv['default'], "rerender: {{child-component}} environment should be an instance of RenderEnv");
   });
 
 });
@@ -46599,7 +46740,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+2d8bea82", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+dd3331cb", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
