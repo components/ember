@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+dd3331cb
+ * @version   1.13.0-beta.2+31a00349
  */
 
 (function() {
@@ -9307,6 +9307,72 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['ember-metal/core', 'ember-run
     }, /Using the context switching form of \{\{each\}\} is deprecated/);
 
     assertHTML(view, "Nothing");
+  });
+
+  QUnit.test("a string key can be used with {{each}}", function () {
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      items: [{ id: "foo" }, { id: "bar" }, { id: "baz" }],
+      template: compile['default']("{{#each view.items key='id' as |item|}}{{item.id}}{{/each}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "foobarbaz");
+  });
+
+  QUnit.test("a numeric key can be used with {{each}}", function () {
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      items: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      template: compile['default']("{{#each view.items key='id' as |item|}}{{item.id}}{{/each}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "123");
+  });
+
+  QUnit.test("can specify `@index` to represent the items index in the array being iterated", function () {
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      items: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      template: compile['default']("{{#each view.items key='@index' as |item|}}{{item.id}}{{/each}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "123");
+  });
+
+  QUnit.test("can specify `@guid` to represent the items GUID", function () {
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      items: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      template: compile['default']("{{#each view.items key='@guid' as |item|}}{{item.id}}{{/each}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "123");
+  });
+
+  QUnit.test("can specify `@item` to represent primitive items", function () {
+    utils.runDestroy(view);
+    view = EmberView['default'].create({
+      items: [1, 2, 3],
+      template: compile['default']("{{#each view.items key='@item' as |item|}}{{item}}{{/each}}")
+    });
+
+    utils.runAppend(view);
+
+    equal(view.$().text(), "123");
+
+    run['default'](function () {
+      property_set.set(view, "items", ["foo", "bar", "baz"]);
+    });
+
+    equal(view.$().text(), "foobarbaz");
   });
 
   testEachWithItem("{{#each foo in bar}}", false);
@@ -46740,7 +46806,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+dd3331cb", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+31a00349", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
