@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+060b5f75
+ * @version   2.0.0-canary+78b63d1e
  */
 
 (function() {
@@ -7883,7 +7883,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+060b5f75";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8420,9 +8420,16 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // respect (though this behavior is deprecated).
     var componentLayout = property_get.get(component, "layout");
     var hasBlock = _templates && _templates["default"];
-    var componentTemplate = hasBlock ? null : property_get.get(component, "_template");
     var layout = undefined,
-        templates = undefined;
+        templates = undefined,
+        componentTemplate = undefined;
+    if (hasBlock) {
+      componentTemplate = null;
+    } else if (component.isComponent) {
+      componentTemplate = property_get.get(component, "_template");
+    } else {
+      componentTemplate = property_get.get(component, "template");
+    }
 
     if (componentLayout) {
       layout = componentLayout;
@@ -13231,7 +13238,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+060b5f75
+    @version 2.0.0-canary+78b63d1e
   */
 
   if ('undefined' === typeof Ember) {
@@ -13262,10 +13269,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+060b5f75'
+    @default '2.0.0-canary+78b63d1e'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+060b5f75';
+  Ember.VERSION = '2.0.0-canary+78b63d1e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21067,7 +21074,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+060b5f75";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21537,7 +21544,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+060b5f75";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36690,7 +36697,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+060b5f75",
+        revision: "Ember@2.0.0-canary+78b63d1e",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40157,7 +40164,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+060b5f75";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
 
   /**
   @module ember
