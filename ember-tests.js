@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+31a00349
+ * @version   1.13.0-beta.2+76473dd3
  */
 
 (function() {
@@ -14819,6 +14819,25 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
 
     equal(view.$().text(), "Whoop, whoop!", "block provided always overrides template property");
+  });
+
+  QUnit.test("template specified inline is available from Views looked up as components", function () {
+    expect(2);
+
+    registry.register("component:without-block", EmberView['default'].extend({
+      template: compile['default']("Whoop, whoop!")
+    }));
+
+    view = EmberView['default'].extend({
+      template: compile['default']("{{without-block}}"),
+      container: container
+    }).create();
+
+    expectDeprecation(function () {
+      utils.runAppend(view);
+    }, "Using deprecated `template` property on a Component.");
+
+    equal(view.$().text(), "Whoop, whoop!", "template inline works properly");
   });
 
   
@@ -46806,7 +46825,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+31a00349", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+76473dd3", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
