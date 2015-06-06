@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+78b63d1e
+ * @version   2.0.0-canary+4d4f9e62
  */
 
 (function() {
@@ -15091,7 +15091,7 @@ enifed('ember-htmlbars/tests/integration/component_element_id_test', ['ember-vie
   });
 
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/run_loop'], function (EmberView, Registry, jQuery, compile, ComponentLookup, Component, utils, property_get, run) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop'], function (EmberView, Registry, jQuery, compile, ComponentLookup, Component, utils, property_get, property_set, run) {
 
   'use strict';
 
@@ -15489,7 +15489,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     });
   
 
-  QUnit.test("static positional parameters", function () {
+  QUnit.test("static named positional parameters", function () {
     registry.register("template:components/sample-component", compile['default']("{{attrs.name}}{{attrs.age}}"));
     registry.register("component:sample-component", Component['default'].extend({
       positionalParams: ["name", "age"]
@@ -15505,7 +15505,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
   });
 
-  QUnit.test("dynamic positional parameters", function () {
+  QUnit.test("dynamic named positional parameters", function () {
     registry.register("template:components/sample-component", compile['default']("{{attrs.name}}{{attrs.age}}"));
     registry.register("component:sample-component", Component['default'].extend({
       positionalParams: ["name", "age"]
@@ -15523,11 +15523,56 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
     equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
     run['default'](function () {
-      Ember.set(view.context, "myName", "Edward");
-      Ember.set(view.context, "myAge", "5");
+      property_set.set(view.context, "myName", "Edward");
+      property_set.set(view.context, "myAge", "5");
     });
 
     equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
+  });
+
+  QUnit.test("static arbitrary number of positional parameters", function () {
+    registry.register("template:components/sample-component", compile['default']("{{#each attrs.names as |name|}}{{name}}{{/each}}"));
+    registry.register("component:sample-component", Component['default'].extend({
+      positionalParams: "names"
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}{{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}{{component \"sample-component\" \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}"),
+      container: container
+    }).create();
+
+    utils.runAppend(view);
+
+    equal(view.$("#args-3").text(), "Foo4Bar");
+    equal(view.$("#args-5").text(), "Foo4Bar5Baz");
+    equal(view.$("#helper").text(), "Foo4Bar5Baz");
+  });
+
+  QUnit.test("dynamic arbitrary number of positional parameters", function () {
+    registry.register("template:components/sample-component", compile['default']("{{#each attrs.names as |name|}}{{name}}{{/each}}"));
+    registry.register("component:sample-component", Component['default'].extend({
+      positionalParams: "names"
+    }));
+
+    view = EmberView['default'].extend({
+      layout: compile['default']("{{sample-component user1 user2 id=\"direct\"}}{{component \"sample-component\" user1 user2 id=\"helper\"}}"),
+      container: container,
+      context: {
+        user1: "Foo",
+        user2: 4
+      }
+    }).create();
+
+    utils.runAppend(view);
+    equal(view.$("#direct").text(), "Foo4");
+    equal(view.$("#helper").text(), "Foo4");
+    run['default'](function () {
+      property_set.set(view.context, "user1", "Bar");
+      property_set.set(view.context, "user2", "5");
+    });
+
+    equal(view.$("#direct").text(), "Bar5");
+    equal(view.$("#helper").text(), "Bar5");
   });
 
   QUnit.test("moduleName is available on _renderNode when a layout is present", function () {
@@ -15591,8 +15636,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
       utils.runAppend(view);
       equal(jQuery['default']("#qunit-fixture").text(), "Quint4");
       run['default'](function () {
-        Ember.set(view.context, "myName", "Edward");
-        Ember.set(view.context, "myAge", "5");
+        property_set.set(view.context, "myName", "Edward");
+        property_set.set(view.context, "myAge", "5");
       });
 
       equal(jQuery['default']("#qunit-fixture").text(), "Edward5");
@@ -15613,7 +15658,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['ember-vie
     utils.runAppend(view);
     equal(jQuery['default']("#qunit-fixture").text(), "Yes:Hello42");
     run['default'](function () {
-      Ember.set(view.context, "activated", false);
+      property_set.set(view.context, "activated", false);
     });
 
     equal(jQuery['default']("#qunit-fixture").text(), "No:Goodbye");
@@ -47651,7 +47696,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+78b63d1e", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4d4f9e62", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

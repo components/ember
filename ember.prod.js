@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+78b63d1e
+ * @version   2.0.0-canary+4d4f9e62
  */
 
 (function() {
@@ -7883,7 +7883,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d4f9e62";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -8319,7 +8319,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/pla
   exports['default'] = EmberMorph;
 
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, SafeString, instrumentation_support, EmberComponent, getValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/get-value'], function (exports, Ember, merge, buildComponentTemplate, lookupComponent, getCellOrValue, property_get, property_set, setProperties, attrs_proxy, SafeString, instrumentation_support, EmberComponent, Stream, utils, getValue) {
 
   'use strict';
 
@@ -8402,14 +8402,32 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   function extractPositionalParams(renderNode, component, params, attrs) {
     if (component.positionalParams) {
-      // if the component is rendered via {{component}} helper, the first
-      // element of `params` is the name of the component, so we need to
-      // skip that when the positional parameters are constructed
-      var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
-      var pp = component.positionalParams;
-      for (var i = 0; i < pp.length; i++) {
-        attrs[pp[i]] = params[paramsStartIndex + i];
-      }
+      (function () {
+        // if the component is rendered via {{component}} helper, the first
+        // element of `params` is the name of the component, so we need to
+        // skip that when the positional parameters are constructed
+        var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
+        var positionalParams = component.positionalParams;
+        var isNamed = typeof positionalParams === "string";
+        var paramsStream = undefined;
+
+        if (isNamed) {
+          paramsStream = new Stream['default'](function () {
+            return utils.readArray(params.slice(paramsStartIndex));
+          }, "params");
+
+          attrs[positionalParams] = paramsStream;
+        }
+
+        for (var i = 0; i < positionalParams.length; i++) {
+          var param = params[paramsStartIndex + i];
+          if (isNamed) {
+            paramsStream.addDependency(param);
+          } else {
+            attrs[positionalParams[i]] = param;
+          }
+        }
+      })();
     }
   }
 
@@ -13238,7 +13256,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+78b63d1e
+    @version 2.0.0-canary+4d4f9e62
   */
 
   if ('undefined' === typeof Ember) {
@@ -13269,10 +13287,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+78b63d1e'
+    @default '2.0.0-canary+4d4f9e62'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+78b63d1e';
+  Ember.VERSION = '2.0.0-canary+4d4f9e62';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21074,7 +21092,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d4f9e62";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -21544,7 +21562,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d4f9e62";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -36697,7 +36715,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+78b63d1e",
+        revision: "Ember@2.0.0-canary+4d4f9e62",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40164,7 +40182,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+78b63d1e";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+4d4f9e62";
 
   /**
   @module ember
