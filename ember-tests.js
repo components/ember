@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+73acd45c
+ * @version   2.0.0-canary+55f02b1b
  */
 
 (function() {
@@ -8248,6 +8248,95 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['ember-views/component_lo
       }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
     });
   
+
+});
+enifed('ember-htmlbars/tests/helpers/concat-test', ['ember-metal/run_loop', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (run, system__container, Component, compile, utils) {
+
+  'use strict';
+
+  var component, registry, container;
+
+  QUnit.module("ember-htmlbars: {{concat}} helper", {
+    setup: function () {
+      registry = new system__container.Registry();
+      container = registry.container();
+      registry.optionsForType("helper", { instantiate: false });
+    },
+
+    teardown: function () {
+      utils.runDestroy(container);
+      utils.runDestroy(component);
+    }
+  });
+
+  QUnit.test("concats provided params", function () {
+    component = Component['default'].create({
+      container: container,
+
+      template: compile['default']("{{concat \"foo\" \" \" \"bar\" \" \" \"baz\"}}")
+    });
+
+    utils.runAppend(component);
+
+    equal(component.$().text(), "foo bar baz");
+  });
+
+  QUnit.test("updates for bound params", function () {
+    component = Component['default'].create({
+      container: container,
+
+      firstParam: "one",
+      secondParam: "two",
+
+      template: compile['default']("{{concat firstParam secondParam}}")
+    });
+
+    utils.runAppend(component);
+
+    equal(component.$().text(), "onetwo");
+
+    run['default'](function () {
+      component.set("firstParam", "three");
+    });
+
+    equal(component.$().text(), "threetwo");
+
+    run['default'](function () {
+      component.set("secondParam", "four");
+    });
+
+    equal(component.$().text(), "threefour");
+  });
+
+  QUnit.test("can be used as a sub-expression", function () {
+    function eq(_ref) {
+      var actual = _ref[0];
+      var expected = _ref[1];
+
+      return actual === expected;
+    }
+    eq.isHTMLBars = true;
+    registry.register("helper:x-eq", eq);
+
+    component = Component['default'].create({
+      container: container,
+
+      firstParam: "one",
+      secondParam: "two",
+
+      template: compile['default']("{{#if (x-eq (concat firstParam secondParam) \"onetwo\")}}Truthy!{{else}}False{{/if}}")
+    });
+
+    utils.runAppend(component);
+
+    equal(component.$().text(), "Truthy!");
+
+    run['default'](function () {
+      component.set("firstParam", "three");
+    });
+
+    equal(component.$().text(), "False");
+  });
 
 });
 enifed('ember-htmlbars/tests/helpers/debug_test', ['ember-metal/core', 'ember-metal/logger', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (Ember, EmberLogger, EmberView, compile, utils) {
@@ -47850,7 +47939,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+73acd45c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+55f02b1b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

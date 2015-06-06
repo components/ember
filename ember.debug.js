@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+73acd45c
+ * @version   2.0.0-canary+55f02b1b
  */
 
 (function() {
@@ -5808,7 +5808,7 @@ enifed('ember-htmlbars', ['ember-metal/core', 'ember-template-compiler', 'ember-
   }
   helpers.registerHelper("-bind-attr-class", bindAttrClassHelper['default']);
   helpers.registerHelper("-normalize-class", normalizeClassHelper['default']);
-  helpers.registerHelper("-concat", concatHelper['default']);
+  helpers.registerHelper("concat", concatHelper['default']);
   helpers.registerHelper("-join-classes", joinClassesHelper['default']);
   helpers.registerHelper("-legacy-each-with-controller", legacyEachWithControllerHelper['default']);
   helpers.registerHelper("-legacy-each-with-keyword", legacyEachWithKeywordHelper['default']);
@@ -6331,12 +6331,23 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
 
 
   exports['default'] = concat;
-  /** @private
-    This private helper is used by the legacy class bindings AST transformer
-    to concatenate class names together.
+  /**
+    Concatenates input params together.
+
+    Example:
+
+    ```handlebars
+    {{some-component name=(concat firstName " " lastName)}}
+
+    {{! would pass name="<first name value> <last name value>" to the component}}
+    ```
+
+    @public
+    @method concat
+    @for Ember.HTMLBars
   */
-  function concat(params, hash) {
-    return params.join(hash.separator);
+  function concat(params) {
+    return params.join('');
   }
 
 });
@@ -8204,7 +8215,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+73acd45c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+55f02b1b";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13636,7 +13647,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+73acd45c
+    @version 2.0.0-canary+55f02b1b
   */
 
   if ('undefined' === typeof Ember) {
@@ -13667,10 +13678,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+73acd45c'
+    @default '2.0.0-canary+55f02b1b'
     @static
   */
-  Ember.VERSION = '2.0.0-canary+73acd45c';
+  Ember.VERSION = '2.0.0-canary+55f02b1b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21610,7 +21621,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+73acd45c";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+55f02b1b";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -22084,7 +22095,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+73acd45c";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+55f02b1b";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -37065,6 +37076,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
 
       if (classPair) {
         classValue.push(classPair.value);
+        classValue.push(b.string(' '));
       } else {
         classPair = b.pair('class', null);
         node.hash.pairs.push(classPair);
@@ -37091,8 +37103,8 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
         }
       });
 
-      var hash = b.hash([b.pair('separator', b.string(' '))]);
-      classPair.value = b.sexpr(b.string('-concat'), classValue, hash);
+      var hash = b.hash();
+      classPair.value = b.sexpr(b.string('concat'), classValue, hash);
     });
 
     return ast;
@@ -37138,6 +37150,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
       }
 
       sexprs.push(sexpr);
+      sexprs.push(b.string(' '));
     }
   }
 
@@ -37337,7 +37350,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+73acd45c",
+        revision: "Ember@2.0.0-canary+55f02b1b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40896,7 +40909,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'htmlbars-runt
       var existingStyle = normalized.style;
 
       if (existingStyle) {
-        normalized.style = ["subexpr", "-concat", [existingStyle, hiddenStyle], ["separator", " "]];
+        normalized.style = ["subexpr", "concat", [existingStyle, " ", hiddenStyle], []];
       } else {
         normalized.style = hiddenStyle;
       }
@@ -42046,7 +42059,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+73acd45c";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+55f02b1b";
 
   /**
   @module ember
