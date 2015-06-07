@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f1d1da91
+ * @version   2.0.0-canary+1301e680
  */
 
 (function() {
@@ -139,6 +139,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     @param {Boolean|Function} test Must be truthy for the assertion to pass. If
       falsy, an exception will be thrown. If this is a function, it will be executed and
       its return value will be used as condition.
+    @public
   */
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
@@ -162,6 +163,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
+    @public
   */
   Ember['default'].warn = function (message, test) {
     if (!test) {
@@ -182,6 +184,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
 
     @method debug
     @param {String} message A debug message to display.
+    @public
   */
   Ember['default'].debug = function (message) {
     Logger['default'].debug("DEBUG: " + message);
@@ -199,6 +202,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
       value will be used as condition.
     @param {Object} options An optional object that can be used to pass
       in a `url` to the transition guide on the emberjs.com website.
+    @public
   */
   Ember['default'].deprecate = function (message, test, options) {
     var noDeprecation;
@@ -270,6 +274,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     @param {String} message A description of the deprecation.
     @param {Function} func The new function called to replace its deprecated counterpart.
     @return {Function} a new function that wrapped the original function with a deprecation warning
+    @private
   */
   Ember['default'].deprecateFunc = function (message, func) {
     return function () {
@@ -295,6 +300,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/error', 'embe
     @method runInDebug
     @param {Function} func The function to be executed.
     @since 1.5.0
+    @public
   */
   Ember['default'].runInDebug = function (func) {
     func();
@@ -3030,7 +3036,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+f1d1da91
+    @version 2.0.0-canary+1301e680
     @public
   */
 
@@ -3062,11 +3068,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+f1d1da91'
+    @default '2.0.0-canary+1301e680'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+f1d1da91';
+  Ember.VERSION = '2.0.0-canary+1301e680';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11634,7 +11640,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+f1d1da91",
+        revision: "Ember@2.0.0-canary+1301e680",
         loc: program.loc,
         moduleName: options.moduleName
       };
