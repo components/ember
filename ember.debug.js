@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1301e680
+ * @version   2.0.0-canary+b2247adc
  */
 
 (function() {
@@ -8290,7 +8290,7 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/property_
   @submodule ember-htmlbars
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1301e680";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+b2247adc";
 
   exports['default'] = {
     willRender: function (renderNode, env) {
@@ -13763,7 +13763,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+1301e680
+    @version 2.0.0-canary+b2247adc
     @public
   */
 
@@ -13795,11 +13795,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+1301e680'
+    @default '2.0.0-canary+b2247adc'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+1301e680';
+  Ember.VERSION = '2.0.0-canary+b2247adc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13844,7 +13844,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true,"ember-htmlbars-get-helper":null}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true,"ember-htmlbars-get-helper":null}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -21840,7 +21840,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   @submodule ember-routing-views
   */
 
-  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+1301e680";
+  linkToTemplate['default'].meta.revision = "Ember@2.0.0-canary+b2247adc";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   
@@ -22133,7 +22133,13 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         return false;
       }
 
-      property_get.get(this, "_routing").transitionTo(property_get.get(this, "targetRouteName"), property_get.get(this, "models"), property_get.get(this, "queryParams.values"), property_get.get(this, "attrs.replace"));
+      var routing = property_get.get(this, "_routing");
+      var targetRouteName = property_get.get(this, "targetRouteName");
+      var models = property_get.get(this, "models");
+      var queryParamValues = property_get.get(this, "queryParams.values");
+      var shouldReplace = property_get.get(this, "attrs.replace");
+
+      routing.transitionTo(targetRouteName, models, queryParamValues, shouldReplace);
     },
 
     queryParams: null,
@@ -22147,6 +22153,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       @private
     */
     href: computed.computed("models", "targetRouteName", "_routing.currentState", function computeLinkViewHref() {
+
       if (property_get.get(this, "tagName") !== "a") {
         return;
       }
@@ -22159,7 +22166,8 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       }
 
       var routing = property_get.get(this, "_routing");
-      return routing.generateURL(targetRouteName, models, property_get.get(this, "queryParams.values"));
+      var queryParams = property_get.get(this, "queryParams.values");
+      return routing.generateURL(targetRouteName, models, queryParams);
     }),
 
     loading: computed.computed("models", "targetRouteName", function () {
@@ -22335,7 +22343,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
   @submodule ember-routing-views
   */
 
-  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1301e680";
+  topLevelViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+b2247adc";
 
   var CoreOutletView = View['default'].extend({
     defaultTemplate: topLevelViewTemplate['default'],
@@ -22399,17 +22407,12 @@ enifed('ember-routing', ['exports', 'ember-metal/core', 'ember-routing/ext/run_l
 	exports['default'] = Ember['default'];
 
 });
-enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/merge', 'ember-runtime/mixins/controller'], function (exports, Ember, property_get, property_set, computed, utils, merge, ControllerMixin) {
+enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/mixins/controller'], function (exports, Ember, property_get, ControllerMixin) {
 
   'use strict';
 
   ControllerMixin['default'].reopen({
     concatenatedProperties: ["queryParams"],
-
-    init: function () {
-      this._super.apply(this, arguments);
-      listenForQueryParamChanges(this);
-    },
 
     /**
       Defines which query parameters the controller accepts.
@@ -22425,91 +22428,7 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       @property _qpDelegate
       @private
     */
-    _qpDelegate: null,
-
-    /**
-      @property _normalizedQueryParams
-      @private
-    */
-    _normalizedQueryParams: computed.computed(function () {
-      var m = utils.meta(this);
-      if (m.proto !== this) {
-        return property_get.get(m.proto, "_normalizedQueryParams");
-      }
-
-      var queryParams = property_get.get(this, "queryParams");
-      if (queryParams._qpMap) {
-        return queryParams._qpMap;
-      }
-
-      var qpMap = queryParams._qpMap = {};
-
-      for (var i = 0, len = queryParams.length; i < len; ++i) {
-        accumulateQueryParamDescriptors(queryParams[i], qpMap);
-      }
-
-      return qpMap;
-    }),
-
-    /**
-      @property _cacheMeta
-      @private
-    */
-    _cacheMeta: computed.computed(function () {
-      var m = utils.meta(this);
-      if (m.proto !== this) {
-        return property_get.get(m.proto, "_cacheMeta");
-      }
-
-      var cacheMeta = {};
-      var qpMap = property_get.get(this, "_normalizedQueryParams");
-      for (var prop in qpMap) {
-        if (!qpMap.hasOwnProperty(prop)) {
-          continue;
-        }
-
-        var qp = qpMap[prop];
-        var scope = qp.scope;
-        var parts;
-
-        if (scope === "controller") {
-          parts = [];
-        }
-
-        cacheMeta[prop] = {
-          parts: parts, // provided by route if 'model' scope
-          values: null, // provided by route
-          scope: scope,
-          prefix: "",
-          def: property_get.get(this, prop)
-        };
-      }
-
-      return cacheMeta;
-    }),
-
-    /**
-      @method _updateCacheParams
-      @private
-    */
-    _updateCacheParams: function (params) {
-      var cacheMeta = property_get.get(this, "_cacheMeta");
-      for (var prop in cacheMeta) {
-        if (!cacheMeta.hasOwnProperty(prop)) {
-          continue;
-        }
-        var propMeta = cacheMeta[prop];
-        propMeta.values = params;
-
-        var cacheKey = this._calculateCacheKey(propMeta.prefix, propMeta.parts, propMeta.values);
-        var cache = this._bucketCache;
-
-        if (cache) {
-          var value = cache.lookup(cacheKey, prop, propMeta.def);
-          property_set.set(this, prop, value);
-        }
-      }
-    },
+    _qpDelegate: null, // set by route
 
     /**
       @method _qpChanged
@@ -22517,37 +22436,10 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
     */
     _qpChanged: function (controller, _prop) {
       var prop = _prop.substr(0, _prop.length - 3);
-      var cacheMeta = property_get.get(controller, "_cacheMeta");
-      var propCache = cacheMeta[prop];
-      var cacheKey = controller._calculateCacheKey(propCache.prefix || "", propCache.parts, propCache.values);
-      var value = property_get.get(controller, prop);
 
-      // 1. Update model-dep cache
-      var cache = this._bucketCache;
-      if (cache) {
-        controller._bucketCache.stash(cacheKey, prop, value);
-      }
-
-      // 2. Notify a delegate (e.g. to fire a qp transition)
       var delegate = controller._qpDelegate;
-      if (delegate) {
-        delegate(controller, prop);
-      }
-    },
-
-    /**
-      @method _calculateCacheKey
-      @private
-    */
-    _calculateCacheKey: function (prefix, _parts, values) {
-      var parts = _parts || [];
-      var suffixes = "";
-      for (var i = 0, len = parts.length; i < len; ++i) {
-        var part = parts[i];
-        var value = property_get.get(values, part);
-        suffixes += "::" + part + ":" + value;
-      }
-      return prefix + suffixes.replace(ALL_PERIODS_REGEX, "-");
+      var value = property_get.get(controller, prop);
+      delegate(prop, value);
     },
 
     /**
@@ -22688,44 +22580,6 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       return this.replaceRoute.apply(this, arguments);
     }
   });
-
-  var ALL_PERIODS_REGEX = /\./g;
-
-  function accumulateQueryParamDescriptors(_desc, accum) {
-    var desc = _desc;
-    var tmp;
-    if (typeof desc === "string") {
-      tmp = {};
-      tmp[desc] = { as: null };
-      desc = tmp;
-    }
-
-    for (var key in desc) {
-      if (!desc.hasOwnProperty(key)) {
-        return;
-      }
-
-      var singleDesc = desc[key];
-      if (typeof singleDesc === "string") {
-        singleDesc = { as: singleDesc };
-      }
-
-      tmp = accum[key] || { as: null, scope: "model" };
-      merge['default'](tmp, singleDesc);
-
-      accum[key] = tmp;
-    }
-  }
-
-  function listenForQueryParamChanges(controller) {
-    var qpMap = property_get.get(controller, "_normalizedQueryParams");
-    for (var prop in qpMap) {
-      if (!qpMap.hasOwnProperty(prop)) {
-        continue;
-      }
-      controller.addObserver(prop + ".[]", controller, controller._qpChanged);
-    }
-  }
 
   exports['default'] = ControllerMixin['default'];
 
@@ -23654,7 +23508,8 @@ enifed('ember-routing/services/routing', ['exports', 'ember-runtime/system/servi
     },
 
     normalizeQueryParams: function (routeName, models, queryParams) {
-      property_get.get(this, "router")._prepareQueryParams(routeName, models, queryParams);
+      var router = property_get.get(this, "router");
+      router._prepareQueryParams(routeName, models, queryParams);
     },
 
     generateURL: function (routeName, models, queryParams) {
@@ -23942,6 +23797,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
   */
   function generateController(container, controllerName, context) {
     generateControllerFactory(container, controllerName, context);
+
     var fullName = "controller:" + controllerName;
     var instance = container.lookup(fullName);
 
@@ -24037,25 +23893,75 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     _qp: computed.computed(function () {
       var _this = this;
 
+      var controllerProto, combinedQueryParameterConfiguration;
+
       var controllerName = this.controllerName || this.routeName;
-      var controllerClass = this.container.lookupFactory("controller:" + controllerName);
+      var definedControllerClass = this.container.lookupFactory("controller:" + controllerName);
+      var queryParameterConfiguraton = property_get.get(this, "queryParams");
+      var hasRouterDefinedQueryParams = !!keys['default'](queryParameterConfiguraton).length;
 
-      if (!controllerClass) {
-        return defaultQPMeta;
+      if (definedControllerClass) {
+        // the developer has authored a controller class in their application for this route
+        // access the prototype, find its query params and normalize their object shape
+        // them merge in the query params for the route. As a mergedProperty, Route#queryParams is always
+        // at least `{}`
+        controllerProto = definedControllerClass.proto();
+
+        var controllerDefinedQueryParameterConfiguration = property_get.get(controllerProto, "queryParams");
+        var normalizedControllerQueryParameterConfiguration = ember_routing__utils.normalizeControllerQueryParams(controllerDefinedQueryParameterConfiguration);
+        combinedQueryParameterConfiguration = mergeEachQueryParams(normalizedControllerQueryParameterConfiguration, queryParameterConfiguraton);
+
+        if (Ember['default'].FEATURES.isEnabled("ember-routing-route-configured-query-params")) {
+          if (controllerDefinedQueryParameterConfiguration.length) {
+            Ember['default'].deprecate("Configuring query parameters on a controller is deprecated. Migrate the query parameters configuration from the '" + controllerName + "' controller to the '" + this.routeName + "' route: " + combinedQueryParameterConfiguration);
+          }
+        }
+      } else if (hasRouterDefinedQueryParams) {
+        // the developer has not defined a controller but *has* supplied route query params.
+        // Generate a class for them so we can later insert default values
+        var generatedControllerClass = generateController.generateControllerFactory(this.container, controllerName);
+        controllerProto = generatedControllerClass.proto();
+        combinedQueryParameterConfiguration = queryParameterConfiguraton;
       }
-
-      var controllerProto = controllerClass.proto();
-      var qpProps = property_get.get(controllerProto, "_normalizedQueryParams");
-      var cacheMeta = property_get.get(controllerProto, "_cacheMeta");
 
       var qps = [];
       var map = {};
-      for (var propName in qpProps) {
-        if (!qpProps.hasOwnProperty(propName)) {
+      var propertyNames = [];
+
+      for (var propName in combinedQueryParameterConfiguration) {
+        if (!combinedQueryParameterConfiguration.hasOwnProperty(propName)) {
           continue;
         }
 
-        var desc = qpProps[propName];
+        // to support the dubious feature of using unknownProperty
+        // on queryParams configuration
+        if (propName === "unknownProperty" || propName === "_super") {
+          // possible todo: issue deprecation warning?
+          continue;
+        }
+
+        var desc = combinedQueryParameterConfiguration[propName];
+
+        if (Ember['default'].FEATURES.isEnabled("ember-routing-route-configured-query-params")) {
+          // apply default values to controllers
+          // detect that default value defined on router config
+          if (desc.hasOwnProperty("defaultValue")) {
+            // detect that property was not defined on controller
+            if (controllerProto[propName] === undefined) {
+              controllerProto[propName] = desc.defaultValue;
+            } else {
+              deprecateQueryParamDefaultValuesSetOnController(controllerName, this.routeName, propName);
+            }
+          }
+        }
+
+        var scope = desc.scope || "model";
+        var parts;
+
+        if (scope === "controller") {
+          parts = [];
+        }
+
         var urlKey = desc.as || this.serializeQueryParamKey(propName);
         var defaultValue = property_get.get(controllerProto, propName);
 
@@ -24063,37 +23969,65 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
           defaultValue = Ember['default'].A(defaultValue.slice());
         }
 
-        var type = utils.typeOf(defaultValue);
+        var type = desc.type || utils.typeOf(defaultValue);
+
         var defaultValueSerialized = this.serializeQueryParam(defaultValue, urlKey, type);
-        var fprop = "" + controllerName + ":" + propName;
+        var scopedPropertyName = "" + controllerName + ":" + propName;
         var qp = {
-          def: defaultValue,
-          sdef: defaultValueSerialized,
+          undecoratedDefaultValue: property_get.get(controllerProto, propName),
+          defaultValue: defaultValue,
+          serializedDefaultValue: defaultValueSerialized,
+          serializedValue: defaultValueSerialized,
+
           type: type,
           urlKey: urlKey,
           prop: propName,
-          fprop: fprop,
+          scopedPropertyName: scopedPropertyName,
           ctrl: controllerName,
-          cProto: controllerProto,
-          svalue: defaultValueSerialized,
-          cacheType: desc.scope,
           route: this,
-          cacheMeta: cacheMeta[propName]
+          parts: parts, // provided later when stashNames is called if 'model' scope
+          values: null, // provided later when setup is called. no idea why.
+          scope: scope,
+          prefix: ""
         };
 
-        map[propName] = map[urlKey] = map[fprop] = qp;
+        map[propName] = map[urlKey] = map[scopedPropertyName] = qp;
         qps.push(qp);
+        propertyNames.push(propName);
       }
 
       return {
         qps: qps,
         map: map,
+        propertyNames: propertyNames,
         states: {
-          active: function (controller, prop) {
-            return _this._activeQPChanged(controller, map[prop]);
+          /*
+            Called when a query parameter changes in the URL, this route cares
+            about that query parameter, but the route is not currently
+            in the active route hierarchy.
+          */
+          inactive: function (prop, value) {
+            var qp = map[prop];
+            _this._qpChanged(prop, value, qp);
           },
-          allowOverrides: function (controller, prop) {
-            return _this._updatingQPChanged(controller, map[prop]);
+          /*
+            Called when a query parameter changes in the URL, this route cares
+            about that query parameter, and the route is currently
+            in the active route hierarchy.
+          */
+          active: function (prop, value) {
+            var qp = map[prop];
+            _this._qpChanged(prop, value, qp);
+            return _this._activeQPChanged(map[prop], value);
+          },
+          /*
+            Called when a value of a query parameter this route handles changes in a controller
+            and the route is currently in the active route hierarchy.
+          */
+          allowOverrides: function (prop, value) {
+            var qp = map[prop];
+            _this._qpChanged(prop, value, qp);
+            return _this._updatingQPChanged(map[prop]);
           }
         }
       };
@@ -24131,43 +24065,29 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
       for (var i = 0; i < len; ++i) {
         var qp = qps[i];
-        var cacheMeta = qp.cacheMeta;
-        if (cacheMeta.scope === "model") {
-          cacheMeta.parts = namePaths;
+        if (qp.scope === "model") {
+          qp.parts = namePaths;
         }
-        cacheMeta.prefix = qp.ctrl;
+        qp.prefix = qp.ctrl;
       }
-    },
-
-    /**
-      @private
-       @property _updateSerializedQPValue
-    */
-    _updateSerializedQPValue: function (controller, qp) {
-      var value = property_get.get(controller, qp.prop);
-      qp.svalue = this.serializeQueryParam(value, qp.urlKey, qp.type);
     },
 
     /**
       @private
        @property _activeQPChanged
     */
-    _activeQPChanged: function (controller, qp) {
-      var value = property_get.get(controller, qp.prop);
-      this.router._queuedQPChanges[qp.fprop] = value;
-      run['default'].once(this, this._fireQueryParamTransition);
+    _activeQPChanged: function (qp, value) {
+      var router = this.router;
+      router._activeQPChanged(qp.scopedPropertyName, value);
     },
 
     /**
       @private
       @method _updatingQPChanged
     */
-    _updatingQPChanged: function (controller, qp) {
+    _updatingQPChanged: function (qp) {
       var router = this.router;
-      if (!router._qpUpdates) {
-        router._qpUpdates = {};
-      }
-      router._qpUpdates[qp.urlKey] = true;
+      router._updatingQPChanged(qp.urlKey);
     },
 
     mergedProperties: ["events", "queryParams"],
@@ -24251,15 +24171,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
     /**
       @private
-      @property _fireQueryParamTransition
-    */
-    _fireQueryParamTransition: function () {
-      this.transitionTo({ queryParams: this.router._queuedQPChanges });
-      this.router._queuedQPChanges = {};
-    },
-
-    /**
-      @private
        @property _optionsForQueryParam
     */
     _optionsForQueryParam: function (qp) {
@@ -24305,8 +24216,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     */
     _reset: function (isExiting, transition) {
       var controller = this.controller;
-
-      controller._qpDelegate = null;
+      controller._qpDelegate = property_get.get(this, "_qp.states.inactive");
 
       this.resetController(controller, isExiting, transition);
     },
@@ -24621,14 +24531,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
               value = route.deserializeQueryParam(svalue, qp.urlKey, qp.type);
             } else {
               // No QP provided; use default value.
-              svalue = qp.sdef;
-              value = copyDefaultValue(qp.def);
+              svalue = qp.serializedDefaultValue;
+              value = copyDefaultValue(qp.defaultValue);
             }
           }
 
-          controller._qpDelegate = null;
+          controller._qpDelegate = property_get.get(this, "_qp.states.inactive");
 
-          var thisQueryParamChanged = svalue !== qp.svalue;
+          var thisQueryParamChanged = svalue !== qp.serializedValue;
           if (thisQueryParamChanged) {
             if (transition.queryParamsOnly && replaceUrl !== false) {
               var options = route._optionsForQueryParam(qp);
@@ -24645,9 +24555,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
           }
 
           // Stash current serialized value of controller.
-          qp.svalue = svalue;
+          qp.serializedValue = svalue;
 
-          var thisQueryParamHasDefaultValue = qp.sdef === svalue;
+          var thisQueryParamHasDefaultValue = qp.serializedDefaultValue === svalue;
           if (!thisQueryParamHasDefaultValue) {
             finalParams.push({
               value: svalue,
@@ -24955,27 +24865,53 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @method setup
     */
     setup: function (context, transition) {
-      var controllerName = this.controllerName || this.routeName;
-      var controller = this.controllerFor(controllerName, true);
+      var controller;
 
-      if (!controller) {
+      var controllerName = this.controllerName || this.routeName;
+      var definedController = this.controllerFor(controllerName, true);
+
+      if (!definedController) {
         controller = this.generateController(controllerName, context);
+      } else {
+        controller = definedController;
       }
 
       // Assign the route's controller so that it can more easily be
-      // referenced in action handlers
-      this.controller = controller;
+      // referenced in action handlers. Side effects. Side effects everywhere.
+      if (!this.controller) {
+        var propNames = property_get.get(this, "_qp.propertyNames");
+        addQueryParamsObservers(controller, propNames);
+        this.controller = controller;
+      }
 
       if (this.setupControllers) {
         Ember['default'].deprecate("Ember.Route.setupControllers is deprecated. Please use Ember.Route.setupController(controller, model) instead.");
         this.setupControllers(controller, context);
       } else {
-        var states = property_get.get(this, "_qp.states");
+        var queryParams = property_get.get(this, "_qp");
+
+        var states = queryParams.states;
         if (transition) {
           // Update the model dep values used to calculate cache keys.
           ember_routing__utils.stashParamNames(this.router, transition.state.handlerInfos);
-          controller._updateCacheParams(transition.params);
+
+          var params = transition.params;
+          var allParams = queryParams.propertyNames;
+          var cache = this._bucketCache;
+
+          enumerable_utils.forEach(allParams, function (prop) {
+            var aQp = queryParams.map[prop];
+
+            aQp.values = params;
+            var cacheKey = ember_routing__utils.calculateCacheKey(aQp.prefix, aQp.parts, aQp.values);
+
+            if (cache) {
+              var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
+              property_set.set(controller, prop, value);
+            }
+          });
         }
+
         controller._qpDelegate = states.allowOverrides;
 
         if (transition) {
@@ -24994,6 +24930,24 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       }
     },
 
+    /*
+      Called when a query parameter for this route changes, regardless of whether the route
+      is currently part of the active route hierarchy. This will update the query parameter's
+      value in the cache so if this route becomes active, the cache value has been updated.
+    */
+    _qpChanged: function (prop, value, qp) {
+      if (!qp) {
+        return;
+      }
+
+      var cacheKey = ember_routing__utils.calculateCacheKey(qp.prefix || "", qp.parts, qp.values);
+
+      // Update model-dep cache
+      var cache = this._bucketCache;
+      if (cache) {
+        cache.stash(cacheKey, prop, value);
+      }
+    },
     /**
       This hook is the first of the route entry validation hooks
       called when an attempt is made to transition into a route
@@ -25181,7 +25135,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     */
     model: function (params, transition) {
       var match, name, sawParams, value;
-
       var queryParams = property_get.get(this, "_qp.map");
 
       for (var prop in params) {
@@ -25291,7 +25244,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        This method is called when `transitionTo` is called with a context
       in order to populate the URL.
        @method serialize
-      @param {Object} model the route's model
+      @param {Object} model the routes model
       @param {Array} params an Array of parameter names for the current
         route (in the example, `['post_id']`.
       @return {Object} the serialized parameters
@@ -25735,12 +25688,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     isRouteFactory: true
   });
 
-  var defaultQPMeta = {
-    qps: [],
-    map: {},
-    states: {}
-  };
-
   function parentRoute(route) {
     var handlerInfo = handlerInfoFor(route, route.router.router.state.handlerInfos, -1);
     return handlerInfo && handlerInfo.handler;
@@ -25860,7 +25807,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       var qp = qps[i];
 
       var qpValueWasPassedIn = (qp.prop in fullQueryParams);
-      params[qp.prop] = qpValueWasPassedIn ? fullQueryParams[qp.prop] : copyDefaultValue(qp.def);
+      params[qp.prop] = qpValueWasPassedIn ? fullQueryParams[qp.prop] : copyDefaultValue(qp.defaultValue);
     }
 
     return params;
@@ -25871,6 +25818,67 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       return Ember['default'].A(value.slice());
     }
     return value;
+  }
+
+  /*
+    Merges all query parameters from a controller with those from
+    a route, returning a new object and avoiding any mutations to
+    the existing objects.
+  */
+  function mergeEachQueryParams(controllerQP, routeQP) {
+    var keysAlreadyMergedOrSkippable;
+    var qps = {};
+
+    if (Ember['default'].FEATURES.isEnabled("ember-routing-route-configured-query-params")) {
+      keysAlreadyMergedOrSkippable = {};
+    } else {
+      keysAlreadyMergedOrSkippable = {
+        defaultValue: true,
+        type: true,
+        scope: true,
+        as: true
+      };
+    }
+
+    // first loop over all controller qps, merging them with any matching route qps
+    // into a new empty object to avoid mutating.
+    for (var cqpName in controllerQP) {
+      if (!controllerQP.hasOwnProperty(cqpName)) {
+        continue;
+      }
+
+      var newControllerParameterConfiguration = {};
+      merge['default'](newControllerParameterConfiguration, controllerQP[cqpName], routeQP[cqpName]);
+
+      qps[cqpName] = newControllerParameterConfiguration;
+
+      // allows us to skip this QP when we check route QPs.
+      keysAlreadyMergedOrSkippable[cqpName] = true;
+    }
+
+    // loop over all route qps, skipping those that were merged in the first pass
+    // because they also appear in controller qps
+    for (var rqpName in routeQP) {
+      if (!routeQP.hasOwnProperty(rqpName) || keysAlreadyMergedOrSkippable[rqpName]) {
+        continue;
+      }
+
+      var newRouteParameterConfiguration = {};
+      merge['default'](newRouteParameterConfiguration, routeQP[rqpName], controllerQP[rqpName]);
+      qps[rqpName] = newRouteParameterConfiguration;
+    }
+
+    return qps;
+  }
+
+  function addQueryParamsObservers(controller, propNames) {
+    enumerable_utils.forEach(propNames, function (prop) {
+      controller.addObserver(prop + ".[]", controller, controller._qpChanged);
+    });
+  }
+
+  function deprecateQueryParamDefaultValuesSetOnController(controllerName, routeName, propName) {
+    Ember['default'].deprecate("Configuring query parameter default values on controllers is deprecated. Please move the value for the property '" + propName + "' from the '" + controllerName + "' controller to the '" + routeName + "' route in the format: {queryParams: " + propName + ": {defaultValue: <default value> }}");
   }
 
   exports['default'] = Route;
@@ -25953,6 +25961,15 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
     init: function () {
       this._activeViews = {};
       this._qpCache = {};
+      this._resetQueuedQueryParameterChanges();
+    },
+
+    /*
+      Resets all pending query paramter changes.
+      Called after transitioning to a new route
+      based on query parameter changes.
+    */
+    _resetQueuedQueryParameterChanges: function () {
       this._queuedQPChanges = {};
     },
 
@@ -26215,6 +26232,41 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       return this._activeViews[templateName];
     },
 
+    /*
+      Called when an active route's query parameter has changed.
+      These changes are batched into a runloop run and trigger
+      a single transition.
+    */
+    _activeQPChanged: function (queryParameterName, newValue) {
+      this._queuedQPChanges[queryParameterName] = newValue;
+      run['default'].once(this, this._fireQueryParamTransition);
+    },
+
+    _updatingQPChanged: function (queryParameterName) {
+      if (!this._qpUpdates) {
+        this._qpUpdates = {};
+      }
+      this._qpUpdates[queryParameterName] = true;
+    },
+
+    /*
+      Triggers a transition to a route based on query parameter changes.
+      This is called once per runloop, to batch changes.
+       e.g.
+       if these methods are called in succession:
+      this._activeQPChanged('foo', '10');
+        // results in _queuedQPChanges = {foo: '10'}
+      this._activeQPChanged('bar', false);
+        // results in _queuedQPChanges = {foo: '10', bar: false}
+        _queuedQPChanges will represent both of these changes
+      and the transition using `transitionTo` will be triggered
+      once.
+    */
+    _fireQueryParamTransition: function () {
+      this.transitionTo({ queryParams: this._queuedQPChanges });
+      this._resetQueuedQueryParameterChanges();
+    },
+
     _connectActiveComponentNode: function (templateName, componentNode) {
       Ember['default'].assert("cannot connect an activeView that already exists", !this._activeViews[templateName]);
 
@@ -26351,7 +26403,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
       for (var key in groupedByUrlKey) {
         var qps = groupedByUrlKey[key];
-        Ember['default'].assert(string.fmt("You're not allowed to have more than one controller " + "property map to the same query param key, but both " + "`%@` and `%@` map to `%@`. You can fix this by mapping " + "one of the controller properties to a different query " + "param key via the `as` config option, e.g. `%@: { as: 'other-%@' }`", [qps[0].qp.fprop, qps[1] ? qps[1].qp.fprop : "", qps[0].qp.urlKey, qps[0].qp.prop, qps[0].qp.prop]), qps.length <= 1);
+        Ember['default'].assert(string.fmt("You're not allowed to have more than one controller " + "property map to the same query param key, but both " + "`%@` and `%@` map to `%@`. You can fix this by mapping " + "one of the controller properties to a different query " + "param key via the `as` config option, e.g. `%@: { as: 'other-%@' }`", [qps[0].qp.scopedPropertyName, qps[1] ? qps[1].qp.scopedPropertyName : "", qps[0].qp.urlKey, qps[0].qp.prop, qps[0].qp.prop]), qps.length <= 1);
         var qp = qps[0].qp;
         queryParams[qp.urlKey] = qp.route.serializeQueryParam(qps[0].value, qp.urlKey, qp.type);
       }
@@ -26368,7 +26420,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       var qps = this._queryParamsFor(targetRouteName);
       for (var key in queryParams) {
         var qp = qps.map[key];
-        if (qp && qp.sdef === queryParams[key]) {
+        if (qp && qp.serializedDefaultValue === queryParams[key]) {
           delete queryParams[key];
         }
       }
@@ -26435,28 +26487,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       };
     },
 
-    /*
-      becomeResolved: function(payload, resolvedContext) {
-        var params = this.serialize(resolvedContext);
-         if (payload) {
-          this.stashResolvedModel(payload, resolvedContext);
-          payload.params = payload.params || {};
-          payload.params[this.name] = params;
-        }
-         return this.factory('resolved', {
-          context: resolvedContext,
-          name: this.name,
-          handler: this.handler,
-          params: params
-        });
-      },
-    */
-
     _hydrateUnsuppliedQueryParams: function (leafRouteName, contexts, queryParams) {
       var state = calculatePostTransitionState(this, leafRouteName, contexts);
       var handlerInfos = state.handlerInfos;
       var appCache = this._bucketCache;
-
       utils.stashParamNames(this, handlerInfos);
 
       for (var i = 0, len = handlerInfos.length; i < len; ++i) {
@@ -26465,19 +26499,17 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
         for (var j = 0, qpLen = qpMeta.qps.length; j < qpLen; ++j) {
           var qp = qpMeta.qps[j];
-          var presentProp = qp.prop in queryParams && qp.prop || qp.fprop in queryParams && qp.fprop;
+
+          var presentProp = qp.prop in queryParams && qp.prop || qp.scopedPropertyName in queryParams && qp.scopedPropertyName;
 
           if (presentProp) {
-            if (presentProp !== qp.fprop) {
-              queryParams[qp.fprop] = queryParams[presentProp];
+            if (presentProp !== qp.scopedPropertyName) {
+              queryParams[qp.scopedPropertyName] = queryParams[presentProp];
               delete queryParams[presentProp];
             }
           } else {
-            var controllerProto = qp.cProto;
-            var cacheMeta = property_get.get(controllerProto, "_cacheMeta");
-
-            var cacheKey = controllerProto._calculateCacheKey(qp.ctrl, cacheMeta[qp.prop].parts, state.params);
-            queryParams[qp.fprop] = appCache.lookup(cacheKey, qp.prop, qp.def);
+            var cacheKey = utils.calculateCacheKey(qp.ctrl, qp.parts, state.params);
+            queryParams[qp.scopedPropertyName] = appCache.lookup(cacheKey, qp.prop, qp.defaultValue);
           }
         }
       }
@@ -26991,18 +27023,20 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-metal/core', 'emb
   exports['default'] = RouterState;
 
 });
-enifed('ember-routing/utils', ['exports'], function (exports) {
+enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/property_get'], function (exports, merge, property_get) {
 
   'use strict';
 
   exports.routeArgs = routeArgs;
   exports.getActiveTargetName = getActiveTargetName;
   exports.stashParamNames = stashParamNames;
+  exports.calculateCacheKey = calculateCacheKey;
+  exports.normalizeControllerQueryParams = normalizeControllerQueryParams;
 
   function routeArgs(targetRouteName, models, queryParams) {
     var args = [];
-    if (typeof targetRouteName === 'string') {
-      args.push('' + targetRouteName);
+    if (typeof targetRouteName === "string") {
+      args.push("" + targetRouteName);
     }
     args.push.apply(args, models);
     args.push({ queryParams: queryParams });
@@ -27042,6 +27076,94 @@ enifed('ember-routing/utils', ['exports'], function (exports) {
     }
 
     handlerInfos._namesStashed = true;
+  }
+
+  /*
+    Stolen from Controller
+  */
+  function calculateCacheKey(prefix, _parts, values) {
+    var parts = _parts || [];
+    var suffixes = "";
+    for (var i = 0, len = parts.length; i < len; ++i) {
+      var part = parts[i];
+      var value = property_get.get(values, part);
+      suffixes += "::" + part + ":" + value;
+    }
+    return prefix + suffixes.replace(ALL_PERIODS_REGEX, "-");
+  }
+
+  var ALL_PERIODS_REGEX = /\./g;
+
+  /*
+    Controller-defined query parameters can come in three shapes:
+
+    Array
+      queryParams: ['foo', 'bar']
+    Array of simple objects where value is an alias
+      queryParams: [
+        {
+          'foo': 'rename_foo_to_this'
+        },
+        {
+          'bar': 'call_bar_this_instead'
+        }
+      ]
+    Array of fully defined objects
+      queryParams: [
+        {
+          'foo': {
+            as: 'rename_foo_to_this'
+          },
+        }
+        {
+          'bar': {
+            as: 'call_bar_this_instead',
+            scope: 'controller'
+          }
+        }
+      ]
+
+    This helper normalizes all three possible styles into the
+    'Array of fully defined objects' style.
+  */
+  function normalizeControllerQueryParams(queryParams) {
+    if (queryParams._qpMap) {
+      return queryParams._qpMap;
+    }
+
+    var qpMap = queryParams._qpMap = {};
+
+    for (var i = 0, len = queryParams.length; i < len; ++i) {
+      accumulateQueryParamDescriptors(queryParams[i], qpMap);
+    }
+
+    return qpMap;
+  }
+
+  function accumulateQueryParamDescriptors(_desc, accum) {
+    var desc = _desc;
+    var tmp;
+    if (typeof desc === "string") {
+      tmp = {};
+      tmp[desc] = { as: null };
+      desc = tmp;
+    }
+
+    for (var key in desc) {
+      if (!desc.hasOwnProperty(key)) {
+        return;
+      }
+
+      var singleDesc = desc[key];
+      if (typeof singleDesc === "string") {
+        singleDesc = { as: singleDesc };
+      }
+
+      tmp = accum[key] || { as: null, scope: "model" };
+      merge['default'](tmp, singleDesc);
+
+      accum[key] = tmp;
+    }
   }
 
 });
@@ -37859,7 +37981,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+1301e680",
+        revision: "Ember@2.0.0-canary+b2247adc",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42637,7 +42759,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   'use strict';
 
-  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+1301e680";
+  containerViewTemplate['default'].meta.revision = "Ember@2.0.0-canary+b2247adc";
 
   /**
   @module ember
