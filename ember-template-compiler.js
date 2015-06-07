@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b2247adc
+ * @version   2.0.0-canary+28b46443
  */
 
 (function() {
@@ -548,11 +548,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
 
   Ember['default'].run = run['default'];
 
-  /**
-   * @class Backburner
-   * @for Ember
-   * @private
-  */
   Ember['default'].Backburner = Backburner['default'];
 
   Ember['default'].libraries = new Libraries['default']();
@@ -3036,7 +3031,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+b2247adc
+    @version 2.0.0-canary+28b46443
     @public
   */
 
@@ -3068,11 +3063,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+b2247adc'
+    @default '2.0.0-canary+28b46443'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b2247adc';
+  Ember.VERSION = '2.0.0-canary+28b46443';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11640,7 +11635,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+b2247adc",
+        revision: "Ember@2.0.0-canary+28b46443",
         loc: program.loc,
         moduleName: options.moduleName
       };
