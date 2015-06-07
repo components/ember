@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0050fe7f
+ * @version   2.0.0-canary+9e3c1655
  */
 
 (function() {
@@ -6710,22 +6710,23 @@ enifed("ember-htmlbars/helpers/each", ["exports", "ember-metal/enumerable_utils"
     {{/each}}
     ```
   
-    ### `key` param
+    ### Specifying Keys
   
-    The `key` hash parameter provides much needed insight into how the rendering
-    engine should determine if a given iteration of the loop matches a previous one.
-    This is mostly apparent during re-rendering when the array being iterated may
-    have changed (via sort, removal, addition, etc).
+    The `key` option is used to tell Ember how to determine if the array being
+    iterated over with `{{#each}}` has changed between renders. By helping Ember
+    detect that some elements in the array are the same, DOM elements can be
+    re-used, significantly improving rendering speed.
   
-    For example, using the following:
+    For example, here's the `{{#each}}` helper with its `key` set to `id`:
   
     ```handlebars
     {{#each model key="id" as |item|}}
     {{/each}}
     ```
   
-    Upon re-render, the rendering engine will match up the previously rendered items
-    (and reorder the generated DOM elements) based on each item's `id` property.
+    When this `{{#each}}` re-renders, Ember will match up the previously rendered
+    items (and reorder the generated DOM elements) based on each item's `id`
+    property.
   
     There are a few special values for `key`:
   
@@ -8218,7 +8219,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0050fe7f";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13808,7 +13809,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0050fe7f
+    @version 2.0.0-canary+9e3c1655
     @public
   */
 
@@ -13840,11 +13841,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0050fe7f'
+    @default '2.0.0-canary+9e3c1655'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0050fe7f';
+  Ember.VERSION = '2.0.0-canary+9e3c1655';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22671,7 +22672,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+0050fe7f";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   if (_emberMetalCore.default.FEATURES.isEnabled("ember-routing-transitioning-classes")) {
@@ -23171,7 +23172,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0050fe7f";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39792,7 +39793,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+0050fe7f",
+        revision: "Ember@2.0.0-canary+9e3c1655",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43718,7 +43719,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+0050fe7f";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
 
   /**
   @module ember
