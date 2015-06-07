@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+55f02b1b
+ * @version   2.0.0-canary+f1d1da91
  */
 
 (function() {
@@ -401,6 +401,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
 
     @class Adapter
     @namespace Ember.Test
+    @public
   */
   var Adapter = EmberObject['default'].extend({
     /**
@@ -695,148 +696,150 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   }
 
   /**
-  * Loads a route, sets up any controllers, and renders any templates associated
-  * with the route as though a real user had triggered the route change while
-  * using your app.
-  *
-  * Example:
-  *
-  * ```javascript
-  * visit('posts/index').then(function() {
-  *   // assert something
-  * });
-  * ```
-  *
-  * @method visit
-  * @param {String} url the name of the route
-  * @return {RSVP.Promise}
+    Loads a route, sets up any controllers, and renders any templates associated
+    with the route as though a real user had triggered the route change while
+    using your app.
+
+    Example:
+
+    ```javascript
+    visit('posts/index').then(function() {
+      // assert something
+    });
+    ```
+
+    @method visit
+    @param {String} url the name of the route
+    @return {RSVP.Promise}
+    @public
   */
   asyncHelper("visit", visit);
 
   /**
-  * Clicks an element and triggers any actions triggered by the element's `click`
-  * event.
-  *
-  * Example:
-  *
-  * ```javascript
-  * click('.some-jQuery-selector').then(function() {
-  *   // assert something
-  * });
-  * ```
-  *
-  * @method click
-  * @param {String} selector jQuery selector for finding element on the DOM
-  * @return {RSVP.Promise}
+    Clicks an element and triggers any actions triggered by the element's `click`
+    event.
+
+    Example:
+
+    ```javascript
+    click('.some-jQuery-selector').then(function() {
+      // assert something
+    });
+    ```
+
+    @method click
+    @param {String} selector jQuery selector for finding element on the DOM
+    @return {RSVP.Promise}
+    @public
   */
   asyncHelper("click", click);
 
   if (Ember['default'].FEATURES.isEnabled("ember-testing-checkbox-helpers")) {
     /**
-    * Checks a checkbox. Ensures the presence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * check('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to check
-    * @return {RSVP.Promise}
+      Checks a checkbox. Ensures the presence of the `checked` attribute
+       Example:
+       ```javascript
+      check('#remember-me').then(function() {
+        // assert something
+      });
+      ```
+       @method check
+      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      element on the DOM to check
+      @return {RSVP.Promise}
+      @private
     */
     asyncHelper("check", check);
 
     /**
-    * Unchecks a checkbox. Ensures the absence of the `checked` attribute
-    *
-    * Example:
-    *
-    * ```javascript
-    * uncheck('#remember-me').then(function() {
-    *   // assert something
-    * });
-    * ```
-    *
-    * @method check
-    * @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-    * element on the DOM to uncheck
-    * @return {RSVP.Promise}
+      Unchecks a checkbox. Ensures the absence of the `checked` attribute
+       Example:
+       ```javascript
+      uncheck('#remember-me').then(function() {
+       // assert something
+      });
+      ```
+       @method check
+      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      element on the DOM to uncheck
+      @return {RSVP.Promise}
+      @private
     */
     asyncHelper("uncheck", uncheck);
   }
   /**
-  * Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
-  *
-  * Example:
-  *
-  * ```javascript
-  * keyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {
-  *  // assert something
-  * });
-  * ```
-  *
-  * @method keyEvent
-  * @param {String} selector jQuery selector for finding element on the DOM
-  * @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
-  * @param {Number} keyCode the keyCode of the simulated key event
-  * @return {RSVP.Promise}
-  * @since 1.5.0
+    Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
+
+    Example:
+
+    ```javascript
+    keyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {
+     // assert something
+    });
+    ```
+
+    @method keyEvent
+    @param {String} selector jQuery selector for finding element on the DOM
+    @param {String} type the type of key event, e.g. `keypress`, `keydown`, `keyup`
+    @param {Number} keyCode the keyCode of the simulated key event
+    @return {RSVP.Promise}
+    @since 1.5.0
+    @public
   */
   asyncHelper("keyEvent", keyEvent);
 
   /**
-  * Fills in an input element with some text.
-  *
-  * Example:
-  *
-  * ```javascript
-  * fillIn('#email', 'you@example.com').then(function() {
-  *   // assert something
-  * });
-  * ```
-  *
-  * @method fillIn
-  * @param {String} selector jQuery selector finding an input element on the DOM
-  * to fill text with
-  * @param {String} text text to place inside the input element
-  * @return {RSVP.Promise}
+    Fills in an input element with some text.
+
+    Example:
+
+    ```javascript
+    fillIn('#email', 'you@example.com').then(function() {
+      // assert something
+    });
+    ```
+
+    @method fillIn
+    @param {String} selector jQuery selector finding an input element on the DOM
+    to fill text with
+    @param {String} text text to place inside the input element
+    @return {RSVP.Promise}
+    @public
   */
   asyncHelper("fillIn", fillIn);
 
   /**
-  * Finds an element in the context of the app's container element. A simple alias
-  * for `app.$(selector)`.
-  *
-  * Example:
-  *
-  * ```javascript
-  * var $el = find('.my-selector');
-  * ```
-  *
-  * @method find
-  * @param {String} selector jQuery string selector for element lookup
-  * @return {Object} jQuery object representing the results of the query
+    Finds an element in the context of the app's container element. A simple alias
+    for `app.$(selector)`.
+
+    Example:
+
+    ```javascript
+    var $el = find('.my-selector');
+    ```
+
+    @method find
+    @param {String} selector jQuery string selector for element lookup
+    @return {Object} jQuery object representing the results of the query
+    @public
   */
   helper("find", find);
 
   /**
-  * Like `find`, but throws an error if the element selector returns no results.
-  *
-  * Example:
-  *
-  * ```javascript
-  * var $el = findWithAssert('.doesnt-exist'); // throws error
-  * ```
-  *
-  * @method findWithAssert
-  * @param {String} selector jQuery selector string for finding an element within
-  * the DOM
-  * @return {Object} jQuery object representing the results of the query
-  * @throws {Error} throws error if jQuery object returned has a length of 0
+    Like `find`, but throws an error if the element selector returns no results.
+
+    Example:
+
+    ```javascript
+    var $el = findWithAssert('.doesnt-exist'); // throws error
+    ```
+
+    @method findWithAssert
+    @param {String} selector jQuery selector string for finding an element within
+    the DOM
+    @return {Object} jQuery object representing the results of the query
+    @throws {Error} throws error if jQuery object returned has a length of 0
+    @private
   */
   helper("findWithAssert", findWithAssert);
 
@@ -862,6 +865,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
     @method wait
     @param {Object} value The value to be returned.
     @return {RSVP.Promise}
+    @public
   */
   asyncHelper("wait", wait);
   asyncHelper("andThen", andThen);
@@ -882,6 +886,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @method currentRouteName
   @return {Object} The name of the currently active route.
   @since 1.5.0
+  @public
   */
   helper("currentRouteName", currentRouteName);
 
@@ -901,6 +906,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @method currentPath
   @return {Object} The currently active path.
   @since 1.5.0
+  @public
   */
   helper("currentPath", currentPath);
 
@@ -920,6 +926,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @method currentURL
   @return {Object} The currently active URL.
   @since 1.5.0
+  @public
   */
   helper("currentURL", currentURL);
 
@@ -939,7 +946,8 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
    @since 1.9.0
    @method pauseTest
    @return {Object} A promise that will never resolve
-   */
+   @public
+  */
   helper("pauseTest", pauseTest);
 
   /**
@@ -965,6 +973,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
    @param {Object} [options] The options to be passed to jQuery.Event.
    @return {RSVP.Promise}
    @since 1.5.0
+   @public
   */
   asyncHelper("triggerEvent", triggerEvent);
 
@@ -1022,6 +1031,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     @method setupForTesting
     @namespace Ember
     @since 1.5.0
+    @private
   */
   function setupForTesting() {
     if (!Test) {
@@ -1111,6 +1121,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
     @class Test
     @namespace Ember
+    @public
   */
   var Test = {
     /**
@@ -1383,6 +1394,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
        @property testHelpers
       @type {Object}
       @default {}
+      @public
     */
     testHelpers: {},
 
@@ -1407,20 +1419,22 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
     @type {Boolean}
     @default false
     @since 1.3.0
+    @public
     */
     testing: false,
 
     /**
-     This hook defers the readiness of the application, so that you can start
-     the app when your tests are ready to run. It also sets the router's
-     location to 'none', so that the window's location will not be modified
-     (preventing both accidental leaking of state between tests and interference
-     with your testing framework).
-      Example:
-     ```
-    App.setupForTesting();
-    ```
+      This hook defers the readiness of the application, so that you can start
+      the app when your tests are ready to run. It also sets the router's
+      location to 'none', so that the window's location will not be modified
+      (preventing both accidental leaking of state between tests and interference
+      with your testing framework).
+       Example:
+       ```
+      App.setupForTesting();
+      ```
        @method setupForTesting
+      @public
     */
     setupForTesting: function () {
       setupForTesting['default']();
@@ -1439,6 +1453,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
       @type {Object} The object to be used for test helpers.
       @default window
       @since 1.2.0
+      @private
     */
     helperContainer: null,
 
@@ -1448,13 +1463,14 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
       to `window`. If a function of the same name has already been defined it will be cached
       (so that it can be reset if the helper is removed with `unregisterHelper` or
       `removeTestHelpers`).
-      Any callbacks registered with `onInjectHelpers` will be called once the
-     helpers have been injected.
-     Example:
-    ```
-    App.injectTestHelpers();
-    ```
+       Any callbacks registered with `onInjectHelpers` will be called once the
+      helpers have been injected.
+       Example:
+      ```
+      App.injectTestHelpers();
+      ```
        @method injectTestHelpers
+      @public
     */
     injectTestHelpers: function (helperContainer) {
       if (helperContainer) {

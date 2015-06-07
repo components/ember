@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+55f02b1b
+ * @version   2.0.0-canary+f1d1da91
  */
 
 (function() {
@@ -6713,7 +6713,7 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['ember-metal/core', 'embe
   var originalLookup = Ember['default'].lookup;
   var TemplateTests, registry, container, lookup, warnings, originalWarn;
 
-  /**
+  /*
     This module specifically tests integration with Handlebars and Ember-specific
     Handlebars extensions.
 
@@ -8273,7 +8273,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['ember-metal/run_loop', 'emb
     component = Component['default'].create({
       container: container,
 
-      template: compile['default']("{{concat \"foo\" \" \" \"bar\" \" \" \"baz\"}}")
+      layout: compile['default']("{{concat \"foo\" \" \" \"bar\" \" \" \"baz\"}}")
     });
 
     utils.runAppend(component);
@@ -8288,7 +8288,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['ember-metal/run_loop', 'emb
       firstParam: "one",
       secondParam: "two",
 
-      template: compile['default']("{{concat firstParam secondParam}}")
+      layout: compile['default']("{{concat firstParam secondParam}}")
     });
 
     utils.runAppend(component);
@@ -8324,7 +8324,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['ember-metal/run_loop', 'emb
       firstParam: "one",
       secondParam: "two",
 
-      template: compile['default']("{{#if (x-eq (concat firstParam secondParam) \"onetwo\")}}Truthy!{{else}}False{{/if}}")
+      layout: compile['default']("{{#if (x-eq (concat firstParam secondParam) \"onetwo\")}}Truthy!{{else}}False{{/if}}")
     });
 
     utils.runAppend(component);
@@ -40800,14 +40800,14 @@ enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/s
 
   var CopyableTests = suite.Suite.extend({
 
-    /**
+    /*
       __Required.__ You must implement this method to apply this mixin.
        Must be able to create a new object for testing.
        @returns {Object} object
     */
     newObject: null,
 
-    /**
+    /*
       __Required.__ You must implement this method to apply this mixin.
        Compares the two passed in objects.  Returns true if the two objects
       are logically equivalent.
@@ -40819,7 +40819,7 @@ enifed('ember-runtime/tests/suites/copyable', ['exports', 'ember-runtime/tests/s
     */
     isEqual: null,
 
-    /**
+    /*
       Set this to true if you expect the objects you test to be freezable.
       The suite will verify that your objects actually match this.  (i.e. if
       you say you can't test freezable it will verify that your objects really
@@ -40907,7 +40907,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       this._keysBefore[key]++;
     },
 
-    /**
+    /*
       Invoked when the property changes.  Just records the parameters for
       later analysis.
     */
@@ -40919,7 +40919,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       this._values[key] = value;
     },
 
-    /**
+    /*
       Resets the recorded results for another run.
        @returns {Object} receiver
     */
@@ -40942,7 +40942,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return this;
     },
 
-    /**
+    /*
       Begins observing the passed key names on the passed object.  Any changes
       on the named properties will be recorded.
        @param {Ember.Enumerable} obj
@@ -40963,7 +40963,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return this;
     },
 
-    /**
+    /*
       Returns true if the passed key was invoked.  If you pass a value as
       well then validates that the values match.
        @param {String} key
@@ -40988,7 +40988,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       }
     },
 
-    /**
+    /*
       Returns times the before observer as invoked.
        @param {String} key
         Key to check
@@ -40997,7 +40997,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return this._keysBefore[key] || 0;
     },
 
-    /**
+    /*
       Returns times the observer as invoked.
        @param {String} key
         Key to check
@@ -41006,7 +41006,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return this._keys[key] || 0;
     },
 
-    /**
+    /*
       begins acting as an enumerable observer.
     */
     observeEnumerable: function (obj) {
@@ -41032,7 +41032,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
   });
 
   var EnumerableTests = suite.Suite.extend({
-    /**
+    /*
       __Required.__ You must implement this method to apply this mixin.
        Implement to return a new enumerable object for testing.  Should accept
       either no parameters, a single number (indicating the desired length of
@@ -41043,7 +41043,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     */
     newObject: null,
 
-    /**
+    /*
       Implement to return a set of new fixture strings that can be applied to
       the enumerable.  This may be passed into the newObject method.
        @param {Number} count
@@ -41059,7 +41059,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return ret;
     },
 
-    /**
+    /*
       Implement to return a set of new fixture objects that can be applied to
       the enumerable.  This may be passed into the newObject method.
        @param {Number} cnt
@@ -41077,7 +41077,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return ret;
     },
 
-    /**
+    /*
       __Required.__ You must implement this method to apply this mixin.
        Implement accept an instance of the enumerable and return an array
       containing the objects in the enumerable.  This is used only for testing
@@ -41088,7 +41088,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     */
     toArray: null,
 
-    /**
+    /*
       Implement this method if your object can mutate internally (even if it
       does not support the MutableEnumerable API).  The method should accept
       an object of your desired type and modify it somehow.  Suite tests will
@@ -41102,7 +41102,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
     */
     mutate: function () {},
 
-    /**
+    /*
       Becomes true when you define a new mutate() method, indicating that
       mutation tests should run.  This is calculated automatically.
        @type Boolean
@@ -41111,12 +41111,12 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
       return this.mutate !== EnumerableTests.prototype.mutate;
     }),
 
-    /**
+    /*
       Invoked to actually run the test - overridden by mixins
     */
     run: function () {},
 
-    /**
+    /*
       Creates a new observer object for testing.  You can add this object as an
       observer on an array and it will record results anytime it is invoked.
       After running the test, call the validate() method on the observer to
@@ -43737,14 +43737,14 @@ enifed('ember-runtime/tests/suites/suite', ['exports', 'ember-runtime/system/obj
 
   var Suite = EmberObject['default'].extend({
 
-    /**
+    /*
       __Required.__ You must implement this method to apply this mixin.
        Define a name for these tests - all modules are prefixed w/ it.
        @type String
     */
     name: null,
 
-    /**
+    /*
       Invoked to actually run the test - overridden by mixins
     */
     run: function () {}
@@ -47785,7 +47785,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['ember-template-com
 
     var actual = compile['default'](templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+55f02b1b", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+f1d1da91", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
