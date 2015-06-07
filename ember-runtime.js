@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+28b46443
+ * @version   2.0.0-canary+f9126e09
  */
 
 (function() {
@@ -2324,7 +2324,15 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/merge', 'embe
 
   Ember['default'].run = run['default'];
 
+  /**
+  @class Backburner
+  @for Ember
+  @private
+  */
   Ember['default'].Backburner = Backburner['default'];
+  // this is the new go forward, once Ember Data updates to using `_Backburner` we
+  // can remove the non-underscored version.
+  Ember['default']._Backburner = Backburner['default'];
 
   Ember['default'].libraries = new Libraries['default']();
   Ember['default'].libraries.registerCoreLibrary("Ember", Ember['default'].VERSION);
@@ -4807,7 +4815,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 2.0.0-canary+28b46443
+    @version 2.0.0-canary+f9126e09
     @public
   */
 
@@ -4839,11 +4847,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @property VERSION
     @type String
-    @default '2.0.0-canary+28b46443'
+    @default '2.0.0-canary+f9126e09'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+28b46443';
+  Ember.VERSION = '2.0.0-canary+f9126e09';
 
   /**
     The hash of environment variables used to control various configuration
