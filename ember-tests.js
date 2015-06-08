@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9e3c1655
+ * @version   2.0.0-canary+071630b8
  */
 
 (function() {
@@ -1565,7 +1565,7 @@ enifed("ember-application/tests/system/dependency_injection/custom_resolver_test
     equal((0, _emberViewsSystemJquery.default)("h1", application.rootElement).text(), "Fallback");
   });
 });
-enifed("ember-application/tests/system/dependency_injection/default_resolver_test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-metal/logger", "ember-runtime/controllers/controller", "ember-routing/system/route", "ember-views/views/component", "ember-views/views/view", "ember-runtime/system/service", "ember-runtime/system/object", "ember-runtime/system/namespace", "ember-application/system/application", "ember-htmlbars/helpers"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalLogger, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberViewsViewsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelpers) {
+enifed("ember-application/tests/system/dependency_injection/default_resolver_test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-metal/logger", "ember-runtime/controllers/controller", "ember-routing/system/route", "ember-views/views/component", "ember-views/views/view", "ember-runtime/system/service", "ember-runtime/system/object", "ember-runtime/system/namespace", "ember-application/system/application", "ember-htmlbars/helper", "ember-htmlbars/compat/make-bound-helper", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/system/make_bound_helper", "ember-htmlbars/helpers"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalLogger, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberViewsViewsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsCompatMakeBoundHelper, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers) {
 
   var registry, locator, application, originalLookup, originalLoggerInfo;
 
@@ -1658,16 +1658,48 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test("the default resolver resolves container-registered helpers", function () {
-    function gooresolvertestHelper() {
-      return "GOO";
-    }
-    function gooGazResolverTestHelper() {
-      return "GAZ";
-    }
-    application.register("helper:gooresolvertest", gooresolvertestHelper);
-    application.register("helper:goo-baz-resolver-test", gooGazResolverTestHelper);
-    equal(gooresolvertestHelper, locator.lookup("helper:gooresolvertest"), "looks up gooresolvertest helper");
-    equal(gooGazResolverTestHelper, locator.lookup("helper:goo-baz-resolver-test"), "looks up gooGazResolverTestHelper helper");
+    var shorthandHelper = (0, _emberHtmlbarsHelper.helper)(function () {});
+    var helper = _emberHtmlbarsHelper.default.extend();
+
+    application.register("helper:shorthand", shorthandHelper);
+    application.register("helper:complete", helper);
+
+    var lookedUpShorthandHelper = locator.lookupFactory("helper:shorthand");
+    ok(lookedUpShorthandHelper.isHelperInstance, "shorthand helper isHelper");
+
+    var lookedUpHelper = locator.lookupFactory("helper:complete");
+    ok(lookedUpHelper.isHelperFactory, "complete helper is factory");
+    ok(helper.detect(lookedUpHelper), "looked up complete helper");
+  });
+
+  QUnit.test("the default resolver resolves helpers on the namespace", function () {
+    var ShorthandHelper = (0, _emberHtmlbarsHelper.helper)(function () {});
+    var CompleteHelper = _emberHtmlbarsHelper.default.extend();
+    var LegacyBareFunctionHelper = function () {};
+    var LegacyHandlebarsBoundHelper = (0, _emberHtmlbarsCompatMakeBoundHelper.default)(function () {});
+    var LegacyHTMLBarsBoundHelper = (0, _emberHtmlbarsSystemMake_bound_helper.default)(function () {});
+    var ViewHelper = (0, _emberHtmlbarsSystemMakeViewHelper.default)(function () {});
+
+    application.ShorthandHelper = ShorthandHelper;
+    application.CompleteHelper = CompleteHelper;
+    application.LegacyBareFunctionHelper = LegacyBareFunctionHelper;
+    application.LegacyHandlebarsBoundHelper = LegacyHandlebarsBoundHelper;
+    application.LegacyHtmlBarsBoundHelper = LegacyHTMLBarsBoundHelper; // Must use lowered "tml" in "HTMLBars" for resolver to find this
+    application.ViewHelper = ViewHelper;
+
+    var resolvedShorthand = registry.resolve("helper:shorthand");
+    var resolvedComplete = registry.resolve("helper:complete");
+    var resolvedLegacy = registry.resolve("helper:legacy-bare-function");
+    var resolvedLegacyHandlebars = registry.resolve("helper:legacy-handlebars-bound");
+    var resolvedLegacyHTMLBars = registry.resolve("helper:legacy-html-bars-bound");
+    var resolvedView = registry.resolve("helper:view");
+
+    equal(resolvedShorthand, ShorthandHelper, "resolve fetches the shorthand helper factory");
+    equal(resolvedComplete, CompleteHelper, "resolve fetches the complete helper factory");
+    ok(typeof resolvedLegacy === "function", "legacy function helper is resolved");
+    equal(resolvedView, ViewHelper, "resolves view helper");
+    equal(resolvedLegacyHTMLBars, LegacyHTMLBarsBoundHelper, "resolves legacy HTMLBars bound helper");
+    equal(resolvedLegacyHandlebars, LegacyHandlebarsBoundHelper, "resolves legacy Handlebars bound helper");
   });
 
   QUnit.test("the default resolver throws an error if the fullName to resolve is invalid", function () {
@@ -5418,7 +5450,7 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test", ["exports", "ember-views/vi
   
   // jscs:enable validateIndentation
 });
-enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-metal/core", "ember-views/views/view", "ember-htmlbars/compat/handlebars-get", "ember-runtime/system/container", "ember-runtime/tests/utils", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberViewsViewsView, _emberHtmlbarsCompatHandlebarsGet, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberHtmlbarsCompat) {
+enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-metal/core", "ember-views/views/view", "ember-htmlbars/compat/handlebars-get", "ember-runtime/system/container", "ember-runtime/tests/utils", "ember-htmlbars/compat/helper", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberViewsViewsView, _emberHtmlbarsCompatHandlebarsGet, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberHtmlbarsCompatHelper, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -5431,7 +5463,6 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("view:toplevel", _emberViewsViewsView.default.extend());
     },
 
@@ -5448,13 +5479,13 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
   QUnit.test("it can lookup a path from the current context", function () {
     expect(1);
 
-    registry.register("helper:handlebars-get", function (path, options) {
+    registry.register("helper:handlebars-get", new _emberHtmlbarsCompatHelper.default(function (path, options) {
       var context = options.contexts && options.contexts[0] || this;
 
       ignoreDeprecation(function () {
         equal((0, _emberHtmlbarsCompatHandlebarsGet.default)(context, path, options), "bar");
       });
-    });
+    }));
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -5470,13 +5501,13 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
   QUnit.test("it can lookup a path from the current keywords", function () {
     expect(1);
 
-    registry.register("helper:handlebars-get", function (path, options) {
+    registry.register("helper:handlebars-get", new _emberHtmlbarsCompatHelper.default(function (path, options) {
       var context = options.contexts && options.contexts[0] || this;
 
       ignoreDeprecation(function () {
         equal((0, _emberHtmlbarsCompatHandlebarsGet.default)(context, path, options), "bar");
       });
-    });
+    }));
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -5494,13 +5525,13 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
 
     lookup.Blammo = { foo: "blah" };
 
-    registry.register("helper:handlebars-get", function (path, options) {
+    registry.register("helper:handlebars-get", new _emberHtmlbarsCompatHelper.default(function (path, options) {
       var context = options.contexts && options.contexts[0] || this;
 
       ignoreDeprecation(function () {
         equal((0, _emberHtmlbarsCompatHandlebarsGet.default)(context, path, options), lookup.Blammo.foo);
       });
-    });
+    }));
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -5514,13 +5545,13 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
   QUnit.test("it raises a deprecation warning on use", function () {
     expect(1);
 
-    registry.register("helper:handlebars-get", function (path, options) {
+    registry.register("helper:handlebars-get", new _emberHtmlbarsCompatHelper.default(function (path, options) {
       var context = options.contexts && options.contexts[0] || this;
 
       expectDeprecation(function () {
         (0, _emberHtmlbarsCompatHandlebarsGet.default)(context, path, options);
       }, "Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.");
-    });
+    }));
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -5545,7 +5576,6 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
     teardown: function () {
@@ -5626,9 +5656,9 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
     }));
 
     registry.register("template:components/foo-bar", (0, _emberTemplateCompilerSystemCompile.default)("{{my-thing}}"));
-    registry.register("helper:my-thing", function (options) {
+    registry.register("helper:my-thing", new _emberHtmlbarsCompatHelper.default(function (options) {
       equal(options.data.view, component, "passed in view should match the current component");
-    });
+    }));
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -5898,7 +5928,6 @@ enifed("ember-htmlbars/tests/compat/make-view-helper_test", ["exports", "ember-v
     setup: function () {
       registry = new _containerRegistry.default();
       container = registry.container();
-      registry.optionsForType("helper", { instantiate: false });
     },
 
     teardown: function () {
@@ -8183,6 +8212,338 @@ enifed("ember-htmlbars/tests/helpers/concat-test", ["exports", "ember-metal/run_
     });
 
     equal(component.$().text(), "False");
+  });
+});
+enifed("ember-htmlbars/tests/helpers/custom_helper_test", ["exports", "ember-views/views/component", "ember-htmlbars/helper", "ember-template-compiler/system/compile", "ember-runtime/tests/utils", "container/registry", "ember-metal/run_loop", "ember-views/component_lookup"], function (exports, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup) {
+
+  var registry = undefined,
+      container = undefined,
+      component = undefined;
+
+  QUnit.module("ember-htmlbars: custom app helpers", {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { singleton: false });
+      container = registry.container();
+    },
+
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      registry = container = component = null;
+    }
+  });
+
+  QUnit.test("dashed shorthand helper is resolved from container", function () {
+    var HelloWorld = (0, _emberHtmlbarsHelper.helper)(function () {
+      return "hello world";
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "hello world");
+  });
+
+  QUnit.test("dashed helper is resolved from container", function () {
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      compute: function () {
+        return "hello world";
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "hello world");
+  });
+
+  QUnit.test("dashed helper can recompute a new value", function () {
+    var destroyCount = 0;
+    var count = 0;
+    var helper;
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        helper = this;
+      },
+      compute: function () {
+        return ++count;
+      },
+      destroy: function () {
+        destroyCount++;
+        this._super();
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "1");
+    (0, _emberMetalRun_loop.default)(function () {
+      helper.recompute();
+    });
+    equal(component.$().text(), "2");
+    equal(destroyCount, 0, "destroy is not called on recomputation");
+  });
+
+  QUnit.test("dashed shorthand helper is called for param changes", function () {
+    var count = 0;
+    var HelloWorld = (0, _emberHtmlbarsHelper.helper)(function () {
+      return ++count;
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      name: "bob",
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world name}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "1");
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set("name", "sal");
+    });
+    equal(component.$().text(), "2");
+  });
+
+  QUnit.test("dashed helper compute is called for param changes", function () {
+    var count = 0;
+    var createCount = 0;
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        // FIXME: Ideally, the helper instance does not need to be recreated
+        // for change of params.
+        createCount++;
+      },
+      compute: function () {
+        return ++count;
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      name: "bob",
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world name}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "1");
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set("name", "sal");
+    });
+    equal(component.$().text(), "2");
+    equal(createCount, 1, "helper is only created once");
+  });
+
+  QUnit.test("dashed shorthand helper receives params, hash", function () {
+    var params, hash;
+    var HelloWorld = (0, _emberHtmlbarsHelper.helper)(function (_params, _hash) {
+      params = _params;
+      hash = _hash;
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      name: "bob",
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world name \"rich\" last=\"sam\"}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(params[0], "bob", "first argument is bob");
+    equal(params[1], "rich", "second argument is rich");
+    equal(hash.last, "sam", "hash.last argument is sam");
+  });
+
+  QUnit.test("dashed helper receives params, hash", function () {
+    var params, hash;
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      compute: function (_params, _hash) {
+        params = _params;
+        hash = _hash;
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      name: "bob",
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world name \"rich\" last=\"sam\"}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(params[0], "bob", "first argument is bob");
+    equal(params[1], "rich", "second argument is rich");
+    equal(hash.last, "sam", "hash.last argument is sam");
+  });
+
+  QUnit.test("dashed helper usable in subexpressions", function () {
+    var JoinWords = _emberHtmlbarsHelper.default.extend({
+      compute: function (params) {
+        return params.join(" ");
+      }
+    });
+    registry.register("helper:join-words", JoinWords);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{join-words \"Who\"\n                   (join-words \"overcomes\" \"by\")\n                   \"force\"\n                   (join-words (join-words \"hath overcome but\" \"half\"))\n                   (join-words \"his\" (join-words \"foe\"))}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(component.$().text(), "Who overcomes by force hath overcome but half his foe");
+  });
+
+  QUnit.test("dashed helper not usable with a block", function () {
+    var SomeHelper = (0, _emberHtmlbarsHelper.helper)(function () {});
+    registry.register("helper:some-helper", SomeHelper);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{#some-helper}}{{/some-helper}}")
+    }).create();
+
+    expectAssertion(function () {
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Helpers may not be used in the block form/);
+  });
+
+  QUnit.test("dashed helper is torn down", function () {
+    var destroyCalled = 0;
+    var SomeHelper = _emberHtmlbarsHelper.default.extend({
+      destroy: function () {
+        destroyCalled++;
+        this._super.apply(this, arguments);
+      },
+      compute: function () {
+        return "must define a compute";
+      }
+    });
+    registry.register("helper:some-helper", SomeHelper);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{some-helper}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    (0, _emberRuntimeTestsUtils.runDestroy)(component);
+
+    equal(destroyCalled, 1, "destroy called once");
+  });
+
+  QUnit.test("dashed helper used in subexpression can recompute", function () {
+    var helper;
+    var phrase = "overcomes by";
+    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        helper = this;
+      },
+      compute: function () {
+        return phrase;
+      }
+    });
+    var JoinWords = _emberHtmlbarsHelper.default.extend({
+      compute: function (params) {
+        return params.join(" ");
+      }
+    });
+    registry.register("helper:dynamic-segment", DynamicSegment);
+    registry.register("helper:join-words", JoinWords);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{join-words \"Who\"\n                   (dynamic-segment)\n                   \"force\"\n                   (join-words (join-words \"hath overcome but\" \"half\"))\n                   (join-words \"his\" (join-words \"foe\"))}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(component.$().text(), "Who overcomes by force hath overcome but half his foe");
+
+    phrase = "believes his";
+    Ember.run(function () {
+      helper.recompute();
+    });
+
+    equal(component.$().text(), "Who believes his force hath overcome but half his foe");
+  });
+
+  QUnit.test("dashed helper used in subexpression can recompute component", function () {
+    var helper;
+    var phrase = "overcomes by";
+    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        helper = this;
+      },
+      compute: function () {
+        return phrase;
+      }
+    });
+    var JoinWords = _emberHtmlbarsHelper.default.extend({
+      compute: function (params) {
+        return params.join(" ");
+      }
+    });
+    registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
+    registry.register("component:some-component", Ember.Component.extend({
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{first}} {{second}} {{third}} {{fourth}} {{fifth}}")
+    }));
+    registry.register("helper:dynamic-segment", DynamicSegment);
+    registry.register("helper:join-words", JoinWords);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{some-component first=\"Who\"\n                   second=(dynamic-segment)\n                   third=\"force\"\n                   fourth=(join-words (join-words \"hath overcome but\" \"half\"))\n                   fifth=(join-words \"his\" (join-words \"foe\"))}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(component.$().text(), "Who overcomes by force hath overcome but half his foe");
+
+    phrase = "believes his";
+    Ember.run(function () {
+      helper.recompute();
+    });
+
+    equal(component.$().text(), "Who believes his force hath overcome but half his foe");
+  });
+
+  QUnit.test("dashed helper used in subexpression is destroyed", function () {
+    var destroyCount = 0;
+    var DynamicSegment = _emberHtmlbarsHelper.default.extend({
+      phrase: "overcomes by",
+      compute: function () {
+        return this.phrase;
+      },
+      destroy: function () {
+        destroyCount++;
+        this._super.apply(this, arguments);
+      }
+    });
+    var JoinWords = (0, _emberHtmlbarsHelper.helper)(function (params) {
+      return params.join(" ");
+    });
+    registry.register("helper:dynamic-segment", DynamicSegment);
+    registry.register("helper:join-words", JoinWords);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{join-words \"Who\"\n                   (dynamic-segment)\n                   \"force\"\n                   (join-words (join-words \"hath overcome but\" \"half\"))\n                   (join-words \"his\" (join-words \"foe\"))}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    (0, _emberRuntimeTestsUtils.runDestroy)(component);
+
+    equal(destroyCount, 1, "destroy is called after a view is destroyed");
   });
 });
 enifed("ember-htmlbars/tests/helpers/debug_test", ["exports", "ember-metal/core", "ember-metal/logger", "ember-views/views/view", "ember-template-compiler/system/compile", "ember-runtime/tests/utils"], function (exports, _emberMetalCore, _emberMetalLogger, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
@@ -11991,7 +12352,6 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
       _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
-      registry.optionsForType('helper', { instantiate: false });
     },
 
     teardown: function () {
@@ -12132,7 +12492,6 @@ enifed("ember-htmlbars/tests/helpers/view_test", ["exports", "ember-views/views/
       registry = new _containerRegistry.default();
       container = registry.container();
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("view:toplevel", _emberViewsViewsView.default.extend());
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
@@ -14855,7 +15214,6 @@ enifed("ember-htmlbars/tests/integration/block_params_test", ["exports", "contai
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
 
@@ -14937,7 +15295,6 @@ enifed("ember-htmlbars/tests/integration/component_element_id_test", ["exports",
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
 
@@ -14973,7 +15330,6 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
     registry.optionsForType("component", { singleton: false });
     registry.optionsForType("view", { singleton: false });
     registry.optionsForType("template", { instantiate: false });
-    registry.optionsForType("helper", { instantiate: false });
     registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
   }
 
@@ -16074,7 +16430,6 @@ enifed("ember-htmlbars/tests/integration/component_lifecycle_test", ["exports", 
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
 
       hooks = [];
@@ -16528,7 +16883,6 @@ enifed("ember-htmlbars/tests/integration/mutable_binding_test", ["exports", "emb
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
 
@@ -17301,7 +17655,6 @@ enifed("ember-htmlbars/tests/integration/void-element-component-test", ["exports
       registry.optionsForType("component", { singleton: false });
       registry.optionsForType("view", { singleton: false });
       registry.optionsForType("template", { instantiate: false });
-      registry.optionsForType("helper", { instantiate: false });
       registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
     },
 
@@ -17761,7 +18114,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test", ["exports", "ember-views/sy
     });
   }
 });
-enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-htmlbars/system/lookup-helper", "ember-views/component_lookup", "container/registry", "ember-views/views/component"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberViewsViewsComponent) {
+enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-htmlbars/system/lookup-helper", "ember-views/component_lookup", "container/registry", "ember-htmlbars/helper", "ember-htmlbars/compat/helper"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberHtmlbarsHelper, _emberHtmlbarsCompatHelper) {
 
   function generateEnv(helpers, container) {
     return {
@@ -17775,7 +18128,6 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-html
     var registry = new _containerRegistry.default();
     var container = registry.container();
 
-    registry.optionsForType("helper", { instantiate: false });
     registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
 
     return container;
@@ -17824,16 +18176,15 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-html
       container: container
     };
 
-    function someName() {}
-    someName.isHTMLBars = true;
+    var someName = _emberHtmlbarsHelper.default.extend();
     view.container._registry.register("helper:some-name", someName);
 
     var actual = (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
 
-    equal(actual, someName, "does not wrap provided function if `isHTMLBars` is truthy");
+    ok(someName.detect(actual), "helper is an instance of the helper class");
   });
 
-  QUnit.test("wraps helper from container in a Handlebars compat helper", function () {
+  QUnit.test("looks up a shorthand helper in the container", function () {
     expect(2);
     var container = generateContainer();
     var env = generateEnv(null, container);
@@ -17845,52 +18196,33 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-html
     function someName() {
       called = true;
     }
-    view.container._registry.register("helper:some-name", someName);
+    view.container._registry.register("helper:some-name", (0, _emberHtmlbarsHelper.helper)(someName));
 
     var actual = (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
 
-    ok(actual.isHTMLBars, "wraps provided helper in an HTMLBars compatible helper");
+    ok(actual.isHelperInstance, "is a helper");
 
-    var fakeParams = [];
-    var fakeHash = {};
-    var fakeOptions = {
-      morph: { update: function () {} },
-      template: {},
-      inverse: {}
-    };
-    var fakeEnv = {};
-    var fakeScope = {};
-    actual.helperFunction(fakeParams, fakeHash, fakeOptions, fakeEnv, fakeScope);
+    actual.compute([], {});
 
     ok(called, "HTMLBars compatible wrapper is wraping the provided function");
   });
 
-  QUnit.test("asserts if component-lookup:main cannot be found", function () {
+  QUnit.test("fails with a useful error when resolving a function", function () {
+    expect(2);
     var container = generateContainer();
     var env = generateEnv(null, container);
     var view = {
       container: container
     };
 
-    view.container._registry.unregister("component-lookup:main");
+    function someName() {}
+    view.container._registry.register("helper:some-name", someName);
 
-    expectAssertion(function () {
-      (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
-    }, "Could not find 'component-lookup:main' on the provided container, which is necessary for performing component lookups");
-  });
-
-  QUnit.test("registers a helper in the container if component is found", function () {
-    var container = generateContainer();
-    var env = generateEnv(null, container);
-    var view = {
-      container: container
-    };
-
-    view.container._registry.register("component:some-name", _emberViewsViewsComponent.default);
-
-    (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
-
-    ok(view.container.lookup("helper:some-name"), "new helper was registered");
+    var actual;
+    expectDeprecation(function () {
+      actual = (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
+    }, /helper "some-name" is a deprecated bare function helper/);
+    ok(actual instanceof _emberHtmlbarsCompatHelper.default, "function looks up as compat helper");
   });
 });
 enifed("ember-htmlbars/tests/system/make_bound_helper_test", ["exports", "ember-views/views/view", "ember-metal/run_loop", "container/registry", "ember-htmlbars/system/make_bound_helper", "ember-template-compiler/system/compile", "ember-runtime/tests/utils", "ember-runtime/system/string"], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _containerRegistry, _emberHtmlbarsSystemMake_bound_helper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRuntimeSystemString) {
@@ -17908,7 +18240,6 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test", ["exports", "ember-
     setup: function () {
       registry = new _containerRegistry.default();
       container = registry.container();
-      registry.optionsForType("helper", { instantiate: false });
     },
 
     teardown: function () {
@@ -18079,7 +18410,7 @@ enifed("ember-htmlbars/tests/system/make_bound_helper_test", ["exports", "ember-
 
     expectAssertion(function () {
       (0, _emberRuntimeTestsUtils.runAppend)(view);
-    }, /makeBoundHelper generated helpers do not support use with blocks/i);
+    }, /Helpers may not be used in the block form/);
   });
 
   QUnit.test("shouldn't treat raw numbers as bound paths", function () {
@@ -18128,7 +18459,6 @@ enifed("ember-htmlbars/tests/system/make_view_helper_test", ["exports", "ember-h
     setup: function () {
       registry = new _containerRegistry.default();
       container = registry.container();
-      registry.optionsForType("helper", { instantiate: false });
     },
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
@@ -47253,7 +47583,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+9e3c1655", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+071630b8", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58021,7 +58351,7 @@ enifed("ember/tests/global-api-test", ["exports", "ember"], function (exports, _
   confirmExport("Ember.DefaultResolver");
   confirmExport("Ember.generateController");
 });
-enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-htmlbars/compat"], function (exports, _ember, _emberHtmlbarsCompat) {
+enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-htmlbars/compat", "ember-htmlbars/compat/helper", "ember-htmlbars/helper"], function (exports, _ember, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
 
   var compile, helpers, makeBoundHelper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -58078,13 +58408,13 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
   };
 
   QUnit.test("Unbound dashed helpers registered on the container can be late-invoked", function () {
-
-    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-borf}} {{x-borf YES}}</div>");
+    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{x-borf}} {{x-borf 'YES'}}</div>");
+    var helper = new _emberHtmlbarsCompatHelper.default(function (val) {
+      return arguments.length > 1 ? val : "BORF";
+    });
 
     boot(function () {
-      registry.register("helper:x-borf", function (val) {
-        return arguments.length > 1 ? val : "BORF";
-      });
+      registry.register("helper:x-borf", helper);
     });
 
     equal(Ember.$("#wrapper").text(), "BORF YES", "The helper was invoked from the container");
@@ -58142,6 +58472,27 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
         }));
       });
     }, /A helper named 'omg' could not be found/);
+  });
+
+  QUnit.test("Helpers can receive injections", function () {
+    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{full-name}}</div>");
+
+    var serviceCalled = false;
+    boot(function () {
+      registry.register("service:name-builder", Ember.Service.extend({
+        build: function () {
+          serviceCalled = true;
+        }
+      }));
+      registry.register("helper:full-name", _emberHtmlbarsHelper.default.extend({
+        nameBuilder: Ember.inject.service("name-builder"),
+        compute: function () {
+          this.get("nameBuilder").build();
+        }
+      }));
+    });
+
+    ok(serviceCalled, "service was injected, method called");
   });
 });
 enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-runtime/controllers/object_controller", "ember-htmlbars/compat"], function (exports, _ember, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat) {

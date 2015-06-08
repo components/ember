@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9e3c1655
+ * @version   2.0.0-canary+071630b8
  */
 
 (function() {
@@ -4997,7 +4997,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9e3c1655
+    @version 2.0.0-canary+071630b8
     @public
   */
 
@@ -5029,11 +5029,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9e3c1655'
+    @default '2.0.0-canary+071630b8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9e3c1655';
+  Ember.VERSION = '2.0.0-canary+071630b8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5078,7 +5078,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-htmlbars-each-in': null, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-routing-route-configured-query-params': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': null }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-htmlbars-each-in': null, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-routing-route-configured-query-params': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': null, 'ember-htmlbars-helper': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -10875,7 +10875,7 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
       var object = this.sourceDep.getValue();
       if (object !== this.observedObject) {
-        this.deactivate();
+        this._clearObservedObject();
 
         if (object && typeof object === 'object') {
           (0, _emberMetalObserver.addObserver)(object, this.key, this, this.notify);
@@ -10886,13 +10886,16 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
     _super$deactivate: _emberMetalStreamsStream.default.prototype.deactivate,
 
-    deactivate: function () {
-      this._super$deactivate();
-
+    _clearObservedObject: function () {
       if (this.observedObject) {
         (0, _emberMetalObserver.removeObserver)(this.observedObject, this.key, this, this.notify);
         this.observedObject = null;
       }
+    },
+
+    deactivate: function () {
+      this._super$deactivate();
+      this._clearObservedObject();
     }
   });
 
@@ -11100,7 +11103,7 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
 
     revalidate: function (value) {
       if (value !== this.observedProxy) {
-        this.deactivate();
+        this._clearObservedProxy();
 
         ProxyMixin = ProxyMixin || _emberMetalCore.default.__loader.require("ember-runtime/mixins/-proxy").default;
 
@@ -11111,11 +11114,15 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
       }
     },
 
-    deactivate: function () {
+    _clearObservedProxy: function () {
       if (this.observedProxy) {
         (0, _emberMetalObserver.removeObserver)(this.observedProxy, "content", this, this.notify);
         this.observedProxy = null;
       }
+    },
+
+    deactivate: function () {
+      this._clearObservedProxy();
     },
 
     compute: function () {

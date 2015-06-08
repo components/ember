@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9e3c1655
+ * @version   2.0.0-canary+071630b8
  */
 
 (function() {
@@ -3263,13 +3263,15 @@ enifed('dom-helper/classes', ['exports'], function (exports) {
   exports.addClasses = addClasses;
   exports.removeClasses = removeClasses;
 });
-enifed("dom-helper/prop", ["exports"], function (exports) {
+enifed('dom-helper/prop', ['exports'], function (exports) {
   exports.isAttrRemovalValue = isAttrRemovalValue;
   exports.normalizeProperty = normalizeProperty;
 
   function isAttrRemovalValue(value) {
     return value === null || value === undefined;
   }
+
+  function UNDEFINED() {}
 
   // TODO should this be an o_create kind of thing?
   var propertyCaches = {};
@@ -3278,19 +3280,57 @@ enifed("dom-helper/prop", ["exports"], function (exports) {
 
   function normalizeProperty(element, attrName) {
     var tagName = element.tagName;
-    var key;
+    var key, cachedAttrName;
     var cache = propertyCaches[tagName];
     if (!cache) {
       // TODO should this be an o_create kind of thing?
       cache = {};
-      for (key in element) {
-        cache[key.toLowerCase()] = key;
+      for (cachedAttrName in element) {
+        key = cachedAttrName.toLowerCase();
+        if (isSettable(element, cachedAttrName)) {
+          cache[key] = cachedAttrName;
+        } else {
+          cache[key] = UNDEFINED;
+        }
       }
       propertyCaches[tagName] = cache;
     }
 
     // presumes that the attrName has been lowercased.
-    return cache[attrName];
+    var value = cache[attrName];
+    return value === UNDEFINED ? undefined : value;
+  }
+
+  // elements with a property that does not conform to the spec in certain
+  // browsers. In these cases, we'll end up using setAttribute instead
+  var badPairs = [{
+    // phantomjs < 2.0 lets you set it as a prop but won't reflect it
+    // back to the attribute. button.getAttribute('type') === null
+    tagName: 'BUTTON',
+    propName: 'type'
+  }, {
+    // Some version of IE (like IE9) actually throw an exception
+    // if you set input.type = 'something-unknown'
+    tagName: 'INPUT',
+    propName: 'type'
+  }, {
+    // Some versions of IE (IE8) throw an exception when setting
+    // `input.list = 'somestring'`:
+    // https://github.com/emberjs/ember.js/issues/10908
+    // https://github.com/emberjs/ember.js/issues/11364
+    tagName: 'INPUT',
+    propName: 'list'
+  }];
+
+  function isSettable(element, attrName) {
+    for (var i = 0, l = badPairs.length; i < l; i++) {
+      var pair = badPairs[i];
+      if (pair.tagName === element.tagName && pair.propName === attrName) {
+        return false;
+      }
+    }
+
+    return true;
   }
 });
 enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/ext/controller'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationExtController) {
@@ -4542,7 +4582,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.optionsForType('component', { singleton: false });
       registry.optionsForType('view', { singleton: false });
       registry.optionsForType('template', { instantiate: false });
-      registry.optionsForType('helper', { instantiate: false });
 
       registry.register('application:main', namespace, { instantiate: false });
 
@@ -6036,7 +6075,7 @@ enifed("ember-extension-support/data_adapter", ["exports", "ember-metal/property
     }
   });
 });
-enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compiler", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/system/make_bound_helper", "ember-htmlbars/helpers", "ember-htmlbars/helpers/if_unless", "ember-htmlbars/helpers/with", "ember-htmlbars/helpers/loc", "ember-htmlbars/helpers/log", "ember-htmlbars/helpers/each", "ember-htmlbars/helpers/each-in", "ember-htmlbars/helpers/-bind-attr-class", "ember-htmlbars/helpers/-normalize-class", "ember-htmlbars/helpers/-concat", "ember-htmlbars/helpers/-join-classes", "ember-htmlbars/helpers/-legacy-each-with-controller", "ember-htmlbars/helpers/-legacy-each-with-keyword", "ember-htmlbars/helpers/-get", "ember-htmlbars/helpers/-html-safe", "ember-htmlbars/system/dom-helper", "ember-htmlbars/system/bootstrap", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersBindAttrClass, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compiler", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/system/make_bound_helper", "ember-htmlbars/helpers", "ember-htmlbars/helpers/if_unless", "ember-htmlbars/helpers/with", "ember-htmlbars/helpers/loc", "ember-htmlbars/helpers/log", "ember-htmlbars/helpers/each", "ember-htmlbars/helpers/each-in", "ember-htmlbars/helpers/-bind-attr-class", "ember-htmlbars/helpers/-normalize-class", "ember-htmlbars/helpers/-concat", "ember-htmlbars/helpers/-join-classes", "ember-htmlbars/helpers/-legacy-each-with-controller", "ember-htmlbars/helpers/-legacy-each-with-keyword", "ember-htmlbars/helpers/-get", "ember-htmlbars/helpers/-html-safe", "ember-htmlbars/system/dom-helper", "ember-htmlbars/helper", "ember-htmlbars/system/bootstrap", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersBindAttrClass, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
 
   (0, _emberHtmlbarsHelpers.registerHelper)("if", _emberHtmlbarsHelpersIf_unless.ifHelper);
   (0, _emberHtmlbarsHelpers.registerHelper)("unless", _emberHtmlbarsHelpersIf_unless.unlessHelper);
@@ -6068,6 +6107,11 @@ enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compile
     registerPlugin: _emberTemplateCompiler.registerPlugin,
     DOMHelper: _emberHtmlbarsSystemDomHelper.default
   };
+
+  if (_emberMetalCore.default.FEATURES.isEnabled("ember-htmlbars-helpers")) {
+    _emberHtmlbarsHelper.default.helper = _emberHtmlbarsHelper.helper;
+    _emberMetalCore.default.Helper = _emberHtmlbarsHelper.default;
+  }
 });
 
 // importing adds template bootstrapping
@@ -6536,6 +6580,32 @@ enifed("ember-htmlbars/env", ["exports", "ember-metal/environment", "htmlbars-ru
   var domHelper = _emberMetalEnvironment.default.hasDOM ? new _emberHtmlbarsSystemDomHelper.default() : null;
 
   exports.domHelper = domHelper;
+});
+enifed("ember-htmlbars/helper", ["exports", "ember-runtime/system/object"], function (exports, _emberRuntimeSystemObject) {
+  exports.helper = helper;
+
+  // Ember.Helper.extend({ compute(params, hash) {} });
+  var Helper = _emberRuntimeSystemObject.default.extend({
+    isHelper: true,
+    recompute: function () {
+      this._stream.notify();
+    }
+  });
+
+  Helper.reopenClass({
+    isHelperFactory: true
+  });
+
+  // Ember.Helper.helper(function(params, hash) {});
+
+  function helper(helperFn) {
+    return {
+      isHelperInstance: true,
+      compute: helperFn
+    };
+  }
+
+  exports.default = Helper;
 });
 enifed("ember-htmlbars/helpers", ["exports", "ember-metal/platform/create"], function (exports, _emberMetalPlatformCreate) {
   exports.registerHelper = registerHelper;
@@ -7549,7 +7619,7 @@ enifed("ember-htmlbars/hooks/did-render-node", ["exports"], function (exports) {
     env.renderedNodes[morph.guid] = true;
   }
 });
-enifed("ember-htmlbars/hooks/element", ["exports", "ember-htmlbars/system/lookup-helper", "htmlbars-runtime/hooks"], function (exports, _emberHtmlbarsSystemLookupHelper, _htmlbarsRuntimeHooks) {
+enifed("ember-htmlbars/hooks/element", ["exports", "ember-htmlbars/system/lookup-helper", "htmlbars-runtime/hooks", "ember-htmlbars/system/invoke-helper"], function (exports, _emberHtmlbarsSystemLookupHelper, _htmlbarsRuntimeHooks, _emberHtmlbarsSystemInvokeHelper) {
   exports.default = emberElement;
 
   var fakeElement;
@@ -7578,7 +7648,8 @@ enifed("ember-htmlbars/hooks/element", ["exports", "ember-htmlbars/system/lookup
     var result;
     var helper = (0, _emberHtmlbarsSystemLookupHelper.findHelper)(path, scope.self, env);
     if (helper) {
-      result = env.hooks.invokeHelper(null, env, scope, null, params, hash, helper, { element: morph.element }).value;
+      var helperStream = (0, _emberHtmlbarsSystemInvokeHelper.buildHelperStream)(helper, params, hash, { element: morph.element }, env, scope);
+      result = helperStream.value();
     } else {
       result = env.hooks.get(env, scope, path);
     }
@@ -7693,48 +7764,43 @@ enifed("ember-htmlbars/hooks/has-helper", ["exports", "ember-htmlbars/system/loo
   exports.default = hasHelperHook;
 
   function hasHelperHook(env, scope, helperName) {
-    return !!(0, _emberHtmlbarsSystemLookupHelper.findHelper)(helperName, scope.self, env);
+    if (env.helpers[helperName]) {
+      return true;
+    }
+
+    var container = env.container;
+    if ((0, _emberHtmlbarsSystemLookupHelper.validateLazyHelperName)(helperName, container, env.hooks.keywords)) {
+      var containerName = "helper:" + helperName;
+      if (container._registry.has(containerName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 });
-enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberHtmlbarsHooksGetValue) {
+enifed("ember-htmlbars/hooks/invoke-helper", ["exports", "ember-metal/core", "ember-htmlbars/system/invoke-helper"], function (exports, _emberMetalCore, _emberHtmlbarsSystemInvokeHelper) {
   exports.default = invokeHelper;
 
-  function invokeHelper(morph, env, scope, visitor, _params, _hash, helper, templates, context) {
-    var params, hash;
+  function invokeHelper(morph, env, scope, visitor, params, hash, helper, templates, context) {
 
-    if (typeof helper === 'function') {
-      params = getArrayValues(_params);
-      hash = getHashValues(_hash);
-      return { value: helper.call(context, params, hash, templates) };
-    } else if (helper.isLegacyViewHelper) {
-      _emberMetalCore.default.assert('You can only pass attributes (such as name=value) not bare ' + 'values to a helper for a View found in \'' + helper.viewClass + '\'', _params.length === 0);
+    if (helper.isLegacyViewHelper) {
+      _emberMetalCore.default.assert("You can only pass attributes (such as name=value) not bare " + "values to a helper for a View found in '" + helper.viewClass + "'", params.length === 0);
 
-      env.hooks.keyword('view', morph, env, scope, [helper.viewClass], _hash, templates.template.raw, null, visitor);
+      env.hooks.keyword("view", morph, env, scope, [helper.viewClass], hash, templates.template.raw, null, visitor);
+      // Opts into a special mode for view helpers
       return { handled: true };
-    } else if (helper && helper.helperFunction) {
-      var helperFunc = helper.helperFunction;
-      return { value: helperFunc.call({}, _params, _hash, templates, env, scope) };
-    }
-  }
-
-  // We don't want to leak mutable cells into helpers, which
-  // are pure functions that can only work with values.
-  function getArrayValues(params) {
-    var out = [];
-    for (var i = 0, l = params.length; i < l; i++) {
-      out.push((0, _emberHtmlbarsHooksGetValue.default)(params[i]));
     }
 
-    return out;
-  }
+    var helperStream = (0, _emberHtmlbarsSystemInvokeHelper.buildHelperStream)(helper, params, hash, templates, env, scope, context);
 
-  function getHashValues(hash) {
-    var out = {};
-    for (var prop in hash) {
-      out[prop] = (0, _emberHtmlbarsHooksGetValue.default)(hash[prop]);
+    // Ember.Helper helpers are pure values, thus linkable
+    if (helperStream.linkable) {
+      return { link: true, value: helperStream };
     }
 
-    return out;
+    // Legacy helpers are not linkable, they must run every rerender
+    return { value: helperStream.value() };
   }
 });
 // Ember.assert
@@ -7866,7 +7932,7 @@ enifed("ember-htmlbars/hooks/lookup-helper", ["exports", "ember-htmlbars/system/
     return (0, _emberHtmlbarsSystemLookupHelper.default)(helperName, scope.self, env);
   }
 });
-enifed("ember-htmlbars/hooks/subexpr", ["exports", "ember-htmlbars/system/lookup-helper", "ember-metal/merge", "ember-metal/streams/stream", "ember-metal/platform/create", "ember-metal/streams/utils"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberMetalMerge, _emberMetalStreamsStream, _emberMetalPlatformCreate, _emberMetalStreamsUtils) {
+enifed("ember-htmlbars/hooks/subexpr", ["exports", "ember-htmlbars/system/lookup-helper", "ember-htmlbars/system/invoke-helper", "ember-metal/streams/utils"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsSystemInvokeHelper, _emberMetalStreamsUtils) {
   exports.default = subexpr;
 
   function subexpr(env, scope, helperName, params, hash) {
@@ -7877,15 +7943,20 @@ enifed("ember-htmlbars/hooks/subexpr", ["exports", "ember-htmlbars/system/lookup
       return keyword(null, env, scope, params, hash, null, null);
     }
 
-    var helper = (0, _emberHtmlbarsSystemLookupHelper.default)(helperName, scope.self, env);
-    var invoker = function (params, hash) {
-      return env.hooks.invokeHelper(null, env, scope, null, params, hash, helper, { template: {}, inverse: {} }, undefined).value;
-    };
-
-    //Ember.assert("A helper named '"+helperName+"' could not be found", typeof helper === 'function');
-
     var label = labelForSubexpr(params, hash, helperName);
-    return new SubexprStream(params, hash, invoker, label);
+    var helper = (0, _emberHtmlbarsSystemLookupHelper.default)(helperName, scope.self, env);
+
+    var helperStream = (0, _emberHtmlbarsSystemInvokeHelper.buildHelperStream)(helper, params, hash, { template: {}, inverse: {} }, env, scope, label);
+
+    for (var i = 0, l = params.length; i < l; i++) {
+      helperStream.addDependency(params[i]);
+    }
+
+    for (var key in hash) {
+      helperStream.addDependency(hash[key]);
+    }
+
+    return helperStream;
   }
 
   function labelForSubexpr(params, hash, helperName) {
@@ -7916,29 +7987,6 @@ enifed("ember-htmlbars/hooks/subexpr", ["exports", "ember-htmlbars/system/lookup
 
     return out.join(" ");
   }
-
-  function SubexprStream(params, hash, helper, label) {
-    this.init(label);
-    this.params = params;
-    this.hash = hash;
-    this.helper = helper;
-
-    for (var i = 0, l = params.length; i < l; i++) {
-      this.addDependency(params[i]);
-    }
-
-    for (var key in hash) {
-      this.addDependency(hash[key]);
-    }
-  }
-
-  SubexprStream.prototype = (0, _emberMetalPlatformCreate.default)(_emberMetalStreamsStream.default.prototype);
-
-  (0, _emberMetalMerge.default)(SubexprStream.prototype, {
-    compute: function () {
-      return this.helper((0, _emberMetalStreamsUtils.readArray)(this.params), (0, _emberMetalStreamsUtils.readHash)(this.hash));
-    }
-  });
 });
 /**
 @module ember
@@ -8512,7 +8560,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+071630b8";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9551,6 +9599,126 @@ enifed("ember-htmlbars/node-managers/view-node-manager", ["exports", "ember-meta
 // be safe to import this until we make the hook system public
 // and it gets actively used in addons or other downstream
 // libraries.
+enifed("ember-htmlbars/streams/built-in-helper", ["exports", "ember-metal/streams/stream", "ember-metal/platform/create", "ember-metal/merge", "ember-htmlbars/streams/utils"], function (exports, _emberMetalStreamsStream, _emberMetalPlatformCreate, _emberMetalMerge, _emberHtmlbarsStreamsUtils) {
+  exports.default = BuiltInHelperStream;
+
+  function BuiltInHelperStream(helper, params, hash, templates, env, scope, context, label) {
+    this.init(label);
+    this.helper = helper;
+    this.params = params;
+    this.templates = templates;
+    this.env = env;
+    this.scope = scope;
+    this.hash = hash;
+    this.context = context;
+  }
+
+  BuiltInHelperStream.prototype = (0, _emberMetalPlatformCreate.default)(_emberMetalStreamsStream.default.prototype);
+
+  (0, _emberMetalMerge.default)(BuiltInHelperStream.prototype, {
+    compute: function () {
+      // Using call and undefined is probably not needed, these are only internal
+      return this.helper.call(this.context, (0, _emberHtmlbarsStreamsUtils.getArrayValues)(this.params), (0, _emberHtmlbarsStreamsUtils.getHashValues)(this.hash), this.templates, this.env, this.scope);
+    }
+  });
+});
+enifed("ember-htmlbars/streams/compat-helper", ["exports", "ember-metal/streams/stream", "ember-metal/platform/create", "ember-metal/merge"], function (exports, _emberMetalStreamsStream, _emberMetalPlatformCreate, _emberMetalMerge) {
+  exports.default = CompatHelperStream;
+
+  function CompatHelperStream(helper, params, hash, templates, env, scope, label) {
+    this.init(label);
+    this.helper = helper.helperFunction;
+    this.params = params;
+    this.templates = templates;
+    this.env = env;
+    this.scope = scope;
+    this.hash = hash;
+  }
+
+  CompatHelperStream.prototype = (0, _emberMetalPlatformCreate.default)(_emberMetalStreamsStream.default.prototype);
+
+  (0, _emberMetalMerge.default)(CompatHelperStream.prototype, {
+    compute: function () {
+      // Using call and undefined is probably not needed, these are only internal
+      return this.helper.call(undefined, this.params, this.hash, this.templates, this.env, this.scope);
+    }
+  });
+});
+enifed("ember-htmlbars/streams/helper-factory", ["exports", "ember-metal/streams/stream", "ember-metal/platform/create", "ember-metal/merge", "ember-htmlbars/streams/utils"], function (exports, _emberMetalStreamsStream, _emberMetalPlatformCreate, _emberMetalMerge, _emberHtmlbarsStreamsUtils) {
+  exports.default = HelperFactoryStream;
+
+  function HelperFactoryStream(helperFactory, params, hash, label) {
+    this.init(label);
+    this.helperFactory = helperFactory;
+    this.params = params;
+    this.hash = hash;
+    this.linkable = true;
+    this.helper = null;
+  }
+
+  HelperFactoryStream.prototype = (0, _emberMetalPlatformCreate.default)(_emberMetalStreamsStream.default.prototype);
+
+  (0, _emberMetalMerge.default)(HelperFactoryStream.prototype, {
+    compute: function () {
+      if (!this.helper) {
+        this.helper = this.helperFactory.create({ _stream: this });
+      }
+      return this.helper.compute((0, _emberHtmlbarsStreamsUtils.getArrayValues)(this.params), (0, _emberHtmlbarsStreamsUtils.getHashValues)(this.hash));
+    },
+    deactivate: function () {
+      this.super$deactivate();
+      if (this.helper) {
+        this.helper.destroy();
+        this.helper = null;
+      }
+    },
+    super$deactivate: HelperFactoryStream.prototype.deactivate
+  });
+});
+enifed("ember-htmlbars/streams/helper-instance", ["exports", "ember-metal/streams/stream", "ember-metal/platform/create", "ember-metal/merge", "ember-htmlbars/streams/utils"], function (exports, _emberMetalStreamsStream, _emberMetalPlatformCreate, _emberMetalMerge, _emberHtmlbarsStreamsUtils) {
+  exports.default = HelperInstanceStream;
+
+  function HelperInstanceStream(helper, params, hash, label) {
+    this.init(label);
+    this.helper = helper;
+    this.params = params;
+    this.hash = hash;
+    this.linkable = true;
+  }
+
+  HelperInstanceStream.prototype = (0, _emberMetalPlatformCreate.default)(_emberMetalStreamsStream.default.prototype);
+
+  (0, _emberMetalMerge.default)(HelperInstanceStream.prototype, {
+    compute: function () {
+      return this.helper.compute((0, _emberHtmlbarsStreamsUtils.getArrayValues)(this.params), (0, _emberHtmlbarsStreamsUtils.getHashValues)(this.hash));
+    }
+  });
+});
+enifed("ember-htmlbars/streams/utils", ["exports", "ember-htmlbars/hooks/get-value"], function (exports, _emberHtmlbarsHooksGetValue) {
+  exports.getArrayValues = getArrayValues;
+  exports.getHashValues = getHashValues;
+
+  // We don't want to leak mutable cells into helpers, which
+  // are pure functions that can only work with values.
+
+  function getArrayValues(params) {
+    var out = [];
+    for (var i = 0, l = params.length; i < l; i++) {
+      out.push((0, _emberHtmlbarsHooksGetValue.default)(params[i]));
+    }
+
+    return out;
+  }
+
+  function getHashValues(hash) {
+    var out = {};
+    for (var prop in hash) {
+      out[prop] = (0, _emberHtmlbarsHooksGetValue.default)(hash[prop]);
+    }
+
+    return out;
+  }
+});
 enifed("ember-htmlbars/system/append-templated-view", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-views/views/view"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberViewsViewsView) {
   exports.default = appendTemplatedView;
 
@@ -9757,14 +9925,40 @@ enifed('ember-htmlbars/system/instrumentation-support', ['exports', 'ember-metal
     }
   }
 });
-enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "ember-metal/cache", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/compat/helper"], function (exports, _emberMetalCore, _emberMetalCache, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsCompatHelper) {
+enifed("ember-htmlbars/system/invoke-helper", ["exports", "ember-htmlbars/streams/helper-instance", "ember-htmlbars/streams/helper-factory", "ember-htmlbars/streams/built-in-helper", "ember-htmlbars/streams/compat-helper"], function (exports, _emberHtmlbarsStreamsHelperInstance, _emberHtmlbarsStreamsHelperFactory, _emberHtmlbarsStreamsBuiltInHelper, _emberHtmlbarsStreamsCompatHelper) {
+  exports.buildHelperStream = buildHelperStream;
+
+  function buildHelperStream(helper, params, hash, templates, env, scope, context, label) {
+    Ember.assert("Helpers may not be used in the block form, for example {{#my-helper}}{{/my-helper}}. Please use a component, or alternatively use the helper in combination with a built-in Ember helper, for example {{#if (my-helper)}}{{/if}}.", !helper.isHelperInstance || !helper.isHelperFactory && !templates.template.meta);
+    if (helper.isHelperFactory) {
+      return new _emberHtmlbarsStreamsHelperFactory.default(helper, params, hash, label);
+    } else if (helper.isHelperInstance) {
+      return new _emberHtmlbarsStreamsHelperInstance.default(helper, params, hash, label);
+    } else if (helper.helperFunction) {
+      return new _emberHtmlbarsStreamsCompatHelper.default(helper, params, hash, templates, env, scope, label);
+    } else {
+      return new _emberHtmlbarsStreamsBuiltInHelper.default(helper, params, hash, templates, env, scope, context, label);
+    }
+  }
+});
+enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "ember-metal/cache", "ember-htmlbars/compat/helper"], function (exports, _emberMetalCore, _emberMetalCache, _emberHtmlbarsCompatHelper) {
+  exports.validateLazyHelperName = validateLazyHelperName;
   exports.findHelper = findHelper;
   exports.default = lookupHelper;
-  var ISNT_HELPER_CACHE = new _emberMetalCache.default(1000, function (key) {
-    return key.indexOf("-") === -1;
+  var CONTAINS_DASH_CACHE = new _emberMetalCache.default(1000, function (key) {
+    return key.indexOf("-") !== -1;
   });
 
-  exports.ISNT_HELPER_CACHE = ISNT_HELPER_CACHE;
+  exports.CONTAINS_DASH_CACHE = CONTAINS_DASH_CACHE;
+
+  function validateLazyHelperName(helperName, container, keywords) {
+    return container && CONTAINS_DASH_CACHE.get(helperName) && !(helperName in keywords);
+  }
+
+  function isLegacyBareHelper(helper) {
+    return helper && (!helper.isHelperFactory && !helper.isHelperInstance && !helper.isHTMLBars);
+  }
+
   /**
     Used to lookup/resolve handlebars helpers. The lookup order is:
   
@@ -9782,37 +9976,19 @@ enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "e
 
   function findHelper(name, view, env) {
     var helper = env.helpers[name];
-    if (helper) {
-      return helper;
-    }
 
-    var container = env.container;
-
-    if (!container || ISNT_HELPER_CACHE.get(name)) {
-      return;
-    }
-
-    if (name in env.hooks.keywords) {
-      return;
-    }
-
-    var helperName = "helper:" + name;
-    helper = container.lookup(helperName);
     if (!helper) {
-      var componentLookup = container.lookup("component-lookup:main");
-      _emberMetalCore.default.assert("Could not find 'component-lookup:main' on the provided container," + " which is necessary for performing component lookups", componentLookup);
-
-      var Component = componentLookup.lookupFactory(name, container);
-      if (Component) {
-        helper = (0, _emberHtmlbarsSystemMakeViewHelper.default)(Component);
-        container._registry.register(helperName, helper);
+      var container = env.container;
+      if (validateLazyHelperName(name, container, env.hooks.keywords)) {
+        var helperName = "helper:" + name;
+        if (container._registry.has(helperName)) {
+          helper = container.lookupFactory(helperName);
+          if (isLegacyBareHelper(helper)) {
+            _emberMetalCore.default.deprecate("The helper \"" + name + "\" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.");
+            helper = new _emberHtmlbarsCompatHelper.default(helper);
+          }
+        }
       }
-    }
-
-    if (helper && !helper.isHTMLBars) {
-      helper = new _emberHtmlbarsCompatHelper.default(helper);
-      container._registry.unregister(helperName);
-      container._registry.register(helperName, helper);
     }
 
     return helper;
@@ -9857,7 +10033,7 @@ enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports)
     };
   }
 });
-enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/system/helper", "ember-metal/streams/utils"], function (exports, _emberHtmlbarsSystemHelper, _emberMetalStreamsUtils) {
+enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/helper"], function (exports, _emberHtmlbarsHelper) {
   exports.default = makeBoundHelper;
 
   /**
@@ -9905,10 +10081,7 @@ enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/sy
   */
 
   function makeBoundHelper(fn) {
-    return new _emberHtmlbarsSystemHelper.default(function (params, hash, templates) {
-      Ember.assert("makeBoundHelper generated helpers do not support use with blocks", !templates.template.meta);
-      return fn((0, _emberMetalStreamsUtils.readArray)(params), (0, _emberMetalStreamsUtils.readHash)(hash));
-    });
+    return (0, _emberHtmlbarsHelper.helper)(fn);
   }
 });
 /**
@@ -10897,7 +11070,7 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/l
     if (!container) {
       return false;
     }
-    if (_emberHtmlbarsSystemLookupHelper.ISNT_HELPER_CACHE.get(path)) {
+    if (!_emberHtmlbarsSystemLookupHelper.CONTAINS_DASH_CACHE.get(path)) {
       return false;
     }
     return container._registry.has('component:' + path) || container._registry.has('template:components/' + path);
@@ -14115,7 +14288,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9e3c1655
+    @version 2.0.0-canary+071630b8
     @public
   */
 
@@ -14147,11 +14320,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9e3c1655'
+    @default '2.0.0-canary+071630b8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9e3c1655';
+  Ember.VERSION = '2.0.0-canary+071630b8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14196,7 +14369,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true,"ember-htmlbars-get-helper":null}; //jshint ignore:line
+  Ember.FEATURES = {"features-stripped-test":null,"ember-routing-named-substates":true,"mandatory-setter":true,"ember-htmlbars-component-generation":null,"ember-htmlbars-component-helper":true,"ember-htmlbars-inline-if-helper":true,"ember-htmlbars-attribute-syntax":true,"ember-htmlbars-each-in":null,"ember-routing-transitioning-classes":true,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-instance-initializers":true,"ember-application-initializer-context":true,"ember-router-willtransition":true,"ember-application-visit":null,"ember-views-component-block-info":true,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-htmlbars-improved-actions":true,"ember-htmlbars-get-helper":null,"ember-htmlbars-helper":true}; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -19993,7 +20166,7 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
       var object = this.sourceDep.getValue();
       if (object !== this.observedObject) {
-        this.deactivate();
+        this._clearObservedObject();
 
         if (object && typeof object === 'object') {
           (0, _emberMetalObserver.addObserver)(object, this.key, this, this.notify);
@@ -20004,13 +20177,16 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
     _super$deactivate: _emberMetalStreamsStream.default.prototype.deactivate,
 
-    deactivate: function () {
-      this._super$deactivate();
-
+    _clearObservedObject: function () {
       if (this.observedObject) {
         (0, _emberMetalObserver.removeObserver)(this.observedObject, this.key, this, this.notify);
         this.observedObject = null;
       }
+    },
+
+    deactivate: function () {
+      this._super$deactivate();
+      this._clearObservedObject();
     }
   });
 
@@ -20218,7 +20394,7 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
 
     revalidate: function (value) {
       if (value !== this.observedProxy) {
-        this.deactivate();
+        this._clearObservedProxy();
 
         ProxyMixin = ProxyMixin || _emberMetalCore.default.__loader.require("ember-runtime/mixins/-proxy").default;
 
@@ -20229,11 +20405,15 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
       }
     },
 
-    deactivate: function () {
+    _clearObservedProxy: function () {
       if (this.observedProxy) {
         (0, _emberMetalObserver.removeObserver)(this.observedProxy, "content", this, this.notify);
         this.observedProxy = null;
       }
+    },
+
+    deactivate: function () {
+      this._clearObservedProxy();
     },
 
     compute: function () {
@@ -22985,7 +23165,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+071630b8";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
   if (_emberMetalCore.default.FEATURES.isEnabled("ember-routing-transitioning-classes")) {
@@ -23485,7 +23665,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+071630b8";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40111,7 +40291,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+9e3c1655",
+        revision: "Ember@2.0.0-canary+071630b8",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42252,10 +42432,9 @@ enifed("ember-views/compat/render_buffer", ["exports", "ember-views/system/jquer
 enifed("ember-views/component_lookup", ["exports", "ember-metal/core", "ember-runtime/system/object", "ember-htmlbars/system/lookup-helper"], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberHtmlbarsSystemLookupHelper) {
   exports.default = _emberRuntimeSystemObject.default.extend({
     invalidName: function (name) {
-      var invalidName = _emberHtmlbarsSystemLookupHelper.ISNT_HELPER_CACHE.get(name);
-
-      if (invalidName) {
+      if (!_emberHtmlbarsSystemLookupHelper.CONTAINS_DASH_CACHE.get(name)) {
         _emberMetalCore.default.assert("You cannot use '" + name + "' as a component name. Component names must contain a hyphen.");
+        return true;
       }
     },
 
@@ -45270,7 +45449,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+9e3c1655";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+071630b8";
 
   /**
   @module ember
@@ -48353,7 +48532,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
   */
 
   var base = {
-    acceptExpression: function (node, morph, env, scope) {
+    acceptExpression: function (node, env, scope) {
       var ret = { value: null };
 
       // Primitive literals are unambiguously non-array representations of
@@ -48368,68 +48547,65 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
         case "value":
           ret.value = node[1];break;
         case "get":
-          ret.value = this.get(node, morph, env, scope);break;
+          ret.value = this.get(node, env, scope);break;
         case "subexpr":
-          ret.value = this.subexpr(node, morph, env, scope);break;
+          ret.value = this.subexpr(node, env, scope);break;
         case "concat":
-          ret.value = this.concat(node, morph, env, scope);break;
+          ret.value = this.concat(node, env, scope);break;
       }
 
       return ret;
     },
 
-    acceptParamsAndHash: function (env, scope, morph, path, params, hash) {
-      params = params && this.acceptParams(params, morph, env, scope);
-      hash = hash && this.acceptHash(hash, morph, env, scope);
-
-      (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, path, params, hash);
-      return [params, hash];
-    },
-
-    acceptParams: function (nodes, morph, env, scope) {
-      if (morph.linkedParams) {
-        return morph.linkedParams.params;
-      }
-
+    acceptParams: function (nodes, env, scope) {
       var arr = new Array(nodes.length);
 
       for (var i = 0, l = nodes.length; i < l; i++) {
-        arr[i] = this.acceptExpression(nodes[i], morph, env, scope, null, null).value;
+        arr[i] = this.acceptExpression(nodes[i], env, scope).value;
       }
 
       return arr;
     },
 
-    acceptHash: function (pairs, morph, env, scope) {
-      if (morph.linkedParams) {
-        return morph.linkedParams.hash;
-      }
-
+    acceptHash: function (pairs, env, scope) {
       var object = {};
 
       for (var i = 0, l = pairs.length; i < l; i += 2) {
-        object[pairs[i]] = this.acceptExpression(pairs[i + 1], morph, env, scope, null, null).value;
+        object[pairs[i]] = this.acceptExpression(pairs[i + 1], env, scope).value;
       }
 
       return object;
     },
 
     // [ 'get', path ]
-    get: function (node, morph, env, scope) {
+    get: function (node, env, scope) {
       return env.hooks.get(env, scope, node[1]);
     },
 
     // [ 'subexpr', path, params, hash ]
-    subexpr: function (node, morph, env, scope) {
+    subexpr: function (node, env, scope) {
       var path = node[1],
           params = node[2],
           hash = node[3];
-      return env.hooks.subexpr(env, scope, path, this.acceptParams(params, morph, env, scope), this.acceptHash(hash, morph, env, scope));
+      return env.hooks.subexpr(env, scope, path, this.acceptParams(params, env, scope), this.acceptHash(hash, env, scope));
     },
 
     // [ 'concat', parts ]
-    concat: function (node, morph, env, scope) {
-      return env.hooks.concat(env, this.acceptParams(node[1], morph, env, scope));
+    concat: function (node, env, scope) {
+      return env.hooks.concat(env, this.acceptParams(node[1], env, scope));
+    },
+
+    linkParamsAndHash: function (env, scope, morph, path, params, hash) {
+      if (morph.linkedParams) {
+        params = morph.linkedParams.params;
+        hash = morph.linkedParams.hash;
+      } else {
+        params = params && this.acceptParams(params, env, scope);
+        hash = hash && this.acceptHash(hash, env, scope);
+      }
+
+      (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, path, params, hash);
+      return [params, hash];
     }
   };
 
@@ -48441,7 +48617,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
           hash = node[3],
           templateId = node[4],
           inverseId = node[5];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.block(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templateId === null ? null : template.templates[templateId], inverseId === null ? null : template.templates[inverseId], visitor);
@@ -48452,7 +48628,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
       var path = node[1],
           params = node[2],
           hash = node[3];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.inline(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
@@ -48466,6 +48642,9 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
 
       if (isHelper(env, scope, path)) {
         env.hooks.inline(morph, env, scope, path, [], {}, visitor);
+        if (morph.linkedResult) {
+          (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, "@content-helper", [morph.linkedResult], null);
+        }
         return;
       }
 
@@ -48485,7 +48664,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
       var path = node[1],
           params = node[2],
           hash = node[3];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.element(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
@@ -48495,7 +48674,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
     attribute: function (node, morph, env, scope) {
       var name = node[1],
           value = node[2];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, "@attribute", [value], null);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, "@attribute", [value], null);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.attribute(morph, env, scope, name, paramsAndHash[0][0]);
@@ -48507,7 +48686,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
           attrs = node[2],
           templateId = node[3],
           inverseId = node[4];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, [], attrs);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, [], attrs);
       var templates = {
         default: template.templates[templateId],
         inverse: template.templates[inverseId]
@@ -49351,13 +49530,14 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       var helper = env.hooks.lookupHelper(env, scope, path);
       var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
 
-      if (result && "value" in result) {
-        value = result.value;
-        hasValue = true;
-      }
-
       if (result && result.link) {
         morph.linkedResult = result.value;
+        (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, "@content-helper", [morph.linkedResult], null);
+      }
+
+      if (result && "value" in result) {
+        value = env.hooks.getValue(result.value);
+        hasValue = true;
       }
     }
 
@@ -49574,7 +49754,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     var helper = env.hooks.lookupHelper(env, scope, helperName);
     var result = env.hooks.invokeHelper(null, env, scope, null, params, hash, helper, {});
     if (result && "value" in result) {
-      return result.value;
+      return env.hooks.getValue(result.value);
     }
   }
 
@@ -50136,7 +50316,7 @@ enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-u
   exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
   exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
-enifed("htmlbars-util/array-utils", ["exports"], function (exports) {
+enifed('htmlbars-util/array-utils', ['exports'], function (exports) {
   exports.forEach = forEach;
   exports.map = map;
 
@@ -50185,6 +50365,11 @@ enifed("htmlbars-util/array-utils", ["exports"], function (exports) {
     };
   }
 
+  var isArray = Array.isArray || function (array) {
+    return Object.prototype.toString.call(array) === '[object Array]';
+  };
+
+  exports.isArray = isArray;
   var indexOfArray = getIdx;
   exports.indexOfArray = indexOfArray;
 });
@@ -50543,7 +50728,7 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
 enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
   exports.default = _handlebarsSafeString.default;
 });
-enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilMorphUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils", "./array-utils"], function (exports, _htmlbarsUtilMorphUtils, _arrayUtils) {
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
@@ -50593,7 +50778,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     if (!blocks) {
       return;
     }
-    if (typeof blocks === 'function') {
+    if (typeof blocks === "function") {
       env.hooks.bindBlock(env, shadowScope, blocks);
     } else {
       for (var name in blocks) {
@@ -50634,7 +50819,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     }
 
     if (toClear) {
-      if (Object.prototype.toString.call(toClear) === '[object Array]') {
+      if ((0, _arrayUtils.isArray)(toClear)) {
         for (var i = 0, l = toClear.length; i < l; i++) {
           clearMorph(toClear[i], env);
         }

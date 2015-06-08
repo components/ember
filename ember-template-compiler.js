@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9e3c1655
+ * @version   2.0.0-canary+071630b8
  */
 
 (function() {
@@ -3203,7 +3203,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9e3c1655
+    @version 2.0.0-canary+071630b8
     @public
   */
 
@@ -3235,11 +3235,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9e3c1655'
+    @default '2.0.0-canary+071630b8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9e3c1655';
+  Ember.VERSION = '2.0.0-canary+071630b8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3284,7 +3284,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-htmlbars-each-in': null, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-routing-route-configured-query-params': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': null }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': null, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': null, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-htmlbars-each-in': null, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': null, 'ember-metal-stream': null, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': null, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': null, 'ember-routing-route-configured-query-params': null, 'ember-libraries-isregistered': null, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': null, 'ember-htmlbars-helper': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -9081,7 +9081,7 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
       var object = this.sourceDep.getValue();
       if (object !== this.observedObject) {
-        this.deactivate();
+        this._clearObservedObject();
 
         if (object && typeof object === 'object') {
           (0, _emberMetalObserver.addObserver)(object, this.key, this, this.notify);
@@ -9092,13 +9092,16 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/core', 'ember-
 
     _super$deactivate: _emberMetalStreamsStream.default.prototype.deactivate,
 
-    deactivate: function () {
-      this._super$deactivate();
-
+    _clearObservedObject: function () {
       if (this.observedObject) {
         (0, _emberMetalObserver.removeObserver)(this.observedObject, this.key, this, this.notify);
         this.observedObject = null;
       }
+    },
+
+    deactivate: function () {
+      this._super$deactivate();
+      this._clearObservedObject();
     }
   });
 
@@ -9306,7 +9309,7 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
 
     revalidate: function (value) {
       if (value !== this.observedProxy) {
-        this.deactivate();
+        this._clearObservedProxy();
 
         ProxyMixin = ProxyMixin || _emberMetalCore.default.__loader.require("ember-runtime/mixins/-proxy").default;
 
@@ -9317,11 +9320,15 @@ enifed("ember-metal/streams/stream", ["exports", "ember-metal/core", "ember-meta
       }
     },
 
-    deactivate: function () {
+    _clearObservedProxy: function () {
       if (this.observedProxy) {
         (0, _emberMetalObserver.removeObserver)(this.observedProxy, "content", this, this.notify);
         this.observedProxy = null;
       }
+    },
+
+    deactivate: function () {
+      this._clearObservedProxy();
     },
 
     compute: function () {
@@ -12199,7 +12206,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+9e3c1655",
+        revision: "Ember@2.0.0-canary+071630b8",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13599,7 +13606,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
   */
 
   var base = {
-    acceptExpression: function (node, morph, env, scope) {
+    acceptExpression: function (node, env, scope) {
       var ret = { value: null };
 
       // Primitive literals are unambiguously non-array representations of
@@ -13614,68 +13621,65 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
         case "value":
           ret.value = node[1];break;
         case "get":
-          ret.value = this.get(node, morph, env, scope);break;
+          ret.value = this.get(node, env, scope);break;
         case "subexpr":
-          ret.value = this.subexpr(node, morph, env, scope);break;
+          ret.value = this.subexpr(node, env, scope);break;
         case "concat":
-          ret.value = this.concat(node, morph, env, scope);break;
+          ret.value = this.concat(node, env, scope);break;
       }
 
       return ret;
     },
 
-    acceptParamsAndHash: function (env, scope, morph, path, params, hash) {
-      params = params && this.acceptParams(params, morph, env, scope);
-      hash = hash && this.acceptHash(hash, morph, env, scope);
-
-      (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, path, params, hash);
-      return [params, hash];
-    },
-
-    acceptParams: function (nodes, morph, env, scope) {
-      if (morph.linkedParams) {
-        return morph.linkedParams.params;
-      }
-
+    acceptParams: function (nodes, env, scope) {
       var arr = new Array(nodes.length);
 
       for (var i = 0, l = nodes.length; i < l; i++) {
-        arr[i] = this.acceptExpression(nodes[i], morph, env, scope, null, null).value;
+        arr[i] = this.acceptExpression(nodes[i], env, scope).value;
       }
 
       return arr;
     },
 
-    acceptHash: function (pairs, morph, env, scope) {
-      if (morph.linkedParams) {
-        return morph.linkedParams.hash;
-      }
-
+    acceptHash: function (pairs, env, scope) {
       var object = {};
 
       for (var i = 0, l = pairs.length; i < l; i += 2) {
-        object[pairs[i]] = this.acceptExpression(pairs[i + 1], morph, env, scope, null, null).value;
+        object[pairs[i]] = this.acceptExpression(pairs[i + 1], env, scope).value;
       }
 
       return object;
     },
 
     // [ 'get', path ]
-    get: function (node, morph, env, scope) {
+    get: function (node, env, scope) {
       return env.hooks.get(env, scope, node[1]);
     },
 
     // [ 'subexpr', path, params, hash ]
-    subexpr: function (node, morph, env, scope) {
+    subexpr: function (node, env, scope) {
       var path = node[1],
           params = node[2],
           hash = node[3];
-      return env.hooks.subexpr(env, scope, path, this.acceptParams(params, morph, env, scope), this.acceptHash(hash, morph, env, scope));
+      return env.hooks.subexpr(env, scope, path, this.acceptParams(params, env, scope), this.acceptHash(hash, env, scope));
     },
 
     // [ 'concat', parts ]
-    concat: function (node, morph, env, scope) {
-      return env.hooks.concat(env, this.acceptParams(node[1], morph, env, scope));
+    concat: function (node, env, scope) {
+      return env.hooks.concat(env, this.acceptParams(node[1], env, scope));
+    },
+
+    linkParamsAndHash: function (env, scope, morph, path, params, hash) {
+      if (morph.linkedParams) {
+        params = morph.linkedParams.params;
+        hash = morph.linkedParams.hash;
+      } else {
+        params = params && this.acceptParams(params, env, scope);
+        hash = hash && this.acceptHash(hash, env, scope);
+      }
+
+      (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, path, params, hash);
+      return [params, hash];
     }
   };
 
@@ -13687,7 +13691,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
           hash = node[3],
           templateId = node[4],
           inverseId = node[5];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.block(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templateId === null ? null : template.templates[templateId], inverseId === null ? null : template.templates[inverseId], visitor);
@@ -13698,7 +13702,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
       var path = node[1],
           params = node[2],
           hash = node[3];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.inline(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
@@ -13712,6 +13716,9 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
 
       if (isHelper(env, scope, path)) {
         env.hooks.inline(morph, env, scope, path, [], {}, visitor);
+        if (morph.linkedResult) {
+          (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, "@content-helper", [morph.linkedResult], null);
+        }
         return;
       }
 
@@ -13731,7 +13738,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
       var path = node[1],
           params = node[2],
           hash = node[3];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, params, hash);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.element(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
@@ -13741,7 +13748,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
     attribute: function (node, morph, env, scope) {
       var name = node[1],
           value = node[2];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, "@attribute", [value], null);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, "@attribute", [value], null);
 
       morph.isDirty = morph.isSubtreeDirty = false;
       env.hooks.attribute(morph, env, scope, name, paramsAndHash[0][0]);
@@ -13753,7 +13760,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
           attrs = node[2],
           templateId = node[3],
           inverseId = node[4];
-      var paramsAndHash = this.acceptParamsAndHash(env, scope, morph, path, [], attrs);
+      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, [], attrs);
       var templates = {
         default: template.templates[templateId],
         inverse: template.templates[inverseId]
@@ -14597,13 +14604,14 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       var helper = env.hooks.lookupHelper(env, scope, path);
       var result = env.hooks.invokeHelper(morph, env, scope, visitor, params, hash, helper, options.templates, thisFor(options.templates));
 
-      if (result && "value" in result) {
-        value = result.value;
-        hasValue = true;
-      }
-
       if (result && result.link) {
         morph.linkedResult = result.value;
+        (0, _htmlbarsUtilMorphUtils.linkParams)(env, scope, morph, "@content-helper", [morph.linkedResult], null);
+      }
+
+      if (result && "value" in result) {
+        value = env.hooks.getValue(result.value);
+        hasValue = true;
       }
     }
 
@@ -14820,7 +14828,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     var helper = env.hooks.lookupHelper(env, scope, helperName);
     var result = env.hooks.invokeHelper(null, env, scope, null, params, hash, helper, {});
     if (result && "value" in result) {
-      return result.value;
+      return env.hooks.getValue(result.value);
     }
   }
 
@@ -15402,33 +15410,36 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   exports.buildProgram = buildProgram;
   // Statements
 
-  function buildMustache(path, params, hash, raw) {
+  function buildMustache(path, params, hash, raw, loc) {
     return {
       type: "MustacheStatement",
       path: path,
       params: params || [],
       hash: hash || buildHash([]),
-      escaped: !raw
+      escaped: !raw,
+      loc: buildLoc(loc)
     };
   }
 
-  function buildBlock(path, params, hash, program, inverse) {
+  function buildBlock(path, params, hash, program, inverse, loc) {
     return {
       type: "BlockStatement",
       path: path,
       params: params || [],
       hash: hash || buildHash([]),
       program: program || null,
-      inverse: inverse || null
+      inverse: inverse || null,
+      loc: buildLoc(loc)
     };
   }
 
-  function buildElementModifier(path, params, hash) {
+  function buildElementModifier(path, params, hash, loc) {
     return {
       type: "ElementModifierStatement",
       path: path,
       params: params || [],
-      hash: hash || buildHash([])
+      hash: hash || buildHash([]),
+      loc: buildLoc(loc)
     };
   }
 
@@ -15468,12 +15479,13 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
     };
   }
 
-  function buildComponent(tag, attributes, program) {
+  function buildComponent(tag, attributes, program, loc) {
     return {
       type: "ComponentNode",
       tag: tag,
       attributes: attributes,
-      program: program
+      program: program,
+      loc: buildLoc(loc)
     };
   }
 
@@ -17124,13 +17136,19 @@ enifed("htmlbars-syntax/node-handlers", ["exports", "./builders", "../htmlbars-u
       var program = block.program ? this.acceptNode(block.program) : null;
       var inverse = block.inverse ? this.acceptNode(block.inverse) : null;
 
-      var node = (0, _builders.buildBlock)(block.path, block.params, block.hash, program, inverse);
+      var node = (0, _builders.buildBlock)(block.path, block.params, block.hash, program, inverse, block.loc);
       var parentProgram = this.currentElement();
       (0, _utils.appendChild)(parentProgram, node);
     },
 
-    MustacheStatement: function (mustache) {
-      delete mustache.strip;
+    MustacheStatement: function (rawMustache) {
+      var path = rawMustache.path;
+      var params = rawMustache.params;
+      var hash = rawMustache.hash;
+      var escaped = rawMustache.escaped;
+      var loc = rawMustache.loc;
+
+      var mustache = _builders.default.mustache(path, params, hash, !escaped, loc);
 
       if (this.tokenizer.state === "comment") {
         this.tokenizer.addChar("{{" + this.sourceForMustache(mustache) + "}}");
@@ -17353,6 +17371,7 @@ enifed("htmlbars-syntax/token-handlers", ["exports", "./builders", "./utils", ".
     StartTag: function (tag) {
       var element = (0, _builders.buildElement)(tag.tagName, tag.attributes, tag.modifiers || [], []);
       element.loc = {
+        source: null,
         start: { line: tag.loc.start.line, column: tag.loc.start.column },
         end: { line: null, column: null }
       };
@@ -17420,12 +17439,15 @@ enifed("htmlbars-syntax/token-handlers", ["exports", "./builders", "./utils", ".
 
       validateEndTag(tag, element, selfClosing);
 
+      element.loc.end.line = tag.loc.end.line;
+      element.loc.end.column = tag.loc.end.column;
+
       if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
         (0, _utils.appendChild)(parent, element);
       } else {
         var program = (0, _builders.buildProgram)(element.children);
         (0, _utils.parseComponentBlockParams)(element, program);
-        var component = (0, _builders.buildComponent)(element.tag, element.attributes, program);
+        var component = (0, _builders.buildComponent)(element.tag, element.attributes, program, element.loc);
         (0, _utils.appendChild)(parent, component);
       }
     }
@@ -17515,7 +17537,12 @@ enifed("htmlbars-syntax/tokenizer", ["exports", "../simple-html-tokenizer", "./u
       this.token.modifiers = [];
     }
 
-    var modifier = _builders.default.elementModifier(mustache.path, mustache.params, mustache.hash);
+    var path = mustache.path;
+    var params = mustache.params;
+    var hash = mustache.hash;
+    var loc = mustache.loc;
+
+    var modifier = _builders.default.elementModifier(path, params, hash, loc);
     this.token.modifiers.push(modifier);
   };
 
@@ -17872,7 +17899,7 @@ enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-u
   exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
   exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
-enifed("htmlbars-util/array-utils", ["exports"], function (exports) {
+enifed('htmlbars-util/array-utils', ['exports'], function (exports) {
   exports.forEach = forEach;
   exports.map = map;
 
@@ -17921,6 +17948,11 @@ enifed("htmlbars-util/array-utils", ["exports"], function (exports) {
     };
   }
 
+  var isArray = Array.isArray || function (array) {
+    return Object.prototype.toString.call(array) === '[object Array]';
+  };
+
+  exports.isArray = isArray;
   var indexOfArray = getIdx;
   exports.indexOfArray = indexOfArray;
 });
@@ -18279,7 +18311,7 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
 enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
   exports.default = _handlebarsSafeString.default;
 });
-enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilMorphUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils", "./array-utils"], function (exports, _htmlbarsUtilMorphUtils, _arrayUtils) {
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
@@ -18329,7 +18361,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     if (!blocks) {
       return;
     }
-    if (typeof blocks === 'function') {
+    if (typeof blocks === "function") {
       env.hooks.bindBlock(env, shadowScope, blocks);
     } else {
       for (var name in blocks) {
@@ -18370,7 +18402,7 @@ enifed('htmlbars-util/template-utils', ['exports', '../htmlbars-util/morph-utils
     }
 
     if (toClear) {
-      if (Object.prototype.toString.call(toClear) === '[object Array]') {
+      if ((0, _arrayUtils.isArray)(toClear)) {
         for (var i = 0, l = toClear.length; i < l; i++) {
           clearMorph(toClear[i], env);
         }
