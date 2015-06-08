@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+50cf18fa
+ * @version   2.0.0-canary+17fcf1c1
  */
 
 (function() {
@@ -4997,7 +4997,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+50cf18fa
+    @version 2.0.0-canary+17fcf1c1
     @public
   */
 
@@ -5029,11 +5029,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+50cf18fa'
+    @default '2.0.0-canary+17fcf1c1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+50cf18fa';
+  Ember.VERSION = '2.0.0-canary+17fcf1c1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17031,7 +17031,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       iterations so make sure you setup the context with a fresh state whenever
       the index parameter is 0.
        Generally iterators will continue to call `nextObject` until the index
-      reaches the your current length-1. If you run out of data before this
+      reaches the current length-1. If you run out of data before this
       time for some reason, you should simply return undefined.
        The default implementation of this method simply looks up the index.
       This works great on any Array-like objects.
