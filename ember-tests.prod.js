@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cb00d378
+ * @version   2.0.0-canary+aa7666fe
  */
 
 (function() {
@@ -13,8 +13,12 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
+  var isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
-  Ember = this.Ember = this.Ember || {};
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
   if (typeof Ember === 'undefined') { Ember = {}; };
 
   if (typeof Ember.__loader === 'undefined') {
@@ -47466,6 +47470,53 @@ enifed("ember-template-compiler/tests/plugins_test", ["exports", "ember-template
     }, /Attempting to register "whatever" as "asdf" which is not a valid HTMLBars plugin type./);
   });
 });
+enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile_options'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile_options) {
+
+  function comparePlugins(options) {
+    var results = (0, _emberTemplateCompilerSystemCompile_options.default)(options);
+    var expectedPlugins = _emberTemplateCompilerPlugins.default.ast.slice();
+
+    expectedPlugins = expectedPlugins.concat(options.plugins.ast.slice());
+
+    deepEqual(results.plugins.ast, expectedPlugins);
+  }
+
+  QUnit.module('ember-htmlbars: compile_options');
+
+  QUnit.test('repeated function calls should be able to have separate plugins', function () {
+    comparePlugins({
+      plugins: {
+        ast: ['foo', 'bar']
+      }
+    });
+
+    comparePlugins({
+      plugins: {
+        ast: ['baz', 'qux']
+      }
+    });
+  });
+
+  QUnit.test('options is not required', function () {
+    var results = (0, _emberTemplateCompilerSystemCompile_options.default)();
+
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
+
+  QUnit.test('options.plugins is not required', function () {
+    var results = (0, _emberTemplateCompilerSystemCompile_options.default)({});
+
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
+
+  QUnit.test('options.plugins.ast is not required', function () {
+    var results = (0, _emberTemplateCompilerSystemCompile_options.default)({
+      plugins: {}
+    });
+
+    deepEqual(results.plugins.ast, _emberTemplateCompilerPlugins.default.ast.slice());
+  });
+});
 enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-template-compiler/system/compile", "htmlbars-compiler/compiler"], function (exports, _emberTemplateCompilerSystemCompile, _htmlbarsCompilerCompiler) {
 
   QUnit.module("ember-htmlbars: compile");
@@ -47493,7 +47544,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+cb00d378", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+aa7666fe", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

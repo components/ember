@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cb00d378
+ * @version   2.0.0-canary+aa7666fe
  */
 
 (function() {
@@ -13,8 +13,12 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
+  var isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
-  Ember = this.Ember = this.Ember || {};
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
   if (typeof Ember === 'undefined') { Ember = {}; };
 
   if (typeof Ember.__loader === 'undefined') {

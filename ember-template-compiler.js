@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cb00d378
+ * @version   2.0.0-canary+aa7666fe
  */
 
 (function() {
@@ -13,8 +13,12 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
+  var isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
-  Ember = this.Ember = this.Ember || {};
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
   if (typeof Ember === 'undefined') { Ember = {}; };
 
   if (typeof Ember.__loader === 'undefined') {
@@ -3203,7 +3207,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+cb00d378
+    @version 2.0.0-canary+aa7666fe
     @public
   */
 
@@ -3235,11 +3239,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+cb00d378'
+    @default '2.0.0-canary+aa7666fe'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+cb00d378';
+  Ember.VERSION = '2.0.0-canary+aa7666fe';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12180,7 +12184,7 @@ enifed("ember-template-compiler/system/compile", ["exports", "ember-template-com
     return (0, _emberTemplateCompilerSystemTemplate.default)(templateSpec);
   };
 });
-enifed("ember-template-compiler/system/compile_options", ["exports", "ember-metal/core", "ember-template-compiler/plugins"], function (exports, _emberMetalCore, _emberTemplateCompilerPlugins) {
+enifed("ember-template-compiler/system/compile_options", ["exports", "ember-metal/core", "ember-metal/merge", "ember-template-compiler/plugins"], function (exports, _emberMetalCore, _emberMetalMerge, _emberTemplateCompilerPlugins) {
 
   /**
     @private
@@ -12193,20 +12197,30 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
       disableComponentGeneration = false;
     }
 
-    var options = _options || {};
+    var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
     // had a special meaning (long since lost), this just gaurds against
     // `options` being true, and causing an error during compilation.
-    if (options === true) {
+    if (_options === true) {
       options = {};
+    } else {
+      options = (0, _emberMetalMerge.assign)({}, _options);
     }
 
     options.disableComponentGeneration = disableComponentGeneration;
-    options.plugins = _emberTemplateCompilerPlugins.default;
+
+    var plugins = {
+      ast: _emberTemplateCompilerPlugins.default.ast.slice()
+    };
+
+    if (options.plugins && options.plugins.ast) {
+      plugins.ast = plugins.ast.concat(options.plugins.ast);
+    }
+    options.plugins = plugins;
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+cb00d378",
+        revision: "Ember@2.0.0-canary+aa7666fe",
         loc: program.loc,
         moduleName: options.moduleName
       };
