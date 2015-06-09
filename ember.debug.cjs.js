@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+117d0dd5
+ * @version   2.0.0-canary+6127adbf
  */
 
 (function() {
@@ -8556,7 +8556,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+117d0dd5";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+6127adbf";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14287,7 +14287,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+117d0dd5
+    @version 2.0.0-canary+6127adbf
     @public
   */
 
@@ -14319,11 +14319,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+117d0dd5'
+    @default '2.0.0-canary+6127adbf'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+117d0dd5';
+  Ember.VERSION = '2.0.0-canary+6127adbf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23133,7 +23133,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+117d0dd5";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+6127adbf";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23632,7 +23632,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+117d0dd5";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+6127adbf";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40258,7 +40258,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+117d0dd5",
+        revision: "Ember@2.0.0-canary+6127adbf",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44317,12 +44317,16 @@ enifed("ember-views/system/event_dispatcher", ["exports", "ember-metal/core", "e
         var actionId = (0, _emberViewsSystemJquery.default)(evt.currentTarget).attr("data-ember-action");
         var actions = _emberViewsSystemAction_manager.default.registeredActions[actionId];
 
+        // We have to check for actions here since in some cases, jQuery will trigger
+        // an event on `removeChild` (i.e. focusout) after we've already torn down the
+        // action handlers for the view.
+        if (!actions) {
+          return;
+        }
+
         for (var index = 0, _length = actions.length; index < _length; index++) {
           var action = actions[index];
 
-          // We have to check for action here since in some cases, jQuery will trigger
-          // an event on `removeChild` (i.e. focusout) after we've already torn down the
-          // action handlers for the view.
           if (action && action.eventName === eventName) {
             return action.handler(evt);
           }
@@ -45420,7 +45424,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+117d0dd5";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+6127adbf";
 
   /**
   @module ember
