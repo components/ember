@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c471c0f1
+ * @version   2.0.0-canary+7cf35352
  */
 
 (function() {
@@ -3585,30 +3585,7 @@ enifed("ember-application/tests/system/visit_test", ["exports", "ember-metal/fea
 });
 enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
 
-  var originalEnvValue = undefined;
-
-  QUnit.module('ember-debug', {
-    setup: function () {
-      originalEnvValue = _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION;
-      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
-    }
-  });
-
-  QUnit.test('Ember.deprecate does not throw if RAISE_ON_DEPRECATION env value is false', function (assert) {
-    assert.expect(1);
-    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
-
-    try {
-      _emberMetalCore.default.deprecate('Should not throw', false);
-      assert.ok(true, 'Ember.deprecate did not throw');
-    } catch (e) {
-      assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
-    }
-  });
+  QUnit.module('ember-debug');
 
   QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
     expect(3);
@@ -12587,21 +12564,6 @@ enifed("ember-htmlbars/tests/helpers/view_test", ["exports", "ember-views/views/
     }, /Global lookup of App from a Handlebars template is deprecated./);
 
     equal((0, _emberViewsSystemJquery.default)("#fu").text(), "bro");
-  });
-
-  QUnit.test("View lookup in a template using 'view' helper is deprecated", function () {
-    var FuView = viewClass({});
-
-    registry.register("view:fu", FuView);
-
-    view = _emberViewsViewsView.default.extend({
-      template: (0, _emberTemplateCompilerSystemCompile.default)("{{view 'fu'}}"),
-      container: container
-    }).create();
-
-    expectDeprecation(function () {
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-    }, "Using the \"view\" helper is deprecated.");
   });
 
   QUnit.test("View lookup - 'fu'", function () {
@@ -47673,7 +47635,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+c471c0f1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+7cf35352", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

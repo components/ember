@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c471c0f1
+ * @version   2.0.0-canary+7cf35352
  */
 
 (function() {
@@ -8548,7 +8548,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+c471c0f1";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+7cf35352";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8724,7 +8724,6 @@ enifed("ember-htmlbars/keywords/unbound", ["exports", "ember-metal/merge", "embe
 enifed("ember-htmlbars/keywords/view", ["exports", "ember-views/streams/utils", "ember-views/views/view", "ember-htmlbars/node-managers/view-node-manager", "ember-metal/keys"], function (exports, _emberViewsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager, _emberMetalKeys) {
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
-      Ember.deprecate("Using the \"view\" helper is deprecated.", !!Ember.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: "http://emberjs.com/deprecations/v1.x/#toc_ember-view" });
       var read = env.hooks.getValue;
       var targetObject = read(scope.self);
       var viewClassOrInstance = state.viewClassOrInstance;
@@ -14280,7 +14279,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c471c0f1
+    @version 2.0.0-canary+7cf35352
     @public
   */
 
@@ -14312,11 +14311,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c471c0f1'
+    @default '2.0.0-canary+7cf35352'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c471c0f1';
+  Ember.VERSION = '2.0.0-canary+7cf35352';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23126,7 +23125,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+c471c0f1";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+7cf35352";
 
   var linkViewClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23625,7 +23624,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+c471c0f1";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+7cf35352";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40251,7 +40250,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+c471c0f1",
+        revision: "Ember@2.0.0-canary+7cf35352",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45417,7 +45416,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+c471c0f1";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+7cf35352";
 
   /**
   @module ember
