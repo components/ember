@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c471c0f1
+ * @version   2.0.0-canary+f36d8d10
  */
 
 (function() {
@@ -5004,7 +5004,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c471c0f1
+    @version 2.0.0-canary+f36d8d10
     @public
   */
 
@@ -5036,11 +5036,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c471c0f1'
+    @default '2.0.0-canary+f36d8d10'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c471c0f1';
+  Ember.VERSION = '2.0.0-canary+f36d8d10';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14997,7 +14997,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     Then, create a view that binds to your new controller:
   
     ```handlebars
-    {{#each person in MyApp.listController}}
+    {{#each MyApp.listController as |person|}}
       {{person.firstName}} {{person.lastName}}
     {{/each}}
     ```
@@ -15014,7 +15014,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     For example:
   
     ```handlebars
-    {{#each post in controller}}
+    {{#each controller as |post|}}
       <li>{{post.title}} ({{post.titleLength}} characters)</li>
     {{/each}}
     ```
