@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2aefbac4
+ * @version   2.0.0-canary+3189a1e7
  */
 
 (function() {
@@ -47536,7 +47536,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+2aefbac4", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+3189a1e7", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -50383,11 +50383,11 @@ enifed("ember-views/tests/views/checkbox_test", ["exports", "ember-views/views/c
 
   function append() {
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.appendTo("#qunit-fixture");
+      checkboxComponent.appendTo("#qunit-fixture");
     });
   }
 
-  var checkboxView, dispatcher;
+  var checkboxComponent, dispatcher;
 
   QUnit.module("Ember.Checkbox", {
     setup: function () {
@@ -50398,146 +50398,146 @@ enifed("ember-views/tests/views/checkbox_test", ["exports", "ember-views/views/c
     teardown: function () {
       (0, _emberMetalRun_loop.default)(function () {
         dispatcher.destroy();
-        checkboxView.destroy();
+        checkboxComponent.destroy();
       });
     }
   });
 
   QUnit.test("should begin disabled if the disabled attribute is true", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
-    checkboxView.set("disabled", true);
+    checkboxComponent.set("disabled", true);
     append();
 
-    ok(checkboxView.$().is(":disabled"));
+    ok(checkboxComponent.$().is(":disabled"));
   });
 
   QUnit.test("should become disabled if the disabled attribute is changed", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
     append();
-    ok(checkboxView.$().is(":not(:disabled)"));
+    ok(checkboxComponent.$().is(":not(:disabled)"));
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("disabled", true);
+      checkboxComponent.set("disabled", true);
     });
-    ok(checkboxView.$().is(":disabled"));
+    ok(checkboxComponent.$().is(":disabled"));
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("disabled", false);
+      checkboxComponent.set("disabled", false);
     });
-    ok(checkboxView.$().is(":not(:disabled)"));
+    ok(checkboxComponent.$().is(":not(:disabled)"));
   });
 
   QUnit.test("should begin indeterminate if the indeterminate attribute is true", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
-    checkboxView.set("indeterminate", true);
+    checkboxComponent.set("indeterminate", true);
     append();
 
-    equal(checkboxView.$().prop("indeterminate"), true, "Checkbox should be indeterminate");
+    equal(checkboxComponent.$().prop("indeterminate"), true, "Checkbox should be indeterminate");
   });
 
   QUnit.test("should become indeterminate if the indeterminate attribute is changed", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
     append();
 
-    equal(checkboxView.$().prop("indeterminate"), false, "Checkbox should not be indeterminate");
+    equal(checkboxComponent.$().prop("indeterminate"), false, "Checkbox should not be indeterminate");
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("indeterminate", true);
+      checkboxComponent.set("indeterminate", true);
     });
-    equal(checkboxView.$().prop("indeterminate"), true, "Checkbox should be indeterminate");
+    equal(checkboxComponent.$().prop("indeterminate"), true, "Checkbox should be indeterminate");
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("indeterminate", false);
+      checkboxComponent.set("indeterminate", false);
     });
-    equal(checkboxView.$().prop("indeterminate"), false, "Checkbox should not be indeterminate");
+    equal(checkboxComponent.$().prop("indeterminate"), false, "Checkbox should not be indeterminate");
   });
 
   QUnit.test("should support the tabindex property", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("tabindex", 6);
+      checkboxComponent.set("tabindex", 6);
     });
     append();
 
-    equal(checkboxView.$().prop("tabindex"), "6", "the initial checkbox tabindex is set in the DOM");
+    equal(checkboxComponent.$().prop("tabindex"), "6", "the initial checkbox tabindex is set in the DOM");
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("tabindex", 3);
+      checkboxComponent.set("tabindex", 3);
     });
-    equal(checkboxView.$().prop("tabindex"), "3", "the checkbox tabindex changes when it is changed in the view");
+    equal(checkboxComponent.$().prop("tabindex"), "3", "the checkbox tabindex changes when it is changed in the component");
   });
 
   QUnit.test("checkbox name is updated when setting name property of view", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("name", "foo");
+      checkboxComponent.set("name", "foo");
     });
     append();
 
-    equal(checkboxView.$().attr("name"), "foo", "renders checkbox with the name");
+    equal(checkboxComponent.$().attr("name"), "foo", "renders checkbox with the name");
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.set("name", "bar");
+      checkboxComponent.set("name", "bar");
     });
 
-    equal(checkboxView.$().attr("name"), "bar", "updates checkbox after name changes");
+    equal(checkboxComponent.$().attr("name"), "bar", "updates checkbox after name changes");
   });
 
   QUnit.test("checked property mirrors input value", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({});
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({});
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.append();
+      checkboxComponent.append();
     });
 
-    equal((0, _emberMetalProperty_get.get)(checkboxView, "checked"), false, "initially starts with a false value");
-    equal(!!checkboxView.$().prop("checked"), false, "the initial checked property is false");
+    equal((0, _emberMetalProperty_get.get)(checkboxComponent, "checked"), false, "initially starts with a false value");
+    equal(!!checkboxComponent.$().prop("checked"), false, "the initial checked property is false");
 
-    set(checkboxView, "checked", true);
+    set(checkboxComponent, "checked", true);
 
-    equal(checkboxView.$().prop("checked"), true, "changing the value property changes the DOM");
-
-    (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.remove();
-    });
-    (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.append();
-    });
-
-    equal(checkboxView.$().prop("checked"), true, "changing the value property changes the DOM");
+    equal(checkboxComponent.$().prop("checked"), true, "changing the value property changes the DOM");
 
     (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.remove();
+      checkboxComponent.remove();
     });
     (0, _emberMetalRun_loop.default)(function () {
-      set(checkboxView, "checked", false);
-    });
-    (0, _emberMetalRun_loop.default)(function () {
-      checkboxView.append();
+      checkboxComponent.append();
     });
 
-    equal(checkboxView.$().prop("checked"), false, "changing the value property changes the DOM");
+    equal(checkboxComponent.$().prop("checked"), true, "changing the value property changes the DOM");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      checkboxComponent.remove();
+    });
+    (0, _emberMetalRun_loop.default)(function () {
+      set(checkboxComponent, "checked", false);
+    });
+    (0, _emberMetalRun_loop.default)(function () {
+      checkboxComponent.append();
+    });
+
+    equal(checkboxComponent.$().prop("checked"), false, "changing the value property changes the DOM");
   });
 
   QUnit.test("checking the checkbox updates the value", function () {
-    checkboxView = _emberViewsViewsCheckbox.default.create({ checked: true });
+    checkboxComponent = _emberViewsViewsCheckbox.default.create({ checked: true });
     append();
 
-    equal((0, _emberMetalProperty_get.get)(checkboxView, "checked"), true, "precond - initially starts with a true value");
-    equal(!!checkboxView.$().prop("checked"), true, "precond - the initial checked property is true");
+    equal((0, _emberMetalProperty_get.get)(checkboxComponent, "checked"), true, "precond - initially starts with a true value");
+    equal(!!checkboxComponent.$().prop("checked"), true, "precond - the initial checked property is true");
 
     // IE fires 'change' event on blur.
-    checkboxView.$()[0].focus();
-    checkboxView.$()[0].click();
-    checkboxView.$()[0].blur();
+    checkboxComponent.$()[0].focus();
+    checkboxComponent.$()[0].click();
+    checkboxComponent.$()[0].blur();
 
-    equal(!!checkboxView.$().prop("checked"), false, "after clicking a checkbox, the checked property changed");
-    equal((0, _emberMetalProperty_get.get)(checkboxView, "checked"), false, "changing the checkbox causes the view's value to get updated");
+    equal(!!checkboxComponent.$().prop("checked"), false, "after clicking a checkbox, the checked property changed");
+    equal((0, _emberMetalProperty_get.get)(checkboxComponent, "checked"), false, "changing the checkbox causes the view's value to get updated");
   });
 });
 enifed("ember-views/tests/views/collection_test", ["exports", "ember-metal/core", "ember-metal/property_set", "ember-metal/run_loop", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-runtime/system/string", "ember-runtime/system/array_proxy", "ember-runtime/controllers/array_controller", "ember-views/system/jquery", "ember-views/views/collection_view", "ember-views/views/view", "container/registry", "ember-template-compiler/system/compile", "ember-views/tests/test-helpers/get-element-style"], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalEnumerable_utils, _emberMetalMixin, _emberRuntimeSystemString, _emberRuntimeSystemArray_proxy, _emberRuntimeControllersArray_controller, _emberViewsSystemJquery, _emberViewsViewsCollection_view, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle) {
