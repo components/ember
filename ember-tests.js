@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f36d8d10
+ * @version   2.0.0-canary+2aefbac4
  */
 
 (function() {
@@ -29333,9 +29333,9 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test", ["exports", "ember-r
   var container;
   var registry = new _emberRuntimeSystemContainer.Registry();
 
-  // These tests don't rely on the routing service, but LinkView makes
+  // These tests don't rely on the routing service, but LinkComponent makes
   // some assumptions that it will exist. This small stub service ensures
-  // that the LinkView can render without raising an exception.
+  // that the LinkComponent can render without raising an exception.
   //
   // TODO: Add tests that test actual behavior. Currently, all behavior
   // is tested integration-style in the `ember` package.
@@ -30465,8 +30465,18 @@ enifed("ember-routing-views/tests/main_test", ["exports", "ember-routing-views"]
   QUnit.module("ember-routing-views");
 
   QUnit.test("exports correctly", function () {
-    ok(_emberRoutingViews.default.LinkView, "LinkView is exported correctly");
+    ok(_emberRoutingViews.default.LinkComponent, "LinkComponent is exported correctly");
     ok(_emberRoutingViews.default.OutletView, "OutletView is exported correctly");
+  });
+
+  QUnit.test("Ember.LinkView throws a deprecation warning when instantiated", function () {
+    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
+    _emberRoutingViews.default.LinkView.create();
+  });
+
+  QUnit.test("Ember.LinkView throws a deprecation warning when reopened", function () {
+    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
+    _emberRoutingViews.default.LinkView.reopen({});
   });
 });
 enifed("ember-routing/tests/location/auto_location_test", ["exports", "ember-metal/property_get", "ember-metal/run_loop", "ember-metal/merge", "ember-routing/location/auto_location", "ember-routing/location/history_location", "ember-routing/location/hash_location", "ember-routing/location/none_location", "container/registry"], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalMerge, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerRegistry) {
@@ -47673,7 +47683,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+f36d8d10", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+2aefbac4", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -59361,10 +59371,10 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-metal/fea
     function assertLinkStatus($link, url) {
       if (url) {
         equal(normalizeUrl($link.attr("href")), url, "loaded link-to has expected href");
-        ok(!$link.hasClass("i-am-loading"), "loaded linkView has no loadingClass");
+        ok(!$link.hasClass("i-am-loading"), "loaded linkComponent has no loadingClass");
       } else {
         equal(normalizeUrl($link.attr("href")), "#", "unloaded link-to has href='#'");
-        ok($link.hasClass("i-am-loading"), "loading linkView has loadingClass");
+        ok($link.hasClass("i-am-loading"), "loading linkComponent has loadingClass");
       }
     }
 
