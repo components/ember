@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e3f68668
+ * @version   2.0.0-canary+469f4e8e
  */
 
 (function() {
@@ -47716,7 +47716,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+e3f68668", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+469f4e8e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -52634,6 +52634,12 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
   function selectedOptions() {
     return select.get("childViews").mapBy("selected");
   }
+
+  QUnit.test("using the Ember.Select global is deprecated", function (assert) {
+    expectDeprecation(function () {
+      Ember.Select.create();
+    }, /Ember.Select is deprecated./);
+  });
 
   QUnit.test("has 'ember-view' and 'ember-select' CSS classes", function () {
     deepEqual(select.get("classNames"), ["ember-view", "ember-select"]);
