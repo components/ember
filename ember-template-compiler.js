@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+73051225
+ * @version   2.0.0-canary+c81616cf
  */
 
 (function() {
@@ -4177,7 +4177,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+73051225
+    @version 2.0.0-canary+c81616cf
     @public
   */
 
@@ -4209,11 +4209,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+73051225'
+    @default '2.0.0-canary+c81616cf'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+73051225';
+  Ember.VERSION = '2.0.0-canary+c81616cf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13157,7 +13157,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+73051225",
+        revision: "Ember@2.0.0-canary+c81616cf",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -14957,13 +14957,27 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     };
   }
 
+  // Called by a user-land helper to render a template.
   function yieldTemplate(template, env, parentScope, morph, renderState, visitor) {
     return function (blockArguments, self) {
-      renderState.clearMorph = null;
+      // Render state is used to track the progress of the helper (since it
+      // may call into us multiple times). As the user-land helper calls
+      // into library code, we track what needs to be cleaned up after the
+      // helper has returned.
+      //
+      // Here, we remember that a template has been yielded and so we do not
+      // need to remove the previous template. (If no template is yielded
+      // this render by the helper, we assume nothing should be shown and
+      // remove any previous rendered templates.)
+      renderState.morphToClear = null;
 
+      // In this conditional is true, it means that on the previous rendering pass
+      // the helper yielded multiple items via `yieldItem()`, but this time they
+      // are yielding a single template. In that case, we mark the morph list for
+      // cleanup so it is removed from the DOM.
       if (morph.morphList) {
-        renderState.morphList = morph.morphList.firstChildMorph;
-        renderState.morphList = null;
+        (0, _htmlbarsUtilTemplateUtils.clearMorphList)(morph.morphList, morph, env);
+        renderState.morphListToClear = null;
       }
 
       var scope = parentScope;
@@ -14988,20 +15002,33 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function yieldItem(template, env, parentScope, morph, renderState, visitor) {
+    // Initialize state that tracks multiple items being
+    // yielded in.
     var currentMorph = null;
+
+    // Candidate morphs for deletion.
+    var candidates = {};
+
+    // Reuse existing MorphList if this is not a first-time
+    // render.
     var morphList = morph.morphList;
     if (morphList) {
       currentMorph = morphList.firstChildMorph;
-      renderState.morphListStart = currentMorph;
     }
 
-    // This helper function assumes that the morph was already rendered; if this is
-    // called and the morph does not exist, it will result in an infinite loop
+    // Advances the currentMorph pointer to the morph in the previously-rendered
+    // list that matches the yielded key. While doing so, it marks any morphs
+    // that it advances past as candidates for deletion. Assuming those morphs
+    // are not yielded in later, they will be removed in the prune step during
+    // cleanup.
+    // Note that this helper function assumes that the morph being seeked to is
+    // guaranteed to exist in the previous MorphList; if this is called and the
+    // morph does not exist, it will result in an infinite loop
     function advanceToKey(key) {
       var seek = currentMorph;
 
       while (seek.key !== key) {
-        renderState.deletionCandidates[seek.key] = seek;
+        candidates[seek.key] = seek;
         seek = seek.nextMorph;
       }
 
@@ -15014,6 +15041,11 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
       }
 
+      // At least one item has been yielded, so we do not wholesale
+      // clear the last MorphList but instead apply a prune operation.
+      renderState.morphListToClear = null;
+      morph.lastYielded = null;
+
       var morphList, morphMap;
 
       if (!morph.morphList) {
@@ -15025,7 +15057,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morphList = morph.morphList;
       morphMap = morph.morphMap;
 
-      var candidates = renderState.deletionCandidates;
+      // A map of morphs that have been yielded in on this
+      // rendering pass. Any morphs that do not make it into
+      // this list will be pruned from the MorphList during the cleanup
+      // process.
       var handledMorphs = renderState.handledMorphs;
 
       if (currentMorph && currentMorph.key === key) {
@@ -15053,7 +15088,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         yieldTemplate(template, env, parentScope, childMorph, renderState, visitor)(blockArguments, self);
       }
 
-      renderState.clearMorph = morph.childNodes;
+      renderState.morphListToPrune = morphList;
       morph.childNodes = null;
     };
   }
@@ -15072,7 +15107,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   function hostYieldWithShadowTemplate(template, env, parentScope, morph, renderState, visitor) {
     return function (shadowTemplate, env, self, blockArguments) {
-      renderState.clearMorph = null;
+      renderState.morphToClear = null;
 
       if (morph.lastYielded && isStableShadowRoot(template, shadowTemplate, morph.lastYielded)) {
         return morph.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
@@ -15111,10 +15146,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function optionsFor(template, inverse, env, scope, morph, visitor) {
-    // If there was a template yielded last time, set clearMorph so it will be cleared
+    // If there was a template yielded last time, set morphToClear so it will be cleared
     // if no template is yielded on this render.
-    var clearMorph = morph.lastResult ? morph : null;
-    var renderState = new _htmlbarsUtilTemplateUtils.RenderState(clearMorph);
+    var morphToClear = morph.lastResult ? morph : null;
+    var renderState = new _htmlbarsUtilTemplateUtils.RenderState(morphToClear, morph.morphList || null);
 
     return {
       templates: {
@@ -16012,7 +16047,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return renderResult;
   }
 
-  function RenderResult(env, scope, options, rootNode, nodes, fragment, template, shouldSetContent) {
+  function RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent) {
     this.root = rootNode;
     this.fragment = fragment;
 
@@ -16036,6 +16071,8 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     if (options.blockArguments !== undefined) {
       this.bindLocals(options.blockArguments);
     }
+
+    this.initializeNodes(ownerNode);
   }
 
   RenderResult.build = function (env, scope, template, options, contextualElement) {
@@ -16063,12 +16100,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     }
 
     rootNode.childNodes = nodes;
-
-    (0, _htmlbarsUtilArrayUtils.forEach)(nodes, function (node) {
-      initializeNode(node, ownerNode);
-    });
-
-    return new RenderResult(env, scope, options, rootNode, nodes, fragment, template, shouldSetContent);
+    return new RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent);
   };
 
   function manualElement(tagName, attributes) {
@@ -16182,6 +16214,12 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return template;
   }
 
+  RenderResult.prototype.initializeNodes = function (ownerNode) {
+    (0, _htmlbarsUtilArrayUtils.forEach)(this.root.childNodes, function (node) {
+      initializeNode(node, ownerNode);
+    });
+  };
+
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
@@ -16260,7 +16298,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
         case "component":
           visitor.component(statement, morph, env, scope, template, visitor);break;
         case "attributes":
-          visitor.attributes(statement, morph, env, scope, this.root, visitor);break;
+          visitor.attributes(statement, morph, env, scope, this.fragment, visitor);break;
       }
 
       if (env.hooks.didRenderNode) {
@@ -19262,17 +19300,34 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
 enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
   exports.default = _handlebarsSafeString.default;
 });
-enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils", "./array-utils"], function (exports, _htmlbarsUtilMorphUtils, _arrayUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
+  exports.clearMorphList = clearMorphList;
 
-  function RenderState(renderNode) {
-    this.morphListStart = null;
-    this.deletionCandidates = {};
+  function RenderState(renderNode, morphList) {
+    // The morph list that is no longer needed and can be
+    // destroyed.
+    this.morphListToClear = morphList;
+
+    // The morph list that needs to be pruned of any items
+    // that were not yielded on a subsequent render.
+    this.morphListToPrune = null;
+
+    // A map of morphs for each item yielded in during this
+    // rendering pass. Any morphs in the DOM but not in this map
+    // will be pruned during cleanup.
     this.handledMorphs = {};
-    this.clearMorph = renderNode;
+
+    // The morph to clear once rendering is complete. By
+    // default, we set this to the previous morph (to catch
+    // the case where nothing is yielded; in that case, we
+    // should just clear the morph). Otherwise this gets set
+    // to null if anything is rendered.
+    this.morphToClear = renderNode;
+
     this.shadowOptions = null;
   }
 
@@ -19285,6 +19340,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
 
         var scope = blockOptions.scope;
         var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
+        var attributes = blockOptions.attributes;
 
         env.hooks.bindShadowScope(env, parentScope, shadowScope, blockOptions.options);
 
@@ -19297,8 +19353,8 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
         bindBlocks(env, shadowScope, blockOptions.yieldTo);
 
         renderAndCleanup(renderNode, env, options, null, function () {
-          options.renderState.clearMorph = null;
-          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments });
+          options.renderState.morphToClear = null;
+          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments, attributes: attributes });
         });
       }
     };
@@ -19324,24 +19380,37 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
   }
 
   function renderAndCleanup(morph, env, options, shadowOptions, callback) {
-    options.renderState.shadowOptions = shadowOptions;
+    // The RenderState object is used to collect information about what the
+    // helper or hook being invoked has yielded. Once it has finished either
+    // yielding multiple items (via yieldItem) or a single template (via
+    // yieldTemplate), we detect what was rendered and how it differs from
+    // the previous render, cleaning up old state in DOM as appropriate.
+    var renderState = options.renderState;
+    renderState.shadowOptions = shadowOptions;
+
+    // Invoke the callback, instructing it to save information about what it
+    // renders into RenderState.
     var result = callback(options);
 
+    // The hook can opt-out of cleanup if it handled cleanup itself.
     if (result && result.handled) {
       return;
     }
 
-    var toClear = options.renderState.clearMorph;
-    var handledMorphs = options.renderState.handledMorphs;
     var morphMap = morph.morphMap;
-    var morphList = morph.morphList;
 
+    // Walk the morph list, clearing any items that were yielded in a previous
+    // render but were not yielded during this render.
+    var morphList = renderState.morphListToPrune;
     if (morphList) {
+      var handledMorphs = renderState.handledMorphs;
       var item = morphList.firstChildMorph;
 
       while (item) {
         var next = item.nextMorph;
 
+        // If we don't see the key in handledMorphs, it wasn't
+        // yielded in and we can safely remove it from DOM.
         if (!(item.key in handledMorphs)) {
           delete morphMap[item.key];
           clearMorph(item, env, true);
@@ -19352,14 +19421,14 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
       }
     }
 
+    morphList = renderState.morphListToClear;
+    if (morphList) {
+      clearMorphList(morphList, morph, env);
+    }
+
+    var toClear = renderState.morphToClear;
     if (toClear) {
-      if ((0, _arrayUtils.isArray)(toClear)) {
-        for (var i = 0, l = toClear.length; i < l; i++) {
-          clearMorph(toClear[i], env);
-        }
-      } else {
-        clearMorph(toClear, env);
-      }
+      clearMorph(toClear, env);
     }
   }
 
@@ -19399,6 +19468,23 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     morph.lastResult = null;
     morph.lastYielded = null;
     morph.childNodes = null;
+  }
+
+  function clearMorphList(morphList, morph, env) {
+    var item = morphList.firstChildMorph;
+
+    while (item) {
+      var next = item.nextMorph;
+      delete morph.morphMap[item.key];
+      clearMorph(item, env, true);
+      item.destroy();
+
+      item = next;
+    }
+
+    // Remove the MorphList from the morph.
+    morphList.clear();
+    morph.morphList = null;
   }
 });
 enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (exports, _arrayUtils) {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+73051225
+ * @version   2.0.0-canary+c81616cf
  */
 
 (function() {
@@ -9479,6 +9479,40 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
     (0, _emberRuntimeTestsUtils.runAppend)(view);
 
     assertHTML(view, "onetwo");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      items.shiftObject();
+      items.shiftObject();
+    });
+
+    assertHTML(view, "Nothing");
+  });
+
+  QUnit.test("it can move to and from {{else}} properly when the backing array gains and looses items (#11140)", function () {
+    var items = (0, _emberRuntimeSystemNative_array.A)(["one", "two"]);
+    (0, _emberRuntimeTestsUtils.runDestroy)(view);
+    view = _emberViewsViewsView.default.create({
+      template: (0, _emberTemplateCompilerSystemCompile.default)("{{#each view.items}}{{this}}{{else}}Nothing{{/each}}"),
+      items: items
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    assertHTML(view, "onetwo");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      items.shiftObject();
+      items.shiftObject();
+    });
+
+    assertHTML(view, "Nothing");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject("three");
+      items.pushObject("four");
+    });
+
+    assertHTML(view, "threefour");
 
     (0, _emberMetalRun_loop.default)(function () {
       items.shiftObject();
@@ -47534,7 +47568,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+73051225", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+c81616cf", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
