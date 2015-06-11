@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+57dc3206
+ * @version   2.0.0-canary+3a7878f9
  */
 
 (function() {
@@ -5496,6 +5496,67 @@ enifed("ember-htmlbars/tests/attr_nodes/value_test", ["exports", "ember-metal/fe
 });
 
 // jscs:enable validateIndentation
+enifed("ember-htmlbars/tests/compat/controller_keyword_test", ["exports", "ember-views/views/component", "ember-runtime/tests/utils", "ember-template-compiler/system/compile"], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
+
+  var component = undefined;
+
+  QUnit.module("ember-htmlbars: compat - controller keyword (use as a path)", {
+    setup: function () {
+      component = null;
+    },
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+    }
+  });
+
+  QUnit.test("reading the controller keyword is deprecated [DEPRECATED]", function () {
+    var text = "a-prop";
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: text,
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{controller.prop}}")
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    equal(component.$().text(), text, "controller keyword is read");
+  });
+
+  QUnit.test("reading the controller keyword for hash is deprecated [DEPRECATED]", function () {
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: true,
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{if true 'hiho' option=controller.prop}}")
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+  });
+
+  QUnit.test("reading the controller keyword for param is deprecated [DEPRECATED]", function () {
+    var text = "a-prop";
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: true,
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{if controller.prop '" + text + "'}}")
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    equal(component.$().text(), text, "controller keyword is read");
+  });
+
+  QUnit.test("reading the controller keyword for param with block is deprecated [DEPRECATED]", function () {
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: true,
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{#each controller as |things|}}{{/each}}")
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+  });
+});
 enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-metal/core", "ember-views/views/view", "ember-htmlbars/compat/handlebars-get", "ember-runtime/system/container", "ember-runtime/tests/utils", "ember-htmlbars/compat/helper", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberViewsViewsView, _emberHtmlbarsCompatHandlebarsGet, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberHtmlbarsCompatHelper, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
@@ -6578,6 +6639,33 @@ enifed("ember-htmlbars/tests/compat/precompile_test", ["exports", "ember-htmlbar
   QUnit.test("precompile creates a string when asObject is false", function () {
     result = precompile(template, false);
     equal(typeof result, "string");
+  });
+});
+enifed("ember-htmlbars/tests/compat/view_keyword_test", ["exports", "ember-views/views/component", "ember-runtime/tests/utils", "ember-template-compiler/system/compile"], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
+
+  var component = undefined;
+
+  QUnit.module("ember-htmlbars: compat - view keyword (use as a path)", {
+    setup: function () {
+      component = null;
+    },
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+    }
+  });
+
+  QUnit.test("reading the view keyword is deprecated [DEPRECATED]", function () {
+    var text = "a-prop";
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: text,
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{view.prop}}")
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{view}}` or any path based on it .* has been deprecated./);
+
+    equal(component.$().text(), text, "view keyword is read");
   });
 });
 enifed("ember-htmlbars/tests/helpers/-html-safe-test", ["exports", "ember-runtime/system/container", "ember-views/views/component", "ember-template-compiler/system/compile", "ember-runtime/tests/utils"], function (exports, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
@@ -47608,7 +47696,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+57dc3206", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+3a7878f9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
