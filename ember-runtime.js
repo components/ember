@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3a7878f9
+ * @version   2.0.0-canary+336ddbc7
  */
 
 (function() {
@@ -5005,7 +5005,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+3a7878f9
+    @version 2.0.0-canary+336ddbc7
     @public
   */
 
@@ -5037,11 +5037,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+3a7878f9'
+    @default '2.0.0-canary+336ddbc7'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+3a7878f9';
+  Ember.VERSION = '2.0.0-canary+336ddbc7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19160,7 +19160,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       ```
        @method toggleProperty
       @param {String} keyName The name of the property to toggle
-      @return {Object} The new property value
+      @return {Boolean} The new property value
       @public
     */
     toggleProperty: function (keyName) {
