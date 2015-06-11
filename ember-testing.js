@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0118d090
+ * @version   2.0.0-canary+7498bae2
  */
 
 (function() {
@@ -114,7 +114,7 @@ var mainContext = this;
   }
 })();
 
-enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment) {
+enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -216,6 +216,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
+      return;
+    }
+
     var noDeprecation;
 
     if (isPlainFunction(test)) {
@@ -228,7 +232,7 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
       return;
     }
 
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {
       throw new _emberMetalError.default(message);
     }
 
@@ -374,6 +378,16 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     }
   }
 
+  if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+  }
+  _emberMetalCore.default.Debug = {
+    _addDeprecationLevel: function (id, level) {
+      _emberDebugDeprecationManager.default.setLevel(id, level);
+    },
+    _deprecationLevels: _emberDebugDeprecationManager.deprecationLevels
+  };
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -389,6 +403,32 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
   }
 });
 /*global __fail__*/
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  var deprecationLevels = {
+    RAISE: (0, _emberMetalUtils.symbol)('RAISE'),
+    LOG: (0, _emberMetalUtils.symbol)('LOG'),
+    SILENCE: (0, _emberMetalUtils.symbol)('SILENCE')
+  };
+
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: (0, _emberMetalDictionary.default)(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
+      }
+      return level;
+    }
+  };
+});
 enifed("ember-testing", ["exports", "ember-metal/core", "ember-testing/initializers", "ember-testing/support", "ember-testing/setup_for_testing", "ember-testing/test", "ember-testing/adapters/adapter", "ember-testing/adapters/qunit", "ember-testing/helpers"], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
   // adds helpers to helpers object in Test
 

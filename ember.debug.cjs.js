@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0118d090
+ * @version   2.0.0-canary+7498bae2
  */
 
 (function() {
@@ -5186,7 +5186,7 @@ enifed('ember-application/utils/validate-type', ['exports'], function (exports) 
     }
   }
 });
-enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment) {
+enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -5288,6 +5288,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
+      return;
+    }
+
     var noDeprecation;
 
     if (isPlainFunction(test)) {
@@ -5300,7 +5304,7 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
       return;
     }
 
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {
       throw new _emberMetalError.default(message);
     }
 
@@ -5446,6 +5450,16 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     }
   }
 
+  if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+  }
+  _emberMetalCore.default.Debug = {
+    _addDeprecationLevel: function (id, level) {
+      _emberDebugDeprecationManager.default.setLevel(id, level);
+    },
+    _deprecationLevels: _emberDebugDeprecationManager.deprecationLevels
+  };
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -5461,6 +5475,32 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
   }
 });
 /*global __fail__*/
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  var deprecationLevels = {
+    RAISE: (0, _emberMetalUtils.symbol)('RAISE'),
+    LOG: (0, _emberMetalUtils.symbol)('LOG'),
+    SILENCE: (0, _emberMetalUtils.symbol)('SILENCE')
+  };
+
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: (0, _emberMetalDictionary.default)(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
+      }
+      return level;
+    }
+  };
+});
 enifed("ember-extension-support", ["exports", "ember-metal/core", "ember-extension-support/data_adapter", "ember-extension-support/container_debug_adapter"], function (exports, _emberMetalCore, _emberExtensionSupportData_adapter, _emberExtensionSupportContainer_debug_adapter) {
 
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
@@ -8548,7 +8588,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0118d090";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+7498bae2";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8724,7 +8764,7 @@ enifed("ember-htmlbars/keywords/unbound", ["exports", "ember-metal/merge", "embe
 enifed("ember-htmlbars/keywords/view", ["exports", "ember-views/streams/utils", "ember-views/views/view", "ember-htmlbars/node-managers/view-node-manager", "ember-metal/keys"], function (exports, _emberViewsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager, _emberMetalKeys) {
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
-      Ember.deprecate("Using the \"view\" helper is deprecated.", !!Ember.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: "http://emberjs.com/deprecations/v1.x/#toc_ember-view" });
+      Ember.deprecate("Using the \"view\" helper is deprecated.", !!Ember.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: "http://emberjs.com/deprecations/v1.x/#toc_ember-view", id: "view-helper" });
       var read = env.hooks.getValue;
       var targetObject = read(scope.self);
       var viewClassOrInstance = state.viewClassOrInstance;
@@ -14281,7 +14321,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0118d090
+    @version 2.0.0-canary+7498bae2
     @public
   */
 
@@ -14313,11 +14353,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0118d090'
+    @default '2.0.0-canary+7498bae2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0118d090';
+  Ember.VERSION = '2.0.0-canary+7498bae2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23128,7 +23168,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+0118d090";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+7498bae2";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23644,7 +23684,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0118d090";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+7498bae2";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40270,7 +40310,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+0118d090",
+        revision: "Ember@2.0.0-canary+7498bae2",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45435,7 +45475,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+0118d090";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+7498bae2";
 
   /**
   @module ember

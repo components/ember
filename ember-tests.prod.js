@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0118d090
+ * @version   2.0.0-canary+7498bae2
  */
 
 (function() {
@@ -3583,24 +3583,30 @@ enifed("ember-application/tests/system/visit_test", ["exports", "ember-metal/fea
     });
   }
 });
-enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
+enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-debug/deprecation-manager'], function (exports, _emberMetalCore, _emberDebugDeprecationManager) {
 
   var originalEnvValue = undefined;
+  var originalDeprecationDefault = undefined;
+  var originalDeprecationLevels = undefined;
 
   QUnit.module('ember-debug', {
     setup: function () {
+      originalDeprecationDefault = _emberDebugDeprecationManager.default.defaultLevel;
+      originalDeprecationLevels = _emberDebugDeprecationManager.default.individualLevels;
       originalEnvValue = _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION;
       _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
     },
 
     teardown: function () {
+      _emberDebugDeprecationManager.default.defaultLevel = originalDeprecationDefault;
+      _emberDebugDeprecationManager.default.individualLevels = originalDeprecationLevels;
       _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
     }
   });
 
-  QUnit.test('Ember.deprecate does not throw if RAISE_ON_DEPRECATION env value is false', function (assert) {
+  QUnit.test('Ember.deprecate does not throw if default level is silence', function (assert) {
     assert.expect(1);
-    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
+    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.SILENCE);
 
     try {
       _emberMetalCore.default.deprecate('Should not throw', false);
@@ -3708,6 +3714,39 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core'], function 
     _emberMetalCore.default.assert('is truthy', Igor.create());
 
     ok(true, 'assertions were not thrown');
+  });
+
+  QUnit.test('Ember.deprecate does not throw a deprecation at log and silence levels', function () {
+    expect(4);
+    var id = 'ABC';
+
+    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.LOG);
+    try {
+      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
+      ok(true, 'Deprecation did not throw');
+    } catch (e) {
+      ok(false, 'Deprecation was thrown despite being added to blacklist');
+    }
+
+    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.SILENCE);
+    try {
+      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
+      ok(true, 'Deprecation did not throw');
+    } catch (e) {
+      ok(false, 'Deprecation was thrown despite being added to blacklist');
+    }
+
+    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.RAISE);
+
+    throws(function () {
+      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
+    });
+
+    _emberDebugDeprecationManager.default.setLevel(id, null);
+
+    throws(function () {
+      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
+    });
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-debug'], function (exports, _emberMetalCore, _emberDebug) {
@@ -47569,7 +47608,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+0118d090", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+7498bae2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

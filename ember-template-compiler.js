@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0118d090
+ * @version   2.0.0-canary+7498bae2
  */
 
 (function() {
@@ -1081,7 +1081,7 @@ enifed('backburner/utils', ['exports'], function (exports) {
     };
   }
 });
-enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment) {
+enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -1183,6 +1183,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
+      return;
+    }
+
     var noDeprecation;
 
     if (isPlainFunction(test)) {
@@ -1195,7 +1199,7 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
       return;
     }
 
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {
       throw new _emberMetalError.default(message);
     }
 
@@ -1341,6 +1345,16 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     }
   }
 
+  if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+  }
+  _emberMetalCore.default.Debug = {
+    _addDeprecationLevel: function (id, level) {
+      _emberDebugDeprecationManager.default.setLevel(id, level);
+    },
+    _deprecationLevels: _emberDebugDeprecationManager.deprecationLevels
+  };
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -1356,6 +1370,32 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
   }
 });
 /*global __fail__*/
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  var deprecationLevels = {
+    RAISE: (0, _emberMetalUtils.symbol)('RAISE'),
+    LOG: (0, _emberMetalUtils.symbol)('LOG'),
+    SILENCE: (0, _emberMetalUtils.symbol)('SILENCE')
+  };
+
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: (0, _emberMetalDictionary.default)(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
+      }
+      return level;
+    }
+  };
+});
 enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/enumerable_utils", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/array", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalEnumerable_utils, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalArray, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
@@ -4178,7 +4218,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0118d090
+    @version 2.0.0-canary+7498bae2
     @public
   */
 
@@ -4210,11 +4250,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0118d090'
+    @default '2.0.0-canary+7498bae2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0118d090';
+  Ember.VERSION = '2.0.0-canary+7498bae2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13158,7 +13198,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+0118d090",
+        revision: "Ember@2.0.0-canary+7498bae2",
         loc: program.loc,
         moduleName: options.moduleName
       };
