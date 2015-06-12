@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9ae95228
+ * @version   2.0.0-canary+e6517064
  */
 
 (function() {
@@ -212,7 +212,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
       will be displayed. If this is a function, it will be executed and its return
       value will be used as condition.
     @param {Object} options An optional object that can be used to pass
-      in a `url` to the transition guide on the emberjs.com website.
+      in a `url` to the transition guide on the emberjs.com website, and a unique
+      `id` for this deprecation. The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log or silence) for that specific deprecation.
+      The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
@@ -230,6 +233,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
 
     if (noDeprecation) {
       return;
+    }
+
+    if (options && options.id) {
+      message = message + (" [deprecation id: " + options.id + "]");
     }
 
     if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {

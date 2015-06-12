@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9ae95228
+ * @version   2.0.0-canary+e6517064
  */
 
 (function() {
@@ -4023,11 +4023,12 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './method-call-expectati
       }
       var assertion = this;
       this.env.Ember.deprecate = function (msg, test) {
-        var pushDeprecation = typeof test === 'function' ? !test() : !test;
+        var resultOfTest = typeof test === 'function' ? test() : test;
+        var shouldDeprecate = !resultOfTest;
 
         assertion.actuals = assertion.actuals || [];
-        if (pushDeprecation) {
-          assertion.actuals.push([msg, test]);
+        if (shouldDeprecate) {
+          assertion.actuals.push([msg, resultOfTest]);
         }
       };
     },
@@ -6714,6 +6715,75 @@ enifed("ember-htmlbars/tests/compat/precompile_test", ["exports", "ember-htmlbar
   QUnit.test("precompile creates a string when asObject is false", function () {
     result = precompile(template, false);
     equal(typeof result, "string");
+  });
+});
+enifed("ember-htmlbars/tests/compat/view_helper_test", ["exports", "ember-views/views/component", "ember-views/views/view", "ember-views/views/select", "ember-runtime/tests/utils", "ember-template-compiler/system/compile", "container/registry"], function (exports, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry) {
+
+  var component = undefined,
+      registry = undefined,
+      container = undefined;
+
+  QUnit.module("ember-htmlbars: compat - view helper", {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      container = registry.container();
+    },
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      registry = container = component = null;
+    }
+  });
+
+  QUnit.test("using the view helper with a string (inline form) is deprecated [DEPRECATED]", function (assert) {
+    var ViewClass = _emberViewsViewsView.default.extend({
+      template: (0, _emberTemplateCompilerSystemCompile.default)("fooView")
+    });
+    registry.register("view:foo", ViewClass);
+
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{view 'foo'}}"),
+        container: container
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using the `{{view "string"}}` helper is deprecated/);
+
+    assert.equal(component.$().text(), "fooView", "view helper is still rendered");
+  });
+
+  QUnit.test("using the view helper with a string (block form) is deprecated [DEPRECATED]", function (assert) {
+    var ViewClass = _emberViewsViewsView.default.extend({
+      template: (0, _emberTemplateCompilerSystemCompile.default)("Foo says: {{yield}}")
+    });
+    registry.register("view:foo", ViewClass);
+
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{#view 'foo'}}I am foo{{/view}}"),
+        container: container
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using the `{{view "string"}}` helper is deprecated/);
+
+    assert.equal(component.$().text(), "Foo says: I am foo", "view helper is still rendered");
+  });
+
+  QUnit.test("using the view helper with string \"select\" has its own deprecation message [DEPRECATED]", function (assert) {
+    registry.register("view:select", _emberViewsViewsSelect.default);
+
+    expectDeprecation(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        layout: (0, _emberTemplateCompilerSystemCompile.default)("{{view 'select'}}"),
+        container: container
+      }).create();
+
+      (0, _emberRuntimeTestsUtils.runAppend)(component);
+    }, /Using `{{view "select"}}` is deprecated/);
+
+    assert.ok(!!component.$("select").length, "still renders select");
   });
 });
 enifed("ember-htmlbars/tests/compat/view_keyword_test", ["exports", "ember-views/views/component", "ember-runtime/tests/utils", "ember-template-compiler/system/compile"], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
@@ -12871,21 +12941,6 @@ enifed("ember-htmlbars/tests/helpers/view_test", ["exports", "ember-views/views/
     }, /Global lookup of App from a Handlebars template is deprecated./);
 
     equal((0, _emberViewsSystemJquery.default)("#fu").text(), "bro");
-  });
-
-  QUnit.test("View lookup in a template using 'view' helper is deprecated", function () {
-    var FuView = viewClass({});
-
-    registry.register("view:fu", FuView);
-
-    view = _emberViewsViewsView.default.extend({
-      template: (0, _emberTemplateCompilerSystemCompile.default)("{{view 'fu'}}"),
-      container: container
-    }).create();
-
-    expectDeprecation(function () {
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-    }, "Using the \"view\" helper is deprecated.");
   });
 
   QUnit.test("View lookup - 'fu'", function () {
@@ -48107,7 +48162,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+9ae95228", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+e6517064", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
