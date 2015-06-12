@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e83dbfcc
+ * @version   2.0.0-canary+eb68b3ec
  */
 
 (function() {
@@ -8079,6 +8079,54 @@ enifed("ember-htmlbars/tests/helpers/component_test", ["exports", "ember-metal/f
       (0, _emberMetalProperty_set.set)(view, "location", "Loisaida");
     });
     equal(view.$().text(), "yummy Loisaida arepas!", "component was updated and re-rendered");
+  });
+
+  QUnit.test("component helper destroys underlying component when it is swapped out", function () {
+    var currentComponent;
+    var destroyCalls = 0;
+    registry.register("component:foo-bar", _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        currentComponent = "foo-bar";
+      },
+      willDestroy: function () {
+        destroyCalls++;
+      }
+    }));
+    registry.register("component:baz-qux", _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        currentComponent = "baz-qux";
+      },
+      willDestroy: function () {
+        destroyCalls++;
+      }
+    }));
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      dynamicComponent: "foo-bar",
+      template: (0, _emberTemplateCompilerSystemCompile.default)("{{component view.dynamicComponent}}")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(currentComponent, "foo-bar", "precond - instantiates the proper component");
+    equal(destroyCalls, 0, "precond - nothing destroyed yet");
+
+    Ember.run(function () {
+      (0, _emberMetalProperty_set.set)(view, "dynamicComponent", "baz-qux");
+    });
+
+    equal(currentComponent, "baz-qux", "changing bound value instantiates the proper component");
+    equal(destroyCalls, 1, "prior component should be destroyed");
+
+    Ember.run(function () {
+      (0, _emberMetalProperty_set.set)(view, "dynamicComponent", "foo-bar");
+    });
+
+    equal(currentComponent, "foo-bar", "changing bound value instantiates the proper component");
+    equal(destroyCalls, 2, "prior components destroyed");
   });
 
   QUnit.test("component helper with actions", function () {
@@ -47696,7 +47744,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+e83dbfcc", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+eb68b3ec", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
