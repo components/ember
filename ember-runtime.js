@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+eb68b3ec
+ * @version   2.0.0-canary+285030a1
  */
 
 (function() {
@@ -5005,7 +5005,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+eb68b3ec
+    @version 2.0.0-canary+285030a1
     @public
   */
 
@@ -5037,11 +5037,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+eb68b3ec'
+    @default '2.0.0-canary+285030a1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+eb68b3ec';
+  Ember.VERSION = '2.0.0-canary+285030a1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13075,6 +13075,7 @@ enifed('ember-runtime/computed/array_computed', ['exports', 'ember-metal/core', 
   function ArrayComputedProperty() {
     var cp = this;
 
+    this._isArrayComputed = true;
     _emberRuntimeComputedReduce_computed.ReduceComputedProperty.apply(this, arguments);
 
     this._getter = (function (reduceFunc) {
@@ -13226,6 +13227,7 @@ enifed('ember-runtime/computed/array_computed', ['exports', 'ember-metal/core', 
     @param {String} [dependentKeys*]
     @param {Object} options
     @return {Ember.ComputedProperty}
+    @deprecated
     @private
   */
   function arrayComputed(options) {
@@ -13720,6 +13722,12 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   function ReduceComputedProperty(options) {
     var cp = this;
 
+    if (this._isArrayComputed) {
+      _emberMetalCore.default.deprecate('Ember.arrayComputed is deprecated. Replace it with plain array methods');
+    } else {
+      _emberMetalCore.default.deprecate('Ember.reduceComputed is deprecated. Replace it with plain array methods');
+    }
+
     this.options = options;
     this._dependentKeys = null;
     this._cacheable = true;
@@ -14083,6 +14091,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
     @param {String} [dependentKeys*]
     @param {Object} options
     @return {Ember.ComputedProperty}
+    @deprecated
     @public
   */
 
