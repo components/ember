@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+285030a1
+ * @version   2.0.0-canary+dfab8ec2
  */
 
 (function() {
@@ -5005,7 +5005,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+285030a1
+    @version 2.0.0-canary+dfab8ec2
     @public
   */
 
@@ -5037,11 +5037,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+285030a1'
+    @default '2.0.0-canary+dfab8ec2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+285030a1';
+  Ember.VERSION = '2.0.0-canary+dfab8ec2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13722,10 +13722,14 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   function ReduceComputedProperty(options) {
     var cp = this;
 
+    // use options._suppressDeprecation to allow us to deprecate
+    // arrayComputed and reduceComputed themselves, but not the
+    // default internal macros which will be reimplemented as plain
+    // array methods
     if (this._isArrayComputed) {
-      _emberMetalCore.default.deprecate('Ember.arrayComputed is deprecated. Replace it with plain array methods');
+      _emberMetalCore.default.deprecate('Ember.arrayComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
     } else {
-      _emberMetalCore.default.deprecate('Ember.reduceComputed is deprecated. Replace it with plain array methods');
+      _emberMetalCore.default.deprecate('Ember.reduceComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
     }
 
     this.options = options;
@@ -14150,6 +14154,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function sum(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
       initialValue: 0,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14199,6 +14204,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function max(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
       initialValue: -Infinity,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14250,6 +14256,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function min(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
+
       initialValue: Infinity,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14301,6 +14309,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function map(dependentKey, callback) {
     var options = {
+      _suppressDeprecation: true,
+
       addedItem: function (array, item, changeMeta, instanceMeta) {
         var mapped = callback.call(this, item, changeMeta.index);
         array.insertAt(changeMeta.index, mapped);
@@ -14404,6 +14414,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function filter(dependentKey, callback) {
     var options = {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.filteredArrayIndexes = new _emberRuntimeSystemSubarray.default();
       },
@@ -14524,6 +14536,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     var args = a_slice.call(arguments);
 
     args.push({
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.itemCounts = {};
       },
@@ -14596,6 +14610,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     var args = a_slice.call(arguments);
 
     args.push({
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.itemCounts = {};
       },
@@ -14688,6 +14704,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     }
 
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(setAProperty, setBProperty, {
+      _suppressDeprecation: true,
+
       addedItem: function (array, item, changeMeta, instanceMeta) {
         var setA = (0, _emberMetalProperty_get.get)(this, setAProperty);
         var setB = (0, _emberMetalProperty_get.get)(this, setBProperty);
@@ -14838,6 +14856,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function customSort(itemsKey, comparator) {
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.order = comparator;
         instanceMeta.binarySearch = binarySearch;
@@ -14875,6 +14895,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function propertySort(itemsKey, sortPropertiesKey) {
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         function setupSortProperties() {
           var sortPropertyDefinitions = (0, _emberMetalProperty_get.get)(this, sortPropertiesKey);

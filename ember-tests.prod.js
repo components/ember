@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+285030a1
+ * @version   2.0.0-canary+dfab8ec2
  */
 
 (function() {
@@ -33734,59 +33734,62 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
 
   var obj, addCalls, removeCalls, callbackItems, shared;
 
-  QUnit.module('arrayComputed', {
+  QUnit.module('arrayComputed - [DEPRECATED]', {
     setup: function () {
       addCalls = removeCalls = 0;
 
-      obj = _emberRuntimeSystemObject.default.createWithMixins({
-        numbers: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
-        otherNumbers: _emberMetalCore.default.A([7, 8, 9]),
+      expectDeprecation(function () {
 
-        // Users would obviously just use `Ember.computed.map`
-        // This implementation is fine for these tests, but doesn't properly work as
-        // it's not index based.
-        evenNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', {
-          addedItem: function (array, item) {
-            addCalls++;
-            if (item % 2 === 0) {
-              array.pushObject(item);
+        obj = _emberRuntimeSystemObject.default.createWithMixins({
+          numbers: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
+          otherNumbers: _emberMetalCore.default.A([7, 8, 9]),
+
+          // Users would obviously just use `Ember.computed.map`
+          // This implementation is fine for these tests, but doesn't properly work as
+          // it's not index based.
+          evenNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', {
+            addedItem: function (array, item) {
+              addCalls++;
+              if (item % 2 === 0) {
+                array.pushObject(item);
+              }
+              return array;
+            },
+            removedItem: function (array, item) {
+              removeCalls++;
+              array.removeObject(item);
+              return array;
             }
-            return array;
-          },
-          removedItem: function (array, item) {
-            removeCalls++;
-            array.removeObject(item);
-            return array;
-          }
-        }),
+          }),
 
-        evenNumbersMultiDep: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', 'otherNumbers', {
-          addedItem: function (array, item) {
-            if (item % 2 === 0) {
-              array.pushObject(item);
+          evenNumbersMultiDep: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', 'otherNumbers', {
+            addedItem: function (array, item) {
+              if (item % 2 === 0) {
+                array.pushObject(item);
+              }
+              return array;
             }
-            return array;
-          }
-        }),
+          }),
 
-        nestedNumbers: _emberMetalCore.default.A((0, _emberMetalEnumerable_utils.map)([1, 2, 3, 4, 5, 6], function (n) {
-          return _emberRuntimeSystemObject.default.create({ p: 'otherProperty', v: n });
-        })),
+          nestedNumbers: _emberMetalCore.default.A((0, _emberMetalEnumerable_utils.map)([1, 2, 3, 4, 5, 6], function (n) {
+            return _emberRuntimeSystemObject.default.create({ p: 'otherProperty', v: n });
+          })),
 
-        evenNestedNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
-          addedItem: function (array, item, keyName) {
-            var value = item.get('v');
-            if (value % 2 === 0) {
-              array.pushObject(value);
+          evenNestedNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
+            addedItem: function (array, item, keyName) {
+              var value = item.get('v');
+              if (value % 2 === 0) {
+                array.pushObject(value);
+              }
+              return array;
+            },
+            removedItem: function (array, item, keyName) {
+              array.removeObject(item.get('v'));
+              return array;
             }
-            return array;
-          },
-          removedItem: function (array, item, keyName) {
-            array.removeObject(item.get('v'));
-            return array;
-          }
-        }).property('nestedNumbers.@each.v')
-      });
+          }).property('nestedNumbers.@each.v')
+        });
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
     },
 
     teardown: function () {
@@ -33807,10 +33810,14 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
   });
 
   QUnit.test('array computed properties are instances of ComputedProperty', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
     ok((0, _emberRuntimeComputedArray_computed.arrayComputed)({}) instanceof _emberMetalComputed.ComputedProperty);
   });
 
   QUnit.test('when the dependent array is null or undefined, `addedItem` is not called and only the initial value is returned', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
     obj = _emberRuntimeSystemObject.default.createWithMixins({
       numbers: null,
       doubledNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', {
@@ -34253,22 +34260,25 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
 
   QUnit.module('arrayComputed - recomputation DKs', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        people: _emberMetalCore.default.A([{
-          name: 'Jaime Lannister',
-          title: 'Kingsguard'
-        }, {
-          name: 'Cersei Lannister',
-          title: 'Queen'
-        }]),
+      expectDeprecation(function () {
 
-        titles: (0, _emberRuntimeComputedArray_computed.arrayComputed)('people', {
-          addedItem: function (acc, person) {
-            acc.pushObject((0, _emberMetalProperty_get.get)(person, 'title'));
-            return acc;
-          }
-        })
-      }).create();
+        obj = _emberRuntimeSystemObject.default.extend({
+          people: _emberMetalCore.default.A([{
+            name: 'Jaime Lannister',
+            title: 'Kingsguard'
+          }, {
+            name: 'Cersei Lannister',
+            title: 'Queen'
+          }]),
+
+          titles: (0, _emberRuntimeComputedArray_computed.arrayComputed)('people', {
+            addedItem: function (acc, person) {
+              acc.pushObject((0, _emberMetalProperty_get.get)(person, 'title'));
+              return acc;
+            }
+          })
+        }).create();
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
     },
     teardown: function () {
       (0, _emberMetalRun_loop.default)(function () {
@@ -34313,20 +34323,23 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
       var a = _emberRuntimeSystemObject.default.create({ name: 'a' });
       var b = _emberRuntimeSystemObject.default.create({ name: 'b' });
 
-      obj = _emberRuntimeSystemArray_proxy.default.createWithMixins({
-        content: _emberMetalCore.default.A([a, b]),
-        names: (0, _emberRuntimeComputedArray_computed.arrayComputed)('@this.@each.name', {
-          addedItem: function (array, item, changeMeta, instanceMeta) {
-            var mapped = (0, _emberMetalProperty_get.get)(item, 'name');
-            array.insertAt(changeMeta.index, mapped);
-            return array;
-          },
-          removedItem: function (array, item, changeMeta, instanceMeta) {
-            array.removeAt(changeMeta.index, 1);
-            return array;
-          }
-        })
-      });
+      expectDeprecation(function () {
+
+        obj = _emberRuntimeSystemArray_proxy.default.createWithMixins({
+          content: _emberMetalCore.default.A([a, b]),
+          names: (0, _emberRuntimeComputedArray_computed.arrayComputed)('@this.@each.name', {
+            addedItem: function (array, item, changeMeta, instanceMeta) {
+              var mapped = (0, _emberMetalProperty_get.get)(item, 'name');
+              array.insertAt(changeMeta.index, mapped);
+              return array;
+            },
+            removedItem: function (array, item, changeMeta, instanceMeta) {
+              array.removeAt(changeMeta.index, 1);
+              return array;
+            }
+          })
+        });
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
     },
     teardown: function () {
       (0, _emberMetalRun_loop.default)(function () {
@@ -34357,17 +34370,20 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
     setup: function () {
       callbackItems = [];
       (0, _emberMetalRun_loop.default)(function () {
-        obj = _emberRuntimeSystemObject.default.createWithMixins({
-          items: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ n: 'zero' }), _emberRuntimeSystemObject.default.create({ n: 'one' })]),
-          itemsN: (0, _emberRuntimeComputedArray_computed.arrayComputed)('items.@each.n', {
-            addedItem: function (array, item, changeMeta, instanceMeta) {
-              callbackItems.push('add:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
-            },
-            removedItem: function (array, item, changeMeta, instanceMeta) {
-              callbackItems.push('remove:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
-            }
-          })
-        });
+        expectDeprecation(function () {
+
+          obj = _emberRuntimeSystemObject.default.createWithMixins({
+            items: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ n: 'zero' }), _emberRuntimeSystemObject.default.create({ n: 'one' })]),
+            itemsN: (0, _emberRuntimeComputedArray_computed.arrayComputed)('items.@each.n', {
+              addedItem: function (array, item, changeMeta, instanceMeta) {
+                callbackItems.push('add:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
+              },
+              removedItem: function (array, item, changeMeta, instanceMeta) {
+                callbackItems.push('remove:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
+              }
+            })
+          });
+        }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
       });
     },
     teardown: function () {
@@ -34574,6 +34590,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
   QUnit.test('non-array dependencies completely invalidate a reduceComputed CP', function () {
     var dependentArray = _emberMetalCore.default.A();
 
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
     obj = _emberRuntimeSystemObject.default.extend({
       nonArray: 'v0',
       dependentArray: dependentArray,
@@ -34610,6 +34628,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
   });
 
   QUnit.test('array dependencies specified with `.[]` completely invalidate a reduceComputed CP', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
     var dependentArray = _emberMetalCore.default.A();
     var totallyInvalidatingDependentArray = _emberMetalCore.default.A();
 
@@ -34651,6 +34671,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
   });
 
   QUnit.test('returning undefined in addedItem/removedItem completely invalidates a reduceComputed CP', function () {
+    expectDeprecation(/Ember.reduceComputed is deprecated/);
+
     var dependentArray = _emberMetalCore.default.A([3, 2, 1]);
     var counter = 0;
 
@@ -34695,6 +34717,8 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
 
   if (!_emberMetalCore.default.EXTEND_PROTOTYPES && !_emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     QUnit.test('reduceComputed complains about array dependencies that are not `Ember.Array`s', function () {
+      expectDeprecation(/Ember.reduceComputed is deprecated/);
+
       var Type = _emberRuntimeSystemObject.default.extend({
         rc: (0, _emberRuntimeComputedReduce_computed.reduceComputed)('array', {
           initialValue: 0,
@@ -34729,20 +34753,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
         })
       });
 
-      obj = _emberMetalCore.default.Object.extend({
-        upstream: _emberMetalCore.default.A([Item.create(), Item.create()]),
-        arrayCP: (0, _emberRuntimeComputedArray_computed.arrayComputed)('upstream.@each.flag', {
-          addedItem: function (array, item) {
-            callbackItems.push('add:' + item.get('flag'));
-            return array;
-          },
+      expectDeprecation(function () {
+        obj = _emberMetalCore.default.Object.extend({
+          upstream: _emberMetalCore.default.A([Item.create(), Item.create()]),
+          arrayCP: (0, _emberRuntimeComputedArray_computed.arrayComputed)('upstream.@each.flag', {
+            addedItem: function (array, item) {
+              callbackItems.push('add:' + item.get('flag'));
+              return array;
+            },
 
-          removedItem: function (array, item) {
-            callbackItems.push('remove:' + item.get('flag'));
-            return array;
-          }
-        })
-      }).create();
+            removedItem: function (array, item) {
+              callbackItems.push('remove:' + item.get('flag'));
+              return array;
+            }
+          })
+        }).create();
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
     },
 
     teardown: function () {
@@ -47754,7 +47780,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+285030a1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+dfab8ec2", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
