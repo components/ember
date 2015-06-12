@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+e5e90f0c
+ * @version   1.13.0-beta.2+624b5e26
  */
 
 (function() {
@@ -29764,6 +29764,22 @@ enifed("ember-routing/tests/location/auto_location_test", ["exports", "ember-met
     }, expectedMsg);
   });
 
+  QUnit.test("AutoLocation provides its rootURL to the concreteImplementation", function () {
+    expect(1);
+    var browserLocation = mockBrowserLocation({
+      pathname: "/some/subdir/derp"
+    });
+    var browserHistory = mockBrowserHistory();
+
+    location = createLocation(browserLocation, browserHistory);
+    location.rootURL = "/some/subdir/";
+
+    location.detect();
+
+    var concreteLocation = (0, _emberMetalProperty_get.get)(location, "concreteImplementation");
+    equal(location.rootURL, concreteLocation.rootURL);
+  });
+
   QUnit.test("getHistoryPath() should return a normalized, HistoryLocation-supported path", function () {
     expect(3);
 
@@ -46709,7 +46725,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+e5e90f0c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+624b5e26", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
