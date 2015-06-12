@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e6517064
+ * @version   2.0.0-canary+f6d5b42c
  */
 
 (function() {
@@ -1186,6 +1186,9 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+    }
     if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
       return;
     }
@@ -1352,9 +1355,6 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     }
   }
 
-  if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
-    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
-  }
   _emberMetalCore.default.Debug = {
     _addDeprecationLevel: function (id, level) {
       _emberDebugDeprecationManager.default.setLevel(id, level);
@@ -4225,7 +4225,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e6517064
+    @version 2.0.0-canary+f6d5b42c
     @public
   */
 
@@ -4257,11 +4257,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e6517064'
+    @default '2.0.0-canary+f6d5b42c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e6517064';
+  Ember.VERSION = '2.0.0-canary+f6d5b42c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13334,7 +13334,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+e6517064",
+        revision: "Ember@2.0.0-canary+f6d5b42c",
         loc: program.loc,
         moduleName: options.moduleName
       };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e6517064
+ * @version   2.0.0-canary+f6d5b42c
  */
 
 (function() {
@@ -3669,7 +3669,9 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
       originalDeprecationDefault = _emberDebugDeprecationManager.default.defaultLevel;
       originalDeprecationLevels = _emberDebugDeprecationManager.default.individualLevels;
       originalEnvValue = _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION;
-      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
+
+      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
+      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
     },
 
     teardown: function () {
@@ -3689,6 +3691,42 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     } catch (e) {
       assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
     }
+  });
+
+  QUnit.test('Ember.deprecate re-sets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
+    assert.expect(2);
+
+    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.SILENCE);
+
+    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
+
+    assert.throws(function () {
+      _emberMetalCore.default.deprecate('Should throw', false);
+    }, /Should throw/);
+
+    assert.equal(_emberDebugDeprecationManager.default.defaultLevel, _emberDebugDeprecationManager.deprecationLevels.RAISE, 'default level re-set to RAISE');
+  });
+
+  QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
+    assert.expect(3);
+
+    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
+    _emberDebugDeprecationManager.default.setLevel('my-deprecation', _emberDebugDeprecationManager.deprecationLevels.SILENCE);
+
+    try {
+      _emberMetalCore.default.deprecate('should be silenced with matching id', false, { id: 'my-deprecation' });
+      assert.ok(true, 'Did not throw when level is set by id');
+    } catch (e) {
+      assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
+    }
+
+    assert.throws(function () {
+      _emberMetalCore.default.deprecate('Should throw with no id', false);
+    }, /Should throw with no id/);
+
+    assert.throws(function () {
+      _emberMetalCore.default.deprecate('Should throw with non-matching id', false, { id: 'other-id' });
+    }, /Should throw with non-matching id/);
   });
 
   QUnit.test('Ember.deprecate throws deprecation if second argument is falsy', function () {
@@ -48162,7 +48200,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+e6517064", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+f6d5b42c", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

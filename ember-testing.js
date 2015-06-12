@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e6517064
+ * @version   2.0.0-canary+f6d5b42c
  */
 
 (function() {
@@ -219,6 +219,9 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+    }
     if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
       return;
     }
@@ -385,9 +388,6 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "e
     }
   }
 
-  if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
-    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
-  }
   _emberMetalCore.default.Debug = {
     _addDeprecationLevel: function (id, level) {
       _emberDebugDeprecationManager.default.setLevel(id, level);
