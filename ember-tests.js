@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+dfab8ec2
+ * @version   2.0.0-canary+9ae95228
  */
 
 (function() {
@@ -1047,6 +1047,61 @@ enifed('container/tests/registry_test', ['exports', 'container/tests/container_h
 
     equal(registry.getFactoryTypeInjections('model').length, 1, 'Factory type injections from the fallback registry are merged');
   });
+
+  QUnit.test('`knownForType` contains keys for each item of a given type', function () {
+    var registry = new _container.Registry();
+
+    registry.register('foo:bar-baz', 'baz');
+    registry.register('foo:qux-fez', 'fez');
+
+    var found = registry.knownForType('foo');
+
+    deepEqual(found, {
+      'foo:bar-baz': true,
+      'foo:qux-fez': true
+    });
+  });
+
+  QUnit.test('`knownForType` includes fallback registry results', function () {
+    var fallback = new _container.Registry();
+    var registry = new _container.Registry({ fallback: fallback });
+
+    registry.register('foo:bar-baz', 'baz');
+    registry.register('foo:qux-fez', 'fez');
+    fallback.register('foo:zurp-zorp', 'zorp');
+
+    var found = registry.knownForType('foo');
+
+    deepEqual(found, {
+      'foo:bar-baz': true,
+      'foo:qux-fez': true,
+      'foo:zurp-zorp': true
+    });
+  });
+
+  QUnit.test('`knownForType` is called on the resolver if present', function () {
+    expect(3);
+
+    function resolver() {}
+    resolver.knownForType = function (type) {
+      ok(true, 'knownForType called on the resolver');
+      equal(type, 'foo', 'the type was passed through');
+
+      return { 'foo:yorp': true };
+    };
+
+    var registry = new _container.Registry({
+      resolver: resolver
+    });
+    registry.register('foo:bar-baz', 'baz');
+
+    var found = registry.knownForType('foo');
+
+    deepEqual(found, {
+      'foo:yorp': true,
+      'foo:bar-baz': true
+    });
+  });
 });
 enifed("ember-application/tests/system/application_test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-application/system/application", "ember-application/system/resolver", "ember-routing/system/router", "ember-views/views/view", "ember-runtime/controllers/controller", "ember-routing/location/none_location", "ember-runtime/system/object", "ember-routing/system/route", "ember-views/system/jquery", "ember-template-compiler/system/compile"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile) {
 
@@ -1840,6 +1895,26 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
     expectNoDeprecation();
     application.FooView = _emberViewsViewsComponent.default.extend();
     registry.resolve("component:foo");
+  });
+
+  QUnit.test("knownForType returns each item for a given type found", function () {
+    application.FooBarHelper = "foo";
+    application.BazQuxHelper = "bar";
+
+    var found = registry.resolver.knownForType("helper");
+
+    deepEqual(found, {
+      "helper:foo-bar": true,
+      "helper:baz-qux": true
+    });
+  });
+
+  QUnit.test("knownForType is not required to be present on the resolver", function () {
+    delete registry.resolver.__resolver__.knownForType;
+
+    registry.resolver.knownForType("helper", function () {});
+
+    ok(true, "does not error");
   });
 });
 // Ember.TEMPLATES
@@ -17095,6 +17170,48 @@ enifed('ember-htmlbars/tests/integration/globals_integration_test', ['exports', 
     equal(view.$().text(), _emberMetalCore.default.lookup.Global.Space);
   });
 });
+enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember-metal/features", "container/registry", "ember-template-compiler/system/compile", "ember-views/component_lookup", "ember-views/views/component", "ember-htmlbars/helper", "ember-runtime/tests/utils"], function (exports, _emberMetalFeatures, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
+
+  var registry, container, component;
+
+  QUnit.module("component - invocation", {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      container = registry.container();
+      registry.optionsForType("component", { singleton: false });
+      registry.optionsForType("view", { singleton: false });
+      registry.optionsForType("template", { instantiate: false });
+      registry.optionsForType("helper", { instantiate: false });
+      registry.register("component-lookup:main", _emberViewsComponent_lookup.default);
+    },
+
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+      registry = container = component = null;
+    }
+  });
+
+  QUnit.test("non-dashed helpers are found", function () {
+    expect(1);
+
+    registry.register("helper:fullname", (0, _emberHtmlbarsHelper.helper)(function (_ref) {
+      var first = _ref[0];
+      var last = _ref[1];
+
+      return "" + first + " " + last;
+    }));
+
+    component = _emberViewsViewsComponent.default.extend({
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{fullname \"Robert\" \"Jackson\"}}"),
+      container: container
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    equal(component.$().text(), "Robert Jackson");
+  });
+});
 enifed("ember-htmlbars/tests/integration/mutable_binding_test", ["exports", "ember-metal/features", "ember-views/views/view", "container/registry", "ember-template-compiler/system/compile", "ember-views/component_lookup", "ember-views/views/component", "ember-runtime/tests/utils", "ember-metal/run_loop", "ember-metal/computed"], function (exports, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed) {
 
   var registry, container, view;
@@ -18337,13 +18454,60 @@ enifed("ember-htmlbars/tests/system/bootstrap_test", ["exports", "ember-views/sy
     });
   }
 });
+enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "ember-metal/features", "container/registry", "ember-metal/keys", "ember-htmlbars/helper", "ember-runtime/tests/utils", "ember-htmlbars/system/discover-known-helpers"], function (exports, _emberMetalFeatures, _containerRegistry, _emberMetalKeys, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
+
+  var resolver, registry, container;
+
+  QUnit.module("ember-htmlbars: discover-known-helpers", {
+    setup: function () {
+      resolver = function () {};
+
+      registry = new _containerRegistry.default({ resolver: resolver });
+      container = registry.container();
+    },
+
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      registry = container = null;
+    }
+  });
+
+  QUnit.test("returns an empty hash when no helpers are known", function () {
+    var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
+
+    deepEqual(result, {}, "no helpers were known");
+  });
+
+  QUnit.test("includes helpers in the registry", function () {
+    registry.register("helper:t", _emberHtmlbarsHelper.default);
+    var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
+    var helpers = (0, _emberMetalKeys.default)(result);
+
+    deepEqual(helpers, ["t"], "helpers from the registry were known");
+  });
+
+  QUnit.test("includes resolved helpers", function () {
+    resolver.knownForType = function () {
+      return {
+        "helper:f": true
+      };
+    };
+
+    registry.register("helper:t", _emberHtmlbarsHelper.default);
+    var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
+    var helpers = (0, _emberMetalKeys.default)(result);
+
+    deepEqual(helpers, ["t", "f"], "helpers from the registry were known");
+  });
+});
 enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-htmlbars/system/lookup-helper", "ember-views/component_lookup", "container/registry", "ember-htmlbars/helper", "ember-htmlbars/compat/helper"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberHtmlbarsHelper, _emberHtmlbarsCompatHelper) {
 
   function generateEnv(helpers, container) {
     return {
       container: container,
       helpers: helpers ? helpers : {},
-      hooks: { keywords: {} }
+      hooks: { keywords: {} },
+      knownHelpers: {}
     };
   }
 
@@ -18405,6 +18569,22 @@ enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-html
     var actual = (0, _emberHtmlbarsSystemLookupHelper.default)("some-name", view, env);
 
     ok(someName.detect(actual), "helper is an instance of the helper class");
+  });
+
+  QUnit.test("does a lookup in the container if the name is found in knownHelpers", function () {
+    var container = generateContainer();
+    var env = generateEnv(null, container);
+    var view = {
+      container: container
+    };
+
+    env.knownHelpers["t"] = true;
+    var t = _emberHtmlbarsHelper.default.extend();
+    view.container._registry.register("helper:t", t);
+
+    var actual = (0, _emberHtmlbarsSystemLookupHelper.default)("t", view, env);
+
+    ok(t.detect(actual), "helper is an instance of the helper class");
   });
 
   QUnit.test("looks up a shorthand helper in the container", function () {
@@ -47927,7 +48107,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+dfab8ec2", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+9ae95228", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58726,7 +58906,7 @@ enifed("ember/tests/global-api-test", ["exports", "ember", "ember-metal/features
   confirmExport("Ember.Helper");
   confirmExport("Ember.Helper.helper");
 });
-enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-htmlbars/compat", "ember-htmlbars/compat/helper", "ember-htmlbars/helper"], function (exports, _ember, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
+enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-metal/features", "ember-htmlbars/compat", "ember-htmlbars/compat/helper", "ember-htmlbars/helper"], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
 
   var compile, helpers, makeBoundHelper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -58827,26 +59007,24 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
     equal(Ember.$("#wrapper").text(), "woot!! woot!!alex", "The helper was invoked from the container");
   });
 
-  // we have unit tests for this in ember-htmlbars/tests/system/lookup-helper
-  // and we are not going to recreate the handlebars helperMissing concept
-  QUnit.test("Undashed helpers registered on the container can not (presently) be invoked", function () {
+  QUnit.test("Undashed helpers registered on the container can be invoked", function () {
+    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{yorp 'boo'}}|{{yorp 'ya'}}</div>");
 
-    // Note: the reason we're not allowing undashed helpers is to avoid
-    // a possible perf hit in hot code paths, i.e. _triageMustache.
-    // We only presently perform container lookups if prop.indexOf('-') >= 0
-
-    Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{omg 'GRRR'}}|{{yorp}}|{{yorp 'ahh'}}</div>");
-
-    expectAssertion(function () {
+    expectDeprecation(function () {
       boot(function () {
-        registry.register("helper:omg", function () {
+        registry.register("helper:omg", function (_ref) {
+          var value = _ref[0];
+
           return "OMG";
         });
-        registry.register("helper:yorp", makeBoundHelper(function () {
-          return "YORP";
+
+        registry.register("helper:yorp", makeBoundHelper(function (value) {
+          return value;
         }));
-      });
-    }, /A helper named 'omg' could not be found/);
+      }, /Please use Ember.Helper.build to wrap helper functions./);
+    });
+
+    equal(Ember.$("#wrapper").text(), "OMG|boo|ya", "The helper was invoked from the container");
   });
 
   QUnit.test("Helpers can receive injections", function () {
@@ -58870,6 +59048,10 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
     ok(serviceCalled, "service was injected, method called");
   });
 });
+
+// Note: the reason we're not allowing undashed helpers is to avoid
+// a possible perf hit in hot code paths, i.e. _triageMustache.
+// We only presently perform container lookups if prop.indexOf('-') >= 0
 enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-metal/features", "ember-runtime/controllers/object_controller", "ember-htmlbars/compat", "ember-views/views/view"], function (exports, _ember, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView) {
 
   var compile = _emberHtmlbarsCompat.default.compile;

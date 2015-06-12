@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+dfab8ec2
+ * @version   2.0.0-canary+9ae95228
  */
 
 (function() {
@@ -1488,7 +1488,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/keys', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _emberMetalKeys, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
@@ -2081,6 +2081,37 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
         property: property,
         fullName: normalizedInjectionName
       });
+    },
+
+    /**
+     @method knownForType
+     @param {String} type the type to iterate over
+     @private
+    */
+    knownForType: function (type) {
+      var fallbackKnown = undefined,
+          resolverKnown = undefined;
+
+      var localKnown = (0, _emberMetalDictionary.default)(null);
+      var registeredNames = (0, _emberMetalKeys.default)(this.registrations);
+      for (var index = 0, _length = registeredNames.length; index < _length; index++) {
+        var fullName = registeredNames[index];
+        var itemType = fullName.split(':')[0];
+
+        if (itemType === type) {
+          localKnown[fullName] = true;
+        }
+      }
+
+      if (this.fallback) {
+        fallbackKnown = this.fallback.knownForType(type);
+      }
+
+      if (this.resolver.knownForType) {
+        resolverKnown = this.resolver.knownForType(type);
+      }
+
+      return (0, _emberMetalMerge.assign)({}, fallbackKnown, localKnown, resolverKnown);
     },
 
     validateFullName: function (fullName) {
@@ -5005,7 +5036,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+dfab8ec2
+    @version 2.0.0-canary+9ae95228
     @public
   */
 
@@ -5037,11 +5068,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+dfab8ec2'
+    @default '2.0.0-canary+9ae95228'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+dfab8ec2';
+  Ember.VERSION = '2.0.0-canary+9ae95228';
 
   /**
     The hash of environment variables used to control various configuration

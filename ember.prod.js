@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+dfab8ec2
+ * @version   2.0.0-canary+9ae95228
  */
 
 (function() {
@@ -1488,7 +1488,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/keys', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _emberMetalKeys, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
@@ -2080,6 +2080,37 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
         property: property,
         fullName: normalizedInjectionName
       });
+    },
+
+    /**
+     @method knownForType
+     @param {String} type the type to iterate over
+     @private
+    */
+    knownForType: function (type) {
+      var fallbackKnown = undefined,
+          resolverKnown = undefined;
+
+      var localKnown = (0, _emberMetalDictionary.default)(null);
+      var registeredNames = (0, _emberMetalKeys.default)(this.registrations);
+      for (var index = 0, _length = registeredNames.length; index < _length; index++) {
+        var fullName = registeredNames[index];
+        var itemType = fullName.split(':')[0];
+
+        if (itemType === type) {
+          localKnown[fullName] = true;
+        }
+      }
+
+      if (this.fallback) {
+        fallbackKnown = this.fallback.knownForType(type);
+      }
+
+      if (this.resolver.knownForType) {
+        resolverKnown = this.resolver.knownForType(type);
+      }
+
+      return (0, _emberMetalMerge.assign)({}, fallbackKnown, localKnown, resolverKnown);
     },
 
     validateFullName: function (fullName) {
@@ -4690,6 +4721,12 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       }
     };
 
+    resolve.knownForType = function knownForType(type) {
+      if (resolver.knownForType) {
+        return resolver.knownForType(type);
+      }
+    };
+
     resolve.moduleBasedResolver = resolver.moduleBasedResolver;
 
     resolve.__resolver__ = resolver;
@@ -4756,7 +4793,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 @submodule ember-application
 */
 // Ember.deprecate, Ember.assert, Ember.libraries, LOG_VERSION, Namespace, BOOTED
-enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/logger', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-htmlbars/helpers', 'ember-application/utils/validate-type', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalLogger, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberHtmlbarsHelpers, _emberApplicationUtilsValidateType, _emberMetalDictionary) {
+enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/logger', 'ember-metal/keys', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-htmlbars/helpers', 'ember-application/utils/validate-type', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalLogger, _emberMetalKeys, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberHtmlbarsHelpers, _emberApplicationUtilsValidateType, _emberMetalDictionary) {
   var Resolver = _emberRuntimeSystemObject.default.extend({
     /*
       This will be set to the Application instance when it is
@@ -4774,6 +4811,78 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
   });
 
   exports.Resolver = Resolver;
+  /**
+    The DefaultResolver defines the default lookup rules to resolve
+    container lookups before consulting the container for registered
+    items:
+  
+    * templates are looked up on `Ember.TEMPLATES`
+    * other names are looked up on the application after converting
+      the name. For example, `controller:post` looks up
+      `App.PostController` by default.
+    * there are some nuances (see examples below)
+  
+    ### How Resolving Works
+  
+    The container calls this object's `resolve` method with the
+    `fullName` argument.
+  
+    It first parses the fullName into an object using `parseName`.
+  
+    Then it checks for the presence of a type-specific instance
+    method of the form `resolve[Type]` and calls it if it exists.
+    For example if it was resolving 'template:post', it would call
+    the `resolveTemplate` method.
+  
+    Its last resort is to call the `resolveOther` method.
+  
+    The methods of this object are designed to be easy to override
+    in a subclass. For example, you could enhance how a template
+    is resolved like so:
+  
+    ```javascript
+    App = Ember.Application.create({
+      Resolver: Ember.DefaultResolver.extend({
+        resolveTemplate: function(parsedName) {
+          var resolvedTemplate = this._super(parsedName);
+          if (resolvedTemplate) { return resolvedTemplate; }
+          return Ember.TEMPLATES['not_found'];
+        }
+      })
+    });
+    ```
+  
+    Some examples of how names are resolved:
+  
+    ```
+    'template:post'           //=> Ember.TEMPLATES['post']
+    'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']
+    'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']
+    'template:blogPost'       //=> Ember.TEMPLATES['blogPost']
+                              //   OR
+                              //   Ember.TEMPLATES['blog_post']
+    'controller:post'         //=> App.PostController
+    'controller:posts.index'  //=> App.PostsIndexController
+    'controller:blog/post'    //=> Blog.PostController
+    'controller:basic'        //=> Ember.Controller
+    'route:post'              //=> App.PostRoute
+    'route:posts.index'       //=> App.PostsIndexRoute
+    'route:blog/post'         //=> Blog.PostRoute
+    'route:basic'             //=> Ember.Route
+    'view:post'               //=> App.PostView
+    'view:posts.index'        //=> App.PostsIndexView
+    'view:blog/post'          //=> Blog.PostView
+    'view:basic'              //=> Ember.View
+    'foo:post'                //=> App.PostFoo
+    'model:post'              //=> App.Post
+    ```
+  
+    @class DefaultResolver
+    @namespace Ember
+    @extends Ember.Object
+    @public
+  */
+
   exports.default = _emberRuntimeSystemObject.default.extend({
     /**
       This will be set to the Application instance when it is
@@ -5072,6 +5181,51 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
       }
 
       _emberMetalLogger.default.info(symbol, parsedName.fullName, padding, this.lookupDescription(parsedName.fullName));
+    },
+
+    /**
+     Used to iterate all items of a given type.
+      @method knownForType
+     @param {String} type the type to search for
+     @private
+     */
+    knownForType: function (type) {
+      var namespace = (0, _emberMetalProperty_get.get)(this, 'namespace');
+      var suffix = (0, _emberRuntimeSystemString.classify)(type);
+      var typeRegexp = new RegExp('' + suffix + '$');
+
+      var known = (0, _emberMetalDictionary.default)(null);
+      var knownKeys = (0, _emberMetalKeys.default)(namespace);
+      for (var index = 0, _length = knownKeys.length; index < _length; index++) {
+        var _name = knownKeys[index];
+
+        if (typeRegexp.test(_name)) {
+          var containerName = this.translateToContainerFullname(type, _name);
+
+          known[containerName] = true;
+        }
+      }
+
+      return known;
+    },
+
+    /**
+     Converts provided name from the backing namespace into a container lookup name.
+      Examples:
+      App.FooBarHelper -> helper:foo-bar
+     App.THelper -> helper:t
+      @method translateToContainerFullname
+     @param {String} type
+     @param {String} name
+     @private
+     */
+
+    translateToContainerFullname: function (type, name) {
+      var suffix = (0, _emberRuntimeSystemString.classify)(type);
+      var namePrefix = name.slice(0, suffix.length * -1);
+      var dasherizedName = (0, _emberRuntimeSystemString.dasherize)(namePrefix);
+
+      return '' + type + ':' + dasherizedName;
     }
   });
 });
@@ -5081,77 +5235,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
 */
 
 // Ember.TEMPLATES, Ember.assert
-/**
-  The DefaultResolver defines the default lookup rules to resolve
-  container lookups before consulting the container for registered
-  items:
-
-  * templates are looked up on `Ember.TEMPLATES`
-  * other names are looked up on the application after converting
-    the name. For example, `controller:post` looks up
-    `App.PostController` by default.
-  * there are some nuances (see examples below)
-
-  ### How Resolving Works
-
-  The container calls this object's `resolve` method with the
-  `fullName` argument.
-
-  It first parses the fullName into an object using `parseName`.
-
-  Then it checks for the presence of a type-specific instance
-  method of the form `resolve[Type]` and calls it if it exists.
-  For example if it was resolving 'template:post', it would call
-  the `resolveTemplate` method.
-
-  Its last resort is to call the `resolveOther` method.
-
-  The methods of this object are designed to be easy to override
-  in a subclass. For example, you could enhance how a template
-  is resolved like so:
-
-  ```javascript
-  App = Ember.Application.create({
-    Resolver: Ember.DefaultResolver.extend({
-      resolveTemplate: function(parsedName) {
-        var resolvedTemplate = this._super(parsedName);
-        if (resolvedTemplate) { return resolvedTemplate; }
-        return Ember.TEMPLATES['not_found'];
-      }
-    })
-  });
-  ```
-
-  Some examples of how names are resolved:
-
-  ```
-  'template:post'           //=> Ember.TEMPLATES['post']
-  'template:posts/byline'   //=> Ember.TEMPLATES['posts/byline']
-  'template:posts.byline'   //=> Ember.TEMPLATES['posts/byline']
-  'template:blogPost'       //=> Ember.TEMPLATES['blogPost']
-                            //   OR
-                            //   Ember.TEMPLATES['blog_post']
-  'controller:post'         //=> App.PostController
-  'controller:posts.index'  //=> App.PostsIndexController
-  'controller:blog/post'    //=> Blog.PostController
-  'controller:basic'        //=> Ember.Controller
-  'route:post'              //=> App.PostRoute
-  'route:posts.index'       //=> App.PostsIndexRoute
-  'route:blog/post'         //=> Blog.PostRoute
-  'route:basic'             //=> Ember.Route
-  'view:post'               //=> App.PostView
-  'view:posts.index'        //=> App.PostsIndexView
-  'view:blog/post'          //=> Blog.PostView
-  'view:basic'              //=> Ember.View
-  'foo:post'                //=> App.PostFoo
-  'model:post'              //=> App.Post
-  ```
-
-  @class DefaultResolver
-  @namespace Ember
-  @extends Ember.Object
-  @public
-*/
 enifed('ember-application/utils/validate-type', ['exports'], function (exports) {
   exports.default = validateType;
   /**
@@ -7470,7 +7553,7 @@ enifed("ember-htmlbars/hooks/has-helper", ["exports", "ember-htmlbars/system/loo
     }
 
     var container = env.container;
-    if ((0, _emberHtmlbarsSystemLookupHelper.validateLazyHelperName)(helperName, container, env.hooks.keywords)) {
+    if ((0, _emberHtmlbarsSystemLookupHelper.validateLazyHelperName)(helperName, container, env.hooks.keywords, env.knownHelpers)) {
       var containerName = "helper:" + helperName;
       if (container._registry.has(containerName)) {
         return true;
@@ -8259,7 +8342,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+dfab8ec2";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9ae95228";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9566,6 +9649,30 @@ enifed("ember-htmlbars/system/bootstrap", ["exports", "ember-metal/core", "ember
 @module ember
 @submodule ember-htmlbars
 */
+enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/keys'], function (exports, _emberMetalFeatures, _emberMetalDictionary, _emberMetalKeys) {
+  exports.default = discoverKnownHelpers;
+
+  function discoverKnownHelpers(container) {
+    var registry = container && container._registry;
+    var helpers = (0, _emberMetalDictionary.default)(null);
+
+    if (!registry) {
+      return helpers;
+    }
+
+    var known = registry.knownForType('helper');
+    var knownContainerKeys = (0, _emberMetalKeys.default)(known);
+
+    for (var index = 0, _length = knownContainerKeys.length; index < _length; index++) {
+      var fullName = knownContainerKeys[index];
+      var _name = fullName.slice(7); // remove `helper:` from fullName
+
+      helpers[_name] = true;
+    }
+
+    return helpers;
+  }
+});
 enifed("ember-htmlbars/system/dom-helper", ["exports", "dom-helper", "ember-htmlbars/morphs/morph", "ember-htmlbars/morphs/attr-morph", "ember-metal/platform/create"], function (exports, _domHelper, _emberHtmlbarsMorphsMorph, _emberHtmlbarsMorphsAttrMorph, _emberMetalPlatformCreate) {
 
   function EmberDOMHelper(_document) {
@@ -9665,8 +9772,14 @@ enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "e
 
   exports.CONTAINS_DASH_CACHE = CONTAINS_DASH_CACHE;
 
-  function validateLazyHelperName(helperName, container, keywords) {
-    return container && CONTAINS_DASH_CACHE.get(helperName) && !(helperName in keywords);
+  function validateLazyHelperName(helperName, container, keywords, knownHelpers) {
+    if (!container || helperName in keywords) {
+      return false;
+    }
+
+    if (knownHelpers[helperName] || CONTAINS_DASH_CACHE.get(helperName)) {
+      return true;
+    }
   }
 
   function isLegacyBareHelper(helper) {
@@ -9693,7 +9806,7 @@ enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "e
 
     if (!helper) {
       var container = env.container;
-      if (validateLazyHelperName(name, container, env.hooks.keywords)) {
+      if (validateLazyHelperName(name, container, env.hooks.keywords, env.knownHelpers)) {
         var helperName = "helper:" + name;
         if (container._registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
@@ -9802,7 +9915,7 @@ enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/he
 @module ember
 @submodule ember-htmlbars
 */
-enifed("ember-htmlbars/system/render-env", ["exports", "ember-htmlbars/env"], function (exports, _emberHtmlbarsEnv) {
+enifed("ember-htmlbars/system/render-env", ["exports", "ember-htmlbars/env", "ember-htmlbars/system/discover-known-helpers"], function (exports, _emberHtmlbarsEnv, _emberHtmlbarsSystemDiscoverKnownHelpers) {
   exports.default = RenderEnv;
 
   function RenderEnv(options) {
@@ -9816,6 +9929,7 @@ enifed("ember-htmlbars/system/render-env", ["exports", "ember-htmlbars/env"], fu
     this.container = options.container;
     this.renderer = options.renderer;
     this.dom = options.dom;
+    this.knownHelpers = options.knownHelpers || (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(options.container);
 
     this.hooks = _emberHtmlbarsEnv.default.hooks;
     this.helpers = _emberHtmlbarsEnv.default.helpers;
@@ -9842,7 +9956,8 @@ enifed("ember-htmlbars/system/render-env", ["exports", "ember-htmlbars/env"], fu
       lifecycleHooks: this.lifecycleHooks,
       renderedViews: this.renderedViews,
       renderedNodes: this.renderedNodes,
-      hasParentOutlet: this.hasParentOutlet
+      hasParentOutlet: this.hasParentOutlet,
+      knownHelpers: this.knownHelpers
     });
   };
 
@@ -9858,7 +9973,8 @@ enifed("ember-htmlbars/system/render-env", ["exports", "ember-htmlbars/env"], fu
       lifecycleHooks: this.lifecycleHooks,
       renderedViews: this.renderedViews,
       renderedNodes: this.renderedNodes,
-      hasParentOutlet: hasParentOutlet
+      hasParentOutlet: hasParentOutlet,
+      knownHelpers: this.knownHelpers
     });
   };
 });
@@ -13998,7 +14114,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+dfab8ec2
+    @version 2.0.0-canary+9ae95228
     @public
   */
 
@@ -14030,11 +14146,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+dfab8ec2'
+    @default '2.0.0-canary+9ae95228'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+dfab8ec2';
+  Ember.VERSION = '2.0.0-canary+9ae95228';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22750,7 +22866,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+dfab8ec2";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+9ae95228";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23266,7 +23382,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+dfab8ec2";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9ae95228";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39982,7 +40098,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+dfab8ec2",
+        revision: "Ember@2.0.0-canary+9ae95228",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43914,7 +44030,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+dfab8ec2";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+9ae95228";
 
   /**
   @module ember
