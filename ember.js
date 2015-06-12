@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f6d5b42c
+ * @version   2.0.0-canary+4ec788bd
  */
 
 (function() {
@@ -8682,7 +8682,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+f6d5b42c";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+4ec788bd";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -11612,14 +11612,7 @@ enifed("ember-metal-views/renderer", ["exports", "ember-metal/run_loop", "ember-
     }
 
     if (view._transitionTo) {
-      view._transitionTo("destroying", false);
-    }
-
-    var childViews = view.childViews;
-    if (childViews) {
-      for (var i = 0; i < childViews.length; i++) {
-        this.willDestroyElement(childViews[i]);
-      }
+      view._transitionTo("destroying");
     }
   };
 
@@ -11634,11 +11627,8 @@ enifed("ember-metal-views/renderer", ["exports", "ember-metal/run_loop", "ember-
       view._transitionTo("preRender");
     }
 
-    var childViews = view.childViews;
-    if (childViews) {
-      for (var i = 0; i < childViews.length; i++) {
-        this.didDestroyElement(childViews[i]);
-      }
+    if (view.trigger) {
+      view.trigger("didDestroyElement");
     }
   }; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
 
@@ -14467,7 +14457,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+f6d5b42c
+    @version 2.0.0-canary+4ec788bd
     @public
   */
 
@@ -14499,11 +14489,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+f6d5b42c'
+    @default '2.0.0-canary+4ec788bd'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+f6d5b42c';
+  Ember.VERSION = '2.0.0-canary+4ec788bd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23314,7 +23304,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+f6d5b42c";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+4ec788bd";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23830,7 +23820,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+f6d5b42c";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+4ec788bd";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40616,7 +40606,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+f6d5b42c",
+        revision: "Ember@2.0.0-canary+4ec788bd",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43786,12 +43776,12 @@ enifed("ember-views/mixins/view_context_support", ["exports", "ember-metal/mixin
 enifed("ember-views/mixins/view_state_support", ["exports", "ember-metal/core", "ember-metal/mixin"], function (exports, _emberMetalCore, _emberMetalMixin) {
 
   var ViewStateSupport = _emberMetalMixin.Mixin.create({
-    transitionTo: function (state, children) {
+    transitionTo: function (state) {
       _emberMetalCore.default.deprecate("Ember.View#transitionTo has been deprecated, it is for internal use only");
-      this._transitionTo(state, children);
+      this._transitionTo(state);
     },
 
-    _transitionTo: function (state, children) {
+    _transitionTo: function (state) {
       var priorState = this.currentState;
       var currentState = this.currentState = this._states[state];
       this._state = state;
@@ -45780,8 +45770,8 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
   exports.default = Component;
 });
 // Ember.assert, Ember.Handlebars
-enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+f6d5b42c";
+enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+4ec788bd";
 
   /**
   @module ember
@@ -46059,8 +46049,26 @@ enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "embe
     },
 
     objectAt: function (idx) {
-      return (0, _emberMetalProperty_get.get)(this, "childViews")[idx];
-    }
+      return this.childViews[idx];
+    },
+
+    _triggerChildWillDestroyElement: (0, _emberMetalEvents.on)("willDestroyElement", function () {
+      var childViews = this.childViews;
+      if (childViews) {
+        for (var i = 0; i < childViews.length; i++) {
+          this.renderer.willDestroyElement(childViews[i]);
+        }
+      }
+    }),
+
+    _triggerChildDidDestroyElement: (0, _emberMetalEvents.on)("didDestroyElement", function () {
+      var childViews = this.childViews;
+      if (childViews) {
+        for (var i = 0; i < childViews.length; i++) {
+          this.renderer.didDestroyElement(childViews[i]);
+        }
+      }
+    })
   });
 
   exports.default = ContainerView;

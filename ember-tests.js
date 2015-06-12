@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f6d5b42c
+ * @version   2.0.0-canary+4ec788bd
  */
 
 (function() {
@@ -18117,6 +18117,55 @@ enifed("ember-htmlbars/tests/integration/void-element-component-test", ["exports
     (0, _emberRuntimeTestsUtils.runAppend)(view);
 
     deepEqual(component.element.childNodes.length, 0, "no childNodes are added for `<input>`");
+  });
+});
+enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['exports', 'ember-metal/run_loop', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
+
+  var component;
+
+  QUnit.module('ember-htmlbars: destroy-element-hook tests', {
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(component);
+    }
+  });
+
+  QUnit.test('willDestroyElement is only called once when a component leaves scope', function (assert) {
+    var innerChild, innerChildDestroyed;
+
+    component = _emberViewsViewsComponent.default.create({
+      switch: true,
+
+      layout: (0, _emberTemplateCompilerSystemCompile.default)('\n     {{~#if switch~}}\n       {{~#view innerChild}}Truthy{{/view~}}\n     {{~/if~}}\n    '),
+
+      innerChild: _emberViewsViewsComponent.default.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          innerChild = this;
+        },
+
+        willDestroyElement: function () {
+          if (innerChildDestroyed) {
+            throw new Error('willDestroyElement has already been called!!');
+          } else {
+            innerChildDestroyed = true;
+          }
+        }
+      })
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+
+    assert.equal(component.$().text(), 'Truthy', 'precond - truthy template is displayed');
+    assert.equal(component.get('childViews.length'), 1);
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(component, 'switch', false);
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      assert.equal(innerChild.get('isDestroyed'), true, 'the innerChild has been destroyed');
+      assert.equal(component.$().text(), '', 'truthy template is removed');
+    });
   });
 });
 enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
@@ -48200,7 +48249,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+f6d5b42c", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4ec788bd", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
