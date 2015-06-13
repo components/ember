@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+624b5e26
+ * @version   1.13.0-beta.2+0eac9054
  */
 
 (function() {
@@ -1488,7 +1488,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/keys'
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/keys', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalKeys, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
@@ -2081,6 +2081,37 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
         property: property,
         fullName: normalizedInjectionName
       });
+    },
+
+    /**
+     @method knownForType
+     @param {String} type the type to iterate over
+     @private
+    */
+    knownForType: function (type) {
+      var fallbackKnown = undefined,
+          resolverKnown = undefined;
+
+      var localKnown = (0, _emberMetalDictionary.default)(null);
+      var registeredNames = (0, _emberMetalKeys.default)(this.registrations);
+      for (var index = 0, _length = registeredNames.length; index < _length; index++) {
+        var fullName = registeredNames[index];
+        var itemType = fullName.split(':')[0];
+
+        if (itemType === type) {
+          localKnown[fullName] = true;
+        }
+      }
+
+      if (this.fallback) {
+        fallbackKnown = this.fallback.knownForType(type);
+      }
+
+      if (this.resolver.knownForType) {
+        resolverKnown = this.resolver.knownForType(type);
+      }
+
+      return (0, _emberMetalMerge.assign)({}, fallbackKnown, localKnown, resolverKnown);
     },
 
     validateFullName: function (fullName) {
@@ -4740,6 +4771,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     @public
   */
   var any = generateComputedWithProperties(function (properties) {
+    _emberMetalCore.default.deprecate("Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead.");
     for (var key in properties) {
       if (properties.hasOwnProperty(key) && properties[key]) {
         return properties[key];
@@ -5003,7 +5035,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.0-beta.2+624b5e26
+    @version 1.13.0-beta.2+0eac9054
     @public
   */
 
@@ -5035,11 +5067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+624b5e26'
+    @default '1.13.0-beta.2+0eac9054'
     @static
     @public
   */
-  Ember.VERSION = '1.13.0-beta.2+624b5e26';
+  Ember.VERSION = '1.13.0-beta.2+0eac9054';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5084,7 +5116,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-helper': true }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': false, 'ember-htmlbars-helper': true, 'ember-htmlbars-dashless-helpers': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -6747,6 +6779,7 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     Ember.isPresent();                // false
     Ember.isPresent(null);            // false
     Ember.isPresent(undefined);       // false
+    Ember.isPresent(false);           // false
     Ember.isPresent('');              // false
     Ember.isPresent([]);              // false
     Ember.isPresent('\n\t');          // false
@@ -13076,6 +13109,7 @@ enifed('ember-runtime/computed/array_computed', ['exports', 'ember-metal/core', 
   function ArrayComputedProperty() {
     var cp = this;
 
+    this._isArrayComputed = true;
     _emberRuntimeComputedReduce_computed.ReduceComputedProperty.apply(this, arguments);
 
     this._getter = (function (reduceFunc) {
@@ -13227,6 +13261,7 @@ enifed('ember-runtime/computed/array_computed', ['exports', 'ember-metal/core', 
     @param {String} [dependentKeys*]
     @param {Object} options
     @return {Ember.ComputedProperty}
+    @deprecated
     @private
   */
   function arrayComputed(options) {
@@ -13721,6 +13756,16 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
   function ReduceComputedProperty(options) {
     var cp = this;
 
+    // use options._suppressDeprecation to allow us to deprecate
+    // arrayComputed and reduceComputed themselves, but not the
+    // default internal macros which will be reimplemented as plain
+    // array methods
+    if (this._isArrayComputed) {
+      _emberMetalCore.default.deprecate('Ember.arrayComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
+    } else {
+      _emberMetalCore.default.deprecate('Ember.reduceComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
+    }
+
     this.options = options;
     this._dependentKeys = null;
     this._cacheable = true;
@@ -14084,6 +14129,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
     @param {String} [dependentKeys*]
     @param {Object} options
     @return {Ember.ComputedProperty}
+    @deprecated
     @public
   */
 
@@ -14142,6 +14188,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function sum(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
       initialValue: 0,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14191,6 +14238,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function max(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
       initialValue: -Infinity,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14242,6 +14290,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function min(dependentKey) {
     return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
+      _suppressDeprecation: true,
+
       initialValue: Infinity,
 
       addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
@@ -14293,6 +14343,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function map(dependentKey, callback) {
     var options = {
+      _suppressDeprecation: true,
+
       addedItem: function (array, item, changeMeta, instanceMeta) {
         var mapped = callback.call(this, item, changeMeta.index);
         array.insertAt(changeMeta.index, mapped);
@@ -14396,6 +14448,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function filter(dependentKey, callback) {
     var options = {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.filteredArrayIndexes = new _emberRuntimeSystemSubarray.default();
       },
@@ -14516,6 +14570,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     var args = a_slice.call(arguments);
 
     args.push({
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.itemCounts = {};
       },
@@ -14588,6 +14644,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     var args = a_slice.call(arguments);
 
     args.push({
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.itemCounts = {};
       },
@@ -14680,6 +14738,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     }
 
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(setAProperty, setBProperty, {
+      _suppressDeprecation: true,
+
       addedItem: function (array, item, changeMeta, instanceMeta) {
         var setA = (0, _emberMetalProperty_get.get)(this, setAProperty);
         var setB = (0, _emberMetalProperty_get.get)(this, setBProperty);
@@ -14830,6 +14890,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function customSort(itemsKey, comparator) {
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         instanceMeta.order = comparator;
         instanceMeta.binarySearch = binarySearch;
@@ -14867,6 +14929,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
   function propertySort(itemsKey, sortPropertiesKey) {
     return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
+      _suppressDeprecation: true,
+
       initialize: function (array, changeMeta, instanceMeta) {
         function setupSortProperties() {
           var sortPropertyDefinitions = (0, _emberMetalProperty_get.get)(this, sortPropertiesKey);
@@ -14999,7 +15063,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     Then, create a view that binds to your new controller:
   
     ```handlebars
-    {{#each person in MyApp.listController}}
+    {{#each MyApp.listController as |person|}}
       {{person.firstName}} {{person.lastName}}
     {{/each}}
     ```
@@ -15016,7 +15080,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     For example:
   
     ```handlebars
-    {{#each post in controller}}
+    {{#each controller as |post|}}
       <li>{{post.title}} ({{post.titleLength}} characters)</li>
     {{/each}}
     ```
@@ -19161,7 +19225,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       ```
        @method toggleProperty
       @param {String} keyName The name of the property to toggle
-      @return {Object} The new property value
+      @return {Boolean} The new property value
       @public
     */
     toggleProperty: function (keyName) {

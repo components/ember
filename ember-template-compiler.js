@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+624b5e26
+ * @version   1.13.0-beta.2+0eac9054
  */
 
 (function() {
@@ -114,7 +114,7 @@ var mainContext = this;
   }
 })();
 
-enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/logger", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment) {
+enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -212,10 +212,20 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
       will be displayed. If this is a function, it will be executed and its return
       value will be used as condition.
     @param {Object} options An optional object that can be used to pass
-      in a `url` to the transition guide on the emberjs.com website.
+      in a `url` to the transition guide on the emberjs.com website, and a unique
+      `id` for this deprecation. The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log or silence) for that specific deprecation.
+      The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
   _emberMetalCore.default.deprecate = function (message, test, options) {
+    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+    }
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
+      return;
+    }
+
     var noDeprecation;
 
     if (isPlainFunction(test)) {
@@ -228,7 +238,11 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
       return;
     }
 
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+    if (options && options.id) {
+      message = message + (" [deprecation id: " + options.id + "]");
+    }
+
+    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {
       throw new _emberMetalError.default(message);
     }
 
@@ -374,6 +388,13 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
     }
   }
 
+  _emberMetalCore.default.Debug = {
+    _addDeprecationLevel: function (id, level) {
+      _emberDebugDeprecationManager.default.setLevel(id, level);
+    },
+    _deprecationLevels: _emberDebugDeprecationManager.deprecationLevels
+  };
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
@@ -389,6 +410,32 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
   }
 });
 /*global __fail__*/
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  var deprecationLevels = {
+    RAISE: (0, _emberMetalUtils.symbol)('RAISE'),
+    LOG: (0, _emberMetalUtils.symbol)('LOG'),
+    SILENCE: (0, _emberMetalUtils.symbol)('SILENCE')
+  };
+
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: (0, _emberMetalDictionary.default)(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
+      }
+      return level;
+    }
+  };
+});
 enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/enumerable_utils", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/array", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalEnumerable_utils, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalArray, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
@@ -2946,6 +2993,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     @public
   */
   var any = generateComputedWithProperties(function (properties) {
+    _emberMetalCore.default.deprecate("Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead.");
     for (var key in properties) {
       if (properties.hasOwnProperty(key) && properties[key]) {
         return properties[key];
@@ -3209,7 +3257,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.0-beta.2+624b5e26
+    @version 1.13.0-beta.2+0eac9054
     @public
   */
 
@@ -3241,11 +3289,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.0-beta.2+624b5e26'
+    @default '1.13.0-beta.2+0eac9054'
     @static
     @public
   */
-  Ember.VERSION = '1.13.0-beta.2+624b5e26';
+  Ember.VERSION = '1.13.0-beta.2+0eac9054';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3290,7 +3338,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @since 1.1.0
     @public
   */
-  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-helper': true }; //jshint ignore:line
+  Ember.FEATURES = { 'features-stripped-test': false, 'ember-routing-named-substates': true, 'mandatory-setter': true, 'ember-htmlbars-component-generation': false, 'ember-htmlbars-component-helper': true, 'ember-htmlbars-inline-if-helper': true, 'ember-htmlbars-attribute-syntax': true, 'ember-routing-transitioning-classes': true, 'ember-testing-checkbox-helpers': false, 'ember-metal-stream': false, 'ember-application-instance-initializers': true, 'ember-application-initializer-context': true, 'ember-router-willtransition': true, 'ember-application-visit': false, 'ember-views-component-block-info': true, 'ember-routing-core-outlet': false, 'ember-libraries-isregistered': false, 'ember-routing-htmlbars-improved-actions': true, 'ember-htmlbars-get-helper': false, 'ember-htmlbars-helper': true, 'ember-htmlbars-dashless-helpers': true }; //jshint ignore:line
 
   if (Ember.ENV.FEATURES) {
     for (var feature in Ember.ENV.FEATURES) {
@@ -4953,6 +5001,7 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     Ember.isPresent();                // false
     Ember.isPresent(null);            // false
     Ember.isPresent(undefined);       // false
+    Ember.isPresent(false);           // false
     Ember.isPresent('');              // false
     Ember.isPresent([]);              // false
     Ember.isPresent('\n\t');          // false
@@ -11061,7 +11110,7 @@ enifed("ember-metal/watching", ["exports", "ember-metal/utils", "ember-metal/cha
 /**
 @module ember-metal
 */
-enifed("ember-template-compiler", ["exports", "ember-metal/core", "ember-template-compiler/system/precompile", "ember-template-compiler/system/compile", "ember-template-compiler/system/template", "ember-template-compiler/plugins", "ember-template-compiler/plugins/transform-each-in-to-block-params", "ember-template-compiler/plugins/transform-with-as-to-hash", "ember-template-compiler/plugins/transform-bind-attr-to-attributes", "ember-template-compiler/plugins/transform-each-into-collection", "ember-template-compiler/plugins/transform-single-arg-each", "ember-template-compiler/plugins/transform-old-binding-syntax", "ember-template-compiler/plugins/transform-old-class-binding-syntax", "ember-template-compiler/plugins/transform-item-class", "ember-template-compiler/plugins/transform-component-attrs-into-mut", "ember-template-compiler/plugins/transform-component-curly-to-readonly", "ember-template-compiler/plugins/transform-angle-bracket-components", "ember-template-compiler/plugins/transform-input-on-to-onEvent", "ember-template-compiler/compat"], function (exports, _emberMetalCore, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformBindAttrToAttributes, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerCompat) {
+enifed("ember-template-compiler", ["exports", "ember-metal/core", "ember-template-compiler/system/precompile", "ember-template-compiler/system/compile", "ember-template-compiler/system/template", "ember-template-compiler/plugins", "ember-template-compiler/plugins/transform-each-in-to-block-params", "ember-template-compiler/plugins/transform-with-as-to-hash", "ember-template-compiler/plugins/transform-bind-attr-to-attributes", "ember-template-compiler/plugins/transform-each-into-collection", "ember-template-compiler/plugins/transform-single-arg-each", "ember-template-compiler/plugins/transform-old-binding-syntax", "ember-template-compiler/plugins/transform-old-class-binding-syntax", "ember-template-compiler/plugins/transform-item-class", "ember-template-compiler/plugins/transform-component-attrs-into-mut", "ember-template-compiler/plugins/transform-component-curly-to-readonly", "ember-template-compiler/plugins/transform-angle-bracket-components", "ember-template-compiler/plugins/transform-input-on-to-onEvent", "ember-template-compiler/plugins/deprecate-view-and-controller-paths", "ember-template-compiler/plugins/deprecate-view-helper", "ember-template-compiler/compat"], function (exports, _emberMetalCore, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformBindAttrToAttributes, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
 
   (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsTransformWithAsToHash.default);
   (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsTransformEachInToBlockParams.default);
@@ -11075,6 +11124,8 @@ enifed("ember-template-compiler", ["exports", "ember-metal/core", "ember-templat
   (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly.default);
   (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
   (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default);
+  (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
+  (0, _emberTemplateCompilerPlugins.registerPlugin)("ast", _emberTemplateCompilerPluginsDeprecateViewHelper.default);
 
   exports._Ember = _emberMetalCore.default;
   exports.precompile = _emberTemplateCompilerSystemPrecompile.default;
@@ -11149,6 +11200,133 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
   }
 
   exports.default = plugins;
+});
+enifed("ember-template-compiler/plugins/deprecate-view-and-controller-paths", ["exports", "ember-metal/core", "ember-template-compiler/system/calculate-location-display"], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+
+  function DeprecateViewAndControllerPaths(options) {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+    this.options = options || {};
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  DeprecateViewAndControllerPaths.prototype.transform = function DeprecateViewAndControllerPaths_transform(ast) {
+    var walker = new this.syntax.Walker();
+    var moduleName = this.options && this.options.moduleName;
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      deprecatePath(moduleName, node, node.path);
+      deprecatePaths(moduleName, node, node.params);
+      deprecateHash(moduleName, node, node.hash);
+    });
+
+    return ast;
+  };
+
+  function deprecateHash(moduleName, node, hash) {
+    if (!hash || !hash.pairs) {
+      return;
+    }
+    var i, l, pair, paths;
+    for (i = 0, l = hash.pairs.length; i < l; i++) {
+      pair = hash.pairs[i];
+      paths = pair.value.params;
+      deprecatePaths(moduleName, pair, paths);
+    }
+  }
+
+  function deprecatePaths(moduleName, node, paths) {
+    if (!paths) {
+      return;
+    }
+    var i, l, path;
+    for (i = 0, l = paths.length; i < l; i++) {
+      path = paths[i];
+      deprecatePath(moduleName, node, path);
+    }
+  }
+
+  function deprecatePath(moduleName, node, path) {
+    _emberMetalCore.default.deprecate("Using `{{" + (path && path.type === "PathExpression" && path.parts[0]) + "}}` or any path based on it " + (0, _emberTemplateCompilerSystemCalculateLocationDisplay.default)(moduleName, node.loc) + "has been deprecated.", function deprecatePath_test() {
+      var noDeprecate = true;
+
+      var viewKeyword = path && path.type === "PathExpression" && path.parts && path.parts[0];
+      if (viewKeyword === "view") {
+        noDeprecate = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      } else if (viewKeyword === "controller") {
+        noDeprecate = false;
+      }
+
+      return noDeprecate;
+    }, { url: "http://emberjs.com/deprecations/v1.x#toc_view-and-controller-template-keywords", id: path.parts && path.parts[0] === "view" ? "view.keyword.view" : "view.keyword.controller" });
+  }
+
+  function validate(node) {
+    return node.type === "MustacheStatement" || node.type === "BlockStatement";
+  }
+
+  exports.default = DeprecateViewAndControllerPaths;
+});
+enifed("ember-template-compiler/plugins/deprecate-view-helper", ["exports", "ember-metal/core", "ember-template-compiler/system/calculate-location-display"], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+
+  function DeprecateViewHelper(options) {
+    // set later within HTMLBars to the syntax package
+    this.syntax = null;
+    this.options = options || {};
+  }
+
+  /**
+    @private
+    @method transform
+    @param {AST} ast The AST to be transformed.
+  */
+  DeprecateViewHelper.prototype.transform = function DeprecateViewHelper_transform(ast) {
+    if (!!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
+      return ast;
+    }
+    var walker = new this.syntax.Walker();
+    var moduleName = this.options && this.options.moduleName;
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      deprecateHelper(moduleName, node);
+    });
+
+    return ast;
+  };
+
+  function deprecateHelper(moduleName, node) {
+    var paramValue = node.params.length && node.params[0].value;
+
+    if (!paramValue) {
+      return;
+    } else if (paramValue === "select") {
+      deprecateSelect(moduleName, node);
+    } else {
+      _emberMetalCore.default.deprecate("Using the `{{view \"string\"}}` helper is deprecated. " + (0, _emberTemplateCompilerSystemCalculateLocationDisplay.default)(moduleName, node.loc), false, { url: "http://emberjs.com/deprecations/v1.x#toc_ember-view", id: "view.helper" });
+    }
+  }
+
+  function deprecateSelect(moduleName, node) {
+    _emberMetalCore.default.deprecate("Using `{{view \"select\"}}` is deprecated. " + (0, _emberTemplateCompilerSystemCalculateLocationDisplay.default)(moduleName, node.loc), false, { url: "http://emberjs.com/deprecations/v1.x#toc_ember-select", id: "view.helper.select" });
+  }
+
+  function validate(node) {
+    return (node.type === "MustacheStatement" || node.type === "BlockStatement") && node.path.parts[0] === "view";
+  }
+
+  exports.default = DeprecateViewHelper;
 });
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   function TransformAngleBracketComponents() {
@@ -12221,7 +12399,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0-beta.2+624b5e26",
+        revision: "Ember@1.13.0-beta.2+0eac9054",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -14021,13 +14199,27 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     };
   }
 
+  // Called by a user-land helper to render a template.
   function yieldTemplate(template, env, parentScope, morph, renderState, visitor) {
     return function (blockArguments, self) {
-      renderState.clearMorph = null;
+      // Render state is used to track the progress of the helper (since it
+      // may call into us multiple times). As the user-land helper calls
+      // into library code, we track what needs to be cleaned up after the
+      // helper has returned.
+      //
+      // Here, we remember that a template has been yielded and so we do not
+      // need to remove the previous template. (If no template is yielded
+      // this render by the helper, we assume nothing should be shown and
+      // remove any previous rendered templates.)
+      renderState.morphToClear = null;
 
+      // In this conditional is true, it means that on the previous rendering pass
+      // the helper yielded multiple items via `yieldItem()`, but this time they
+      // are yielding a single template. In that case, we mark the morph list for
+      // cleanup so it is removed from the DOM.
       if (morph.morphList) {
-        renderState.morphList = morph.morphList.firstChildMorph;
-        renderState.morphList = null;
+        (0, _htmlbarsUtilTemplateUtils.clearMorphList)(morph.morphList, morph, env);
+        renderState.morphListToClear = null;
       }
 
       var scope = parentScope;
@@ -14052,20 +14244,33 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function yieldItem(template, env, parentScope, morph, renderState, visitor) {
+    // Initialize state that tracks multiple items being
+    // yielded in.
     var currentMorph = null;
+
+    // Candidate morphs for deletion.
+    var candidates = {};
+
+    // Reuse existing MorphList if this is not a first-time
+    // render.
     var morphList = morph.morphList;
     if (morphList) {
       currentMorph = morphList.firstChildMorph;
-      renderState.morphListStart = currentMorph;
     }
 
-    // This helper function assumes that the morph was already rendered; if this is
-    // called and the morph does not exist, it will result in an infinite loop
+    // Advances the currentMorph pointer to the morph in the previously-rendered
+    // list that matches the yielded key. While doing so, it marks any morphs
+    // that it advances past as candidates for deletion. Assuming those morphs
+    // are not yielded in later, they will be removed in the prune step during
+    // cleanup.
+    // Note that this helper function assumes that the morph being seeked to is
+    // guaranteed to exist in the previous MorphList; if this is called and the
+    // morph does not exist, it will result in an infinite loop
     function advanceToKey(key) {
       var seek = currentMorph;
 
       while (seek.key !== key) {
-        renderState.deletionCandidates[seek.key] = seek;
+        candidates[seek.key] = seek;
         seek = seek.nextMorph;
       }
 
@@ -14078,6 +14283,11 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
       }
 
+      // At least one item has been yielded, so we do not wholesale
+      // clear the last MorphList but instead apply a prune operation.
+      renderState.morphListToClear = null;
+      morph.lastYielded = null;
+
       var morphList, morphMap;
 
       if (!morph.morphList) {
@@ -14089,7 +14299,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morphList = morph.morphList;
       morphMap = morph.morphMap;
 
-      var candidates = renderState.deletionCandidates;
+      // A map of morphs that have been yielded in on this
+      // rendering pass. Any morphs that do not make it into
+      // this list will be pruned from the MorphList during the cleanup
+      // process.
       var handledMorphs = renderState.handledMorphs;
 
       if (currentMorph && currentMorph.key === key) {
@@ -14117,7 +14330,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         yieldTemplate(template, env, parentScope, childMorph, renderState, visitor)(blockArguments, self);
       }
 
-      renderState.clearMorph = morph.childNodes;
+      renderState.morphListToPrune = morphList;
       morph.childNodes = null;
     };
   }
@@ -14136,7 +14349,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   function hostYieldWithShadowTemplate(template, env, parentScope, morph, renderState, visitor) {
     return function (shadowTemplate, env, self, blockArguments) {
-      renderState.clearMorph = null;
+      renderState.morphToClear = null;
 
       if (morph.lastYielded && isStableShadowRoot(template, shadowTemplate, morph.lastYielded)) {
         return morph.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
@@ -14175,10 +14388,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function optionsFor(template, inverse, env, scope, morph, visitor) {
-    // If there was a template yielded last time, set clearMorph so it will be cleared
+    // If there was a template yielded last time, set morphToClear so it will be cleared
     // if no template is yielded on this render.
-    var clearMorph = morph.lastResult ? morph : null;
-    var renderState = new _htmlbarsUtilTemplateUtils.RenderState(clearMorph);
+    var morphToClear = morph.lastResult ? morph : null;
+    var renderState = new _htmlbarsUtilTemplateUtils.RenderState(morphToClear, morph.morphList || null);
 
     return {
       templates: {
@@ -15076,7 +15289,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return renderResult;
   }
 
-  function RenderResult(env, scope, options, rootNode, nodes, fragment, template, shouldSetContent) {
+  function RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent) {
     this.root = rootNode;
     this.fragment = fragment;
 
@@ -15100,6 +15313,8 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     if (options.blockArguments !== undefined) {
       this.bindLocals(options.blockArguments);
     }
+
+    this.initializeNodes(ownerNode);
   }
 
   RenderResult.build = function (env, scope, template, options, contextualElement) {
@@ -15127,12 +15342,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     }
 
     rootNode.childNodes = nodes;
-
-    (0, _htmlbarsUtilArrayUtils.forEach)(nodes, function (node) {
-      initializeNode(node, ownerNode);
-    });
-
-    return new RenderResult(env, scope, options, rootNode, nodes, fragment, template, shouldSetContent);
+    return new RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent);
   };
 
   function manualElement(tagName, attributes) {
@@ -15246,6 +15456,12 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return template;
   }
 
+  RenderResult.prototype.initializeNodes = function (ownerNode) {
+    (0, _htmlbarsUtilArrayUtils.forEach)(this.root.childNodes, function (node) {
+      initializeNode(node, ownerNode);
+    });
+  };
+
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
@@ -15324,7 +15540,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
         case "component":
           visitor.component(statement, morph, env, scope, template, visitor);break;
         case "attributes":
-          visitor.attributes(statement, morph, env, scope, this.root, visitor);break;
+          visitor.attributes(statement, morph, env, scope, this.fragment, visitor);break;
       }
 
       if (env.hooks.didRenderNode) {
@@ -18326,17 +18542,34 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
 enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
   exports.default = _handlebarsSafeString.default;
 });
-enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils", "./array-utils"], function (exports, _htmlbarsUtilMorphUtils, _arrayUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
   exports.RenderState = RenderState;
   exports.blockFor = blockFor;
   exports.renderAndCleanup = renderAndCleanup;
   exports.clearMorph = clearMorph;
+  exports.clearMorphList = clearMorphList;
 
-  function RenderState(renderNode) {
-    this.morphListStart = null;
-    this.deletionCandidates = {};
+  function RenderState(renderNode, morphList) {
+    // The morph list that is no longer needed and can be
+    // destroyed.
+    this.morphListToClear = morphList;
+
+    // The morph list that needs to be pruned of any items
+    // that were not yielded on a subsequent render.
+    this.morphListToPrune = null;
+
+    // A map of morphs for each item yielded in during this
+    // rendering pass. Any morphs in the DOM but not in this map
+    // will be pruned during cleanup.
     this.handledMorphs = {};
-    this.clearMorph = renderNode;
+
+    // The morph to clear once rendering is complete. By
+    // default, we set this to the previous morph (to catch
+    // the case where nothing is yielded; in that case, we
+    // should just clear the morph). Otherwise this gets set
+    // to null if anything is rendered.
+    this.morphToClear = renderNode;
+
     this.shadowOptions = null;
   }
 
@@ -18349,6 +18582,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
 
         var scope = blockOptions.scope;
         var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
+        var attributes = blockOptions.attributes;
 
         env.hooks.bindShadowScope(env, parentScope, shadowScope, blockOptions.options);
 
@@ -18361,8 +18595,8 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
         bindBlocks(env, shadowScope, blockOptions.yieldTo);
 
         renderAndCleanup(renderNode, env, options, null, function () {
-          options.renderState.clearMorph = null;
-          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments });
+          options.renderState.morphToClear = null;
+          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments, attributes: attributes });
         });
       }
     };
@@ -18388,24 +18622,37 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
   }
 
   function renderAndCleanup(morph, env, options, shadowOptions, callback) {
-    options.renderState.shadowOptions = shadowOptions;
+    // The RenderState object is used to collect information about what the
+    // helper or hook being invoked has yielded. Once it has finished either
+    // yielding multiple items (via yieldItem) or a single template (via
+    // yieldTemplate), we detect what was rendered and how it differs from
+    // the previous render, cleaning up old state in DOM as appropriate.
+    var renderState = options.renderState;
+    renderState.shadowOptions = shadowOptions;
+
+    // Invoke the callback, instructing it to save information about what it
+    // renders into RenderState.
     var result = callback(options);
 
+    // The hook can opt-out of cleanup if it handled cleanup itself.
     if (result && result.handled) {
       return;
     }
 
-    var toClear = options.renderState.clearMorph;
-    var handledMorphs = options.renderState.handledMorphs;
     var morphMap = morph.morphMap;
-    var morphList = morph.morphList;
 
+    // Walk the morph list, clearing any items that were yielded in a previous
+    // render but were not yielded during this render.
+    var morphList = renderState.morphListToPrune;
     if (morphList) {
+      var handledMorphs = renderState.handledMorphs;
       var item = morphList.firstChildMorph;
 
       while (item) {
         var next = item.nextMorph;
 
+        // If we don't see the key in handledMorphs, it wasn't
+        // yielded in and we can safely remove it from DOM.
         if (!(item.key in handledMorphs)) {
           delete morphMap[item.key];
           clearMorph(item, env, true);
@@ -18416,14 +18663,14 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
       }
     }
 
+    morphList = renderState.morphListToClear;
+    if (morphList) {
+      clearMorphList(morphList, morph, env);
+    }
+
+    var toClear = renderState.morphToClear;
     if (toClear) {
-      if ((0, _arrayUtils.isArray)(toClear)) {
-        for (var i = 0, l = toClear.length; i < l; i++) {
-          clearMorph(toClear[i], env);
-        }
-      } else {
-        clearMorph(toClear, env);
-      }
+      clearMorph(toClear, env);
     }
   }
 
@@ -18463,6 +18710,23 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     morph.lastResult = null;
     morph.lastYielded = null;
     morph.childNodes = null;
+  }
+
+  function clearMorphList(morphList, morph, env) {
+    var item = morphList.firstChildMorph;
+
+    while (item) {
+      var next = item.nextMorph;
+      delete morph.morphMap[item.key];
+      clearMorph(item, env, true);
+      item.destroy();
+
+      item = next;
+    }
+
+    // Remove the MorphList from the morph.
+    morphList.clear();
+    morph.morphList = null;
   }
 });
 enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (exports, _arrayUtils) {
