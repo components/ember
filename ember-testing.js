@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+829a2406
+ * @version   2.0.0-beta.1
  */
 
 (function() {
@@ -114,7 +114,7 @@ var mainContext = this;
   }
 })();
 
-enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
+enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/logger", "ember-debug/deprecation-manager", "ember-metal/environment"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -357,14 +357,10 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
 
   if (!_emberMetalCore.default.testing) {
     // Complain if they're using FEATURE flags in builds other than canary
-    _emberMetalCore.default.FEATURES["features-stripped-test"] = true;
+    _emberMetalFeatures.FEATURES["features-stripped-test"] = true;
     var featuresWereStripped = true;
 
-    if (_emberMetalCore.default.FEATURES.isEnabled("features-stripped-test")) {
-      featuresWereStripped = false;
-    }
-
-    delete _emberMetalCore.default.FEATURES["features-stripped-test"];
+    delete _emberMetalFeatures.FEATURES["features-stripped-test"];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
@@ -531,7 +527,7 @@ enifed("ember-testing/adapters/qunit", ["exports", "ember-testing/adapters/adapt
     }
   });
 });
-enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/error", "ember-metal/run_loop", "ember-views/system/jquery", "ember-testing/test", "ember-runtime/ext/rsvp"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/error", "ember-metal/run_loop", "ember-views/system/jquery", "ember-testing/test", "ember-runtime/ext/rsvp"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
 
   /**
   @module ember
@@ -584,8 +580,14 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
 
   function visit(app, url) {
     var router = app.__container__.lookup("router:main");
+    var shouldHandleURL = false;
+
     app.boot().then(function () {
       router.location.setURL(url);
+
+      if (shouldHandleURL) {
+        (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      }
     });
 
     if (app._readinessDeferrals > 0) {
@@ -593,7 +595,7 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
       (0, _emberMetalRun_loop.default)(app, "advanceReadiness");
       delete router["initialURL"];
     } else {
-      (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      shouldHandleURL = true;
     }
 
     return app.testHelpers.wait();
@@ -803,39 +805,6 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
   */
   asyncHelper("click", click);
 
-  if (_emberMetalCore.default.FEATURES.isEnabled("ember-testing-checkbox-helpers")) {
-    /**
-      Checks a checkbox. Ensures the presence of the `checked` attribute
-       Example:
-       ```javascript
-      check('#remember-me').then(function() {
-        // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to check
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper("check", check);
-
-    /**
-      Unchecks a checkbox. Ensures the absence of the `checked` attribute
-       Example:
-       ```javascript
-      uncheck('#remember-me').then(function() {
-       // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to uncheck
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper("uncheck", uncheck);
-  }
   /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   
@@ -1046,6 +1015,36 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
   */
   asyncHelper("triggerEvent", triggerEvent);
 });
+
+/**
+  Checks a checkbox. Ensures the presence of the `checked` attribute
+   Example:
+   ```javascript
+  check('#remember-me').then(function() {
+    // assert something
+  });
+  ```
+   @method check
+  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+  element on the DOM to check
+  @return {RSVP.Promise}
+  @private
+*/
+
+/**
+  Unchecks a checkbox. Ensures the absence of the `checked` attribute
+   Example:
+   ```javascript
+  uncheck('#remember-me').then(function() {
+   // assert something
+  });
+  ```
+   @method check
+  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+  element on the DOM to uncheck
+  @return {RSVP.Promise}
+  @private
+*/
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
 
   var name = 'deferReadiness in `testing` mode';
