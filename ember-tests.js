@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0-beta.2+0eac9054
+ * @version   1.13.0-beta.2+829a2406
  */
 
 (function() {
@@ -16446,7 +16446,7 @@ enifed('ember-htmlbars/tests/integration/globals_integration_test', ['exports', 
     equal(view.$().text(), _emberMetalCore.default.lookup.Global.Space);
   });
 });
-enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember-metal/features", "container/registry", "ember-template-compiler/system/compile", "ember-views/component_lookup", "ember-views/views/component", "ember-htmlbars/helper", "ember-runtime/tests/utils"], function (exports, _emberMetalFeatures, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
+enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember-metal/core", "container/registry", "ember-template-compiler/system/compile", "ember-views/component_lookup", "ember-views/views/component", "ember-htmlbars/helper", "ember-runtime/tests/utils"], function (exports, _emberMetalCore, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
 
   var registry, container, component;
 
@@ -16468,7 +16468,7 @@ enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember
     }
   });
 
-  if ((0, _emberMetalFeatures.default)("ember-htmlbars-dashless-helpers")) {
+  if (_emberMetalCore.default.FEATURES.isEnabled("ember-htmlbars-dashless-helpers")) {
     QUnit.test("non-dashed helpers are found", function () {
       expect(1);
 
@@ -17704,7 +17704,7 @@ enifed("ember-htmlbars/tests/system/bootstrap_test", ["exports", "ember-views/sy
     });
   }
 });
-enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "ember-metal/features", "container/registry", "ember-metal/keys", "ember-htmlbars/helper", "ember-runtime/tests/utils", "ember-htmlbars/system/discover-known-helpers"], function (exports, _emberMetalFeatures, _containerRegistry, _emberMetalKeys, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
+enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "ember-metal/core", "container/registry", "ember-metal/keys", "ember-htmlbars/helper", "ember-runtime/tests/utils", "ember-htmlbars/system/discover-known-helpers"], function (exports, _emberMetalCore, _containerRegistry, _emberMetalKeys, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
 
   var resolver, registry, container;
 
@@ -17728,7 +17728,7 @@ enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "e
     deepEqual(result, {}, "no helpers were known");
   });
 
-  if ((0, _emberMetalFeatures.default)("ember-htmlbars-dashless-helpers")) {
+  if (_emberMetalCore.default.FEATURES.isEnabled("ember-htmlbars-dashless-helpers")) {
     QUnit.test("includes helpers in the registry", function () {
       registry.register("helper:t", _emberHtmlbarsHelper.default);
       var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
@@ -47304,7 +47304,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.0-beta.2+0eac9054", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.0-beta.2+829a2406", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58081,7 +58081,7 @@ enifed("ember/tests/global-api-test", ["exports", "ember"], function (exports, _
     confirmExport("Ember.Helper.helper");
   
 });
-enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-metal/features", "ember-htmlbars/compat", "ember-htmlbars/compat/helper", "ember-htmlbars/helper"], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
+enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "ember-htmlbars/compat", "ember-htmlbars/compat/helper", "ember-htmlbars/helper"], function (exports, _ember, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
 
   var compile, helpers, makeBoundHelper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -58182,7 +58182,7 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
     equal(Ember.$("#wrapper").text(), "woot!! woot!!alex", "The helper was invoked from the container");
   });
 
-  if ((0, _emberMetalFeatures.default)("ember-htmlbars-dashless-helpers")) {
+  
     QUnit.test("Undashed helpers registered on the container can be invoked", function () {
       Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{yorp 'boo'}}|{{yorp 'ya'}}</div>");
 
@@ -58202,28 +58202,7 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
 
       equal(Ember.$("#wrapper").text(), "OMG|boo|ya", "The helper was invoked from the container");
     });
-  } else {
-    QUnit.test("Undashed helpers registered on the container can not (presently) be invoked", function () {
-
-      // Note: the reason we're not allowing undashed helpers is to avoid
-      // a possible perf hit in hot code paths, i.e. _triageMustache.
-      // We only presently perform container lookups if prop.indexOf('-') >= 0
-
-      Ember.TEMPLATES.application = compile("<div id='wrapper'>{{omg}}|{{omg 'GRRR'}}|{{yorp}}|{{yorp 'ahh'}}</div>");
-
-      expectAssertion(function () {
-        boot(function () {
-          registry.register("helper:omg", function () {
-            return "OMG";
-          });
-          registry.register("helper:yorp", makeBoundHelper(function () {
-            return "YORP";
-          }));
-        });
-      }, /A helper named 'omg' could not be found/);
-    });
-  }
-
+  
   QUnit.test("Helpers can receive injections", function () {
     Ember.TEMPLATES.application = compile("<div id='wrapper'>{{full-name}}</div>");
 
