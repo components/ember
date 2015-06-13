@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+544b4eb6
+ * @version   2.0.0-canary+b758625a
  */
 
 (function() {
@@ -8998,112 +8998,110 @@ enifed("ember-htmlbars/tests/helpers/each_in_test", ["exports", "ember-metal/fea
     (0, _emberRuntimeTestsUtils.runAppend)(component);
   }
 
-  if ((0, _emberMetalFeatures.default)("ember-htmlbars-each-in")) {
-    QUnit.test("it renders the template for each item in a hash", function (assert) {
-      var categories = {
-        "Smartphones": 8203,
-        "JavaScript Frameworks": Infinity
-      };
+  QUnit.test("it renders the template for each item in a hash", function (assert) {
+    var categories = {
+      "Smartphones": 8203,
+      "JavaScript Frameworks": Infinity
+    };
 
-      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+    renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
 
-      assert.equal(component.$("li").length, 2, "renders 2 lis");
-      assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly");
-      assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly");
+    assert.equal(component.$("li").length, 2, "renders 2 lis");
+    assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly");
+    assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly");
 
-      (0, _emberMetalRun_loop.default)(function () {
-        component.rerender();
-      });
-
-      assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
-      assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly after rerender");
-      assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly after rerender");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        component.set("categories", {
-          "Smartphones": 100
-        });
-      });
-
-      assert.equal(component.$("li").length, 1, "removes unused item after data changes");
-      assert.equal(component.$("li").first().text(), "Smartphones: 100", "correctly updates item after data changes");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        component.set("categories", {
-          "Programming Languages": 199303,
-          "Good Programming Languages": 123,
-          "Bad Programming Languages": 456
-        });
-      });
-
-      assert.equal(component.$("li").length, 3, "renders 3 lis after updating data");
-      assert.equal(component.$("li").first().text(), "Programming Languages: 199303", "renders first item correctly after rerender");
-      assert.equal(component.$("li:eq(1)").text(), "Good Programming Languages: 123", "renders second item correctly after rerender");
-      assert.equal(component.$("li:eq(2)").text(), "Bad Programming Languages: 456", "renders third item correctly after rerender");
+    (0, _emberMetalRun_loop.default)(function () {
+      component.rerender();
     });
 
-    QUnit.test("it only iterates over an object's own properties", function (assert) {
-      var protoCategories = {
-        "Smartphones": 8203,
-        "JavaScript Frameworks": Infinity
-      };
+    assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
+    assert.equal(component.$("li").first().text(), "Smartphones: 8203", "renders first item correctly after rerender");
+    assert.equal(component.$("li:eq(1)").text(), "JavaScript Frameworks: Infinity", "renders second item correctly after rerender");
 
-      var categories = (0, _emberMetalPlatformCreate.default)(protoCategories);
-      categories["Televisions"] = 183;
-      categories["Alarm Clocks"] = 999;
-
-      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
-
-      assert.equal(component.$("li").length, 2, "renders 2 lis");
-      assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly");
-      assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        return component.rerender();
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set("categories", {
+        "Smartphones": 100
       });
-
-      assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
-      assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly after rerender");
-      assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly after rerender");
     });
 
-    QUnit.test("it emits nothing if the passed argument is not an object", function (assert) {
-      var categories = null;
+    assert.equal(component.$("li").length, 1, "removes unused item after data changes");
+    assert.equal(component.$("li").first().text(), "Smartphones: 100", "correctly updates item after data changes");
 
-      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
-
-      assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        return component.rerender();
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set("categories", {
+        "Programming Languages": 199303,
+        "Good Programming Languages": 123,
+        "Bad Programming Languages": 456
       });
-      assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed after rerender");
     });
 
-    QUnit.test("it supports rendering an inverse", function (assert) {
-      var categories = null;
+    assert.equal(component.$("li").length, 3, "renders 3 lis after updating data");
+    assert.equal(component.$("li").first().text(), "Programming Languages: 199303", "renders first item correctly after rerender");
+    assert.equal(component.$("li:eq(1)").text(), "Good Programming Languages: 123", "renders second item correctly after rerender");
+    assert.equal(component.$("li:eq(2)").text(), "Bad Programming Languages: 456", "renders third item correctly after rerender");
+  });
 
-      renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{else}}\n        <li>No categories.</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+  QUnit.test("it only iterates over an object's own properties", function (assert) {
+    var protoCategories = {
+      "Smartphones": 8203,
+      "JavaScript Frameworks": Infinity
+    };
 
-      assert.equal(component.$("li").length, 1, "one li is rendered");
-      assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+    var categories = (0, _emberMetalPlatformCreate.default)(protoCategories);
+    categories["Televisions"] = 183;
+    categories["Alarm Clocks"] = 999;
 
-      (0, _emberMetalRun_loop.default)(function () {
-        return component.rerender();
-      });
-      assert.equal(component.$("li").length, 1, "one li is rendered");
-      assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+    renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
 
-      (0, _emberMetalRun_loop.default)(function () {
-        component.set("categories", {
-          "First Category": 123
-        });
-      });
+    assert.equal(component.$("li").length, 2, "renders 2 lis");
+    assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly");
+    assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly");
 
-      assert.equal(component.$("li").length, 1, "one li is rendered");
-      assert.equal(component.$("li").text(), "First Category: 123", "the list is rendered after being set");
+    (0, _emberMetalRun_loop.default)(function () {
+      return component.rerender();
     });
-  }
+
+    assert.equal(component.$("li").length, 2, "renders 2 lis after rerender");
+    assert.equal(component.$("li").first().text(), "Televisions: 183", "renders first item correctly after rerender");
+    assert.equal(component.$("li:eq(1)").text(), "Alarm Clocks: 999", "renders second item correctly after rerender");
+  });
+
+  QUnit.test("it emits nothing if the passed argument is not an object", function (assert) {
+    var categories = null;
+
+    renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+    assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      return component.rerender();
+    });
+    assert.equal(component.$("li").length, 0, "nothing is rendered if the object is not passed after rerender");
+  });
+
+  QUnit.test("it supports rendering an inverse", function (assert) {
+    var categories = null;
+
+    renderTemplate("\n      <ul class=\"categories\">\n      {{#each-in categories as |category count|}}\n        <li>{{category}}: {{count}}</li>\n      {{else}}\n        <li>No categories.</li>\n      {{/each-in}}\n      </ul>\n    ", { categories: categories });
+
+    assert.equal(component.$("li").length, 1, "one li is rendered");
+    assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      return component.rerender();
+    });
+    assert.equal(component.$("li").length, 1, "one li is rendered");
+    assert.equal(component.$("li").text(), "No categories.", "the inverse is rendered");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set("categories", {
+        "First Category": 123
+      });
+    });
+
+    assert.equal(component.$("li").length, 1, "one li is rendered");
+    assert.equal(component.$("li").text(), "First Category: 123", "the list is rendered after being set");
+  });
 });
 enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core", "ember-runtime/system/object", "ember-metal/run_loop", "ember-views/views/view", "ember-views/views/legacy_each_view", "ember-metal/computed", "ember-runtime/controllers/array_controller", "ember-runtime/system/native_array", "ember-runtime/controllers/controller", "ember-runtime/controllers/object_controller", "ember-runtime/system/container", "ember-metal/property_get", "ember-metal/property_set", "ember-runtime/tests/utils", "ember-template-compiler/system/compile", "ember-htmlbars/helpers/each"], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberMetalComputed, _emberRuntimeControllersArray_controller, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeSystemContainer, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
 
@@ -10323,291 +10321,290 @@ enifed("ember-htmlbars/tests/helpers/get_test", ["exports", "ember-metal/feature
   var view, registry, container;
 
   // jscs:disable validateIndentation
-  if ((0, _emberMetalFeatures.default)("ember-htmlbars-get-helper")) {
 
-    QUnit.module("ember-htmlbars: {{get}} helper", {
-      setup: function () {
-        registry = new _emberRuntimeSystemContainer.Registry();
-        container = registry.container();
-        registry.optionsForType("template", { instantiate: false });
+  QUnit.module("ember-htmlbars: {{get}} helper", {
+    setup: function () {
+      registry = new _emberRuntimeSystemContainer.Registry();
+      container = registry.container();
+      registry.optionsForType("template", { instantiate: false });
+    },
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        Ember.TEMPLATES = {};
+      });
+      (0, _emberRuntimeTestsUtils.runDestroy)(view);
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test("should be able to get an object value with a static key", function () {
+    var context = {
+      colors: { apple: "red", banana: "yellow" }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors 'apple'}}");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.colors", { apple: "green", banana: "purple" });
+    });
+
+    equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}}");
+  });
+
+  QUnit.test("should be able to get an object value with a bound/dynamic key", function () {
+    var context = {
+      colors: { apple: "red", banana: "yellow" },
+      key: "apple"
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors key}}  (key = 'apple')");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "banana");
+    });
+
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.colors", { apple: "green", banana: "purple" });
+    });
+
+    equal(view.$().text(), "[purple] [purple]", "should return 'purple' for {{get colors key}} (key = 'banana')");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "apple");
+    });
+
+    equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors key}} (key = 'apple')");
+  });
+
+  QUnit.test("should be able to get an object value with a GetStream key", function () {
+    var context = {
+      colors: { apple: "red", banana: "yellow" },
+      key: "key1",
+      possibleKeys: { key1: "apple", key2: "banana" }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "key2");
+    });
+
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.colors", { apple: "green", banana: "purple" });
+    });
+
+    equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "key1");
+    });
+
+    equal(view.$().text(), "[green] [green]", "should return 'green'");
+  });
+
+  QUnit.test("should be able to get an object value with a GetStream value and bound/dynamic key", function () {
+    var context = {
+      possibleValues: {
+        colors1: { apple: "red", banana: "yellow" },
+        colors2: { apple: "green", banana: "purple" }
       },
-      teardown: function () {
-        (0, _emberMetalRun_loop.default)(function () {
-          Ember.TEMPLATES = {};
-        });
-        (0, _emberRuntimeTestsUtils.runDestroy)(view);
-        (0, _emberRuntimeTestsUtils.runDestroy)(container);
-        registry = container = view = null;
-      }
+      objectKey: "colors1",
+      key: "apple"
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]")
     });
 
-    QUnit.test("should be able to get an object value with a static key", function () {
-      var context = {
-        colors: { apple: "red", banana: "yellow" }
-      };
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
-      });
+    equal(view.$().text(), "[red] [red]", "should return 'red'");
 
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors 'apple'}}");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.colors", { apple: "green", banana: "purple" });
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}}");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors2");
     });
 
-    QUnit.test("should be able to get an object value with a bound/dynamic key", function () {
-      var context = {
-        colors: { apple: "red", banana: "yellow" },
-        key: "apple"
-      };
+    equal(view.$().text(), "[green] [green]", "should return 'green'");
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
-      });
-
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[red] [red]", "should return 'red' for {{get colors key}}  (key = 'apple')");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "banana");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.colors", { apple: "green", banana: "purple" });
-      });
-
-      equal(view.$().text(), "[purple] [purple]", "should return 'purple' for {{get colors key}} (key = 'banana')");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "apple");
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors key}} (key = 'apple')");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors1");
     });
 
-    QUnit.test("should be able to get an object value with a GetStream key", function () {
-      var context = {
-        colors: { apple: "red", banana: "yellow" },
-        key: "key1",
-        possibleKeys: { key1: "apple", key2: "banana" }
-      };
+    equal(view.$().text(), "[red] [red]", "should return 'red'");
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors (get possibleKeys key)}}] [{{if true (get colors (get possibleKeys key))}}]")
-      });
-
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[red] [red]", "should return 'red'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "key2");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'red' for {{get colors key}} (key = 'banana')");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.colors", { apple: "green", banana: "purple" });
-      });
-
-      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "key1");
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green'");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "banana");
     });
 
-    QUnit.test("should be able to get an object value with a GetStream value and bound/dynamic key", function () {
-      var context = {
-        possibleValues: {
-          colors1: { apple: "red", banana: "yellow" },
-          colors2: { apple: "green", banana: "purple" }
-        },
-        objectKey: "colors1",
-        key: "apple"
-      };
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get (get possibleValues objectKey) key}}] [{{if true (get (get possibleValues objectKey) key)}}]")
-      });
-
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[red] [red]", "should return 'red'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors2");
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors1");
-      });
-
-      equal(view.$().text(), "[red] [red]", "should return 'red'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "banana");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors2");
-      });
-
-      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors1");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors2");
     });
 
-    QUnit.test("should be able to get an object value with a GetStream value and GetStream key", function () {
-      var context = {
-        possibleValues: {
-          colors1: { apple: "red", banana: "yellow" },
-          colors2: { apple: "green", banana: "purple" }
-        },
-        objectKey: "colors1",
-        possibleKeys: {
-          key1: "apple",
-          key2: "banana"
-        },
-        key: "key1"
-      };
+    equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]")
-      });
-
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[red] [red]", "should return 'red'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors2");
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors1");
-      });
-
-      equal(view.$().text(), "[red] [red]", "should return 'red'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "key2");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors2");
-      });
-
-      equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.objectKey", "colors1");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors1");
     });
 
-    QUnit.test("should handle object values as nulls", function () {
-      var context = {
-        colors: null
-      };
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+  });
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
-      });
+  QUnit.test("should be able to get an object value with a GetStream value and GetStream key", function () {
+    var context = {
+      possibleValues: {
+        colors1: { apple: "red", banana: "yellow" },
+        colors2: { apple: "green", banana: "purple" }
+      },
+      objectKey: "colors1",
+      possibleKeys: {
+        key1: "apple",
+        key2: "banana"
+      },
+      key: "key1"
+    };
 
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.colors", { apple: "green", banana: "purple" });
-      });
-
-      equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}} (colors = { apple: 'green', banana: 'purple' })");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.colors", null);
-      });
-
-      equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get (get possibleValues objectKey) (get possibleKeys key)}}] [{{if true (get (get possibleValues objectKey) (get possibleKeys key))}}]")
     });
 
-    QUnit.test("should handle object keys as nulls", function () {
-      var context = {
-        colors: { apple: "red", banana: "yellow" },
-        key: null
-      };
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
-      });
+    equal(view.$().text(), "[red] [red]", "should return 'red'");
 
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", "banana");
-      });
-
-      equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow' for {{get colors key}} (key = 'banana')");
-
-      (0, _emberMetalRun_loop.default)(function () {
-        view.set("context.key", null);
-      });
-
-      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors2");
     });
 
-    QUnit.test("should handle object values and keys as nulls", function () {
-      var context = {
-        colors: null,
-        key: null
-      };
+    equal(view.$().text(), "[green] [green]", "should return 'green'");
 
-      view = _emberViewsViewsView.default.create({
-        context: context,
-        template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
-      });
-
-      (0, _emberRuntimeTestsUtils.runAppend)(view);
-
-      equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (colors=null, key = null)");
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors1");
     });
-  }
-  // jscs:enable validateIndentation
+
+    equal(view.$().text(), "[red] [red]", "should return 'red'");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "key2");
+    });
+
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors2");
+    });
+
+    equal(view.$().text(), "[purple] [purple]", "should return 'purple'");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.objectKey", "colors1");
+    });
+
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow'");
+  });
+
+  QUnit.test("should handle object values as nulls", function () {
+    var context = {
+      colors: null
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors 'apple'}}] [{{if true (get colors 'apple')}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.colors", { apple: "green", banana: "purple" });
+    });
+
+    equal(view.$().text(), "[green] [green]", "should return 'green' for {{get colors 'apple'}} (colors = { apple: 'green', banana: 'purple' })");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.colors", null);
+    });
+
+    equal(view.$().text(), "[] []", "should return '' for {{get colors 'apple'}} (colors = null)");
+  });
+
+  QUnit.test("should handle object keys as nulls", function () {
+    var context = {
+      colors: { apple: "red", banana: "yellow" },
+      key: null
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", "banana");
+    });
+
+    equal(view.$().text(), "[yellow] [yellow]", "should return 'yellow' for {{get colors key}} (key = 'banana')");
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set("context.key", null);
+    });
+
+    equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (key = null)");
+  });
+
+  QUnit.test("should handle object values and keys as nulls", function () {
+    var context = {
+      colors: null,
+      key: null
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: (0, _emberTemplateCompilerSystemCompile.default)("[{{get colors key}}] [{{if true (get colors key)}}]")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "[] []", "should return '' for {{get colors key}}  (colors=null, key = null)");
+  });
 });
+
+// jscs:enable validateIndentation
 enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/features", "ember-metal/run_loop", "ember-runtime/system/namespace", "ember-runtime/system/container", "ember-views/views/view", "ember-runtime/system/object_proxy", "ember-runtime/system/object", "ember-template-compiler/system/compile", "ember-runtime/system/array_proxy", "ember-metal/property_set", "ember-runtime/system/string", "ember-runtime/utils", "ember-metal/enumerable_utils", "ember-runtime/tests/utils"], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeSystemString, _emberRuntimeUtils, _emberMetalEnumerable_utils, _emberRuntimeTestsUtils) {
 
   var originalLookup = Ember.lookup;
@@ -48102,7 +48099,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+544b4eb6", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+b758625a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
