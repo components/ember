@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+bdc2f691
+ * @version   2.0.0-canary+e8124a4d
  */
 
 (function() {
@@ -30509,16 +30509,6 @@ enifed("ember-routing-views/tests/main_test", ["exports", "ember-routing-views"]
     ok(_emberRoutingViews.default.LinkComponent, "LinkComponent is exported correctly");
     ok(_emberRoutingViews.default.OutletView, "OutletView is exported correctly");
   });
-
-  QUnit.test("Ember.LinkView throws a deprecation warning when instantiated", function () {
-    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
-    _emberRoutingViews.default.LinkView.create();
-  });
-
-  QUnit.test("Ember.LinkView throws a deprecation warning when reopened", function () {
-    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
-    _emberRoutingViews.default.LinkView.reopen({});
-  });
 });
 enifed("ember-routing/tests/location/auto_location_test", ["exports", "ember-metal/property_get", "ember-metal/run_loop", "ember-metal/merge", "ember-routing/location/auto_location", "ember-routing/location/history_location", "ember-routing/location/hash_location", "ember-routing/location/none_location", "container/registry"], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalMerge, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerRegistry) {
 
@@ -48099,7 +48089,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+bdc2f691", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+e8124a4d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
