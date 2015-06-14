@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a9e3831d
+ * @version   2.0.0-canary+6cb71d73
  */
 
 (function() {
@@ -8330,7 +8330,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+6cb71d73";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -12776,53 +12776,22 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
     if (typeof config === "function") {
-      config.__ember_arity = config.length;
       this._getter = config;
-      if (config.__ember_arity > 1) {
-                this._setter = config;
-      }
     } else {
       this._getter = config.get;
       this._setter = config.set;
-      if (this._setter && this._setter.__ember_arity === undefined) {
-        this._setter.__ember_arity = this._setter.length;
-      }
     }
-
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
-
-        this._cacheable = opts && opts.cacheable !== undefined ? opts.cacheable : true; // TODO: Set always to `true` once this deprecation is gone.
+    this._cacheable = true;
     this._dependentKeys = opts && opts.dependentKeys;
-        this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
+    this._readOnly = false;
   }
 
   ComputedProperty.prototype = new _emberMetalProperties.Descriptor();
 
   var ComputedPropertyPrototype = ComputedProperty.prototype;
-
-  /**
-    Properties are cacheable by default. Computed property will automatically
-    cache the return value of your function until one of the dependent keys changes.
-  
-    Call `volatile()` to set it into non-cached mode. When in this mode
-    the computed property will not automatically cache the return value.
-  
-    However, if a property is properly observable, there is no reason to disable
-    caching.
-  
-    @method cacheable
-    @param {Boolean} aFlag optional set to `false` to disable caching
-    @return {Ember.ComputedProperty} this
-    @chainable
-    @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
-    @public
-  */
-  ComputedPropertyPrototype.cacheable = function (aFlag) {
-        this._cacheable = aFlag !== false;
-    return this;
-  };
 
   /**
     Call on a computed property to set it into non-cached mode. When in this
@@ -12867,8 +12836,8 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
     @chainable
     @public
   */
-  ComputedPropertyPrototype.readOnly = function (readOnly) {
-        this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+  ComputedPropertyPrototype.readOnly = function () {
+    this._readOnly = true;
         return this;
   };
 
@@ -13117,12 +13086,7 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
 
     if (!setter) {
       (0, _emberMetalProperties.defineProperty)(obj, keyName, null, cachedValue);
-      (0, _emberMetalProperty_set.set)(obj, keyName, value);
-      return;
-    } else if (setter.__ember_arity === 2) {
-      // Is there any way of deprecate this in a sensitive way?
-      // Maybe now that getters and setters are the prefered options we can....
-      ret = setter.call(obj, keyName, value);
+      return (0, _emberMetalProperty_set.set)(obj, keyName, value);
     } else {
       ret = setter.call(obj, keyName, value, cachedValue);
     }
@@ -14011,7 +13975,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a9e3831d
+    @version 2.0.0-canary+6cb71d73
     @public
   */
 
@@ -14043,11 +14007,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a9e3831d'
+    @default '2.0.0-canary+6cb71d73'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a9e3831d';
+  Ember.VERSION = '2.0.0-canary+6cb71d73';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22763,7 +22727,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+6cb71d73";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23262,7 +23226,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+6cb71d73";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40040,7 +40004,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+a9e3831d",
+        revision: "Ember@2.0.0-canary+6cb71d73",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43972,7 +43936,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+6cb71d73";
 
   /**
   @module ember

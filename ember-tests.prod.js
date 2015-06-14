@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a9e3831d
+ * @version   2.0.0-canary+6cb71d73
  */
 
 (function() {
@@ -20637,32 +20637,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 2, 'should not invoke again');
   });
 
-  QUnit.test('calling cacheable() on a computed property raises a deprecation', function () {
-    var cp = new _emberMetalComputed.ComputedProperty(function () {});
-    expectDeprecation(function () {
-      cp.cacheable();
-    }, 'ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
-  });
-
-  QUnit.test('passing cacheable in a the options to the CP constructor raises a deprecation', function () {
-    expectDeprecation(function () {
-      new _emberMetalComputed.ComputedProperty(function () {}, { cacheable: true });
-    }, 'Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.');
-  });
-
-  QUnit.test('calling readOnly() on a computed property with arguments raises a deprecation', function () {
-    var cp = new _emberMetalComputed.ComputedProperty(function () {});
-    expectDeprecation(function () {
-      cp.readOnly(true);
-    }, 'Passing arguments to ComputedProperty.readOnly() is deprecated.');
-  });
-
-  QUnit.test('passing readOnly in a the options to the CP constructor raises a deprecation', function () {
-    expectDeprecation(function () {
-      new _emberMetalComputed.ComputedProperty(function () {}, { readOnly: false });
-    }, 'Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. You can invoke `readOnly()` on the CP to change this.');
-  });
-
   (0, _emberMetalTestsProps_helper.testBoth)('inherited property should not pick up cache', function (get, set) {
     var objB = (0, _emberMetalPlatformCreate.default)(obj);
 
@@ -20720,24 +20694,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
 
     set(obj, 'plusOne', 3);
     strictEqual(receivedOldValue, 2, 'oldValue should be 2');
-  });
-
-  (0, _emberMetalTestsProps_helper.testBoth)('the old value is only passed in if the computed property specifies three arguments', function (get, set) {
-    var obj = {
-      foo: 0
-    };
-
-    (0, _emberMetalProperties.defineProperty)(obj, 'plusOne', (0, _emberMetalComputed.computed)({
-      get: function () {},
-      set: function (key, value) {
-        equal(arguments.length, 2, 'computed property is only invoked with two arguments');
-        return value;
-      }
-    }).property('foo'));
-
-    set(obj, 'plusOne', 1);
-    set(obj, 'plusOne', 2);
-    set(obj, 'plusOne', 3);
   });
 
   // ..........................................................
@@ -21099,15 +21055,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
   });
 
-  QUnit.test('Passing a function that acts both as getter and setter is deprecated', function () {
-    var regex = /Using the same function as getter and setter is deprecated/;
-    expectDeprecation(function () {
-      _emberMetalCore.default.Object.extend({
-        aInt: (0, _emberMetalComputed.computed)('a', function (keyName, value, oldValue) {})
-      });
-    }, regex);
-  });
-
   // ..........................................................
   // BUGS
   //
@@ -21283,12 +21230,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         set: function () {}
       }).readOnly();
     }, /Computed properties that define a setter using the new syntax cannot be read-only/);
-  });
-
-  QUnit.test('doesn\'t throws assertion if called over a CP with a setter defined with the old syntax', function () {
-    expectDeprecation(function () {
-      (0, _emberMetalComputed.computed)(function (key, value) {}).readOnly();
-    }, /same function as getter and setter/);
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)('protects against setting', function (get, set) {
@@ -48049,7 +47990,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+a9e3831d", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+6cb71d73", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

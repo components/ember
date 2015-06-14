@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a9e3831d
+ * @version   2.0.0-canary+6cb71d73
  */
 
 (function() {
@@ -2901,59 +2901,22 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
     if (typeof config === "function") {
-      config.__ember_arity = config.length;
       this._getter = config;
-      if (config.__ember_arity > 1) {
-        Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-          url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
-        });
-        this._setter = config;
-      }
     } else {
       this._getter = config.get;
       this._setter = config.set;
-      if (this._setter && this._setter.__ember_arity === undefined) {
-        this._setter.__ember_arity = this._setter.length;
-      }
     }
-
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
-
-    Ember.deprecate("Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.", !opts || !opts.hasOwnProperty("cacheable"));
-    this._cacheable = opts && opts.cacheable !== undefined ? opts.cacheable : true; // TODO: Set always to `true` once this deprecation is gone.
+    this._cacheable = true;
     this._dependentKeys = opts && opts.dependentKeys;
-    Ember.deprecate("Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. You can invoke `readOnly()` on the CP to change this.", !opts || !opts.hasOwnProperty("readOnly"));
-    this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
+    this._readOnly = false;
   }
 
   ComputedProperty.prototype = new _emberMetalProperties.Descriptor();
 
   var ComputedPropertyPrototype = ComputedProperty.prototype;
-
-  /**
-    Properties are cacheable by default. Computed property will automatically
-    cache the return value of your function until one of the dependent keys changes.
-  
-    Call `volatile()` to set it into non-cached mode. When in this mode
-    the computed property will not automatically cache the return value.
-  
-    However, if a property is properly observable, there is no reason to disable
-    caching.
-  
-    @method cacheable
-    @param {Boolean} aFlag optional set to `false` to disable caching
-    @return {Ember.ComputedProperty} this
-    @chainable
-    @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
-    @public
-  */
-  ComputedPropertyPrototype.cacheable = function (aFlag) {
-    Ember.deprecate("ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.");
-    this._cacheable = aFlag !== false;
-    return this;
-  };
 
   /**
     Call on a computed property to set it into non-cached mode. When in this
@@ -2998,9 +2961,8 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
     @chainable
     @public
   */
-  ComputedPropertyPrototype.readOnly = function (readOnly) {
-    Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
-    this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+  ComputedPropertyPrototype.readOnly = function () {
+    this._readOnly = true;
     Ember.assert("Computed properties that define a setter using the new syntax cannot be read-only", !(this._readOnly && this._setter && this._setter !== this._getter));
     return this;
   };
@@ -3250,12 +3212,7 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
 
     if (!setter) {
       (0, _emberMetalProperties.defineProperty)(obj, keyName, null, cachedValue);
-      (0, _emberMetalProperty_set.set)(obj, keyName, value);
-      return;
-    } else if (setter.__ember_arity === 2) {
-      // Is there any way of deprecate this in a sensitive way?
-      // Maybe now that getters and setters are the prefered options we can....
-      ret = setter.call(obj, keyName, value);
+      return (0, _emberMetalProperty_set.set)(obj, keyName, value);
     } else {
       ret = setter.call(obj, keyName, value, cachedValue);
     }
@@ -4144,7 +4101,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a9e3831d
+    @version 2.0.0-canary+6cb71d73
     @public
   */
 
@@ -4176,11 +4133,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a9e3831d'
+    @default '2.0.0-canary+6cb71d73'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a9e3831d';
+  Ember.VERSION = '2.0.0-canary+6cb71d73';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13254,7 +13211,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+a9e3831d",
+        revision: "Ember@2.0.0-canary+6cb71d73",
         loc: program.loc,
         moduleName: options.moduleName
       };
