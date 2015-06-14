@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e8124a4d
+ * @version   2.0.0-canary+a9e3831d
  */
 
 (function() {
@@ -32176,34 +32176,6 @@ enifed("ember-runtime/tests/computed/computed_macros_test", ["exports", "ember-m
     equal(get(obj, "aliased"), constantValue);
   });
 
-  (0, _emberMetalTestsProps_helper.testBoth)("computed.defaultTo", function (get, set) {
-    expect(6);
-
-    var obj = { source: "original source value" };
-    (0, _emberMetalProperties.defineProperty)(obj, "copy", (0, _emberMetalComputed_macros.defaultTo)("source"));
-
-    ignoreDeprecation(function () {
-      equal(get(obj, "copy"), "original source value");
-
-      set(obj, "copy", "new copy value");
-      equal(get(obj, "source"), "original source value");
-      equal(get(obj, "copy"), "new copy value");
-
-      set(obj, "source", "new source value");
-      equal(get(obj, "copy"), "new copy value");
-
-      set(obj, "copy", null);
-      equal(get(obj, "copy"), "new source value");
-    });
-
-    expectDeprecation(function () {
-      var obj = { source: "original source value" };
-      (0, _emberMetalProperties.defineProperty)(obj, "copy", (0, _emberMetalComputed_macros.defaultTo)("source"));
-
-      get(obj, "copy");
-    }, "Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-  });
-
   (0, _emberMetalTestsProps_helper.testBoth)("computed.match", function (get, set) {
     var obj = { name: "Paul" };
     (0, _emberMetalProperties.defineProperty)(obj, "isPaul", (0, _emberMetalComputed_macros.match)("name", /Paul/));
@@ -32334,18 +32306,6 @@ enifed("ember-runtime/tests/computed/computed_macros_test", ["exports", "ember-m
     set(obj, "one", 1);
 
     equal(get(obj, "oneOrTwo"), 1, "returns truthy value as in ||");
-  });
-
-  (0, _emberMetalTestsProps_helper.testBoth)("computed.any (Deprecated)", function (get, set) {
-    expectDeprecation(/Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead/);
-    var obj = { one: "foo", two: "bar" };
-    (0, _emberMetalProperties.defineProperty)(obj, "anyOf", (0, _emberMetalComputed_macros.any)("one", "two"));
-
-    equal(get(obj, "anyOf"), "foo", "is foo");
-
-    set(obj, "one", false);
-
-    equal(get(obj, "anyOf"), "bar", "is bar");
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)("computed.collect", function (get, set) {
@@ -48089,7 +48049,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+e8124a4d", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+a9e3831d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

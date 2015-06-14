@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e8124a4d
+ * @version   2.0.0-canary+a9e3831d
  */
 
 (function() {
@@ -8330,7 +8330,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+e8124a4d";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13312,7 +13312,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
   exports.lte = lte;
   exports.oneWay = oneWay;
   exports.readOnly = readOnly;
-  exports.defaultTo = defaultTo;
   exports.deprecatingAlias = deprecatingAlias;
 
   /**
@@ -13802,43 +13801,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
 
   exports.or = or;
   /**
-    A computed property that returns the first truthy value
-    from a list of dependent properties.
-  
-    Example
-  
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      hasClothes: Ember.computed.any('hat', 'shirt')
-    });
-  
-    var hamster = Hamster.create();
-  
-    hamster.get('hasClothes'); // null
-    hamster.set('shirt', 'Hawaiian Shirt');
-    hamster.get('hasClothes'); // 'Hawaiian Shirt'
-    ```
-  
-    @method any
-    @for Ember.computed
-    @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which returns
-    the first truthy value of given list of properties.
-    @deprecated Use `Ember.computed.or` instead.
-    @public
-  */
-  var any = generateComputedWithProperties(function (properties) {
-    _emberMetalCore.default.deprecate("Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead.");
-    for (var key in properties) {
-      if (properties.hasOwnProperty(key) && properties[key]) {
-        return properties[key];
-      }
-    }
-    return null;
-  });
-
-  exports.any = any;
-  /**
     A computed property that returns the array of values
     for the provided dependent properties.
   
@@ -13998,49 +13960,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
   }
 
   /**
-    A computed property that acts like a standard getter and setter,
-    but returns the value at the provided `defaultPath` if the
-    property itself has not been set to a value
-  
-    Example
-  
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      wishList: Ember.computed.defaultTo('favoriteFood')
-    });
-  
-    var hamster = Hamster.create({ favoriteFood: 'Banana' });
-  
-    hamster.get('wishList');                     // 'Banana'
-    hamster.set('wishList', 'More Unit Tests');
-    hamster.get('wishList');                     // 'More Unit Tests'
-    hamster.get('favoriteFood');                 // 'Banana'
-    ```
-  
-    @method defaultTo
-    @for Ember.computed
-    @param {String} defaultPath
-    @return {Ember.ComputedProperty} computed property which acts like
-    a standard getter and setter, but defaults to the value from `defaultPath`.
-    @deprecated Use `Ember.computed.oneWay` or custom CP with default instead.
-    @public
-  */
-
-  function defaultTo(defaultPath) {
-    return (0, _emberMetalComputed.computed)({
-      get: function (key) {
-        _emberMetalCore.default.deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-        return (0, _emberMetalProperty_get.get)(this, defaultPath);
-      },
-
-      set: function (key, newValue, cachedValue) {
-        _emberMetalCore.default.deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-        return newValue != null ? newValue : (0, _emberMetalProperty_get.get)(this, defaultPath);
-      }
-    });
-  }
-
-  /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
     though they were called on the original property, but also
@@ -14092,7 +14011,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e8124a4d
+    @version 2.0.0-canary+a9e3831d
     @public
   */
 
@@ -14124,11 +14043,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e8124a4d'
+    @default '2.0.0-canary+a9e3831d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e8124a4d';
+  Ember.VERSION = '2.0.0-canary+a9e3831d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22844,7 +22763,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+e8124a4d";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23343,7 +23262,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+e8124a4d";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -40121,7 +40040,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+e8124a4d",
+        revision: "Ember@2.0.0-canary+a9e3831d",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44053,7 +43972,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+e8124a4d";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+a9e3831d";
 
   /**
   @module ember
