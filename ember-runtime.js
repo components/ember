@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8115fbcb
+ * @version   2.0.0-canary+89510c79
  */
 
 (function() {
@@ -2214,7 +2214,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
   exports.default = Registry;
 });
 // Ember.assert
-enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
+enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/cache", "ember-metal/platform/create", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalPlatformCreate, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
   _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
@@ -2257,8 +2257,8 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "e
   _emberMetalCore.default.create = _emberMetalPlatformCreate.default;
   _emberMetalCore.default.keys = _emberMetalKeys.default;
   _emberMetalCore.default.platform = {
-    defineProperty: _emberMetalProperties.defineProperty,
-    hasPropertyAccessors: _emberMetalPlatformDefine_property.hasPropertyAccessors
+    defineProperty: true,
+    hasPropertyAccessors: true
   };
 
   _emberMetalCore.default.Error = _emberMetalError.default;
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8115fbcb
+    @version 2.0.0-canary+89510c79
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8115fbcb'
+    @default '2.0.0-canary+89510c79'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8115fbcb';
+  Ember.VERSION = '2.0.0-canary+89510c79';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5029,7 +5029,7 @@ enifed("ember-metal/dependent_keys", ["exports", "ember-metal/platform/create", 
     }
   }
 });
-enifed("ember-metal/deprecate_property", ["exports", "ember-metal/core", "ember-metal/platform/define_property", "ember-metal/properties", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberMetalCore, _emberMetalPlatformDefine_property, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed("ember-metal/deprecate_property", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set) {
   exports.deprecateProperty = deprecateProperty;
 
   /**
@@ -5049,20 +5049,18 @@ enifed("ember-metal/deprecate_property", ["exports", "ember-metal/core", "ember-
       _emberMetalCore.default.deprecate("Usage of `" + deprecatedKey + "` is deprecated, use `" + newKey + "` instead.");
     }
 
-    if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-      (0, _emberMetalProperties.defineProperty)(object, deprecatedKey, {
-        configurable: true,
-        enumerable: false,
-        set: function (value) {
-          deprecate();
-          (0, _emberMetalProperty_set.set)(this, newKey, value);
-        },
-        get: function () {
-          deprecate();
-          return (0, _emberMetalProperty_get.get)(this, newKey);
-        }
-      });
-    }
+    Object.defineProperty(object, deprecatedKey, {
+      configurable: true,
+      enumerable: false,
+      set: function (value) {
+        deprecate();
+        (0, _emberMetalProperty_set.set)(this, newKey, value);
+      },
+      get: function () {
+        deprecate();
+        return (0, _emberMetalProperty_get.get)(this, newKey);
+      }
+    });
   }
 });
 /**
@@ -6237,8 +6235,7 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     return !(0, _emberMetalIs_blank.default)(obj);
   }
 });
-enifed('ember-metal/keys', ['exports', 'ember-metal/platform/define_property'], function (exports, _emberMetalPlatformDefine_property) {
-
+enifed('ember-metal/keys', ['exports'], function (exports) {
   /**
     Returns all of the keys defined on an object or hash. This is useful
     when inspecting objects for debugging. On browsers that support it, this
@@ -6252,7 +6249,7 @@ enifed('ember-metal/keys', ['exports', 'ember-metal/platform/define_property'], 
   */
   var keys = Object.keys;
 
-  if (!keys || !_emberMetalPlatformDefine_property.canDefineNonEnumerableProperties) {
+  if (!keys) {
     // modified from
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
     keys = (function () {
@@ -8360,7 +8357,7 @@ enifed('ember-metal/path_cache', ['exports', 'ember-metal/cache'], function (exp
     return tailPathCache.get(path);
   }
 });
-enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_properties'], function (exports, _emberMetalPlatformDefine_properties) {
+enifed('ember-metal/platform/create', ['exports'], function (exports) {
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
@@ -8452,7 +8449,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
       }
 
       if (properties !== undefined) {
-        (0, _emberMetalPlatformDefine_properties.default)(object, properties);
+        Object.defineProperties(object, properties);
       }
 
       return object;
@@ -8463,170 +8460,7 @@ enifed('ember-metal/platform/create', ['exports', 'ember-metal/platform/define_p
 
   exports.default = create;
 });
-enifed("ember-metal/platform/define_properties", ["exports", "ember-metal/platform/define_property"], function (exports, _emberMetalPlatformDefine_property) {
-
-  var defineProperties = Object.defineProperties;
-
-  // ES5 15.2.3.7
-  // http://es5.github.com/#x15.2.3.7
-  if (!defineProperties) {
-    defineProperties = function defineProperties(object, properties) {
-      for (var property in properties) {
-        if (properties.hasOwnProperty(property) && property !== "__proto__") {
-          (0, _emberMetalPlatformDefine_property.defineProperty)(object, property, properties[property]);
-        }
-      }
-      return object;
-    };
-
-    Object.defineProperties = defineProperties;
-  }
-
-  exports.default = defineProperties;
-});
-enifed('ember-metal/platform/define_property', ['exports'], function (exports) {
-  /*globals Node */
-
-  /**
-  @class platform
-  @namespace Ember
-  @static
-  @private
-  */
-
-  /**
-    Set to true if the platform supports native getters and setters.
-  
-    @property hasPropertyAccessors
-    @final
-    @private
-  */
-
-  /**
-    Identical to `Object.defineProperty()`. Implements as much functionality
-    as possible if not available natively.
-  
-    @method defineProperty
-    @param {Object} obj The object to modify
-    @param {String} keyName property name to modify
-    @param {Object} desc descriptor hash
-    @return {void}
-    @public
-  */
-  var defineProperty = (function checkCompliance(defineProperty) {
-    if (!defineProperty) {
-      return;
-    }
-
-    try {
-      var a = 5;
-      var obj = {};
-      defineProperty(obj, 'a', {
-        configurable: true,
-        enumerable: true,
-        get: function () {
-          return a;
-        },
-        set: function (v) {
-          a = v;
-        }
-      });
-      if (obj.a !== 5) {
-        return;
-      }
-
-      obj.a = 10;
-      if (a !== 10) {
-        return;
-      }
-
-      // check non-enumerability
-      defineProperty(obj, 'a', {
-        configurable: true,
-        enumerable: false,
-        writable: true,
-        value: true
-      });
-      for (var key in obj) {
-        if (key === 'a') {
-          return;
-        }
-      }
-
-      // Detects a bug in Android <3.2 where you cannot redefine a property using
-      // Object.defineProperty once accessors have already been set.
-      if (obj.a !== true) {
-        return;
-      }
-
-      // Detects a bug in Android <3 where redefining a property without a value changes the value
-      // Object.defineProperty once accessors have already been set.
-      defineProperty(obj, 'a', {
-        enumerable: false
-      });
-      if (obj.a !== true) {
-        return;
-      }
-
-      // defineProperty is compliant
-      return defineProperty;
-    } catch (e) {
-      // IE8 defines Object.defineProperty but calling it on an Object throws
-      return;
-    }
-  })(Object.defineProperty);
-
-  var hasES5CompliantDefineProperty = !!defineProperty;
-
-  if (hasES5CompliantDefineProperty && typeof document !== 'undefined') {
-    // This is for Safari 5.0, which supports Object.defineProperty, but not
-    // on DOM nodes.
-    var canDefinePropertyOnDOM = (function () {
-      try {
-        defineProperty(document.createElement('div'), 'definePropertyOnDOM', {});
-        return true;
-      } catch (e) {}
-
-      return false;
-    })();
-
-    if (!canDefinePropertyOnDOM) {
-      exports.defineProperty = defineProperty = function (obj, keyName, desc) {
-        var isNode;
-
-        if (typeof Node === 'object') {
-          isNode = obj instanceof Node;
-        } else {
-          isNode = typeof obj === 'object' && typeof obj.nodeType === 'number' && typeof obj.nodeName === 'string';
-        }
-
-        if (isNode) {
-          // TODO: Should we have a warning here?
-          return obj[keyName] = desc.value;
-        } else {
-          return Object.defineProperty(obj, keyName, desc);
-        }
-      };
-    }
-  }
-
-  if (!hasES5CompliantDefineProperty) {
-    exports.defineProperty = defineProperty = function definePropertyPolyfill(obj, keyName, desc) {
-      if (!desc.get) {
-        obj[keyName] = desc.value;
-      }
-    };
-  }
-
-  var hasPropertyAccessors = hasES5CompliantDefineProperty;
-  var canDefineNonEnumerableProperties = hasES5CompliantDefineProperty;
-
-  exports.hasES5CompliantDefineProperty = hasES5CompliantDefineProperty;
-  exports.defineProperty = defineProperty;
-  exports.hasPropertyAccessors = hasPropertyAccessors;
-  exports.canDefineNonEnumerableProperties = canDefineNonEnumerableProperties;
-});
-enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/utils", "ember-metal/platform/define_property", "ember-metal/property_events"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalUtils, _emberMetalPlatformDefine_property, _emberMetalProperty_events) {
+enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/utils", "ember-metal/property_events"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalUtils, _emberMetalProperty_events) {
   exports.Descriptor = Descriptor;
   exports.MANDATORY_SETTER_FUNCTION = MANDATORY_SETTER_FUNCTION;
   exports.DEFAULT_GETTER_FUNCTION = DEFAULT_GETTER_FUNCTION;
@@ -8729,10 +8563,9 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/fe
 
     if (desc instanceof Descriptor) {
       value = desc;
-
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
-          (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, {
+        if (watching) {
+          Object.defineProperty(obj, keyName, {
             configurable: true,
             enumerable: true,
             writable: true,
@@ -8752,9 +8585,9 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/fe
         value = data;
 
         if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-          if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
+          if (watching) {
             meta.values[keyName] = data;
-            (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, {
+            Object.defineProperty(obj, keyName, {
               configurable: true,
               enumerable: true,
               set: MANDATORY_SETTER_FUNCTION(keyName),
@@ -8770,7 +8603,7 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/fe
         value = desc;
 
         // compatibility with ES5
-        (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, desc);
+        Object.oefineProperty(obj, keyName, desc);
       }
     }
 
@@ -9104,7 +8937,7 @@ enifed("ember-metal/property_events", ["exports", "ember-metal/utils", "ember-me
   exports.endPropertyChanges = endPropertyChanges;
   exports.changeProperties = changeProperties;
 });
-enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property", "ember-metal/utils", "ember-metal/is_none"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property, _emberMetalUtils, _emberMetalIs_none) {
+enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/error", "ember-metal/path_cache", "ember-metal/utils", "ember-metal/is_none"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils, _emberMetalIs_none) {
   exports.get = get;
   exports.normalizeTuple = normalizeTuple;
   exports._getPath = _getPath;
@@ -9188,7 +9021,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
       return desc.get(obj, keyName);
     } else {
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (_emberMetalPlatformDefine_property.hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
+        if (meta && meta.watching[keyName] > 0) {
           ret = meta.values[keyName];
         } else {
           ret = obj[keyName];
@@ -9292,7 +9125,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
 /**
 @module ember-metal
 */
-enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_events", "ember-metal/properties", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property", "ember-metal/utils"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property, _emberMetalUtils) {
+enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_events", "ember-metal/properties", "ember-metal/error", "ember-metal/path_cache", "ember-metal/utils"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils) {
   exports.set = set;
   exports.trySet = trySet;
   var INTERCEPT_SET = (0, _emberMetalUtils.symbol)("INTERCEPT_SET");
@@ -9372,11 +9205,7 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
       } else if (meta && meta.watching[keyName] > 0) {
         if (meta.proto !== obj) {
           if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-            if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-              currentValue = meta.values[keyName];
-            } else {
-              currentValue = obj[keyName];
-            }
+            currentValue = meta.values[keyName];
           } else {
             currentValue = obj[keyName];
           }
@@ -9385,14 +9214,10 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
         if (value !== currentValue) {
           (0, _emberMetalProperty_events.propertyWillChange)(obj, keyName);
           if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-            if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-              if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
-                (0, _emberMetalProperties.defineProperty)(obj, keyName, null, value); // setup mandatory setter
-              } else {
-                meta.values[keyName] = value;
-              }
+            if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
+              (0, _emberMetalProperties.defineProperty)(obj, keyName, null, value); // setup mandatory setter
             } else {
-              obj[keyName] = value;
+              meta.values[keyName] = value;
             }
           } else {
             obj[keyName] = value;
@@ -11202,7 +11027,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 });
 enifed("ember-metal/symbol", ["exports"], function (exports) {});
-enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/platform/create", "ember-metal/platform/define_property"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalPlatformCreate, _emberMetalPlatformDefine_property) {
+enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/platform/create"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalPlatformCreate) {
   exports.uuid = uuid;
   exports.symbol = symbol;
   exports.generateGuid = generateGuid;
@@ -11415,7 +11240,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
         if (obj.__defineNonEnumerable) {
           obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
         } else {
-          (0, _emberMetalPlatformDefine_property.defineProperty)(obj, GUID_KEY, GUID_DESC);
+          Object.defineProperty(obj, GUID_KEY, GUID_DESC);
         }
       }
     }
@@ -11497,7 +11322,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
           if (obj.__defineNonEnumerable) {
             obj.__defineNonEnumerable(GUID_KEY_PROPERTY);
           } else {
-            (0, _emberMetalPlatformDefine_property.defineProperty)(obj, GUID_KEY, GUID_DESC);
+            Object.defineProperty(obj, GUID_KEY, GUID_DESC);
           }
         }
         return ret;
@@ -11525,25 +11350,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
     chainWatchers: null // FIXME
   };
 
-  if (!_emberMetalPlatformDefine_property.canDefineNonEnumerableProperties) {
-    // on platforms that don't support enumerable false
-    // make meta fail jQuery.isPlainObject() to hide from
-    // jQuery.extend() by having a property that fails
-    // hasOwnProperty check.
-    Meta.prototype.__preventPlainObject__ = true;
-
-    // Without non-enumerable properties, meta objects will be output in JSON
-    // unless explicitly suppressed
-    Meta.prototype.toJSON = function () {};
-  }
-
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
 
   if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-    if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-      EMPTY_META.values = {};
-    }
+    EMPTY_META.values = {};
   }
 
   /**
@@ -11571,20 +11382,16 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
     }
 
     if (!ret) {
-      if (_emberMetalPlatformDefine_property.canDefineNonEnumerableProperties) {
-        if (obj.__defineNonEnumerable) {
-          obj.__defineNonEnumerable(EMBER_META_PROPERTY);
-        } else {
-          (0, _emberMetalPlatformDefine_property.defineProperty)(obj, "__ember_meta__", META_DESC);
-        }
+      if (obj.__defineNonEnumerable) {
+        obj.__defineNonEnumerable(EMBER_META_PROPERTY);
+      } else {
+        Object.defineProperty(obj, "__ember_meta__", META_DESC);
       }
 
       ret = new Meta(obj);
 
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-          ret.values = {};
-        }
+        ret.values = {};
       }
 
       obj.__ember_meta__ = ret;
@@ -11592,7 +11399,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
       if (obj.__defineNonEnumerable) {
         obj.__defineNonEnumerable(EMBER_META_PROPERTY);
       } else {
-        (0, _emberMetalPlatformDefine_property.defineProperty)(obj, "__ember_meta__", META_DESC);
+        Object.defineProperty(obj, "__ember_meta__", META_DESC);
       }
 
       ret = (0, _emberMetalPlatformCreate.default)(ret);
@@ -11602,9 +11409,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
       ret.source = obj;
 
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-          ret.values = (0, _emberMetalPlatformCreate.default)(ret.values);
-        }
+        ret.values = (0, _emberMetalPlatformCreate.default)(ret.values);
       }
 
       obj["__ember_meta__"] = ret;
@@ -12132,7 +11937,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/feature
   exports.tryFinally = tryFinally;
   exports.deprecatedTryFinally = deprecatedTryFinally;
 });
-enifed("ember-metal/watch_key", ["exports", "ember-metal/features", "ember-metal/utils", "ember-metal/platform/define_property", "ember-metal/properties"], function (exports, _emberMetalFeatures, _emberMetalUtils, _emberMetalPlatformDefine_property, _emberMetalProperties) {
+enifed("ember-metal/watch_key", ["exports", "ember-metal/features", "ember-metal/utils", "ember-metal/properties"], function (exports, _emberMetalFeatures, _emberMetalUtils, _emberMetalProperties) {
   exports.watchKey = watchKey;
   exports.unwatchKey = unwatchKey;
 
@@ -12160,9 +11965,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/features", "ember-metal
       }
 
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-          handleMandatorySetter(m, obj, keyName);
-        }
+        handleMandatorySetter(m, obj, keyName);
       }
     } else {
       watching[keyName] = (watching[keyName] || 0) + 1;
@@ -12185,7 +11988,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/features", "ember-metal
       // this x in Y deopts, so keeping it in this function is better;
       if (configurable && isWritable && hasValue && keyName in obj) {
         m.values[keyName] = obj[keyName];
-        (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, {
+        Object.defineProperty(obj, keyName, {
           configurable: true,
           enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
           set: (0, _emberMetalProperties.MANDATORY_SETTER_FUNCTION)(keyName),
@@ -12217,13 +12020,13 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/features", "ember-metal
       }
 
       if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-        if (!desc && _emberMetalPlatformDefine_property.hasPropertyAccessors && keyName in obj) {
-          (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, {
+        if (!desc && keyName in obj) {
+          Object.defineProperty(obj, keyName, {
             configurable: true,
             enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
             set: function (val) {
               // redefine to set as enumerable
-              (0, _emberMetalPlatformDefine_property.defineProperty)(obj, keyName, {
+              Object.defineProperty(obj, keyName, {
                 configurable: true,
                 writable: true,
                 enumerable: true,
@@ -19706,7 +19509,7 @@ enifed("ember-runtime/system/container", ["exports", "ember-metal/property_set",
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
 });
-enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-metal/features", "ember-metal/merge", "ember-metal/property_get", "ember-metal/utils", "ember-metal/platform/create", "ember-metal/chains", "ember-metal/events", "ember-metal/mixin", "ember-metal/error", "ember-metal/platform/define_property", "ember-metal/keys", "ember-runtime/mixins/action_handler", "ember-metal/properties", "ember-metal/binding", "ember-metal/computed", "ember-metal/injected_property", "ember-metal/run_loop", "ember-metal/watching", "ember-metal/core", "ember-runtime/inject"], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalMerge, _emberMetalProperty_get, _emberMetalUtils, _emberMetalPlatformCreate, _emberMetalChains, _emberMetalEvents, _emberMetalMixin, _emberMetalError, _emberMetalPlatformDefine_property, _emberMetalKeys, _emberRuntimeMixinsAction_handler, _emberMetalProperties, _emberMetalBinding, _emberMetalComputed, _emberMetalInjected_property, _emberMetalRun_loop, _emberMetalWatching, _emberMetalCore, _emberRuntimeInject) {
+enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-metal/features", "ember-metal/merge", "ember-metal/property_get", "ember-metal/utils", "ember-metal/platform/create", "ember-metal/chains", "ember-metal/events", "ember-metal/mixin", "ember-metal/error", "ember-metal/keys", "ember-runtime/mixins/action_handler", "ember-metal/properties", "ember-metal/binding", "ember-metal/computed", "ember-metal/injected_property", "ember-metal/run_loop", "ember-metal/watching", "ember-metal/core", "ember-runtime/inject"], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalMerge, _emberMetalProperty_get, _emberMetalUtils, _emberMetalPlatformCreate, _emberMetalChains, _emberMetalEvents, _emberMetalMixin, _emberMetalError, _emberMetalKeys, _emberRuntimeMixinsAction_handler, _emberMetalProperties, _emberMetalBinding, _emberMetalComputed, _emberMetalInjected_property, _emberMetalRun_loop, _emberMetalWatching, _emberMetalCore, _emberRuntimeInject) {
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
@@ -19813,11 +19616,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
                 this.setUnknownProperty(keyName, value);
               } else {
                 if ((0, _emberMetalFeatures.default)("mandatory-setter")) {
-                  if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-                    (0, _emberMetalProperties.defineProperty)(this, keyName, null, value); // setup mandatory setter
-                  } else {
-                    this[keyName] = value;
-                  }
+                  (0, _emberMetalProperties.defineProperty)(this, keyName, null, value); // setup mandatory setter
                 } else {
                   this[keyName] = value;
                 }
@@ -19926,7 +19725,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
     */
     init: function () {},
     __defineNonEnumerable: function (property) {
-      (0, _emberMetalPlatformDefine_property.defineProperty)(this, property.name, property.descriptor);
+      Object.defineProperty(this, property.name, property.descriptor);
       //this[property.name] = property.descriptor.value;
     },
 
