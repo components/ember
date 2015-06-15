@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0336d404
+ * @version   2.0.0-canary+8115fbcb
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0336d404
+    @version 2.0.0-canary+8115fbcb
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0336d404'
+    @default '2.0.0-canary+8115fbcb'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0336d404';
+  Ember.VERSION = '2.0.0-canary+8115fbcb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7915,9 +7915,6 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     });
     ```
   
-    In the future this method may become asynchronous. If you want to ensure
-    synchronous behavior, use `immediateObserver`.
-  
     Also available as `Function.prototype.observes` if prototype extensions are
     enabled.
   
@@ -7984,11 +7981,14 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     @for Ember
     @param {String} propertyNames*
     @param {Function} func
+    @deprecated Use `Ember.observer` instead.
     @return func
     @private
   */
 
   function immediateObserver() {
+    _emberMetalCore.default.deprecate("Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.");
+
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
       _emberMetalCore.default.assert("Immediate observers must observe internal properties only, not properties on other objects.", typeof arg !== "string" || arg.indexOf(".") === -1);

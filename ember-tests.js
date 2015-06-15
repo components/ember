@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0336d404
+ * @version   2.0.0-canary+8115fbcb
  */
 
 (function() {
@@ -25317,9 +25317,10 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(get(obj, 'foo'), 'bar');
   });
 
-  QUnit.module('Ember.immediateObserver');
+  QUnit.module('Ember.immediateObserver (Deprecated)');
 
   (0, _emberMetalTestsProps_helper.testBoth)('immediate observers should fire synchronously', function (get, set) {
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
     var obj = {};
     var observerCalled = 0;
     var mixin;
@@ -25392,6 +25393,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   }
 
   (0, _emberMetalTestsProps_helper.testBoth)('immediate observers watching multiple properties via brace expansion fire synchronously', function (get, set) {
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
     var obj = {};
     var observerCalled = 0;
     var mixin;
@@ -25427,6 +25429,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)('immediate observers are for internal properties only', function (get, set) {
+    expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
     expectAssertion(function () {
       (0, _emberMetalMixin.immediateObserver)('foo.bar', function () {
         return this;
@@ -47231,7 +47234,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+0336d404", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+8115fbcb", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
