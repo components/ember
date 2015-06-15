@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+eeeb216e
+ * @version   2.0.0-canary+0336d404
  */
 
 (function() {
@@ -8352,7 +8352,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+eeeb216e";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0336d404";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13853,7 +13853,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+eeeb216e
+    @version 2.0.0-canary+0336d404
     @public
   */
 
@@ -13885,11 +13885,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+eeeb216e'
+    @default '2.0.0-canary+0336d404'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+eeeb216e';
+  Ember.VERSION = '2.0.0-canary+0336d404';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22378,7 +22378,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+eeeb216e";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+0336d404";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -22877,7 +22877,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+eeeb216e";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+0336d404";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36846,483 +36846,6 @@ enifed('ember-runtime/system/service', ['exports', 'ember-runtime/system/object'
 
   exports.default = Service;
 });
-enifed("ember-runtime/system/set", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/utils", "ember-metal/is_none", "ember-runtime/system/string", "ember-runtime/system/core_object", "ember-runtime/mixins/mutable_enumerable", "ember-runtime/mixins/enumerable", "ember-runtime/mixins/copyable", "ember-runtime/mixins/freezable", "ember-metal/error", "ember-metal/property_events", "ember-metal/mixin", "ember-metal/computed"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalIs_none, _emberRuntimeSystemString, _emberRuntimeSystemCore_object, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberMetalError, _emberMetalProperty_events, _emberMetalMixin, _emberMetalComputed) {
-
-  /**
-    An unordered collection of objects.
-  
-    A Set works a bit like an array except that its items are not ordered. You
-    can create a set to efficiently test for membership for an object. You can
-    also iterate through a set just like an array, even accessing objects by
-    index, however there is no guarantee as to their order.
-  
-    All Sets are observable via the Enumerable Observer API - which works
-    on any enumerable object including both Sets and Arrays.
-  
-    ## Creating a Set
-  
-    You can create a set like you would most objects using
-    `new Ember.Set()`. Most new sets you create will be empty, but you can
-    also initialize the set with some content by passing an array or other
-    enumerable of objects to the constructor.
-  
-    Finally, you can pass in an existing set and the set will be copied. You
-    can also create a copy of a set by calling `Ember.Set#copy()`.
-  
-    ```javascript
-    // creates a new empty set
-    var foundNames = new Ember.Set();
-  
-    // creates a set with four names in it.
-    var names = new Ember.Set(["Charles", "Tom", "Juan", "Alex"]); // :P
-  
-    // creates a copy of the names set.
-    var namesCopy = new Ember.Set(names);
-  
-    // same as above.
-    var anotherNamesCopy = names.copy();
-    ```
-  
-    ## Adding/Removing Objects
-  
-    You generally add or remove objects from a set using `add()` or
-    `remove()`. You can add any type of object including primitives such as
-    numbers, strings, and booleans.
-  
-    Unlike arrays, objects can only exist one time in a set. If you call `add()`
-    on a set with the same object multiple times, the object will only be added
-    once. Likewise, calling `remove()` with the same object multiple times will
-    remove the object the first time and have no effect on future calls until
-    you add the object to the set again.
-  
-    NOTE: You cannot add/remove `null` or `undefined` to a set. Any attempt to do
-    so will be ignored.
-  
-    In addition to add/remove you can also call `push()`/`pop()`. Push behaves
-    just like `add()` but `pop()`, unlike `remove()` will pick an arbitrary
-    object, remove it and return it. This is a good way to use a set as a job
-    queue when you don't care which order the jobs are executed in.
-  
-    ## Testing for an Object
-  
-    To test for an object's presence in a set you simply call
-    `Ember.Set#contains()`.
-  
-    ## Observing changes
-  
-    When using `Ember.Set`, you can observe the `"[]"` property to be
-    alerted whenever the content changes. You can also add an enumerable
-    observer to the set to be notified of specific objects that are added and
-    removed from the set. See [Ember.Enumerable](/api/classes/Ember.Enumerable.html)
-    for more information on enumerables.
-  
-    This is often unhelpful. If you are filtering sets of objects, for instance,
-    it is very inefficient to re-filter all of the items each time the set
-    changes. It would be better if you could just adjust the filtered set based
-    on what was changed on the original set. The same issue applies to merging
-    sets, as well.
-  
-    ## Other Methods
-  
-    `Ember.Set` primary implements other mixin APIs. For a complete reference
-    on the methods you will use with `Ember.Set`, please consult these mixins.
-    The most useful ones will be `Ember.Enumerable` and
-    `Ember.MutableEnumerable` which implement most of the common iterator
-    methods you are used to on Array.
-  
-    Note that you can also use the `Ember.Copyable` and `Ember.Freezable`
-    APIs on `Ember.Set` as well. Once a set is frozen it can no longer be
-    modified. The benefit of this is that when you call `frozenCopy()` on it,
-    Ember will avoid making copies of the set. This allows you to write
-    code that can know with certainty when the underlying set data will or
-    will not be modified.
-  
-    @class Set
-    @namespace Ember
-    @extends Ember.CoreObject
-    @uses Ember.MutableEnumerable
-    @uses Ember.Copyable
-    @uses Ember.Freezable
-    @since Ember 0.9
-    @deprecated
-    @private
-  */
-  exports.default = _emberRuntimeSystemCore_object.default.extend(_emberRuntimeMixinsMutable_enumerable.default, _emberRuntimeMixinsCopyable.default, _emberRuntimeMixinsFreezable.Freezable, {
-
-    // ..........................................................
-    // IMPLEMENT ENUMERABLE APIS
-    //
-
-    /**
-      This property will change as the number of objects in the set changes.
-       @property length
-      @type number
-      @default 0
-      @private
-    */
-    length: 0,
-
-    /**
-      Clears the set. This is useful if you want to reuse an existing set
-      without having to recreate it.
-       ```javascript
-      var colors = new Ember.Set(["red", "green", "blue"]);
-      colors.length;  // 3
-      colors.clear();
-      colors.length;  // 0
-      ```
-       @method clear
-      @return {Ember.Set} An empty Set
-      @private
-    */
-    clear: function () {
-      if (this.isFrozen) {
-        throw new _emberMetalError.default(_emberRuntimeMixinsFreezable.FROZEN_ERROR);
-      }
-
-      var len = (0, _emberMetalProperty_get.get)(this, "length");
-      if (len === 0) {
-        return this;
-      }
-
-      var guid;
-
-      this.enumerableContentWillChange(len, 0);
-      (0, _emberMetalProperty_events.propertyWillChange)(this, "firstObject");
-      (0, _emberMetalProperty_events.propertyWillChange)(this, "lastObject");
-
-      for (var i = 0; i < len; i++) {
-        guid = (0, _emberMetalUtils.guidFor)(this[i]);
-        delete this[guid];
-        delete this[i];
-      }
-
-      (0, _emberMetalProperty_set.set)(this, "length", 0);
-
-      (0, _emberMetalProperty_events.propertyDidChange)(this, "firstObject");
-      (0, _emberMetalProperty_events.propertyDidChange)(this, "lastObject");
-      this.enumerableContentDidChange(len, 0);
-
-      return this;
-    },
-
-    /**
-      Returns true if the passed object is also an enumerable that contains the
-      same objects as the receiver.
-       ```javascript
-      var colors = ["red", "green", "blue"],
-          same_colors = new Ember.Set(colors);
-       same_colors.isEqual(colors);               // true
-      same_colors.isEqual(["purple", "brown"]);  // false
-      ```
-       @method isEqual
-      @param {Ember.Set} obj the other object.
-      @return {Boolean}
-      @private
-    */
-    isEqual: function (obj) {
-      // fail fast
-      if (!_emberRuntimeMixinsEnumerable.default.detect(obj)) {
-        return false;
-      }
-
-      var loc = (0, _emberMetalProperty_get.get)(this, "length");
-      if ((0, _emberMetalProperty_get.get)(obj, "length") !== loc) {
-        return false;
-      }
-
-      while (--loc >= 0) {
-        if (!obj.contains(this[loc])) {
-          return false;
-        }
-      }
-
-      return true;
-    },
-
-    /**
-      Adds an object to the set. Only non-`null` objects can be added to a set
-      and those can only be added once. If the object is already in the set or
-      the passed value is null this method will have no effect.
-       This is an alias for `Ember.MutableEnumerable.addObject()`.
-       ```javascript
-      var colors = new Ember.Set();
-      colors.add("blue");     // ["blue"]
-      colors.add("blue");     // ["blue"]
-      colors.add("red");      // ["blue", "red"]
-      colors.add(null);       // ["blue", "red"]
-      colors.add(undefined);  // ["blue", "red"]
-      ```
-       @method add
-      @param {Object} obj The object to add.
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    add: (0, _emberMetalMixin.aliasMethod)("addObject"),
-
-    /**
-      Removes the object from the set if it is found. If you pass a `null` value
-      or an object that is already not in the set, this method will have no
-      effect. This is an alias for `Ember.MutableEnumerable.removeObject()`.
-       ```javascript
-      var colors = new Ember.Set(["red", "green", "blue"]);
-      colors.remove("red");     // ["blue", "green"]
-      colors.remove("purple");  // ["blue", "green"]
-      colors.remove(null);      // ["blue", "green"]
-      ```
-       @method remove
-      @param {Object} obj The object to remove
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    remove: (0, _emberMetalMixin.aliasMethod)("removeObject"),
-
-    /**
-      Removes the last element from the set and returns it, or `null` if it's empty.
-       ```javascript
-      var colors = new Ember.Set(["green", "blue"]);
-      colors.pop();  // "blue"
-      colors.pop();  // "green"
-      colors.pop();  // null
-      ```
-       @method pop
-      @return {Object} The removed object from the set or null.
-      @private
-    */
-    pop: function () {
-      if ((0, _emberMetalProperty_get.get)(this, "isFrozen")) {
-        throw new _emberMetalError.default(_emberRuntimeMixinsFreezable.FROZEN_ERROR);
-      }
-
-      var obj = this.length > 0 ? this[this.length - 1] : null;
-      this.remove(obj);
-      return obj;
-    },
-
-    /**
-      Inserts the given object on to the end of the set. It returns
-      the set itself.
-       This is an alias for `Ember.MutableEnumerable.addObject()`.
-       ```javascript
-      var colors = new Ember.Set();
-      colors.push("red");   // ["red"]
-      colors.push("green"); // ["red", "green"]
-      colors.push("blue");  // ["red", "green", "blue"]
-      ```
-       @method push
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    push: (0, _emberMetalMixin.aliasMethod)("addObject"),
-
-    /**
-      Removes the last element from the set and returns it, or `null` if it's empty.
-       This is an alias for `Ember.Set.pop()`.
-       ```javascript
-      var colors = new Ember.Set(["green", "blue"]);
-      colors.shift();  // "blue"
-      colors.shift();  // "green"
-      colors.shift();  // null
-      ```
-       @method shift
-      @return {Object} The removed object from the set or null.
-      @private
-    */
-    shift: (0, _emberMetalMixin.aliasMethod)("pop"),
-
-    /**
-      Inserts the given object on to the end of the set. It returns
-      the set itself.
-       This is an alias of `Ember.Set.push()`
-       ```javascript
-      var colors = new Ember.Set();
-      colors.unshift("red");    // ["red"]
-      colors.unshift("green");  // ["red", "green"]
-      colors.unshift("blue");   // ["red", "green", "blue"]
-      ```
-       @method unshift
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    unshift: (0, _emberMetalMixin.aliasMethod)("push"),
-
-    /**
-      Adds each object in the passed enumerable to the set.
-       This is an alias of `Ember.MutableEnumerable.addObjects()`
-       ```javascript
-      var colors = new Ember.Set();
-      colors.addEach(["red", "green", "blue"]);  // ["red", "green", "blue"]
-      ```
-       @method addEach
-      @param {Ember.Enumerable} objects the objects to add.
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    addEach: (0, _emberMetalMixin.aliasMethod)("addObjects"),
-
-    /**
-      Removes each object in the passed enumerable to the set.
-       This is an alias of `Ember.MutableEnumerable.removeObjects()`
-       ```javascript
-      var colors = new Ember.Set(["red", "green", "blue"]);
-      colors.removeEach(["red", "blue"]);  //  ["green"]
-      ```
-       @method removeEach
-      @param {Ember.Enumerable} objects the objects to remove.
-      @return {Ember.Set} The set itself.
-      @private
-    */
-    removeEach: (0, _emberMetalMixin.aliasMethod)("removeObjects"),
-
-    // ..........................................................
-    // PRIVATE ENUMERABLE SUPPORT
-    //
-
-    init: function (items) {
-      _emberMetalCore.default.deprecate("Ember.Set is deprecated and will be removed in a future release.");
-      this._super.apply(this, arguments);
-
-      if (items) {
-        this.addObjects(items);
-      }
-    },
-
-    // implement Ember.Enumerable
-    nextObject: function (idx) {
-      return this[idx];
-    },
-
-    // more optimized version
-    firstObject: (0, _emberMetalComputed.computed)(function () {
-      return this.length > 0 ? this[0] : undefined;
-    }),
-
-    // more optimized version
-    lastObject: (0, _emberMetalComputed.computed)(function () {
-      return this.length > 0 ? this[this.length - 1] : undefined;
-    }),
-
-    // implements Ember.MutableEnumerable
-    addObject: function (obj) {
-      if ((0, _emberMetalProperty_get.get)(this, "isFrozen")) {
-        throw new _emberMetalError.default(_emberRuntimeMixinsFreezable.FROZEN_ERROR);
-      }
-
-      if ((0, _emberMetalIs_none.default)(obj)) {
-        return this; // nothing to do
-      }
-
-      var guid = (0, _emberMetalUtils.guidFor)(obj);
-      var idx = this[guid];
-      var len = (0, _emberMetalProperty_get.get)(this, "length");
-      var added;
-
-      if (idx >= 0 && idx < len && this[idx] === obj) {
-        return this; // added
-      }
-
-      added = [obj];
-
-      this.enumerableContentWillChange(null, added);
-      (0, _emberMetalProperty_events.propertyWillChange)(this, "lastObject");
-
-      len = (0, _emberMetalProperty_get.get)(this, "length");
-      this[guid] = len;
-      this[len] = obj;
-      (0, _emberMetalProperty_set.set)(this, "length", len + 1);
-
-      (0, _emberMetalProperty_events.propertyDidChange)(this, "lastObject");
-      this.enumerableContentDidChange(null, added);
-
-      return this;
-    },
-
-    // implements Ember.MutableEnumerable
-    removeObject: function (obj) {
-      if ((0, _emberMetalProperty_get.get)(this, "isFrozen")) {
-        throw new _emberMetalError.default(_emberRuntimeMixinsFreezable.FROZEN_ERROR);
-      }
-
-      if ((0, _emberMetalIs_none.default)(obj)) {
-        return this; // nothing to do
-      }
-
-      var guid = (0, _emberMetalUtils.guidFor)(obj);
-      var idx = this[guid];
-      var len = (0, _emberMetalProperty_get.get)(this, "length");
-      var isFirst = idx === 0;
-      var isLast = idx === len - 1;
-      var last, removed;
-
-      if (idx >= 0 && idx < len && this[idx] === obj) {
-        removed = [obj];
-
-        this.enumerableContentWillChange(removed, null);
-        if (isFirst) {
-          (0, _emberMetalProperty_events.propertyWillChange)(this, "firstObject");
-        }
-        if (isLast) {
-          (0, _emberMetalProperty_events.propertyWillChange)(this, "lastObject");
-        }
-
-        // swap items - basically move the item to the end so it can be removed
-        if (idx < len - 1) {
-          last = this[len - 1];
-          this[idx] = last;
-          this[(0, _emberMetalUtils.guidFor)(last)] = idx;
-        }
-
-        delete this[guid];
-        delete this[len - 1];
-        (0, _emberMetalProperty_set.set)(this, "length", len - 1);
-
-        if (isFirst) {
-          (0, _emberMetalProperty_events.propertyDidChange)(this, "firstObject");
-        }
-        if (isLast) {
-          (0, _emberMetalProperty_events.propertyDidChange)(this, "lastObject");
-        }
-        this.enumerableContentDidChange(removed, null);
-      }
-
-      return this;
-    },
-
-    // optimized version
-    contains: function (obj) {
-      return this[(0, _emberMetalUtils.guidFor)(obj)] >= 0;
-    },
-
-    copy: function () {
-      var C = this.constructor;
-      var ret = new C();
-      var loc = (0, _emberMetalProperty_get.get)(this, "length");
-
-      (0, _emberMetalProperty_set.set)(ret, "length", loc);
-      while (--loc >= 0) {
-        ret[loc] = this[loc];
-        ret[(0, _emberMetalUtils.guidFor)(this[loc])] = loc;
-      }
-      return ret;
-    },
-
-    toString: function () {
-      var len = this.length;
-      var array = [];
-      var idx;
-
-      for (idx = 0; idx < len; idx++) {
-        array[idx] = this[idx];
-      }
-      return (0, _emberRuntimeSystemString.fmt)("Ember.Set<%@>", [array.join(",")]);
-    }
-  });
-});
-/**
-@module ember
-@submodule ember-runtime
-*/
-// Ember.isNone, Ember.A
 enifed("ember-runtime/system/string", ["exports", "ember-metal/core", "ember-metal/utils", "ember-runtime/utils", "ember-metal/cache"], function (exports, _emberMetalCore, _emberMetalUtils, _emberRuntimeUtils, _emberMetalCache) {
 
   var STRING_DASHERIZE_REGEXP = /[ _]/g;
@@ -39566,7 +39089,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+eeeb216e",
+        revision: "Ember@2.0.0-canary+0336d404",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43501,7 +43024,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+eeeb216e";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+0336d404";
 
   /**
   @module ember
