@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+43d13b5b
+ * @version   2.0.0-canary+4f92d0fa
  */
 
 (function() {
@@ -9008,7 +9008,7 @@ enifed("ember-htmlbars/tests/helpers/debug_test", ["exports", "ember-metal/core"
   });
 });
 // Ember.lookup
-enifed("ember-htmlbars/tests/helpers/each_in_test", ["exports", "ember-metal/features", "ember-views/views/component", "ember-template-compiler/system/compile", "ember-metal/run_loop", "ember-metal/platform/create", "ember-runtime/tests/utils"], function (exports, _emberMetalFeatures, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalPlatformCreate, _emberRuntimeTestsUtils) {
+enifed("ember-htmlbars/tests/helpers/each_in_test", ["exports", "ember-metal/features", "ember-views/views/component", "ember-template-compiler/system/compile", "ember-metal/run_loop", "ember-runtime/tests/utils"], function (exports, _emberMetalFeatures, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
 
   var component;
 
@@ -9079,7 +9079,7 @@ enifed("ember-htmlbars/tests/helpers/each_in_test", ["exports", "ember-metal/fea
       "JavaScript Frameworks": Infinity
     };
 
-    var categories = (0, _emberMetalPlatformCreate.default)(protoCategories);
+    var categories = Object.create(protoCategories);
     categories["Televisions"] = 183;
     categories["Alarm Clocks"] = 999;
 
@@ -17109,7 +17109,7 @@ enifed("ember-htmlbars/tests/integration/component_lifecycle_test", ["exports", 
   // from inside the attrs hash out into state and passes it as attrs into a child
   // component. The hooks should run correctly.
 });
-enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-metal/platform/create', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberMetalPlatformCreate, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeTestsUtils) {
 
   var view;
 
@@ -17169,7 +17169,7 @@ enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', '
 
   QUnit.test('should read from an Object.create(null)', function () {
     // Use ember's polyfill for Object.create
-    var nullObject = (0, _emberMetalPlatformCreate.default)(null);
+    var nullObject = Object.create(null);
     nullObject['foo'] = 'bar';
     view = _emberViewsViewsView.default.create({
       context: { nullObject: nullObject },
@@ -19371,7 +19371,7 @@ enifed('ember-metal/tests/accessors/get_properties_test', ['exports', 'ember-met
     deepEqual((0, _emberMetalGet_properties.default)(obj, []), {});
   });
 });
-enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/props_helper', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/platform/create'], function (exports, _emberMetalTestsProps_helper, _emberMetalProperty_get, _emberMetalMixin, _emberMetalObserver, _emberMetalPlatformCreate) {
+enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/props_helper', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/observer'], function (exports, _emberMetalTestsProps_helper, _emberMetalProperty_get, _emberMetalMixin, _emberMetalObserver) {
 
   QUnit.module('Ember.get');
 
@@ -19505,7 +19505,7 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     });
 
     var baseObject = MyMixin.apply({});
-    var theRealObject = (0, _emberMetalPlatformCreate.default)(baseObject);
+    var theRealObject = Object.create(baseObject);
 
     equal((0, _emberMetalProperty_get.get)(theRealObject, 'someProperty'), 'foo', 'should return the set value, not false');
   });
@@ -19584,7 +19584,7 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     });
 
     var baseObject = MyMixin.apply({});
-    var theRealObject = (0, _emberMetalPlatformCreate.default)(baseObject);
+    var theRealObject = Object.create(baseObject);
 
     equal((0, _emberMetalProperty_get.getWithDefault)(theRealObject, 'someProperty', 'fail'), 'foo', 'should return the set value, not false');
   });
@@ -19612,7 +19612,7 @@ enifed("ember-metal/tests/accessors/is_global_path_test", ["exports", "ember-met
     ok(!(0, _emberMetalBinding.isGlobalPath)("myObj.SecondProperty"));
   });
 });
-enifed("ember-metal/tests/accessors/mandatory_setters_test", ["exports", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/watching", "ember-metal/platform/create", "ember-metal/utils"], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalPlatformCreate, _emberMetalUtils) {
+enifed("ember-metal/tests/accessors/mandatory_setters_test", ["exports", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/watching", "ember-metal/utils"], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalUtils) {
 
   QUnit.module("mandatory-setters");
 
@@ -20414,7 +20414,7 @@ enifed("ember-metal/tests/cache_test", ["exports", "ember-metal/cache"], functio
     equal(cache.get("c"), "C");
   });
 });
-enifed("ember-metal/tests/chains_test", ["exports", "ember-metal/observer", "ember-metal/chains", "ember-metal/platform/create"], function (exports, _emberMetalObserver, _emberMetalChains, _emberMetalPlatformCreate) {
+enifed("ember-metal/tests/chains_test", ["exports", "ember-metal/observer", "ember-metal/chains"], function (exports, _emberMetalObserver, _emberMetalChains) {
 
   QUnit.module("Chains");
 
@@ -20424,13 +20424,13 @@ enifed("ember-metal/tests/chains_test", ["exports", "ember-metal/observer", "emb
     var obj = {};
     (0, _emberMetalObserver.addObserver)(obj, "foo.bar", null, didChange);
 
-    var childObj = (0, _emberMetalPlatformCreate.default)(obj);
+    var childObj = Object.create(obj);
     (0, _emberMetalChains.finishChains)(childObj);
 
     ok(obj["__ember_meta__"].chains !== childObj["__ember_meta__"].chains, "The chains object is copied");
   });
 });
-enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/platform/create', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalPlatformCreate, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalObserver) {
+enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalObserver) {
 
   var originalLookup = _emberMetalCore.default.lookup;
   var obj, count, Global, lookup;
@@ -20487,7 +20487,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         }
       }));
 
-      objB = (0, _emberMetalPlatformCreate.default)(objA);
+      objB = Object.create(objA);
       objB.__foo = 'FOO'; // make a copy;
     },
 
@@ -20526,7 +20526,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         }
       }));
 
-      objB = (0, _emberMetalPlatformCreate.default)(objA);
+      objB = Object.create(objA);
       (0, _emberMetalProperties.defineProperty)(objB, 'foo'); // make this just a normal property.
     },
 
@@ -20565,7 +20565,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         }
       }));
 
-      objB = (0, _emberMetalPlatformCreate.default)(objA);
+      objB = Object.create(objA);
       objB.__foo = 'FOO';
       (0, _emberMetalProperties.defineProperty)(objB, 'foo', (0, _emberMetalComputed.computed)({
         get: function (key) {
@@ -20650,7 +20650,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)('inherited property should not pick up cache', function (get, set) {
-    var objB = (0, _emberMetalPlatformCreate.default)(obj);
+    var objB = Object.create(obj);
 
     equal(get(obj, 'foo'), 'bar 1', 'obj first get');
     equal(get(objB, 'foo'), 'bar 2', 'objB first get');
@@ -21260,7 +21260,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(get(obj, 'bar'), 'barValue');
   });
 });
-enifed("ember-metal/tests/core/inspect_test", ["exports", "ember-metal/utils", "ember-metal/platform/create"], function (exports, _emberMetalUtils, _emberMetalPlatformCreate) {
+enifed("ember-metal/tests/core/inspect_test", ["exports", "ember-metal/utils"], function (exports, _emberMetalUtils) {
 
   QUnit.module("Ember.inspect");
 
@@ -21297,7 +21297,7 @@ enifed("ember-metal/tests/core/inspect_test", ["exports", "ember-metal/utils", "
   });
 
   QUnit.test("objects without a prototype", function () {
-    var prototypelessObj = (0, _emberMetalPlatformCreate.default)(null);
+    var prototypelessObj = Object.create(null);
     equal((0, _emberMetalUtils.inspect)({ foo: prototypelessObj }), "{foo: [object Object]}");
   });
 
@@ -21327,7 +21327,7 @@ enifed("ember-metal/tests/error_test", ["exports"], function (exports) {
     }, "the assigned message was displayed");
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/platform/create', 'ember-metal/utils', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalPlatformCreate, _emberMetalUtils, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalUtils, _emberMetalEvents) {
 
   QUnit.module('system/props/events_test');
 
@@ -21360,7 +21360,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
 
     (0, _emberMetalEvents.addListener)(obj, 'event!', F);
 
-    var obj2 = (0, _emberMetalPlatformCreate.default)(obj);
+    var obj2 = Object.create(obj);
 
     equal(count, 0, 'nothing yet');
 
@@ -23547,7 +23547,7 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
     }, 'You passed in `["a"]` as the value for `foo` but `foo` cannot be an Array');
   });
 });
-enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/platform/create', 'ember-metal/mixin'], function (exports, _emberMetalPlatformCreate, _emberMetalMixin) {
+enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
 
   QUnit.module('Mixin Methods');
 
@@ -23639,7 +23639,7 @@ enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/platform/
     var objA = {};
     MixinA.apply(objA);
 
-    var objB = (0, _emberMetalPlatformCreate.default)(objA);
+    var objB = Object.create(objA);
     MixinB.apply(objB);
 
     cnt = 0;
@@ -24114,7 +24114,7 @@ enifed('ember-metal/tests/mixin/without_test', ['exports', 'ember-metal/mixin'],
     equal(obj.bar, undefined, 'should not define bar');
   });
 });
-enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/platform/create', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalObserver, _emberMetalProperty_events, _emberMetalPlatformCreate, _emberMetalProperties, _emberMetalComputed, _emberMetalMixin, _emberMetalRun_loop) {
+enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalObserver, _emberMetalProperty_events, _emberMetalProperties, _emberMetalComputed, _emberMetalMixin, _emberMetalRun_loop) {
 
   // ..........................................................
   // ADD OBSERVER
@@ -24638,7 +24638,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     (0, _emberMetalObserver.addObserver)(obj, 'foo', function () {
       this.count++;
     });
-    obj2 = (0, _emberMetalPlatformCreate.default)(obj);
+    obj2 = Object.create(obj);
 
     set(obj2, 'foo', 'bar');
 
@@ -24942,7 +24942,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     (0, _emberMetalObserver.addBeforeObserver)(obj, 'foo', function () {
       this.count++;
     });
-    obj2 = (0, _emberMetalPlatformCreate.default)(obj);
+    obj2 = Object.create(obj);
 
     set(obj2, 'foo', 'bar');
     equal(obj2.count, 1, 'should have invoked observer on inherited');
@@ -26708,68 +26708,89 @@ enifed("ember-metal/tests/utils/guid_for_test", ["exports", "ember-metal/utils"]
     nanGuid(a);
   });
 });
-enifed('ember-metal/tests/utils/meta_test', ['exports', 'ember-metal/platform/create', 'ember-metal/utils'], function (exports, _emberMetalPlatformCreate, _emberMetalUtils) {
+enifed("ember-metal/tests/utils/meta_test", ["exports", "ember-metal/utils"], function (exports, _emberMetalUtils) {
 
-  QUnit.module('Ember.meta');
+  QUnit.module("Ember.meta");
 
-  QUnit.test('should return the same hash for an object', function () {
+  QUnit.test("should return the same hash for an object", function () {
     var obj = {};
 
-    (0, _emberMetalUtils.meta)(obj).foo = 'bar';
+    (0, _emberMetalUtils.meta)(obj).foo = "bar";
 
-    equal((0, _emberMetalUtils.meta)(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
+    equal((0, _emberMetalUtils.meta)(obj).foo, "bar", "returns same hash with multiple calls to Ember.meta()");
   });
 
-  QUnit.module('Ember.metaPath');
+  QUnit.module("Ember.metaPath");
 
-  QUnit.test('should not create nested objects if writable is false', function () {
+  QUnit.test("should not create nested objects if writable is false", function () {
     var obj = {};
 
-    ok(!(0, _emberMetalUtils.meta)(obj).foo, 'precond - foo property on meta does not yet exist');
+    ok(!(0, _emberMetalUtils.meta)(obj).foo, "precond - foo property on meta does not yet exist");
     expectDeprecation(function () {
-      equal((0, _emberMetalUtils.metaPath)(obj, ['foo', 'bar', 'baz'], false), undefined, 'should return undefined when writable is false and doesn\'t already exist');
+      equal((0, _emberMetalUtils.metaPath)(obj, ["foo", "bar", "baz"], false), undefined, "should return undefined when writable is false and doesn't already exist");
     });
-    equal((0, _emberMetalUtils.meta)(obj).foo, undefined, 'foo property is not created');
+    equal((0, _emberMetalUtils.meta)(obj).foo, undefined, "foo property is not created");
   });
 
-  QUnit.test('should create nested objects if writable is true', function () {
+  QUnit.test("should create nested objects if writable is true", function () {
     var obj = {};
 
-    ok(!(0, _emberMetalUtils.meta)(obj).foo, 'precond - foo property on meta does not yet exist');
+    ok(!(0, _emberMetalUtils.meta)(obj).foo, "precond - foo property on meta does not yet exist");
 
     expectDeprecation(function () {
-      equal(typeof (0, _emberMetalUtils.metaPath)(obj, ['foo', 'bar', 'baz'], true), 'object', 'should return hash when writable is true and doesn\'t already exist');
+      equal(typeof (0, _emberMetalUtils.metaPath)(obj, ["foo", "bar", "baz"], true), "object", "should return hash when writable is true and doesn't already exist");
     });
-    ok((0, _emberMetalUtils.meta)(obj).foo.bar.baz['bat'] = true, 'can set a property on the newly created hash');
+    ok((0, _emberMetalUtils.meta)(obj).foo.bar.baz["bat"] = true, "can set a property on the newly created hash");
   });
 
-  QUnit.test('getMeta and setMeta', function () {
+  QUnit.test("getMeta and setMeta", function () {
     var obj = {};
 
-    ok(!(0, _emberMetalUtils.getMeta)(obj, 'foo'), 'precond - foo property on meta does not yet exist');
-    (0, _emberMetalUtils.setMeta)(obj, 'foo', 'bar');
-    equal((0, _emberMetalUtils.getMeta)(obj, 'foo'), 'bar', 'foo property on meta now exists');
+    ok(!(0, _emberMetalUtils.getMeta)(obj, "foo"), "precond - foo property on meta does not yet exist");
+    (0, _emberMetalUtils.setMeta)(obj, "foo", "bar");
+    equal((0, _emberMetalUtils.getMeta)(obj, "foo"), "bar", "foo property on meta now exists");
   });
 
-  QUnit.module('Ember.meta enumerable');
+  QUnit.module("Ember.meta enumerable");
 
-  QUnit.test('meta is not enumerable', function () {
+  QUnit.test("meta is not enumerable", function () {
     var proto, obj, props, prop;
-    proto = { foo: 'bar' };
+    proto = { foo: "bar" };
     (0, _emberMetalUtils.meta)(proto);
-    obj = (0, _emberMetalPlatformCreate.default)(proto);
+    obj = Object.create(proto);
     (0, _emberMetalUtils.meta)(obj);
-    obj.bar = 'baz';
+    obj.bar = "baz";
     props = [];
     for (prop in obj) {
       props.push(prop);
     }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
+    deepEqual(props.sort(), ["bar", "foo"]);
+    if (typeof JSON !== "undefined" && "stringify" in JSON) {
       try {
         JSON.stringify(obj);
       } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
+        ok(false, "meta should not fail JSON.stringify");
+      }
+    }
+  });
+
+  QUnit.test("meta is not enumerable", function () {
+    var proto, obj, props, prop;
+    proto = { foo: "bar" };
+    (0, _emberMetalUtils.meta)(proto);
+    obj = Object.create(proto);
+    (0, _emberMetalUtils.meta)(obj);
+    obj.bar = "baz";
+    props = [];
+    for (prop in obj) {
+      props.push(prop);
+    }
+    deepEqual(props.sort(), ["bar", "foo"]);
+    if (typeof JSON !== "undefined" && "stringify" in JSON) {
+      try {
+        JSON.stringify(obj);
+      } catch (e) {
+        ok(false, "meta should not fail JSON.stringify");
       }
     }
   });
@@ -35648,7 +35669,7 @@ enifed('ember-runtime/tests/core/compare_test', ['exports', 'ember-runtime/utils
     equal((0, _emberRuntimeCompare.default)('c', one), -1, 'Second item comparable - returns  1 (negated)');
   });
 });
-enifed("ember-runtime/tests/core/copy_test", ["exports", "ember-metal/platform/create", "ember-runtime/copy"], function (exports, _emberMetalPlatformCreate, _emberRuntimeCopy) {
+enifed("ember-runtime/tests/core/copy_test", ["exports", "ember-runtime/copy"], function (exports, _emberRuntimeCopy) {
 
   QUnit.module("Ember Copy Method");
 
@@ -35666,7 +35687,7 @@ enifed("ember-runtime/tests/core/copy_test", ["exports", "ember-metal/platform/c
   });
 
   QUnit.test("Ember.copy null prototype object", function () {
-    var obj = (0, _emberMetalPlatformCreate.default)(null);
+    var obj = Object.create(null);
 
     obj.foo = "bar";
 
@@ -35898,7 +35919,7 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
     equal(get(obj, 'fullName'), 'Wilma ', 'should return the new computed value');
   });
 });
-enifed("ember-runtime/tests/ext/mixin_test", ["exports", "ember-metal/property_set", "ember-metal/property_get", "ember-metal/mixin", "ember-metal/platform/create", "ember-metal/binding", "ember-metal/run_loop"], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberMetalPlatformCreate, _emberMetalBinding, _emberMetalRun_loop) {
+enifed("ember-runtime/tests/ext/mixin_test", ["exports", "ember-metal/property_set", "ember-metal/property_get", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop"], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop) {
 
   QUnit.module("system/mixin/binding_test");
 
@@ -35933,7 +35954,7 @@ enifed("ember-runtime/tests/ext/mixin_test", ["exports", "ember-metal/property_s
       MyMixin.apply(obj);
     });
 
-    obj2 = (0, _emberMetalPlatformCreate.default)(obj);
+    obj2 = Object.create(obj);
     (0, _emberMetalRun_loop.default)(function () {
       (0, _emberMetalProperty_set.set)((0, _emberMetalProperty_get.get)(obj2, "bar"), "baz", "BARG");
     });
@@ -39333,7 +39354,7 @@ enifed("ember-runtime/tests/mixins/observable_test", ["exports", "ember-metal/co
     equal(25, obj.get("age"));
   });
 });
-enifed("ember-runtime/tests/mixins/promise_proxy_test", ["exports", "ember-metal/platform/create", "ember-metal/property_get", "ember-metal/run_loop", "ember-runtime/system/object_proxy", "ember-runtime/mixins/promise_proxy", "ember-runtime/ext/rsvp", "rsvp"], function (exports, _emberMetalPlatformCreate, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsPromise_proxy, _emberRuntimeExtRsvp, _rsvp) {
+enifed("ember-runtime/tests/mixins/promise_proxy_test", ["exports", "ember-metal/property_get", "ember-metal/run_loop", "ember-runtime/system/object_proxy", "ember-runtime/mixins/promise_proxy", "ember-runtime/ext/rsvp", "rsvp"], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject_proxy, _emberRuntimeMixinsPromise_proxy, _emberRuntimeExtRsvp, _rsvp) {
 
   var ObjectPromiseProxy;
 
@@ -39516,7 +39537,7 @@ enifed("ember-runtime/tests/mixins/promise_proxy_test", ["exports", "ember-metal
       _rsvp.Promise.apply(this, arguments);
     }
 
-    PromiseSubclass.prototype = (0, _emberMetalPlatformCreate.default)(_rsvp.Promise.prototype);
+    PromiseSubclass.prototype = Object.create(_rsvp.Promise.prototype);
     PromiseSubclass.prototype.constructor = PromiseSubclass;
     PromiseSubclass.cast = _rsvp.Promise.cast;
 
@@ -46888,7 +46909,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+43d13b5b", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4f92d0fa", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {

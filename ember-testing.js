@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+43d13b5b
+ * @version   2.0.0-canary+4f92d0fa
  */
 
 (function() {
@@ -1176,7 +1176,7 @@ enifed("ember-testing/support", ["exports", "ember-metal/core", "ember-views/sys
     });
   }
 });
-enifed("ember-testing/test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-metal/platform/create", "ember-runtime/ext/rsvp", "ember-testing/setup_for_testing", "ember-application/system/application"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalPlatformCreate, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication) {
+enifed("ember-testing/test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-runtime/ext/rsvp", "ember-testing/setup_for_testing", "ember-application/system/application"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication) {
 
   /**
     @module ember
@@ -1612,7 +1612,7 @@ enifed("ember-testing/test", ["exports", "ember-metal/core", "ember-metal/run_lo
     Test.lastPromise = this;
   };
 
-  Test.Promise.prototype = (0, _emberMetalPlatformCreate.default)(_emberRuntimeExtRsvp.default.Promise.prototype);
+  Test.Promise.prototype = Object.create(_emberRuntimeExtRsvp.default.Promise.prototype);
   Test.Promise.prototype.constructor = Test.Promise;
   Test.Promise.resolve = Test.resolve;
 
