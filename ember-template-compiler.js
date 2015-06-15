@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+59a5d5c1
+ * @version   2.0.0-canary+43d13b5b
  */
 
 (function() {
@@ -3957,7 +3957,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+59a5d5c1
+    @version 2.0.0-canary+43d13b5b
     @public
   */
 
@@ -3989,11 +3989,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+59a5d5c1'
+    @default '2.0.0-canary+43d13b5b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+59a5d5c1';
+  Ember.VERSION = '2.0.0-canary+43d13b5b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7785,8 +7785,8 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/fe
       } else {
         value = desc;
 
-        // compatibility with ES5
-        Object.oefineProperty(obj, keyName, desc);
+        // fallback to ES5
+        Object.defineProperty(obj, keyName, desc);
       }
     }
 
@@ -12644,7 +12644,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+59a5d5c1",
+        revision: "Ember@2.0.0-canary+43d13b5b",
         loc: program.loc,
         moduleName: options.moduleName
       };

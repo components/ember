@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+59a5d5c1
+ * @version   2.0.0-canary+43d13b5b
  */
 
 (function() {
@@ -25460,7 +25460,7 @@ enifed("ember-metal/tests/properties_test", ["exports", "ember-metal/computed", 
     (0, _emberMetalProperties.defineProperty)(obj, "foo", undefined, "bar");
   });
 
-  QUnit.test("for descriptor properties, didDefineProperty hook should be called if implemented", function () {
+  QUnit.test("for computed properties, didDefineProperty hook should be called if implemented", function () {
     expect(2);
 
     var computedProperty = (0, _emberMetalComputed.computed)(function () {
@@ -25470,11 +25470,31 @@ enifed("ember-metal/tests/properties_test", ["exports", "ember-metal/computed", 
     var obj = {
       didDefineProperty: function (obj, keyName, value) {
         equal(keyName, "foo", "key name should be foo");
-        strictEqual(value, computedProperty, "value should be passed descriptor");
+        strictEqual(value, computedProperty, "value should be passed as computed property");
       }
     };
 
     (0, _emberMetalProperties.defineProperty)(obj, "foo", computedProperty);
+  });
+
+  QUnit.test("for descriptor properties, didDefineProperty hook should be called if implemented", function () {
+    expect(2);
+
+    var descriptor = {
+      writable: true,
+      configurable: false,
+      enumerable: true,
+      value: 42
+    };
+
+    var obj = {
+      didDefineProperty: function (obj, keyName, value) {
+        equal(keyName, "answer", "key name should be answer");
+        strictEqual(value, descriptor, "value should be passed as descriptor");
+      }
+    };
+
+    (0, _emberMetalProperties.defineProperty)(obj, "answer", descriptor);
   });
 
   QUnit.module("Ember.deprecateProperty");
@@ -46868,7 +46888,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+59a5d5c1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+43d13b5b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
