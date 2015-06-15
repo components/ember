@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+566c8f49
+ * @version   2.0.0-beta.1+aa81146d
  */
 
 (function() {
@@ -26031,22 +26031,20 @@ enifed('ember-metal/tests/set_properties_test', ['exports', 'ember-metal/set_pro
     deepEqual((0, _emberMetalSet_properties.default)(null, null), null, 'noop for null properties and null object');
     deepEqual((0, _emberMetalSet_properties.default)(undefined, undefined), undefined, 'noop for undefined properties and undefined object');
 
-    deepEqual((0, _emberMetalSet_properties.default)({}), {}, 'noop for no properties');
-    deepEqual((0, _emberMetalSet_properties.default)({}, undefined), {}, 'noop for undefined');
-    deepEqual((0, _emberMetalSet_properties.default)({}, null), {}, 'noop for null');
-    deepEqual((0, _emberMetalSet_properties.default)({}, NaN), {}, 'noop for NaN');
+    deepEqual((0, _emberMetalSet_properties.default)({}), undefined, 'noop for no properties');
+    deepEqual((0, _emberMetalSet_properties.default)({}, undefined), undefined, 'noop for undefined');
+    deepEqual((0, _emberMetalSet_properties.default)({}, null), null, 'noop for null');
+    deepEqual((0, _emberMetalSet_properties.default)({}, NaN), NaN, 'noop for NaN');
     deepEqual((0, _emberMetalSet_properties.default)({}, {}), {}, 'meh');
 
     deepEqual((0, _emberMetalSet_properties.default)({}, { foo: 1 }), { foo: 1 }, 'Set a single property');
 
     deepEqual((0, _emberMetalSet_properties.default)({}, { foo: 1, bar: 1 }), { foo: 1, bar: 1 }, 'Set multiple properties');
 
-    deepEqual((0, _emberMetalSet_properties.default)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1, baz: 2 }, 'Set one of multiple properties');
+    deepEqual((0, _emberMetalSet_properties.default)({ foo: 2, baz: 2 }, { foo: 1 }), { foo: 1 }, 'Set one of multiple properties');
 
     deepEqual((0, _emberMetalSet_properties.default)({ foo: 2, baz: 2 }, { bar: 2 }), {
-      bar: 2,
-      foo: 2,
-      baz: 2
+      bar: 2
     }, 'Set an additional, previously unset property');
   });
 });
@@ -36274,41 +36272,41 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
 
   });
 
-  QUnit.test('should change normal properties and return this', function () {
+  QUnit.test('should change normal properties and return the value', function () {
     var ret = object.set('normal', 'changed');
     equal(object.normal, 'changed');
-    equal(ret, object);
+    equal(ret, 'changed');
   });
 
-  QUnit.test('should call computed properties passing value and return this', function () {
+  QUnit.test('should call computed properties passing value and return the value', function () {
     var ret = object.set('computed', 'changed');
     equal(object._computed, 'changed');
-    equal(ret, object);
+    equal(ret, 'changed');
   });
 
   QUnit.test('should change normal properties when passing undefined', function () {
     var ret = object.set('normal', undefined);
     equal(object.normal, undefined);
-    equal(ret, object);
+    equal(ret, undefined);
   });
 
-  QUnit.test('should replace the function for a non-computed property and return this', function () {
+  QUnit.test('should replace the function for a non-computed property and return the value', function () {
     var ret = object.set('method', 'changed');
     equal(object._method, 'method'); // make sure this was NOT run
     ok(typeof object.method !== 'function');
-    equal(ret, object);
+    equal(ret, 'changed');
   });
 
   QUnit.test('should replace prover when property value is null', function () {
     var ret = object.set('nullProperty', 'changed');
     equal(object.nullProperty, 'changed');
-    equal(ret, object);
+    equal(ret, 'changed');
   });
 
   QUnit.test('should call unknownProperty with value when property is undefined', function () {
     var ret = object.set('unknown', 'changed');
     equal(object._unknown, 'changed');
-    equal(ret, object);
+    equal(ret, 'changed');
   });
 
   // ..........................................................
@@ -36452,11 +36450,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
 
     (0, _emberMetalEnumerable_utils.forEach)(keys, function (key) {
 
-      equal(object.set(key, values[0]), object, (0, _emberRuntimeSystemString.fmt)('Try #1: object.set(%@, %@) should run function', [key, values[0]]));
+      equal(object.set(key, values[0]), values[0], (0, _emberRuntimeSystemString.fmt)('Try #1: object.set(%@, %@) should run function', [key, values[0]]));
 
-      equal(object.set(key, values[1]), object, (0, _emberRuntimeSystemString.fmt)('Try #2: object.set(%@, %@) should run function', [key, values[1]]));
+      equal(object.set(key, values[1]), values[1], (0, _emberRuntimeSystemString.fmt)('Try #2: object.set(%@, %@) should run function', [key, values[1]]));
 
-      equal(object.set(key, values[1]), object, (0, _emberRuntimeSystemString.fmt)('Try #3: object.set(%@, %@) should not run function since it is setting same value as before', [key, values[1]]));
+      equal(object.set(key, values[1]), values[1], (0, _emberRuntimeSystemString.fmt)('Try #3: object.set(%@, %@) should not run function since it is setting same value as before', [key, values[1]]));
     });
 
     // verify each call count.  cached should only be called once
@@ -47168,7 +47166,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+566c8f49", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+aa81146d", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
