@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0ad92a6e
+ * @version   2.0.0-canary+3a842b61
  */
 
 (function() {
@@ -39384,6 +39384,365 @@ enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/te
     }
   }).run();
 });
+enifed('ember-runtime/tests/mixins/deferred_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/deferred'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsDeferred) {
+
+  var originalDeprecate;
+
+  QUnit.module('Deferred', {
+    setup: function () {
+      originalDeprecate = _emberMetalCore.default.deprecate;
+      _emberMetalCore.default.deprecate = function () {};
+    },
+
+    teardown: function () {
+      _emberMetalCore.default.deprecate = originalDeprecate;
+    }
+  });
+
+  QUnit.test('can resolve deferred', function () {
+    var deferred;
+    var count = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function (a) {
+      count++;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
+
+    equal(count, 1, 'was fulfilled');
+  });
+
+  QUnit.test('can reject deferred', function () {
+
+    var deferred;
+    var count = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(null, function () {
+      count++;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'reject');
+
+    equal(count, 1, 'fail callback was called');
+  });
+
+  QUnit.test('can resolve with then', function () {
+
+    var deferred;
+    var count1 = 0;
+    var count2 = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      count1++;
+    }, function () {
+      count2++;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
+
+    equal(count1, 1, 'then were resolved');
+    equal(count2, 0, 'then was not rejected');
+  });
+
+  QUnit.test('can reject with then', function () {
+
+    var deferred;
+    var count1 = 0;
+    var count2 = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      count1++;
+    }, function () {
+      count2++;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'reject');
+
+    equal(count1, 0, 'then was not resolved');
+    equal(count2, 1, 'then were rejected');
+  });
+
+  QUnit.test('can call resolve multiple times', function () {
+
+    var deferred;
+    var count = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      count++;
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred.resolve(deferred);
+      deferred.resolve(deferred);
+      deferred.resolve(deferred);
+    });
+
+    equal(count, 1, 'calling resolve multiple times has no effect');
+  });
+
+  QUnit.test('resolve prevent reject', function () {
+    var deferred;
+    var resolved = false;
+    var rejected = false;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      resolved = true;
+    }, function () {
+      rejected = true;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
+    (0, _emberMetalRun_loop.default)(deferred, 'reject');
+
+    equal(resolved, true, 'is resolved');
+    equal(rejected, false, 'is not rejected');
+  });
+
+  QUnit.test('reject prevent resolve', function () {
+    var deferred;
+    var resolved = false;
+    var rejected = false;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      resolved = true;
+    }, function () {
+      rejected = true;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'reject');
+    (0, _emberMetalRun_loop.default)(deferred, 'reject', deferred);
+
+    equal(resolved, false, 'is not resolved');
+    equal(rejected, true, 'is rejected');
+  });
+
+  QUnit.test('will call callbacks if they are added after resolution', function () {
+
+    var deferred;
+    var count1 = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', 'toto');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred.then(function (context) {
+        if (context === 'toto') {
+          count1++;
+        }
+      });
+
+      deferred.then(function (context) {
+        if (context === 'toto') {
+          count1++;
+        }
+      });
+    });
+
+    equal(count1, 2, 'callbacks called after resolution');
+  });
+
+  QUnit.test('then is chainable', function () {
+    var deferred;
+    var count = 0;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      eval('error'); // Use eval to pass JSHint
+    }).then(null, function () {
+      count++;
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
+
+    equal(count, 1, 'chained callback was called');
+  });
+
+  QUnit.test('can self fulfill', function () {
+    expect(1);
+    var deferred;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function (value) {
+      equal(value, deferred, 'successfully resolved to itself');
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
+  });
+
+  QUnit.test('can self reject', function () {
+    expect(1);
+    var deferred;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function () {
+      ok(false, 'should not fulfill');
+    }, function (value) {
+      equal(value, deferred, 'successfully rejected to itself');
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'reject', deferred);
+  });
+
+  QUnit.test('can fulfill to a custom value', function () {
+    expect(1);
+    var deferred;
+    var obj = {};
+
+    (0, _emberMetalRun_loop.default)(function () {
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then(function (value) {
+      equal(value, obj, 'successfully resolved to given value');
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', obj);
+  });
+
+  QUnit.test('can chain self fulfilling objects', function () {
+    expect(2);
+    var firstDeferred, secondDeferred;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      firstDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+      secondDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    firstDeferred.then(function (value) {
+      equal(value, firstDeferred, 'successfully resolved to the first deferred');
+      return secondDeferred;
+    }).then(function (value) {
+      equal(value, secondDeferred, 'successfully resolved to the second deferred');
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      firstDeferred.resolve(firstDeferred);
+      secondDeferred.resolve(secondDeferred);
+    });
+  });
+
+  QUnit.test('can do multi level assimilation', function () {
+    expect(1);
+    var firstDeferred, secondDeferred;
+    var firstDeferredResolved = false;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      firstDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+      secondDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    firstDeferred.then(function () {
+      firstDeferredResolved = true;
+    });
+
+    secondDeferred.then(function () {
+      ok(firstDeferredResolved, 'first deferred already resolved');
+    });
+
+    (0, _emberMetalRun_loop.default)(secondDeferred, 'resolve', firstDeferred);
+    (0, _emberMetalRun_loop.default)(firstDeferred, 'resolve', firstDeferred);
+  });
+
+  QUnit.test('can handle rejection without rejection handler', function () {
+    expect(2);
+
+    var reason = 'some reason';
+
+    var deferred = (0, _emberMetalRun_loop.default)(function () {
+      return _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then().then(function () {
+      ok(false, 'expected rejection, got fulfillment');
+    }, function (actualReason) {
+      ok(true, 'expected fulfillment');
+      equal(actualReason, reason);
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'reject', reason);
+  });
+
+  QUnit.test('can handle fulfillment without  fulfillment handler', function () {
+    expect(2);
+
+    var fulfillment = 'some fulfillment';
+
+    var deferred = (0, _emberMetalRun_loop.default)(function () {
+      return _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+    });
+
+    deferred.then().then(function (actualFulfillment) {
+      ok(true, 'expected fulfillment');
+      equal(fulfillment, actualFulfillment);
+    }, function (reason) {
+      ok(false, 'expected fulfillment, got reason' + reason);
+    });
+
+    (0, _emberMetalRun_loop.default)(deferred, 'resolve', fulfillment);
+  });
+
+  if (!EmberDev.runningProdBuild) {
+    QUnit.test('causes a deprecation warning when used', function () {
+      var deferred, deprecationMade;
+      var obj = {};
+
+      _emberMetalCore.default.deprecate = function (message) {
+        deprecationMade = message;
+      };
+
+      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
+      equal(deprecationMade, undefined, 'no deprecation was made on init');
+
+      deferred.then(function (value) {
+        equal(value, obj, 'successfully resolved to given value');
+      });
+      equal(deprecationMade, 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.');
+
+      (0, _emberMetalRun_loop.default)(deferred, 'resolve', obj);
+    });
+  }
+});
+/* global EmberDev */
 enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/enumerable', 'ember-metal/enumerable_utils', 'ember-runtime/system/object', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesEnumerable, _emberMetalEnumerable_utils, _emberRuntimeSystemObject, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray, _emberMetalProperty_get, _emberMetalComputed, _emberMetalMixin) {
 
   function K() {
@@ -44394,6 +44753,48 @@ enifed('ember-runtime/tests/system/array_proxy/suite_test', ['exports', 'ember-m
 
   }).run();
 });
+enifed("ember-runtime/tests/system/deferred_test", ["exports", "ember-metal/run_loop", "ember-runtime/system/deferred"], function (exports, _emberMetalRun_loop, _emberRuntimeSystemDeferred) {
+
+  QUnit.module("Ember.Deferred all-in-one");
+
+  asyncTest("Can resolve a promise", function () {
+    var value = { value: true };
+
+    ignoreDeprecation(function () {
+      var promise = _emberRuntimeSystemDeferred.default.promise(function (deferred) {
+        setTimeout(function () {
+          (0, _emberMetalRun_loop.default)(function () {
+            deferred.resolve(value);
+          });
+        });
+      });
+
+      promise.then(function (resolveValue) {
+        QUnit.start();
+        equal(resolveValue, value, "The resolved value should be correct");
+      });
+    });
+  });
+
+  asyncTest("Can reject a promise", function () {
+    var rejected = { rejected: true };
+
+    ignoreDeprecation(function () {
+      var promise = _emberRuntimeSystemDeferred.default.promise(function (deferred) {
+        setTimeout(function () {
+          (0, _emberMetalRun_loop.default)(function () {
+            deferred.reject(rejected);
+          });
+        });
+      });
+
+      promise.then(null, function (rejectedValue) {
+        QUnit.start();
+        equal(rejectedValue, rejected, "The resolved value should be correct");
+      });
+    });
+  });
+});
 enifed("ember-runtime/tests/system/lazy_load_test", ["exports", "ember-metal/run_loop", "ember-runtime/system/lazy_load"], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
 
   QUnit.module("Lazy Loading");
@@ -47736,7 +48137,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+0ad92a6e", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+3a842b61", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
