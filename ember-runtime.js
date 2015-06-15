@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9c97c78a
+ * @version   2.0.0-canary+8f53f8e4
  */
 
 (function() {
@@ -4912,7 +4912,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9c97c78a
+    @version 2.0.0-canary+8f53f8e4
     @public
   */
 
@@ -4944,11 +4944,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9c97c78a'
+    @default '2.0.0-canary+8f53f8e4'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9c97c78a';
+  Ember.VERSION = '2.0.0-canary+8f53f8e4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10586,13 +10586,13 @@ enifed("ember-metal/set_properties", ["exports", "ember-metal/property_events", 
     @method setProperties
     @param obj
     @param {Object} properties
-    @return obj
+    @return properties
     @public
   */
 
   function setProperties(obj, properties) {
     if (!properties || typeof properties !== "object") {
-      return obj;
+      return properties;
     }
     (0, _emberMetalProperty_events.changeProperties)(function () {
       var props = (0, _emberMetalKeys.default)(properties);
@@ -10604,7 +10604,7 @@ enifed("ember-metal/set_properties", ["exports", "ember-metal/property_events", 
         (0, _emberMetalProperty_set.set)(obj, propertyName, properties[propertyName]);
       }
     });
-    return obj;
+    return properties;
   }
 });
 enifed("ember-metal/streams/conditional", ["exports", "ember-metal/streams/stream", "ember-metal/streams/utils", "ember-metal/platform/create"], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalPlatformCreate) {
@@ -18766,8 +18766,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       @public
     */
     set: function (keyName, value) {
-      (0, _emberMetalProperty_set.set)(this, keyName, value);
-      return this;
+      return (0, _emberMetalProperty_set.set)(this, keyName, value);
     },
 
     /**
@@ -18984,8 +18983,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
         increment = 1;
       }
       _emberMetalCore.default.assert("Must pass a numeric value to incrementProperty", !isNaN(parseFloat(increment)) && isFinite(increment));
-      (0, _emberMetalProperty_set.set)(this, keyName, (parseFloat((0, _emberMetalProperty_get.get)(this, keyName)) || 0) + increment);
-      return (0, _emberMetalProperty_get.get)(this, keyName);
+      return (0, _emberMetalProperty_set.set)(this, keyName, (parseFloat((0, _emberMetalProperty_get.get)(this, keyName)) || 0) + increment);
     },
 
     /**
@@ -19005,8 +19003,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
         decrement = 1;
       }
       _emberMetalCore.default.assert("Must pass a numeric value to decrementProperty", !isNaN(parseFloat(decrement)) && isFinite(decrement));
-      (0, _emberMetalProperty_set.set)(this, keyName, ((0, _emberMetalProperty_get.get)(this, keyName) || 0) - decrement);
-      return (0, _emberMetalProperty_get.get)(this, keyName);
+      return (0, _emberMetalProperty_set.set)(this, keyName, ((0, _emberMetalProperty_get.get)(this, keyName) || 0) - decrement);
     },
 
     /**
@@ -19021,8 +19018,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       @public
     */
     toggleProperty: function (keyName) {
-      (0, _emberMetalProperty_set.set)(this, keyName, !(0, _emberMetalProperty_get.get)(this, keyName));
-      return (0, _emberMetalProperty_get.get)(this, keyName);
+      return (0, _emberMetalProperty_set.set)(this, keyName, !(0, _emberMetalProperty_get.get)(this, keyName));
     },
 
     /**

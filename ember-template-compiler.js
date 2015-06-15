@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9c97c78a
+ * @version   2.0.0-canary+8f53f8e4
  */
 
 (function() {
@@ -4101,7 +4101,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9c97c78a
+    @version 2.0.0-canary+8f53f8e4
     @public
   */
 
@@ -4133,11 +4133,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9c97c78a'
+    @default '2.0.0-canary+8f53f8e4'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9c97c78a';
+  Ember.VERSION = '2.0.0-canary+8f53f8e4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9758,13 +9758,13 @@ enifed("ember-metal/set_properties", ["exports", "ember-metal/property_events", 
     @method setProperties
     @param obj
     @param {Object} properties
-    @return obj
+    @return properties
     @public
   */
 
   function setProperties(obj, properties) {
     if (!properties || typeof properties !== "object") {
-      return obj;
+      return properties;
     }
     (0, _emberMetalProperty_events.changeProperties)(function () {
       var props = (0, _emberMetalKeys.default)(properties);
@@ -9776,7 +9776,7 @@ enifed("ember-metal/set_properties", ["exports", "ember-metal/property_events", 
         (0, _emberMetalProperty_set.set)(obj, propertyName, properties[propertyName]);
       }
     });
-    return obj;
+    return properties;
   }
 });
 enifed("ember-metal/streams/conditional", ["exports", "ember-metal/streams/stream", "ember-metal/streams/utils", "ember-metal/platform/create"], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalPlatformCreate) {
@@ -13211,7 +13211,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+9c97c78a",
+        revision: "Ember@2.0.0-canary+8f53f8e4",
         loc: program.loc,
         moduleName: options.moduleName
       };
