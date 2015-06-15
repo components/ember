@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4d13ef98
+ * @version   2.0.0-canary+9c97c78a
  */
 
 (function() {
@@ -8348,7 +8348,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+4d13ef98";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9c97c78a";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13993,7 +13993,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4d13ef98
+    @version 2.0.0-canary+9c97c78a
     @public
   */
 
@@ -14025,11 +14025,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4d13ef98'
+    @default '2.0.0-canary+9c97c78a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4d13ef98';
+  Ember.VERSION = '2.0.0-canary+9c97c78a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22745,7 +22745,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-metal/featu
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+4d13ef98";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@2.0.0-canary+9c97c78a";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
 
@@ -23244,7 +23244,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+4d13ef98";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@2.0.0-canary+9c97c78a";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39921,7 +39921,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-canary+4d13ef98",
+        revision: "Ember@2.0.0-canary+9c97c78a",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43853,7 +43853,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+4d13ef98";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@2.0.0-canary+9c97c78a";
 
   /**
   @module ember
@@ -45424,7 +45424,7 @@ enifed("ember-views/views/text_field", ["exports", "ember-metal/computed", "embe
 @module ember
 @submodule ember-views
 */
-enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/property_get", "ember-metal/run_loop", "ember-metal/observer", "ember-metal/utils", "ember-metal/computed", "ember-metal/mixin", "ember-metal/deprecate_property", "ember-views/system/jquery", "ember-views/system/ext", "ember-views/views/core_view", "ember-views/mixins/view_context_support", "ember-views/mixins/view_child_views_support", "ember-views/mixins/view_state_support", "ember-views/mixins/template_rendering_support", "ember-views/mixins/class_names_support", "ember-views/mixins/legacy_view_support", "ember-views/mixins/instrumentation_support", "ember-views/mixins/aria_role_support", "ember-views/mixins/visibility_support", "ember-views/compat/attrs-proxy"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalDeprecate_property, _emberViewsSystemJquery, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsTemplate_rendering_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy) {
+enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/property_get", "ember-metal/run_loop", "ember-metal/observer", "ember-metal/utils", "ember-metal/computed", "ember-metal/mixin", "ember-views/system/jquery", "ember-views/system/ext", "ember-views/views/core_view", "ember-views/mixins/view_context_support", "ember-views/mixins/view_child_views_support", "ember-views/mixins/view_state_support", "ember-views/mixins/template_rendering_support", "ember-views/mixins/class_names_support", "ember-views/mixins/legacy_view_support", "ember-views/mixins/instrumentation_support", "ember-views/mixins/aria_role_support", "ember-views/mixins/visibility_support", "ember-views/compat/attrs-proxy"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberViewsSystemJquery, _emberViewsSystemExt, _emberViewsViewsCore_view, _emberViewsMixinsView_context_support, _emberViewsMixinsView_child_views_support, _emberViewsMixinsView_state_support, _emberViewsMixinsTemplate_rendering_support, _emberViewsMixinsClass_names_support, _emberViewsMixinsLegacy_view_support, _emberViewsMixinsInstrumentation_support, _emberViewsMixinsAria_role_support, _emberViewsMixinsVisibility_support, _emberViewsCompatAttrsProxy) {
 
   function K() {
     return this;
@@ -46811,9 +46811,6 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-metal/er
     }
   });
   // jscs:enable validateIndentation
-
-  (0, _emberMetalDeprecate_property.deprecateProperty)(View.prototype, "state", "_state");
-  (0, _emberMetalDeprecate_property.deprecateProperty)(View.prototype, "states", "_states");
 
   /*
     Describe how the specified actions should behave in the various

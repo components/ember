@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4d13ef98
+ * @version   2.0.0-canary+9c97c78a
  */
 
 (function() {
@@ -47768,7 +47768,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+4d13ef98", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+9c97c78a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -57166,47 +57166,6 @@ enifed("ember-views/tests/views/view/replace_in_test", ["exports", "ember-metal/
 
     var viewElem = (0, _emberViewsSystemJquery.default)("#menu #child");
     ok(viewElem.length > 0, "creates and replaces the view's element");
-  });
-});
-enifed("ember-views/tests/views/view/state_deprecation_test", ["exports", "ember-metal/platform/define_property", "ember-metal/run_loop", "ember-views/views/view"], function (exports, _emberMetalPlatformDefine_property, _emberMetalRun_loop, _emberViewsViewsView) {
-
-  var view;
-
-  QUnit.module("views/view/state_deprecation", {
-    teardown: function () {
-      if (view) {
-        (0, _emberMetalRun_loop.default)(view, "destroy");
-      }
-    }
-  });
-
-  if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-    QUnit.test("view.state should be an alias of view._state with a deprecation", function () {
-      expect(2);
-      view = _emberViewsViewsView.default.create();
-
-      expectDeprecation(function () {
-        equal(view._state, view.state, "_state and state are aliased");
-      }, "Usage of `state` is deprecated, use `_state` instead.");
-    });
-
-    QUnit.test("view.states should be an alias of view._states with a deprecation", function () {
-      expect(2);
-      view = _emberViewsViewsView.default.create();
-
-      expectDeprecation(function () {
-        equal(view._states, view.states, "_states and states are aliased");
-      }, "Usage of `states` is deprecated, use `_states` instead.");
-    });
-  }
-
-  QUnit.test("no deprecation is printed if view.state or view._state is not looked up", function () {
-    expect(2);
-    expectNoDeprecation();
-
-    var view = _emberViewsViewsView.default.create();
-
-    ok(view, "view was created");
   });
 });
 enifed("ember-views/tests/views/view/template_test", ["exports", "container/registry", "ember-metal/property_get", "ember-metal/run_loop", "ember-views/views/view", "ember-template-compiler"], function (exports, _containerRegistry, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler) {
