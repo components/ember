@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+aa81146d
+ * @version   2.0.0-beta.1+4ad08993
  */
 
 (function() {
@@ -1399,7 +1399,7 @@ enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 
     }
   };
 });
-enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/enumerable_utils", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/array", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalEnumerable_utils, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalArray, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
+enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/array", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalArray, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
   _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
@@ -1478,8 +1478,6 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "e
   _emberMetalCore.default.getWithDefault = _emberMetalProperty_get.getWithDefault;
   _emberMetalCore.default.normalizeTuple = _emberMetalProperty_get.normalizeTuple;
   _emberMetalCore.default._getPath = _emberMetalProperty_get._getPath;
-
-  _emberMetalCore.default.EnumerableUtils = _emberMetalEnumerable_utils.default;
 
   _emberMetalCore.default.on = _emberMetalEvents.on;
   _emberMetalCore.default.addListener = _emberMetalEvents.addListener;
@@ -4080,7 +4078,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1+aa81146d
+    @version 2.0.0-beta.1+4ad08993
     @public
   */
 
@@ -4112,11 +4110,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+aa81146d'
+    @default '2.0.0-beta.1+4ad08993'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1+aa81146d';
+  Ember.VERSION = '2.0.0-beta.1+4ad08993';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4397,300 +4395,6 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
     return dict;
   }
 });
-enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-metal/array'], function (exports, _emberMetalCore, _emberMetalArray) {
-  exports.map = map;
-  exports.forEach = forEach;
-  exports.filter = filter;
-  exports.indexOf = indexOf;
-  exports.indexesOf = indexesOf;
-  exports.addObject = addObject;
-  exports.removeObject = removeObject;
-  exports._replace = _replace;
-  exports.replace = replace;
-  exports.intersection = intersection;
-
-  var splice = Array.prototype.splice;
-
-  /**
-   Defines some convenience methods for working with Enumerables.
-   `Ember.EnumerableUtils` uses `Ember.ArrayPolyfills` when necessary.
-  
-   @class EnumerableUtils
-   @namespace Ember
-   @deprecated
-   @static
-   @public
-  */
-
-  /**
-    Calls the map function on the passed object with a specified callback. This
-    uses `Ember.ArrayPolyfill`'s-map method when necessary.
-  
-    @method map
-    @deprecated Use ES5's Array.prototype.map instead.
-    @param {Object} obj The object that should be mapped
-    @param {Function} callback The callback to execute
-    @param {Object} thisArg Value to use as this when executing *callback*
-  
-    @return {Array} An array of mapped values.
-    @public
-  */
-
-  function map(obj, callback, thisArg) {
-    return obj.map ? obj.map(callback, thisArg) : _emberMetalArray.map.call(obj, callback, thisArg);
-  }
-
-  var deprecatedMap = _emberMetalCore.default.deprecateFunc('Ember.EnumberableUtils.map is deprecated, please refactor to use Array.prototype.map.', map);
-
-  /**
-    Calls the forEach function on the passed object with a specified callback. This
-    uses `Ember.ArrayPolyfill`'s-forEach method when necessary.
-  
-    @method forEach
-    @deprecated Use ES5's Array.prototype.forEach instead.
-    @param {Object} obj The object to call forEach on
-    @param {Function} callback The callback to execute
-    @param {Object} thisArg Value to use as this when executing *callback*
-    @public
-  */
-
-  function forEach(obj, callback, thisArg) {
-    return obj.forEach ? obj.forEach(callback, thisArg) : _emberMetalArray.forEach.call(obj, callback, thisArg);
-  }
-
-  var deprecatedForEach = _emberMetalCore.default.deprecateFunc('Ember.EnumberableUtils.forEach is deprecated, please refactor to use Array.prototype.forEach.', forEach);
-
-  /**
-    Calls the filter function on the passed object with a specified callback. This
-    uses `Ember.ArrayPolyfill`'s-filter method when necessary.
-  
-    @method filter
-    @deprecated Use ES5's Array.prototype.filter instead.
-    @param {Object} obj The object to call filter on
-    @param {Function} callback The callback to execute
-    @param {Object} thisArg Value to use as this when executing *callback*
-  
-    @return {Array} An array containing the filtered values
-    @since 1.4.0
-    @public
-  */
-
-  function filter(obj, callback, thisArg) {
-    return obj.filter ? obj.filter(callback, thisArg) : _emberMetalArray.filter.call(obj, callback, thisArg);
-  }
-
-  var deprecatedFilter = _emberMetalCore.default.deprecateFunc('Ember.EnumberableUtils.filter is deprecated, please refactor to use Array.prototype.filter.', filter);
-
-  /**
-    Calls the indexOf function on the passed object with a specified callback. This
-    uses `Ember.ArrayPolyfill`'s-indexOf method when necessary.
-  
-    @method indexOf
-    @deprecated Use ES5's Array.prototype.indexOf instead.
-    @param {Object} obj The object to call indexOn on
-    @param {Object} index The index to start searching from
-  
-    @public
-  */
-
-  function indexOf(obj, element, index) {
-    return obj.indexOf ? obj.indexOf(element, index) : _emberMetalArray.indexOf.call(obj, element, index);
-  }
-
-  var deprecatedIndexOf = _emberMetalCore.default.deprecateFunc('Ember.EnumberableUtils.indexOf is deprecated, please refactor to use Array.prototype.indexOf.', indexOf);
-
-  /**
-    Returns an array of indexes of the first occurrences of the passed elements
-    on the passed object.
-  
-    ```javascript
-     var array = [1, 2, 3, 4, 5];
-     Ember.EnumerableUtils.indexesOf(array, [2, 5]); // [1, 4]
-  
-     var fubar = "Fubarr";
-     Ember.EnumerableUtils.indexesOf(fubar, ['b', 'r']); // [2, 4]
-    ```
-  
-    @method indexesOf
-    @deprecated
-    @param {Object} obj The object to check for element indexes
-    @param {Array} elements The elements to search for on *obj*
-  
-    @return {Array} An array of indexes.
-    @public
-  */
-
-  function indexesOf(obj, elements) {
-    return elements === undefined ? [] : map(elements, function (item) {
-      return indexOf(obj, item);
-    });
-  }
-
-  var deprecatedIndexesOf = _emberMetalCore.default.deprecateFunc('Ember.EnumerableUtils.indexesOf is deprecated.', indexesOf);
-
-  /**
-    Adds an object to an array. If the array already includes the object this
-    method has no effect.
-  
-    @method addObject
-    @deprecated
-    @param {Array} array The array the passed item should be added to
-    @param {Object} item The item to add to the passed array
-  
-    @return 'undefined'
-    @public
-  */
-
-  function addObject(array, item) {
-    var index = indexOf(array, item);
-    if (index === -1) {
-      array.push(item);
-    }
-  }
-
-  var deprecatedAddObject = _emberMetalCore.default.deprecateFunc('Ember.EnumerableUtils.addObject is deprecated.', addObject);
-
-  /**
-    Removes an object from an array. If the array does not contain the passed
-    object this method has no effect.
-  
-    @method removeObject
-    @deprecated
-    @param {Array} array The array to remove the item from.
-    @param {Object} item The item to remove from the passed array.
-  
-    @return 'undefined'
-    @public
-  */
-
-  function removeObject(array, item) {
-    var index = indexOf(array, item);
-    if (index !== -1) {
-      array.splice(index, 1);
-    }
-  }
-
-  var deprecatedRemoveObject = _emberMetalCore.default.deprecateFunc('Ember.EnumerableUtils.removeObject is deprecated.', removeObject);
-
-  function _replace(array, idx, amt, objects) {
-    var args = [].concat(objects);
-    var ret = [];
-    // https://code.google.com/p/chromium/issues/detail?id=56588
-    var size = 60000;
-    var start = idx;
-    var ends = amt;
-    var count, chunk;
-
-    while (args.length) {
-      count = ends > size ? size : ends;
-      if (count <= 0) {
-        count = 0;
-      }
-
-      chunk = args.splice(0, size);
-      chunk = [start, count].concat(chunk);
-
-      start += size;
-      ends -= count;
-
-      ret = ret.concat(splice.apply(array, chunk));
-    }
-    return ret;
-  }
-
-  /**
-    Replaces objects in an array with the passed objects.
-  
-    ```javascript
-      var array = [1,2,3];
-      Ember.EnumerableUtils.replace(array, 1, 2, [4, 5]); // [1, 4, 5]
-  
-      var array = [1,2,3];
-      Ember.EnumerableUtils.replace(array, 1, 1, [4, 5]); // [1, 4, 5, 3]
-  
-      var array = [1,2,3];
-      Ember.EnumerableUtils.replace(array, 10, 1, [4, 5]); // [1, 2, 3, 4, 5]
-    ```
-  
-    @method replace
-    @deprecated
-    @param {Array} array The array the objects should be inserted into.
-    @param {Number} idx Starting index in the array to replace. If *idx* >=
-    length, then append to the end of the array.
-    @param {Number} amt Number of elements that should be removed from the array,
-    starting at *idx*
-    @param {Array} objects An array of zero or more objects that should be
-    inserted into the array at *idx*
-  
-    @return {Array} The modified array.
-    @public
-  */
-
-  function replace(array, idx, amt, objects) {
-    if (array.replace) {
-      return array.replace(idx, amt, objects);
-    } else {
-      return _replace(array, idx, amt, objects);
-    }
-  }
-
-  var deprecatedReplace = _emberMetalCore.default.deprecateFunc('Ember.EnumerableUtils.replace is deprecated.', replace);
-
-  /**
-    Calculates the intersection of two arrays. This method returns a new array
-    filled with the records that the two passed arrays share with each other.
-    If there is no intersection, an empty array will be returned.
-  
-    ```javascript
-    var array1 = [1, 2, 3, 4, 5];
-    var array2 = [1, 3, 5, 6, 7];
-  
-    Ember.EnumerableUtils.intersection(array1, array2); // [1, 3, 5]
-  
-    var array1 = [1, 2, 3];
-    var array2 = [4, 5, 6];
-  
-    Ember.EnumerableUtils.intersection(array1, array2); // []
-    ```
-  
-    @method intersection
-    @deprecated
-    @param {Array} array1 The first array
-    @param {Array} array2 The second array
-  
-    @return {Array} The intersection of the two passed arrays.
-    @public
-  */
-
-  function intersection(array1, array2) {
-    var result = [];
-    forEach(array1, function (element) {
-      if (indexOf(array2, element) >= 0) {
-        result.push(element);
-      }
-    });
-
-    return result;
-  }
-
-  var deprecatedIntersection = _emberMetalCore.default.deprecateFunc('Ember.EnumerableUtils.intersection is deprecated.', intersection);
-
-  // TODO: this only exists to maintain the existing api, as we move forward it
-  // should only be part of the "global build" via some shim
-  exports.default = {
-    _replace: _replace,
-    addObject: deprecatedAddObject,
-    filter: deprecatedFilter,
-    forEach: deprecatedForEach,
-    indexOf: deprecatedIndexOf,
-    indexesOf: deprecatedIndexesOf,
-    intersection: deprecatedIntersection,
-    map: deprecatedMap,
-    removeObject: deprecatedRemoveObject,
-    replace: deprecatedReplace
-  };
-});
-// Ember.deprecateFunc
 enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
 
   /*
@@ -5895,7 +5599,7 @@ enifed('ember-metal/keys', ['exports', 'ember-metal/platform/define_property'], 
 
   exports.default = keys;
 });
-enifed("ember-metal/libraries", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/enumerable_utils"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalEnumerable_utils) {
+enifed("ember-metal/libraries", ["exports", "ember-metal/core", "ember-metal/features"], function (exports, _emberMetalCore, _emberMetalFeatures) {
 
   /**
     Helper class that allows you to register your library with Ember.
@@ -5947,14 +5651,14 @@ enifed("ember-metal/libraries", ["exports", "ember-metal/core", "ember-metal/fea
       var index;
 
       if (lib) {
-        index = (0, _emberMetalEnumerable_utils.indexOf)(this._registry, lib);
+        index = this._registry.indexOf(lib);
         this._registry.splice(index, 1);
       }
     },
 
     each: function (callback) {
       _emberMetalCore.default.deprecate("Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.");
-      (0, _emberMetalEnumerable_utils.forEach)(this._registry, function (lib) {
+      this._registry.forEach(function (lib) {
         callback(lib.name, lib.version);
       });
     }
@@ -9039,6 +8743,73 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
 
   function trySet(root, path, value) {
     return set(root, path, value, true);
+  }
+});
+enifed("ember-metal/replace", ["exports"], function (exports) {
+  exports._replace = _replace;
+  exports.default = replace;
+  var splice = Array.prototype.splice;
+
+  function _replace(array, idx, amt, objects) {
+    var args = [].concat(objects);
+    var ret = [];
+    // https://code.google.com/p/chromium/issues/detail?id=56588
+    var size = 60000;
+    var start = idx;
+    var ends = amt;
+    var count, chunk;
+
+    while (args.length) {
+      count = ends > size ? size : ends;
+      if (count <= 0) {
+        count = 0;
+      }
+
+      chunk = args.splice(0, size);
+      chunk = [start, count].concat(chunk);
+
+      start += size;
+      ends -= count;
+
+      ret = ret.concat(splice.apply(array, chunk));
+    }
+    return ret;
+  }
+
+  /**
+    Replaces objects in an array with the passed objects.
+  
+    ```javascript
+      var array = [1,2,3];
+      Ember.EnumerableUtils.replace(array, 1, 2, [4, 5]); // [1, 4, 5]
+  
+      var array = [1,2,3];
+      Ember.EnumerableUtils.replace(array, 1, 1, [4, 5]); // [1, 4, 5, 3]
+  
+      var array = [1,2,3];
+      Ember.EnumerableUtils.replace(array, 10, 1, [4, 5]); // [1, 2, 3, 4, 5]
+    ```
+  
+    @method replace
+    @deprecated
+    @param {Array} array The array the objects should be inserted into.
+    @param {Number} idx Starting index in the array to replace. If *idx* >=
+    length, then append to the end of the array.
+    @param {Number} amt Number of elements that should be removed from the array,
+    starting at *idx*
+    @param {Array} objects An array of zero or more objects that should be
+    inserted into the array at *idx*
+  
+    @return {Array} The modified array.
+    @public
+  */
+
+  function replace(array, idx, amt, objects) {
+    if (array.replace) {
+      return array.replace(idx, amt, objects);
+    } else {
+      return _replace(array, idx, amt, objects);
+    }
   }
 });
 enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/array', 'ember-metal/property_events', 'backburner'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalArray, _emberMetalProperty_events, _backburner) {
@@ -13181,7 +12952,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1+aa81146d",
+        revision: "Ember@2.0.0-beta.1+4ad08993",
         loc: program.loc,
         moduleName: options.moduleName
       };
