@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1
+ * @version   2.0.0-beta.1+566c8f49
  */
 
 (function() {
@@ -8552,6 +8552,38 @@ enifed("ember-htmlbars/tests/helpers/custom_helper_test", ["exports", "ember-vie
     component = _emberViewsViewsComponent.default.extend({
       container: container,
       layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "1");
+    (0, _emberMetalRun_loop.default)(function () {
+      helper.recompute();
+    });
+    equal(component.$().text(), "2");
+    equal(destroyCount, 0, "destroy is not called on recomputation");
+  });
+
+  QUnit.test("dashed helper with arg can recompute a new value", function () {
+    var destroyCount = 0;
+    var count = 0;
+    var helper;
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        helper = this;
+      },
+      compute: function () {
+        return ++count;
+      },
+      destroy: function () {
+        destroyCount++;
+        this._super();
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world \"whut\"}}")
     }).create();
 
     (0, _emberRuntimeTestsUtils.runAppend)(component);
@@ -20198,32 +20230,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 2, 'should not invoke again');
   });
 
-  QUnit.test('calling cacheable() on a computed property raises a deprecation', function () {
-    var cp = new _emberMetalComputed.ComputedProperty(function () {});
-    expectDeprecation(function () {
-      cp.cacheable();
-    }, 'ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.');
-  });
-
-  QUnit.test('passing cacheable in a the options to the CP constructor raises a deprecation', function () {
-    expectDeprecation(function () {
-      new _emberMetalComputed.ComputedProperty(function () {}, { cacheable: true });
-    }, 'Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.');
-  });
-
-  QUnit.test('calling readOnly() on a computed property with arguments raises a deprecation', function () {
-    var cp = new _emberMetalComputed.ComputedProperty(function () {});
-    expectDeprecation(function () {
-      cp.readOnly(true);
-    }, 'Passing arguments to ComputedProperty.readOnly() is deprecated.');
-  });
-
-  QUnit.test('passing readOnly in a the options to the CP constructor raises a deprecation', function () {
-    expectDeprecation(function () {
-      new _emberMetalComputed.ComputedProperty(function () {}, { readOnly: false });
-    }, 'Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. You can invoke `readOnly()` on the CP to change this.');
-  });
-
   (0, _emberMetalTestsProps_helper.testBoth)('inherited property should not pick up cache', function (get, set) {
     var objB = (0, _emberMetalPlatformCreate.default)(obj);
 
@@ -20281,24 +20287,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
 
     set(obj, 'plusOne', 3);
     strictEqual(receivedOldValue, 2, 'oldValue should be 2');
-  });
-
-  (0, _emberMetalTestsProps_helper.testBoth)('the old value is only passed in if the computed property specifies three arguments', function (get, set) {
-    var obj = {
-      foo: 0
-    };
-
-    (0, _emberMetalProperties.defineProperty)(obj, 'plusOne', (0, _emberMetalComputed.computed)({
-      get: function () {},
-      set: function (key, value) {
-        equal(arguments.length, 2, 'computed property is only invoked with two arguments');
-        return value;
-      }
-    }).property('foo'));
-
-    set(obj, 'plusOne', 1);
-    set(obj, 'plusOne', 2);
-    set(obj, 'plusOne', 3);
   });
 
   // ..........................................................
@@ -20660,15 +20648,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     ok(testObj.get('sampleCP') === 'set-value', 'The return value of the CP was cached');
   });
 
-  QUnit.test('Passing a function that acts both as getter and setter is deprecated', function () {
-    var regex = /Using the same function as getter and setter is deprecated/;
-    expectDeprecation(function () {
-      _emberMetalCore.default.Object.extend({
-        aInt: (0, _emberMetalComputed.computed)('a', function (keyName, value, oldValue) {})
-      });
-    }, regex);
-  });
-
   // ..........................................................
   // BUGS
   //
@@ -20844,12 +20823,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         set: function () {}
       }).readOnly();
     }, /Computed properties that define a setter using the new syntax cannot be read-only/);
-  });
-
-  QUnit.test('doesn\'t throws assertion if called over a CP with a setter defined with the old syntax', function () {
-    expectDeprecation(function () {
-      (0, _emberMetalComputed.computed)(function (key, value) {}).readOnly();
-    }, /same function as getter and setter/);
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)('protects against setting', function (get, set) {
@@ -30056,16 +30029,6 @@ enifed("ember-routing-views/tests/main_test", ["exports", "ember-routing-views"]
     ok(_emberRoutingViews.default.LinkComponent, "LinkComponent is exported correctly");
     ok(_emberRoutingViews.default.OutletView, "OutletView is exported correctly");
   });
-
-  QUnit.test("Ember.LinkView throws a deprecation warning when instantiated", function () {
-    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
-    _emberRoutingViews.default.LinkView.create();
-  });
-
-  QUnit.test("Ember.LinkView throws a deprecation warning when reopened", function () {
-    expectDeprecation(/Ember.LinkView is deprecated. Please use Ember.LinkComponent/);
-    _emberRoutingViews.default.LinkView.reopen({});
-  });
 });
 enifed("ember-routing/tests/location/auto_location_test", ["exports", "ember-metal/property_get", "ember-metal/run_loop", "ember-metal/merge", "ember-routing/location/auto_location", "ember-routing/location/history_location", "ember-routing/location/hash_location", "ember-routing/location/none_location", "container/registry"], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalMerge, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerRegistry) {
 
@@ -31733,34 +31696,6 @@ enifed("ember-runtime/tests/computed/computed_macros_test", ["exports", "ember-m
     equal(get(obj, "aliased"), constantValue);
   });
 
-  (0, _emberMetalTestsProps_helper.testBoth)("computed.defaultTo", function (get, set) {
-    expect(6);
-
-    var obj = { source: "original source value" };
-    (0, _emberMetalProperties.defineProperty)(obj, "copy", (0, _emberMetalComputed_macros.defaultTo)("source"));
-
-    ignoreDeprecation(function () {
-      equal(get(obj, "copy"), "original source value");
-
-      set(obj, "copy", "new copy value");
-      equal(get(obj, "source"), "original source value");
-      equal(get(obj, "copy"), "new copy value");
-
-      set(obj, "source", "new source value");
-      equal(get(obj, "copy"), "new copy value");
-
-      set(obj, "copy", null);
-      equal(get(obj, "copy"), "new source value");
-    });
-
-    expectDeprecation(function () {
-      var obj = { source: "original source value" };
-      (0, _emberMetalProperties.defineProperty)(obj, "copy", (0, _emberMetalComputed_macros.defaultTo)("source"));
-
-      get(obj, "copy");
-    }, "Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-  });
-
   (0, _emberMetalTestsProps_helper.testBoth)("computed.match", function (get, set) {
     var obj = { name: "Paul" };
     (0, _emberMetalProperties.defineProperty)(obj, "isPaul", (0, _emberMetalComputed_macros.match)("name", /Paul/));
@@ -31891,18 +31826,6 @@ enifed("ember-runtime/tests/computed/computed_macros_test", ["exports", "ember-m
     set(obj, "one", 1);
 
     equal(get(obj, "oneOrTwo"), 1, "returns truthy value as in ||");
-  });
-
-  (0, _emberMetalTestsProps_helper.testBoth)("computed.any (Deprecated)", function (get, set) {
-    expectDeprecation(/Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead/);
-    var obj = { one: "foo", two: "bar" };
-    (0, _emberMetalProperties.defineProperty)(obj, "anyOf", (0, _emberMetalComputed_macros.any)("one", "two"));
-
-    equal(get(obj, "anyOf"), "foo", "is foo");
-
-    set(obj, "one", false);
-
-    equal(get(obj, "anyOf"), "bar", "is bar");
   });
 
   (0, _emberMetalTestsProps_helper.testBoth)("computed.collect", function (get, set) {
@@ -38932,365 +38855,6 @@ enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/te
     }
   }).run();
 });
-enifed('ember-runtime/tests/mixins/deferred_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/deferred'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsDeferred) {
-
-  var originalDeprecate;
-
-  QUnit.module('Deferred', {
-    setup: function () {
-      originalDeprecate = _emberMetalCore.default.deprecate;
-      _emberMetalCore.default.deprecate = function () {};
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.deprecate = originalDeprecate;
-    }
-  });
-
-  QUnit.test('can resolve deferred', function () {
-    var deferred;
-    var count = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function (a) {
-      count++;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
-
-    equal(count, 1, 'was fulfilled');
-  });
-
-  QUnit.test('can reject deferred', function () {
-
-    var deferred;
-    var count = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(null, function () {
-      count++;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'reject');
-
-    equal(count, 1, 'fail callback was called');
-  });
-
-  QUnit.test('can resolve with then', function () {
-
-    var deferred;
-    var count1 = 0;
-    var count2 = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      count1++;
-    }, function () {
-      count2++;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
-
-    equal(count1, 1, 'then were resolved');
-    equal(count2, 0, 'then was not rejected');
-  });
-
-  QUnit.test('can reject with then', function () {
-
-    var deferred;
-    var count1 = 0;
-    var count2 = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      count1++;
-    }, function () {
-      count2++;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'reject');
-
-    equal(count1, 0, 'then was not resolved');
-    equal(count2, 1, 'then were rejected');
-  });
-
-  QUnit.test('can call resolve multiple times', function () {
-
-    var deferred;
-    var count = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      count++;
-    });
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred.resolve(deferred);
-      deferred.resolve(deferred);
-      deferred.resolve(deferred);
-    });
-
-    equal(count, 1, 'calling resolve multiple times has no effect');
-  });
-
-  QUnit.test('resolve prevent reject', function () {
-    var deferred;
-    var resolved = false;
-    var rejected = false;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      resolved = true;
-    }, function () {
-      rejected = true;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
-    (0, _emberMetalRun_loop.default)(deferred, 'reject');
-
-    equal(resolved, true, 'is resolved');
-    equal(rejected, false, 'is not rejected');
-  });
-
-  QUnit.test('reject prevent resolve', function () {
-    var deferred;
-    var resolved = false;
-    var rejected = false;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      resolved = true;
-    }, function () {
-      rejected = true;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'reject');
-    (0, _emberMetalRun_loop.default)(deferred, 'reject', deferred);
-
-    equal(resolved, false, 'is not resolved');
-    equal(rejected, true, 'is rejected');
-  });
-
-  QUnit.test('will call callbacks if they are added after resolution', function () {
-
-    var deferred;
-    var count1 = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', 'toto');
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred.then(function (context) {
-        if (context === 'toto') {
-          count1++;
-        }
-      });
-
-      deferred.then(function (context) {
-        if (context === 'toto') {
-          count1++;
-        }
-      });
-    });
-
-    equal(count1, 2, 'callbacks called after resolution');
-  });
-
-  QUnit.test('then is chainable', function () {
-    var deferred;
-    var count = 0;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      eval('error'); // Use eval to pass JSHint
-    }).then(null, function () {
-      count++;
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
-
-    equal(count, 1, 'chained callback was called');
-  });
-
-  QUnit.test('can self fulfill', function () {
-    expect(1);
-    var deferred;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function (value) {
-      equal(value, deferred, 'successfully resolved to itself');
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', deferred);
-  });
-
-  QUnit.test('can self reject', function () {
-    expect(1);
-    var deferred;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function () {
-      ok(false, 'should not fulfill');
-    }, function (value) {
-      equal(value, deferred, 'successfully rejected to itself');
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'reject', deferred);
-  });
-
-  QUnit.test('can fulfill to a custom value', function () {
-    expect(1);
-    var deferred;
-    var obj = {};
-
-    (0, _emberMetalRun_loop.default)(function () {
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then(function (value) {
-      equal(value, obj, 'successfully resolved to given value');
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', obj);
-  });
-
-  QUnit.test('can chain self fulfilling objects', function () {
-    expect(2);
-    var firstDeferred, secondDeferred;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      firstDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-      secondDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    firstDeferred.then(function (value) {
-      equal(value, firstDeferred, 'successfully resolved to the first deferred');
-      return secondDeferred;
-    }).then(function (value) {
-      equal(value, secondDeferred, 'successfully resolved to the second deferred');
-    });
-
-    (0, _emberMetalRun_loop.default)(function () {
-      firstDeferred.resolve(firstDeferred);
-      secondDeferred.resolve(secondDeferred);
-    });
-  });
-
-  QUnit.test('can do multi level assimilation', function () {
-    expect(1);
-    var firstDeferred, secondDeferred;
-    var firstDeferredResolved = false;
-
-    (0, _emberMetalRun_loop.default)(function () {
-      firstDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-      secondDeferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    firstDeferred.then(function () {
-      firstDeferredResolved = true;
-    });
-
-    secondDeferred.then(function () {
-      ok(firstDeferredResolved, 'first deferred already resolved');
-    });
-
-    (0, _emberMetalRun_loop.default)(secondDeferred, 'resolve', firstDeferred);
-    (0, _emberMetalRun_loop.default)(firstDeferred, 'resolve', firstDeferred);
-  });
-
-  QUnit.test('can handle rejection without rejection handler', function () {
-    expect(2);
-
-    var reason = 'some reason';
-
-    var deferred = (0, _emberMetalRun_loop.default)(function () {
-      return _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then().then(function () {
-      ok(false, 'expected rejection, got fulfillment');
-    }, function (actualReason) {
-      ok(true, 'expected fulfillment');
-      equal(actualReason, reason);
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'reject', reason);
-  });
-
-  QUnit.test('can handle fulfillment without  fulfillment handler', function () {
-    expect(2);
-
-    var fulfillment = 'some fulfillment';
-
-    var deferred = (0, _emberMetalRun_loop.default)(function () {
-      return _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-    });
-
-    deferred.then().then(function (actualFulfillment) {
-      ok(true, 'expected fulfillment');
-      equal(fulfillment, actualFulfillment);
-    }, function (reason) {
-      ok(false, 'expected fulfillment, got reason' + reason);
-    });
-
-    (0, _emberMetalRun_loop.default)(deferred, 'resolve', fulfillment);
-  });
-
-  if (!EmberDev.runningProdBuild) {
-    QUnit.test('causes a deprecation warning when used', function () {
-      var deferred, deprecationMade;
-      var obj = {};
-
-      _emberMetalCore.default.deprecate = function (message) {
-        deprecationMade = message;
-      };
-
-      deferred = _emberRuntimeSystemObject.default.createWithMixins(_emberRuntimeMixinsDeferred.default);
-      equal(deprecationMade, undefined, 'no deprecation was made on init');
-
-      deferred.then(function (value) {
-        equal(value, obj, 'successfully resolved to given value');
-      });
-      equal(deprecationMade, 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.');
-
-      (0, _emberMetalRun_loop.default)(deferred, 'resolve', obj);
-    });
-  }
-});
-/* global EmberDev */
 enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/enumerable', 'ember-metal/enumerable_utils', 'ember-runtime/system/object', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesEnumerable, _emberMetalEnumerable_utils, _emberRuntimeSystemObject, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsArray, _emberMetalProperty_get, _emberMetalComputed, _emberMetalMixin) {
 
   function K() {
@@ -44301,48 +43865,6 @@ enifed('ember-runtime/tests/system/array_proxy/suite_test', ['exports', 'ember-m
 
   }).run();
 });
-enifed("ember-runtime/tests/system/deferred_test", ["exports", "ember-metal/run_loop", "ember-runtime/system/deferred"], function (exports, _emberMetalRun_loop, _emberRuntimeSystemDeferred) {
-
-  QUnit.module("Ember.Deferred all-in-one");
-
-  asyncTest("Can resolve a promise", function () {
-    var value = { value: true };
-
-    ignoreDeprecation(function () {
-      var promise = _emberRuntimeSystemDeferred.default.promise(function (deferred) {
-        setTimeout(function () {
-          (0, _emberMetalRun_loop.default)(function () {
-            deferred.resolve(value);
-          });
-        });
-      });
-
-      promise.then(function (resolveValue) {
-        QUnit.start();
-        equal(resolveValue, value, "The resolved value should be correct");
-      });
-    });
-  });
-
-  asyncTest("Can reject a promise", function () {
-    var rejected = { rejected: true };
-
-    ignoreDeprecation(function () {
-      var promise = _emberRuntimeSystemDeferred.default.promise(function (deferred) {
-        setTimeout(function () {
-          (0, _emberMetalRun_loop.default)(function () {
-            deferred.reject(rejected);
-          });
-        });
-      });
-
-      promise.then(null, function (rejectedValue) {
-        QUnit.start();
-        equal(rejectedValue, rejected, "The resolved value should be correct");
-      });
-    });
-  });
-});
 enifed("ember-runtime/tests/system/lazy_load_test", ["exports", "ember-metal/run_loop", "ember-runtime/system/lazy_load"], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
 
   QUnit.module("Lazy Loading");
@@ -47646,7 +47168,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+566c8f49", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -56951,47 +56473,6 @@ enifed("ember-views/tests/views/view/replace_in_test", ["exports", "ember-metal/
 
     var viewElem = (0, _emberViewsSystemJquery.default)("#menu #child");
     ok(viewElem.length > 0, "creates and replaces the view's element");
-  });
-});
-enifed("ember-views/tests/views/view/state_deprecation_test", ["exports", "ember-metal/platform/define_property", "ember-metal/run_loop", "ember-views/views/view"], function (exports, _emberMetalPlatformDefine_property, _emberMetalRun_loop, _emberViewsViewsView) {
-
-  var view;
-
-  QUnit.module("views/view/state_deprecation", {
-    teardown: function () {
-      if (view) {
-        (0, _emberMetalRun_loop.default)(view, "destroy");
-      }
-    }
-  });
-
-  if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
-    QUnit.test("view.state should be an alias of view._state with a deprecation", function () {
-      expect(2);
-      view = _emberViewsViewsView.default.create();
-
-      expectDeprecation(function () {
-        equal(view._state, view.state, "_state and state are aliased");
-      }, "Usage of `state` is deprecated, use `_state` instead.");
-    });
-
-    QUnit.test("view.states should be an alias of view._states with a deprecation", function () {
-      expect(2);
-      view = _emberViewsViewsView.default.create();
-
-      expectDeprecation(function () {
-        equal(view._states, view.states, "_states and states are aliased");
-      }, "Usage of `states` is deprecated, use `_states` instead.");
-    });
-  }
-
-  QUnit.test("no deprecation is printed if view.state or view._state is not looked up", function () {
-    expect(2);
-    expectNoDeprecation();
-
-    var view = _emberViewsViewsView.default.create();
-
-    ok(view, "view was created");
   });
 });
 enifed("ember-views/tests/views/view/template_test", ["exports", "container/registry", "ember-metal/property_get", "ember-metal/run_loop", "ember-views/views/view", "ember-template-compiler"], function (exports, _containerRegistry, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler) {

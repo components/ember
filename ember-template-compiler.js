@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1
+ * @version   2.0.0-beta.1+566c8f49
  */
 
 (function() {
@@ -2880,59 +2880,22 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
   function ComputedProperty(config, opts) {
     this.isDescriptor = true;
     if (typeof config === "function") {
-      config.__ember_arity = config.length;
       this._getter = config;
-      if (config.__ember_arity > 1) {
-        Ember.deprecate("Using the same function as getter and setter is deprecated.", false, {
-          url: "http://emberjs.com/deprecations/v1.x/#toc_deprecate-using-the-same-function-as-getter-and-setter-in-computed-properties"
-        });
-        this._setter = config;
-      }
     } else {
       this._getter = config.get;
       this._setter = config.set;
-      if (this._setter && this._setter.__ember_arity === undefined) {
-        this._setter.__ember_arity = this._setter.length;
-      }
     }
-
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
-
-    Ember.deprecate("Passing opts.cacheable to the CP constructor is deprecated. Invoke `volatile()` on the CP instead.", !opts || !opts.hasOwnProperty("cacheable"));
-    this._cacheable = opts && opts.cacheable !== undefined ? opts.cacheable : true; // TODO: Set always to `true` once this deprecation is gone.
+    this._cacheable = true;
     this._dependentKeys = opts && opts.dependentKeys;
-    Ember.deprecate("Passing opts.readOnly to the CP constructor is deprecated. All CPs are writable by default. You can invoke `readOnly()` on the CP to change this.", !opts || !opts.hasOwnProperty("readOnly"));
-    this._readOnly = opts && (opts.readOnly !== undefined || !!opts.readOnly) || false; // TODO: Set always to `false` once this deprecation is gone.
+    this._readOnly = false;
   }
 
   ComputedProperty.prototype = new _emberMetalProperties.Descriptor();
 
   var ComputedPropertyPrototype = ComputedProperty.prototype;
-
-  /**
-    Properties are cacheable by default. Computed property will automatically
-    cache the return value of your function until one of the dependent keys changes.
-  
-    Call `volatile()` to set it into non-cached mode. When in this mode
-    the computed property will not automatically cache the return value.
-  
-    However, if a property is properly observable, there is no reason to disable
-    caching.
-  
-    @method cacheable
-    @param {Boolean} aFlag optional set to `false` to disable caching
-    @return {Ember.ComputedProperty} this
-    @chainable
-    @deprecated All computed properties are cacheble by default. Use `volatile()` instead to opt-out to caching.
-    @public
-  */
-  ComputedPropertyPrototype.cacheable = function (aFlag) {
-    Ember.deprecate("ComputedProperty.cacheable() is deprecated. All computed properties are cacheable by default.");
-    this._cacheable = aFlag !== false;
-    return this;
-  };
 
   /**
     Call on a computed property to set it into non-cached mode. When in this
@@ -2977,9 +2940,8 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
     @chainable
     @public
   */
-  ComputedPropertyPrototype.readOnly = function (readOnly) {
-    Ember.deprecate("Passing arguments to ComputedProperty.readOnly() is deprecated.", arguments.length === 0);
-    this._readOnly = readOnly === undefined || !!readOnly; // Force to true once this deprecation is gone
+  ComputedPropertyPrototype.readOnly = function () {
+    this._readOnly = true;
     Ember.assert("Computed properties that define a setter using the new syntax cannot be read-only", !(this._readOnly && this._setter && this._setter !== this._getter));
     return this;
   };
@@ -3229,12 +3191,7 @@ enifed("ember-metal/computed", ["exports", "ember-metal/property_set", "ember-me
 
     if (!setter) {
       (0, _emberMetalProperties.defineProperty)(obj, keyName, null, cachedValue);
-      (0, _emberMetalProperty_set.set)(obj, keyName, value);
-      return;
-    } else if (setter.__ember_arity === 2) {
-      // Is there any way of deprecate this in a sensitive way?
-      // Maybe now that getters and setters are the prefered options we can....
-      ret = setter.call(obj, keyName, value);
+      return (0, _emberMetalProperty_set.set)(obj, keyName, value);
     } else {
       ret = setter.call(obj, keyName, value, cachedValue);
     }
@@ -3424,7 +3381,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
   exports.lte = lte;
   exports.oneWay = oneWay;
   exports.readOnly = readOnly;
-  exports.defaultTo = defaultTo;
   exports.deprecatingAlias = deprecatingAlias;
 
   /**
@@ -3914,43 +3870,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
 
   exports.or = or;
   /**
-    A computed property that returns the first truthy value
-    from a list of dependent properties.
-  
-    Example
-  
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      hasClothes: Ember.computed.any('hat', 'shirt')
-    });
-  
-    var hamster = Hamster.create();
-  
-    hamster.get('hasClothes'); // null
-    hamster.set('shirt', 'Hawaiian Shirt');
-    hamster.get('hasClothes'); // 'Hawaiian Shirt'
-    ```
-  
-    @method any
-    @for Ember.computed
-    @param {String} dependentKey*
-    @return {Ember.ComputedProperty} computed property which returns
-    the first truthy value of given list of properties.
-    @deprecated Use `Ember.computed.or` instead.
-    @public
-  */
-  var any = generateComputedWithProperties(function (properties) {
-    _emberMetalCore.default.deprecate("Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead.");
-    for (var key in properties) {
-      if (properties.hasOwnProperty(key) && properties[key]) {
-        return properties[key];
-      }
-    }
-    return null;
-  });
-
-  exports.any = any;
-  /**
     A computed property that returns the array of values
     for the provided dependent properties.
   
@@ -4110,49 +4029,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
   }
 
   /**
-    A computed property that acts like a standard getter and setter,
-    but returns the value at the provided `defaultPath` if the
-    property itself has not been set to a value
-  
-    Example
-  
-    ```javascript
-    var Hamster = Ember.Object.extend({
-      wishList: Ember.computed.defaultTo('favoriteFood')
-    });
-  
-    var hamster = Hamster.create({ favoriteFood: 'Banana' });
-  
-    hamster.get('wishList');                     // 'Banana'
-    hamster.set('wishList', 'More Unit Tests');
-    hamster.get('wishList');                     // 'More Unit Tests'
-    hamster.get('favoriteFood');                 // 'Banana'
-    ```
-  
-    @method defaultTo
-    @for Ember.computed
-    @param {String} defaultPath
-    @return {Ember.ComputedProperty} computed property which acts like
-    a standard getter and setter, but defaults to the value from `defaultPath`.
-    @deprecated Use `Ember.computed.oneWay` or custom CP with default instead.
-    @public
-  */
-
-  function defaultTo(defaultPath) {
-    return (0, _emberMetalComputed.computed)({
-      get: function (key) {
-        _emberMetalCore.default.deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-        return (0, _emberMetalProperty_get.get)(this, defaultPath);
-      },
-
-      set: function (key, newValue, cachedValue) {
-        _emberMetalCore.default.deprecate("Usage of Ember.computed.defaultTo is deprecated, use `Ember.computed.oneWay` instead.");
-        return newValue != null ? newValue : (0, _emberMetalProperty_get.get)(this, defaultPath);
-      }
-    });
-  }
-
-  /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
     though they were called on the original property, but also
@@ -4204,7 +4080,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1
+    @version 2.0.0-beta.1+566c8f49
     @public
   */
 
@@ -4236,11 +4112,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1'
+    @default '2.0.0-beta.1+566c8f49'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1';
+  Ember.VERSION = '2.0.0-beta.1+566c8f49';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13305,7 +13181,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@2.0.0-beta.1",
+        revision: "Ember@2.0.0-beta.1+566c8f49",
         loc: program.loc,
         moduleName: options.moduleName
       };
