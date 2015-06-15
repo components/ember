@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0ad92a6e
+ * @version   2.0.0-canary+4d13ef98
  */
 
 (function() {
@@ -8649,6 +8649,38 @@ enifed("ember-htmlbars/tests/helpers/custom_helper_test", ["exports", "ember-vie
     component = _emberViewsViewsComponent.default.extend({
       container: container,
       layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world}}")
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(component);
+    equal(component.$().text(), "1");
+    (0, _emberMetalRun_loop.default)(function () {
+      helper.recompute();
+    });
+    equal(component.$().text(), "2");
+    equal(destroyCount, 0, "destroy is not called on recomputation");
+  });
+
+  QUnit.test("dashed helper with arg can recompute a new value", function () {
+    var destroyCount = 0;
+    var count = 0;
+    var helper;
+    var HelloWorld = _emberHtmlbarsHelper.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        helper = this;
+      },
+      compute: function () {
+        return ++count;
+      },
+      destroy: function () {
+        destroyCount++;
+        this._super();
+      }
+    });
+    registry.register("helper:hello-world", HelloWorld);
+    component = _emberViewsViewsComponent.default.extend({
+      container: container,
+      layout: (0, _emberTemplateCompilerSystemCompile.default)("{{hello-world \"whut\"}}")
     }).create();
 
     (0, _emberRuntimeTestsUtils.runAppend)(component);
@@ -47736,7 +47768,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-canary+0ad92a6e", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-canary+4d13ef98", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
