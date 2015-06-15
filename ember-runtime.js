@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+4ad08993
+ * @version   2.0.0-beta.1+1a949d03
  */
 
 (function() {
@@ -2214,7 +2214,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
   exports.default = Registry;
 });
 // Ember.assert
-enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/array", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalArray, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
+enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "ember-metal/merge", "ember-metal/instrumentation", "ember-metal/utils", "ember-metal/error", "ember-metal/cache", "ember-metal/platform/define_property", "ember-metal/platform/create", "ember-metal/logger", "ember-metal/property_get", "ember-metal/events", "ember-metal/observer_set", "ember-metal/property_events", "ember-metal/properties", "ember-metal/property_set", "ember-metal/map", "ember-metal/get_properties", "ember-metal/set_properties", "ember-metal/watch_key", "ember-metal/chains", "ember-metal/watch_path", "ember-metal/watching", "ember-metal/expand_properties", "ember-metal/computed", "ember-metal/alias", "ember-metal/computed_macros", "ember-metal/observer", "ember-metal/mixin", "ember-metal/binding", "ember-metal/run_loop", "ember-metal/libraries", "ember-metal/is_none", "ember-metal/is_empty", "ember-metal/is_blank", "ember-metal/is_present", "ember-metal/keys", "backburner", "ember-metal/streams/utils", "ember-metal/streams/stream"], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalPlatformDefine_property, _emberMetalPlatformCreate, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
   _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
@@ -2260,13 +2260,6 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/features", "e
     defineProperty: _emberMetalProperties.defineProperty,
     hasPropertyAccessors: _emberMetalPlatformDefine_property.hasPropertyAccessors
   };
-
-  var EmberArrayPolyfills = _emberMetalCore.default.ArrayPolyfills = {};
-
-  EmberArrayPolyfills.map = _emberMetalArray.map;
-  EmberArrayPolyfills.forEach = _emberMetalArray.forEach;
-  EmberArrayPolyfills.filter = _emberMetalArray.filter;
-  EmberArrayPolyfills.indexOf = _emberMetalArray.indexOf;
 
   _emberMetalCore.default.Error = _emberMetalError.default;
   _emberMetalCore.default.guidFor = _emberMetalUtils.guidFor;
@@ -2525,141 +2518,6 @@ enifed("ember-metal/alias", ["exports", "ember-metal/property_get", "ember-metal
   AliasedProperty.prototype.meta = _emberMetalComputed.ComputedProperty.prototype.meta;
 });
 // Ember.assert
-enifed("ember-metal/array", ["exports"], function (exports) {
-  /**
-  @module ember
-  @submodule ember-metal
-  */
-
-  var ArrayPrototype = Array.prototype;
-
-  // Testing this is not ideal, but we want to use native functions
-  // if available, but not to use versions created by libraries like Prototype
-  var isNativeFunc = function (func) {
-    // This should probably work in all browsers likely to have ES5 array methods
-    return func && Function.prototype.toString.call(func).indexOf("[native code]") > -1;
-  };
-
-  var defineNativeShim = function (nativeFunc, shim) {
-    if (isNativeFunc(nativeFunc)) {
-      return nativeFunc;
-    }
-    return shim;
-  };
-
-  // From: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/map
-  var map = defineNativeShim(ArrayPrototype.map, function (fun) {
-    //"use strict";
-
-    if (this === void 0 || this === null || typeof fun !== "function") {
-      throw new TypeError();
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-    var res = new Array(len);
-
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        res[i] = fun.call(arguments[1], t[i], i, t);
-      }
-    }
-
-    return res;
-  });
-
-  // From: https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/array/foreach
-  var forEach = defineNativeShim(ArrayPrototype.forEach, function (fun) {
-    //"use strict";
-
-    if (this === void 0 || this === null || typeof fun !== "function") {
-      throw new TypeError();
-    }
-
-    var t = Object(this);
-    var len = t.length >>> 0;
-
-    for (var i = 0; i < len; i++) {
-      if (i in t) {
-        fun.call(arguments[1], t[i], i, t);
-      }
-    }
-  });
-
-  var indexOf = defineNativeShim(ArrayPrototype.indexOf, function (obj, fromIndex) {
-    if (fromIndex === null || fromIndex === undefined) {
-      fromIndex = 0;
-    } else if (fromIndex < 0) {
-      fromIndex = Math.max(0, this.length + fromIndex);
-    }
-
-    for (var i = fromIndex, j = this.length; i < j; i++) {
-      if (this[i] === obj) {
-        return i;
-      }
-    }
-    return -1;
-  });
-
-  var lastIndexOf = defineNativeShim(ArrayPrototype.lastIndexOf, function (obj, fromIndex) {
-    var len = this.length;
-    var idx;
-
-    if (fromIndex === undefined) {
-      fromIndex = len - 1;
-    } else {
-      fromIndex = fromIndex < 0 ? Math.ceil(fromIndex) : Math.floor(fromIndex);
-    }
-
-    if (fromIndex < 0) {
-      fromIndex += len;
-    }
-
-    for (idx = fromIndex; idx >= 0; idx--) {
-      if (this[idx] === obj) {
-        return idx;
-      }
-    }
-    return -1;
-  });
-
-  var filter = defineNativeShim(ArrayPrototype.filter, function (fn, context) {
-    var i, value;
-    var result = [];
-    var length = this.length;
-
-    for (i = 0; i < length; i++) {
-      if (this.hasOwnProperty(i)) {
-        value = this[i];
-        if (fn.call(context, value, i, this)) {
-          result.push(value);
-        }
-      }
-    }
-    return result;
-  });
-
-  if (Ember.SHIM_ES5) {
-    ArrayPrototype.map = ArrayPrototype.map || map;
-    ArrayPrototype.forEach = ArrayPrototype.forEach || forEach;
-    ArrayPrototype.filter = ArrayPrototype.filter || filter;
-    ArrayPrototype.indexOf = ArrayPrototype.indexOf || indexOf;
-    ArrayPrototype.lastIndexOf = ArrayPrototype.lastIndexOf || lastIndexOf;
-  }
-
-  /**
-    Array polyfills to support ES5 features in older browsers.
-  
-    @namespace Ember
-    @property ArrayPolyfills
-    @public
-  */
-  exports.map = map;
-  exports.forEach = forEach;
-  exports.filter = filter;
-  exports.indexOf = indexOf;
-  exports.lastIndexOf = lastIndexOf;
-});
 enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/utils", "ember-metal/observer", "ember-metal/run_loop", "ember-metal/path_cache"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
   exports.bind = bind;
   exports.oneWay = oneWay;
@@ -3205,7 +3063,7 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/dictionary'], function (exp
     }
   };
 });
-enifed("ember-metal/chains", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/utils", "ember-metal/array", "ember-metal/watch_key"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberMetalArray, _emberMetalWatch_key) {
+enifed("ember-metal/chains", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/utils", "ember-metal/watch_key"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberMetalWatch_key) {
   exports.flushPendingChains = flushPendingChains;
   exports.finishChains = finishChains;
 
@@ -3238,8 +3096,8 @@ enifed("ember-metal/chains", ["exports", "ember-metal/core", "ember-metal/proper
     var queue = pendingQueue;
     pendingQueue = [];
 
-    _emberMetalArray.forEach.call(queue, function (q) {
-      q[0].add(q[1]);
+    queue.forEach(function (q) {
+      return q[0].add(q[1]);
     });
 
     warn("Watching an undefined global, Ember expects watched globals to be" + " setup by the time the run loop is flushed, check for typos", pendingQueue.length === 0);
@@ -4910,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1+4ad08993
+    @version 2.0.0-beta.1+1a949d03
     @public
   */
 
@@ -4942,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+4ad08993'
+    @default '2.0.0-beta.1+1a949d03'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1+4ad08993';
+  Ember.VERSION = '2.0.0-beta.1+1a949d03';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5769,7 +5627,7 @@ enifed("ember-metal/events", ["exports", "ember-metal/core", "ember-metal/utils"
 @module ember
 @submodule ember-metal
 */
-enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-metal/array'], function (exports, _emberMetalError, _emberMetalArray) {
+enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], function (exports, _emberMetalError) {
   exports.default = expandProperties;
 
   /**
@@ -5815,13 +5673,13 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
       var parts = pattern.split(SPLIT_REGEX);
       var properties = [parts];
 
-      _emberMetalArray.forEach.call(parts, function (part, index) {
+      parts.forEach(function (part, index) {
         if (part.indexOf(',') >= 0) {
           properties = duplicateAndReplace(properties, part.split(','), index);
         }
       });
 
-      _emberMetalArray.forEach.call(properties, function (property) {
+      properties.forEach(function (property) {
         callback(property.join(''));
       });
     } else {
@@ -5832,8 +5690,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
   function duplicateAndReplace(properties, currentParts, index) {
     var all = [];
 
-    _emberMetalArray.forEach.call(properties, function (property) {
-      _emberMetalArray.forEach.call(currentParts, function (part) {
+    properties.forEach(function (property) {
+      currentParts.forEach(function (part) {
         var current = property.slice(0);
         current[index] = part;
         all.push(current);
@@ -6651,7 +6509,7 @@ enifed("ember-metal/logger", ["exports", "ember-metal/core", "ember-metal/error"
   };
 });
 // Ember.imports
-enifed("ember-metal/map", ["exports", "ember-metal/utils", "ember-metal/array", "ember-metal/platform/create", "ember-metal/deprecate_property"], function (exports, _emberMetalUtils, _emberMetalArray, _emberMetalPlatformCreate, _emberMetalDeprecate_property) {
+enifed("ember-metal/map", ["exports", "ember-metal/utils", "ember-metal/platform/create", "ember-metal/deprecate_property"], function (exports, _emberMetalUtils, _emberMetalPlatformCreate, _emberMetalDeprecate_property) {
 
   function missingFunction(fn) {
     throw new TypeError("" + Object.prototype.toString.call(fn) + " is not a function");
@@ -6776,7 +6634,7 @@ enifed("ember-metal/map", ["exports", "ember-metal/utils", "ember-metal/array", 
 
       if (presenceSet[guid] === true) {
         delete presenceSet[guid];
-        var index = _emberMetalArray.indexOf.call(list, obj);
+        var index = list.indexOf(obj);
         if (index > -1) {
           list.splice(index, 1);
         }
@@ -7240,7 +7098,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
     return original;
   }
 });
-enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge", "ember-metal/array", "ember-metal/platform/create", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/utils", "ember-metal/expand_properties", "ember-metal/properties", "ember-metal/computed", "ember-metal/binding", "ember-metal/observer", "ember-metal/events", "ember-metal/streams/utils"], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalArray, _emberMetalPlatformCreate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
+enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge", "ember-metal/platform/create", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/utils", "ember-metal/expand_properties", "ember-metal/properties", "ember-metal/computed", "ember-metal/binding", "ember-metal/observer", "ember-metal/events", "ember-metal/streams/utils"], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalPlatformCreate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
   exports.mixin = mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
@@ -7475,9 +7333,9 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
       descs[key] = value;
       values[key] = undefined;
     } else {
-      if (concats && _emberMetalArray.indexOf.call(concats, key) >= 0 || key === "concatenatedProperties" || key === "mergedProperties") {
+      if (concats && concats.indexOf(key) >= 0 || key === "concatenatedProperties" || key === "mergedProperties") {
         value = applyConcatenatedProperties(base, key, value, values);
-      } else if (mergings && _emberMetalArray.indexOf.call(mergings, key) >= 0) {
+      } else if (mergings && mergings.indexOf(key) >= 0) {
         value = applyMergedProperties(base, key, value, values);
       } else if (isMethod(value)) {
         value = giveMethodSuper(base, key, value, values, descs);
@@ -7528,7 +7386,7 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
       } else if (currentMixin.mixins) {
         mergeMixins(currentMixin.mixins, m, descs, values, base, keys);
         if (currentMixin._without) {
-          _emberMetalArray.forEach.call(currentMixin._without, removeKeys);
+          currentMixin._without.forEach(removeKeys);
         }
       }
     }
@@ -7948,8 +7806,8 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
         }
       }
     } else if (mixin.mixins) {
-      _emberMetalArray.forEach.call(mixin.mixins, function (x) {
-        _keys(ret, x, seen);
+      mixin.mixins.forEach(function (x) {
+        return _keys(ret, x, seen);
       });
     }
   }
@@ -8229,7 +8087,7 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
 */
 
 // warn, assert, wrap, et;
-enifed("ember-metal/observer", ["exports", "ember-metal/watching", "ember-metal/array", "ember-metal/events"], function (exports, _emberMetalWatching, _emberMetalArray, _emberMetalEvents) {
+enifed("ember-metal/observer", ["exports", "ember-metal/watching", "ember-metal/events"], function (exports, _emberMetalWatching, _emberMetalEvents) {
   exports.addObserver = addObserver;
   exports.observersFor = observersFor;
   exports.removeObserver = removeObserver;
@@ -8325,12 +8183,12 @@ enifed("ember-metal/observer", ["exports", "ember-metal/watching", "ember-metal/
   }
 
   function _suspendBeforeObservers(obj, paths, target, method, callback) {
-    var events = _emberMetalArray.map.call(paths, beforeEvent);
+    var events = paths.map(beforeEvent);
     return (0, _emberMetalEvents.suspendListeners)(obj, events, target, method, callback);
   }
 
   function _suspendObservers(obj, paths, target, method, callback) {
-    var events = _emberMetalArray.map.call(paths, changeEvent);
+    var events = paths.map(changeEvent);
     return (0, _emberMetalEvents.suspendListeners)(obj, events, target, method, callback);
   }
 
@@ -9667,7 +9525,7 @@ enifed("ember-metal/replace", ["exports"], function (exports) {
     }
   }
 });
-enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/array', 'ember-metal/property_events', 'backburner'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalArray, _emberMetalProperty_events, _backburner) {
+enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/property_events', 'backburner'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalProperty_events, _backburner) {
 
   function onBegin(current) {
     run.currentRunLoop = current;
@@ -10330,8 +10188,8 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     @private
   */
   run._addQueue = function (name, after) {
-    if (_emberMetalArray.indexOf.call(run.queues, name) === -1) {
-      run.queues.splice(_emberMetalArray.indexOf.call(run.queues, after) + 1, 0, name);
+    if (run.queues.indexOf(name) === -1) {
+      run.queues.splice(run.queues.indexOf(after) + 1, 0, name);
     }
   };
 });
@@ -20654,7 +20512,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
 
 // NOTE: this object should never be included directly. Instead use `Ember.Object`.
 // We only define this separately so that `Ember.Set` can depend on it.
-enifed("ember-runtime/system/each_proxy", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/utils", "ember-runtime/utils", "ember-metal/array", "ember-runtime/mixins/array", "ember-runtime/system/object", "ember-metal/computed", "ember-metal/observer", "ember-metal/events", "ember-metal/properties", "ember-metal/property_events"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeUtils, _emberMetalArray, _emberRuntimeMixinsArray, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalObserver, _emberMetalEvents, _emberMetalProperties, _emberMetalProperty_events) {
+enifed("ember-runtime/system/each_proxy", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/utils", "ember-runtime/utils", "ember-runtime/mixins/array", "ember-runtime/system/object", "ember-metal/computed", "ember-metal/observer", "ember-metal/events", "ember-metal/properties", "ember-metal/property_events"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeUtils, _emberRuntimeMixinsArray, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalObserver, _emberMetalEvents, _emberMetalProperties, _emberMetalProperty_events) {
 
   var EachArray = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsArray.default, {
 
@@ -20721,7 +20579,7 @@ enifed("ember-runtime/system/each_proxy", ["exports", "ember-metal/core", "ember
 
         guid = (0, _emberMetalUtils.guidFor)(item);
         indices = objects[guid];
-        indices[_emberMetalArray.indexOf.call(indices, loc)] = null;
+        indices[indices.indexOf(loc)] = null;
       }
     }
   }
@@ -20880,7 +20738,7 @@ enifed("ember-runtime/system/each_proxy", ["exports", "ember-metal/core", "ember
 // Ember.assert
 
 // ES6TODO: WAT? Circular dep?
-enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-metal/array", "ember-runtime/system/native_array"], function (exports, _emberMetalCore, _emberMetalArray, _emberRuntimeSystemNative_array) {
+enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-runtime/system/native_array"], function (exports, _emberMetalCore, _emberRuntimeSystemNative_array) {
   exports.onLoad = onLoad;
   exports.runLoadHooks = runLoadHooks;
   // make sure Ember.A is setup.
@@ -20944,8 +20802,8 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
     }
 
     if (loadHooks[name]) {
-      _emberMetalArray.forEach.call(loadHooks[name], function (callback) {
-        callback(object);
+      loadHooks[name].forEach(function (callback) {
+        return callback(object);
       });
     }
   }
@@ -20953,7 +20811,7 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
 /*globals CustomEvent */
 
 // Ember.ENV.EMBER_LOAD_HOOKS
-enifed("ember-runtime/system/namespace", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/array", "ember-metal/utils", "ember-metal/mixin", "ember-runtime/system/object"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalArray, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemObject) {
+enifed("ember-runtime/system/namespace", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/utils", "ember-metal/mixin", "ember-runtime/system/object"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberMetalMixin, _emberRuntimeSystemObject) {
 
   /**
     A Namespace is an object usually used to contain other objects or methods
@@ -21003,7 +20861,7 @@ enifed("ember-runtime/system/namespace", ["exports", "ember-metal/core", "ember-
         _emberMetalCore.default.lookup[toString] = undefined;
         delete Namespace.NAMESPACES_BY_ID[toString];
       }
-      namespaces.splice(_emberMetalArray.indexOf.call(namespaces, this), 1);
+      namespaces.splice(namespaces.indexOf(this), 1);
       this._super.apply(this, arguments);
     }
   });
@@ -21184,7 +21042,7 @@ enifed("ember-runtime/system/namespace", ["exports", "ember-metal/core", "ember-
 // Ember.lookup, Ember.BOOTED, Ember.deprecate, Ember.NAME_KEY, Ember.anyUnprocessedMixins
 
 // continue
-enifed("ember-runtime/system/native_array", ["exports", "ember-metal/core", "ember-metal/replace", "ember-metal/property_get", "ember-metal/mixin", "ember-metal/array", "ember-runtime/mixins/array", "ember-runtime/mixins/mutable_array", "ember-runtime/mixins/observable", "ember-runtime/mixins/copyable", "ember-runtime/mixins/freezable", "ember-runtime/copy"], function (exports, _emberMetalCore, _emberMetalReplace, _emberMetalProperty_get, _emberMetalMixin, _emberMetalArray, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsObservable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeCopy) {
+enifed("ember-runtime/system/native_array", ["exports", "ember-metal/core", "ember-metal/replace", "ember-metal/property_get", "ember-metal/mixin", "ember-runtime/mixins/array", "ember-runtime/mixins/mutable_array", "ember-runtime/mixins/observable", "ember-runtime/mixins/copyable", "ember-runtime/mixins/freezable", "ember-runtime/copy"], function (exports, _emberMetalCore, _emberMetalReplace, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsArray, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsObservable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeCopy) {
 
   // Add Ember.Array to Array.prototype. Remove methods with native
   // implementations and supply some more optimized versions of generic methods
@@ -21255,9 +21113,8 @@ enifed("ember-runtime/system/native_array", ["exports", "ember-metal/core", "emb
       return ret;
     },
 
-    indexOf: _emberMetalArray.indexOf,
-
-    lastIndexOf: _emberMetalArray.lastIndexOf,
+    indexOf: Array.prototype.indexOf,
+    lastIndexOf: Array.prototype.lastIndexOf,
 
     copy: function (deep) {
       if (deep) {

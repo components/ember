@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+4ad08993
+ * @version   2.0.0-beta.1+1a949d03
  */
 
 (function() {
@@ -1918,7 +1918,7 @@ enifed("ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 });
 // Ember.TEMPLATES
-enifed("ember-application/tests/system/dependency_injection/normalization_test", ["exports", "ember-metal/run_loop", "ember-metal/array", "ember-application/system/application"], function (exports, _emberMetalRun_loop, _emberMetalArray, _emberApplicationSystemApplication) {
+enifed("ember-application/tests/system/dependency_injection/normalization_test", ["exports", "ember-metal/run_loop", "ember-application/system/application"], function (exports, _emberMetalRun_loop, _emberApplicationSystemApplication) {
 
   var application, registry;
 
@@ -1956,7 +1956,7 @@ enifed("ember-application/tests/system/dependency_injection/normalization_test",
   QUnit.test("normalization is indempotent", function () {
     var examples = ["controller:posts", "controller:posts.post.index", "controller:blog/posts.post_index", "template:foo_bar"];
 
-    _emberMetalArray.forEach.call(examples, function (example) {
+    examples.forEach(function (example) {
       equal(registry.normalize(registry.normalize(example)), registry.normalize(example));
     });
   });
@@ -2097,7 +2097,7 @@ enifed("ember-application/tests/system/dependency_injection_test", ["exports", "
     ok(application.Email.detectInstance(user.get("communication")));
   });
 });
-enifed("ember-application/tests/system/initializers_test", ["exports", "ember-metal/features", "ember-metal/run_loop", "ember-application/system/application", "ember-metal/array", "ember-views/system/jquery", "container/registry"], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberMetalArray, _emberViewsSystemJquery, _containerRegistry) {
+enifed("ember-application/tests/system/initializers_test", ["exports", "ember-metal/features", "ember-metal/run_loop", "ember-application/system/application", "ember-views/system/jquery", "container/registry"], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry) {
 
   var app;
 
@@ -2321,10 +2321,10 @@ enifed("ember-application/tests/system/initializers_test", ["exports", "ember-me
       });
     });
 
-    ok(_emberMetalArray.indexOf.call(order, a.name) < _emberMetalArray.indexOf.call(order, b.name), "a < b");
-    ok(_emberMetalArray.indexOf.call(order, b.name) < _emberMetalArray.indexOf.call(order, c.name), "b < c");
-    ok(_emberMetalArray.indexOf.call(order, b.name) < _emberMetalArray.indexOf.call(order, afterB.name), "b < afterB");
-    ok(_emberMetalArray.indexOf.call(order, c.name) < _emberMetalArray.indexOf.call(order, afterC.name), "c < afterC");
+    ok(order.indexOf(a.name) < order.indexOf(b.name), "a < b");
+    ok(order.indexOf(b.name) < order.indexOf(c.name), "b < c");
+    ok(order.indexOf(b.name) < order.indexOf(afterB.name), "b < afterB");
+    ok(order.indexOf(c.name) < order.indexOf(afterC.name), "c < afterC");
   });
 
   QUnit.test("initializers set on Application subclasses should not be shared between apps", function () {
@@ -2491,7 +2491,7 @@ enifed("ember-application/tests/system/initializers_test", ["exports", "ember-me
     }, /`lookupFactory` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
   });
 });
-enifed("ember-application/tests/system/instance_initializers_test", ["exports", "ember-metal/features", "ember-metal/run_loop", "ember-application/system/application", "ember-application/system/application-instance", "ember-metal/array", "ember-views/system/jquery"], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalArray, _emberViewsSystemJquery) {
+enifed("ember-application/tests/system/instance_initializers_test", ["exports", "ember-metal/features", "ember-metal/run_loop", "ember-application/system/application", "ember-application/system/application-instance", "ember-views/system/jquery"], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
 
   var app, initializeContextFeatureEnabled;
 
@@ -2716,10 +2716,10 @@ enifed("ember-application/tests/system/instance_initializers_test", ["exports", 
       });
     });
 
-    ok(_emberMetalArray.indexOf.call(order, a.name) < _emberMetalArray.indexOf.call(order, b.name), "a < b");
-    ok(_emberMetalArray.indexOf.call(order, b.name) < _emberMetalArray.indexOf.call(order, c.name), "b < c");
-    ok(_emberMetalArray.indexOf.call(order, b.name) < _emberMetalArray.indexOf.call(order, afterB.name), "b < afterB");
-    ok(_emberMetalArray.indexOf.call(order, c.name) < _emberMetalArray.indexOf.call(order, afterC.name), "c < afterC");
+    ok(order.indexOf(a.name) < order.indexOf(b.name), "a < b");
+    ok(order.indexOf(b.name) < order.indexOf(c.name), "b < c");
+    ok(order.indexOf(b.name) < order.indexOf(afterB.name), "b < afterB");
+    ok(order.indexOf(c.name) < order.indexOf(afterC.name), "c < afterC");
   });
 
   QUnit.test("initializers set on Application subclasses should not be shared between apps", function () {
@@ -25440,7 +25440,7 @@ enifed('ember-metal/tests/props_helper', ['exports', 'ember-metal/core', 'ember-
   exports.testWithDefault = testWithDefault;
   exports.testBoth = testBoth;
 });
-enifed('ember-metal/tests/run_loop/add_queue_test', ['exports', 'ember-metal/run_loop', 'ember-metal/array'], function (exports, _emberMetalRun_loop, _emberMetalArray) {
+enifed('ember-metal/tests/run_loop/add_queue_test', ['exports', 'ember-metal/run_loop'], function (exports, _emberMetalRun_loop) {
 
   var originalQueues = _emberMetalRun_loop.default.queues;
   var queues;
@@ -25457,7 +25457,7 @@ enifed('ember-metal/tests/run_loop/add_queue_test', ['exports', 'ember-metal/run
   QUnit.test('adds a queue after a specified one', function () {
     _emberMetalRun_loop.default._addQueue('testeroo', 'blork');
 
-    equal(_emberMetalArray.indexOf.call(queues, 'testeroo'), 1, 'new queue was added after specified queue');
+    equal(queues.indexOf('testeroo'), 1, 'new queue was added after specified queue');
   });
 
   QUnit.test('does not add the queue if it already exists', function () {
@@ -32025,7 +32025,7 @@ enifed("ember-runtime/tests/computed/computed_macros_test", ["exports", "ember-m
     equal(get(obj, "quz"), null);
   });
 });
-enifed("ember-runtime/tests/computed/reduce_computed_macros_test", ["exports", "ember-metal/core", "ember-runtime/system/object", "ember-metal/set_properties", "ember-runtime/system/object_proxy", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/run_loop", "ember-metal/observer", "ember-metal/property_events", "ember-metal/array", "ember-metal/mixin", "ember-runtime/computed/reduce_computed_macros"], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalObserver, _emberMetalProperty_events, _emberMetalArray, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
+enifed("ember-runtime/tests/computed/reduce_computed_macros_test", ["exports", "ember-metal/core", "ember-runtime/system/object", "ember-metal/set_properties", "ember-runtime/system/object_proxy", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/run_loop", "ember-metal/observer", "ember-metal/property_events", "ember-metal/mixin", "ember-runtime/computed/reduce_computed_macros"], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalObserver, _emberMetalProperty_events, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
 
   var obj, sorted, sortProps, items, userFnCalls, todos, filtered, union;
 
@@ -32467,7 +32467,7 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test", ["exports", "
     deepEqual(a1bs.mapBy("name"), ["item1"], "properties can be filtered by matching value");
   });
 
-  _emberMetalArray.forEach.call([["uniq", _emberRuntimeComputedReduce_computed_macros.uniq], ["union", _emberRuntimeComputedReduce_computed_macros.union]], function (tuple) {
+  [["uniq", _emberRuntimeComputedReduce_computed_macros.uniq], ["union", _emberRuntimeComputedReduce_computed_macros.union]].forEach(function (tuple) {
     var alias = tuple[0];
     var testedFunc = tuple[1];
 
@@ -47290,7 +47290,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, "Ember@2.0.0-beta.1+4ad08993", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@2.0.0-beta.1+1a949d03", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -52870,7 +52870,7 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
     equal(select.get("selection"), ebryn);
   });
 });
-enifed("ember-views/tests/views/text_area_test", ["exports", "ember-runtime/system/object", "ember-metal/array", "ember-metal/run_loop", "ember-views/views/text_area", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberRuntimeSystemObject, _emberMetalArray, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed("ember-views/tests/views/text_area_test", ["exports", "ember-runtime/system/object", "ember-metal/run_loop", "ember-views/views/text_area", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
 
   var textArea, TestObject;
 
@@ -53069,7 +53069,7 @@ enifed("ember-views/tests/views/text_area_test", ["exports", "ember-runtime/syst
     equal(textArea.$().val(), "ohai", "value is reflected in the input element once it is created");
   });
 
-  _emberMetalArray.forEach.call(["cut", "paste", "input"], function (eventName) {
+  ["cut", "paste", "input"].forEach(function (eventName) {
     QUnit.test("should update the value on " + eventName + " events", function () {
 
       (0, _emberMetalRun_loop.default)(function () {
