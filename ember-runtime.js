@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4f92d0fa
+ * @version   2.0.0-canary+1d170a2b
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4f92d0fa
+    @version 2.0.0-canary+1d170a2b
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4f92d0fa'
+    @default '2.0.0-canary+1d170a2b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4f92d0fa';
+  Ember.VERSION = '2.0.0-canary+1d170a2b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18083,16 +18083,10 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       immediately. Any "remote" observers (i.e. observer methods declared on
       another object) will be placed in a queue and called at a later time in a
       coalesced manner.
-       ### Chaining
-       In addition to property changes, `set()` returns the value of the object
-      itself so you can do chaining like this:
-       ```javascript
-      record.set('firstName', 'Charles').set('lastName', 'Jolley');
-      ```
        @method set
       @param {String} keyName The property to set
       @param {Object} value The value to set or `null`.
-      @return {Ember.Observable}
+      @return {Object} The passed value
       @public
     */
     set: function (keyName, value) {
@@ -18108,7 +18102,7 @@ enifed("ember-runtime/mixins/observable", ["exports", "ember-metal/core", "ember
       ```
        @method setProperties
       @param {Object} hash the hash of keys and values to set
-      @return {Ember.Observable}
+      @return {Object} The passed in hash
       @public
     */
     setProperties: function (hash) {
