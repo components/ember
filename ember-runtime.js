@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1d170a2b
+ * @version   2.0.0-canary+f3b2cf22
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+1d170a2b
+    @version 2.0.0-canary+f3b2cf22
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+1d170a2b'
+    @default '2.0.0-canary+f3b2cf22'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+1d170a2b';
+  Ember.VERSION = '2.0.0-canary+f3b2cf22';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14237,7 +14237,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
 // Ember.assert
 enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array', 'ember-metal/replace'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray, _emberMetalReplace) {
+  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
+  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   /**
     `Ember.ArrayController` provides a way for you to publish a collection of
     objects so that you can easily bind to the collection from a Handlebars
@@ -14322,6 +14324,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     @extends Ember.ArrayProxy
     @uses Ember.SortableMixin
     @uses Ember.ControllerMixin
+    @deprecated
     @public
   */
 
@@ -14418,6 +14421,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
+      _emberMetalCore.default.deprecate(arrayControllerDeprecation);
       this._super.apply(this, arguments);
       this._subControllers = [];
     },
