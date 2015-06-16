@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0
+ * @version   1.13.1
  */
 
 (function() {
@@ -7856,7 +7856,7 @@ enifed("ember-htmlbars/hooks/has-helper", ["exports", "ember-htmlbars/system/loo
     return false;
   }
 });
-enifed("ember-htmlbars/hooks/invoke-helper", ["exports", "ember-metal/core", "ember-htmlbars/system/invoke-helper"], function (exports, _emberMetalCore, _emberHtmlbarsSystemInvokeHelper) {
+enifed("ember-htmlbars/hooks/invoke-helper", ["exports", "ember-metal/core", "ember-htmlbars/system/invoke-helper", "ember-htmlbars/utils/subscribe"], function (exports, _emberMetalCore, _emberHtmlbarsSystemInvokeHelper, _emberHtmlbarsUtilsSubscribe) {
   exports.default = invokeHelper;
 
   function invokeHelper(morph, env, scope, visitor, params, hash, helper, templates, context) {
@@ -7873,6 +7873,26 @@ enifed("ember-htmlbars/hooks/invoke-helper", ["exports", "ember-metal/core", "em
 
     // Ember.Helper helpers are pure values, thus linkable
     if (helperStream.linkable) {
+
+      if (morph) {
+        // When processing an inline expression the params and hash have already
+        // been linked. Thus, HTMLBars will not link the returned helperStream.
+        // We subscribe the morph to the helperStream here, and also subscribe
+        // the helperStream to any params.
+        var addedDependency = false;
+        for (var i = 0, l = params.length; i < l; i++) {
+          addedDependency = true;
+          helperStream.addDependency(params[i]);
+        }
+        for (var key in hash) {
+          addedDependency = true;
+          helperStream.addDependency(hash[key]);
+        }
+        if (addedDependency) {
+          (0, _emberHtmlbarsUtilsSubscribe.default)(morph, env, scope, helperStream);
+        }
+      }
+
       return { link: true, value: helperStream };
     }
 
@@ -8571,7 +8591,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@1.13.0";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@1.13.1";
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14346,7 +14366,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.0
+    @version 1.13.1
     @public
   */
 
@@ -14378,11 +14398,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.0'
+    @default '1.13.1'
     @static
     @public
   */
-  Ember.VERSION = '1.13.0';
+  Ember.VERSION = '1.13.1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17791,9 +17811,6 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     });
     ```
   
-    In the future this method may become asynchronous. If you want to ensure
-    synchronous behavior, use `immediateObserver`.
-  
     Also available as `Function.prototype.observes` if prototype extensions are
     enabled.
   
@@ -17860,11 +17877,14 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     @for Ember
     @param {String} propertyNames*
     @param {Function} func
+    @deprecated Use `Ember.observer` instead.
     @return func
     @private
   */
 
   function immediateObserver() {
+    _emberMetalCore.default.deprecate("Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.");
+
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
       _emberMetalCore.default.assert("Immediate observers must observe internal properties only, not properties on other objects.", typeof arg !== "string" || arg.indexOf(".") === -1);
@@ -23232,7 +23252,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@1.13.0";
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = "Ember@1.13.1";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   if (_emberMetalCore.default.FEATURES.isEnabled("ember-routing-transitioning-classes")) {
@@ -23742,7 +23762,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@1.13.0";
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = "Ember@1.13.1";
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -30792,7 +30812,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
 // Ember.assert
 enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEnumerable_utils, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray) {
+  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
+  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   /**
     `Ember.ArrayController` provides a way for you to publish a collection of
     objects so that you can easily bind to the collection from a Handlebars
@@ -30877,6 +30899,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     @extends Ember.ArrayProxy
     @uses Ember.SortableMixin
     @uses Ember.ControllerMixin
+    @deprecated
     @public
   */
 
@@ -30973,6 +30996,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
+      _emberMetalCore.default.deprecate(arrayControllerDeprecation);
       this._super.apply(this, arguments);
       this._subControllers = [];
     },
@@ -40422,7 +40446,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0",
+        revision: "Ember@1.13.1",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40661,8 +40685,14 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
 
   function visit(app, url) {
     var router = app.__container__.lookup("router:main");
+    var shouldHandleURL = false;
+
     app.boot().then(function () {
       router.location.setURL(url);
+
+      if (shouldHandleURL) {
+        (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      }
     });
 
     if (app._readinessDeferrals > 0) {
@@ -40670,7 +40700,7 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
       (0, _emberMetalRun_loop.default)(app, "advanceReadiness");
       delete router["initialURL"];
     } else {
-      (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      shouldHandleURL = true;
     }
 
     return app.testHelpers.wait();
@@ -42085,10 +42115,12 @@ enifed("ember-views/compat/render_buffer", ["exports", "ember-views/system/jquer
   
     @class RenderBuffer
     @namespace Ember
+    @deprecated
     @private
   */
 
   var RenderBuffer = function (domHelper) {
+    _emberMetalCore.default.deprecate("`Ember.RenderBuffer` is deprecated.");
     this.buffer = null;
     this.childViews = [];
     this.attrNodes = [];
@@ -45582,7 +45614,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@1.13.0";
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = "Ember@1.13.1";
 
   /**
   @module ember

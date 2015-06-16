@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.13.0"
+        "version": "1.13.1"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -3474,13 +3474,14 @@
             "submodule": "ember-runtime",
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/controllers/array_controller.js",
-            "line": 20,
+            "line": 22,
             "description": "`Ember.ArrayController` provides a way for you to publish a collection of\nobjects so that you can easily bind to the collection from a Handlebars\n`#each` helper, an `Ember.CollectionView`, or other controllers.\n\nThe advantage of using an `ArrayController` is that you only have to set up\nyour view bindings once; to change what's displayed, simply swap out the\n`model` property on the controller.\n\nFor example, imagine you wanted to display a list of items fetched via an XHR\nrequest. Create an `Ember.ArrayController` and set its `model` property:\n\n```javascript\nMyApp.listController = Ember.ArrayController.create();\n\n$.get('people.json', function(data) {\n  MyApp.listController.set('model', data);\n});\n```\n\nThen, create a view that binds to your new controller:\n\n```handlebars\n{{#each MyApp.listController as |person|}}\n  {{person.firstName}} {{person.lastName}}\n{{/each}}\n```\n\nAlthough you are binding to the controller, the behavior of this controller\nis to pass through any methods or properties to the underlying array. This\ncapability comes from `Ember.ArrayProxy`, which this class inherits from.\n\nSometimes you want to display computed properties within the body of an\n`#each` helper that depend on the underlying items in `model`, but are not\npresent on those items.   To do this, set `itemController` to the name of a\ncontroller (probably an `ObjectController`) that will wrap each individual item.\n\nFor example:\n\n```handlebars\n{{#each controller as |post|}}\n  <li>{{post.title}} ({{post.titleLength}} characters)</li>\n{{/each}}\n```\n\n```javascript\nApp.PostsController = Ember.ArrayController.extend({\n  itemController: 'post'\n});\n\nApp.PostController = Ember.ObjectController.extend({\n  // the `title` property will be proxied to the underlying post.\n  titleLength: function() {\n    return this.get('title').length;\n  }.property('title')\n});\n```\n\nIn some cases it is helpful to return a different `itemController` depending\non the particular item.  Subclasses can do this by overriding\n`lookupItemController`.\n\nFor example:\n\n```javascript\nApp.MyArrayController = Ember.ArrayController.extend({\n  lookupItemController: function( object ) {\n    if (object.get('isSpecial')) {\n      return \"special\"; // use App.SpecialController\n    } else {\n      return \"regular\"; // use App.RegularController\n    }\n  }\n});\n```\n\nThe itemController instances will have a `parentController` property set to\nthe `ArrayController` instance.",
             "extends": "Ember.ArrayProxy",
             "uses": [
                 "Ember.SortableMixin",
                 "Ember.ControllerMixin"
             ],
+            "deprecated": true,
             "access": "public",
             "tagname": ""
         },
@@ -4179,6 +4180,7 @@
             "file": "packages/ember-views/lib/compat/render_buffer.js",
             "line": 119,
             "description": "`Ember.RenderBuffer` gathers information regarding the view and generates the\nfinal representation. `Ember.RenderBuffer` will generate HTML which can be pushed\nto the DOM.\n\n ```javascript\n var buffer = new Ember.RenderBuffer('div', contextualElement);\n```",
+            "deprecated": true,
             "access": "private",
             "tagname": ""
         },
@@ -10079,7 +10081,7 @@
         {
             "file": "packages/ember-metal/lib/mixin.js",
             "line": 791,
-            "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future this method may become asynchronous. If you want to ensure\nsynchronous behavior, use `immediateObserver`.\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
+            "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.observer('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nAlso available as `Function.prototype.observes` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "observer",
             "params": [
@@ -10106,7 +10108,7 @@
         },
         {
             "file": "packages/ember-metal/lib/mixin.js",
-            "line": 843,
+            "line": 840,
             "description": "Specify a method that observes property changes.\n\n```javascript\nEmber.Object.extend({\n  valueObserver: Ember.immediateObserver('value', function() {\n    // Executes whenever the \"value\" property changes\n  })\n});\n```\n\nIn the future, `Ember.observer` may become asynchronous. In this event,\n`Ember.immediateObserver` will maintain the synchronous behavior.\n\nAlso available as `Function.prototype.observesImmediately` if prototype extensions are\nenabled.",
             "itemtype": "method",
             "name": "immediateObserver",
@@ -10123,6 +10125,8 @@
                     "type": "Function"
                 }
             ],
+            "deprecated": true,
+            "deprecationMessage": "Use `Ember.observer` instead.",
             "return": {
                 "description": "func"
             },
@@ -14448,7 +14452,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/controllers/array_controller.js",
-            "line": 109,
+            "line": 112,
             "description": "A string containing the controller name used to wrap items.\n\nFor example:\n\n```javascript\nApp.MyArrayController = Ember.ArrayController.extend({\n  itemController: 'myItem' // use App.MyItemController\n});\n```",
             "itemtype": "property",
             "name": "itemController",
@@ -14463,7 +14467,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/controllers/array_controller.js",
-            "line": 127,
+            "line": 130,
             "description": "Return the name of the controller to wrap items, or `null` if items should\nbe returned directly.  The default implementation simply returns the\n`itemController` property, but subclasses can override this method to return\ndifferent controllers for different objects.\n\nFor example:\n\n```javascript\nApp.MyArrayController = Ember.ArrayController.extend({\n  lookupItemController: function( object ) {\n    if (object.get('isSpecial')) {\n      return \"special\"; // use App.SpecialController\n    } else {\n      return \"regular\"; // use App.RegularController\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "lookupItemController",
@@ -14487,7 +14491,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/controllers/array_controller.js",
-            "line": 225,
+            "line": 229,
             "description": "Flag to mark as being \"virtual\". Used to keep this instance\nfrom participating in the parentController hierarchy.",
             "access": "private",
             "tagname": "",
@@ -19086,7 +19090,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 236,
+            "line": 242,
             "description": "Loads a route, sets up any controllers, and renders any templates associated\nwith the route as though a real user had triggered the route change while\nusing your app.\n\nExample:\n\n```javascript\nvisit('posts/index').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "visit",
@@ -19109,7 +19113,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 256,
+            "line": 262,
             "description": "Clicks an element and triggers any actions triggered by the element's `click`\nevent.\n\nExample:\n\n```javascript\nclick('.some-jQuery-selector').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "click",
@@ -19132,7 +19136,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 276,
+            "line": 282,
             "description": "Checks a checkbox. Ensures the presence of the `checked` attribute\n\nExample:\n\n```javascript\ncheck('#remember-me').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "check",
@@ -19155,7 +19159,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 295,
+            "line": 301,
             "description": "Unchecks a checkbox. Ensures the absence of the `checked` attribute\n\nExample:\n\n```javascript\nuncheck('#remember-me').then(function() {\n // assert something\n});\n```",
             "itemtype": "method",
             "name": "check",
@@ -19178,7 +19182,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 314,
+            "line": 320,
             "description": "Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode\n\nExample:\n\n```javascript\nkeyEvent('.some-jQuery-selector', 'keypress', 13).then(function() {\n // assert something\n});\n```",
             "itemtype": "method",
             "name": "keyEvent",
@@ -19212,7 +19216,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 335,
+            "line": 341,
             "description": "Fills in an input element with some text.\n\nExample:\n\n```javascript\nfillIn('#email', 'you@example.com').then(function() {\n  // assert something\n});\n```",
             "itemtype": "method",
             "name": "fillIn",
@@ -19240,7 +19244,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 355,
+            "line": 361,
             "description": "Finds an element in the context of the app's container element. A simple alias\nfor `app.$(selector)`.\n\nExample:\n\n```javascript\nvar $el = find('.my-selector');\n```",
             "itemtype": "method",
             "name": "find",
@@ -19263,7 +19267,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 372,
+            "line": 378,
             "description": "Like `find`, but throws an error if the element selector returns no results.\n\nExample:\n\n```javascript\nvar $el = findWithAssert('.doesnt-exist'); // throws error\n```",
             "itemtype": "method",
             "name": "findWithAssert",
@@ -19290,7 +19294,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 390,
+            "line": 396,
             "description": "Causes the run loop to process any pending events. This is used to ensure that\nany async operations from other helpers (or your assertions) have been processed.\n\nThis is most often used as the return value for the helper functions (see 'click',\n'fillIn','visit',etc).\n\nExample:\n\n```javascript\nEmber.Test.registerAsyncHelper('loginUser', function(app, username, password) {\n  visit('secured/path/here')\n  .fillIn('#username', username)\n  .fillIn('#password', password)\n  .click('.submit')\n\n  return app.testHelpers.wait();\n});",
             "itemtype": "method",
             "name": "wait",
@@ -19313,7 +19317,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 418,
+            "line": 424,
             "description": "Returns the currently active route name.\n\nExample:\n\n```javascript\nfunction validateRouteName() {\nequal(currentRouteName(), 'some.path', \"correct route was transitioned into.\");\n}\n\nvisit('/some/path').then(validateRouteName)\n```",
             "itemtype": "method",
             "name": "currentRouteName",
@@ -19330,7 +19334,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 438,
+            "line": 444,
             "description": "Returns the current path.\n\nExample:\n\n```javascript\nfunction validateURL() {\nequal(currentPath(), 'some.path.index', \"correct path was transitioned into.\");\n}\n\nclick('#some-link-id').then(validateURL);\n```",
             "itemtype": "method",
             "name": "currentPath",
@@ -19347,7 +19351,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 458,
+            "line": 464,
             "description": "Returns the current URL.\n\nExample:\n\n```javascript\nfunction validateURL() {\nequal(currentURL(), '/some/path', \"correct URL was transitioned into.\");\n}\n\nclick('#some-link-id').then(validateURL);\n```",
             "itemtype": "method",
             "name": "currentURL",
@@ -19364,7 +19368,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 478,
+            "line": 484,
             "description": "Pauses the current test - this is useful for debugging while testing or for test-driving.\nIt allows you to inspect the state of your application at any point.\n\nExample (The test will pause before clicking the button):\n\n```javascript\nvisit('/')\nreturn pauseTest();\n\nclick('.btn');\n```",
             "since": "1.9.0",
             "itemtype": "method",
@@ -19381,7 +19385,7 @@
         },
         {
             "file": "packages/ember-testing/lib/helpers.js",
-            "line": 498,
+            "line": 504,
             "description": "Triggers the given DOM event on the element identified by the provided selector.\n\nExample:\n\n```javascript\ntriggerEvent('#some-elem-id', 'blur');\n```\n\nThis is actually used internally by the `keyEvent` helper like so:\n\n```javascript\ntriggerEvent('#some-elem-id', 'keypress', { keyCode: 13 });\n```",
             "itemtype": "method",
             "name": "triggerEvent",
@@ -19772,7 +19776,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 166,
+            "line": 168,
             "description": "An internal set used to de-dupe class names when `addClass()` is\nused. After each call to `addClass()`, the `classes` property\nwill be updated.",
             "access": "private",
             "tagname": "",
@@ -19787,7 +19791,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 178,
+            "line": 180,
             "description": "Array of class names which will be applied in the class attribute.\n\nYou can use `setClasses()` to set this property directly. If you\nuse `addClass()`, it will be maintained for you.",
             "itemtype": "property",
             "name": "classes",
@@ -19802,7 +19806,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 191,
+            "line": 193,
             "description": "The id in of the element, to be applied in the id attribute.\n\nYou should not set this property yourself, rather, you should use\nthe `id()` method of `Ember.RenderBuffer`.",
             "itemtype": "property",
             "name": "elementId",
@@ -19817,7 +19821,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 204,
+            "line": 206,
             "description": "A hash keyed on the name of the attribute and whose value will be\napplied to that attribute. For example, if you wanted to apply a\n`data-view=\"Foo.bar\"` property to an element, you would set the\nelementAttributes hash to `{'data-view':'Foo.bar'}`.\n\nYou should not maintain this hash yourself, rather, you should use\nthe `attr()` method of `Ember.RenderBuffer`.",
             "itemtype": "property",
             "name": "elementAttributes",
@@ -19832,7 +19836,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 220,
+            "line": 222,
             "description": "A hash keyed on the name of the properties and whose value will be\napplied to that property. For example, if you wanted to apply a\n`checked=true` property to an element, you would set the\nelementProperties hash to `{'checked':true}`.\n\nYou should not maintain this hash yourself, rather, you should use\nthe `prop()` method of `Ember.RenderBuffer`.",
             "itemtype": "property",
             "name": "elementProperties",
@@ -19847,7 +19851,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 236,
+            "line": 238,
             "description": "The tagname of the element an instance of `Ember.RenderBuffer` represents.\n\nUsually, this gets set as the first parameter to `Ember.RenderBuffer`. For\nexample, if you wanted to create a `p` tag, then you would call\n\n```javascript\nEmber.RenderBuffer('p', contextualElement)\n```",
             "itemtype": "property",
             "name": "elementTag",
@@ -19862,7 +19866,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 253,
+            "line": 255,
             "description": "A hash keyed on the name of the style attribute and whose value will\nbe applied to that attribute. For example, if you wanted to apply a\n`background-color:black;` style to an element, you would set the\nelementStyle hash to `{'background-color':'black'}`.\n\nYou should not maintain this hash yourself, rather, you should use\nthe `style()` method of `Ember.RenderBuffer`.",
             "itemtype": "property",
             "name": "elementStyle",
@@ -19877,7 +19881,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 303,
+            "line": 305,
             "description": "Adds a string of HTML to the `RenderBuffer`.",
             "itemtype": "method",
             "name": "push",
@@ -19898,7 +19902,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 325,
+            "line": 327,
             "description": "Adds a class to the buffer, which will be rendered to the class attribute.",
             "itemtype": "method",
             "name": "addClass",
@@ -19919,7 +19923,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 351,
+            "line": 353,
             "description": "Sets the elementID to be used for the element.",
             "itemtype": "method",
             "name": "id",
@@ -19940,7 +19944,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 367,
+            "line": 369,
             "description": "Adds an attribute which will be rendered to the element.",
             "itemtype": "method",
             "name": "attr",
@@ -19970,7 +19974,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 389,
+            "line": 391,
             "description": "Remove an attribute from the list of attributes to render.",
             "itemtype": "method",
             "name": "removeAttr",
@@ -19991,7 +19995,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 404,
+            "line": 406,
             "description": "Adds a property which will be rendered to the element.",
             "itemtype": "method",
             "name": "prop",
@@ -20021,7 +20025,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 426,
+            "line": 428,
             "description": "Remove an property from the list of properties to render.",
             "itemtype": "method",
             "name": "removeProp",
@@ -20042,7 +20046,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 441,
+            "line": 443,
             "description": "Adds a style to the style attribute which will be rendered to the element.",
             "itemtype": "method",
             "name": "style",
@@ -20068,7 +20072,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 517,
+            "line": 519,
             "itemtype": "method",
             "name": "element",
             "return": {
@@ -20084,7 +20088,7 @@
         },
         {
             "file": "packages/ember-views/lib/compat/render_buffer.js",
-            "line": 563,
+            "line": 565,
             "description": "Generates the HTML content for this buffer.",
             "itemtype": "method",
             "name": "string",

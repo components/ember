@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0
+ * @version   1.13.1
  */
 
 (function() {
@@ -584,8 +584,14 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
 
   function visit(app, url) {
     var router = app.__container__.lookup("router:main");
+    var shouldHandleURL = false;
+
     app.boot().then(function () {
       router.location.setURL(url);
+
+      if (shouldHandleURL) {
+        (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      }
     });
 
     if (app._readinessDeferrals > 0) {
@@ -593,7 +599,7 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
       (0, _emberMetalRun_loop.default)(app, "advanceReadiness");
       delete router["initialURL"];
     } else {
-      (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, "handleURL", url);
+      shouldHandleURL = true;
     }
 
     return app.testHelpers.wait();
