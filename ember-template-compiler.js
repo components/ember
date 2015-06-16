@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.0+898a1fd6
+ * @version   1.13.0+a9b6ed0f
  */
 
 (function() {
@@ -3257,7 +3257,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.0+898a1fd6
+    @version 1.13.0+a9b6ed0f
     @public
   */
 
@@ -3289,11 +3289,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.0+898a1fd6'
+    @default '1.13.0+a9b6ed0f'
     @static
     @public
   */
-  Ember.VERSION = '1.13.0+898a1fd6';
+  Ember.VERSION = '1.13.0+a9b6ed0f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6702,9 +6702,6 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     });
     ```
   
-    In the future this method may become asynchronous. If you want to ensure
-    synchronous behavior, use `immediateObserver`.
-  
     Also available as `Function.prototype.observes` if prototype extensions are
     enabled.
   
@@ -6771,11 +6768,14 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
     @for Ember
     @param {String} propertyNames*
     @param {Function} func
+    @deprecated Use `Ember.observer` instead.
     @return func
     @private
   */
 
   function immediateObserver() {
+    _emberMetalCore.default.deprecate("Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.");
+
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
       _emberMetalCore.default.assert("Immediate observers must observe internal properties only, not properties on other objects.", typeof arg !== "string" || arg.indexOf(".") === -1);
@@ -12399,7 +12399,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.0+898a1fd6",
+        revision: "Ember@1.13.0+a9b6ed0f",
         loc: program.loc,
         moduleName: options.moduleName
       };
