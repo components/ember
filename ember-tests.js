@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3254874c
+ * @version   2.0.0-canary+e2355a6c
  */
 
 (function() {
@@ -183,16 +183,16 @@ enifed('container/tests/container_helper', ['exports'], function (exports) {
   exports.factory = factory;
   exports.setProperties = setProperties;
 });
-enifed('container/tests/container_test', ['exports', 'container/tests/container_helper', 'container/registry'], function (exports, _containerTestsContainer_helper, _containerRegistry) {
+enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/container_helper'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsContainer_helper) {
 
   var originalModelInjections;
 
   QUnit.module('Container', {
     setup: function () {
-      originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
+      originalModelInjections = _emberMetalCore.default.MODEL_FACTORY_INJECTIONS;
     },
     teardown: function () {
-      Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -439,7 +439,7 @@ enifed('container/tests/container_test', ['exports', 'container/tests/container_
   });
 
   QUnit.test('Injecting a failed lookup raises an error', function () {
-    Ember.MODEL_FACTORY_INJECTIONS = true;
+    _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = true;
 
     var registry = new _containerRegistry.default();
     var container = registry.container();
@@ -707,16 +707,16 @@ enifed('container/tests/container_test', ['exports', 'container/tests/container_
     container.lookup('apple:main');
   });
 });
-enifed('container/tests/registry_test', ['exports', 'container/tests/container_helper', 'container'], function (exports, _containerTestsContainer_helper, _container) {
+enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'container', 'container/tests/container_helper'], function (exports, _emberMetalCore, _container, _containerTestsContainer_helper) {
 
   var originalModelInjections;
 
   QUnit.module('Registry', {
     setup: function () {
-      originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
+      originalModelInjections = _emberMetalCore.default.MODEL_FACTORY_INJECTIONS;
     },
     teardown: function () {
-      Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -2024,17 +2024,17 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
   });
 });
 // lookup, etc
-enifed('ember-application/tests/system/dependency_injection_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberApplicationSystemApplication) {
+enifed('ember-application/tests/system/dependency_injection_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberApplicationSystemApplication) {
 
   var EmberApplication = _emberApplicationSystemApplication.default;
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
   var registry, locator, lookup, application, originalModelInjections;
 
   QUnit.module('Ember.Application Dependency Injection', {
     setup: function () {
-      originalModelInjections = Ember.MODEL_FACTORY_INJECTIONS;
-      Ember.MODEL_FACTORY_INJECTIONS = true;
+      originalModelInjections = _emberMetalCore.default.MODEL_FACTORY_INJECTIONS;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = true;
 
       application = (0, _emberMetalRun_loop.default)(EmberApplication, 'create');
 
@@ -2053,13 +2053,13 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
       registry = application.registry;
       locator = application.__container__;
 
-      lookup = Ember.lookup = {};
+      lookup = _emberMetalCore.default.lookup = {};
     },
     teardown: function () {
       (0, _emberMetalRun_loop.default)(application, 'destroy');
       application = locator = null;
-      Ember.lookup = originalLookup;
-      Ember.MODEL_FACTORY_INJECTIONS = originalModelInjections;
+      _emberMetalCore.default.lookup = originalLookup;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = originalModelInjections;
     }
   });
 
@@ -2098,7 +2098,7 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
     ok(application.Email.detectInstance(user.get('communication')));
   });
 });
-enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry) {
+enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry) {
 
   var app;
 
@@ -2125,7 +2125,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
 
     expectAssertion(function () {
       (0, _emberMetalRun_loop.default)(function () {
-        MyApplication.initializer({ initialize: Ember.K });
+        MyApplication.initializer({ initialize: _emberMetalCore.default.K });
       });
     });
   });
@@ -2492,7 +2492,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     }, /`lookupFactory` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
   });
 });
-enifed('ember-application/tests/system/instance_initializers_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/system/jquery'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/instance_initializers_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
 
   var app, initializeContextFeatureEnabled;
 
@@ -2521,7 +2521,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
 
     expectAssertion(function () {
       (0, _emberMetalRun_loop.default)(function () {
-        MyApplication.instanceInitializer({ initialize: Ember.K });
+        MyApplication.instanceInitializer({ initialize: _emberMetalCore.default.K });
       });
     });
   });
@@ -2897,7 +2897,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     (0, _emberMetalRun_loop.default)(app, 'reset');
   });
 });
-enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-routing'], function (exports, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberRouting) {
+enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-routing'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberRouting) {
 
   var App, logs, originalLogger;
 
@@ -2905,9 +2905,9 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/r
     setup: function () {
       logs = {};
 
-      originalLogger = Ember.Logger.info;
+      originalLogger = _emberMetalCore.default.Logger.info;
 
-      Ember.Logger.info = function () {
+      _emberMetalCore.default.Logger.info = function () {
         var fullName = arguments[1].fullName;
 
         logs[fullName] = logs[fullName] || 0;
@@ -2932,7 +2932,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/r
     },
 
     teardown: function () {
-      Ember.Logger.info = originalLogger;
+      _emberMetalCore.default.Logger.info = originalLogger;
 
       (0, _emberMetalRun_loop.default)(App, 'destroy');
 
@@ -2975,7 +2975,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/r
     (0, _emberMetalRun_loop.default)(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
-      equal(Ember.keys(logs).length, 6, 'expected logs');
+      equal(_emberMetalCore.default.keys(logs).length, 6, 'expected logs');
     });
   });
 
@@ -3030,9 +3030,9 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/r
     setup: function () {
       logs = {};
 
-      originalLogger = Ember.Logger.info;
+      originalLogger = _emberMetalCore.default.Logger.info;
 
-      Ember.Logger.info = function () {
+      _emberMetalCore.default.Logger.info = function () {
         var fullName = arguments[1].fullName;
 
         logs[fullName] = logs[fullName] || 0;
@@ -3057,7 +3057,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/r
     },
 
     teardown: function () {
-      Ember.Logger.info = originalLogger;
+      _emberMetalCore.default.Logger.info = originalLogger;
 
       (0, _emberMetalRun_loop.default)(App, 'destroy');
 
@@ -3536,7 +3536,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/router', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRouter, _emberViewsViewsView, _emberTemplateCompilerSystemCompile) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/router', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRouter, _emberViewsViewsView, _emberTemplateCompilerSystemCompile) {
 
   function createApplication() {
     var App = _emberApplicationSystemApplication.default.extend().create({
@@ -3601,14 +3601,14 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/fea
         });
       });
 
-      assert.equal(Ember.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.equal(_emberMetalCore.default.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
       app.visit('/').then(function (instance) {
         QUnit.start();
         assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
 
         (0, _emberMetalRun_loop.default)(instance.view, 'appendTo', '#qunit-fixture');
-        assert.equal(Ember.$('#qunit-fixture > .ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+        assert.equal(_emberMetalCore.default.$('#qunit-fixture > .ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
 
         instance.destroy();
       }, function (error) {
@@ -3639,14 +3639,14 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/fea
         });
       });
 
-      assert.equal(Ember.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.equal(_emberMetalCore.default.$('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
       app.visit('/').then(function (instance) {
         QUnit.start();
         assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
 
         (0, _emberMetalRun_loop.default)(instance.view, 'appendTo', '#qunit-fixture');
-        assert.equal(Ember.$('#qunit-fixture > #my-cool-app h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
+        assert.equal(_emberMetalCore.default.$('#qunit-fixture > #my-cool-app h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
         assert.strictEqual(_emberViewsViewsView.default.views['my-cool-app'], undefined, 'view was not registered globally');
         ok(instance.container.lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
         ok(instance.container.lookup('-view-registry:main')['child-view'] instanceof _emberViewsViewsView.default, 'child view was registered on the instance\'s view registry');
@@ -5234,7 +5234,7 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/fea
 });
 
 // jscs:enable validateIndentation
-enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
 
   var view;
 
@@ -5270,7 +5270,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     appendView(view);
     equal(view.element.firstChild.maxLength, 5);
 
-    Ember.run(view, view.set, 'context.length', 1);
+    _emberMetalCore.default.run(view, view.set, 'context.length', 1);
     equal(view.element.firstChild.maxLength, 1);
   });
 
@@ -5284,10 +5284,10 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     equal(view.element.firstChild.maxLength, '5');
 
     if (canSetFalsyMaxLength()) {
-      Ember.run(view, view.set, 'context.length', null);
+      _emberMetalCore.default.run(view, view.set, 'context.length', null);
       equal(view.element.firstChild.maxLength, 0);
     } else {
-      Ember.run(view, view.set, 'context.length', 1);
+      _emberMetalCore.default.run(view, view.set, 'context.length', 1);
       equal(view.element.firstChild.maxLength, 1);
     }
   });
@@ -5300,7 +5300,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
 
     appendView(view);
 
-    Ember.run(view, view.set, 'context.items', [4, 5]);
+    _emberMetalCore.default.run(view, view.set, 'context.items', [4, 5]);
     ok(true, 'no legacy assertion prohibited setting an array');
   });
 });
@@ -5479,7 +5479,7 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
 /* globals EmberDev */
 
 // jscs:enable validateIndentation
-enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
+enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
 
   var view;
 
@@ -5509,7 +5509,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/feat
 
     (0, _htmlbarsTestHelpers.equalInnerHTML)(view.element, '<svg viewBox="' + viewBoxString + '"></svg>', 'attribute is output');
 
-    Ember.run(view, view.set, 'context.viewBoxString', null);
+    _emberMetalCore.default.run(view, view.set, 'context.viewBoxString', null);
     equal(view.element.getAttribute('svg'), null, 'attribute is removed');
   });
 
@@ -5535,7 +5535,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/feat
     (0, _htmlbarsTestHelpers.equalInnerHTML)(view.element, '<svg viewBox="0 0 ' + viewBoxString + '"></svg>', 'attribute is output');
 
     var newViewBoxString = '200 200';
-    Ember.run(view, view.set, 'context.viewBoxString', newViewBoxString);
+    _emberMetalCore.default.run(view, view.set, 'context.viewBoxString', newViewBoxString);
 
     (0, _htmlbarsTestHelpers.equalInnerHTML)(view.element, '<svg viewBox="0 0 ' + newViewBoxString + '"></svg>', 'attribute is output');
   });
@@ -5549,7 +5549,7 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/feat
 
     (0, _htmlbarsTestHelpers.equalInnerHTML)(view.element, '<svg class="blue tall"></svg>', 'attribute is output');
 
-    Ember.run(view, view.set, 'context.color', 'red');
+    _emberMetalCore.default.run(view, view.set, 'context.color', 'red');
 
     (0, _htmlbarsTestHelpers.equalInnerHTML)(view.element, '<svg class="red tall"></svg>', 'attribute is output');
   });
@@ -6178,7 +6178,7 @@ enifed('ember-htmlbars/tests/compat/make-view-helper_test', ['exports', 'ember-v
     equal(view.$().text(), 'woot!');
   });
 });
-enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat', 'ember-htmlbars/helpers/each'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberRuntimeSystemString, _emberHtmlbarsCompat, _emberHtmlbarsHelpersEach) {
+enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberRuntimeSystemString, _emberHtmlbarsCompat, _emberHtmlbarsHelpersEach) {
 
   var compile, helpers, helper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -6187,7 +6187,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
 
   var view;
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   function registerRepeatHelper() {
     expectDeprecationInHTMLBars();
@@ -6208,7 +6208,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
     setup: function () {},
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -6217,7 +6217,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
     expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
     view = _emberViewsViewsView.default.create({
-      prims: Ember.A(['string', 12]),
+      prims: _emberMetalCore.default.A(['string', 12]),
 
       template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
     });
@@ -6337,7 +6337,7 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
       return value.toUpperCase();
     });
 
-    Ember.lookup = { Text: 'ab' };
+    _emberMetalCore.default.lookup = { Text: 'ab' };
 
     view = _emberViewsViewsView.default.create({
       template: compile('{{capitalize Text}}')
@@ -6852,7 +6852,7 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-views
     equal(component.$().text(), text, 'view keyword is read');
   });
 });
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/core', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   var component, registry, container, warnings, originalWarn;
 
@@ -6863,8 +6863,8 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-runtim
       registry.optionsForType('helper', { instantiate: false });
 
       warnings = [];
-      originalWarn = Ember.warn;
-      Ember.warn = function (message, test) {
+      originalWarn = _emberMetalCore.default.warn;
+      _emberMetalCore.default.warn = function (message, test) {
         if (!test) {
           warnings.push(message);
         }
@@ -6874,7 +6874,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-runtim
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(container);
       (0, _emberRuntimeTestsUtils.runDestroy)(component);
-      Ember.warn = originalWarn;
+      _emberMetalCore.default.warn = originalWarn;
     }
   });
 
@@ -7571,13 +7571,13 @@ enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['exports', 'ember-metal/c
 /*jshint newcap:false*/
 
 // Ember.lookup
-enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-views/views/collection_view', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/jquery', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (exports, _emberViewsViewsCollection_view, _emberRuntimeSystemObject, _emberViewsViewsView, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsSystemJquery, _emberMetalComputed, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile) {
 
   var trim = _emberViewsSystemJquery.default.trim;
 
   var view;
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
   var TemplateTests, registry, container, lookup;
 
   function nthChild(view, nth) {
@@ -7592,7 +7592,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-views/
 
   QUnit.module('collection helper', {
     setup: function () {
-      Ember.lookup = lookup = {};
+      _emberMetalCore.default.lookup = lookup = {};
       lookup.TemplateTests = TemplateTests = _emberRuntimeSystemNamespace.default.create();
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
@@ -7606,7 +7606,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-views/
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       registry = container = view = null;
 
-      Ember.lookup = lookup = originalLookup;
+      _emberMetalCore.default.lookup = lookup = originalLookup;
       TemplateTests = null;
     }
   });
@@ -8224,7 +8224,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-views/
   });
 });
 /*jshint newcap:false*/
-enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/features', 'ember-views/component_lookup', 'container/registry', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-views/views/component'], function (exports, _emberMetalFeatures, _emberViewsComponent_lookup, _containerRegistry, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalProperty_set, _emberMetalProperty_get, _emberViewsViewsComponent) {
+enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile) {
 
   var view, registry, container;
 
@@ -8258,7 +8258,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
     (0, _emberRuntimeTestsUtils.runAppend)(view);
     equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       (0, _emberMetalProperty_set.set)(view, 'dynamicComponent', 'baz-qux');
       (0, _emberMetalProperty_set.set)(view, 'location', 'Loisaida');
     });
@@ -8298,14 +8298,14 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
     equal(currentComponent, 'foo-bar', 'precond - instantiates the proper component');
     equal(destroyCalls, 0, 'precond - nothing destroyed yet');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       (0, _emberMetalProperty_set.set)(view, 'dynamicComponent', 'baz-qux');
     });
 
     equal(currentComponent, 'baz-qux', 'changing bound value instantiates the proper component');
     equal(destroyCalls, 1, 'prior component should be destroyed');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       (0, _emberMetalProperty_set.set)(view, 'dynamicComponent', 'foo-bar');
     });
 
@@ -8315,7 +8315,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
 
   QUnit.test('component helper with actions', function () {
     registry.register('template:components/foo-bar', (0, _emberTemplateCompilerSystemCompile.default)('yippie! {{yield}}'));
-    registry.register('component:foo-bar', Ember.Component.extend({
+    registry.register('component:foo-bar', _emberMetalCore.default.Component.extend({
       classNames: 'foo-bar',
       didInsertElement: function () {
         // trigger action on click in absence of app's EventDispatcher
@@ -8330,7 +8330,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
     }));
 
     var actionTriggered = 0;
-    var controller = Ember.Controller.extend({
+    var controller = _emberMetalCore.default.Controller.extend({
       dynamicComponent: 'foo-bar',
       actions: {
         mappedAction: function () {
@@ -8345,7 +8345,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
     });
 
     (0, _emberRuntimeTestsUtils.runAppend)(view);
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       view.$('.foo-bar').trigger('click');
     });
     equal(actionTriggered, 1, 'action was triggered');
@@ -8354,7 +8354,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
   QUnit.test('component helper maintains expected logical parentView', function () {
     registry.register('template:components/foo-bar', (0, _emberTemplateCompilerSystemCompile.default)('yippie! {{yield}}'));
     var componentInstance;
-    registry.register('component:foo-bar', Ember.Component.extend({
+    registry.register('component:foo-bar', _emberMetalCore.default.Component.extend({
       didInsertElement: function () {
         componentInstance = this;
       }
@@ -8386,7 +8386,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
     (0, _emberRuntimeTestsUtils.runAppend)(view);
     equal(view.$().text(), 'yippie! Caracas yummy Caracas arepas!', 'components were looked up and rendered');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       (0, _emberMetalProperty_set.set)(view, 'dynamicComponent1', 'corge-grault');
       (0, _emberMetalProperty_set.set)(view, 'location', 'Loisaida');
     });
@@ -8433,7 +8433,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/f
 
     equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       (0, _emberMetalProperty_set.set)(view, 'dynamicComponent', undefined);
     });
 
@@ -8578,7 +8578,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_
     equal(component.$().text(), 'False');
   });
 });
-enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup'], function (exports, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup) {
+enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup) {
 
   var registry = undefined,
       container = undefined,
@@ -8867,7 +8867,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     equal(component.$().text(), 'Who overcomes by force hath overcome but half his foe');
 
     phrase = 'believes his';
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       helper.recompute();
     });
 
@@ -8892,7 +8892,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
       }
     });
     registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
-    registry.register('component:some-component', Ember.Component.extend({
+    registry.register('component:some-component', _emberMetalCore.default.Component.extend({
       layout: (0, _emberTemplateCompilerSystemCompile.default)('{{first}} {{second}} {{third}} {{fourth}} {{fifth}}')
     }));
     registry.register('helper:dynamic-segment', DynamicSegment);
@@ -8907,7 +8907,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-vie
     equal(component.$().text(), 'Who overcomes by force hath overcome but half his foe');
 
     phrase = 'believes his';
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       helper.recompute();
     });
 
@@ -10391,7 +10391,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 });
 /*jshint newcap:false*/
 // Ember.lookup;
-enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView) {
 
   var view, registry, container;
 
@@ -10405,7 +10405,7 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/feature
     },
     teardown: function () {
       (0, _emberMetalRun_loop.default)(function () {
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
       });
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       (0, _emberRuntimeTestsUtils.runDestroy)(container);
@@ -10680,15 +10680,15 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/feature
 });
 
 // jscs:enable validateIndentation
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeSystemString, _emberRuntimeUtils, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeSystemString, _emberRuntimeUtils, _emberRuntimeTestsUtils) {
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   var view, lookup, registry, container, TemplateTests;
 
   QUnit.module('ember-htmlbars: {{#if}} and {{#unless}} helpers', {
     setup: function () {
-      Ember.lookup = lookup = {};
+      _emberMetalCore.default.lookup = lookup = {};
       lookup.TemplateTests = TemplateTests = _emberRuntimeSystemNamespace.default.create();
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
@@ -10701,7 +10701,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       registry = container = view = null;
 
-      Ember.lookup = lookup = originalLookup;
+      _emberMetalCore.default.lookup = lookup = originalLookup;
       TemplateTests = null;
     }
   });
@@ -10817,16 +10817,16 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
   }
 
   QUnit.test('The `if` helper updates if an array is empty or not', function () {
-    testIfArray(Ember.A());
+    testIfArray(_emberMetalCore.default.A());
   });
 
   QUnit.test('The `if` helper updates if an array-like object is empty or not', function () {
-    testIfArray(_emberRuntimeSystemArray_proxy.default.create({ content: Ember.A([]) }));
+    testIfArray(_emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A([]) }));
   });
 
   QUnit.test('The `unless` helper updates if an array-like object is empty or not', function () {
     view = _emberViewsViewsView.default.create({
-      array: _emberRuntimeSystemArray_proxy.default.create({ content: Ember.A([]) }),
+      array: _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A([]) }),
 
       template: (0, _emberTemplateCompilerSystemCompile.default)('{{#unless view.array}}Yep{{/unless}}')
     });
@@ -11282,13 +11282,13 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
     });
 
     (0, _emberRuntimeTestsUtils.runAppend)(view);
-    equal(Ember.$('#qunit-fixture').text(), '');
+    equal(_emberMetalCore.default.$('#qunit-fixture').text(), '');
 
     (0, _emberMetalRun_loop.default)(function () {
       view.set('cond2', true);
     });
 
-    equal(Ember.$('#qunit-fixture').text(), 'test');
+    equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'test');
   });
 
   QUnit.test('`if` helper with inline form: renders the second argument when conditional is truthy', function () {
@@ -11462,7 +11462,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
 
   QUnit.test('`if` helper with inline form: respects isTruthy when object changes', function () {
     view = _emberViewsViewsView.default.create({
-      conditional: Ember.Object.create({ isTruthy: false }),
+      conditional: _emberMetalCore.default.Object.create({ isTruthy: false }),
       template: (0, _emberTemplateCompilerSystemCompile.default)('{{if view.conditional "truthy" "falsy"}}')
     });
 
@@ -11471,20 +11471,20 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
     equal(view.$().text(), 'falsy');
 
     (0, _emberMetalRun_loop.default)(function () {
-      view.set('conditional', Ember.Object.create({ isTruthy: true }));
+      view.set('conditional', _emberMetalCore.default.Object.create({ isTruthy: true }));
     });
 
     equal(view.$().text(), 'truthy');
 
     (0, _emberMetalRun_loop.default)(function () {
-      view.set('conditional', Ember.Object.create({ isTruthy: false }));
+      view.set('conditional', _emberMetalCore.default.Object.create({ isTruthy: false }));
     });
 
     equal(view.$().text(), 'falsy');
   });
 
   QUnit.test('`if` helper with inline form: respects isTruthy when property changes', function () {
-    var candidate = Ember.Object.create({ isTruthy: false });
+    var candidate = _emberMetalCore.default.Object.create({ isTruthy: false });
 
     view = _emberViewsViewsView.default.create({
       conditional: candidate,
@@ -11509,7 +11509,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/f
   });
 
   QUnit.test('`if` helper with inline form: respects length test when list content changes', function () {
-    var list = Ember.A();
+    var list = _emberMetalCore.default.A();
 
     view = _emberViewsViewsView.default.create({
       conditional: list,
@@ -12057,7 +12057,7 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
     equal(view.element.childNodes[1].getAttribute('placeholder'), 'foo', 'attribute is present');
   });
 });
-enifed('ember-htmlbars/tests/helpers/loc_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/loc_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   function buildView(template, context) {
     return _emberViewsViewsView.default.create({
@@ -12070,14 +12070,14 @@ enifed('ember-htmlbars/tests/helpers/loc_test', ['exports', 'ember-views/views/v
 
   QUnit.module('ember-htmlbars: {{#loc}} helper', {
     setup: function () {
-      oldString = Ember.STRINGS;
-      Ember.STRINGS = {
+      oldString = _emberMetalCore.default.STRINGS;
+      _emberMetalCore.default.STRINGS = {
         '_Howdy Friend': 'Hallo Freund'
       };
     },
 
     teardown: function () {
-      Ember.STRINGS = oldString;
+      _emberMetalCore.default.STRINGS = oldString;
     }
   });
 
@@ -12173,15 +12173,15 @@ enifed('ember-htmlbars/tests/helpers/log_test', ['exports', 'ember-metal/core', 
     equal(logCalls[0], 'one', 'should call log with item one');
   });
 });
-enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemJquery, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemJquery, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   var trim = _emberViewsSystemJquery.default.trim;
 
   var MyApp, lookup, view, registry, container;
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   QUnit.module('Support for {{partial}} helper', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
       MyApp = lookup.MyApp = _emberRuntimeSystemObject.default.create({});
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
@@ -12189,7 +12189,7 @@ enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-runtime/s
     },
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -12263,15 +12263,15 @@ enifed('ember-htmlbars/tests/helpers/partial_test', ['exports', 'ember-runtime/s
     equal(trim(view.$().text()), 'This  is pretty great.');
   });
 });
-enifed('ember-htmlbars/tests/helpers/template_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/keywords/template'], function (exports, _emberViewsViewsView, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsKeywordsTemplate) {
+enifed('ember-htmlbars/tests/helpers/template_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/keywords/template'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsKeywordsTemplate) {
   var trim = _emberViewsSystemJquery.default.trim;
 
   var MyApp, lookup, view, registry, container;
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   QUnit.module('Support for {{template}} helper', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
       MyApp = lookup.MyApp = _emberRuntimeSystemObject.default.create({});
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
@@ -12281,7 +12281,7 @@ enifed('ember-htmlbars/tests/helpers/template_test', ['exports', 'ember-views/vi
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       (0, _emberRuntimeTestsUtils.runDestroy)(container);
       registry = container = view = null;
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -12930,7 +12930,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
 
 // leave this as an empty function until we are ready to use it
 // to enforce deprecation notice for old Handlebars versions
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberViewsViewsView, _emberViewsViewsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsSystemMake_bound_helper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsSystemMake_bound_helper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed) {
 
   var view, originalLookup, registry, container, lookup;
 
@@ -12953,8 +12953,8 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
 
   QUnit.module('ember-htmlbars: {{#view}} helper', {
     setup: function () {
-      originalLookup = Ember.lookup;
-      Ember.lookup = lookup = {};
+      originalLookup = _emberMetalCore.default.lookup;
+      _emberMetalCore.default.lookup = lookup = {};
 
       registry = new _containerRegistry.default();
       container = registry.container();
@@ -12968,7 +12968,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       registry = container = view = null;
 
-      Ember.lookup = lookup = originalLookup;
+      _emberMetalCore.default.lookup = lookup = originalLookup;
     }
   });
 
@@ -13033,7 +13033,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
   });
 
   QUnit.test('View lookup - App.FuView (DEPRECATED)', function () {
-    Ember.lookup = {
+    _emberMetalCore.default.lookup = {
       App: {
         FuView: viewClass({
           elementId: 'fu',
@@ -13141,9 +13141,9 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
 
     expect(2);
 
-    var oldWarn = Ember.warn;
+    var oldWarn = _emberMetalCore.default.warn;
 
-    Ember.warn = function (msg, disableWarning) {
+    _emberMetalCore.default.warn = function (msg, disableWarning) {
       if (!disableWarning) {
         ok(msg.match(/You're attempting to render a view by passing borfBinding.+, but this syntax is ambiguous./));
       }
@@ -13163,7 +13163,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
 
     equal((0, _emberViewsSystemJquery.default)('#lol').text(), 'nerd', 'awkward mixed syntax treated like binding');
 
-    Ember.warn = oldWarn;
+    _emberMetalCore.default.warn = oldWarn;
   });
 
   QUnit.test('"Binding"-suffixed bindings are runloop-synchronized [DEPRECATED]', function () {
@@ -13280,7 +13280,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
 
   QUnit.test('Should apply class without condition always', function () {
     view = _emberViewsViewsView.default.create({
-      controller: Ember.Object.create(),
+      controller: _emberMetalCore.default.Object.create(),
       template: (0, _emberTemplateCompilerSystemCompile.default)('{{#view id="foo" classBinding=":foo"}} Foo{{/view}}')
     });
 
@@ -14370,15 +14370,15 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-views/views/
   });
 });
 /*globals EmberDev */
-enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalProperty_set, _emberMetalProperty_get, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalProperty_set, _emberMetalProperty_get, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   var view, lookup;
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   function testWithAs(moduleName, templateString, deprecated) {
     QUnit.module(moduleName, {
       setup: function () {
-        Ember.lookup = lookup = { Ember: Ember };
+        _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
         var template;
         if (deprecated) {
@@ -14402,7 +14402,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
       teardown: function () {
         (0, _emberRuntimeTestsUtils.runDestroy)(view);
-        Ember.lookup = originalLookup;
+        _emberMetalCore.default.lookup = originalLookup;
       }
     });
 
@@ -14443,13 +14443,13 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('Multiple Handlebars {{with foo as bar}} helpers', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
     },
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
 
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14495,7 +14495,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('Handlebars {{#with}} globals helper [DEPRECATED]', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
       lookup.Foo = { bar: 'baz' };
       view = _emberViewsViewsView.default.create({
@@ -14505,7 +14505,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14809,7 +14809,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('{{#with}} helper binding to view keyword', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
       view = _emberViewsViewsView.default.create({
         template: (0, _emberTemplateCompilerSystemCompile.default)('We have: {{#with view.thing as |fromView|}}{{fromView.name}} and {{fromContext.name}}{{/with}}'),
@@ -14824,7 +14824,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14836,12 +14836,12 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('Multiple Handlebars {{with foo as |bar|}} helpers', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
     },
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14899,7 +14899,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('{{#with}} inverse template', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
       view = _emberViewsViewsView.default.create({
         template: (0, _emberTemplateCompilerSystemCompile.default)('{{#with view.falsyThing as |thing|}}Has Thing{{else}}No Thing{{/with}}'),
@@ -14911,7 +14911,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14928,7 +14928,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
   QUnit.module('{{#with}} inverse template preserves context', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
       view = _emberViewsViewsView.default.create({
         template: (0, _emberTemplateCompilerSystemCompile.default)('{{#with falsyThing as |thing|}}Has Thing{{else}}No Thing {{otherThing}}{{/with}}'),
@@ -14943,7 +14943,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
 
     teardown: function () {
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -14952,7 +14952,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-views/views/
   });
 });
 /*jshint newcap:false*/
-enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberViewsViewsComponent, _emberHtmlbarsHelpers, _emberHtmlbarsSystemMakeViewHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-htmlbars/helpers', 'ember-htmlbars/system/make-view-helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberViewsViewsComponent, _emberHtmlbarsHelpers, _emberHtmlbarsSystemMakeViewHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   var view, registry, container;
 
@@ -14964,7 +14964,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/run_l
     },
     teardown: function () {
       (0, _emberMetalRun_loop.default)(function () {
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
       });
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       (0, _emberRuntimeTestsUtils.runDestroy)(container);
@@ -15489,7 +15489,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 });
-enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set) {
+enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set) {
 
   var view, MyApp, originalLookup, lookup;
 
@@ -15497,14 +15497,14 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
 
   QUnit.module('ember-htmlbars: binding integration', {
     setup: function () {
-      originalLookup = Ember.lookup;
-      Ember.lookup = lookup = {};
+      originalLookup = _emberMetalCore.default.lookup;
+      _emberMetalCore.default.lookup = lookup = {};
 
       MyApp = lookup.MyApp = _emberRuntimeSystemObject.default.create({});
     },
 
     teardown: function () {
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
 
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
       view = null;
@@ -15787,7 +15787,7 @@ enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports',
     ok(/^ember/.test(foundId), 'Has a reasonable id attribute (found id=' + foundId + ').');
   });
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop) {
 
   var registry, container, view;
 
@@ -15960,7 +15960,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
     equal(willUpdate, 1, 'The willUpdate hook fired once');
 
-    Ember.run(view, 'rerender');
+    _emberMetalCore.default.run(view, 'rerender');
 
     equal((0, _emberViewsSystemJquery.default)('#qunit-fixture').text(), 'In layout - someProp: tomdale');
     equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
@@ -16444,19 +16444,19 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
       value: 1,
-      grabReference: Ember.on('init', function () {
+      grabReference: _emberMetalCore.default.on('init', function () {
         outer = this;
       })
     }));
 
     registry.register('component:x-middle', _emberViewsViewsComponent.default.extend({
-      grabReference: Ember.on('init', function () {
+      grabReference: _emberMetalCore.default.on('init', function () {
         middle = this;
       })
     }));
 
     registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
-      pushDataUp: Ember.observer('value', function () {
+      pushDataUp: _emberMetalCore.default.observer('value', function () {
         middle.set('value', this.get('value'));
       })
     }));
@@ -16576,21 +16576,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
       value: 1,
-      grabReference: Ember.on('init', function () {
+      grabReference: _emberMetalCore.default.on('init', function () {
         outer = this;
       })
     }));
 
     registry.register('component:x-middle', _emberViewsViewsComponent.default.extend({
       value: null,
-      grabReference: Ember.on('init', function () {
+      grabReference: _emberMetalCore.default.on('init', function () {
         middle = this;
       })
     }));
 
     registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
       value: null,
-      pushDataUp: Ember.observer('value', function () {
+      pushDataUp: _emberMetalCore.default.observer('value', function () {
         middle.set('value', this.get('value'));
       })
     }));
@@ -16630,7 +16630,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     registry.register('template:components/non-block', (0, _emberTemplateCompilerSystemCompile.default)('In layout. {{#each attrs.items as |item|}}[{{child-non-block item=item}}]{{/each}}'));
     registry.register('template:components/child-non-block', (0, _emberTemplateCompilerSystemCompile.default)('Child: {{attrs.item}}.'));
 
-    var items = Ember.A(['Tom', 'Dick', 'Harry']);
+    var items = _emberMetalCore.default.A(['Tom', 'Dick', 'Harry']);
 
     view = _emberViewsViewsView.default.extend({
       template: (0, _emberTemplateCompilerSystemCompile.default)('{{non-block items=view.items}}'),
@@ -16773,7 +16773,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(didReceiveAttrs, 2, 'The didReceiveAttrs hook fired again');
       equal(willUpdate, 1, 'The willUpdate hook fired once');
 
-      Ember.run(view, 'rerender');
+      _emberMetalCore.default.run(view, 'rerender');
 
       equal((0, _emberViewsSystemJquery.default)('#qunit-fixture').text(), 'In layout - someProp: tomdale');
       equal(didReceiveAttrs, 3, 'The didReceiveAttrs hook fired again');
@@ -17809,7 +17809,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 });
 
 //import jQuery from "ember-views/system/jquery";
-enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberMetalComputed, _emberRuntimeSystemNamespace, _emberRuntimeControllersArray_controller, _emberRuntimeSystemArray_proxy, _emberViewsViewsSelect, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberMetalComputed, _emberRuntimeSystemNamespace, _emberRuntimeControllersArray_controller, _emberRuntimeSystemArray_proxy, _emberViewsViewsSelect, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   var dispatcher, view;
 
@@ -17842,7 +17842,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     var application = _emberRuntimeSystemNamespace.default.create();
 
     application.peopleController = _emberRuntimeControllersArray_controller.default.create({
-      content: Ember.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
+      content: _emberMetalCore.default.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
     });
 
     application.selectedPersonController = _emberRuntimeSystemObject.default.create({
@@ -17893,7 +17893,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     var application = _emberRuntimeSystemNamespace.default.create();
 
     application.peopleController = _emberRuntimeControllersArray_controller.default.create({
-      content: Ember.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
+      content: _emberMetalCore.default.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
     });
 
     application.selectedPersonController = _emberRuntimeSystemObject.default.create({
@@ -17928,8 +17928,8 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
   });
 
   QUnit.test('upon content change, the DOM should reflect the selection (#481)', function () {
-    var userOne = { name: 'Mike', options: Ember.A(['a', 'b']), selectedOption: 'a' };
-    var userTwo = { name: 'John', options: Ember.A(['c', 'd']), selectedOption: 'd' };
+    var userOne = { name: 'Mike', options: _emberMetalCore.default.A(['a', 'b']), selectedOption: 'a' };
+    var userTwo = { name: 'John', options: _emberMetalCore.default.A(['c', 'd']), selectedOption: 'd' };
 
     view = _emberViewsViewsView.default.create({
       user: userOne,
@@ -17958,7 +17958,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     var sylvain = { id: 5, name: 'Sylvain' };
 
     var proxy = _emberRuntimeSystemArray_proxy.default.create({
-      content: Ember.A(),
+      content: _emberMetalCore.default.A(),
       selectedOption: sylvain
     });
 
@@ -17976,7 +17976,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     equal(selectEl.selectedIndex, -1, 'Precond: The DOM reflects the lack of selection');
 
     (0, _emberMetalRun_loop.default)(function () {
-      proxy.set('content', Ember.A([tom, sylvain]));
+      proxy.set('content', _emberMetalCore.default.A([tom, sylvain]));
     });
 
     equal(select.get('selection'), sylvain, 'Selection was properly set after content change');
@@ -17985,7 +17985,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
   function testValueBinding(templateString) {
     view = _emberViewsViewsView.default.create({
-      collection: Ember.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
+      collection: _emberMetalCore.default.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
       val: 'g',
       selectView: _emberViewsViewsSelect.default,
       template: (0, _emberTemplateCompilerSystemCompile.default)(templateString)
@@ -18021,7 +18021,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
   function testSelectionBinding(templateString) {
     view = _emberViewsViewsView.default.create({
-      collection: Ember.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
+      collection: _emberMetalCore.default.A([{ name: 'Wes', value: 'w' }, { name: 'Gordon', value: 'g' }]),
       selection: { name: 'Gordon', value: 'g' },
       selectView: _emberViewsViewsSelect.default,
       template: (0, _emberTemplateCompilerSystemCompile.default)(templateString)
@@ -18061,10 +18061,10 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     var templateString = '{{view view.selectView viewName="select"' + '    content=view.collection' + '    optionLabelPath="content.name"' + '    optionValuePath="content.val"' + '    prompt="Please wait..."' + '    selection=view.selection}}';
 
     view = _emberViewsViewsView.default.create({
-      collection: Ember.A([{ name: 'Wes', val: 'w' }, { name: 'Gordon', val: 'g' }]),
+      collection: _emberMetalCore.default.A([{ name: 'Wes', val: 'w' }, { name: 'Gordon', val: 'g' }]),
       selection: { name: 'Gordon', val: 'g' },
       selectView: _emberViewsViewsSelect.default,
-      template: Ember.Handlebars.compile(templateString)
+      template: _emberMetalCore.default.Handlebars.compile(templateString)
     });
 
     (0, _emberMetalRun_loop.default)(function () {
@@ -18089,7 +18089,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     equal(select.$('option:eq(1)').prop('selected'), true, 'selected property is set to proper option');
   });
 });
-enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/compat', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsCompat, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-htmlbars/compat', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberHtmlbarsCompat, _emberRuntimeTestsUtils) {
 
   var view;
   var compile = _emberHtmlbarsCompat.default.compile;
@@ -18103,7 +18103,7 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports
   QUnit.test('can insert new child views after initial tagless view rendering', function () {
     view = _emberViewsViewsView.default.create({
       shouldShow: false,
-      array: Ember.A([1]),
+      array: _emberMetalCore.default.A([1]),
 
       template: compile('{{#if view.shouldShow}}{{#each view.array as |item|}}{{item}}{{/each}}{{/if}}')
     });
@@ -18128,7 +18128,7 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports
   QUnit.test('can remove child views after initial tagless view rendering', function () {
     view = _emberViewsViewsView.default.create({
       shouldShow: false,
-      array: Ember.A([]),
+      array: _emberMetalCore.default.A([]),
 
       template: compile('{{#if view.shouldShow}}{{#each view.array as |item|}}{{item}}{{/each}}{{/if}}')
     });
@@ -18519,20 +18519,20 @@ enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'em
     equal(view.$().text(), 'controller context - view local controller context');
   });
 });
-enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/system/bootstrap'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsSystemBootstrap) {
+enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-htmlbars/system/bootstrap'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberMetalRun_loop, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberHtmlbarsSystemBootstrap) {
 
   var trim = _emberViewsSystemJquery.default.trim;
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
   var lookup, App, view;
 
   QUnit.module('ember-htmlbars: bootstrap', {
     setup: function () {
-      Ember.lookup = lookup = { Ember: Ember };
+      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
     },
     teardown: function () {
-      Ember.TEMPLATES = {};
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.TEMPLATES = {};
+      _emberMetalCore.default.lookup = originalLookup;
       (0, _emberRuntimeTestsUtils.runDestroy)(App);
       (0, _emberRuntimeTestsUtils.runDestroy)(view);
     }
@@ -18542,7 +18542,7 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-views/sy
     (0, _emberMetalRun_loop.default)(function () {
       (0, _emberHtmlbarsSystemBootstrap.default)((0, _emberViewsSystemJquery.default)('#qunit-fixture'));
     });
-    var template = Ember.TEMPLATES[templateName];
+    var template = _emberMetalCore.default.TEMPLATES[templateName];
     ok(template, 'template is available on Ember.TEMPLATES');
     equal((0, _emberViewsSystemJquery.default)('#qunit-fixture script').length, 0, 'script removed');
     var view = _emberViewsViewsView.default.create({
@@ -18585,10 +18585,10 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-views/sy
         (0, _emberHtmlbarsSystemBootstrap.default)((0, _emberViewsSystemJquery.default)('#qunit-fixture'));
       });
 
-      ok(Ember.TEMPLATES['funkyTemplate'], 'template with name funkyTemplate available');
+      ok(_emberMetalCore.default.TEMPLATES['funkyTemplate'], 'template with name funkyTemplate available');
 
       // This won't even work with Ember templates
-      equal(trim(Ember.TEMPLATES['funkyTemplate']({ name: 'Tobias' })), 'Tobias');
+      equal(trim(_emberMetalCore.default.TEMPLATES['funkyTemplate']({ name: 'Tobias' })), 'Tobias');
     });
   }
 
@@ -18632,34 +18632,34 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-views/sy
     }, /Template named "[^"]+" already exists\./, 'duplicate templates should not be allowed');
   });
 
-  if (Ember.component) {
+  if (_emberMetalCore.default.component) {
     QUnit.test('registerComponents initializer', function () {
-      Ember.TEMPLATES['components/x-apple'] = 'asdf';
+      _emberMetalCore.default.TEMPLATES['components/x-apple'] = 'asdf';
 
-      App = (0, _emberMetalRun_loop.default)(Ember.Application, 'create');
+      App = (0, _emberMetalRun_loop.default)(_emberMetalCore.default.Application, 'create');
 
-      ok(Ember.Handlebars.helpers['x-apple'], 'x-apple helper is present');
+      ok(_emberMetalCore.default.Handlebars.helpers['x-apple'], 'x-apple helper is present');
       ok(App.__container__.has('component:x-apple'), 'the container is aware of x-apple');
     });
 
     QUnit.test('registerComponents and generated components', function () {
-      Ember.TEMPLATES['components/x-apple'] = 'asdf';
+      _emberMetalCore.default.TEMPLATES['components/x-apple'] = 'asdf';
 
-      App = (0, _emberMetalRun_loop.default)(Ember.Application, 'create');
+      App = (0, _emberMetalRun_loop.default)(_emberMetalCore.default.Application, 'create');
       view = App.__container__.lookup('component:x-apple');
       equal(view.get('layoutName'), 'components/x-apple', 'has correct layout name');
     });
 
     QUnit.test('registerComponents and non-generated components', function () {
-      Ember.TEMPLATES['components/x-apple'] = 'asdf';
+      _emberMetalCore.default.TEMPLATES['components/x-apple'] = 'asdf';
 
       (0, _emberMetalRun_loop.default)(function () {
-        App = Ember.Application.create();
+        App = _emberMetalCore.default.Application.create();
 
         // currently Component code must be loaded before initializers
         // this is mostly due to how they are bootstrapped. We will hopefully
         // sort this out soon.
-        App.XAppleComponent = Ember.Component.extend({
+        App.XAppleComponent = _emberMetalCore.default.Component.extend({
           isCorrect: true
         });
       });
@@ -19793,7 +19793,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
   });
 });
-enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
+enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
 
   var obj;
   var moduleOpts = {
@@ -19869,7 +19869,7 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-me
   //
 
   QUnit.test('[obj, Foo] -> [Ember.lookup, Foo]', function () {
-    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(obj, 'Foo'), [Ember.lookup, 'Foo']);
+    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(obj, 'Foo'), [_emberMetalCore.default.lookup, 'Foo']);
   });
 
   QUnit.test('[obj, Foo.bar] -> [Foo, bar]', function () {
@@ -19885,7 +19885,7 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-me
   //
 
   QUnit.test('[null, Foo] -> [Ember.lookup, Foo]', function () {
-    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(null, 'Foo'), [Ember.lookup, 'Foo']);
+    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(null, 'Foo'), [_emberMetalCore.default.lookup, 'Foo']);
   });
 
   QUnit.test('[null, Foo.bar] -> [Foo, bar]', function () {
@@ -19901,7 +19901,7 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-me
   });
 
   QUnit.test('[null, $foo] -> [Ember.lookup, $foo]', function () {
-    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(null, '$foo'), [Ember.lookup, '$foo']);
+    deepEqual((0, _emberMetalProperty_get.normalizeTuple)(null, '$foo'), [_emberMetalCore.default.lookup, '$foo']);
   });
 
   QUnit.test('[null, $foo.bar] -> [$foo, bar]', function () {
@@ -19909,9 +19909,9 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-me
   });
 });
 /*globals Foo:true, $foo:true */
-enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get) {
+enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get) {
 
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   var obj;
   function commonSetup() {
@@ -19923,7 +19923,7 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
       }
     };
 
-    Ember.lookup = {
+    _emberMetalCore.default.lookup = {
       Foo: {
         bar: {
           baz: { biff: 'FooBiff' }
@@ -19940,7 +19940,7 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
 
   function commonTeardown() {
     obj = null;
-    Ember.lookup = originalLookup;
+    _emberMetalCore.default.lookup = originalLookup;
   }
 
   QUnit.module('set with path', {
@@ -19949,12 +19949,12 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[Foo, bar] -> Foo.bar', function () {
-    Ember.lookup.Foo = { toString: function () {
+    _emberMetalCore.default.lookup.Foo = { toString: function () {
         return 'Foo';
       } }; // Behave like an Ember.Namespace
 
-    (0, _emberMetalProperty_set.set)(Ember.lookup.Foo, 'bar', 'baz');
-    equal((0, _emberMetalProperty_get.get)(Ember.lookup.Foo, 'bar'), 'baz');
+    (0, _emberMetalProperty_set.set)(_emberMetalCore.default.lookup.Foo, 'bar', 'baz');
+    equal((0, _emberMetalProperty_get.get)(_emberMetalCore.default.lookup.Foo, 'bar'), 'baz');
   });
 
   // ..........................................................
@@ -19987,7 +19987,7 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
 
   QUnit.test('[null, Foo.bar] -> Foo.bar', function () {
     (0, _emberMetalProperty_set.set)(null, 'Foo.bar', 'BAM');
-    equal((0, _emberMetalProperty_get.get)(Ember.lookup.Foo, 'bar'), 'BAM');
+    equal((0, _emberMetalProperty_get.get)(_emberMetalCore.default.lookup.Foo, 'bar'), 'BAM');
   });
 
   // ..........................................................
@@ -21487,12 +21487,13 @@ enifed('ember-metal/tests/core/inspect_test', ['exports', 'ember-metal/utils'], 
     ok(inspected.match(/13:24:11/), 'The inspected date has its time');
   });
 });
-enifed('ember-metal/tests/error_test', ['exports'], function (exports) {
+enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
+
   QUnit.module('Ember Error Throwing');
 
   QUnit.test('new Ember.Error displays provided message', function () {
     throws(function () {
-      throw new Ember.Error('A Message');
+      throw new _emberMetalCore.default.Error('A Message');
     }, function (e) {
       return e.message === 'A Message';
     }, 'the assigned message was displayed');
@@ -22406,7 +22407,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     deepEqual((0, _emberMetalKeys.default)(beer), ['type']);
   });
 });
-enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalFeatures, _emberMetalLibraries) {
+enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalLibraries) {
 
   var libs, registry;
 
@@ -22465,10 +22466,10 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/features', '
 
     expect(1);
 
-    var oldWarn = Ember.warn;
+    var oldWarn = _emberMetalCore.default.warn;
     libs.register('magic', 1.23);
 
-    Ember.warn = function (msg, test) {
+    _emberMetalCore.default.warn = function (msg, test) {
       if (!test) {
         equal(msg, 'Library "magic" is already registered with Ember.');
       }
@@ -22477,7 +22478,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/features', '
     // Should warn us
     libs.register('magic', 2.23);
 
-    Ember.warn = oldWarn;
+    _emberMetalCore.default.warn = oldWarn;
   });
 
   QUnit.test('libraries can be de-registered', function () {
@@ -23555,7 +23556,7 @@ enifed('ember-metal/tests/mixin/introspection_test', ['exports', 'ember-metal/ut
 // NOTE: A previous iteration differentiated between public and private props
 // as well as methods vs props.  We are just keeping these for testing; the
 // current impl doesn't care about the differences as much...
-enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalMixin) {
+enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin) {
 
   QUnit.module('Mixin mergedProperties');
 
@@ -23644,7 +23645,7 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
 
   QUnit.test('mergedProperties should exist even if not explicitly set on create', function () {
 
-    var AnObj = Ember.Object.extend({
+    var AnObj = _emberMetalCore.default.Object.extend({
       mergedProperties: ['options'],
       options: {
         a: 'a',
@@ -27715,7 +27716,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     equal(arr.length, 10, 'property should be accessible on arr');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils) {
 
   var innerComponent, outerComponent;
 
@@ -28143,7 +28144,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = Ember.Component.extend({
+    innerComponent = _emberMetalCore.default.Component.extend({
       middleComponent: middleComponent,
 
       fireAction: function () {
@@ -29459,7 +29460,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     equal(view.$().text(), 'Text');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils) {
 
   var trim = _emberViewsSystemJquery.default.trim;
 
@@ -29729,7 +29730,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-me
   QUnit.test('{{outlet}} should work with an unquoted name', function () {
     var routerState = {
       render: {
-        controller: Ember.Controller.create({
+        controller: _emberMetalCore.default.Controller.create({
           outletName: 'magical'
         }),
         template: (0, _emberTemplateCompilerSystemCompile.default)('{{outlet outletName}}')
@@ -29748,7 +29749,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-me
   QUnit.test('{{outlet}} should rerender when bound name changes', function () {
     var routerState = {
       render: {
-        controller: Ember.Controller.create({
+        controller: _emberMetalCore.default.Controller.create({
           outletName: 'magical'
         }),
         template: (0, _emberTemplateCompilerSystemCompile.default)('{{outlet outletName}}')
@@ -30396,7 +30397,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 });
 // TEMPLATES
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
+enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
 
   function resolverFor(namespace) {
     return function (fullName) {
@@ -30406,8 +30407,8 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/property_g
 
       if (type === 'template') {
         var templateName = (0, _emberRuntimeSystemString.decamelize)(name);
-        if (Ember.TEMPLATES[templateName]) {
-          return Ember.TEMPLATES[templateName];
+        if (_emberMetalCore.default.TEMPLATES[templateName]) {
+          return _emberMetalCore.default.TEMPLATES[templateName];
         }
       }
 
@@ -31988,7 +31989,7 @@ enifed('ember-routing/tests/utils_test', ['exports', 'ember-routing/utils'], fun
     equal(normalized[paramName].scope, 'model', 'defaults scope to model');
   });
 });
-enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper'], function (exports, _emberMetalComputed, _emberMetalComputed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper) {
+enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper'], function (exports, _emberMetalCore, _emberMetalComputed, _emberMetalComputed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper) {
 
   QUnit.module('CP macros');
 
@@ -32000,7 +32001,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       bestLannisterUnspecified: (0, _emberMetalComputed_macros.empty)('bestLannister'),
       noLannistersKnown: (0, _emberMetalComputed_macros.empty)('lannisters')
     }).create({
-      lannisters: Ember.A([])
+      lannisters: _emberMetalCore.default.A([])
     });
 
     equal(get(obj, 'bestLannisterUnspecified'), true, 'bestLannister initially empty');
@@ -32021,7 +32022,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
       bestLannisterSpecified: (0, _emberMetalComputed_macros.notEmpty)('bestLannister'),
       LannistersKnown: (0, _emberMetalComputed_macros.notEmpty)('lannisters')
     }).create({
-      lannisters: Ember.A([])
+      lannisters: _emberMetalCore.default.A([])
     });
 
     equal(get(obj, 'bestLannisterSpecified'), false, 'bestLannister initially empty');
@@ -35927,7 +35928,7 @@ enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/core'
     equal((0, _emberRuntimeCore.isEqual)(obj, obj), false, 'should return false because isEqual returns false');
   });
 });
-enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
+enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-metal/core', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
 
   QUnit.module('Ember Type Checking');
 
@@ -35941,7 +35942,7 @@ enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-runtime/util
     var object = {};
     var length = { length: 12 };
     var fn = function () {};
-    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: Ember.A() });
+    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A() });
 
     equal((0, _emberRuntimeUtils.isArray)(numarray), true, '[1,2,3]');
     equal((0, _emberRuntimeUtils.isArray)(number), false, '23');
@@ -36002,18 +36003,18 @@ enifed('ember-runtime/tests/core/type_of_test', ['exports', 'ember-runtime/utils
     equal((0, _emberRuntimeUtils.typeOf)(new Error()), 'error', 'item of type error');
   });
 });
-enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/props_helper'], function (exports, _emberMetalTestsProps_helper) {
+enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper) {
 
   QUnit.module('Function.prototype.observes() helper');
 
   (0, _emberMetalTestsProps_helper.testBoth)('global observer helper takes multiple params', function (get, set) {
 
-    if (Ember.EXTEND_PROTOTYPES === false) {
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.observes, 'Function.prototype helper disabled');
       return;
     }
 
-    var MyMixin = Ember.Mixin.create({
+    var MyMixin = _emberMetalCore.default.Mixin.create({
 
       count: 0,
 
@@ -36023,7 +36024,7 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
 
     });
 
-    var obj = Ember.mixin({}, MyMixin);
+    var obj = _emberMetalCore.default.mixin({}, MyMixin);
     equal(get(obj, 'count'), 0, 'should not invoke observer immediately');
 
     set(obj, 'bar', 'BAZ');
@@ -36035,12 +36036,12 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
 
   (0, _emberMetalTestsProps_helper.testBoth)('sets up an event listener, and can trigger the function on multiple events', function (get, set) {
 
-    if (Ember.EXTEND_PROTOTYPES === false) {
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.on, 'Function.prototype helper disabled');
       return;
     }
 
-    var MyMixin = Ember.Mixin.create({
+    var MyMixin = _emberMetalCore.default.Mixin.create({
 
       count: 0,
 
@@ -36050,7 +36051,7 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
 
     });
 
-    var obj = Ember.mixin({}, Ember.Evented, MyMixin);
+    var obj = _emberMetalCore.default.mixin({}, _emberMetalCore.default.Evented, MyMixin);
     equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
 
     obj.trigger('bar');
@@ -36060,12 +36061,12 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
 
   (0, _emberMetalTestsProps_helper.testBoth)('can be chained with observes', function (get, set) {
 
-    if (Ember.EXTEND_PROTOTYPES === false) {
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('Function.prototype helper disabled');
       return;
     }
 
-    var MyMixin = Ember.Mixin.create({
+    var MyMixin = _emberMetalCore.default.Mixin.create({
 
       count: 0,
       bay: 'bay',
@@ -36074,7 +36075,7 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
       }).observes('bay').on('bar')
     });
 
-    var obj = Ember.mixin({}, Ember.Evented, MyMixin);
+    var obj = _emberMetalCore.default.mixin({}, _emberMetalCore.default.Evented, MyMixin);
     equal(get(obj, 'count'), 0, 'should not invoke listener immediately');
 
     set(obj, 'bay', 'BAY');
@@ -36086,12 +36087,12 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/tests/p
 
   (0, _emberMetalTestsProps_helper.testBoth)('sets up a ComputedProperty', function (get, set) {
 
-    if (Ember.EXTEND_PROTOTYPES === false) {
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.property, 'Function.prototype helper disabled');
       return;
     }
 
-    var MyClass = Ember.Object.extend({
+    var MyClass = _emberMetalCore.default.Object.extend({
       firstName: null,
       lastName: null,
       fullName: (function () {
@@ -36153,7 +36154,7 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
     equal((0, _emberMetalProperty_get.get)(obj2, 'foo'), 'BARG', 'binding should be created and synced');
   });
 });
-enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
+enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
 
   QUnit.module('Ember.RSVP');
 
@@ -36181,10 +36182,10 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
 
   QUnit.module('Deferred RSVP\'s async + Testing', {
     setup: function () {
-      EmberTest = Ember.Test;
-      EmberTesting = Ember.testing;
+      EmberTest = _emberMetalCore.default.Test;
+      EmberTesting = _emberMetalCore.default.testing;
 
-      Ember.Test = {
+      _emberMetalCore.default.Test = {
         adapter: {
           asyncStart: function () {
             asyncStarted++;
@@ -36201,8 +36202,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
       asyncStarted = 0;
       asyncEnded = 0;
 
-      Ember.testing = EmberTesting;
-      Ember.Test = EmberTest;
+      _emberMetalCore.default.testing = EmberTesting;
+      _emberMetalCore.default.Test = EmberTest;
     }
   });
 
@@ -36211,7 +36212,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
 
     ok(!_emberMetalRun_loop.default.currentRunLoop, 'expect no run-loop');
 
-    Ember.testing = true;
+    _emberMetalCore.default.testing = true;
 
     equal(asyncStarted, 0);
     equal(asyncEnded, 0);
@@ -36272,12 +36273,12 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
   QUnit.test('rejections like jqXHR which have errorThrown property work', function () {
     expect(2);
 
-    var wasEmberTesting = Ember.testing;
-    var wasOnError = Ember.onerror;
+    var wasEmberTesting = _emberMetalCore.default.testing;
+    var wasOnError = _emberMetalCore.default.onerror;
 
     try {
-      Ember.testing = false;
-      Ember.onerror = function (error) {
+      _emberMetalCore.default.testing = false;
+      _emberMetalCore.default.onerror = function (error) {
         equal(error, actualError, 'expected the real error on the jqXHR');
         equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
       };
@@ -36289,20 +36290,20 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
 
       (0, _emberMetalRun_loop.default)(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
     } finally {
-      Ember.onerror = wasOnError;
-      Ember.testing = wasEmberTesting;
+      _emberMetalCore.default.onerror = wasOnError;
+      _emberMetalCore.default.testing = wasEmberTesting;
     }
   });
 
   QUnit.test('rejections where the errorThrown is a string should wrap the sting in an error object', function () {
     expect(2);
 
-    var wasEmberTesting = Ember.testing;
-    var wasOnError = Ember.onerror;
+    var wasEmberTesting = _emberMetalCore.default.testing;
+    var wasOnError = _emberMetalCore.default.onerror;
 
     try {
-      Ember.testing = false;
-      Ember.onerror = function (error) {
+      _emberMetalCore.default.testing = false;
+      _emberMetalCore.default.onerror = function (error) {
         equal(error.message, actualError, 'expected the real error on the jqXHR');
         equal(error.__reason_with_error_thrown__, jqXHR, 'also retains a helpful reference to the rejection reason');
       };
@@ -36314,8 +36315,8 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/run_loop', 
 
       (0, _emberMetalRun_loop.default)(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
     } finally {
-      Ember.onerror = wasOnError;
-      Ember.testing = wasEmberTesting;
+      _emberMetalCore.default.onerror = wasOnError;
+      _emberMetalCore.default.testing = wasEmberTesting;
     }
   });
 });
@@ -36438,7 +36439,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/chained_test', ['exports
     equal(observerFiredCount, 0, 'observer did not fire after removing changing property on a removed object');
   });
 });
-enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['exports', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (exports, _emberMetalProperty_get, _emberMetalComputed, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeMixinsObservable) {
+enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/observable'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeMixinsObservable) {
 
   /*
     NOTE: This test is adapted from the 1.x series of unit tests.  The tests
@@ -36469,7 +36470,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   var object, ObjectC, ObjectD, objectA, objectB, lookup;
 
   var ObservableObject = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsObservable.default);
-  var originalLookup = Ember.lookup;
+  var originalLookup = _emberMetalCore.default.lookup;
 
   // ..........................................................
   // GET()
@@ -36607,17 +36608,17 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should work when object is Ember (used in Ember.get)', function () {
-    equal((0, _emberMetalProperty_get.get)('Ember.RunLoop'), Ember.RunLoop, 'Ember.get');
-    equal((0, _emberMetalProperty_get.get)(Ember, 'RunLoop'), Ember.RunLoop, 'Ember.get(Ember, RunLoop)');
+    equal((0, _emberMetalProperty_get.get)('Ember.RunLoop'), _emberMetalCore.default.RunLoop, 'Ember.get');
+    equal((0, _emberMetalProperty_get.get)(_emberMetalCore.default, 'RunLoop'), _emberMetalCore.default.RunLoop, 'Ember.get(Ember, RunLoop)');
   });
 
   QUnit.module('Ember.get() with paths', {
     setup: function () {
-      lookup = Ember.lookup = {};
+      lookup = _emberMetalCore.default.lookup = {};
     },
 
     teardown: function () {
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -36759,7 +36760,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
 
   QUnit.module('Computed properties', {
     setup: function () {
-      lookup = Ember.lookup = {};
+      lookup = _emberMetalCore.default.lookup = {};
 
       object = ObservableObject.createWithMixins({
 
@@ -36862,7 +36863,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
       });
     },
     teardown: function () {
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -37119,7 +37120,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
         toggleVal: true,
         observedProperty: 'beingWatched',
         testRemove: 'observerToBeRemoved',
-        normalArray: Ember.A([1, 2, 3, 4, 5]),
+        normalArray: _emberMetalCore.default.A([1, 2, 3, 4, 5]),
 
         getEach: function () {
           var keys = ['normal', 'abnormal'];
@@ -37339,7 +37340,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   QUnit.module('Bind function ', {
 
     setup: function () {
-      originalLookup = Ember.lookup;
+      originalLookup = _emberMetalCore.default.lookup;
       objectA = ObservableObject.create({
         name: 'Sproutcore',
         location: 'Timbaktu'
@@ -37352,7 +37353,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
         }
       });
 
-      lookup = Ember.lookup = {
+      lookup = _emberMetalCore.default.lookup = {
         'Namespace': {
           objectA: objectA,
           objectB: objectB
@@ -37361,7 +37362,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
     },
 
     teardown: function () {
-      Ember.lookup = originalLookup;
+      _emberMetalCore.default.lookup = originalLookup;
     }
   });
 
@@ -39310,7 +39311,7 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-metal/co
   });
 });
 // for Ember.A
-enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object', 'ember-metal/computed'], function (exports, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemObject, _emberMetalComputed) {
+enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalComputed, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemObject) {
 
   /*
     Implement a basic fake mutable array.  This validates that any non-native
@@ -39321,7 +39322,7 @@ enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-runti
     _content: null,
 
     init: function (ary) {
-      this._content = Ember.A(ary || []);
+      this._content = _emberMetalCore.default.A(ary || []);
     },
 
     replace: function (idx, amt, objects) {
@@ -41876,7 +41877,7 @@ enifed('ember-runtime/tests/suites/mutable_array', ['exports', 'ember-runtime/te
 
   exports.default = MutableArrayTests;
 });
-enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -41902,7 +41903,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
     obj.addObject(item);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
@@ -41927,7 +41928,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
     obj.addObject(item); // note: item in set
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.validate('[]'), false, 'should NOT have notified []');
@@ -41940,7 +41941,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -41958,7 +41959,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-runt
     equal(obj.clear(), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.validate('[]'), false, 'should NOT have notified [] once');
     equal(observer.validate('@each'), false, 'should NOT have notified @each once');
@@ -41979,7 +41980,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-runt
     equal(obj.clear(), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -42462,7 +42463,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -42487,7 +42488,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
     obj.removeObject(before[1]);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
@@ -42512,7 +42513,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
     obj.removeObject(item); // note: item not in set
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.validate('[]'), false, 'should NOT have notified []');
@@ -42699,7 +42700,7 @@ enifed('ember-runtime/tests/suites/mutable_array/reverseObjects', ['exports', 'e
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -42717,7 +42718,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(obj.setObjects(after), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -42738,7 +42739,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(obj.setObjects(after), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -42904,7 +42905,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -42928,7 +42929,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), items, 'post item results');
-    equal(Ember.get(obj, 'length'), items.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), items.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -42950,7 +42951,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -42973,7 +42974,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(Ember.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
@@ -43067,7 +43068,7 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/addObject', ['exports', 'e
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
 
@@ -43083,7 +43084,7 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
   suite.test('[A,B,C].removeObject(B) => [A,C] + notify', function () {
     var obj, before, after, observer;
 
-    before = Ember.A(this.newFixture(3));
+    before = _emberMetalCore.default.A(this.newFixture(3));
     after = [before[0], before[2]];
     obj = before;
     observer = this.newObserver(obj, '[]', 'length', 'firstObject', 'lastObject');
@@ -43106,7 +43107,7 @@ enifed('ember-runtime/tests/suites/mutable_enumerable/removeObject', ['exports',
   suite.test('[A,B,C].removeObject(D) => [A,B,C]', function () {
     var obj, before, after, observer, item;
 
-    before = Ember.A(this.newFixture(3));
+    before = _emberMetalCore.default.A(this.newFixture(3));
     after = before;
     item = this.newFixture(1)[0];
     obj = before;
@@ -44174,13 +44175,13 @@ enifed('ember-runtime/tests/system/namespace/base_test', ['exports', 'ember-meta
     equal(_emberRuntimeSystemNamespace.default.byName('CF'), undefined, 'namespace can not be found after destroyed');
   });
 });
-enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-metal/utils'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberMetalUtils) {
+enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-runtime/tests/suites/copyable'], function (exports, _emberMetalCore, _emberMetalUtils, _emberRuntimeTestsSuitesCopyable) {
 
   _emberRuntimeTestsSuitesCopyable.default.extend({
     name: 'NativeArray Copyable',
 
     newObject: function () {
-      return Ember.A([(0, _emberMetalUtils.generateGuid)()]);
+      return _emberMetalCore.default.A([(0, _emberMetalUtils.generateGuid)()]);
     },
 
     isEqual: function (a, b) {
@@ -44205,7 +44206,7 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports'
   QUnit.module('NativeArray Copyable');
 
   QUnit.test('deep copy is respected', function () {
-    var array = Ember.A([{ id: 1 }, { id: 2 }, { id: 3 }]);
+    var array = _emberMetalCore.default.A([{ id: 1 }, { id: 2 }, { id: 3 }]);
 
     var copiedArray = array.copy(true);
 
@@ -44213,14 +44214,14 @@ enifed('ember-runtime/tests/system/native_array/copyable_suite_test', ['exports'
     ok(copiedArray[0] !== array[0], 'objects inside should be unique');
   });
 });
-enifed('ember-runtime/tests/system/native_array/suite_test', ['exports', 'ember-runtime/tests/suites/mutable_array'], function (exports, _emberRuntimeTestsSuitesMutable_array) {
+enifed('ember-runtime/tests/system/native_array/suite_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/mutable_array'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesMutable_array) {
 
   _emberRuntimeTestsSuitesMutable_array.default.extend({
 
     name: 'Native Array',
 
     newObject: function (ary) {
-      return Ember.A(ary ? ary.slice() : this.newFixture(3));
+      return _emberMetalCore.default.A(ary ? ary.slice() : this.newFixture(3));
     },
 
     mutate: function (obj) {
@@ -47140,7 +47141,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+3254874c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e2355a6c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -49308,7 +49309,7 @@ enifed('ember-views/tests/compat/render_buffer_test', ['exports', 'ember-views/s
     });
   }
 });
-enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/views/view'], function (exports, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsViewsView) {
+enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsViewsView) {
 
   var view, parentView;
 
@@ -49385,7 +49386,7 @@ enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runt
 
     (0, _emberRuntimeTestsUtils.runAppend)(view);
 
-    assert.equal(Ember.$('#qunit-fixture').html(), '<span>Nancy</span>', 'buffer made DOM');
+    assert.equal(_emberMetalCore.default.$('#qunit-fixture').html(), '<span>Nancy</span>', 'buffer made DOM');
   });
 
   QUnit.test('the render hook can push HTML into the buffer on nested tagless view', function (assert) {
@@ -49874,7 +49875,7 @@ enifed('ember-views/tests/system/jquery_ext_test', ['exports', 'ember-metal/run_
     });
   }
 });
-enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView) {
 
   var hasGetClientRects, hasGetBoundingClientRect;
   var ClientRectListCtor, ClientRectCtor;
@@ -49921,7 +49922,7 @@ enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/run_
       view.appendTo('#qunit-fixture');
     });
 
-    ok(Ember.ViewUtils.getViewClientRects(view) instanceof ClientRectListCtor);
+    ok(_emberMetalCore.default.ViewUtils.getViewClientRects(view) instanceof ClientRectListCtor);
   });
 
   QUnit.test('getViewBoundingClientRect', function () {
@@ -49936,7 +49937,7 @@ enifed('ember-views/tests/system/view_utils_test', ['exports', 'ember-metal/run_
       view.appendTo('#qunit-fixture');
     });
 
-    ok(Ember.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
+    ok(_emberMetalCore.default.ViewUtils.getViewBoundingClientRect(view) instanceof ClientRectCtor);
   });
 });
 enifed('ember-views/tests/test-helpers/equal-html', ['exports'], function (exports) {
@@ -52030,7 +52031,7 @@ enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/
     confirmPayload(beforeCalls[0], view);
   });
 });
-enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/select', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/system/event_dispatcher', 'htmlbars-util/safe-string'], function (exports, _emberViewsViewsSelect, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsSystemEvent_dispatcher, _htmlbarsUtilSafeString) {
+enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/views/select', 'ember-views/system/jquery', 'ember-views/system/event_dispatcher', 'htmlbars-util/safe-string'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsViewsSelect, _emberViewsSystemJquery, _emberViewsSystemEvent_dispatcher, _htmlbarsUtilSafeString) {
 
   var trim = _emberViewsSystemJquery.default.trim;
 
@@ -52063,7 +52064,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
 
   QUnit.test('using the Ember.Select global is deprecated', function (assert) {
     expectDeprecation(function () {
-      Ember.Select.create();
+      _emberMetalCore.default.Select.create();
     }, /Ember.Select is deprecated./);
   });
 
@@ -52125,7 +52126,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('can have options', function () {
-    select.set('content', Ember.A([1, 2, 3]));
+    select.set('content', _emberMetalCore.default.A([1, 2, 3]));
 
     append();
 
@@ -52165,7 +52166,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('can specify the property path for an option\'s label and value', function () {
-    select.set('content', Ember.A([{ id: 1, firstName: 'Yehuda' }, { id: 2, firstName: 'Tom' }]));
+    select.set('content', _emberMetalCore.default.A([{ id: 1, firstName: 'Yehuda' }, { id: 2, firstName: 'Tom' }]));
 
     select.set('optionLabelPath', 'content.firstName');
     select.set('optionValuePath', 'content.id');
@@ -52181,7 +52182,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('XSS: does not escape label value when it is a SafeString', function () {
-    select.set('content', Ember.A([{ id: 1, firstName: new _htmlbarsUtilSafeString.default('<p>Yehuda</p>') }, { id: 2, firstName: new _htmlbarsUtilSafeString.default('<p>Tom</p>') }]));
+    select.set('content', _emberMetalCore.default.A([{ id: 1, firstName: new _htmlbarsUtilSafeString.default('<p>Yehuda</p>') }, { id: 2, firstName: new _htmlbarsUtilSafeString.default('<p>Tom</p>') }]));
 
     select.set('optionLabelPath', 'content.firstName');
     select.set('optionValuePath', 'content.id');
@@ -52199,7 +52200,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('XSS: escapes label value content', function () {
-    select.set('content', Ember.A([{ id: 1, firstName: '<p>Yehuda</p>' }, { id: 2, firstName: '<p>Tom</p>' }]));
+    select.set('content', _emberMetalCore.default.A([{ id: 1, firstName: '<p>Yehuda</p>' }, { id: 2, firstName: '<p>Tom</p>' }]));
 
     select.set('optionLabelPath', 'content.firstName');
     select.set('optionValuePath', 'content.id');
@@ -52220,7 +52221,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var yehuda = { id: 1, firstName: 'Yehuda' };
     var tom = { id: 2, firstName: 'Tom' };
 
-    select.set('content', Ember.A([yehuda, tom]));
+    select.set('content', _emberMetalCore.default.A([yehuda, tom]));
 
     append();
 
@@ -52238,7 +52239,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var david = { id: 3, firstName: 'David' };
     var brennain = { id: 4, firstName: 'Brennain' };
 
-    select.set('content', Ember.A([yehuda, tom, david, brennain]));
+    select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
     select.set('multiple', true);
     select.set('optionLabelPath', 'content.firstName');
     select.set('optionValuePath', 'content.firstName');
@@ -52263,7 +52264,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom]));
       select.set('multiple', false);
       select.set('selection', tom);
     });
@@ -52286,9 +52287,9 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom]));
       select.set('multiple', false);
-      select.set('selection', Ember.RSVP.Promise.resolve(tom));
+      select.set('selection', _emberMetalCore.default.RSVP.Promise.resolve(tom));
     });
 
     append();
@@ -52306,10 +52307,10 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     QUnit.stop();
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, seb]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, seb]));
       select.set('multiple', false);
-      select.set('selection', new Ember.RSVP.Promise(function (resolve, reject) {
-        Ember.run.later(function () {
+      select.set('selection', new _emberMetalCore.default.RSVP.Promise(function (resolve, reject) {
+        _emberMetalCore.default.run.later(function () {
           (0, _emberMetalRun_loop.default)(function () {
             resolve(tom);
           });
@@ -52317,8 +52318,8 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
           equal(select.$()[0].selectedIndex, 2, 'Should not select from Promise if newer selection');
         }, 40);
       }));
-      select.set('selection', new Ember.RSVP.Promise(function (resolve, reject) {
-        Ember.run.later(function () {
+      select.set('selection', new _emberMetalCore.default.RSVP.Promise(function (resolve, reject) {
+        _emberMetalCore.default.run.later(function () {
           (0, _emberMetalRun_loop.default)(function () {
             resolve(seb);
           });
@@ -52336,9 +52337,9 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom]));
       select.set('multiple', false);
-      select.set('selection', Ember.RSVP.Promise.resolve(null));
+      select.set('selection', _emberMetalCore.default.RSVP.Promise.resolve(null));
     });
 
     append();
@@ -52353,7 +52354,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var brennain = { id: 4, firstName: 'Brennain' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('multiple', true);
       select.set('selection', tom);
     });
@@ -52376,7 +52377,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var brennain = { id: 4, firstName: 'Brennain' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('multiple', true);
       select.set('prompt', 'Pick one!');
       select.set('selection', tom);
@@ -52400,11 +52401,11 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var brennain = { id: 4, firstName: 'Brennain' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('optionLabelPath', 'content.firstName');
       select.set('multiple', true);
 
-      select.set('selection', Ember.A([yehuda, david]));
+      select.set('selection', _emberMetalCore.default.A([yehuda, david]));
     });
 
     append();
@@ -52412,7 +52413,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     deepEqual(select.get('selection'), [yehuda, david], 'Initial selection should be correct');
 
     (0, _emberMetalRun_loop.default)(function () {
-      return select.set('selection', Ember.A([tom, brennain]));
+      return select.set('selection', _emberMetalCore.default.A([tom, brennain]));
     });
 
     deepEqual(select.$(':selected').map(function (index, element) {
@@ -52425,10 +52426,10 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
     var david = { id: 3, firstName: 'David' };
     var brennain = { id: 4, firstName: 'Brennain' };
-    var selection = Ember.A([yehuda, tom]);
+    var selection = _emberMetalCore.default.A([yehuda, tom]);
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('optionLabelPath', 'content.firstName');
       select.set('multiple', true);
       select.set('selection', selection);
@@ -52439,7 +52440,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     deepEqual(select.get('selection'), [yehuda, tom], 'Initial selection should be correct');
 
     (0, _emberMetalRun_loop.default)(function () {
-      selection.replace(0, selection.get('length'), Ember.A([david, brennain]));
+      selection.replace(0, selection.get('length'), _emberMetalCore.default.A([david, brennain]));
     });
 
     deepEqual(select.$(':selected').map(function (index, element) {
@@ -52468,8 +52469,8 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
         }).create();
 
         indirectContent.set('controller', _emberRuntimeSystemObject.default.create({
-          content: Ember.A([tom, david, brennain]),
-          selection: Ember.A([david])
+          content: _emberMetalCore.default.A([tom, david, brennain]),
+          selection: _emberMetalCore.default.A([david])
         }));
       });
 
@@ -52480,8 +52481,8 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     deepEqual(select.get('selection'), [david], 'Initial selection should be correct');
 
     (0, _emberMetalRun_loop.default)(function () {
-      indirectContent.set('controller.content', Ember.A([david, cyril]));
-      indirectContent.set('controller.selection', Ember.A([cyril]));
+      indirectContent.set('controller.content', _emberMetalCore.default.A([david, cyril]));
+      indirectContent.set('controller.selection', _emberMetalCore.default.A([cyril]));
     });
 
     deepEqual(select.get('content'), [david, cyril], 'After updating bound content, content should be correct');
@@ -52489,7 +52490,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('select with group can group options', function () {
-    var content = Ember.A([{ firstName: 'Yehuda', organization: 'Tilde' }, { firstName: 'Tom', organization: 'Tilde' }, { firstName: 'Keith', organization: 'Envato' }]);
+    var content = _emberMetalCore.default.A([{ firstName: 'Yehuda', organization: 'Tilde' }, { firstName: 'Tom', organization: 'Tilde' }, { firstName: 'Keith', organization: 'Envato' }]);
 
     (0, _emberMetalRun_loop.default)(function () {
       select.set('content', content);
@@ -52512,7 +52513,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('select with group doesn\'t break options', function () {
-    var content = Ember.A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
+    var content = _emberMetalCore.default.A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
 
     (0, _emberMetalRun_loop.default)(function () {
       select.set('content', content);
@@ -52537,7 +52538,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
   });
 
   QUnit.test('select with group works for initial value', function () {
-    var content = Ember.A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
+    var content = _emberMetalCore.default.A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
 
     (0, _emberMetalRun_loop.default)(function () {
       select.set('content', content);
@@ -52553,7 +52554,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
 
   QUnit.test('select with group observes its content', function () {
     var wycats = { firstName: 'Yehuda', organization: 'Tilde' };
-    var content = Ember.A([wycats]);
+    var content = _emberMetalCore.default.A([wycats]);
 
     (0, _emberMetalRun_loop.default)(function () {
       select.set('content', content);
@@ -52599,10 +52600,10 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
     var david = { id: 3, firstName: 'David' };
     var brennain = { id: 4, firstName: 'Brennain' };
-    var selection = Ember.A([yehuda, david]);
+    var selection = _emberMetalCore.default.A([yehuda, david]);
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('multiple', true);
       select.set('optionLabelPath', 'content.firstName');
       select.set('selection', selection);
@@ -52632,7 +52633,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var brennain = { id: 4, firstName: 'Brennain' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('multiple', false);
 
       select.set('selection', david);
@@ -52656,7 +52657,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var brennain = { id: 4, firstName: 'Brennain' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom, david, brennain]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom, david, brennain]));
       select.set('multiple', true);
 
       select.set('selection', [yehuda, david]);
@@ -52675,7 +52676,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
 
   QUnit.test('Ember.SelectedOption knows when it is selected when multiple=true and options are primitives', function () {
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([1, 2, 3, 4]));
+      select.set('content', _emberMetalCore.default.A([1, 2, 3, 4]));
       select.set('multiple', true);
       select.set('selection', [1, 3]);
     });
@@ -52696,7 +52697,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var tom = { id: 2, firstName: 'Tom' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([yehuda, tom]));
+      select.set('content', _emberMetalCore.default.A([yehuda, tom]));
       select.set('prompt', 'Pick a person');
       select.set('optionLabelPath', 'content.firstName');
       select.set('optionValuePath', 'content.id');
@@ -52755,7 +52756,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
       select.destroy(); // Destroy the existing select
 
       select = _emberViewsViewsSelect.default.extend({
-        content: Ember.A([1, 0]),
+        content: _emberMetalCore.default.A([1, 0]),
         indirectData: indirectData,
         valueBinding: 'indirectData.value'
       }).create();
@@ -52771,7 +52772,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
 
   QUnit.test('should be able to select an option and then reselect the prompt', function () {
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A(['one', 'two', 'three']));
+      select.set('content', _emberMetalCore.default.A(['one', 'two', 'three']));
       select.set('prompt', 'Select something');
     });
 
@@ -52789,7 +52790,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
 
   QUnit.test('should be able to get the current selection\'s value', function () {
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, { label: 'Erik Bryn', value: 'ebryn' }]));
+      select.set('content', _emberMetalCore.default.A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, { label: 'Erik Bryn', value: 'ebryn' }]));
       select.set('optionLabelPath', 'content.label');
       select.set('optionValuePath', 'content.value');
     });
@@ -52803,7 +52804,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-views/views/sel
     var ebryn = { label: 'Erik Bryn', value: 'ebryn' };
 
     (0, _emberMetalRun_loop.default)(function () {
-      select.set('content', Ember.A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, ebryn]));
+      select.set('content', _emberMetalCore.default.A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, ebryn]));
       select.set('optionLabelPath', 'content.label');
       select.set('optionValuePath', 'content.value');
       select.set('value', 'ebryn');
@@ -55622,7 +55623,7 @@ enifed('ember-views/tests/views/view/inject_test', ['exports', 'ember-runtime/sy
     equal(profilerService, appView.get('profilerService'), 'service.profiler is injected');
   });
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-metal/computed'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberMetalComputed) {
+enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/container_view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberViewsViewsContainer_view) {
 
   var View, view, parentBecameVisible, childBecameVisible, grandchildBecameVisible;
   var parentBecameHidden, childBecameHidden, grandchildBecameHidden;
@@ -55631,8 +55632,8 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
   QUnit.module('EmberView#isVisible', {
     setup: function () {
       warnings = [];
-      originalWarn = Ember.warn;
-      Ember.warn = function (message, test) {
+      originalWarn = _emberMetalCore.default.warn;
+      _emberMetalCore.default.warn = function (message, test) {
         if (!test) {
           warnings.push(message);
         }
@@ -57066,7 +57067,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-me
     });
   });
 });
-enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler'], function (exports, _emberMetalComputed, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler) {
+enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler'], function (exports, _emberMetalCore, _emberMetalComputed, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler) {
 
   var view;
 
@@ -57194,7 +57195,7 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
       template: (0, _emberTemplateCompiler.compile)('{{view view.childView childProp=view.parentProp}}'),
       childView: _emberViewsViewsView.default.createWithMixins({
         template: (0, _emberTemplateCompiler.compile)('child template'),
-        childProp: Ember.computed('dependencyProp', {
+        childProp: _emberMetalCore.default.computed('dependencyProp', {
           get: function (key) {
             return this.get('dependencyProp');
           },
@@ -57218,14 +57219,14 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
     equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
   });
 });
-enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (exports, _ember) {
+enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/core'], function (exports, _ember, _emberMetalCore) {
 
   var App, container, router;
 
   QUnit.module('Application Lifecycle', {
     setup: function () {
-      Ember.run(function () {
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        App = _emberMetalCore.default.Application.create({
           rootElement: '#qunit-fixture'
         });
 
@@ -57241,13 +57242,13 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
 
     teardown: function () {
       router = null;
-      Ember.run(App, 'destroy');
+      _emberMetalCore.default.run(App, 'destroy');
     }
   });
 
   function handleURL(path) {
     router = container.lookup('router:main');
-    return Ember.run(function () {
+    return _emberMetalCore.default.run(function () {
       return router.handleURL(path).then(function (value) {
         ok(true, 'url: `' + path + '` was handled');
         return value;
@@ -57263,7 +57264,7 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
       this.route('home', { path: '/' });
     });
 
-    App.HomeRoute = Ember.Route.extend({
+    App.HomeRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         this.controllerFor('home').set('selectedMenuItem', 'home');
       },
@@ -57271,7 +57272,7 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
         this.controllerFor('home').set('selectedMenuItem', null);
       }
     });
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         this.controllerFor('application').set('selectedMenuItem', 'home');
       },
@@ -57282,17 +57283,17 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
 
     container.lookup('router:main');
 
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
 
     handleURL('/');
 
-    equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), 'home');
-    equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), 'home');
+    equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), 'home');
+    equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), 'home');
 
     App.reset();
 
-    equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), null);
-    equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), null);
+    equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), null);
+    equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), null);
   });
 
   QUnit.test('Destroying the application resets the router before the container is destroyed', function () {
@@ -57300,7 +57301,7 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
       this.route('home', { path: '/' });
     });
 
-    App.HomeRoute = Ember.Route.extend({
+    App.HomeRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         this.controllerFor('home').set('selectedMenuItem', 'home');
       },
@@ -57308,7 +57309,7 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
         this.controllerFor('home').set('selectedMenuItem', null);
       }
     });
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         this.controllerFor('application').set('selectedMenuItem', 'home');
       },
@@ -57319,45 +57320,45 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember'], function (expo
 
     container.lookup('router:main');
 
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
 
     handleURL('/');
 
-    equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), 'home');
-    equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), 'home');
+    equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), 'home');
+    equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), 'home');
 
-    Ember.run(App, 'destroy');
+    _emberMetalCore.default.run(App, 'destroy');
 
-    equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), null);
-    equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), null);
+    equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), null);
+    equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), null);
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
 
   var App, registry, container;
   var originalHelpers;
 
   function prepare() {
-    Ember.TEMPLATES['components/expand-it'] = (0, _emberTemplateCompilerSystemCompile.default)('<p>hello {{yield}}</p>');
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('Hello world {{#expand-it}}world{{/expand-it}}');
+    _emberMetalCore.default.TEMPLATES['components/expand-it'] = (0, _emberTemplateCompilerSystemCompile.default)('<p>hello {{yield}}</p>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('Hello world {{#expand-it}}world{{/expand-it}}');
 
-    originalHelpers = Ember.A(Ember.keys(_emberHtmlbarsHelpers.default));
+    originalHelpers = _emberMetalCore.default.A(_emberMetalCore.default.keys(_emberHtmlbarsHelpers.default));
   }
 
   function cleanup() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       if (App) {
         App.destroy();
       }
       App = null;
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
 
       cleanupHandlebarsHelpers();
     });
   }
 
   function cleanupHandlebarsHelpers() {
-    var currentHelpers = Ember.A(Ember.keys(_emberHtmlbarsHelpers.default));
+    var currentHelpers = _emberMetalCore.default.A(_emberMetalCore.default.keys(_emberHtmlbarsHelpers.default));
 
     currentHelpers.forEach(function (name) {
       if (!originalHelpers.contains(name)) {
@@ -57374,15 +57375,15 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
   function boot(callback) {
     var startURL = arguments[1] === undefined ? '/' : arguments[1];
 
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
 
       App.deferReadiness();
 
-      App.Router = Ember.Router.extend({
+      App.Router = _emberMetalCore.default.Router.extend({
         location: 'none'
       });
 
@@ -57396,129 +57397,129 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
 
     var router = container.lookup('router:main');
 
-    Ember.run(App, 'advanceReadiness');
-    Ember.run(function () {
+    _emberMetalCore.default.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(function () {
       router.handleURL(startURL);
     });
   }
 
   QUnit.test('The helper becomes the body of the component', function () {
     boot();
-    equal(Ember.$('div.ember-view > div.ember-view', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('div.ember-view > div.ember-view', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
   });
 
   QUnit.test('If a component is registered, it is used', function () {
     boot(function () {
-      registry.register('component:expand-it', Ember.Component.extend({
+      registry.register('component:expand-it', _emberMetalCore.default.Component.extend({
         classNames: 'testing123'
       }));
     });
 
-    equal(Ember.$('div.testing123', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('div.testing123', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
   });
 
   QUnit.test('Late-registered components can be rendered with custom `template` property (DEPRECATED)', function () {
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>there goes {{my-hero}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>there goes {{my-hero}}</div>');
 
     expectDeprecation(/Do not specify template on a Component/);
 
     boot(function () {
-      registry.register('component:my-hero', Ember.Component.extend({
+      registry.register('component:my-hero', _emberMetalCore.default.Component.extend({
         classNames: 'testing123',
         template: (0, _emberTemplateCompilerSystemCompile.default)('watch him as he GOES')
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'there goes watch him as he GOES', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'there goes watch him as he GOES', 'The component is composed correctly');
     ok(!_emberHtmlbarsHelpers.default['my-hero'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Late-registered components can be rendered with template registered on the container', function () {
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
 
     boot(function () {
       registry.register('template:components/sally-rutherford', (0, _emberTemplateCompilerSystemCompile.default)('funkytowny{{yield}}'));
-      registry.register('component:sally-rutherford', Ember.Component);
+      registry.register('component:sally-rutherford', _emberMetalCore.default.Component);
     });
 
-    equal(Ember.$('#wrapper').text(), 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'hello world funkytowny-funkytowny!!!', 'The component is composed correctly');
     ok(!_emberHtmlbarsHelpers.default['sally-rutherford'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Late-registered components can be rendered with ONLY the template registered on the container', function () {
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
 
     boot(function () {
       registry.register('template:components/borf-snorlax', (0, _emberTemplateCompilerSystemCompile.default)('goodfreakingTIMES{{yield}}'));
     });
 
-    equal(Ember.$('#wrapper').text(), 'hello world goodfreakingTIMES-goodfreakingTIMES!!!', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'hello world goodfreakingTIMES-goodfreakingTIMES!!!', 'The component is composed correctly');
     ok(!_emberHtmlbarsHelpers.default['borf-snorlax'], 'Component wasn\'t saved to global helpers hash');
   });
 
   QUnit.test('Component-like invocations are treated as bound paths if neither template nor component are registered on the container', function () {
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{user-name}} hello {{api-key}} world</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{user-name}} hello {{api-key}} world</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'user-name': 'machty'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'machty hello  world', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'machty hello  world', 'The component is composed correctly');
   });
 
   QUnit.test('Assigning templateName to a component should setup the template as a layout (DEPRECATED)', function () {
     expect(2);
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-    Ember.TEMPLATES['foo-bar-baz'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['foo-bar-baz'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
 
     expectDeprecation(/Do not specify templateName on a Component/);
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner',
         templateName: 'foo-bar-baz'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
   QUnit.test('Assigning templateName and layoutName should use the templates specified [DEPRECATED]', function () {
     expect(2);
     expectDeprecation(/Using deprecated `template` property on a Component/);
 
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
-    Ember.TEMPLATES['foo'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}');
-    Ember.TEMPLATES['bar'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['foo'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}');
+    _emberMetalCore.default.TEMPLATES['bar'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner',
         layoutName: 'bar',
         templateName: 'foo'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
   QUnit.test('Using name of component that does not exist', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#no-good}} {{/no-good}}</div>');
 
     expectAssertion(function () {
       boot();
@@ -57531,103 +57532,103 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
   });
 
   QUnit.test('Components with a block should have the proper content when a template is provided', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-    Ember.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}-{{yield}}');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
 
   QUnit.test('Components with a block should yield the proper content without a template provided', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'outer', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'outer', 'The component is composed correctly');
   });
 
   QUnit.test('Components without a block should have the proper content when a template is provided', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
-    Ember.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('{{text}}');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner'
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'inner', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner', 'The component is composed correctly');
   });
 
   QUnit.test('Components without a block should have the proper content', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         didInsertElement: function () {
           this.$().html('Some text inserted by jQuery');
         }
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
   });
 
   // The test following this one is the non-deprecated version
   QUnit.test('properties of a component without a template should not collide with internal structures [DEPRECATED]', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component data=foo}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component data=foo}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer',
         'foo': 'Some text inserted by jQuery'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         didInsertElement: function () {
           this.$().html(this.get('data'));
         }
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
   });
 
   QUnit.test('attrs property of a component without a template should not collide with internal structures', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{my-component attrs=foo}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer',
         'foo': 'Some text inserted by jQuery'
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         didInsertElement: function () {
           // FIXME: I'm unsure if this is even the right way to access attrs
           this.$().html(this.get('attrs.attrs.value'));
@@ -57635,14 +57636,14 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
       }));
     });
 
-    equal(Ember.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'Some text inserted by jQuery', 'The component is composed correctly');
   });
 
   QUnit.test('Components trigger actions in the parents context when called from within a block', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>{{/my-component}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         actions: {
           fizzbuzz: function () {
             ok(true, 'action triggered on parent');
@@ -57650,20 +57651,20 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
         }
       }));
 
-      registry.register('component:my-component', Ember.Component.extend());
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend());
     });
 
-    Ember.run(function () {
-      Ember.$('#fizzbuzz', '#wrapper').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#fizzbuzz', '#wrapper').click();
     });
   });
 
   QUnit.test('Components trigger actions in the components context when called from within its template', function () {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
-    Ember.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('<a href=\'#\' id=\'fizzbuzz\' {{action \'fizzbuzz\'}}>Fizzbuzz</a>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         actions: {
           fizzbuzz: function () {
             ok(false, 'action triggered on the wrong context');
@@ -57671,7 +57672,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
         }
       }));
 
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         actions: {
           fizzbuzz: function () {
             ok(true, 'action triggered on component');
@@ -57680,18 +57681,18 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
       }));
     });
 
-    Ember.$('#fizzbuzz', '#wrapper').click();
+    _emberMetalCore.default.$('#fizzbuzz', '#wrapper').click();
   });
 
   QUnit.test('Components receive the top-level view as their ownerView', function (assert) {
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('{{outlet}}');
-    Ember.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('{{my-component}}');
-    Ember.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('<div></div>');
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('{{outlet}}');
+    _emberMetalCore.default.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('{{my-component}}');
+    _emberMetalCore.default.TEMPLATES['components/my-component'] = (0, _emberTemplateCompilerSystemCompile.default)('<div></div>');
 
     var component = undefined;
 
     boot(function () {
-      registry.register('component:my-component', Ember.Component.extend({
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         init: function () {
           this._super();
           component = this;
@@ -57710,7 +57711,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-te
     assert.ok(ownerView._outlets, 'owner view has an internal array of outlets');
   });
 });
-enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberHtmlbarsCompat, _emberViewsViewsView) {
+enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsCompat, _emberViewsViewsView) {
 
   /*
    In Ember 1.x, controllers subtly affect things like template scope
@@ -57725,9 +57726,9 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
 
   QUnit.module('Template scoping examples', {
     setup: function () {
-      Ember.run(function () {
-        templates = Ember.TEMPLATES;
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        templates = _emberMetalCore.default.TEMPLATES;
+        App = _emberMetalCore.default.Application.create({
           name: 'App',
           rootElement: '#qunit-fixture'
         });
@@ -57737,20 +57738,20 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
           location: 'none'
         });
 
-        App.LoadingRoute = Ember.Route.extend();
+        App.LoadingRoute = _emberMetalCore.default.Route.extend();
       });
 
-      $fixture = Ember.$('#qunit-fixture');
+      $fixture = _emberMetalCore.default.$('#qunit-fixture');
     },
 
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         App.destroy();
       });
 
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 
@@ -57759,7 +57760,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
 
     templates.index = compile('{{component-with-action action=\'componentAction\'}}');
 
-    App.IndexController = Ember.Controller.extend({
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       actions: {
         componentAction: function () {
           ok(true, 'received the click');
@@ -57767,7 +57768,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
       }
     });
 
-    App.ComponentWithActionComponent = Ember.Component.extend({
+    App.ComponentWithActionComponent = _emberMetalCore.default.Component.extend({
       classNames: ['component-with-action'],
       click: function () {
         this.sendAction();
@@ -57782,7 +57783,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
   QUnit.test('the controller property is provided to route driven views', function () {
     var applicationController, applicationViewController;
 
-    App.ApplicationController = Ember.Controller.extend({
+    App.ApplicationController = _emberMetalCore.default.Controller.extend({
       init: function () {
         this._super.apply(this, arguments);
         applicationController = this;
@@ -57809,11 +57810,11 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
       templates.index = compile('\n      {{#each model itemController=\'thing\'}}\n        <p>hi</p>\n      {{/each}}\n    ');
     }, 'Using \'itemController\' with \'{{each}}\' (L2:C20) is deprecated.  Please refactor to a component.');
 
-    App.IndexController = Ember.Controller.extend({
-      model: Ember.A([1, 2, 3])
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      model: _emberMetalCore.default.A([1, 2, 3])
     });
 
-    App.ThingController = Ember.Controller.extend();
+    App.ThingController = _emberMetalCore.default.Controller.extend();
 
     bootApp();
 
@@ -57825,13 +57826,13 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
       templates.index = compile('\n      {{#each model itemController=\'thing\'}}\n        {{controller}}\n        <p><a {{action \'checkController\' controller}}>Click me</a></p>\n      {{/each}}\n    ');
     });
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        return Ember.A([{ name: 'red' }, { name: 'yellow' }, { name: 'blue' }]);
+        return _emberMetalCore.default.A([{ name: 'red' }, { name: 'yellow' }, { name: 'blue' }]);
       }
     });
 
-    App.ThingController = Ember.Controller.extend({
+    App.ThingController = _emberMetalCore.default.Controller.extend({
       actions: {
         checkController: function (controller) {
           assert.ok(controller === this, 'correct controller was passed as action context');
@@ -57845,7 +57846,7 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-htmlbars/compa
   });
 
   function bootApp() {
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 });
 enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/system/application', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-metal/run_loop'], function (exports, _emberApplicationSystemApplication, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberMetalRun_loop) {
@@ -57900,7 +57901,8 @@ enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features
   confirmExport('Ember.Helper');
   confirmExport('Ember.Helper.helper');
 });
-enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat', 'ember-htmlbars/compat/helper', 'ember-htmlbars/helper'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
+/*globals Ember */
+enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat', 'ember-htmlbars/compat/helper', 'ember-htmlbars/helper'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat, _emberHtmlbarsCompatHelper, _emberHtmlbarsHelper) {
 
   var compile, helpers, makeBoundHelper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -57916,27 +57918,27 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
 
   QUnit.module('Application Lifecycle - Helper Registration', {
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         if (App) {
           App.destroy();
         }
 
         App = null;
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
       });
     }
   });
 
   var boot = function (callback) {
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
 
       App.deferReadiness();
 
-      App.Router = Ember.Router.extend({
+      App.Router = _emberMetalCore.default.Router.extend({
         location: 'none'
       });
 
@@ -57950,14 +57952,14 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
 
     var router = container.lookup('router:main');
 
-    Ember.run(App, 'advanceReadiness');
-    Ember.run(function () {
+    _emberMetalCore.default.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
   };
 
   QUnit.test('Unbound dashed helpers registered on the container can be late-invoked', function () {
-    Ember.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-borf}} {{x-borf \'YES\'}}</div>');
     var helper = new _emberHtmlbarsCompatHelper.default(function (val) {
       return arguments.length > 1 ? val : 'BORF';
     });
@@ -57966,43 +57968,43 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
       registry.register('helper:x-borf', helper);
     });
 
-    equal(Ember.$('#wrapper').text(), 'BORF YES', 'The helper was invoked from the container');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'BORF YES', 'The helper was invoked from the container');
     ok(!helpers['x-borf'], 'Container-registered helper doesn\'t wind up on global helpers hash');
   });
 
   // need to make `makeBoundHelper` for HTMLBars
   QUnit.test('Bound helpers registered on the container can be late-invoked', function () {
-    Ember.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-reverse}} {{x-reverse foo}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         foo: 'alex'
       }));
       registry.register('helper:x-reverse', makeBoundHelper(reverseHelper));
     });
 
-    equal(Ember.$('#wrapper').text(), '-- xela', 'The bound helper was invoked from the container');
+    equal(_emberMetalCore.default.$('#wrapper').text(), '-- xela', 'The bound helper was invoked from the container');
     ok(!helpers['x-reverse'], 'Container-registered helper doesn\'t wind up on global helpers hash');
   });
 
   QUnit.test('Bound `makeViewHelper` helpers registered on the container can be used', function () {
-    Ember.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-foo}} {{x-foo name=foo}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = compile('<div id=\'wrapper\'>{{x-foo}} {{x-foo name=foo}}</div>');
 
     boot(function () {
-      registry.register('controller:application', Ember.Controller.extend({
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         foo: 'alex'
       }));
 
-      registry.register('helper:x-foo', makeViewHelper(Ember.Component.extend({
+      registry.register('helper:x-foo', makeViewHelper(_emberMetalCore.default.Component.extend({
         layout: compile('woot!!{{attrs.name}}')
       })));
     });
 
-    equal(Ember.$('#wrapper').text(), 'woot!! woot!!alex', 'The helper was invoked from the container');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'woot!! woot!!alex', 'The helper was invoked from the container');
   });
 
   QUnit.test('Undashed helpers registered on the container can be invoked', function () {
-    Ember.TEMPLATES.application = compile('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = compile('<div id=\'wrapper\'>{{omg}}|{{yorp \'boo\'}}|{{yorp \'ya\'}}</div>');
 
     expectDeprecation(function () {
       boot(function () {
@@ -58018,21 +58020,21 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
       }, /Please use Ember.Helper.build to wrap helper functions./);
     });
 
-    equal(Ember.$('#wrapper').text(), 'OMG|boo|ya', 'The helper was invoked from the container');
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'OMG|boo|ya', 'The helper was invoked from the container');
   });
 
   QUnit.test('Helpers can receive injections', function () {
-    Ember.TEMPLATES.application = compile('<div id=\'wrapper\'>{{full-name}}</div>');
+    _emberMetalCore.default.TEMPLATES.application = compile('<div id=\'wrapper\'>{{full-name}}</div>');
 
     var serviceCalled = false;
     boot(function () {
-      registry.register('service:name-builder', Ember.Service.extend({
+      registry.register('service:name-builder', _emberMetalCore.default.Service.extend({
         build: function () {
           serviceCalled = true;
         }
       }));
       registry.register('helper:full-name', _emberHtmlbarsHelper.default.extend({
-        nameBuilder: Ember.inject.service('name-builder'),
+        nameBuilder: _emberMetalCore.default.inject.service('name-builder'),
         compute: function () {
           this.get('nameBuilder').build();
         }
@@ -58046,16 +58048,16 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
 // Note: the reason we're not allowing undashed helpers is to avoid
 // a possible perf hit in hot code paths, i.e. _triageMustache.
 // We only presently perform container lookups if prop.indexOf('-') >= 0
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/features', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember-views/views/view', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember-views/views/view', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
   var Router, App, AppView, router, registry, container;
-  var set = Ember.set;
+  var set = _emberMetalCore.default.set;
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   // IE includes the host name
@@ -58072,14 +58074,14 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
   }
 
   function checkActive(selector, active) {
-    var classList = Ember.$(selector, '#qunit-fixture')[0].className;
+    var classList = _emberMetalCore.default.$(selector, '#qunit-fixture')[0].className;
     equal(classList.indexOf('active') > -1, active, selector + ' active should be ' + active.toString());
   }
 
   var updateCount, replaceCount;
 
   function sharedSetup() {
-    App = Ember.Application.create({
+    App = _emberMetalCore.default.Application.create({
       name: 'App',
       rootElement: '#qunit-fixture'
     });
@@ -58088,7 +58090,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     updateCount = replaceCount = 0;
     App.Router.reopen({
-      location: Ember.NoneLocation.createWithMixins({
+      location: _emberMetalCore.default.NoneLocation.createWithMixins({
         setURL: function (path) {
           updateCount++;
           set(this, 'path', path);
@@ -58107,22 +58109,22 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
     });
-    Ember.TEMPLATES = {};
+    _emberMetalCore.default.TEMPLATES = {};
   }
 
   QUnit.module('The {{link-to}} helper', {
     setup: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
 
         sharedSetup();
 
-        Ember.TEMPLATES.app = compile('{{outlet}}');
-        Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
-        Ember.TEMPLATES.about = compile('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}');
-        Ember.TEMPLATES.item = compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
+        _emberMetalCore.default.TEMPLATES.app = compile('{{outlet}}');
+        _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
+        _emberMetalCore.default.TEMPLATES.about = compile('<h3>About</h3>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'about\' id=\'self-link\'}}Self{{/link-to}}');
+        _emberMetalCore.default.TEMPLATES.item = compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
 
         AppView = _emberViewsViewsView.default.extend({
           templateName: 'app'
@@ -58145,26 +58147,26 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(Ember.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal(Ember.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+    equal(_emberMetalCore.default.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
 
-    Ember.run(function () {
-      Ember.$('#about-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(About)', '#qunit-fixture').length, 1, 'The about template was rendered');
-    equal(Ember.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal(Ember.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+    equal(_emberMetalCore.default.$('h3:contains(About)', '#qunit-fixture').length, 1, 'The about template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
   QUnit.test('The {{link-to}} helper supports URL replacement', function () {
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58172,15 +58174,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
     equal(updateCount, 0, 'precond: setURL has not been called');
     equal(replaceCount, 0, 'precond: replaceURL has not been called');
 
-    Ember.run(function () {
-      Ember.$('#about-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
     });
 
     equal(updateCount, 0, 'setURL should not be called');
@@ -58188,7 +58190,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
   });
 
   QUnit.test('the {{link-to}} helper doesn\'t add an href when the tagName isn\'t \'a\'', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58196,16 +58198,16 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('#about-link').attr('href'), undefined, 'there is no href attribute');
+    equal(_emberMetalCore.default.$('#about-link').attr('href'), undefined, 'there is no href attribute');
   });
 
   QUnit.test('the {{link-to}} applies a \'disabled\' class when disabled', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
-    App.IndexController = Ember.Controller.extend({
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       shouldDisable: true
     });
 
@@ -58215,15 +58217,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('#about-link.disabled', '#qunit-fixture').length, 1, 'The link is disabled when its disabledWhen is true');
+    equal(_emberMetalCore.default.$('#about-link.disabled', '#qunit-fixture').length, 1, 'The link is disabled when its disabledWhen is true');
   });
 
   QUnit.test('the {{link-to}} doesn\'t apply a \'disabled\' class if disabledWhen is not provided', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link"}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "about" id="about-link"}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58231,15 +58233,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    ok(!Ember.$('#about-link', '#qunit-fixture').hasClass('disabled'), 'The link is not disabled if disabledWhen not provided');
+    ok(!_emberMetalCore.default.$('#about-link', '#qunit-fixture').hasClass('disabled'), 'The link is not disabled if disabledWhen not provided');
   });
 
   QUnit.test('the {{link-to}} helper supports a custom disabledClass', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass="do-not-want"}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58247,15 +58249,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class');
+    equal(_emberMetalCore.default.$('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class');
   });
 
   QUnit.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58263,19 +58265,19 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    Ember.run(function () {
-      Ember.$('#about-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
+    equal(_emberMetalCore.default.$('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
   });
 
   QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58283,13 +58285,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(Ember.$('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal(Ember.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+    equal(_emberMetalCore.default.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
   QUnit.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
@@ -58299,15 +58301,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       });
     });
 
-    Ember.TEMPLATES.about = compile('<h1>About</h1>{{outlet}}');
-    Ember.TEMPLATES['about/index'] = compile('<div id=\'index\'>Index</div>');
-    Ember.TEMPLATES['about/item'] = compile('<div id=\'item\'>{{#link-to \'about\'}}About{{/link-to}}</div>');
+    _emberMetalCore.default.TEMPLATES.about = compile('<h1>About</h1>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['about/index'] = compile('<div id=\'index\'>Index</div>');
+    _emberMetalCore.default.TEMPLATES['about/item'] = compile('<div id=\'item\'>{{#link-to \'about\'}}About{{/link-to}}</div>');
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/about/item');
+    _emberMetalCore.default.run(router, 'handleURL', '/about/item');
 
-    equal(normalizeUrl(Ember.$('#item a', '#qunit-fixture').attr('href')), '/about');
+    equal(normalizeUrl(_emberMetalCore.default.$('#item a', '#qunit-fixture').attr('href')), '/about');
   });
 
   QUnit.test('The {{link-to}} helper supports currentWhen (DEPRECATED)', function () {
@@ -58321,16 +58323,16 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('item');
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
-    Ember.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'other-link\' currentWhen=\'index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'other-link\' currentWhen=\'index\'}}ITEM{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    equal(Ember.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
+    equal(_emberMetalCore.default.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
   });
 
   QUnit.test('The {{link-to}} helper supports custom, nested, current-when', function () {
@@ -58342,16 +58344,16 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('item');
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
-    Ember.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    equal(Ember.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
+    equal(_emberMetalCore.default.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active since current-when is a parent route');
   });
 
   QUnit.test('The {{link-to}} helper does not disregard current-when when it is given explicitly for a resource', function () {
@@ -58365,16 +58367,16 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       });
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
-    Ember.TEMPLATES['index/about'] = compile('{{#link-to \'items\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['index/about'] = compile('{{#link-to \'items\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    equal(Ember.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a resource');
+    equal(_emberMetalCore.default.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a resource');
   });
 
   QUnit.test('The {{link-to}} helper supports multiple current-when routes', function () {
@@ -58386,35 +58388,35 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('foo');
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
-    Ember.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'link1\' current-when=\'item index\'}}ITEM{{/link-to}}');
-    Ember.TEMPLATES['item'] = compile('{{#link-to \'item\' id=\'link2\' current-when=\'item index\'}}ITEM{{/link-to}}');
-    Ember.TEMPLATES['foo'] = compile('{{#link-to \'item\' id=\'link3\' current-when=\'item index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['index/about'] = compile('{{#link-to \'item\' id=\'link1\' current-when=\'item index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES['item'] = compile('{{#link-to \'item\' id=\'link2\' current-when=\'item index\'}}ITEM{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES['foo'] = compile('{{#link-to \'item\' id=\'link3\' current-when=\'item index\'}}ITEM{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    equal(Ember.$('#link1.active', '#qunit-fixture').length, 1, 'The link is active since current-when contains the parent route');
+    equal(_emberMetalCore.default.$('#link1.active', '#qunit-fixture').length, 1, 'The link is active since current-when contains the parent route');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/item');
     });
 
-    equal(Ember.$('#link2.active', '#qunit-fixture').length, 1, 'The link is active since you are on the active route');
+    equal(_emberMetalCore.default.$('#link2.active', '#qunit-fixture').length, 1, 'The link is active since you are on the active route');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/foo');
     });
 
-    equal(Ember.$('#link3.active', '#qunit-fixture').length, 0, 'The link is not active since current-when does not contain the active route');
+    equal(_emberMetalCore.default.$('#link3.active', '#qunit-fixture').length, 0, 'The link is not active since current-when does not contain the active route');
   });
 
   QUnit.test('The {{link-to}} helper defaults to bubbling', function () {
-    Ember.TEMPLATES.about = compile('<div {{action \'hide\'}}>{{#link-to \'about.contact\' id=\'about-contact\'}}About{{/link-to}}</div>{{outlet}}');
-    Ember.TEMPLATES['about/contact'] = compile('<h1 id=\'contact\'>Contact</h1>');
+    _emberMetalCore.default.TEMPLATES.about = compile('<div {{action \'hide\'}}>{{#link-to \'about.contact\' id=\'about-contact\'}}About{{/link-to}}</div>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['about/contact'] = compile('<h1 id=\'contact\'>Contact</h1>');
 
     Router.map(function () {
       this.resource('about', function () {
@@ -58424,7 +58426,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     var hidden = 0;
 
-    App.AboutRoute = Ember.Route.extend({
+    App.AboutRoute = _emberMetalCore.default.Route.extend({
       actions: {
         hide: function () {
           hidden++;
@@ -58434,22 +58436,22 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    Ember.run(function () {
-      Ember.$('#about-contact', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-contact', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
+    equal(_emberMetalCore.default.$('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
 
     equal(hidden, 1, 'The link bubbles');
   });
 
   QUnit.test('The {{link-to}} helper supports bubbles=false', function () {
-    Ember.TEMPLATES.about = compile('<div {{action \'hide\'}}>{{#link-to \'about.contact\' id=\'about-contact\' bubbles=false}}About{{/link-to}}</div>{{outlet}}');
-    Ember.TEMPLATES['about/contact'] = compile('<h1 id=\'contact\'>Contact</h1>');
+    _emberMetalCore.default.TEMPLATES.about = compile('<div {{action \'hide\'}}>{{#link-to \'about.contact\' id=\'about-contact\' bubbles=false}}About{{/link-to}}</div>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['about/contact'] = compile('<h1 id=\'contact\'>Contact</h1>');
 
     Router.map(function () {
       this.resource('about', function () {
@@ -58459,7 +58461,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     var hidden = 0;
 
-    App.AboutRoute = Ember.Route.extend({
+    App.AboutRoute = _emberMetalCore.default.Route.extend({
       actions: {
         hide: function () {
           hidden++;
@@ -58469,15 +58471,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    Ember.run(function () {
-      Ember.$('#about-contact', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-contact', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
+    equal(_emberMetalCore.default.$('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
 
     equal(hidden, 0, 'The link didn\'t bubble');
   });
@@ -58489,15 +58491,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.resource('item', { path: '/item/:id' });
     });
 
-    Ember.TEMPLATES.about = compile('<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to \'item\' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.about = compile('<h3>List</h3><ul>{{#each model as |person|}}<li>{{#link-to \'item\' person}}{{person.name}}{{/link-to}}</li>{{/each}}</ul>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
 
-    App.AboutRoute = Ember.Route.extend({
+    App.AboutRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        return Ember.A([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
+        return _emberMetalCore.default.A([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
       }
     });
 
-    App.ItemRoute = Ember.Route.extend({
+    App.ItemRoute = _emberMetalCore.default.Route.extend({
       serialize: function (object) {
         return { id: object.id };
       }
@@ -58505,95 +58507,95 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/about');
     });
 
-    equal(Ember.$('h3:contains(List)', '#qunit-fixture').length, 1, 'The home template was rendered');
-    equal(normalizeUrl(Ember.$('#home-link').attr('href')), '/', 'The home link points back at /');
+    equal(_emberMetalCore.default.$('h3:contains(List)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    equal(normalizeUrl(_emberMetalCore.default.$('#home-link').attr('href')), '/', 'The home link points back at /');
 
-    Ember.run(function () {
-      Ember.$('li a:contains(Yehuda)', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('li a:contains(Yehuda)', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal(Ember.$('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
+    equal(_emberMetalCore.default.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
+    equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
 
-    Ember.run(function () {
-      Ember.$('#home-link').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#home-link').click();
     });
-    Ember.run(function () {
-      Ember.$('#about-link').click();
-    });
-
-    equal(normalizeUrl(Ember.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-    equal(normalizeUrl(Ember.$('li a:contains(Tom)').attr('href')), '/item/tom');
-    equal(normalizeUrl(Ember.$('li a:contains(Erik)').attr('href')), '/item/erik');
-
-    Ember.run(function () {
-      Ember.$('li a:contains(Erik)', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link').click();
     });
 
-    equal(Ember.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal(Ember.$('p', '#qunit-fixture').text(), 'Erik Brynroflsson', 'The name is correct');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Tom)').attr('href')), '/item/tom');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Erik)').attr('href')), '/item/erik');
+
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('li a:contains(Erik)', '#qunit-fixture').click();
+    });
+
+    equal(_emberMetalCore.default.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
+    equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'Erik Brynroflsson', 'The name is correct');
   });
 
   QUnit.test('The {{link-to}} helper binds some anchor html tag common attributes', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' title=\'title-attr\' rel=\'rel-attr\' tabindex=\'-1\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' title=\'title-attr\' rel=\'rel-attr\' tabindex=\'-1\'}}Self{{/link-to}}');
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    var link = Ember.$('#self-link', '#qunit-fixture');
+    var link = _emberMetalCore.default.$('#self-link', '#qunit-fixture');
     equal(link.attr('title'), 'title-attr', 'The self-link contains title attribute');
     equal(link.attr('rel'), 'rel-attr', 'The self-link contains rel attribute');
     equal(link.attr('tabindex'), '-1', 'The self-link contains tabindex attribute');
   });
 
   QUnit.test('The {{link-to}} helper supports `target` attribute', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}');
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    var link = Ember.$('#self-link', '#qunit-fixture');
+    var link = _emberMetalCore.default.$('#self-link', '#qunit-fixture');
     equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
   });
 
   QUnit.test('The {{link-to}} helper does not call preventDefault if `target` attribute is provided', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}');
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    var event = Ember.$.Event('click');
-    Ember.$('#self-link', '#qunit-fixture').trigger(event);
+    var event = _emberMetalCore.default.$.Event('click');
+    _emberMetalCore.default.$('#self-link', '#qunit-fixture').trigger(event);
 
     equal(event.isDefaultPrevented(), false, 'should not preventDefault when target attribute is specified');
   });
 
   QUnit.test('The {{link-to}} helper should preventDefault when `target = _self`', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_self\'}}Self{{/link-to}}');
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    var event = Ember.$.Event('click');
-    Ember.$('#self-link', '#qunit-fixture').trigger(event);
+    var event = _emberMetalCore.default.$.Event('click');
+    _emberMetalCore.default.$('#self-link', '#qunit-fixture').trigger(event);
 
     equal(event.isDefaultPrevented(), true, 'should preventDefault when target attribute is `_self`');
   });
 
   QUnit.test('The {{link-to}} helper should not transition if target is not equal to _self or empty', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' replace=true target=\'_blank\'}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' replace=true target=\'_blank\'}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -58601,12 +58603,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    Ember.run(function () {
-      Ember.$('#about-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
     });
 
     notEqual(container.lookup('controller:application').get('currentRouteName'), 'about', 'link-to should not transition if target is not equal to _self or empty');
@@ -58619,26 +58621,26 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('repo', { path: '/repo/:owner/:name' });
     });
 
-    App.FilterController = Ember.Controller.extend({
+    App.FilterController = _emberMetalCore.default.Controller.extend({
       filter: 'unpopular',
-      repo: Ember.Object.create({ owner: 'ember', name: 'ember.js' }),
+      repo: _emberMetalCore.default.Object.create({ owner: 'ember', name: 'ember.js' }),
       post_id: 123
     });
-    Ember.TEMPLATES.filter = compile('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.filter = compile('<p>{{filter}}</p>{{#link-to "filter" "unpopular" id="link"}}Unpopular{{/link-to}}{{#link-to "filter" filter id="path-link"}}Unpopular{{/link-to}}{{#link-to "post" post_id id="post-path-link"}}Post{{/link-to}}{{#link-to "post" 123 id="post-number-link"}}Post{{/link-to}}{{#link-to "repo" repo id="repo-object-link"}}Repo{{/link-to}}');
 
-    Ember.TEMPLATES.index = compile(' ');
+    _emberMetalCore.default.TEMPLATES.index = compile(' ');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/filters/popular');
     });
 
-    equal(normalizeUrl(Ember.$('#link', '#qunit-fixture').attr('href')), '/filters/unpopular');
-    equal(normalizeUrl(Ember.$('#path-link', '#qunit-fixture').attr('href')), '/filters/unpopular');
-    equal(normalizeUrl(Ember.$('#post-path-link', '#qunit-fixture').attr('href')), '/post/123');
-    equal(normalizeUrl(Ember.$('#post-number-link', '#qunit-fixture').attr('href')), '/post/123');
-    equal(normalizeUrl(Ember.$('#repo-object-link', '#qunit-fixture').attr('href')), '/repo/ember/ember.js');
+    equal(normalizeUrl(_emberMetalCore.default.$('#link', '#qunit-fixture').attr('href')), '/filters/unpopular');
+    equal(normalizeUrl(_emberMetalCore.default.$('#path-link', '#qunit-fixture').attr('href')), '/filters/unpopular');
+    equal(normalizeUrl(_emberMetalCore.default.$('#post-path-link', '#qunit-fixture').attr('href')), '/post/123');
+    equal(normalizeUrl(_emberMetalCore.default.$('#post-number-link', '#qunit-fixture').attr('href')), '/post/123');
+    equal(normalizeUrl(_emberMetalCore.default.$('#repo-object-link', '#qunit-fixture').attr('href')), '/repo/ember/ember.js');
   });
 
   QUnit.test('Issue 4201 - Shorthand for route.index shouldn\'t throw errors about context arguments', function () {
@@ -58650,19 +58652,19 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       });
     });
 
-    App.LobbyIndexRoute = Ember.Route.extend({
+    App.LobbyIndexRoute = _emberMetalCore.default.Route.extend({
       model: function (params) {
         equal(params.lobby_id, 'foobar');
         return params.lobby_id;
       }
     });
 
-    Ember.TEMPLATES['lobby/index'] = compile('{{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}');
-    Ember.TEMPLATES.index = compile('');
-    Ember.TEMPLATES['lobby/list'] = compile('{{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES['lobby/index'] = compile('{{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('');
+    _emberMetalCore.default.TEMPLATES['lobby/list'] = compile('{{#link-to \'lobby\' \'foobar\' id=\'lobby-link\'}}Lobby{{/link-to}}');
     bootApplication();
-    Ember.run(router, 'handleURL', '/lobby/list');
-    Ember.run(Ember.$('#lobby-link'), 'click');
+    _emberMetalCore.default.run(router, 'handleURL', '/lobby/list');
+    _emberMetalCore.default.run(_emberMetalCore.default.$('#lobby-link'), 'click');
     shouldBeActive('#lobby-link');
   });
 
@@ -58675,7 +58677,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     var indexObject = { filter: 'popular' };
 
-    App.FilterRoute = Ember.Route.extend({
+    App.FilterRoute = _emberMetalCore.default.Route.extend({
       model: function (params) {
         return indexObject;
       },
@@ -58686,24 +58688,24 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       }
     });
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return indexObject;
       }
     });
 
-    Ember.TEMPLATES.filter = compile('<p>{{model.filter}}</p>');
-    Ember.TEMPLATES.index = compile('{{#link-to "filter" this id="link"}}Filter{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.filter = compile('<p>{{model.filter}}</p>');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "filter" this id="link"}}Filter{{/link-to}}');
 
     expectDeprecation(function () {
       bootApplication();
     }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    Ember.$('#link', '#qunit-fixture').trigger('click');
+    _emberMetalCore.default.$('#link', '#qunit-fixture').trigger('click');
   });
 
   QUnit.test('The {{link-to}} helper doesn\'t change view context', function () {
@@ -58713,24 +58715,24 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       isTrue: true
     });
 
-    Ember.TEMPLATES.index = compile('{{view.name}}-{{#link-to \'index\' id=\'self-link\'}}Link: {{view.name}}-{{#if view.isTrue}}{{view.name}}{{/if}}{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{view.name}}-{{#link-to \'index\' id=\'self-link\'}}Link: {{view.name}}-{{#if view.isTrue}}{{view.name}}{{/if}}{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(Ember.$('#index', '#qunit-fixture').text(), 'test-Link: test-test', 'accesses correct view');
+    equal(_emberMetalCore.default.$('#index', '#qunit-fixture').text(), 'test-Link: test-test', 'accesses correct view');
   });
 
   QUnit.test('Quoteless route param performs property lookup', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' id=\'string-link\'}}string{{/link-to}}{{#link-to foo id=\'path-link\'}}path{{/link-to}}{{#link-to view.foo id=\'view-link\'}}{{view.foo}}{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' id=\'string-link\'}}string{{/link-to}}{{#link-to foo id=\'path-link\'}}path{{/link-to}}{{#link-to view.foo id=\'view-link\'}}{{view.foo}}{{/link-to}}');
 
     function assertEquality(href) {
-      equal(normalizeUrl(Ember.$('#string-link', '#qunit-fixture').attr('href')), '/');
-      equal(normalizeUrl(Ember.$('#path-link', '#qunit-fixture').attr('href')), href);
-      equal(normalizeUrl(Ember.$('#view-link', '#qunit-fixture').attr('href')), href);
+      equal(normalizeUrl(_emberMetalCore.default.$('#string-link', '#qunit-fixture').attr('href')), '/');
+      equal(normalizeUrl(_emberMetalCore.default.$('#path-link', '#qunit-fixture').attr('href')), href);
+      equal(normalizeUrl(_emberMetalCore.default.$('#view-link', '#qunit-fixture').attr('href')), href);
     }
 
     App.IndexView = _emberViewsViewsView.default.extend({
@@ -58738,7 +58740,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       elementId: 'index-view'
     });
 
-    App.IndexController = Ember.Controller.extend({
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       foo: 'index'
     });
 
@@ -58748,13 +58750,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
     assertEquality('/');
 
     var controller = container.lookup('controller:index');
     var view = _emberViewsViewsView.default.views['index-view'];
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       controller.set('foo', 'about');
       view.set('foo', 'about');
     });
@@ -58766,21 +58768,21 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     expect(19);
 
-    var oldWarn = Ember.Logger.warn;
+    var oldWarn = _emberMetalCore.default.Logger.warn;
     var warnCalled = false;
-    Ember.Logger.warn = function () {
+    _emberMetalCore.default.Logger.warn = function () {
       warnCalled = true;
     };
-    Ember.TEMPLATES.index = compile('{{#link-to destinationRoute routeContext loadingClass=\'i-am-loading\' id=\'context-link\'}}string{{/link-to}}{{#link-to secondRoute loadingClass=\'i-am-loading\' id=\'static-link\'}}string{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to destinationRoute routeContext loadingClass=\'i-am-loading\' id=\'context-link\'}}string{{/link-to}}{{#link-to secondRoute loadingClass=\'i-am-loading\' id=\'static-link\'}}string{{/link-to}}');
 
-    var thing = Ember.Object.create({ id: 123 });
+    var thing = _emberMetalCore.default.Object.create({ id: 123 });
 
-    App.IndexController = Ember.Controller.extend({
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       destinationRoute: null,
       routeContext: null
     });
 
-    App.AboutRoute = Ember.Route.extend({
+    App.AboutRoute = _emberMetalCore.default.Route.extend({
       activate: function () {
         ok(true, 'About was entered');
       }
@@ -58793,7 +58795,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
     function assertLinkStatus($link, url) {
       if (url) {
@@ -58805,52 +58807,52 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       }
     }
 
-    var $contextLink = Ember.$('#context-link', '#qunit-fixture');
-    var $staticLink = Ember.$('#static-link', '#qunit-fixture');
+    var $contextLink = _emberMetalCore.default.$('#context-link', '#qunit-fixture');
+    var $staticLink = _emberMetalCore.default.$('#static-link', '#qunit-fixture');
     var controller = container.lookup('controller:index');
 
     assertLinkStatus($contextLink);
     assertLinkStatus($staticLink);
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       warnCalled = false;
       $contextLink.click();
       ok(warnCalled, 'Logger.warn was called from clicking loading link');
     });
 
     // Set the destinationRoute (context is still null).
-    Ember.run(controller, 'set', 'destinationRoute', 'thing');
+    _emberMetalCore.default.run(controller, 'set', 'destinationRoute', 'thing');
     assertLinkStatus($contextLink);
 
     // Set the routeContext to an id
-    Ember.run(controller, 'set', 'routeContext', '456');
+    _emberMetalCore.default.run(controller, 'set', 'routeContext', '456');
     assertLinkStatus($contextLink, '/thing/456');
 
     // Test that 0 isn't interpreted as falsy.
-    Ember.run(controller, 'set', 'routeContext', 0);
+    _emberMetalCore.default.run(controller, 'set', 'routeContext', 0);
     assertLinkStatus($contextLink, '/thing/0');
 
     // Set the routeContext to an object
-    Ember.run(controller, 'set', 'routeContext', thing);
+    _emberMetalCore.default.run(controller, 'set', 'routeContext', thing);
     assertLinkStatus($contextLink, '/thing/123');
 
     // Set the destinationRoute back to null.
-    Ember.run(controller, 'set', 'destinationRoute', null);
+    _emberMetalCore.default.run(controller, 'set', 'destinationRoute', null);
     assertLinkStatus($contextLink);
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       warnCalled = false;
       $staticLink.click();
       ok(warnCalled, 'Logger.warn was called from clicking loading link');
     });
 
-    Ember.run(controller, 'set', 'secondRoute', 'about');
+    _emberMetalCore.default.run(controller, 'set', 'secondRoute', 'about');
     assertLinkStatus($staticLink, '/about');
 
     // Click the now-active link
-    Ember.run($staticLink, 'click');
+    _emberMetalCore.default.run($staticLink, 'click');
 
-    Ember.Logger.warn = oldWarn;
+    _emberMetalCore.default.Logger.warn = oldWarn;
   });
 
   QUnit.test('The {{link-to}} helper refreshes href element when one of params changes', function () {
@@ -58858,37 +58860,37 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('post', { path: '/posts/:post_id' });
     });
 
-    var post = Ember.Object.create({ id: '1' });
-    var secondPost = Ember.Object.create({ id: '2' });
+    var post = _emberMetalCore.default.Object.create({ id: '1' });
+    var secondPost = _emberMetalCore.default.Object.create({ id: '2' });
 
-    Ember.TEMPLATES.index = compile('{{#link-to "post" post id="post"}}post{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to "post" post id="post"}}post{{/link-to}}');
 
-    App.IndexController = Ember.Controller.extend();
+    App.IndexController = _emberMetalCore.default.Controller.extend();
     var indexController = container.lookup('controller:index');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       indexController.set('post', post);
     });
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    equal(normalizeUrl(Ember.$('#post', '#qunit-fixture').attr('href')), '/posts/1', 'precond - Link has rendered href attr properly');
+    equal(normalizeUrl(_emberMetalCore.default.$('#post', '#qunit-fixture').attr('href')), '/posts/1', 'precond - Link has rendered href attr properly');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       indexController.set('post', secondPost);
     });
 
-    equal(Ember.$('#post', '#qunit-fixture').attr('href'), '/posts/2', 'href attr was updated after one of the params had been changed');
+    equal(_emberMetalCore.default.$('#post', '#qunit-fixture').attr('href'), '/posts/2', 'href attr was updated after one of the params had been changed');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       indexController.set('post', null);
     });
 
-    equal(Ember.$('#post', '#qunit-fixture').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
+    equal(_emberMetalCore.default.$('#post', '#qunit-fixture').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
   });
 
   QUnit.test('The {{link-to}} helper\'s bound parameter functionality works as expected in conjunction with an ObjectProxy/Controller', function () {
@@ -58898,31 +58900,31 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('post', { path: '/posts/:post_id' });
     });
 
-    var post = Ember.Object.create({ id: '1' });
-    var secondPost = Ember.Object.create({ id: '2' });
+    var post = _emberMetalCore.default.Object.create({ id: '1' });
+    var secondPost = _emberMetalCore.default.Object.create({ id: '2' });
 
-    Ember.TEMPLATES = {
+    _emberMetalCore.default.TEMPLATES = {
       index: compile(' '),
       post: compile('{{#link-to "post" this id="self-link"}}selflink{{/link-to}}')
     };
 
-    App.PostController = Ember.ObjectController.extend();
+    App.PostController = _emberMetalCore.default.ObjectController.extend();
     var postController = container.lookup('controller:post');
 
     bootApplication();
 
-    Ember.run(router, 'transitionTo', 'post', post);
+    _emberMetalCore.default.run(router, 'transitionTo', 'post', post);
 
-    var $link = Ember.$('#self-link', '#qunit-fixture');
+    var $link = _emberMetalCore.default.$('#self-link', '#qunit-fixture');
     equal(normalizeUrl($link.attr('href')), '/posts/1', 'self link renders post 1');
 
-    Ember.run(postController, 'set', 'model', secondPost);
+    _emberMetalCore.default.run(postController, 'set', 'model', secondPost);
 
     equal(normalizeUrl($link.attr('href')), '/posts/2', 'self link updated to post 2');
   });
 
   QUnit.test('{{linkTo}} is aliased', function () {
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#linkTo \'about\' id=\'about-link\' replace=true}}About{{/linkTo}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#linkTo \'about\' id=\'about-link\' replace=true}}About{{/linkTo}}');
 
     Router.map(function () {
       this.route('about');
@@ -58932,12 +58934,12 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       bootApplication();
     }, 'The \'linkTo\' view helper is deprecated in favor of \'link-to\'');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
 
-    Ember.run(function () {
-      Ember.$('#about-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
     });
 
     equal(container.lookup('controller:application').get('currentRouteName'), 'about', 'linkTo worked properly');
@@ -58950,21 +58952,21 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       });
     });
 
-    Ember.TEMPLATES.about = compile('<div id=\'about\'>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}} {{#link-to \'about.item\' id=\'item-link\'}}Item{{/link-to}} {{outlet}}</div>');
-    Ember.TEMPLATES['about/item'] = compile(' ');
-    Ember.TEMPLATES['about/index'] = compile(' ');
+    _emberMetalCore.default.TEMPLATES.about = compile('<div id=\'about\'>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}} {{#link-to \'about.item\' id=\'item-link\'}}Item{{/link-to}} {{outlet}}</div>');
+    _emberMetalCore.default.TEMPLATES['about/item'] = compile(' ');
+    _emberMetalCore.default.TEMPLATES['about/index'] = compile(' ');
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/about');
+    _emberMetalCore.default.run(router, 'handleURL', '/about');
 
-    equal(Ember.$('#about-link.active', '#qunit-fixture').length, 1, 'The about resource link is active');
-    equal(Ember.$('#item-link.active', '#qunit-fixture').length, 0, 'The item route link is inactive');
+    equal(_emberMetalCore.default.$('#about-link.active', '#qunit-fixture').length, 1, 'The about resource link is active');
+    equal(_emberMetalCore.default.$('#item-link.active', '#qunit-fixture').length, 0, 'The item route link is inactive');
 
-    Ember.run(router, 'handleURL', '/about/item');
+    _emberMetalCore.default.run(router, 'handleURL', '/about/item');
 
-    equal(Ember.$('#about-link.active', '#qunit-fixture').length, 1, 'The about resource link is active');
-    equal(Ember.$('#item-link.active', '#qunit-fixture').length, 1, 'The item route link is active');
+    equal(_emberMetalCore.default.$('#about-link.active', '#qunit-fixture').length, 1, 'The about resource link is active');
+    equal(_emberMetalCore.default.$('#item-link.active', '#qunit-fixture').length, 1, 'The item route link is active');
   });
 
   QUnit.test('The {{link-to}} helper works in an #each\'d array of string route names', function () {
@@ -58974,13 +58976,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('rar');
     });
 
-    App.IndexController = Ember.Controller.extend({
-      routeNames: Ember.A(['foo', 'bar', 'rar']),
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      routeNames: _emberMetalCore.default.A(['foo', 'bar', 'rar']),
       route1: 'bar',
       route2: 'foo'
     });
 
-    Ember.TEMPLATES = {
+    _emberMetalCore.default.TEMPLATES = {
       index: compile('{{#each routeNames as |routeName|}}{{#link-to routeName}}{{routeName}}{{/link-to}}{{/each}}{{#each routeNames as |r|}}{{#link-to r}}{{r}}{{/link-to}}{{/each}}{{#link-to route1}}a{{/link-to}}{{#link-to route2}}b{{/link-to}}')
     };
 
@@ -58991,22 +58993,22 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
       var idx;
       for (idx = 0; idx < $links.length; idx++) {
-        var href = Ember.$($links[idx]).attr('href');
+        var href = _emberMetalCore.default.$($links[idx]).attr('href');
         // Old IE includes the whole hostname as well
         equal(href.slice(-expected[idx].length), expected[idx], 'Expected link to be \'' + expected[idx] + '\', but was \'' + href + '\'');
       }
     }
 
-    linksEqual(Ember.$('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/bar', '/foo']);
+    linksEqual(_emberMetalCore.default.$('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/bar', '/foo']);
 
     var indexController = container.lookup('controller:index');
-    Ember.run(indexController, 'set', 'route1', 'rar');
+    _emberMetalCore.default.run(indexController, 'set', 'route1', 'rar');
 
-    linksEqual(Ember.$('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/rar', '/foo']);
+    linksEqual(_emberMetalCore.default.$('a', '#qunit-fixture'), ['/foo', '/bar', '/rar', '/foo', '/bar', '/rar', '/rar', '/foo']);
 
-    Ember.run(indexController.routeNames, 'shiftObject');
+    _emberMetalCore.default.run(indexController.routeNames, 'shiftObject');
 
-    linksEqual(Ember.$('a', '#qunit-fixture'), ['/bar', '/rar', '/bar', '/rar', '/rar', '/foo']);
+    linksEqual(_emberMetalCore.default.$('a', '#qunit-fixture'), ['/bar', '/rar', '/bar', '/rar', '/rar', '/foo']);
   });
 
   QUnit.test('The non-block form {{link-to}} helper moves into the named route', function () {
@@ -59015,18 +59017,18 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('contact');
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{link-to \'Contact us\' \'contact\' id=\'contact-link\'}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
-    Ember.TEMPLATES.contact = compile('<h3>Contact</h3>{{link-to \'Home\' \'index\' id=\'home-link\'}}{{link-to \'Self\' \'contact\' id=\'self-link\'}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{link-to \'Contact us\' \'contact\' id=\'contact-link\'}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.contact = compile('<h3>Contact</h3>{{link-to \'Home\' \'index\' id=\'home-link\'}}{{link-to \'Self\' \'contact\' id=\'self-link\'}}');
 
     bootApplication();
 
-    Ember.run(function () {
-      Ember.$('#contact-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#contact-link', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
-    equal(Ember.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal(Ember.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+    equal(_emberMetalCore.default.$('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
   });
 
   QUnit.test('The non-block form {{link-to}} helper updates the link text when it is a binding', function () {
@@ -59035,46 +59037,46 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('contact');
     });
 
-    App.IndexController = Ember.Controller.extend({
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       contactName: 'Jane'
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{link-to contactName \'contact\' id=\'contact-link\'}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
-    Ember.TEMPLATES.contact = compile('<h3>Contact</h3>{{link-to \'Home\' \'index\' id=\'home-link\'}}{{link-to \'Self\' \'contact\' id=\'self-link\'}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{link-to contactName \'contact\' id=\'contact-link\'}}{{#link-to \'index\' id=\'self-link\'}}Self{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.contact = compile('<h3>Contact</h3>{{link-to \'Home\' \'index\' id=\'home-link\'}}{{link-to \'Self\' \'contact\' id=\'self-link\'}}');
 
     bootApplication();
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       router.handleURL('/');
     });
     var controller = container.lookup('controller:index');
 
-    equal(Ember.$('#contact-link:contains(Jane)', '#qunit-fixture').length, 1, 'The link title is correctly resolved');
+    equal(_emberMetalCore.default.$('#contact-link:contains(Jane)', '#qunit-fixture').length, 1, 'The link title is correctly resolved');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       controller.set('contactName', 'Joe');
     });
-    equal(Ember.$('#contact-link:contains(Joe)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes');
+    equal(_emberMetalCore.default.$('#contact-link:contains(Joe)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes');
 
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       controller.set('contactName', 'Robert');
     });
-    equal(Ember.$('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes a second time');
+    equal(_emberMetalCore.default.$('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the bound property changes a second time');
 
-    Ember.run(function () {
-      Ember.$('#contact-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#contact-link', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
-    equal(Ember.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
-    equal(Ember.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+    equal(_emberMetalCore.default.$('h3:contains(Contact)', '#qunit-fixture').length, 1, 'The contact template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#home-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
 
-    Ember.run(function () {
-      Ember.$('#home-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#home-link', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The index template was rendered');
-    equal(Ember.$('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the route changes');
+    equal(_emberMetalCore.default.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The index template was rendered');
+    equal(_emberMetalCore.default.$('#contact-link:contains(Robert)', '#qunit-fixture').length, 1, 'The link title is correctly updated when the route changes');
   });
 
   QUnit.test('The non-block form {{link-to}} helper moves into the named route with context', function () {
@@ -59084,46 +59086,46 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       this.route('item', { path: '/item/:id' });
     });
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        return Ember.A([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
+        return _emberMetalCore.default.A([{ id: 'yehuda', name: 'Yehuda Katz' }, { id: 'tom', name: 'Tom Dale' }, { id: 'erik', name: 'Erik Brynroflsson' }]);
       }
     });
 
-    App.ItemRoute = Ember.Route.extend({
+    App.ItemRoute = _emberMetalCore.default.Route.extend({
       serialize: function (object) {
         return { id: object.id };
       }
     });
 
-    Ember.TEMPLATES.index = compile('<h3>Home</h3><ul>{{#each controller as |person|}}<li>{{link-to person.name \'item\' person}}</li>{{/each}}</ul>');
-    Ember.TEMPLATES.item = compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3><ul>{{#each controller as |person|}}<li>{{link-to person.name \'item\' person}}</li>{{/each}}</ul>');
+    _emberMetalCore.default.TEMPLATES.item = compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
 
     bootApplication();
 
-    Ember.run(function () {
-      Ember.$('li a:contains(Yehuda)', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('li a:contains(Yehuda)', '#qunit-fixture').click();
     });
 
-    equal(Ember.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
-    equal(Ember.$('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
+    equal(_emberMetalCore.default.$('h3:contains(Item)', '#qunit-fixture').length, 1, 'The item template was rendered');
+    equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'Yehuda Katz', 'The name is correct');
 
-    Ember.run(function () {
-      Ember.$('#home-link').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#home-link').click();
     });
 
-    equal(normalizeUrl(Ember.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
-    equal(normalizeUrl(Ember.$('li a:contains(Tom)').attr('href')), '/item/tom');
-    equal(normalizeUrl(Ember.$('li a:contains(Erik)').attr('href')), '/item/erik');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Yehuda)').attr('href')), '/item/yehuda');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Tom)').attr('href')), '/item/tom');
+    equal(normalizeUrl(_emberMetalCore.default.$('li a:contains(Erik)').attr('href')), '/item/erik');
   });
 
   QUnit.test('The non-block form {{link-to}} performs property lookup', function () {
-    Ember.TEMPLATES.index = compile('{{link-to \'string\' \'index\' id=\'string-link\'}}{{link-to path foo id=\'path-link\'}}{{link-to view.foo view.foo id=\'view-link\'}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{link-to \'string\' \'index\' id=\'string-link\'}}{{link-to path foo id=\'path-link\'}}{{link-to view.foo view.foo id=\'view-link\'}}');
 
     function assertEquality(href) {
-      equal(normalizeUrl(Ember.$('#string-link', '#qunit-fixture').attr('href')), '/');
-      equal(normalizeUrl(Ember.$('#path-link', '#qunit-fixture').attr('href')), href);
-      equal(normalizeUrl(Ember.$('#view-link', '#qunit-fixture').attr('href')), href);
+      equal(normalizeUrl(_emberMetalCore.default.$('#string-link', '#qunit-fixture').attr('href')), '/');
+      equal(normalizeUrl(_emberMetalCore.default.$('#path-link', '#qunit-fixture').attr('href')), href);
+      equal(normalizeUrl(_emberMetalCore.default.$('#view-link', '#qunit-fixture').attr('href')), href);
     }
 
     App.IndexView = _emberViewsViewsView.default.extend({
@@ -59131,7 +59133,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
       elementId: 'index-view'
     });
 
-    App.IndexController = Ember.Controller.extend({
+    App.IndexController = _emberMetalCore.default.Controller.extend({
       foo: 'index'
     });
 
@@ -59141,13 +59143,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
     assertEquality('/');
 
     var controller = container.lookup('controller:index');
     var view = _emberViewsViewsView.default.views['index-view'];
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       controller.set('foo', 'about');
       view.set('foo', 'about');
     });
@@ -59156,25 +59158,25 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
   });
 
   QUnit.test('The non-block form {{link-to}} protects against XSS', function () {
-    Ember.TEMPLATES.application = compile('{{link-to display \'index\' id=\'link\'}}');
+    _emberMetalCore.default.TEMPLATES.application = compile('{{link-to display \'index\' id=\'link\'}}');
 
-    App.ApplicationController = Ember.Controller.extend({
+    App.ApplicationController = _emberMetalCore.default.Controller.extend({
       display: 'blahzorz'
     });
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
     var controller = container.lookup('controller:application');
 
-    equal(Ember.$('#link', '#qunit-fixture').text(), 'blahzorz');
-    Ember.run(function () {
+    equal(_emberMetalCore.default.$('#link', '#qunit-fixture').text(), 'blahzorz');
+    _emberMetalCore.default.run(function () {
       controller.set('display', '<b>BLAMMO</b>');
     });
 
-    equal(Ember.$('#link', '#qunit-fixture').text(), '<b>BLAMMO</b>');
-    equal(Ember.$('b', '#qunit-fixture').length, 0);
+    equal(_emberMetalCore.default.$('#link', '#qunit-fixture').text(), '<b>BLAMMO</b>');
+    equal(_emberMetalCore.default.$('b', '#qunit-fixture').length, 0);
   });
 
   QUnit.test('the {{link-to}} helper calls preventDefault', function () {
@@ -59184,16 +59186,16 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
-    var event = Ember.$.Event('click');
-    Ember.$('#about-link', '#qunit-fixture').trigger(event);
+    var event = _emberMetalCore.default.$.Event('click');
+    _emberMetalCore.default.$('#about-link', '#qunit-fixture').trigger(event);
 
     equal(event.isDefaultPrevented(), true, 'should preventDefault');
   });
 
   QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=false` is passed as an option', function () {
-    Ember.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' preventDefault=false}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'about\' id=\'about-link\' preventDefault=false}}About{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
@@ -59201,10 +59203,10 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
-    var event = Ember.$.Event('click');
-    Ember.$('#about-link', '#qunit-fixture').trigger(event);
+    var event = _emberMetalCore.default.$.Event('click');
+    _emberMetalCore.default.$('#about-link', '#qunit-fixture').trigger(event);
 
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
   });
@@ -59212,14 +59214,14 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
   QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
     expect(0);
 
-    Ember.TEMPLATES.application = compile('{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'post\' defaultPost id=\'default-post-link\'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to \'post\' id=\'post-link\'}}Post{{/link-to}}{{/if}}');
+    _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'post\' defaultPost id=\'default-post-link\'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to \'post\' id=\'post-link\'}}Post{{/link-to}}{{/if}}');
 
-    App.ApplicationController = Ember.Controller.extend({
+    App.ApplicationController = _emberMetalCore.default.Controller.extend({
       needs: ['post'],
-      currentPost: Ember.computed.alias('controllers.post.model')
+      currentPost: _emberMetalCore.default.computed.alias('controllers.post.model')
     });
 
-    App.PostController = Ember.Controller.extend({
+    App.PostController = _emberMetalCore.default.Controller.extend({
       model: { id: 1 }
     });
 
@@ -59229,19 +59231,19 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/');
+    _emberMetalCore.default.run(router, 'handleURL', '/');
 
-    Ember.run(function () {
-      Ember.$('#default-post-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#default-post-link', '#qunit-fixture').click();
     });
 
-    Ember.run(function () {
-      Ember.$('#home-link', '#qunit-fixture').click();
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#home-link', '#qunit-fixture').click();
     });
   });
 
   QUnit.test('{{link-to}} active property respects changing parent route context', function () {
-    Ember.TEMPLATES.application = compile('{{link-to \'OMG\' \'things\' \'omg\' id=\'omg-link\'}} ' + '{{link-to \'LOL\' \'things\' \'lol\' id=\'lol-link\'}} ');
+    _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'OMG\' \'things\' \'omg\' id=\'omg-link\'}} ' + '{{link-to \'LOL\' \'things\' \'lol\' id=\'lol-link\'}} ');
 
     Router.map(function () {
       this.resource('things', { path: '/things/:name' }, function () {
@@ -59251,18 +59253,18 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
 
     bootApplication();
 
-    Ember.run(router, 'handleURL', '/things/omg');
+    _emberMetalCore.default.run(router, 'handleURL', '/things/omg');
     shouldBeActive('#omg-link');
     shouldNotBeActive('#lol-link');
 
-    Ember.run(router, 'handleURL', '/things/omg/other');
+    _emberMetalCore.default.run(router, 'handleURL', '/things/omg/other');
     shouldBeActive('#omg-link');
     shouldNotBeActive('#lol-link');
   });
 
   QUnit.test('{{link-to}} populates href with default query param values even without query-params object', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59270,20 +59272,20 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/', 'link has right href');
   });
 
   QUnit.test('{{link-to}} populates href with default query param values with empty query-params object', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59291,20 +59293,20 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/', 'link has right href');
   });
 
   QUnit.test('{{link-to}} populates href with supplied query param values', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59312,20 +59314,20 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/?foo=456', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=456', 'link has right href');
   });
 
   QUnit.test('{{link-to}} populates href with partially supplied query param values', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59336,21 +59338,21 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123',
         bar: 'yes'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/?foo=456', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=456', 'link has right href');
   });
 
   QUnit.test('{{link-to}} populates href with partially supplied query param values, but omits if value is default value', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59358,20 +59360,20 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'123\') id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'123\') id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/', 'link has right href');
   });
 
   QUnit.test('{{link-to}} populates href with fully supplied query param values', function () {
     if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -59382,24 +59384,24 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/fea
         }
       });
     } else {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo', 'bar'],
         foo: '123',
         bar: 'yes'
       });
     }
 
-    Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
-    equal(Ember.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat) {
+enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
   var Router, App, router, registry, container;
-  var set = Ember.set;
+  var set = _emberMetalCore.default.set;
 
   var aboutDefer, otherDefer;
 
@@ -59407,19 +59409,19 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     expect(6);
 
     if (setTagName) {
-      Ember.TEMPLATES.application = compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\' tagName=\'span\'}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\' tagName=\'span\'}}');
     }
 
     bootApplication();
     equal(updateCount, 0);
-    Ember.run(Ember.$('#about-link'), 'click');
+    _emberMetalCore.default.run(_emberMetalCore.default.$('#about-link'), 'click');
 
     // URL should be eagerly updated now
     equal(updateCount, 1);
     equal(router.get('location.path'), '/about');
 
     // Resolve the promise.
-    Ember.run(aboutDefer, 'resolve');
+    _emberMetalCore.default.run(aboutDefer, 'resolve');
     equal(router.get('location.path'), '/about');
 
     // Shouldn't have called update url again.
@@ -59429,13 +59431,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   var updateCount, replaceCount;
 
   function sharedSetup() {
-    App = Ember.Application.create({
+    App = _emberMetalCore.default.Application.create({
       name: 'App',
       rootElement: '#qunit-fixture'
     });
@@ -59444,7 +59446,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 
     updateCount = replaceCount = 0;
     App.Router.reopen({
-      location: Ember.NoneLocation.createWithMixins({
+      location: _emberMetalCore.default.NoneLocation.createWithMixins({
         setURL: function (path) {
           updateCount++;
           set(this, 'path', path);
@@ -59463,15 +59465,15 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
     });
-    Ember.TEMPLATES = {};
+    _emberMetalCore.default.TEMPLATES = {};
   }
 
   QUnit.module('The {{link-to}} helper: .transitioning-in .transitioning-out CSS classes', {
     setup: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         sharedSetup();
 
         registry.unregister('router:main');
@@ -59482,21 +59484,21 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
           this.route('other');
         });
 
-        App.AboutRoute = Ember.Route.extend({
+        App.AboutRoute = _emberMetalCore.default.Route.extend({
           model: function () {
-            aboutDefer = Ember.RSVP.defer();
+            aboutDefer = _emberMetalCore.default.RSVP.defer();
             return aboutDefer.promise;
           }
         });
 
-        App.OtherRoute = Ember.Route.extend({
+        App.OtherRoute = _emberMetalCore.default.Route.extend({
           model: function () {
-            otherDefer = Ember.RSVP.defer();
+            otherDefer = _emberMetalCore.default.RSVP.defer();
             return otherDefer.promise;
           }
         });
 
-        Ember.TEMPLATES.application = compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\'}}{{link-to \'Other\' \'other\' id=\'other-link\'}}');
+        _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\'}}{{link-to \'Other\' \'other\' id=\'other-link\'}}');
       });
     },
 
@@ -59520,17 +59522,17 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       }
     }
 
-    var $index = Ember.$('#index-link');
-    var $about = Ember.$('#about-link');
-    var $other = Ember.$('#other-link');
+    var $index = _emberMetalCore.default.$('#index-link');
+    var $about = _emberMetalCore.default.$('#about-link');
+    var $other = _emberMetalCore.default.$('#other-link');
 
-    Ember.run($about, 'click');
+    _emberMetalCore.default.run($about, 'click');
 
     assertHasClass('active', $index, true, $about, false, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-out', $index, true, $about, false, $other, false);
 
-    Ember.run(aboutDefer, 'resolve');
+    _emberMetalCore.default.run(aboutDefer, 'resolve');
 
     assertHasClass('active', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
@@ -59547,21 +59549,21 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       });
     });
 
-    App.ParentRouteAboutRoute = Ember.Route.extend({
+    App.ParentRouteAboutRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        aboutDefer = Ember.RSVP.defer();
+        aboutDefer = _emberMetalCore.default.RSVP.defer();
         return aboutDefer.promise;
       }
     });
 
-    App.ParentRouteOtherRoute = Ember.Route.extend({
+    App.ParentRouteOtherRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        otherDefer = Ember.RSVP.defer();
+        otherDefer = _emberMetalCore.default.RSVP.defer();
         return otherDefer.promise;
       }
     });
 
-    Ember.TEMPLATES.application = compile('\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
+    _emberMetalCore.default.TEMPLATES.application = compile('\n      {{outlet}}\n      {{#link-to \'index\' tagName=\'li\'}}\n        {{link-to \'Index\' \'index\' id=\'index-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.about\' tagName=\'li\'}}\n        {{link-to \'About\' \'parent-route.about\' id=\'about-link\'}}\n      {{/link-to}}\n      {{#link-to \'parent-route.other\' tagName=\'li\'}}\n        {{link-to \'Other\' \'parent-route.other\' id=\'other-link\'}}\n      {{/link-to}}\n    ');
 
     bootApplication();
 
@@ -59575,41 +59577,41 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
       }
     }
 
-    var $index = Ember.$('#index-link');
-    var $about = Ember.$('#about-link');
-    var $other = Ember.$('#other-link');
+    var $index = _emberMetalCore.default.$('#index-link');
+    var $about = _emberMetalCore.default.$('#about-link');
+    var $other = _emberMetalCore.default.$('#other-link');
 
-    Ember.run($about, 'click');
+    _emberMetalCore.default.run($about, 'click');
 
     assertHasClass('active', $index, true, $about, false, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-out', $index, true, $about, false, $other, false);
 
-    Ember.run(aboutDefer, 'resolve');
+    _emberMetalCore.default.run(aboutDefer, 'resolve');
 
     assertHasClass('active', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
 
-    Ember.run($other, 'click');
+    _emberMetalCore.default.run($other, 'click');
 
     assertHasClass('active', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, true);
     assertHasClass('ember-transitioning-out', $index, false, $about, true, $other, false);
 
-    Ember.run(otherDefer, 'resolve');
+    _emberMetalCore.default.run(otherDefer, 'resolve');
 
     assertHasClass('active', $index, false, $about, false, $other, true);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
 
-    Ember.run($about, 'click');
+    _emberMetalCore.default.run($about, 'click');
 
     assertHasClass('active', $index, false, $about, false, $other, true);
     assertHasClass('ember-transitioning-in', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, true);
 
-    Ember.run(aboutDefer, 'resolve');
+    _emberMetalCore.default.run(aboutDefer, 'resolve');
 
     assertHasClass('active', $index, false, $about, true, $other, false);
     assertHasClass('ember-transitioning-in', $index, false, $about, false, $other, false);
@@ -59629,16 +59631,16 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
 // Shouldn't have called update url.
 
 // Shouldn't have called update url.
-enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat) {
+enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
   var Router, App, router, registry, container;
-  var set = Ember.set;
+  var set = _emberMetalCore.default.set;
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   function shouldNotBeActive(selector) {
@@ -59650,14 +59652,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
   }
 
   function checkActive(selector, active) {
-    var classList = Ember.$(selector, '#qunit-fixture')[0].className;
+    var classList = _emberMetalCore.default.$(selector, '#qunit-fixture')[0].className;
     equal(classList.indexOf('active') > -1, active, selector + ' active should be ' + active.toString());
   }
 
   var updateCount, replaceCount;
 
   function sharedSetup() {
-    App = Ember.Application.create({
+    App = _emberMetalCore.default.Application.create({
       name: 'App',
       rootElement: '#qunit-fixture'
     });
@@ -59666,7 +59668,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     updateCount = replaceCount = 0;
     App.Router.reopen({
-      location: Ember.NoneLocation.createWithMixins({
+      location: _emberMetalCore.default.NoneLocation.createWithMixins({
         setURL: function (path) {
           updateCount++;
           set(this, 'path', path);
@@ -59685,22 +59687,22 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
     });
-    Ember.TEMPLATES = {};
+    _emberMetalCore.default.TEMPLATES = {};
   }
 
   if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
     QUnit.module('The {{link-to}} helper: invoking with query params when defined on a route', {
       setup: function () {
-        Ember.run(function () {
+        _emberMetalCore.default.run(function () {
           sharedSetup();
-          App.IndexController = Ember.Controller.extend({
+          App.IndexController = _emberMetalCore.default.Controller.extend({
             boundThing: 'OMG'
           });
 
-          App.IndexRoute = Ember.Route.extend({
+          App.IndexRoute = _emberMetalCore.default.Route.extend({
             queryParams: {
               foo: {
                 defaultValue: '123'
@@ -59714,7 +59716,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
             }
           });
 
-          App.AboutRoute = Ember.Route.extend({
+          App.AboutRoute = _emberMetalCore.default.Route.extend({
             queryParams: {
               baz: {
                 defaultValue: 'alex'
@@ -59734,53 +59736,53 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('link-to with no params throws', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to id=\'the-link\'}}Index{{/link-to}}');
       expectAssertion(function () {
         bootApplication();
       }, /one or more/);
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj, inferred route)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('updates controller QP properties on current route when invoked', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
     QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
@@ -59790,11 +59792,11 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('about');
       });
 
-      Ember.TEMPLATES.index = compile('{{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}About{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}About{{/link-to}}');
       bootApplication();
 
-      equal(Ember.$('#the-link').attr('href'), '/about?baz=lol');
-      Ember.run(Ember.$('#the-link'), 'click');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/about?baz=lol');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var aboutController = container.lookup('controller:about');
       deepEqual(aboutController.getProperties('baz', 'bat'), { baz: 'lol', bat: 'borf' }, 'about controller QP properties updated');
 
@@ -59802,51 +59804,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('supplied QP properties can be bound', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
       var indexController = container.lookup('controller:index');
 
-      equal(Ember.$('#the-link').attr('href'), '/?foo=OMG');
-      Ember.run(indexController, 'set', 'boundThing', 'ASL');
-      equal(Ember.$('#the-link').attr('href'), '/?foo=ASL');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=OMG');
+      _emberMetalCore.default.run(indexController, 'set', 'boundThing', 'ASL');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=ASL');
     });
 
     QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params abool=boundThing) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params abool=boundThing) id=\'the-link\'}}Index{{/link-to}}');
 
       bootApplication();
 
-      equal(Ember.$('#the-link').attr('href'), '/?abool=OMG');
-      Ember.run(indexController, 'set', 'boundThing', false);
-      equal(Ember.$('#the-link').attr('href'), '/?abool=false');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?abool=OMG');
+      _emberMetalCore.default.run(indexController, 'set', 'boundThing', false);
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?abool=false');
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
 
       deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false });
     });
 
     QUnit.test('href updates when unsupplied controller QP props change', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}');
 
       bootApplication();
 
       var indexController = container.lookup('controller:index');
 
-      equal(Ember.$('#the-link').attr('href'), '/?foo=lol');
-      Ember.run(indexController, 'set', 'bar', 'BORF');
-      equal(Ember.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
-      Ember.run(indexController, 'set', 'foo', 'YEAH');
-      equal(Ember.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=lol');
+      _emberMetalCore.default.run(indexController, 'set', 'bar', 'BORF');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
+      _emberMetalCore.default.run(indexController, 'set', 'foo', 'YEAH');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
     });
 
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
 
-      Ember.TEMPLATES.search = compile('{{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}} ' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.search = compile('{{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}} ' + '{{outlet}}');
 
-      Ember.TEMPLATES['search/results'] = compile('{{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES['search/results'] = compile('{{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ');
 
       Router.map(function () {
         this.resource('search', function () {
@@ -59854,7 +59856,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      App.SearchRoute = Ember.Route.extend({
+      App.SearchRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           search: {
             defaultValue: ''
@@ -59865,7 +59867,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         }
       });
 
-      App.SearchResultsRoute = Ember.Route.extend({
+      App.SearchResultsRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           sort: {
             defaultValue: 'title'
@@ -59881,16 +59883,16 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       //Basic tests
       shouldNotBeActive('#cat-link');
       shouldNotBeActive('#dog-link');
-      Ember.run(router, 'handleURL', '/?foo=cat');
+      _emberMetalCore.default.run(router, 'handleURL', '/?foo=cat');
       shouldBeActive('#cat-link');
       shouldNotBeActive('#dog-link');
-      Ember.run(router, 'handleURL', '/?foo=dog');
+      _emberMetalCore.default.run(router, 'handleURL', '/?foo=dog');
       shouldBeActive('#dog-link');
       shouldNotBeActive('#cat-link');
       shouldBeActive('#change-nothing');
 
       //Multiple params
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         router.handleURL('/search?search=same');
       });
       shouldBeActive('#same-search');
@@ -59899,14 +59901,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#only-add-archive');
       shouldNotBeActive('#remove-one');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         router.handleURL('/search?search=same&archive=true');
       });
       shouldBeActive('#both-same');
       shouldNotBeActive('#change-one');
 
       //Nested Controllers
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         // Note: this is kind of a strange case; sort's default value is 'title',
         // so this URL shouldn't have been generated in the first place, but
         // we should also be able to gracefully handle these cases.
@@ -59921,9 +59923,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params page=pageNumber) id=\'page-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params page=pageNumber) id=\'page-link\'}}Index{{/link-to}} ');
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           page: {
             defaultValue: 1
@@ -59931,21 +59933,21 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         }
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         pageNumber: 5
       });
 
       bootApplication();
 
       shouldNotBeActive('#page-link');
-      Ember.run(router, 'handleURL', '/?page=5');
+      _emberMetalCore.default.run(router, 'handleURL', '/?page=5');
       shouldBeActive('#page-link');
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}} ');
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           pages: {
             defaultValue: []
@@ -59953,7 +59955,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         }
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         pagesArray: [1, 2],
         biggerArray: [1, 2, 3],
         emptyArray: []
@@ -59962,15 +59964,15 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       bootApplication();
 
       shouldNotBeActive('#array-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B1%2C2%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B1%2C2%5D');
       shouldBeActive('#array-link');
       shouldNotBeActive('#bigger-link');
       shouldNotBeActive('#empty-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B2%2C1%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B2%2C1%5D');
       shouldNotBeActive('#array-link');
       shouldNotBeActive('#bigger-link');
       shouldNotBeActive('#empty-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B1%2C2%2C3%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B1%2C2%2C3%5D');
       shouldBeActive('#bigger-link');
       shouldNotBeActive('#array-link');
       shouldNotBeActive('#empty-link');
@@ -59983,9 +59985,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      Ember.TEMPLATES.application = compile('{{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}} ' + '{{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}} ' + '{{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}} ' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}} ' + '{{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}} ' + '{{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}} ' + '{{outlet}}');
 
-      App.ParentChildRoute = Ember.Route.extend({
+      App.ParentChildRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'bar'
@@ -59997,7 +59999,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#parent-link');
       shouldNotBeActive('#parent-child-link');
       shouldNotBeActive('#parent-link-qp');
-      Ember.run(router, 'handleURL', '/parent/child?foo=dog');
+      _emberMetalCore.default.run(router, 'handleURL', '/parent/child?foo=dog');
       shouldBeActive('#parent-link');
       shouldNotBeActive('#parent-link-qp');
     });
@@ -60007,10 +60009,10 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('parent');
       });
 
-      Ember.TEMPLATES.application = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}Parent{{/link-to}} {{outlet}}');
-      Ember.TEMPLATES.parent = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}Parent{{/link-to}} {{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}Parent{{/link-to}} {{outlet}}');
+      _emberMetalCore.default.TEMPLATES.parent = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}Parent{{/link-to}} {{outlet}}');
 
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           page: {
             defaultValue: 1
@@ -60019,32 +60021,32 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       });
 
       bootApplication();
-      equal(Ember.$('#app-link').attr('href'), '/parent');
+      equal(_emberMetalCore.default.$('#app-link').attr('href'), '/parent');
       shouldNotBeActive('#app-link');
 
-      Ember.run(router, 'handleURL', '/parent?page=2');
-      equal(Ember.$('#app-link').attr('href'), '/parent');
+      _emberMetalCore.default.run(router, 'handleURL', '/parent?page=2');
+      equal(_emberMetalCore.default.$('#app-link').attr('href'), '/parent');
       shouldBeActive('#app-link');
-      equal(Ember.$('#parent-link').attr('href'), '/parent');
+      equal(_emberMetalCore.default.$('#parent-link').attr('href'), '/parent');
       shouldBeActive('#parent-link');
 
       var parentController = container.lookup('controller:parent');
       equal(parentController.get('page'), 2);
-      Ember.run(parentController, 'set', 'page', 3);
+      _emberMetalCore.default.run(parentController, 'set', 'page', 3);
       equal(router.get('location.path'), '/parent?page=3');
       shouldBeActive('#app-link');
       shouldBeActive('#parent-link');
 
-      Ember.$('#app-link').click();
+      _emberMetalCore.default.$('#app-link').click();
       equal(router.get('location.path'), '/parent');
     });
   } else {
     QUnit.module('The {{link-to}} helper: invoking with query params', {
       setup: function () {
-        Ember.run(function () {
+        _emberMetalCore.default.run(function () {
           sharedSetup();
 
-          App.IndexController = Ember.Controller.extend({
+          App.IndexController = _emberMetalCore.default.Controller.extend({
             queryParams: ['foo', 'bar', 'abool'],
             foo: '123',
             bar: 'abc',
@@ -60052,7 +60054,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
             abool: true
           });
 
-          App.AboutController = Ember.Controller.extend({
+          App.AboutController = _emberMetalCore.default.Controller.extend({
             queryParams: ['baz', 'bat'],
             baz: 'alex',
             bat: 'borf'
@@ -60067,53 +60069,53 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params) id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('link-to with no params throws', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to id=\'the-link\'}}Index{{/link-to}}');
       expectAssertion(function () {
         bootApplication();
       }, /one or more/);
     });
 
     QUnit.test('doesn\'t update controller QP properties on current route when invoked (empty query-params obj, inferred route)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params) id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '123', bar: 'abc' }, 'controller QP properties not');
     });
 
     QUnit.test('updates controller QP properties on current route when invoked', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
 
     QUnit.test('updates controller QP properties on current route when invoked (inferred route)', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'456\') id=\'the-link\'}}Index{{/link-to}}');
       bootApplication();
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var indexController = container.lookup('controller:index');
       deepEqual(indexController.getProperties('foo', 'bar'), { foo: '456', bar: 'abc' }, 'controller QP properties updated');
     });
@@ -60123,11 +60125,11 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('about');
       });
 
-      Ember.TEMPLATES.index = compile('{{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}About{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'about\' (query-params baz=\'lol\') id=\'the-link\'}}About{{/link-to}}');
       bootApplication();
 
-      equal(Ember.$('#the-link').attr('href'), '/about?baz=lol');
-      Ember.run(Ember.$('#the-link'), 'click');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/about?baz=lol');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
       var aboutController = container.lookup('controller:about');
       deepEqual(aboutController.getProperties('baz', 'bat'), { baz: 'lol', bat: 'borf' }, 'about controller QP properties updated');
 
@@ -60136,49 +60138,49 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
 
     QUnit.test('supplied QP properties can be bound', function () {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=boundThing) id=\'the-link\'}}Index{{/link-to}}');
 
       bootApplication();
 
-      equal(Ember.$('#the-link').attr('href'), '/?foo=OMG');
-      Ember.run(indexController, 'set', 'boundThing', 'ASL');
-      equal(Ember.$('#the-link').attr('href'), '/?foo=ASL');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=OMG');
+      _emberMetalCore.default.run(indexController, 'set', 'boundThing', 'ASL');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=ASL');
     });
 
     QUnit.test('supplied QP properties can be bound (booleans)', function () {
       var indexController = container.lookup('controller:index');
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params abool=boundThing) id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params abool=boundThing) id=\'the-link\'}}Index{{/link-to}}');
 
       bootApplication();
 
-      equal(Ember.$('#the-link').attr('href'), '/?abool=OMG');
-      Ember.run(indexController, 'set', 'boundThing', false);
-      equal(Ember.$('#the-link').attr('href'), '/?abool=false');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?abool=OMG');
+      _emberMetalCore.default.run(indexController, 'set', 'boundThing', false);
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?abool=false');
 
-      Ember.run(Ember.$('#the-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#the-link'), 'click');
 
       deepEqual(indexController.getProperties('foo', 'bar', 'abool'), { foo: '123', bar: 'abc', abool: false });
     });
 
     QUnit.test('href updates when unsupplied controller QP props change', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'lol\') id=\'the-link\'}}Index{{/link-to}}');
 
       bootApplication();
       var indexController = container.lookup('controller:index');
 
-      equal(Ember.$('#the-link').attr('href'), '/?foo=lol');
-      Ember.run(indexController, 'set', 'bar', 'BORF');
-      equal(Ember.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
-      Ember.run(indexController, 'set', 'foo', 'YEAH');
-      equal(Ember.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?foo=lol');
+      _emberMetalCore.default.run(indexController, 'set', 'bar', 'BORF');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
+      _emberMetalCore.default.run(indexController, 'set', 'foo', 'YEAH');
+      equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
     });
 
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
 
-      Ember.TEMPLATES.search = compile('{{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}} ' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.search = compile('{{#link-to (query-params search=\'same\') id=\'same-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'same-search-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params archive=true) id=\'only-add-archive\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' archive=true) id=\'both-same\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=true) id=\'change-one\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'different\' archive=false) id=\'remove-one\'}}Index{{/link-to}} ' + '{{outlet}}');
 
-      Ember.TEMPLATES['search/results'] = compile('{{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES['search/results'] = compile('{{#link-to (query-params sort=\'title\') id=\'same-sort-child-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\') id=\'same-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\') id=\'change-search-parent-only\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'title\') id=\'same-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'same\' sort=\'author\') id=\'same-search-different-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params search=\'change\' sort=\'title\') id=\'change-search-same-sort-child-and-parent\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ');
 
       Router.map(function () {
         this.resource('search', function () {
@@ -60186,13 +60188,13 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      App.SearchController = Ember.Controller.extend({
+      App.SearchController = _emberMetalCore.default.Controller.extend({
         queryParams: ['search', 'archive'],
         search: '',
         archive: false
       });
 
-      App.SearchResultsController = Ember.Controller.extend({
+      App.SearchResultsController = _emberMetalCore.default.Controller.extend({
         queryParams: ['sort', 'showDetails'],
         sort: 'title',
         showDetails: true
@@ -60203,16 +60205,16 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       //Basic tests
       shouldNotBeActive('#cat-link');
       shouldNotBeActive('#dog-link');
-      Ember.run(router, 'handleURL', '/?foo=cat');
+      _emberMetalCore.default.run(router, 'handleURL', '/?foo=cat');
       shouldBeActive('#cat-link');
       shouldNotBeActive('#dog-link');
-      Ember.run(router, 'handleURL', '/?foo=dog');
+      _emberMetalCore.default.run(router, 'handleURL', '/?foo=dog');
       shouldBeActive('#dog-link');
       shouldNotBeActive('#cat-link');
       shouldBeActive('#change-nothing');
 
       //Multiple params
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         router.handleURL('/search?search=same');
       });
       shouldBeActive('#same-search');
@@ -60221,14 +60223,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#only-add-archive');
       shouldNotBeActive('#remove-one');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         router.handleURL('/search?search=same&archive=true');
       });
       shouldBeActive('#both-same');
       shouldNotBeActive('#change-one');
 
       //Nested Controllers
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         // Note: this is kind of a strange case; sort's default value is 'title',
         // so this URL shouldn't have been generated in the first place, but
         // we should also be able to gracefully handle these cases.
@@ -60243,9 +60245,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is number', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params page=pageNumber) id=\'page-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params page=pageNumber) id=\'page-link\'}}Index{{/link-to}} ');
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['page'],
         page: 1,
         pageNumber: 5
@@ -60254,14 +60256,14 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       bootApplication();
 
       shouldNotBeActive('#page-link');
-      Ember.run(router, 'handleURL', '/?page=5');
+      _emberMetalCore.default.run(router, 'handleURL', '/?page=5');
       shouldBeActive('#page-link');
     });
 
     QUnit.test('The {{link-to}} applies active class when query-param is array', function () {
-      Ember.TEMPLATES.index = compile('{{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}} ');
+      _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to (query-params pages=pagesArray) id=\'array-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=biggerArray) id=\'bigger-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params pages=emptyArray) id=\'empty-link\'}}Index{{/link-to}} ');
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['pages'],
         pages: [],
         pagesArray: [1, 2],
@@ -60272,15 +60274,15 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       bootApplication();
 
       shouldNotBeActive('#array-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B1%2C2%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B1%2C2%5D');
       shouldBeActive('#array-link');
       shouldNotBeActive('#bigger-link');
       shouldNotBeActive('#empty-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B2%2C1%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B2%2C1%5D');
       shouldNotBeActive('#array-link');
       shouldNotBeActive('#bigger-link');
       shouldNotBeActive('#empty-link');
-      Ember.run(router, 'handleURL', '/?pages=%5B1%2C2%2C3%5D');
+      _emberMetalCore.default.run(router, 'handleURL', '/?pages=%5B1%2C2%2C3%5D');
       shouldBeActive('#bigger-link');
       shouldNotBeActive('#array-link');
       shouldNotBeActive('#empty-link');
@@ -60293,9 +60295,9 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         });
       });
 
-      Ember.TEMPLATES.application = compile('{{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}} ' + '{{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}} ' + '{{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}} ' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'parent\' id=\'parent-link\'}}Parent{{/link-to}} ' + '{{#link-to \'parent.child\' id=\'parent-child-link\'}}Child{{/link-to}} ' + '{{#link-to \'parent\' (query-params foo=cat) id=\'parent-link-qp\'}}Parent{{/link-to}} ' + '{{outlet}}');
 
-      App.ParentChildController = Ember.Controller.extend({
+      App.ParentChildController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'bar'
       });
@@ -60304,7 +60306,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       shouldNotBeActive('#parent-link');
       shouldNotBeActive('#parent-child-link');
       shouldNotBeActive('#parent-link-qp');
-      Ember.run(router, 'handleURL', '/parent/child?foo=dog');
+      _emberMetalCore.default.run(router, 'handleURL', '/parent/child?foo=dog');
       shouldBeActive('#parent-link');
       shouldNotBeActive('#parent-link-qp');
     });
@@ -60314,37 +60316,37 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
         this.route('parent');
       });
 
-      Ember.TEMPLATES.application = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}Parent{{/link-to}} {{outlet}}');
-      Ember.TEMPLATES.parent = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}Parent{{/link-to}} {{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'app-link\'}}Parent{{/link-to}} {{outlet}}');
+      _emberMetalCore.default.TEMPLATES.parent = compile('{{#link-to \'parent\' (query-params page=1) current-when=\'parent\' id=\'parent-link\'}}Parent{{/link-to}} {{outlet}}');
 
-      App.ParentController = Ember.Controller.extend({
+      App.ParentController = _emberMetalCore.default.Controller.extend({
         queryParams: ['page'],
         page: 1
       });
 
       bootApplication();
-      equal(Ember.$('#app-link').attr('href'), '/parent');
+      equal(_emberMetalCore.default.$('#app-link').attr('href'), '/parent');
       shouldNotBeActive('#app-link');
 
-      Ember.run(router, 'handleURL', '/parent?page=2');
-      equal(Ember.$('#app-link').attr('href'), '/parent');
+      _emberMetalCore.default.run(router, 'handleURL', '/parent?page=2');
+      equal(_emberMetalCore.default.$('#app-link').attr('href'), '/parent');
       shouldBeActive('#app-link');
-      equal(Ember.$('#parent-link').attr('href'), '/parent');
+      equal(_emberMetalCore.default.$('#parent-link').attr('href'), '/parent');
       shouldBeActive('#parent-link');
 
       var parentController = container.lookup('controller:parent');
       equal(parentController.get('page'), 2);
-      Ember.run(parentController, 'set', 'page', 3);
+      _emberMetalCore.default.run(parentController, 'set', 'page', 3);
       equal(router.get('location.path'), '/parent?page=3');
       shouldBeActive('#app-link');
       shouldBeActive('#parent-link');
 
-      Ember.$('#app-link').click();
+      _emberMetalCore.default.$('#app-link').click();
       equal(router.get('location.path'), '/parent');
     });
   }
 });
-enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-htmlbars/compat', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberHtmlbarsCompat, _emberRuntimeControllersArray_controller) {
+enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsCompat, _emberRuntimeControllersArray_controller) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -60352,22 +60354,22 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-htmlbars
 
   function setupExample() {
     // setup templates
-    Ember.TEMPLATES.application = compile('{{outlet}}');
-    Ember.TEMPLATES.index = compile('<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>');
+    _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h1>People</h1><ul>{{#each model as |person|}}<li>Hello, <b>{{person.fullName}}</b>!</li>{{/each}}</ul>');
 
-    App.Person = Ember.Object.extend({
+    App.Person = _emberMetalCore.default.Object.extend({
       firstName: null,
       lastName: null,
 
-      fullName: Ember.computed('firstName', 'lastName', function () {
+      fullName: _emberMetalCore.default.computed('firstName', 'lastName', function () {
         return this.get('firstName') + ' ' + this.get('lastName');
       })
     });
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
-        var people = Ember.A([App.Person.create({
+        var people = _emberMetalCore.default.A([App.Person.create({
           firstName: 'Tom',
           lastName: 'Dale'
         }), App.Person.create({
@@ -60381,8 +60383,8 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-htmlbars
 
   QUnit.module('Homepage Example', {
     setup: function () {
-      Ember.run(function () {
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        App = _emberMetalCore.default.Application.create({
           name: 'App',
           rootElement: '#qunit-fixture'
         });
@@ -60392,26 +60394,26 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-htmlbars
           location: 'none'
         });
 
-        App.LoadingRoute = Ember.Route.extend();
+        App.LoadingRoute = _emberMetalCore.default.Route.extend();
       });
 
-      $fixture = Ember.$('#qunit-fixture');
+      $fixture = _emberMetalCore.default.$('#qunit-fixture');
       setupExample();
     },
 
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         App.destroy();
       });
 
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 
   QUnit.test('The example renders correctly', function () {
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
 
     equal($fixture.find('h1:contains(People)').length, 1);
     equal($fixture.find('li').length, 2);
@@ -60419,7 +60421,7 @@ enifed('ember/tests/homepage_example_test', ['exports', 'ember', 'ember-htmlbars
     equal($fixture.find('li:nth-of-type(2)').text(), 'Hello, Yehuda Katz!');
   });
 });
-enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-template-compiler/system/compile', 'ember-metal/run_loop'], function (exports, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop) {
+enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
 
   var App1, App2, actions;
 
@@ -60427,7 +60429,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-template-
     var application;
 
     (0, _emberMetalRun_loop.default)(function () {
-      application = Ember.Application.create({
+      application = _emberMetalCore.default.Application.create({
         rootElement: rootElement
       });
       application.deferReadiness();
@@ -60438,7 +60440,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-template-
 
       var registry = application.__container__._registry;
 
-      registry.register('component:special-button', Ember.Component.extend({
+      registry.register('component:special-button', _emberMetalCore.default.Component.extend({
         actions: {
           doStuff: function () {
             actions.push(rootElement);
@@ -60461,7 +60463,7 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-template-
   QUnit.module('View Integration', {
     setup: function () {
       actions = [];
-      Ember.$('#qunit-fixture').html('<div id="app-1"></div><div id="app-2"></div>');
+      _emberMetalCore.default.$('#qunit-fixture').html('<div id="app-1"></div><div id="app-2"></div>');
       App1 = startApp('#app-1');
       App2 = startApp('#app-2');
     },
@@ -60480,21 +60482,21 @@ enifed('ember/tests/integration/multiple-app-test', ['exports', 'ember-template-
     handleURL(App1, '/');
     handleURL(App2, '/');
 
-    Ember.$('#app-2 .do-stuff').click();
-    Ember.$('#app-1 .do-stuff').click();
+    _emberMetalCore.default.$('#app-2 .do-stuff').click();
+    _emberMetalCore.default.$('#app-1 .do-stuff').click();
 
     assert.deepEqual(actions, ['#app-2', '#app-1']);
   });
 });
-enifed('ember/tests/integration/view_test', ['exports', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember/tests/integration/view_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile) {
 
   var App, registry;
 
   function setupExample() {
     // setup templates
-    Ember.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('{{outlet}}', { moduleName: 'application' });
-    Ember.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('<h1>Node 1</h1>', { moduleName: 'index' });
-    Ember.TEMPLATES.posts = (0, _emberTemplateCompilerSystemCompile.default)('<h1>Node 1</h1>', { moduleName: 'posts' });
+    _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('{{outlet}}', { moduleName: 'application' });
+    _emberMetalCore.default.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('<h1>Node 1</h1>', { moduleName: 'index' });
+    _emberMetalCore.default.TEMPLATES.posts = (0, _emberTemplateCompilerSystemCompile.default)('<h1>Node 1</h1>', { moduleName: 'posts' });
 
     App.Router.map(function () {
       this.route('posts');
@@ -60509,7 +60511,7 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-template-compiler
   QUnit.module('View Integration', {
     setup: function () {
       (0, _emberMetalRun_loop.default)(function () {
-        App = Ember.Application.create({
+        App = _emberMetalCore.default.Application.create({
           rootElement: '#qunit-fixture'
         });
         App.deferReadiness();
@@ -60527,14 +60529,14 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-template-compiler
     teardown: function () {
       (0, _emberMetalRun_loop.default)(App, 'destroy');
       App = null;
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 
   QUnit.test('invoking `{{view}} from a non-view backed (aka only template) template provides the correct controller to the view instance`', function (assert) {
     var controllerInMyFoo, indexController;
 
-    Ember.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('{{view "my-foo"}}', { moduleName: 'my-foo' });
+    _emberMetalCore.default.TEMPLATES.index = (0, _emberTemplateCompilerSystemCompile.default)('{{view "my-foo"}}', { moduleName: 'my-foo' });
 
     registry.register('view:my-foo', _emberViewsViewsView.default.extend({
       init: function () {
@@ -60544,7 +60546,7 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-template-compiler
       }
     }));
 
-    registry.register('controller:index', Ember.Controller.extend({
+    registry.register('controller:index', _emberMetalCore.default.Controller.extend({
       init: function () {
         this._super.apply(this, arguments);
 
@@ -60558,21 +60560,21 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-template-compiler
     assert.strictEqual(controllerInMyFoo, indexController, 'controller is provided to `{{view}}`');
   });
 });
-enifed('ember/tests/routing/basic_test', ['exports', 'ember', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-runtime/controllers/array_controller', 'ember-htmlbars/compat'], function(exports, _ember, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberRuntimeControllersArray_controller, _emberHtmlbarsCompat){var compile=_emberHtmlbarsCompat.default.compile;var trim=Ember.$.trim;var Router, App, router, registry, container, originalLoggerError;function bootApplication(){router = container.lookup('router:main');Ember.run(App, 'advanceReadiness');}function handleURL(path){return Ember.run(function(){return router.handleURL(path).then(function(value){ok(true, 'url: `' + path + '` was handled');return value;}, function(reason){ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, 'url: `' + path + '` was NOT to be handled');}, function(reason){ok(reason && reason.message === 'TransitionAborted', 'url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path, expectedReason){Ember.run(function(){router.handleURL(path).then(function(value){ok(false, 'expected handleURLing: `' + path + '` to fail');}, function(reason){equal(expectedReason, reason);});});}QUnit.module('Basic Routing', {setup:function(){Ember.run(function(){App = Ember.Application.create({name:'App', rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = Ember.Route.extend({});registry = App.registry;container = App.__container__;Ember.TEMPLATES.application = compile('{{outlet}}');Ember.TEMPLATES.home = compile('<h3>Hours</h3>');Ember.TEMPLATES.homepage = compile('<h3>Megatroll</h3><p>{{model.home}}</p>');Ember.TEMPLATES.camelot = compile('<section><h3>Is a silly place</h3></section>');originalLoggerError = Ember.Logger.error;});}, teardown:function(){Ember.run(function(){App.destroy();App = null;Ember.TEMPLATES = {};Ember.Logger.error = originalLoggerError;});}});QUnit.test('warn on URLs not included in the route set', function(){Router.map(function(){this.route('home', {path:'/'});});bootApplication();expectAssertion(function(){Ember.run(function(){router.handleURL('/what-is-this-i-dont-even');});}, 'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});QUnit.test('The Homepage', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();equal(currentPath, 'home');equal(Ember.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');});QUnit.test('The Home page and the Camelot page with multiple Router.map calls', function(){Router.map(function(){this.route('home', {path:'/'});});Router.map(function(){this.route('camelot', {path:'/camelot'});});App.HomeRoute = Ember.Route.extend({});App.CamelotRoute = Ember.Route.extend({});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});App.CamelotController = Ember.Controller.extend({currentPathDidChange:Ember.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath, 'camelot');equal(Ember.$('h3:contains(silly)', '#qunit-fixture').length, 1, 'The camelot template was rendered');handleURL('/');equal(currentPath, 'home');equal(Ember.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');});QUnit.test('The Homepage with explicit template name in renderTemplate', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(Ember.$('h3:contains(Megatroll)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = Ember.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(Ember.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller instead of controllerName', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({controllerName:'foo', renderTemplate:function(){this.render('homepage');}});App.FooController = Ember.Controller.extend({model:{home:'Comes from Foo'}});App.HomepageController = Ember.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(Ember.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('The template will pull in an alternate controller via key/value', function(){Router.map(function(){this.route('homepage', {path:'/'});});App.HomepageRoute = Ember.Route.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = Ember.Controller.extend({model:{home:'Comes from home.'}});bootApplication();equal(Ember.$('h3:contains(Megatroll) + p:contains(Comes from home.)', '#qunit-fixture').length, 1, 'The homepage template was rendered from data from the HomeController');});QUnit.test('The Homepage with explicit template name in renderTemplate and controller', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeController = Ember.Controller.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(Ember.$('h3:contains(Megatroll) + p:contains(YES I AM HOME)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('Model passed via renderTemplate model is set as controller\'s model', function(){Ember.TEMPLATES['bio'] = compile('<p>{{model.name}}</p>');App.BioController = Ember.Controller.extend();Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('bio', {model:{name:'emberjs'}});}});bootApplication();equal(Ember.$('p:contains(emberjs)', '#qunit-fixture').length, 1, 'Passed model was set as controllers model');});QUnit.test('Renders correct view with slash notation', function(){Ember.TEMPLATES['home/page'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(Ember.$('p:contains(Home/Page)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('Renders the view given in the view option', function(){Ember.TEMPLATES['home'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(Ember.$('p:contains(Home/Page)', '#qunit-fixture').length, 1, 'The homepage view was rendered');});QUnit.test('render does not replace templateName if user provided', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();equal(Ember.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('render does not replace template if user provided', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend();bootApplication();Ember.run(function(){router.handleURL('/');});equal(Ember.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('render uses templateName from route', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:'the_real_home_template'});bootApplication();equal(Ember.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('defining templateName allows other templates to be rendered', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.alert = compile('<div class=\'alert-box\'>Invader!</div>');Ember.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:'the_real_home_template', actions:{showAlert:function(){this.render('alert', {into:'home', outlet:'alert'});}}});bootApplication();equal(Ember.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');Ember.run(function(){router.send('showAlert');});equal(Ember.$('.alert-box', '#qunit-fixture').text(), 'Invader!', 'Template for alert was render into outlet');});QUnit.test('Specifying a name to render should have precedence over everything else', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeController = Ember.Controller.extend();App.HomeRoute = Ember.Route.extend({templateName:'home', controllerName:'home', viewName:'home', renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = Ember.Controller.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:compile('<span>Outer</span>{{yield}}<span>troll</span>'), templateName:'homepage'});bootApplication();equal(Ember.$('h3', '#qunit-fixture').text(), 'Megatroll', 'The homepage template was rendered');equal(Ember.$('p', '#qunit-fixture').text(), 'Tinytroll', 'The homepage controller was used');equal(Ember.$('span', '#qunit-fixture').text(), 'Outertroll', 'The homepage view was used');});QUnit.test('The Homepage with a `setupController` hook', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){(0, _emberMetalProperty_set.set)(controller, 'hours', Ember.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));}});Ember.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(Ember.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The route controller is still set when overriding the setupController hook', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){}});registry.register('controller:home', Ember.Controller.extend());bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:home'), 'route controller is the home controller');});QUnit.test('The route controller can be specified via controllerName', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.home = compile('<p>{{myValue}}</p>');App.HomeRoute = Ember.Route.extend({controllerName:'myController'});registry.register('controller:myController', Ember.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(Ember.$('p', '#qunit-fixture').text(), 'foo', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.alternative_home = compile('<p>alternative home: {{myValue}}</p>');App.HomeRoute = Ember.Route.extend({controllerName:'myController', renderTemplate:function(){this.render('alternative_home');}});registry.register('controller:myController', Ember.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(Ember.$('p', '#qunit-fixture').text(), 'alternative home: foo', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available', function(){Router.map(function(){this.route('home', {path:'/'});});Ember.TEMPLATES.home = compile('<p>home: {{myValue}}</p>');App.HomeRoute = Ember.Route.extend({controllerName:'myController'});registry.register('controller:home', Ember.Controller.extend({myValue:'home'}));registry.register('controller:myController', Ember.Controller.extend({myValue:'myController'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(Ember.$('p', '#qunit-fixture').text(), 'home: myController', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The Homepage with a `setupController` hook modifying other controllers', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({setupController:function(controller){(0, _emberMetalProperty_set.set)(this.controllerFor('home'), 'hours', Ember.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));}});Ember.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(Ember.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The Homepage with a computed context that does not get overridden', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Router.map(function(){this.route('home', {path:'/'});});App.HomeController = Ember.ArrayController.extend({model:Ember.computed(function(){return Ember.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']);})});Ember.TEMPLATES.home = compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>');bootApplication();equal(Ember.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');});QUnit.test('The Homepage getting its controller context via model', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({model:function(){return Ember.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']);}, setupController:function(controller, model){equal(this.controllerFor('home'), controller);(0, _emberMetalProperty_set.set)(this.controllerFor('home'), 'hours', model);}});Ember.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(Ember.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The Specials Page getting its controller context by deserializing the params hash', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.SpecialRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({menuItemId:params.menu_item_id});}, setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES.special = compile('<p>{{model.menuItemId}}</p>');bootApplication();registry.register('controller:special', Ember.Controller.extend());handleURL('/specials/1');equal(Ember.$('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');});QUnit.test('The Specials Page defaults to looking models up via `find`', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special', Ember.Controller.extend());handleURL('/specials/1');equal(Ember.$('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');});QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES.special = compile('<p>{{model.id}}</p>');Ember.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special', Ember.Controller.extend());handleURL('/specials/1');equal(Ember.$('p', '#qunit-fixture').text(), 'LOADING!', 'The app is in the loading state');Ember.run(function(){resolve(menuItem);});equal(Ember.$('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');});QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = Ember.Route.extend({enter:function(){ok(false, 'LoadingRoute shouldn\'t have been entered.');}});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES.special = compile('<p>{{model.id}}</p>');Ember.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special', Ember.Controller.extend());handleURL('/specials/1');equal(Ember.$('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');});QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, promise, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new Ember.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = Ember.Route.extend({setup:function(){throw 'Setup error';}, actions:{error:function(reason){equal(reason, 'Setup error', 'SpecialRoute#error received the error thrown from setup');}}});bootApplication();handleURLRejectsWith('/specials/1', 'Setup error');Ember.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, resolve;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new Ember.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason, 'Setup error', 'error was correctly passed to custom ApplicationRoute handler');}};App.ApplicationRoute = Ember.Route.extend(attrs);App.SpecialRoute = Ember.Route.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1', 'Setup error');Ember.run(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden', function(){testOverridableErrorHandler('actions');});QUnit.test('ApplicationRoute\'s default error handler can be overridden (with DEPRECATED `events`)', function(){ignoreDeprecation(function(){testOverridableErrorHandler('events');});});asyncTest('Moving from one page to another triggers the correct callbacks', function(){expect(3);Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = Ember.Object.extend();App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES.home = compile('<h3>Home</h3>');Ember.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special', Ember.Controller.extend());var transition=handleURL('/');Ember.run(function(){transition.then(function(){equal(Ember.$('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(promiseContext);}, 1);return router.transitionTo('special', promiseContext);}).then(function(result){deepEqual(router.location.path, '/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.resource('special', {path:'/specials/:menu_item_id'});});});var currentPath;App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});var menuItem;App.MenuItem = Ember.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = Ember.Route.extend({});App.RootRoute = Ember.Route.extend({model:function(){rootModel++;return this._super.apply(this, arguments);}, serialize:function(){rootSerialize++;return this._super.apply(this, arguments);}, setupController:function(){rootSetup++;}, renderTemplate:function(){rootRender++;}});App.HomeRoute = Ember.Route.extend({});App.SpecialRoute = Ember.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});Ember.TEMPLATES['root/index'] = compile('<h3>Home</h3>');Ember.TEMPLATES.special = compile('<p>{{model.id}}</p>');Ember.TEMPLATES.loading = compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special', Ember.Controller.extend());equal(Ember.$('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');equal(rootSetup, 1, 'The root setup was triggered');equal(rootRender, 1, 'The root render was triggered');equal(rootSerialize, 0, 'The root serialize was not called');equal(rootModel, 1, 'The root model was called');router = container.lookup('router:main');Ember.run(function(){var menuItem=App.MenuItem.create({id:1});Ember.run.later(function(){Ember.RSVP.resolve(menuItem);}, 1);router.transitionTo('special', menuItem).then(function(result){equal(rootSetup, 1, 'The root setup was not triggered again');equal(rootRender, 1, 'The root render was not triggered again');equal(rootSerialize, 0, 'The root serialize was not called');equal(rootModel, 1, 'The root model was called again');deepEqual(router.location.path, '/specials/1');equal(currentPath, 'root.special');QUnit.start();});});});QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){stateIsNotCalled = false;}}});Ember.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=Ember.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled, 'an event on the state is not triggered');deepEqual(context, {name:'Tom Dale'}, 'an event with context is passed');QUnit.start();}}});registry.register('controller:home', controller);bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');deepEqual(Ember.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});Ember.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId2=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId2[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(Ember.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId3=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId3[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `events` object (DEPRECATED)', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = Ember.Route.extend({model:function(){return model;}, events:{showStuff:function(obj){ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');deepEqual(Ember.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});Ember.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId4=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId4[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = Ember.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(Ember.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});App.RootIndexRoute = Ember.Route.extend({model:function(){return model;}});Ember.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId5=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId5[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.test('Events can be handled by inherited event handlers', function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, 'foo');}, bar:function(msg){equal(msg, 'HELLO');}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, 'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, 'baz');}}});bootApplication();router.send('foo');router.send('bar', 'HELLO');router.send('baz');});QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = Ember.Route.extend({model:function(){return model;}, actions:{showStuff:function(context){ok(stateIsNotCalled, 'an event on the state is not triggered');deepEqual(context, {name:'Tom Dale'}, 'an event with context is passed');QUnit.start();}}});Ember.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=Ember.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled, 'an event on the state is not triggered');}});registry.register('controller:home', controller);bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId6=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId6[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.asyncTest('actions can be triggered with multiple arguments', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model1={name:'Tilde'};var model2={name:'Tom Dale'};App.RootRoute = Ember.Route.extend({actions:{showStuff:function(obj1, obj2){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(Ember.copy(obj1, true), {name:'Tilde'}, 'the first context is correct');deepEqual(Ember.copy(obj2, true), {name:'Tom Dale'}, 'the second context is correct');QUnit.start();}}});App.RootIndexController = Ember.Controller.extend({model1:model1, model2:model2});Ember.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>');bootApplication();var actionId=Ember.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId7=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId7[0];var event=new Ember.$.Event('click');action.handler(event);});QUnit.test('transitioning multiple times in a single run loop only sets the URL once', function(){Router.map(function(){this.route('root', {path:'/'});this.route('foo');this.route('bar');});bootApplication();var urlSetCount=0;router.get('location').setURL = function(path){urlSetCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);};equal(urlSetCount, 0);Ember.run(function(){router.transitionTo('foo');router.transitionTo('bar');});equal(urlSetCount, 1);equal(router.get('location').getURL(), '/bar');});QUnit.test('navigating away triggers a url property change', function(){expect(3);Router.map(function(){this.route('root', {path:'/'});this.route('foo', {path:'/foo'});this.route('bar', {path:'/bar'});});bootApplication();Ember.run(function(){Ember.addObserver(router, 'url', function(){ok(true, 'url change event was fired');});});['foo', 'bar', '/foo'].forEach(function(destination){Ember.run(router, 'transitionTo', destination);});});QUnit.test('using replaceWith calls location.replaceURL if available', function(){var setCount=0;var replaceCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}, replaceURL:function(path){replaceCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}})});Router.map(function(){this.route('root', {path:'/'});this.route('foo');});bootApplication();equal(setCount, 0);equal(replaceCount, 0);Ember.run(function(){router.replaceWith('foo');});equal(setCount, 0, 'should not call setURL');equal(replaceCount, 1, 'should call replaceURL once');equal(router.get('location').getURL(), '/foo');});QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined', function(){var setCount=0;Router.reopen({location:Ember.NoneLocation.createWithMixins({setURL:function(path){setCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}})});Router.map(function(){this.route('root', {path:'/'});this.route('foo');});bootApplication();equal(setCount, 0);Ember.run(function(){router.replaceWith('foo');});equal(setCount, 1, 'should call setURL once');equal(router.get('location').getURL(), '/foo');});QUnit.test('Route inherits model from parent route', function(){expect(9);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.route('comments');this.resource('shares', {path:'/shares/:share_id'}, function(){this.route('share');});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1, 2:post2, 3:post3};var shares={1:share1, 2:share2, 3:share3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor('thePost');equal(post, parent_model);}});App.SharesRoute = Ember.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = Ember.Route.extend({afterModel:function(share, transition){var parent_model=this.modelFor('shares');equal(share, parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');handleURL('/posts/1/shares/1');currentPost = post2;handleURL('/posts/2/comments');handleURL('/posts/2/shares/2');currentPost = post3;handleURL('/posts/3/comments');handleURL('/posts/3/shares/3');});QUnit.test('Resource inherits model from parent resource', function(){expect(6);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.resource('comments', function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor('thePost');equal(post, parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('It is possible to get the model from a parent route', function(){expect(9);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.resource('comments');});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = Ember.Route.extend({model:function(){equal(this.modelFor('thePost'), currentPost);equal(this.modelFor('the_post'), currentPost);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('A redirection hook is provided', function(){Router.map(function(){this.route('choose', {path:'/'});this.route('home');});var chooseFollowed=0;var destination;App.ChooseRoute = Ember.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}}, setupController:function(){chooseFollowed++;}});destination = 'home';bootApplication();equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');equal(Ember.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');equal(router.container.lookup('controller:application').get('currentPath'), 'home');});QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function(){expect(3);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});});});App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo('home');}, setupController:function(){ok(false, 'Should transition before setupController');}});App.BarBazRoute = Ember.Route.extend({enter:function(){ok(false, 'Should abort transition getting to next route');}});bootApplication();handleURLAborts('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'home');equal(router.get('location').getURL(), '/home');});QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing', function(){expect(5);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});});});var successCount=0;App.BarRoute = Ember.Route.extend({redirect:function(){this.transitionTo('bar.baz').then(function(){successCount++;});}, setupController:function(){ok(true, 'Should still invoke bar\'s setupController');}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, 'Should still invoke bar.baz\'s setupController');}});bootApplication();handleURL('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'foo.bar.baz');equal(successCount, 1, 'transitionTo success handler was called once');});QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes', function(){expect(4);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', {path:'bar/:id'}, function(){this.route('baz');});});});var model={id:2};var count=0;App.BarRoute = Ember.Route.extend({afterModel:function(context){if(count++ > 10){ok(false, 'infinite loop');}else {this.transitionTo('bar.baz', model);}}, serialize:function(params){return params;}});App.BarBazRoute = Ember.Route.extend({setupController:function(){ok(true, 'Should still invoke setupController');}});bootApplication();handleURLAborts('/foo/bar/1/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'foo.bar.baz');equal(router.get('location').getURL(), '/foo/bar/2/baz');});QUnit.test('Transitioning from a parent event does not prevent currentPath from being set', function(){Router.map(function(){this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});this.route('qux');});});App.FooRoute = Ember.Route.extend({actions:{goToQux:function(){this.transitionTo('foo.qux');}}});bootApplication();var applicationController=router.container.lookup('controller:application');handleURL('/foo/bar/baz');equal(applicationController.get('currentPath'), 'foo.bar.baz');Ember.run(function(){router.send('goToQux');});equal(applicationController.get('currentPath'), 'foo.qux');equal(router.get('location').getURL(), '/foo/qux');});QUnit.test('Generated names can be customized when providing routes with dot notation', function(){expect(4);Ember.TEMPLATES.index = compile('<div>Index</div>');Ember.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');Ember.TEMPLATES.foo = compile('<div class=\'middle\'>{{outlet}}</div>');Ember.TEMPLATES.bar = compile('<div class=\'bottom\'>{{outlet}}</div>');Ember.TEMPLATES['bar/baz'] = compile('<p>{{name}}Bottom!</p>');Router.map(function(){this.resource('foo', {path:'/top'}, function(){this.resource('bar', {path:'/middle'}, function(){this.route('baz', {path:'/bottom'});});});});App.FooRoute = Ember.Route.extend({renderTemplate:function(){ok(true, 'FooBarRoute was called');return this._super.apply(this, arguments);}});App.BarBazRoute = Ember.Route.extend({renderTemplate:function(){ok(true, 'BarBazRoute was called');return this._super.apply(this, arguments);}});App.BarController = Ember.Controller.extend({name:'Bar'});App.BarBazController = Ember.Controller.extend({name:'BarBaz'});bootApplication();handleURL('/top/middle/bottom');equal(Ember.$('.main .middle .bottom p', '#qunit-fixture').text(), 'BarBazBottom!', 'The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into their parent route\'s template by default', function(){Ember.TEMPLATES.index = compile('<div>Index</div>');Ember.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');Ember.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');Ember.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');Ember.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.resource('top', function(){this.resource('middle', function(){this.route('bottom');});});});bootApplication();handleURL('/top/middle/bottom');equal(Ember.$('.main .middle .bottom p', '#qunit-fixture').text(), 'Bottom!', 'The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into specified template', function(){Ember.TEMPLATES.index = compile('<div>Index</div>');Ember.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');Ember.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');Ember.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');Ember.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.resource('top', function(){this.resource('middle', function(){this.route('bottom');});});});App.MiddleBottomRoute = Ember.Route.extend({renderTemplate:function(){this.render('middle/bottom', {into:'top'});}});bootApplication();handleURL('/top/middle/bottom');equal(Ember.$('.main .middle .bottom p', '#qunit-fixture').length, 0, 'should not render into the middle template');equal(Ember.$('.main .middle > p', '#qunit-fixture').text(), 'Bottom!', 'The template was rendered into the top template');});QUnit.test('Rendering into specified template with slash notation', function(){Ember.TEMPLATES['person/profile'] = compile('profile {{outlet}}');Ember.TEMPLATES['person/details'] = compile('details!');Router.map(function(){this.resource('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render('person/profile');this.render('person/details', {into:'person/profile'});}});bootApplication();equal(Ember.$('#qunit-fixture:contains(profile details!)').length, 1, 'The templates were rendered');});QUnit.test('Parent route context change', function(){var editCount=0;var editedPostIds=Ember.A();Ember.TEMPLATES.application = compile('{{outlet}}');Ember.TEMPLATES.posts = compile('{{outlet}}');Ember.TEMPLATES.post = compile('{{outlet}}');Ember.TEMPLATES['post/index'] = compile('showing');Ember.TEMPLATES['post/edit'] = compile('editing');Router.map(function(){this.resource('posts', function(){this.resource('post', {path:'/:postId'}, function(){this.route('edit');});});});App.PostsRoute = Ember.Route.extend({actions:{showPost:function(context){this.transitionTo('post', context);}}});App.PostRoute = Ember.Route.extend({model:function(params){return {id:params.postId};}, actions:{editPost:function(context){this.transitionTo('post.edit');}}});App.PostEditRoute = Ember.Route.extend({model:function(params){var postId=this.modelFor('post').id;editedPostIds.push(postId);return null;}, setup:function(){this._super.apply(this, arguments);editCount++;}});bootApplication();handleURL('/posts/1');Ember.run(function(){router.send('editPost');});Ember.run(function(){router.send('showPost', {id:'2'});});Ember.run(function(){router.send('editPost');});equal(editCount, 2, 'set up the edit route twice without failure');deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');});QUnit.test('Router accounts for rootURL on page load when using history location', function(){var rootURL=window.location.pathname + '/app';var postsTemplateRendered=false;var setHistory, HistoryTestLocation;setHistory = function(obj, path){obj.set('history', {state:{path:path}});};HistoryTestLocation = Ember.HistoryLocation.extend({initState:function(){var path=rootURL + '/posts';setHistory(this, path);this.set('location', {pathname:path, href:'http://localhost/' + path});}, replaceState:function(path){setHistory(this, path);}, pushState:function(path){setHistory(this, path);}});registry.register('location:historyTest', HistoryTestLocation);Router.reopen({location:'historyTest', rootURL:rootURL});Router.map(function(){this.resource('posts', {path:'/posts'});});App.PostsRoute = Ember.Route.extend({model:function(){}, renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered, 'Posts route successfully stripped from rootURL');});QUnit.test('The rootURL is passed properly to the location implementation', function(){expect(1);var rootURL='/blahzorz';var HistoryTestLocation;HistoryTestLocation = Ember.HistoryLocation.extend({rootURL:'this is not the URL you are looking for', initState:function(){equal(this.get('rootURL'), rootURL);}});registry.register('location:history-test', HistoryTestLocation);Router.reopen({location:'history-test', rootURL:rootURL, _doURLTransition:function(){}});bootApplication();});QUnit.test('Only use route rendered into main outlet for default into property on child', function(){Ember.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}');Ember.TEMPLATES.posts = compile('{{outlet}}');Ember.TEMPLATES['posts/index'] = compile('postsIndex');Ember.TEMPLATES['posts/menu'] = compile('postsMenu');Router.map(function(){this.resource('posts', function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/menu', classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p', classNames:['posts-index']});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render();this.render('postsMenu', {into:'application', outlet:'menu'});}});bootApplication();handleURL('/posts');equal(Ember.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');equal(Ember.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');});QUnit.test('Generating a URL should not affect currentModel', function(){Router.map(function(){this.route('post', {path:'/posts/:post_id'});});var posts={1:{id:1}, 2:{id:2}};App.PostRoute = Ember.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL('/posts/1');var route=container.lookup('route:post');equal(route.modelFor('post'), posts[1]);var url=router.generate('post', posts[2]);equal(url, '/posts/2');equal(route.modelFor('post'), posts[1]);});QUnit.test('Generated route should be an instance of App.Route if provided', function(){var generatedRoute;Router.map(function(){this.route('posts');});App.Route = Ember.Route.extend();bootApplication();handleURL('/posts');generatedRoute = container.lookup('route:posts');ok(generatedRoute instanceof App.Route, 'should extend the correct route');});QUnit.test('Nested index route is not overriden by parent\'s implicit index route', function(){Router.map(function(){this.resource('posts', function(){this.route('index', {path:':category'});});});App.Route = Ember.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();Ember.run(function(){router.transitionTo('posts', {category:'emberjs'});});deepEqual(router.location.path, '/posts/emberjs');});QUnit.test('Application template does not duplicate when re-rendered', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Ember.TEMPLATES.application = compile('<h3>I Render Once</h3>{{outlet}}');Router.map(function(){this.route('posts');});App.ApplicationRoute = Ember.Route.extend({model:function(){return Ember.A();}});bootApplication();handleURL('/posts');equal(Ember.$('h3:contains(I Render Once)').size(), 1);});QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function(){Ember.TEMPLATES.application = compile('<h3>App</h3> {{outlet}}');Ember.TEMPLATES.posts = compile('posts');Router.map(function(){this.route('posts');this.route('photos');});App.ApplicationRoute = Ember.Route.extend({afterModel:function(){this.transitionTo('posts');}});bootApplication();equal(Ember.$('#qunit-fixture > div').text(), 'App posts');});QUnit.test('The template is not re-rendered when the route\'s context changes', function(){Router.map(function(){this.route('page', {path:'/page/:name'});});App.PageRoute = Ember.Route.extend({model:function(params){return Ember.Object.create({name:params.name});}});var insertionCount=0;App.PageView = _emberViewsViewsView.default.extend({didInsertElement:function(){insertionCount += 1;}});Ember.TEMPLATES.page = compile('<p>{{model.name}}</p>');bootApplication();handleURL('/page/first');equal(Ember.$('p', '#qunit-fixture').text(), 'first');equal(insertionCount, 1);handleURL('/page/second');equal(Ember.$('p', '#qunit-fixture').text(), 'second');equal(insertionCount, 1, 'view should have inserted only once');Ember.run(function(){router.transitionTo('page', Ember.Object.create({name:'third'}));});equal(Ember.$('p', '#qunit-fixture').text(), 'third');equal(insertionCount, 1, 'view should still have inserted only once');});QUnit.test('The template is not re-rendered when two routes present the exact same template, view, & controller', function(){Router.map(function(){this.route('first');this.route('second');this.route('third');this.route('fourth');});App.SharedRoute = Ember.Route.extend({viewName:'shared', setupController:function(controller){this.controllerFor('shared').set('message', 'This is the ' + this.routeName + ' message');}, renderTemplate:function(controller, context){this.render({controller:'shared'});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:'fourth'});App.SharedController = Ember.Controller.extend();var insertionCount=0;App.SharedView = _emberViewsViewsView.default.extend({templateName:'shared', didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();Ember.TEMPLATES.shared = compile('<p>{{message}}</p>');bootApplication();handleURL('/first');equal(Ember.$('p', '#qunit-fixture').text(), 'This is the first message');equal(insertionCount, 1, 'expected one assertion');handleURL('/second');equal(Ember.$('p', '#qunit-fixture').text(), 'This is the second message');equal(insertionCount, 1, 'view should have inserted only once');Ember.run(function(){router.transitionTo('third').then(function(value){ok(true, 'expected transition');}, function(reason){ok(false, 'unexpected transition failure: ', QUnit.jsDump.parse(reason));});});equal(Ember.$('p', '#qunit-fixture').text(), 'This is the third message');equal(insertionCount, 1, 'view should still have inserted only once');handleURL('/fourth');equal(Ember.$('p', '#qunit-fixture').text(), 'This is the fourth message');equal(insertionCount, 2, 'view should have inserted a second time');});QUnit.test('ApplicationRoute with model does not proxy the currentPath', function(){var model={};var currentPath;App.ApplicationRoute = Ember.Route.extend({model:function(){return model;}});App.ApplicationController = Ember.Controller.extend({currentPathDidChange:Ember.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();equal(currentPath, 'index', 'currentPath is index');equal('currentPath' in model, false, 'should have defined currentPath on controller');});QUnit.test('Promises encountered on app load put app into loading state until resolved', function(){expect(2);var deferred=Ember.RSVP.defer();App.IndexRoute = Ember.Route.extend({model:function(){return deferred.promise;}});Ember.TEMPLATES.index = compile('<p>INDEX</p>');Ember.TEMPLATES.loading = compile('<p>LOADING</p>');bootApplication();equal(Ember.$('p', '#qunit-fixture').text(), 'LOADING', 'The loading state is displaying.');Ember.run(deferred.resolve);equal(Ember.$('p', '#qunit-fixture').text(), 'INDEX', 'The index route is display.');});QUnit.test('Route should tear down multiple outlets', function(){Ember.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}');Ember.TEMPLATES.posts = compile('{{outlet}}');Ember.TEMPLATES.users = compile('users');Ember.TEMPLATES['posts/index'] = compile('postsIndex');Ember.TEMPLATES['posts/menu'] = compile('postsMenu');Ember.TEMPLATES['posts/footer'] = compile('postsFooter');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/menu', classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p', classNames:['posts-index']});App.PostsFooterView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/footer', classNames:['posts-footer']});App.PostsRoute = Ember.Route.extend({renderTemplate:function(){this.render('postsMenu', {into:'application', outlet:'menu'});this.render();this.render('postsFooter', {into:'application', outlet:'footer'});}});bootApplication();handleURL('/posts');equal(Ember.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');equal(Ember.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');equal(Ember.$('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 1, 'The posts/footer template was rendered');handleURL('/users');equal(Ember.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 0, 'The posts/menu template was removed');equal(Ember.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(Ember.$('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 0, 'The posts/footer template was removed');});QUnit.test('Route will assert if you try to explicitly render {into: ...} a missing template', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'nonexistent'});}});expectAssertion(function(){bootApplication();}, 'You attempted to render into \'nonexistent\' but it was not found');});QUnit.test('Route supports clearing outlet explicitly', function(){Ember.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');Ember.TEMPLATES.posts = compile('{{outlet}}');Ember.TEMPLATES.users = compile('users');Ember.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');Ember.TEMPLATES['posts/modal'] = compile('postsModal');Ember.TEMPLATES['posts/extra'] = compile('postsExtra');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal', classNames:['posts-modal']});App.PostsExtraView = _emberViewsViewsView.default.extend({templateName:'posts/extra', classNames:['posts-extra']});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render('postsModal', {into:'application', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet({outlet:'modal', parentView:'application'});}}});App.PostsIndexRoute = Ember.Route.extend({actions:{showExtra:function(){this.render('postsExtra', {into:'posts/index'});}, hideExtra:function(){this.disconnectOutlet({parentView:'posts/index'});}}});bootApplication();handleURL('/posts');equal(Ember.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');Ember.run(function(){router.send('showModal');});equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');Ember.run(function(){router.send('showExtra');});equal(Ember.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');Ember.run(function(){router.send('hideModal');});equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');Ember.run(function(){router.send('hideExtra');});equal(Ember.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');handleURL('/users');equal(Ember.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');equal(Ember.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');});QUnit.test('Route supports clearing outlet using string parameter', function(){Ember.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');Ember.TEMPLATES.posts = compile('{{outlet}}');Ember.TEMPLATES.users = compile('users');Ember.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');Ember.TEMPLATES['posts/modal'] = compile('postsModal');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal', classNames:['posts-modal']});App.PostsRoute = Ember.Route.extend({actions:{showModal:function(){this.render('postsModal', {into:'application', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet('modal');}}});bootApplication();handleURL('/posts');equal(Ember.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');Ember.run(function(){router.send('showModal');});equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');Ember.run(function(){router.send('hideModal');});equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');handleURL('/users');equal(Ember.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(Ember.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');});QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function(){expect(1);Ember.TEMPLATES.application = compile('{{outlet}}');Ember.TEMPLATES.posts = compile('{{outlet \'modal\'}}');Ember.TEMPLATES.modal = compile('A Yo.');Router.map(function(){this.route('posts');});App.PostsRoute = Ember.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:'main', parentView:'application'});}, showModal:function(){this.render('modal', {into:'posts', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet({outlet:'modal', parentView:'posts'});}}});bootApplication();handleURL('/posts');Ember.run(function(){router.send('showModal');});Ember.run(function(){router.send('hideSelf');});Ember.run(function(){router.send('hideModal');});});QUnit.test('Router `willTransition` hook passes in cancellable transition', function(){expect(3);Router.map(function(){this.route('nork');this.route('about');});Router.reopen({init:function(){this._super();this.on('willTransition', this.testWillTransitionHook);}, testWillTransitionHook:function(transition, url){ok(true, 'willTransition was called ' + url);transition.abort();}});App.LoadingRoute = Ember.Route.extend({activate:function(){ok(false, 'LoadingRoute was not entered');}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(false, 'NorkRoute was not entered');}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(false, 'AboutRoute was not entered');}});bootApplication();Ember.run(router, 'handleURL', '/nork');Ember.run(router, 'handleURL', '/about');});QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered', function(){expect(8);Router.map(function(){this.route('nork');this.route('about');});var redirect=false;App.IndexRoute = Ember.Route.extend({actions:{willTransition:function(transition){ok(true, 'willTransition was called');if(redirect){this.transitionTo('about');}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = Ember.Route.extend({activate:function(){ok(deferred, 'LoadingRoute should be entered at this time');}, deactivate:function(){ok(true, 'LoadingRoute was exited');}});App.NorkRoute = Ember.Route.extend({activate:function(){ok(true, 'NorkRoute was entered');}});App.AboutRoute = Ember.Route.extend({activate:function(){ok(true, 'AboutRoute was entered');}, model:function(){if(deferred){return deferred.promise;}}});bootApplication();Ember.run(router, 'transitionTo', 'nork');Ember.run(router, 'handleURL', '/nork');redirect = true;Ember.run(router, 'transitionTo', 'nork');Ember.run(router, 'transitionTo', 'index');deferred = Ember.RSVP.defer();Ember.run(router, 'transitionTo', 'nork');Ember.run(deferred.resolve);});QUnit.test('`didTransition` event fires on the router', function(){expect(3);Router.map(function(){this.route('nork');});router = container.lookup('router:main');router.one('didTransition', function(){ok(true, 'didTransition fired on initial routing');});bootApplication();router.one('didTransition', function(){ok(true, 'didTransition fired on the router');equal(router.get('url'), '/nork', 'The url property is updated by the time didTransition fires');});Ember.run(router, 'transitionTo', 'nork');});QUnit.test('`didTransition` can be reopened', function(){expect(1);Router.map(function(){this.route('nork');});Router.reopen({didTransition:function(){this._super.apply(this, arguments);ok(true, 'reopened didTransition was called');}});bootApplication();});QUnit.test('`activate` event fires on the route', function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on('activate', function(){equal(++eventFired, 1, 'activate event is fired once');});}, activate:function(){ok(true, 'activate hook is called');}});bootApplication();Ember.run(router, 'transitionTo', 'nork');});QUnit.test('`deactivate` event fires on the route', function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');this.route('dork');});App.NorkRoute = Ember.Route.extend({init:function(){this._super.apply(this, arguments);this.on('deactivate', function(){equal(++eventFired, 1, 'deactivate event is fired once');});}, deactivate:function(){ok(true, 'deactivate hook is called');}});bootApplication();Ember.run(router, 'transitionTo', 'nork');Ember.run(router, 'transitionTo', 'dork');});QUnit.test('Actions can be handled by inherited action handlers', function(){expect(4);App.SuperRoute = Ember.Route.extend({actions:{foo:function(){ok(true, 'foo');}, bar:function(msg){equal(msg, 'HELLO');}}});App.RouteMixin = Ember.Mixin.create({actions:{bar:function(msg){equal(msg, 'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, 'baz');}}});bootApplication();router.send('foo');router.send('bar', 'HELLO');router.send('baz');});QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo', function(){expect(24);Router.map(function(){this.resource('be', function(){this.resource('excellent', function(){this.resource('to', function(){this.resource('each', function(){this.route('other');});});});});});bootApplication();var appController=router.container.lookup('controller:application');function transitionAndCheck(path, expectedPath, expectedRouteName){if(path){Ember.run(router, 'transitionTo', path);}equal(appController.get('currentPath'), expectedPath);equal(appController.get('currentRouteName'), expectedRouteName);}transitionAndCheck(null, 'index', 'index');transitionAndCheck('/be', 'be.index', 'be.index');transitionAndCheck('/be/excellent', 'be.excellent.index', 'excellent.index');transitionAndCheck('/be/excellent/to', 'be.excellent.to.index', 'to.index');transitionAndCheck('/be/excellent/to/each', 'be.excellent.to.each.index', 'each.index');transitionAndCheck('/be/excellent/to/each/other', 'be.excellent.to.each.other', 'each.other');transitionAndCheck('index', 'index', 'index');transitionAndCheck('be', 'be.index', 'be.index');transitionAndCheck('excellent', 'be.excellent.index', 'excellent.index');transitionAndCheck('to.index', 'be.excellent.to.index', 'to.index');transitionAndCheck('each', 'be.excellent.to.each.index', 'each.index');transitionAndCheck('each.other', 'be.excellent.to.each.other', 'each.other');});QUnit.test('Route model hook finds the same model as a manual find', function(){var Post;App.Post = Ember.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route('post', {path:'/post/:post_id'});});bootApplication();handleURL('/post/1');equal(App.Post, Post);});QUnit.test('Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)', function(){var TestLocation=Ember.NoneLocation.extend({implementation:'test'});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);Ember.Location.registerImplementation('test', TestLocation);Router.reopen({location:'test'});bootApplication();equal(router.get('location.implementation'), 'test', 'custom location implementation can be registered with registerImplementation');});QUnit.test('Ember.Location.registerImplementation is deprecated', function(){var TestLocation=Ember.NoneLocation.extend({implementation:'test'});expectDeprecation(function(){Ember.Location.registerImplementation('test', TestLocation);}, 'Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.');});QUnit.test('Routes can refresh themselves causing their model hooks to be re-run', function(){Router.map(function(){this.resource('parent', {path:'/parent/:parent_id'}, function(){this.route('child');});});var appcount=0;App.ApplicationRoute = Ember.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = Ember.Route.extend({model:function(params){equal(params.parent_id, '123');++parentcount;}, actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = Ember.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount, 1);equal(parentcount, 0);equal(childcount, 0);Ember.run(router, 'transitionTo', 'parent.child', '123');equal(appcount, 1);equal(parentcount, 1);equal(childcount, 1);Ember.run(router, 'send', 'refreshParent');equal(appcount, 1);equal(parentcount, 2);equal(childcount, 2);});QUnit.test('Specifying non-existent controller name in route#render throws', function(){expect(1);Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = Ember.Route.extend({renderTemplate:function(){try{this.render('homepage', {controller:'stefanpenneristhemanforme'});}catch(e) {equal(e.message, 'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');}}});bootApplication();});QUnit.test('Redirecting with null model doesn\'t error out', function(){Router.map(function(){this.route('home', {path:'/'});this.route('about', {path:'/about/:hurhurhur'});});App.HomeRoute = Ember.Route.extend({beforeModel:function(){this.transitionTo('about', null);}});App.AboutRoute = Ember.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:'TreeklesMcGeekles'};}}});bootApplication();equal(router.get('location.path'), '/about/TreeklesMcGeekles');});QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property', function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie', {path:'/'});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({message:rejectedMessage, stack:rejectedStack});}});bootApplication();});QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property', function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie', {path:'/'});});Ember.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');};App.YippieRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject({errorThrown:{message:rejectedMessage, stack:rejectedStack}});}});bootApplication();});QUnit.test('rejecting the model hooks promise with no reason still logs error', function(){Router.map(function(){this.route('wowzers', {path:'/'});});Ember.Logger.error = function(initialMessage){equal(initialMessage, 'Error while processing route: wowzers', 'a message with the current route name is printed');};App.WowzersRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject();}});bootApplication();});QUnit.test('rejecting the model hooks promise with a string shows a good error', function(){var originalLoggerError=Ember.Logger.error;var rejectedMessage='Supercalifragilisticexpialidocious';Router.map(function(){this.route('yondo', {path:'/'});});Ember.Logger.error = function(initialMessage, errorMessage){equal(initialMessage, 'Error while processing route: yondo', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');};App.YondoRoute = Ember.Route.extend({model:function(){return Ember.RSVP.reject(rejectedMessage);}});bootApplication();Ember.Logger.error = originalLoggerError;});QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled', function(){expect(1);App.Router.map(function(){this.route('about');});function shouldNotFire(){ok(false, 'this action shouldn\'t have been received');}App.IndexRoute = Ember.Route.extend({actions:{willChangeModel:shouldNotFire, willChangeContext:shouldNotFire, willLeave:shouldNotFire}});App.AboutRoute = Ember.Route.extend({setupController:function(){ok(true, 'about route was entered');}});bootApplication();Ember.run(router, 'transitionTo', 'about');});QUnit.test('Errors in transitionTo within redirect hook are logged', function(){expect(3);var actual=[];Router.map(function(){this.route('yondo', {path:'/'});this.route('stink-bomb');});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo('stink-bomb', {something:'goes boom'});}});Ember.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length, 1, 'the error is only logged once');equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');});QUnit.test('Errors in transition show error template if available', function(){Ember.TEMPLATES.error = compile('<div id=\'error\'>Error!</div>');Router.map(function(){this.route('yondo', {path:'/'});this.route('stink-bomb');});App.YondoRoute = Ember.Route.extend({redirect:function(){this.transitionTo('stink-bomb', {something:'goes boom'});}});bootApplication();equal(Ember.$('#error').length, 1, 'Error template was rendered.');});QUnit.test('Route#resetController gets fired when changing models and exiting routes', function(){expect(4);Router.map(function(){this.resource('a', function(){this.resource('b', {path:'/b/:id'}, function(){});this.resource('c', {path:'/c/:id'}, function(){});});this.route('out');});var calls=[];var SpyRoute=Ember.Route.extend({setupController:function(controller, model, transition){calls.push(['setup', this.routeName]);}, resetController:function(controller){calls.push(['reset', this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls, []);Ember.run(router, 'transitionTo', 'b', 'b-1');deepEqual(calls, [['setup', 'a'], ['setup', 'b']]);calls.length = 0;Ember.run(router, 'transitionTo', 'c', 'c-1');deepEqual(calls, [['reset', 'b'], ['setup', 'c']]);calls.length = 0;Ember.run(router, 'transitionTo', 'out');deepEqual(calls, [['reset', 'c'], ['reset', 'a'], ['setup', 'out']]);});QUnit.test('Exception during initialization of non-initial route is not swallowed', function(){Router.map(function(){this.route('boom');});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){Ember.run(router, 'transitionTo', 'boom');}, /\bboom\b/);});QUnit.test('Exception during load of non-initial route is not swallowed', function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){Ember.run(router, 'transitionTo', 'boom');});});QUnit.test('Exception during initialization of initial route is not swallowed', function(){Router.map(function(){this.route('boom', {path:'/'});});App.BoomRoute = Ember.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test('Exception during load of initial route is not swallowed', function(){Router.map(function(){this.route('boom', {path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this, arguments);};App.BoomRoute = Ember.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test('{{outlet}} works when created after initial render', function(){Ember.TEMPLATES.sample = compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye');Ember.TEMPLATES['sample/inner'] = compile('Yay');Ember.TEMPLATES['sample/inner2'] = compile('Boo');Router.map(function(){this.route('sample', {path:'/'}, function(){this.route('inner', {path:'/'});this.route('inner2', {path:'/2'});});});bootApplication();equal(Ember.$('#qunit-fixture').text(), 'HiBye', 'initial render');Ember.run(function(){container.lookup('controller:sample').set('showTheThing', true);});equal(Ember.$('#qunit-fixture').text(), 'HiYayBye', 'second render');handleURL('/2');equal(Ember.$('#qunit-fixture').text(), 'HiBooBye', 'third render');});QUnit.test('Can rerender application view multiple times when it contains an outlet', function(){Ember.TEMPLATES.application = compile('App{{outlet}}');Ember.TEMPLATES.index = compile('Hello world');registry.register('view:application', _emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(Ember.$('#qunit-fixture').text(), 'AppHello world', 'initial render');Ember.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(Ember.$('#qunit-fixture').text(), 'AppHello world', 'second render');Ember.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(Ember.$('#qunit-fixture').text(), 'AppHello world', 'third render');});QUnit.test('Can render into a named outlet at the top level', function(){Ember.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');Ember.TEMPLATES.modal = compile('Hello world');Ember.TEMPLATES.index = compile('The index');registry.register('route:application', Ember.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}}));bootApplication();equal(Ember.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');});QUnit.test('Can disconnect a named outlet at the top level', function(){Ember.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');Ember.TEMPLATES.modal = compile('Hello world');Ember.TEMPLATES.index = compile('The index');registry.register('route:application', Ember.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}, actions:{banish:function(){this.disconnectOutlet({parentView:'application', outlet:'other'});}}}));bootApplication();equal(Ember.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');Ember.run(router, 'send', 'banish');equal(Ember.$('#qunit-fixture').text(), 'A-The index-B--C', 'second render');});QUnit.test('Can render into a named outlet at the top level, with empty main outlet', function(){Ember.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');Ember.TEMPLATES.modal = compile('Hello world');Router.map(function(){this.route('hasNoTemplate', {path:'/'});});registry.register('route:application', Ember.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}}));bootApplication();equal(Ember.$('#qunit-fixture').text(), 'A--B-Hello world-C', 'initial render');});QUnit.test('Can render into a named outlet at the top level, later', function(){Ember.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');Ember.TEMPLATES.modal = compile('Hello world');Ember.TEMPLATES.index = compile('The index');registry.register('route:application', Ember.Route.extend({actions:{launch:function(){this.render('modal', {into:'application', outlet:'other'});}}}));bootApplication();equal(Ember.$('#qunit-fixture').text(), 'A-The index-B--C', 'initial render');Ember.run(router, 'send', 'launch');equal(Ember.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'second render');});QUnit.test('Can render routes with no \'main\' outlet and their children', function(){Ember.TEMPLATES.application = compile('<div id="application">{{outlet "app"}}</div>');Ember.TEMPLATES.app = compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>');Ember.TEMPLATES.common = compile('<div id="common"></div>');Ember.TEMPLATES.sub = compile('<div id="sub"></div>');Router.map(function(){this.route('app', {path:'/app'}, function(){this.resource('sub', {path:'/sub'});});});App.AppRoute = Ember.Route.extend({renderTemplate:function(){this.render('app', {outlet:'app', into:'application'});this.render('common', {outlet:'common', into:'app'});}});App.SubRoute = Ember.Route.extend({renderTemplate:function(){this.render('sub', {outlet:'sub', into:'app'});}});bootApplication();handleURL('/app');equal(Ember.$('#app-common #common').length, 1, 'Finds common while viewing /app');handleURL('/app/sub');equal(Ember.$('#app-common #common').length, 1, 'Finds common while viewing /app/sub');equal(Ember.$('#app-sub #sub').length, 1, 'Finds sub while viewing /app/sub');});QUnit.test('Tolerates stacked renders', function(){Ember.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');Ember.TEMPLATES.index = compile('hi');Ember.TEMPLATES.layer = compile('layer');App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render('layer', {into:'application', outlet:'modal'});}, close:function(){this.disconnectOutlet({outlet:'modal', parentView:'application'});}}});bootApplication();equal(trim(Ember.$('#qunit-fixture').text()), 'hi');Ember.run(router, 'send', 'openLayer');equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');Ember.run(router, 'send', 'openLayer');equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');Ember.run(router, 'send', 'close');equal(trim(Ember.$('#qunit-fixture').text()), 'hi');});QUnit.test('Renders child into parent with non-default template name', function(){Ember.TEMPLATES.application = compile('<div class="a">{{outlet}}</div>');Ember.TEMPLATES['exports/root'] = compile('<div class="b">{{outlet}}</div>');Ember.TEMPLATES['exports/index'] = compile('<div class="c"></div>');Router.map(function(){this.route('root', function(){});});App.RootRoute = Ember.Route.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = Ember.Route.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(Ember.$('#qunit-fixture .a .b .c').length, 1);});QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function(){Ember.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');Ember.TEMPLATES.index = compile('hi');Ember.TEMPLATES.layer = compile('layer');App.ApplicationRoute = Ember.Route.extend({actions:{openLayer:function(){this.render('layer', {into:'application', outlet:'modal'});}}});App.IndexRoute = Ember.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application', outlet:'modal'});}}});bootApplication();equal(trim(Ember.$('#qunit-fixture').text()), 'hi');Ember.run(router, 'send', 'openLayer');equal(trim(Ember.$('#qunit-fixture').text()), 'hilayer');Ember.run(router, 'send', 'close');equal(trim(Ember.$('#qunit-fixture').text()), 'hi');});QUnit.test('Can this.render({into:...}) the render helper', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');Ember.TEMPLATES.index = compile('other');Ember.TEMPLATES.bar = compile('bar');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'foo'});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo', outlet:'main'});this.render('bar', {into:'foo'});}}});bootApplication();equal(Ember.$('#qunit-fixture .foo').text(), 'other');Ember.run(router, 'send', 'changeToBar');equal(Ember.$('#qunit-fixture .foo').text(), 'bar');});QUnit.test('Can disconnect from the render helper', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');Ember.TEMPLATES.index = compile('other');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'foo'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo', outlet:'main'});}}});bootApplication();equal(Ember.$('#qunit-fixture .foo').text(), 'other');Ember.run(router, 'send', 'disconnect');equal(Ember.$('#qunit-fixture .foo').text(), '');});QUnit.test('Can this.render({into:...}) the render helper\'s children', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');Ember.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');Ember.TEMPLATES.other = compile('other');Ember.TEMPLATES.bar = compile('bar');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other', {into:'index'});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index', outlet:'main'});this.render('bar', {into:'index'});}}});bootApplication();equal(Ember.$('#qunit-fixture .foo .index').text(), 'other');Ember.run(router, 'send', 'changeToBar');equal(Ember.$('#qunit-fixture .foo .index').text(), 'bar');});QUnit.test('Can disconnect from the render helper\'s children', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');Ember.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');Ember.TEMPLATES.other = compile('other');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other', {into:'index'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'index', outlet:'main'});}}});bootApplication();equal(Ember.$('#qunit-fixture .foo .index').text(), 'other');Ember.run(router, 'send', 'disconnect');equal(Ember.$('#qunit-fixture .foo .index').text(), '');});QUnit.test('Can this.render({into:...}) nested render helpers', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');Ember.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');Ember.TEMPLATES.index = compile('other');Ember.TEMPLATES.baz = compile('baz');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'bar'});}, actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar', outlet:'main'});this.render('baz', {into:'bar'});}}});bootApplication();equal(Ember.$('#qunit-fixture .bar').text(), 'other');Ember.run(router, 'send', 'changeToBaz');equal(Ember.$('#qunit-fixture .bar').text(), 'baz');});QUnit.test('Can disconnect from nested render helpers', function(){Ember.TEMPLATES.application = compile('{{render "foo"}}');Ember.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');Ember.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');Ember.TEMPLATES.index = compile('other');App.IndexRoute = Ember.Route.extend({renderTemplate:function(){this.render({into:'bar'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar', outlet:'main'});}}});bootApplication();equal(Ember.$('#qunit-fixture .bar').text(), 'other');Ember.run(router, 'send', 'disconnect');equal(Ember.$('#qunit-fixture .bar').text(), '');});QUnit.test('Can render with layout', function(){Ember.TEMPLATES.application = compile('{{outlet}}');Ember.TEMPLATES.index = compile('index-template');Ember.TEMPLATES['my-layout'] = compile('my-layout [{{yield}}]');App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(Ember.$('#qunit-fixture').text(), 'my-layout [index-template]');});QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed', function(assert){Ember.TEMPLATES.index = compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}');var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = Ember.Controller.extend({showFirst:true});App.IndexRoute = Ember.Route.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = Ember.Component.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = Ember.Component.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter, 1, 'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter, 0, 'didInsertElement not invoked on displayed component');Ember.run(function(){indexController.set('showFirst', false);});assert.strictEqual(myComponentCounter, 1, 'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter, 1, 'didInsertElement invoked on displayed component');});});
-enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-metal/features', 'ember-metal/computed', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberMetalComputed, _emberHtmlbarsCompat) {
+enifed('ember/tests/routing/basic_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-runtime/controllers/array_controller', 'ember-htmlbars/compat'], function(exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberRuntimeControllersArray_controller, _emberHtmlbarsCompat){var compile=_emberHtmlbarsCompat.default.compile;var trim=_emberMetalCore.default.$.trim;var Router, App, router, registry, container, originalLoggerError;function bootApplication(){router = container.lookup('router:main');_emberMetalCore.default.run(App, 'advanceReadiness');}function handleURL(path){return _emberMetalCore.default.run(function(){return router.handleURL(path).then(function(value){ok(true, 'url: `' + path + '` was handled');return value;}, function(reason){ok(false, 'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false, 'url: `' + path + '` was NOT to be handled');}, function(reason){ok(reason && reason.message === 'TransitionAborted', 'url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path, expectedReason){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false, 'expected handleURLing: `' + path + '` to fail');}, function(reason){equal(expectedReason, reason);});});}QUnit.module('Basic Routing', {setup:function(){_emberMetalCore.default.run(function(){App = _emberMetalCore.default.Application.create({name:'App', rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = _emberMetalCore.default.Route.extend({});registry = App.registry;container = App.__container__;_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');_emberMetalCore.default.TEMPLATES.homepage = compile('<h3>Megatroll</h3><p>{{model.home}}</p>');_emberMetalCore.default.TEMPLATES.camelot = compile('<section><h3>Is a silly place</h3></section>');originalLoggerError = _emberMetalCore.default.Logger.error;});}, teardown:function(){_emberMetalCore.default.run(function(){App.destroy();App = null;_emberMetalCore.default.TEMPLATES = {};_emberMetalCore.default.Logger.error = originalLoggerError;});}});QUnit.test('warn on URLs not included in the route set', function(){Router.map(function(){this.route('home', {path:'/'});});bootApplication();expectAssertion(function(){_emberMetalCore.default.run(function(){router.handleURL('/what-is-this-i-dont-even');});}, 'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});QUnit.test('The Homepage', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();equal(currentPath, 'home');equal(_emberMetalCore.default.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');});QUnit.test('The Home page and the Camelot page with multiple Router.map calls', function(){Router.map(function(){this.route('home', {path:'/'});});Router.map(function(){this.route('camelot', {path:'/camelot'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.CamelotRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});App.CamelotController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath, 'camelot');equal(_emberMetalCore.default.$('h3:contains(silly)', '#qunit-fixture').length, 1, 'The camelot template was rendered');handleURL('/');equal(currentPath, 'home');equal(_emberMetalCore.default.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');});QUnit.test('The Homepage with explicit template name in renderTemplate', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller instead of controllerName', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'foo', renderTemplate:function(){this.render('homepage');}});App.FooController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from Foo'}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('The template will pull in an alternate controller via key/value', function(){Router.map(function(){this.route('homepage', {path:'/'});});App.HomepageRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from home.'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from home.)', '#qunit-fixture').length, 1, 'The homepage template was rendered from data from the HomeController');});QUnit.test('The Homepage with explicit template name in renderTemplate and controller', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(YES I AM HOME)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('Model passed via renderTemplate model is set as controller\'s model', function(){_emberMetalCore.default.TEMPLATES['bio'] = compile('<p>{{model.name}}</p>');App.BioController = _emberMetalCore.default.Controller.extend();Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('bio', {model:{name:'emberjs'}});}});bootApplication();equal(_emberMetalCore.default.$('p:contains(emberjs)', '#qunit-fixture').length, 1, 'Passed model was set as controllers model');});QUnit.test('Renders correct view with slash notation', function(){_emberMetalCore.default.TEMPLATES['home/page'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)', '#qunit-fixture').length, 1, 'The homepage template was rendered');});QUnit.test('Renders the view given in the view option', function(){_emberMetalCore.default.TEMPLATES['home'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)', '#qunit-fixture').length, 1, 'The homepage view was rendered');});QUnit.test('render does not replace templateName if user provided', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('render does not replace template if user provided', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();_emberMetalCore.default.run(function(){router.handleURL('/');});equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('render uses templateName from route', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template'});bootApplication();equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');});QUnit.test('defining templateName allows other templates to be rendered', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.alert = compile('<div class=\'alert-box\'>Invader!</div>');_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template', actions:{showAlert:function(){this.render('alert', {into:'home', outlet:'alert'});}}});bootApplication();equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'THIS IS THE REAL HOME', 'The homepage template was rendered');_emberMetalCore.default.run(function(){router.send('showAlert');});equal(_emberMetalCore.default.$('.alert-box', '#qunit-fixture').text(), 'Invader!', 'Template for alert was render into outlet');});QUnit.test('Specifying a name to render should have precedence over everything else', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'home', controllerName:'home', viewName:'home', renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:compile('<span>Outer</span>{{yield}}<span>troll</span>'), templateName:'homepage'});bootApplication();equal(_emberMetalCore.default.$('h3', '#qunit-fixture').text(), 'Megatroll', 'The homepage template was rendered');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'Tinytroll', 'The homepage controller was used');equal(_emberMetalCore.default.$('span', '#qunit-fixture').text(), 'Outertroll', 'The homepage view was used');});QUnit.test('The Homepage with a `setupController` hook', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){(0, _emberMetalProperty_set.set)(controller, 'hours', _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The route controller is still set when overriding the setupController hook', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){}});registry.register('controller:home', _emberMetalCore.default.Controller.extend());bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:home'), 'route controller is the home controller');});QUnit.test('The route controller can be specified via controllerName', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>{{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:myController', _emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'foo', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.alternative_home = compile('<p>alternative home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController', renderTemplate:function(){this.render('alternative_home');}});registry.register('controller:myController', _emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'alternative home: foo', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available', function(){Router.map(function(){this.route('home', {path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:home', _emberMetalCore.default.Controller.extend({myValue:'home'}));registry.register('controller:myController', _emberMetalCore.default.Controller.extend({myValue:'myController'}));bootApplication();deepEqual(container.lookup('route:home').controller, container.lookup('controller:myController'), 'route controller is set by controllerName');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'home: myController', 'The homepage template was rendered with data from the custom controller');});QUnit.test('The Homepage with a `setupController` hook modifying other controllers', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){(0, _emberMetalProperty_set.set)(this.controllerFor('home'), 'hours', _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The Homepage with a computed context that does not get overridden', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Router.map(function(){this.route('home', {path:'/'});});App.HomeController = _emberMetalCore.default.ArrayController.extend({model:_emberMetalCore.default.computed(function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']);})});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the context intact');});QUnit.test('The Homepage getting its controller context via model', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm', 'Saturday: Noon to Midnight', 'Sunday: Noon to 6pm']);}, setupController:function(controller, model){equal(this.controllerFor('home'), controller);(0, _emberMetalProperty_set.set)(this.controllerFor('home'), 'hours', model);}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li', '#qunit-fixture').eq(2).text(), 'Sunday: Noon to 6pm', 'The template was rendered with the hours context');});QUnit.test('The Specials Page getting its controller context by deserializing the params hash', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.SpecialRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({menuItemId:params.menu_item_id});}, setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.menuItemId}}</p>');bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');});QUnit.test('The Specials Page defaults to looking models up via `find`', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), '1', 'The model was used to render the template');});QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'LOADING!', 'The app is in the loading state');_emberMetalCore.default.run(function(){resolve(menuItem);});equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');});QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false, 'LoadingRoute shouldn\'t have been entered.');}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), '1', 'The app is now in the specials state');});QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler', function(){Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, promise, resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';}, actions:{error:function(reason){equal(reason, 'Setup error', 'SpecialRoute#error received the error thrown from setup');}}});bootApplication();handleURLRejectsWith('/specials/1', 'Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});var menuItem, resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason, 'Setup error', 'error was correctly passed to custom ApplicationRoute handler');}};App.ApplicationRoute = _emberMetalCore.default.Route.extend(attrs);App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1', 'Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden', function(){testOverridableErrorHandler('actions');});QUnit.test('ApplicationRoute\'s default error handler can be overridden (with DEPRECATED `events`)', function(){ignoreDeprecation(function(){testOverridableErrorHandler('events');});});asyncTest('Moving from one page to another triggers the correct callbacks', function(){expect(3);Router.map(function(){this.route('home', {path:'/'});this.resource('special', {path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES.home = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());var transition=handleURL('/');_emberMetalCore.default.run(function(){transition.then(function(){equal(_emberMetalCore.default.$('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(promiseContext);}, 1);return router.transitionTo('special', promiseContext);}).then(function(result){deepEqual(router.location.path, '/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.resource('special', {path:'/specials/:menu_item_id'});});});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});var menuItem;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.RootRoute = _emberMetalCore.default.Route.extend({model:function(){rootModel++;return this._super.apply(this, arguments);}, serialize:function(){rootSerialize++;return this._super.apply(this, arguments);}, setupController:function(){rootSetup++;}, renderTemplate:function(){rootRender++;}});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller, model){(0, _emberMetalProperty_set.set)(controller, 'model', model);}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special', _emberMetalCore.default.Controller.extend());equal(_emberMetalCore.default.$('h3', '#qunit-fixture').text(), 'Home', 'The app is now in the initial state');equal(rootSetup, 1, 'The root setup was triggered');equal(rootRender, 1, 'The root render was triggered');equal(rootSerialize, 0, 'The root serialize was not called');equal(rootModel, 1, 'The root model was called');router = container.lookup('router:main');_emberMetalCore.default.run(function(){var menuItem=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(menuItem);}, 1);router.transitionTo('special', menuItem).then(function(result){equal(rootSetup, 1, 'The root setup was not triggered again');equal(rootRender, 1, 'The root render was not triggered again');equal(rootSerialize, 0, 'The root serialize was not called');equal(rootModel, 1, 'The root model was called again');deepEqual(router.location.path, '/specials/1');equal(currentPath, 'root.special');QUnit.start();});});});QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){stateIsNotCalled = false;}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled, 'an event on the state is not triggered');deepEqual(context, {name:'Tom Dale'}, 'an event with context is passed');QUnit.start();}}});registry.register('controller:home', controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}, actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId2=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId2[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId3=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId3[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `events` object (DEPRECATED)', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}, events:{showStuff:function(obj){ok(this instanceof App.HomeRoute, 'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId4=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId4[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj, true), {name:'Tom Dale'}, 'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId5=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId5[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('Events can be handled by inherited event handlers', function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true, 'foo');}, bar:function(msg){equal(msg, 'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg, 'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, 'baz');}}});bootApplication();router.send('foo');router.send('bar', 'HELLO');router.send('baz');});QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method', function(){Router.map(function(){this.route('home', {path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}, actions:{showStuff:function(context){ok(stateIsNotCalled, 'an event on the state is not triggered');deepEqual(context, {name:'Tom Dale'}, 'an event with context is passed');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled, 'an event on the state is not triggered');}});registry.register('controller:home', controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId6=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId6[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('actions can be triggered with multiple arguments', function(){Router.map(function(){this.resource('root', {path:'/'}, function(){this.route('index', {path:'/'});});});var model1={name:'Tilde'};var model2={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj1, obj2){ok(this instanceof App.RootRoute, 'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj1, true), {name:'Tilde'}, 'the first context is correct');deepEqual(_emberMetalCore.default.copy(obj2, true), {name:'Tom Dale'}, 'the second context is correct');QUnit.start();}}});App.RootIndexController = _emberMetalCore.default.Controller.extend({model1:model1, model2:model2});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId7=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId7[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('transitioning multiple times in a single run loop only sets the URL once', function(){Router.map(function(){this.route('root', {path:'/'});this.route('foo');this.route('bar');});bootApplication();var urlSetCount=0;router.get('location').setURL = function(path){urlSetCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);};equal(urlSetCount, 0);_emberMetalCore.default.run(function(){router.transitionTo('foo');router.transitionTo('bar');});equal(urlSetCount, 1);equal(router.get('location').getURL(), '/bar');});QUnit.test('navigating away triggers a url property change', function(){expect(3);Router.map(function(){this.route('root', {path:'/'});this.route('foo', {path:'/foo'});this.route('bar', {path:'/bar'});});bootApplication();_emberMetalCore.default.run(function(){_emberMetalCore.default.addObserver(router, 'url', function(){ok(true, 'url change event was fired');});});['foo', 'bar', '/foo'].forEach(function(destination){_emberMetalCore.default.run(router, 'transitionTo', destination);});});QUnit.test('using replaceWith calls location.replaceURL if available', function(){var setCount=0;var replaceCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.createWithMixins({setURL:function(path){setCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}, replaceURL:function(path){replaceCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}})});Router.map(function(){this.route('root', {path:'/'});this.route('foo');});bootApplication();equal(setCount, 0);equal(replaceCount, 0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount, 0, 'should not call setURL');equal(replaceCount, 1, 'should call replaceURL once');equal(router.get('location').getURL(), '/foo');});QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined', function(){var setCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.createWithMixins({setURL:function(path){setCount++;(0, _emberMetalProperty_set.set)(this, 'path', path);}})});Router.map(function(){this.route('root', {path:'/'});this.route('foo');});bootApplication();equal(setCount, 0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount, 1, 'should call setURL once');equal(router.get('location').getURL(), '/foo');});QUnit.test('Route inherits model from parent route', function(){expect(9);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.route('comments');this.resource('shares', {path:'/shares/:share_id'}, function(){this.route('share');});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1, 2:post2, 3:post3};var shares={1:share1, 2:share2, 3:share3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor('thePost');equal(post, parent_model);}});App.SharesRoute = _emberMetalCore.default.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = _emberMetalCore.default.Route.extend({afterModel:function(share, transition){var parent_model=this.modelFor('shares');equal(share, parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');handleURL('/posts/1/shares/1');currentPost = post2;handleURL('/posts/2/comments');handleURL('/posts/2/shares/2');currentPost = post3;handleURL('/posts/3/comments');handleURL('/posts/3/shares/3');});QUnit.test('Resource inherits model from parent resource', function(){expect(6);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.resource('comments', function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post, transition){var parent_model=this.modelFor('thePost');equal(post, parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('It is possible to get the model from a parent route', function(){expect(9);Router.map(function(){this.resource('the_post', {path:'/posts/:post_id'}, function(){this.resource('comments');});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1, 2:post2, 3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({model:function(){equal(this.modelFor('thePost'), currentPost);equal(this.modelFor('the_post'), currentPost);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('A redirection hook is provided', function(){Router.map(function(){this.route('choose', {path:'/'});this.route('home');});var chooseFollowed=0;var destination;App.ChooseRoute = _emberMetalCore.default.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}}, setupController:function(){chooseFollowed++;}});destination = 'home';bootApplication();equal(chooseFollowed, 0, 'The choose route wasn\'t entered since a transition occurred');equal(_emberMetalCore.default.$('h3:contains(Hours)', '#qunit-fixture').length, 1, 'The home template was rendered');equal(router.container.lookup('controller:application').get('currentPath'), 'home');});QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes', function(){expect(3);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});});});App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('home');}, setupController:function(){ok(false, 'Should transition before setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false, 'Should abort transition getting to next route');}});bootApplication();handleURLAborts('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'home');equal(router.get('location').getURL(), '/home');});QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing', function(){expect(5);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});});});var successCount=0;App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('bar.baz').then(function(){successCount++;});}, setupController:function(){ok(true, 'Should still invoke bar\'s setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true, 'Should still invoke bar.baz\'s setupController');}});bootApplication();handleURL('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'foo.bar.baz');equal(successCount, 1, 'transitionTo success handler was called once');});QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes', function(){expect(4);Router.map(function(){this.route('home');this.resource('foo', function(){this.resource('bar', {path:'bar/:id'}, function(){this.route('baz');});});});var model={id:2};var count=0;App.BarRoute = _emberMetalCore.default.Route.extend({afterModel:function(context){if(count++ > 10){ok(false, 'infinite loop');}else {this.transitionTo('bar.baz', model);}}, serialize:function(params){return params;}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true, 'Should still invoke setupController');}});bootApplication();handleURLAborts('/foo/bar/1/baz');equal(router.container.lookup('controller:application').get('currentPath'), 'foo.bar.baz');equal(router.get('location').getURL(), '/foo/bar/2/baz');});QUnit.test('Transitioning from a parent event does not prevent currentPath from being set', function(){Router.map(function(){this.resource('foo', function(){this.resource('bar', function(){this.route('baz');});this.route('qux');});});App.FooRoute = _emberMetalCore.default.Route.extend({actions:{goToQux:function(){this.transitionTo('foo.qux');}}});bootApplication();var applicationController=router.container.lookup('controller:application');handleURL('/foo/bar/baz');equal(applicationController.get('currentPath'), 'foo.bar.baz');_emberMetalCore.default.run(function(){router.send('goToQux');});equal(applicationController.get('currentPath'), 'foo.qux');equal(router.get('location').getURL(), '/foo/qux');});QUnit.test('Generated names can be customized when providing routes with dot notation', function(){expect(4);_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.foo = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['bar/baz'] = compile('<p>{{name}}Bottom!</p>');Router.map(function(){this.resource('foo', {path:'/top'}, function(){this.resource('bar', {path:'/middle'}, function(){this.route('baz', {path:'/bottom'});});});});App.FooRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true, 'FooBarRoute was called');return this._super.apply(this, arguments);}});App.BarBazRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true, 'BarBazRoute was called');return this._super.apply(this, arguments);}});App.BarController = _emberMetalCore.default.Controller.extend({name:'Bar'});App.BarBazController = _emberMetalCore.default.Controller.extend({name:'BarBaz'});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p', '#qunit-fixture').text(), 'BarBazBottom!', 'The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into their parent route\'s template by default', function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.resource('top', function(){this.resource('middle', function(){this.route('bottom');});});});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p', '#qunit-fixture').text(), 'Bottom!', 'The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into specified template', function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.resource('top', function(){this.resource('middle', function(){this.route('bottom');});});});App.MiddleBottomRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('middle/bottom', {into:'top'});}});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p', '#qunit-fixture').length, 0, 'should not render into the middle template');equal(_emberMetalCore.default.$('.main .middle > p', '#qunit-fixture').text(), 'Bottom!', 'The template was rendered into the top template');});QUnit.test('Rendering into specified template with slash notation', function(){_emberMetalCore.default.TEMPLATES['person/profile'] = compile('profile {{outlet}}');_emberMetalCore.default.TEMPLATES['person/details'] = compile('details!');Router.map(function(){this.resource('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('person/profile');this.render('person/details', {into:'person/profile'});}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture:contains(profile details!)').length, 1, 'The templates were rendered');});QUnit.test('Parent route context change', function(){var editCount=0;var editedPostIds=_emberMetalCore.default.A();_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.post = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['post/index'] = compile('showing');_emberMetalCore.default.TEMPLATES['post/edit'] = compile('editing');Router.map(function(){this.resource('posts', function(){this.resource('post', {path:'/:postId'}, function(){this.route('edit');});});});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showPost:function(context){this.transitionTo('post', context);}}});App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return {id:params.postId};}, actions:{editPost:function(context){this.transitionTo('post.edit');}}});App.PostEditRoute = _emberMetalCore.default.Route.extend({model:function(params){var postId=this.modelFor('post').id;editedPostIds.push(postId);return null;}, setup:function(){this._super.apply(this, arguments);editCount++;}});bootApplication();handleURL('/posts/1');_emberMetalCore.default.run(function(){router.send('editPost');});_emberMetalCore.default.run(function(){router.send('showPost', {id:'2'});});_emberMetalCore.default.run(function(){router.send('editPost');});equal(editCount, 2, 'set up the edit route twice without failure');deepEqual(editedPostIds, ['1', '2'], 'modelFor posts.post returns the right context');});QUnit.test('Router accounts for rootURL on page load when using history location', function(){var rootURL=window.location.pathname + '/app';var postsTemplateRendered=false;var setHistory, HistoryTestLocation;setHistory = function(obj, path){obj.set('history', {state:{path:path}});};HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({initState:function(){var path=rootURL + '/posts';setHistory(this, path);this.set('location', {pathname:path, href:'http://localhost/' + path});}, replaceState:function(path){setHistory(this, path);}, pushState:function(path){setHistory(this, path);}});registry.register('location:historyTest', HistoryTestLocation);Router.reopen({location:'historyTest', rootURL:rootURL});Router.map(function(){this.resource('posts', {path:'/posts'});});App.PostsRoute = _emberMetalCore.default.Route.extend({model:function(){}, renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered, 'Posts route successfully stripped from rootURL');});QUnit.test('The rootURL is passed properly to the location implementation', function(){expect(1);var rootURL='/blahzorz';var HistoryTestLocation;HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({rootURL:'this is not the URL you are looking for', initState:function(){equal(this.get('rootURL'), rootURL);}});registry.register('location:history-test', HistoryTestLocation);Router.reopen({location:'history-test', rootURL:rootURL, _doURLTransition:function(){}});bootApplication();});QUnit.test('Only use route rendered into main outlet for default into property on child', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');Router.map(function(){this.resource('posts', function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/menu', classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p', classNames:['posts-index']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('postsMenu', {into:'application', outlet:'menu'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');});QUnit.test('Generating a URL should not affect currentModel', function(){Router.map(function(){this.route('post', {path:'/posts/:post_id'});});var posts={1:{id:1}, 2:{id:2}};App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL('/posts/1');var route=container.lookup('route:post');equal(route.modelFor('post'), posts[1]);var url=router.generate('post', posts[2]);equal(url, '/posts/2');equal(route.modelFor('post'), posts[1]);});QUnit.test('Generated route should be an instance of App.Route if provided', function(){var generatedRoute;Router.map(function(){this.route('posts');});App.Route = _emberMetalCore.default.Route.extend();bootApplication();handleURL('/posts');generatedRoute = container.lookup('route:posts');ok(generatedRoute instanceof App.Route, 'should extend the correct route');});QUnit.test('Nested index route is not overriden by parent\'s implicit index route', function(){Router.map(function(){this.resource('posts', function(){this.route('index', {path:':category'});});});App.Route = _emberMetalCore.default.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();_emberMetalCore.default.run(function(){router.transitionTo('posts', {category:'emberjs'});});deepEqual(router.location.path, '/posts/emberjs');});QUnit.test('Application template does not duplicate when re-rendered', function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);_emberMetalCore.default.TEMPLATES.application = compile('<h3>I Render Once</h3>{{outlet}}');Router.map(function(){this.route('posts');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A();}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('h3:contains(I Render Once)').size(), 1);});QUnit.test('Child routes should render inside the application template if the application template causes a redirect', function(){_emberMetalCore.default.TEMPLATES.application = compile('<h3>App</h3> {{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('posts');Router.map(function(){this.route('posts');this.route('photos');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({afterModel:function(){this.transitionTo('posts');}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture > div').text(), 'App posts');});QUnit.test('The template is not re-rendered when the route\'s context changes', function(){Router.map(function(){this.route('page', {path:'/page/:name'});});App.PageRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({name:params.name});}});var insertionCount=0;App.PageView = _emberViewsViewsView.default.extend({didInsertElement:function(){insertionCount += 1;}});_emberMetalCore.default.TEMPLATES.page = compile('<p>{{model.name}}</p>');bootApplication();handleURL('/page/first');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'first');equal(insertionCount, 1);handleURL('/page/second');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'second');equal(insertionCount, 1, 'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('page', _emberMetalCore.default.Object.create({name:'third'}));});equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'third');equal(insertionCount, 1, 'view should still have inserted only once');});QUnit.test('The template is not re-rendered when two routes present the exact same template, view, & controller', function(){Router.map(function(){this.route('first');this.route('second');this.route('third');this.route('fourth');});App.SharedRoute = _emberMetalCore.default.Route.extend({viewName:'shared', setupController:function(controller){this.controllerFor('shared').set('message', 'This is the ' + this.routeName + ' message');}, renderTemplate:function(controller, context){this.render({controller:'shared'});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:'fourth'});App.SharedController = _emberMetalCore.default.Controller.extend();var insertionCount=0;App.SharedView = _emberViewsViewsView.default.extend({templateName:'shared', didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();_emberMetalCore.default.TEMPLATES.shared = compile('<p>{{message}}</p>');bootApplication();handleURL('/first');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'This is the first message');equal(insertionCount, 1, 'expected one assertion');handleURL('/second');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'This is the second message');equal(insertionCount, 1, 'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('third').then(function(value){ok(true, 'expected transition');}, function(reason){ok(false, 'unexpected transition failure: ', QUnit.jsDump.parse(reason));});});equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'This is the third message');equal(insertionCount, 1, 'view should still have inserted only once');handleURL('/fourth');equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'This is the fourth message');equal(insertionCount, 2, 'view should have inserted a second time');});QUnit.test('ApplicationRoute with model does not proxy the currentPath', function(){var model={};var currentPath;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath', function(){currentPath = (0, _emberMetalProperty_get.get)(this, 'currentPath');})});bootApplication();equal(currentPath, 'index', 'currentPath is index');equal('currentPath' in model, false, 'should have defined currentPath on controller');});QUnit.test('Promises encountered on app load put app into loading state until resolved', function(){expect(2);var deferred=_emberMetalCore.default.RSVP.defer();App.IndexRoute = _emberMetalCore.default.Route.extend({model:function(){return deferred.promise;}});_emberMetalCore.default.TEMPLATES.index = compile('<p>INDEX</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING</p>');bootApplication();equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'LOADING', 'The loading state is displaying.');_emberMetalCore.default.run(deferred.resolve);equal(_emberMetalCore.default.$('p', '#qunit-fixture').text(), 'INDEX', 'The index route is display.');});QUnit.test('Route should tear down multiple outlets', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');_emberMetalCore.default.TEMPLATES['posts/footer'] = compile('postsFooter');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/menu', classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p', classNames:['posts-index']});App.PostsFooterView = _emberViewsViewsView.default.extend({tagName:'div', templateName:'posts/footer', classNames:['posts-footer']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('postsMenu', {into:'application', outlet:'menu'});this.render();this.render('postsFooter', {into:'application', outlet:'footer'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 1, 'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 1, 'The posts/footer template was rendered');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)', '#qunit-fixture').length, 0, 'The posts/menu template was removed');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)', '#qunit-fixture').length, 0, 'The posts/footer template was removed');});QUnit.test('Route will assert if you try to explicitly render {into: ...} a missing template', function(){Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'nonexistent'});}});expectAssertion(function(){bootApplication();}, 'You attempted to render into \'nonexistent\' but it was not found');});QUnit.test('Route supports clearing outlet explicitly', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');_emberMetalCore.default.TEMPLATES['posts/extra'] = compile('postsExtra');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal', classNames:['posts-modal']});App.PostsExtraView = _emberViewsViewsView.default.extend({templateName:'posts/extra', classNames:['posts-extra']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal', {into:'application', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet({outlet:'modal', parentView:'application'});}}});App.PostsIndexRoute = _emberMetalCore.default.Route.extend({actions:{showExtra:function(){this.render('postsExtra', {into:'posts/index'});}, hideExtra:function(){this.disconnectOutlet({parentView:'posts/index'});}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('showExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 1, 'The posts/extra template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');_emberMetalCore.default.run(function(){router.send('hideExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)', '#qunit-fixture').length, 0, 'The posts/extra template was removed');});QUnit.test('Route supports clearing outlet using string parameter', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');Router.map(function(){this.resource('posts', function(){});this.resource('users', function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal', classNames:['posts-modal']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal', {into:'application', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet('modal');}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 1, 'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 1, 'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)', '#qunit-fixture').length, 0, 'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)', '#qunit-fixture').length, 0, 'The posts/modal template was removed');});QUnit.test('Route silently fails when cleaning an outlet from an inactive view', function(){expect(1);_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.modal = compile('A Yo.');Router.map(function(){this.route('posts');});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:'main', parentView:'application'});}, showModal:function(){this.render('modal', {into:'posts', outlet:'modal'});}, hideModal:function(){this.disconnectOutlet({outlet:'modal', parentView:'posts'});}}});bootApplication();handleURL('/posts');_emberMetalCore.default.run(function(){router.send('showModal');});_emberMetalCore.default.run(function(){router.send('hideSelf');});_emberMetalCore.default.run(function(){router.send('hideModal');});});QUnit.test('Router `willTransition` hook passes in cancellable transition', function(){expect(3);Router.map(function(){this.route('nork');this.route('about');});Router.reopen({init:function(){this._super();this.on('willTransition', this.testWillTransitionHook);}, testWillTransitionHook:function(transition, url){ok(true, 'willTransition was called ' + url);transition.abort();}});App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false, 'LoadingRoute was not entered');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false, 'NorkRoute was not entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false, 'AboutRoute was not entered');}});bootApplication();_emberMetalCore.default.run(router, 'handleURL', '/nork');_emberMetalCore.default.run(router, 'handleURL', '/about');});QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered', function(){expect(8);Router.map(function(){this.route('nork');this.route('about');});var redirect=false;App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willTransition:function(transition){ok(true, 'willTransition was called');if(redirect){this.transitionTo('about');}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(deferred, 'LoadingRoute should be entered at this time');}, deactivate:function(){ok(true, 'LoadingRoute was exited');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true, 'NorkRoute was entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true, 'AboutRoute was entered');}, model:function(){if(deferred){return deferred.promise;}}});bootApplication();_emberMetalCore.default.run(router, 'transitionTo', 'nork');_emberMetalCore.default.run(router, 'handleURL', '/nork');redirect = true;_emberMetalCore.default.run(router, 'transitionTo', 'nork');_emberMetalCore.default.run(router, 'transitionTo', 'index');deferred = _emberMetalCore.default.RSVP.defer();_emberMetalCore.default.run(router, 'transitionTo', 'nork');_emberMetalCore.default.run(deferred.resolve);});QUnit.test('`didTransition` event fires on the router', function(){expect(3);Router.map(function(){this.route('nork');});router = container.lookup('router:main');router.one('didTransition', function(){ok(true, 'didTransition fired on initial routing');});bootApplication();router.one('didTransition', function(){ok(true, 'didTransition fired on the router');equal(router.get('url'), '/nork', 'The url property is updated by the time didTransition fires');});_emberMetalCore.default.run(router, 'transitionTo', 'nork');});QUnit.test('`didTransition` can be reopened', function(){expect(1);Router.map(function(){this.route('nork');});Router.reopen({didTransition:function(){this._super.apply(this, arguments);ok(true, 'reopened didTransition was called');}});bootApplication();});QUnit.test('`activate` event fires on the route', function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this, arguments);this.on('activate', function(){equal(++eventFired, 1, 'activate event is fired once');});}, activate:function(){ok(true, 'activate hook is called');}});bootApplication();_emberMetalCore.default.run(router, 'transitionTo', 'nork');});QUnit.test('`deactivate` event fires on the route', function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');this.route('dork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this, arguments);this.on('deactivate', function(){equal(++eventFired, 1, 'deactivate event is fired once');});}, deactivate:function(){ok(true, 'deactivate hook is called');}});bootApplication();_emberMetalCore.default.run(router, 'transitionTo', 'nork');_emberMetalCore.default.run(router, 'transitionTo', 'dork');});QUnit.test('Actions can be handled by inherited action handlers', function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true, 'foo');}, bar:function(msg){equal(msg, 'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg, 'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin, {actions:{baz:function(){ok(true, 'baz');}}});bootApplication();router.send('foo');router.send('bar', 'HELLO');router.send('baz');});QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo', function(){expect(24);Router.map(function(){this.resource('be', function(){this.resource('excellent', function(){this.resource('to', function(){this.resource('each', function(){this.route('other');});});});});});bootApplication();var appController=router.container.lookup('controller:application');function transitionAndCheck(path, expectedPath, expectedRouteName){if(path){_emberMetalCore.default.run(router, 'transitionTo', path);}equal(appController.get('currentPath'), expectedPath);equal(appController.get('currentRouteName'), expectedRouteName);}transitionAndCheck(null, 'index', 'index');transitionAndCheck('/be', 'be.index', 'be.index');transitionAndCheck('/be/excellent', 'be.excellent.index', 'excellent.index');transitionAndCheck('/be/excellent/to', 'be.excellent.to.index', 'to.index');transitionAndCheck('/be/excellent/to/each', 'be.excellent.to.each.index', 'each.index');transitionAndCheck('/be/excellent/to/each/other', 'be.excellent.to.each.other', 'each.other');transitionAndCheck('index', 'index', 'index');transitionAndCheck('be', 'be.index', 'be.index');transitionAndCheck('excellent', 'be.excellent.index', 'excellent.index');transitionAndCheck('to.index', 'be.excellent.to.index', 'to.index');transitionAndCheck('each', 'be.excellent.to.each.index', 'each.index');transitionAndCheck('each.other', 'be.excellent.to.each.other', 'each.other');});QUnit.test('Route model hook finds the same model as a manual find', function(){var Post;App.Post = _emberMetalCore.default.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route('post', {path:'/post/:post_id'});});bootApplication();handleURL('/post/1');equal(App.Post, Post);});QUnit.test('Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)', function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);_emberMetalCore.default.Location.registerImplementation('test', TestLocation);Router.reopen({location:'test'});bootApplication();equal(router.get('location.implementation'), 'test', 'custom location implementation can be registered with registerImplementation');});QUnit.test('Ember.Location.registerImplementation is deprecated', function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(function(){_emberMetalCore.default.Location.registerImplementation('test', TestLocation);}, 'Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.');});QUnit.test('Routes can refresh themselves causing their model hooks to be re-run', function(){Router.map(function(){this.resource('parent', {path:'/parent/:parent_id'}, function(){this.route('child');});});var appcount=0;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = _emberMetalCore.default.Route.extend({model:function(params){equal(params.parent_id, '123');++parentcount;}, actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = _emberMetalCore.default.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount, 1);equal(parentcount, 0);equal(childcount, 0);_emberMetalCore.default.run(router, 'transitionTo', 'parent.child', '123');equal(appcount, 1);equal(parentcount, 1);equal(childcount, 1);_emberMetalCore.default.run(router, 'send', 'refreshParent');equal(appcount, 1);equal(parentcount, 2);equal(childcount, 2);});QUnit.test('Specifying non-existent controller name in route#render throws', function(){expect(1);Router.map(function(){this.route('home', {path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){try{this.render('homepage', {controller:'stefanpenneristhemanforme'});}catch(e) {equal(e.message, 'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');}}});bootApplication();});QUnit.test('Redirecting with null model doesn\'t error out', function(){Router.map(function(){this.route('home', {path:'/'});this.route('about', {path:'/about/:hurhurhur'});});App.HomeRoute = _emberMetalCore.default.Route.extend({beforeModel:function(){this.transitionTo('about', null);}});App.AboutRoute = _emberMetalCore.default.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:'TreeklesMcGeekles'};}}});bootApplication();equal(router.get('location.path'), '/about/TreeklesMcGeekles');});QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property', function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie', {path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({message:rejectedMessage, stack:rejectedStack});}});bootApplication();});QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property', function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie', {path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage, errorMessage, errorStack){equal(initialMessage, 'Error while processing route: yippie', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');equal(errorStack, rejectedStack, 'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({errorThrown:{message:rejectedMessage, stack:rejectedStack}});}});bootApplication();});QUnit.test('rejecting the model hooks promise with no reason still logs error', function(){Router.map(function(){this.route('wowzers', {path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage){equal(initialMessage, 'Error while processing route: wowzers', 'a message with the current route name is printed');};App.WowzersRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject();}});bootApplication();});QUnit.test('rejecting the model hooks promise with a string shows a good error', function(){var originalLoggerError=_emberMetalCore.default.Logger.error;var rejectedMessage='Supercalifragilisticexpialidocious';Router.map(function(){this.route('yondo', {path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage, errorMessage){equal(initialMessage, 'Error while processing route: yondo', 'a message with the current route name is printed');equal(errorMessage, rejectedMessage, 'the rejected reason\'s message property is logged');};App.YondoRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject(rejectedMessage);}});bootApplication();_emberMetalCore.default.Logger.error = originalLoggerError;});QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled', function(){expect(1);App.Router.map(function(){this.route('about');});function shouldNotFire(){ok(false, 'this action shouldn\'t have been received');}App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willChangeModel:shouldNotFire, willChangeContext:shouldNotFire, willLeave:shouldNotFire}});App.AboutRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true, 'about route was entered');}});bootApplication();_emberMetalCore.default.run(router, 'transitionTo', 'about');});QUnit.test('Errors in transitionTo within redirect hook are logged', function(){expect(3);var actual=[];Router.map(function(){this.route('yondo', {path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb', {something:'goes boom'});}});_emberMetalCore.default.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length, 1, 'the error is only logged once');equal(actual[0][0], 'Error while processing route: yondo', 'source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/), 'the error is printed');});QUnit.test('Errors in transition show error template if available', function(){_emberMetalCore.default.TEMPLATES.error = compile('<div id=\'error\'>Error!</div>');Router.map(function(){this.route('yondo', {path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb', {something:'goes boom'});}});bootApplication();equal(_emberMetalCore.default.$('#error').length, 1, 'Error template was rendered.');});QUnit.test('Route#resetController gets fired when changing models and exiting routes', function(){expect(4);Router.map(function(){this.resource('a', function(){this.resource('b', {path:'/b/:id'}, function(){});this.resource('c', {path:'/c/:id'}, function(){});});this.route('out');});var calls=[];var SpyRoute=_emberMetalCore.default.Route.extend({setupController:function(controller, model, transition){calls.push(['setup', this.routeName]);}, resetController:function(controller){calls.push(['reset', this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls, []);_emberMetalCore.default.run(router, 'transitionTo', 'b', 'b-1');deepEqual(calls, [['setup', 'a'], ['setup', 'b']]);calls.length = 0;_emberMetalCore.default.run(router, 'transitionTo', 'c', 'c-1');deepEqual(calls, [['reset', 'b'], ['setup', 'c']]);calls.length = 0;_emberMetalCore.default.run(router, 'transitionTo', 'out');deepEqual(calls, [['reset', 'c'], ['reset', 'a'], ['setup', 'out']]);});QUnit.test('Exception during initialization of non-initial route is not swallowed', function(){Router.map(function(){this.route('boom');});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router, 'transitionTo', 'boom');}, /\bboom\b/);});QUnit.test('Exception during load of non-initial route is not swallowed', function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this, arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router, 'transitionTo', 'boom');});});QUnit.test('Exception during initialization of initial route is not swallowed', function(){Router.map(function(){this.route('boom', {path:'/'});});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test('Exception during load of initial route is not swallowed', function(){Router.map(function(){this.route('boom', {path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this, arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();}, /\bboom\b/);});QUnit.test('{{outlet}} works when created after initial render', function(){_emberMetalCore.default.TEMPLATES.sample = compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye');_emberMetalCore.default.TEMPLATES['sample/inner'] = compile('Yay');_emberMetalCore.default.TEMPLATES['sample/inner2'] = compile('Boo');Router.map(function(){this.route('sample', {path:'/'}, function(){this.route('inner', {path:'/'});this.route('inner2', {path:'/2'});});});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'HiBye', 'initial render');_emberMetalCore.default.run(function(){container.lookup('controller:sample').set('showTheThing', true);});equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'HiYayBye', 'second render');handleURL('/2');equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'HiBooBye', 'third render');});QUnit.test('Can rerender application view multiple times when it contains an outlet', function(){_emberMetalCore.default.TEMPLATES.application = compile('App{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('Hello world');registry.register('view:application', _emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'AppHello world', 'initial render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'AppHello world', 'second render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'AppHello world', 'third render');});QUnit.test('Can render into a named outlet at the top level', function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application', _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');});QUnit.test('Can disconnect a named outlet at the top level', function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application', _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}, actions:{banish:function(){this.disconnectOutlet({parentView:'application', outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'initial render');_emberMetalCore.default.run(router, 'send', 'banish');equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A-The index-B--C', 'second render');});QUnit.test('Can render into a named outlet at the top level, with empty main outlet', function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');Router.map(function(){this.route('hasNoTemplate', {path:'/'});});registry.register('route:application', _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal', {into:'application', outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A--B-Hello world-C', 'initial render');});QUnit.test('Can render into a named outlet at the top level, later', function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application', _emberMetalCore.default.Route.extend({actions:{launch:function(){this.render('modal', {into:'application', outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A-The index-B--C', 'initial render');_emberMetalCore.default.run(router, 'send', 'launch');equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'A-The index-B-Hello world-C', 'second render');});QUnit.test('Can render routes with no \'main\' outlet and their children', function(){_emberMetalCore.default.TEMPLATES.application = compile('<div id="application">{{outlet "app"}}</div>');_emberMetalCore.default.TEMPLATES.app = compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>');_emberMetalCore.default.TEMPLATES.common = compile('<div id="common"></div>');_emberMetalCore.default.TEMPLATES.sub = compile('<div id="sub"></div>');Router.map(function(){this.route('app', {path:'/app'}, function(){this.resource('sub', {path:'/sub'});});});App.AppRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('app', {outlet:'app', into:'application'});this.render('common', {outlet:'common', into:'app'});}});App.SubRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('sub', {outlet:'sub', into:'app'});}});bootApplication();handleURL('/app');equal(_emberMetalCore.default.$('#app-common #common').length, 1, 'Finds common while viewing /app');handleURL('/app/sub');equal(_emberMetalCore.default.$('#app-common #common').length, 1, 'Finds common while viewing /app/sub');equal(_emberMetalCore.default.$('#app-sub #sub').length, 1, 'Finds sub while viewing /app/sub');});QUnit.test('Tolerates stacked renders', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer', {into:'application', outlet:'modal'});}, close:function(){this.disconnectOutlet({outlet:'modal', parentView:'application'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hi');_emberMetalCore.default.run(router, 'send', 'openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hilayer');_emberMetalCore.default.run(router, 'send', 'openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hilayer');_emberMetalCore.default.run(router, 'send', 'close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hi');});QUnit.test('Renders child into parent with non-default template name', function(){_emberMetalCore.default.TEMPLATES.application = compile('<div class="a">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/root'] = compile('<div class="b">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/index'] = compile('<div class="c"></div>');Router.map(function(){this.route('root', function(){});});App.RootRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(_emberMetalCore.default.$('#qunit-fixture .a .b .c').length, 1);});QUnit.test('Allows any route to disconnectOutlet another route\'s templates', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer', {into:'application', outlet:'modal'});}}});App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application', outlet:'modal'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hi');_emberMetalCore.default.run(router, 'send', 'openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hilayer');_emberMetalCore.default.run(router, 'send', 'close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()), 'hi');});QUnit.test('Can this.render({into:...}) the render helper', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo', outlet:'main'});this.render('bar', {into:'foo'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(), 'other');_emberMetalCore.default.run(router, 'send', 'changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(), 'bar');});QUnit.test('Can disconnect from the render helper', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo', outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(), 'other');_emberMetalCore.default.run(router, 'send', 'disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(), '');});QUnit.test('Can this.render({into:...}) the render helper\'s children', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other', {into:'index'});}, actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index', outlet:'main'});this.render('bar', {into:'index'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(), 'other');_emberMetalCore.default.run(router, 'send', 'changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(), 'bar');});QUnit.test('Can disconnect from the render helper\'s children', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other', {into:'index'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'index', outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(), 'other');_emberMetalCore.default.run(router, 'send', 'disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(), '');});QUnit.test('Can this.render({into:...}) nested render helpers', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.baz = compile('baz');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});}, actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar', outlet:'main'});this.render('baz', {into:'bar'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(), 'other');_emberMetalCore.default.run(router, 'send', 'changeToBaz');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(), 'baz');});QUnit.test('Can disconnect from nested render helpers', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});}, actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar', outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(), 'other');_emberMetalCore.default.run(router, 'send', 'disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(), '');});QUnit.test('Can render with layout', function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('index-template');_emberMetalCore.default.TEMPLATES['my-layout'] = compile('my-layout [{{yield}}]');App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'my-layout [index-template]');});QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed', function(assert){_emberMetalCore.default.TEMPLATES.index = compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}');var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = _emberMetalCore.default.Controller.extend({showFirst:true});App.IndexRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter, 1, 'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter, 0, 'didInsertElement not invoked on displayed component');_emberMetalCore.default.run(function(){indexController.set('showFirst', false);});assert.strictEqual(myComponentCounter, 1, 'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter, 1, 'didInsertElement invoked on displayed component');});});
+enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
   var Router, App, router, registry, container;
-  var get = Ember.get;
+  var get = _emberMetalCore.default.get;
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   function handleURL(path) {
-    return Ember.run(function () {
+    return _emberMetalCore.default.run(function () {
       return router.handleURL(path).then(function (value) {
         ok(true, 'url: `' + path + '` was handled');
         return value;
@@ -60587,10 +60589,10 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
   var expectedReplaceURL, expectedPushURL;
 
   function setAndFlush(obj, prop, value) {
-    Ember.run(obj, 'set', prop, value);
+    _emberMetalCore.default.run(obj, 'set', prop, value);
   }
 
-  var TestLocation = Ember.NoneLocation.extend({
+  var TestLocation = _emberMetalCore.default.NoneLocation.extend({
     initState: function () {
       this.set('path', startingURL);
     },
@@ -60619,8 +60621,8 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
   });
 
   function sharedSetup() {
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
@@ -60640,19 +60642,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       Router = App.Router;
 
-      App.LoadingRoute = Ember.Route.extend({});
+      App.LoadingRoute = _emberMetalCore.default.Route.extend({});
 
-      Ember.TEMPLATES.application = compile('{{outlet}}');
-      Ember.TEMPLATES.home = compile('<h3>Hours</h3>');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');
     });
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     });
   }
 
@@ -60673,7 +60675,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -60698,7 +60700,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           page: {
             defaultValue: null,
@@ -60711,12 +60713,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var controller = container.lookup('controller:home');
 
-      Ember.run(router, 'transitionTo', 'home', { queryParams: { page: '4' } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'home', { queryParams: { page: '4' } });
       equal(controller.get('page'), 4);
     });
 
     QUnit.test('Query params can map to different url keys configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: { as: 'other_foo', defaultValue: 'FOO' },
           bar: { as: 'other_bar', defaultValue: 'BAR' }
@@ -60734,21 +60736,21 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       setAndFlush(controller, 'foo', 'WOO');
       equal(router.get('location.path'), '/?other_foo=WOO');
 
-      Ember.run(router, 'transitionTo', '/?other_foo=NAW');
+      _emberMetalCore.default.run(router, 'transitionTo', '/?other_foo=NAW');
       equal(controller.get('foo'), 'NAW');
 
       setAndFlush(controller, 'bar', 'NERK');
-      Ember.run(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
+      _emberMetalCore.default.run(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
     });
 
     QUnit.test('Routes have overridable serializeQueryParamKey hook and it works with route-configured query params', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           funTimes: {
             defaultValue: ''
           }
         },
-        serializeQueryParamKey: Ember.String.dasherize
+        serializeQueryParamKey: _emberMetalCore.default.String.dasherize
       });
 
       bootApplication();
@@ -60763,7 +60765,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('No replaceURL occurs on startup when configured via Route because default values don\'t show up in URL', function () {
       expect(0);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -60777,7 +60779,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hooks receives query params when configred on Route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -60794,7 +60796,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hooks receives query params (overridden by incoming url value) when configured on route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -60818,7 +60820,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('index', { path: '/:something' });
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'fooapp'
@@ -60836,7 +60838,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('Route#paramsFor fetches falsy query params when they\'re configured on the route', function () {
       expect(1);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: true
@@ -60852,7 +60854,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hook can query prefix-less application params when they\'re configured on the route', function () {
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           appomg: {
             defaultValue: 'applol'
@@ -60863,7 +60865,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -60884,7 +60886,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       expect(6);
 
       var appModelCount = 0;
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           'appomg': {
             defaultValue: 'applol'
@@ -60896,7 +60898,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       });
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true,
@@ -60930,7 +60932,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       expect(4);
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol',
@@ -60962,7 +60964,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash when all configuration lives on route', function () {
       expect(2);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             defaultValue: 'matchneer',
@@ -60983,7 +60985,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
       expect(2);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           commitBy: {
             as: 'commit_by',
@@ -61004,7 +61006,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState even when configuration is all on the route', function () {
       expect(3);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             replace: true,
@@ -61021,18 +61023,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var appController = container.lookup('controller:application');
       expectedPushURL = '/?alex=wallace&steely=jan';
-      Ember.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
 
       expectedPushURL = '/?alex=wallace&steely=fran';
-      Ember.run(appController, 'setProperties', { steely: 'fran' });
+      _emberMetalCore.default.run(appController, 'setProperties', { steely: 'fran' });
 
       expectedReplaceURL = '/?alex=sriracha&steely=fran';
-      Ember.run(appController, 'setProperties', { alex: 'sriracha' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'sriracha' });
     });
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when all configuration is on route', function () {
-      Ember.TEMPLATES.parent = compile('{{outlet}}');
-      Ember.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
+      _emberMetalCore.default.TEMPLATES.parent = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
 
       App.Router.map(function () {
         this.resource('parent', function () {
@@ -61041,7 +61043,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       });
 
       var parentModelCount = 0;
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         model: function () {
           parentModelCount++;
         },
@@ -61060,7 +61062,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       container.lookup('controller:parent');
 
-      Ember.run(Ember.$('#parent-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#parent-link'), 'click');
 
       equal(parentModelCount, 2);
     });
@@ -61068,7 +61070,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('URL transitions that remove QPs still register as QP changes when configuration lives on the route', function () {
       expect(2);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61081,7 +61083,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var indexController = container.lookup('controller:index');
       equal(indexController.get('omg'), 'borf');
-      Ember.run(router, 'transitionTo', '/');
+      _emberMetalCore.default.run(router, 'transitionTo', '/');
       equal(indexController.get('omg'), 'lol');
     });
 
@@ -61093,15 +61095,15 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         });
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
 
-      App.AbcDefRoute = Ember.Route.extend({
+      App.AbcDefRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: 'lol'
         }
       });
 
-      App.AbcDefZooRoute = Ember.Route.extend({
+      App.AbcDefZooRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           bar: {
             defaultValue: 'haha'
@@ -61111,17 +61113,17 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       bootApplication();
       equal(router.get('location.path'), '');
-      equal(Ember.$('#one').attr('href'), '/abcdef?foo=123');
-      equal(Ember.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
+      equal(_emberMetalCore.default.$('#one').attr('href'), '/abcdef?foo=123');
+      equal(_emberMetalCore.default.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
 
-      Ember.run(Ember.$('#one'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#one'), 'click');
       equal(router.get('location.path'), '/abcdef?foo=123');
-      Ember.run(Ember.$('#two'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#two'), 'click');
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
     QUnit.test('transitionTo supports query params when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'lol'
@@ -61133,18 +61135,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('transitionTo supports query params (multiple) when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'lol'
@@ -61159,18 +61161,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('A default boolean value deserializes QPs as booleans rather than strings when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: false
@@ -61192,7 +61194,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Query param without value are empty string when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: ''
@@ -61212,7 +61214,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: []
@@ -61233,7 +61235,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('(de)serialization: arrays when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: [1]
@@ -61245,16 +61247,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
       equal(router.get('location.path'), '/?foo=%5B2%2C3%5D', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
       equal(router.get('location.path'), '/?foo=%5B4%2C5%5D', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [] } });
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
     QUnit.test('Url with array query param sets controller property to array when configuration occurs on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: ''
@@ -61270,9 +61272,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Url with array query param sets controller property to array when configuration occurs on the route and there is still a controller', function () {
-      App.IndexController = Ember.Controller.extend();
+      App.IndexController = _emberMetalCore.default.Controller.extend();
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: ''
@@ -61292,11 +61294,11 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.Controller.extend({
-        foo: Ember.A([])
+      App.HomeController = _emberMetalCore.default.Controller.extend({
+        foo: _emberMetalCore.default.A([])
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {}
         }
@@ -61308,28 +61310,28 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var controller = container.lookup('controller:home');
 
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'pushObject', 2);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 2);
       equal(router.get('location.path'), '/?foo=%5B1%2C2%5D');
       deepEqual(controller.foo, [1, 2]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'unshiftObject', 'lol');
+      _emberMetalCore.default.run(controller.foo, 'unshiftObject', 'lol');
       equal(router.get('location.path'), '/?foo=%5B%22lol%22%2C1%5D');
       deepEqual(controller.foo, ['lol', 1]);
     });
@@ -61342,7 +61344,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {}
         },
@@ -61351,15 +61353,15 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.HomeController = Ember.Controller.extend({
-        foo: Ember.A([1])
+      App.HomeController = _emberMetalCore.default.Controller.extend({
+        foo: _emberMetalCore.default.A([1])
       });
 
       bootApplication();
 
       equal(modelCount, 1);
       var controller = container.lookup('controller:home');
-      setAndFlush(controller, 'model', Ember.A([1]));
+      setAndFlush(controller, 'model', _emberMetalCore.default.A([1]));
       equal(modelCount, 1);
       equal(router.get('location.path'), '');
     });
@@ -61367,19 +61369,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configuration occurs on the router', function () {
       expect(1);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           woot: {}
         }
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
           return { woot: true };
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         setupController: function (controller, model) {
           deepEqual(model, { woot: true }, 'index route inherited model route from parent route');
         }
@@ -61390,13 +61392,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('opting into replace does not affect transitions between routes when configuration occurs on the route', function () {
       expect(5);
-      Ember.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
       });
 
-      App.BarRoute = Ember.Route.extend({
+      App.BarRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           raytiley: {
             replace: true,
@@ -61409,19 +61411,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var controller = container.lookup('controller:bar');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar';
-      Ember.run(Ember.$('#bar-no-qp-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-no-qp-link'), 'click');
 
       expectedReplaceURL = '/bar?raytiley=woot';
       setAndFlush(controller, 'raytiley', 'woot');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar?raytiley=isthebest';
-      Ember.run(Ember.$('#bar-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-link'), 'click');
     });
 
     QUnit.test('Undefined isn\'t deserialized into a string when configuration occurs on the route', function () {
@@ -61430,9 +61432,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('example');
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
 
-      App.ExampleRoute = Ember.Route.extend({
+      App.ExampleRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           // uncommon to not support default value, but should assume undefined.
           foo: {
@@ -61446,9 +61448,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       bootApplication();
 
-      var $link = Ember.$('#the-link');
+      var $link = _emberMetalCore.default.$('#the-link');
       equal($link.attr('href'), '/example');
-      Ember.run($link, 'click');
+      _emberMetalCore.default.run($link, 'click');
 
       var controller = container.lookup('controller:example');
       equal(get(controller, 'foo'), undefined);
@@ -61457,7 +61459,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('query params have been set by the time setupController is called when configuration occurs on the router', function () {
       expect(1);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'wat'
@@ -61475,9 +61477,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('query params have been set by the time setupController is called when configuration occurs on the router and there is still a controller', function () {
       expect(1);
 
-      App.ApplicationController = Ember.Controller.extend();
+      App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'wat'
@@ -61493,7 +61495,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hooks receives query params when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61510,13 +61512,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Routes have overridable serializeQueryParamKey hook when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           funTimes: {
             defaultValue: ''
           }
         },
-        serializeQueryParamKey: Ember.String.dasherize
+        serializeQueryParamKey: _emberMetalCore.default.String.dasherize
       });
 
       bootApplication();
@@ -61531,7 +61533,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('No replaceURL occurs on startup because default values don\'t show up in URL when configured on the route', function () {
       expect(0);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -61554,15 +61556,15 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      Ember.TEMPLATES.home = compile('<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
-      Ember.TEMPLATES.about = compile('<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
-      Ember.TEMPLATES['cats/index'] = compile('<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
+      _emberMetalCore.default.TEMPLATES.about = compile('<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
+      _emberMetalCore.default.TEMPLATES['cats/index'] = compile('<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
 
       var homeShouldBeCreated = false;
       var aboutShouldBeCreated = false;
       var catsIndexShouldBeCreated = false;
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -61574,14 +61576,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         init: function () {
           this._super.apply(this, arguments);
           ok(homeShouldBeCreated, 'HomeController should be created at this time');
         }
       });
 
-      App.AboutRoute = Ember.Route.extend({
+      App.AboutRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           lol: {
             defaultValue: 'haha'
@@ -61593,14 +61595,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.AboutController = Ember.Controller.extend({
+      App.AboutController = _emberMetalCore.default.Controller.extend({
         init: function () {
           this._super.apply(this, arguments);
           ok(aboutShouldBeCreated, 'AboutController should be created at this time');
         }
       });
 
-      App.CatsIndexRoute = Ember.Route.extend({
+      App.CatsIndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           breed: {
             defaultValue: 'Golden'
@@ -61621,7 +61623,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.CatsIndexController = Ember.Controller.extend({
+      App.CatsIndexController = _emberMetalCore.default.Controller.extend({
         init: function () {
           this._super.apply(this, arguments);
           ok(catsIndexShouldBeCreated, 'CatsIndexController should be created at this time');
@@ -61634,23 +61636,23 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var controller = container.lookup('controller:home');
       setAndFlush(controller, 'foo', '456');
       equal(router.get('location.path'), '/?foo=456', 'url is correct');
-      equal(Ember.$('#link-to-about').attr('href'), '/about?lol=wat', 'link to about is correct');
+      equal(_emberMetalCore.default.$('#link-to-about').attr('href'), '/about?lol=wat', 'link to about is correct');
 
-      Ember.run(router, 'transitionTo', 'about');
+      _emberMetalCore.default.run(router, 'transitionTo', 'about');
       equal(router.get('location.path'), '/about', 'url is correct');
 
-      Ember.run(router, 'transitionTo', 'cats');
+      _emberMetalCore.default.run(router, 'transitionTo', 'cats');
 
       equal(router.get('location.path'), '/cats', 'url is correct');
-      equal(Ember.$('#cats-link').attr('href'), '/cats?name=domino', 'link to cats is correct');
-      Ember.run(Ember.$('#cats-link'), 'click');
+      equal(_emberMetalCore.default.$('#cats-link').attr('href'), '/cats?name=domino', 'link to cats is correct');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#cats-link'), 'click');
       equal(router.get('location.path'), '/cats?name=domino', 'url is correct');
     });
 
     QUnit.test('query params have been set by the time setupController is called when configured on the route', function () {
       expect(1);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'wat'
@@ -61666,7 +61668,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hooks receives query params (overridden by incoming url value) when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61690,7 +61692,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('index', { path: '/:something' });
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'fooapp'
@@ -61706,7 +61708,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hook can query prefix-less application params (overridden by incoming url value) when they\'re configured on the route', function () {
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           appomg: {
             defaultValue: 'applol'
@@ -61717,7 +61719,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61738,7 +61740,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('Route#paramsFor fetches falsy query params when configured on the route', function () {
       expect(1);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: true
@@ -61754,7 +61756,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hook can query prefix-less application params when configured on the route', function () {
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           appomg: {
             defaultValue: 'applol'
@@ -61765,7 +61767,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61786,7 +61788,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       expect(6);
 
       var appModelCount = 0;
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           'appomg': {
             defaultValue: 'applol'
@@ -61798,7 +61800,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       });
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol',
@@ -61832,7 +61834,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       expect(4);
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true,
@@ -61864,7 +61866,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash when configured on the route', function () {
       expect(2);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             defaultValue: 'matchneer',
@@ -61885,7 +61887,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('Route query params config can be configured using property name instead of URL key when configured on the route', function () {
       expect(2);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           commitBy: {
             as: 'commit_by',
@@ -61906,7 +61908,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState when configured on the route', function () {
       expect(3);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             replace: true,
@@ -61923,18 +61925,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var appController = container.lookup('controller:application');
       expectedPushURL = '/?alex=wallace&steely=jan';
-      Ember.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
 
       expectedPushURL = '/?alex=wallace&steely=fran';
-      Ember.run(appController, 'setProperties', { steely: 'fran' });
+      _emberMetalCore.default.run(appController, 'setProperties', { steely: 'fran' });
 
       expectedReplaceURL = '/?alex=sriracha&steely=fran';
-      Ember.run(appController, 'setProperties', { alex: 'sriracha' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'sriracha' });
     });
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent when configured on the route', function () {
-      Ember.TEMPLATES.parent = compile('{{outlet}}');
-      Ember.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
+      _emberMetalCore.default.TEMPLATES.parent = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
 
       App.Router.map(function () {
         this.resource('parent', function () {
@@ -61943,7 +61945,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       });
 
       var parentModelCount = 0;
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         model: function () {
           parentModelCount++;
         },
@@ -61962,7 +61964,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       container.lookup('controller:parent');
 
-      Ember.run(Ember.$('#parent-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#parent-link'), 'click');
 
       equal(parentModelCount, 2);
     });
@@ -61974,7 +61976,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -61994,7 +61996,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       startingURL = '/about';
       bootApplication();
       equal(router.get('location.path'), '/about');
-      Ember.run(router, 'transitionTo', 'index');
+      _emberMetalCore.default.run(router, 'transitionTo', 'index');
       equal(router.get('location.path'), '/?omg=OVERRIDE');
     });
 
@@ -62005,7 +62007,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: ['lol']
@@ -62025,14 +62027,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       startingURL = '/about';
       bootApplication();
       equal(router.get('location.path'), '/about');
-      Ember.run(router, 'transitionTo', 'index');
+      _emberMetalCore.default.run(router, 'transitionTo', 'index');
       equal(router.get('location.path'), '/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
     });
 
     QUnit.test('URL transitions that remove QPs still register as QP changes when configured on the route', function () {
       expect(2);
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             defaultValue: 'lol'
@@ -62045,7 +62047,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var indexController = container.lookup('controller:index');
       equal(indexController.get('omg'), 'borf');
-      Ember.run(router, 'transitionTo', '/');
+      _emberMetalCore.default.run(router, 'transitionTo', '/');
       equal(indexController.get('omg'), 'lol');
     });
 
@@ -62057,9 +62059,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         });
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
 
-      App.AbcDefRoute = Ember.Route.extend({
+      App.AbcDefRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'lol'
@@ -62067,7 +62069,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.AbcDefZooRoute = Ember.Route.extend({
+      App.AbcDefZooRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           bar: {
             defaultValue: 'haha'
@@ -62077,17 +62079,17 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       bootApplication();
       equal(router.get('location.path'), '');
-      equal(Ember.$('#one').attr('href'), '/abcdef?foo=123');
-      equal(Ember.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
+      equal(_emberMetalCore.default.$('#one').attr('href'), '/abcdef?foo=123');
+      equal(_emberMetalCore.default.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
 
-      Ember.run(Ember.$('#one'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#one'), 'click');
       equal(router.get('location.path'), '/abcdef?foo=123');
-      Ember.run(Ember.$('#two'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#two'), 'click');
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
     QUnit.test('transitionTo supports query params when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'lol'
@@ -62099,18 +62101,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('transitionTo supports query params (multiple) when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'lol'
@@ -62125,19 +62127,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('setting controller QP to empty string doesn\'t generate null in URL when configured on the route', function () {
       expect(1);
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -62154,7 +62156,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('setting QP to empty string doesn\'t generate null in URL when configured on the route', function () {
       expect(1);
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -62170,7 +62172,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('A default boolean value deserializes QPs as booleans rather than strings when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: false
@@ -62192,7 +62194,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Query param without value are empty string when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: ''
@@ -62212,7 +62214,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: []
@@ -62233,7 +62235,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('(de)serialization: arrays when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: [1]
@@ -62245,16 +62247,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
       equal(router.get('location.path'), '/?foo=%5B2%2C3%5D', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
       equal(router.get('location.path'), '/?foo=%5B4%2C5%5D', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [] } });
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
     QUnit.test('Url with array query param sets controller property to array when configured on the route', function () {
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: ''
@@ -62274,10 +62276,10 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
-            defaultValue: Ember.A([])
+            defaultValue: _emberMetalCore.default.A([])
           }
         }
       });
@@ -62288,28 +62290,28 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var controller = container.lookup('controller:home');
 
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'pushObject', 2);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 2);
       equal(router.get('location.path'), '/?foo=%5B1%2C2%5D');
       deepEqual(controller.foo, [1, 2]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'unshiftObject', 'lol');
+      _emberMetalCore.default.run(controller.foo, 'unshiftObject', 'lol');
       equal(router.get('location.path'), '/?foo=%5B%22lol%22%2C1%5D');
       deepEqual(controller.foo, ['lol', 1]);
     });
@@ -62322,10 +62324,10 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
-            defaultValue: Ember.A([1])
+            defaultValue: _emberMetalCore.default.A([1])
           }
         },
         model: function () {
@@ -62337,7 +62339,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(modelCount, 1);
       var controller = container.lookup('controller:home');
-      setAndFlush(controller, 'model', Ember.A([1]));
+      setAndFlush(controller, 'model', _emberMetalCore.default.A([1]));
       equal(modelCount, 1);
       equal(router.get('location.path'), '');
     });
@@ -62353,7 +62355,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       // model if no other model could be resolved given the provided
       // params (and no custom model hook was defined), to be watched,
       // unless we return a copy of the params hash.
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           woot: {
             defaultValue: 'wat'
@@ -62361,28 +62363,28 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.OtherRoute = Ember.Route.extend({
+      App.OtherRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
-          var m = Ember.meta(trans.params.application);
+          var m = _emberMetalCore.default.meta(trans.params.application);
           ok(!m.watching.woot, 'A meta object isn\'t constructed for this params POJO');
         }
       });
 
       bootApplication();
 
-      Ember.run(router, 'transitionTo', 'other');
+      _emberMetalCore.default.run(router, 'transitionTo', 'other');
     });
 
     QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param when configured on the route', function () {
       expect(1);
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
           return { woot: true };
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           woot: {
             defaultValue: undefined
@@ -62398,13 +62400,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('opting into replace does not affect transitions between routes when configured on route', function () {
       expect(5);
-      Ember.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
       });
 
-      App.BarRoute = Ember.Route.extend({
+      App.BarRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           raytiley: {
             defaultValue: 'israd',
@@ -62417,19 +62419,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var controller = container.lookup('controller:bar');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar';
-      Ember.run(Ember.$('#bar-no-qp-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-no-qp-link'), 'click');
 
       expectedReplaceURL = '/bar?raytiley=woot';
       setAndFlush(controller, 'raytiley', 'woot');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar?raytiley=isthebest';
-      Ember.run(Ember.$('#bar-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-link'), 'click');
     });
 
     QUnit.test('Undefined isn\'t deserialized into a string when configured on the route', function () {
@@ -62438,9 +62440,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('example');
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
 
-      App.ExampleRoute = Ember.Route.extend({
+      App.ExampleRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           // uncommon to not support default value, but should assume undefined.
           foo: {}
@@ -62452,9 +62454,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       bootApplication();
 
-      var $link = Ember.$('#the-link');
+      var $link = _emberMetalCore.default.$('#the-link');
       equal($link.attr('href'), '/example');
-      Ember.run($link, 'click');
+      _emberMetalCore.default.run($link, 'click');
 
       var controller = container.lookup('controller:example');
       equal(get(controller, 'foo'), undefined);
@@ -62467,7 +62469,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.ObjectController.extend({
+      App.HomeController = _emberMetalCore.default.ObjectController.extend({
         queryParams: ['foo'],
         foo: '123'
       });
@@ -62489,7 +62491,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
@@ -62511,7 +62513,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
@@ -62529,7 +62531,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Query params can map to different url keys configured on the controller [DEPRECATED]', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: [{ foo: 'other_foo', bar: { as: 'other_bar' } }],
         foo: 'FOO',
         bar: 'BAR'
@@ -62545,19 +62547,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       setAndFlush(controller, 'foo', 'WOO');
       equal(router.get('location.path'), '/?other_foo=WOO');
 
-      Ember.run(router, 'transitionTo', '/?other_foo=NAW');
+      _emberMetalCore.default.run(router, 'transitionTo', '/?other_foo=NAW');
       equal(controller.get('foo'), 'NAW');
 
       setAndFlush(controller, 'bar', 'NERK');
-      Ember.run(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
+      _emberMetalCore.default.run(router, 'transitionTo', '/?other_bar=NERK&other_foo=NAW');
     });
 
     QUnit.test('Routes have overridable serializeQueryParamKey hook', function () {
-      App.IndexRoute = Ember.Route.extend({
-        serializeQueryParamKey: Ember.String.dasherize
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
+        serializeQueryParamKey: _emberMetalCore.default.String.dasherize
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: 'funTimes',
         funTimes: ''
       });
@@ -62574,7 +62576,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('No replaceURL occurs on startup because default values don\'t show up in URL', function () {
       expect(0);
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
@@ -62586,12 +62588,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('Can override inherited QP behavior by specifying queryParams as a computed property', function () {
       expect(0);
-      var SharedMixin = Ember.Mixin.create({
+      var SharedMixin = _emberMetalCore.default.Mixin.create({
         queryParams: ['a'],
         a: 0
       });
 
-      App.IndexController = Ember.Controller.extend(SharedMixin, {
+      App.IndexController = _emberMetalCore.default.Controller.extend(SharedMixin, {
         queryParams: (0, _emberMetalComputed.computed)(function () {
           return ['c'];
         }),
@@ -62602,16 +62604,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var indexController = container.lookup('controller:index');
 
       expectedReplaceURL = 'not gonna happen';
-      Ember.run(indexController, 'set', 'a', 1);
+      _emberMetalCore.default.run(indexController, 'set', 'a', 1);
     });
 
     QUnit.test('model hooks receives query params', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { omg: 'lol' });
         }
@@ -62632,22 +62634,22 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      Ember.TEMPLATES.home = compile('<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
-      Ember.TEMPLATES.about = compile('<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
-      Ember.TEMPLATES['cats/index'] = compile('<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>{{link-to \'About\' \'about\' (query-params lol=\'wat\') id=\'link-to-about\'}}</h3>');
+      _emberMetalCore.default.TEMPLATES.about = compile('<h3>{{link-to \'Home\' \'home\'  (query-params foo=\'naw\')}}</h3>');
+      _emberMetalCore.default.TEMPLATES['cats/index'] = compile('<h3>{{link-to \'Cats\' \'cats\'  (query-params name=\'domino\') id=\'cats-link\'}}</h3>');
 
       var homeShouldBeCreated = false;
       var aboutShouldBeCreated = false;
       var catsIndexShouldBeCreated = false;
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         setup: function () {
           homeShouldBeCreated = true;
           this._super.apply(this, arguments);
         }
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123',
         init: function () {
@@ -62656,14 +62658,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.AboutRoute = Ember.Route.extend({
+      App.AboutRoute = _emberMetalCore.default.Route.extend({
         setup: function () {
           aboutShouldBeCreated = true;
           this._super.apply(this, arguments);
         }
       });
 
-      App.AboutController = Ember.Controller.extend({
+      App.AboutController = _emberMetalCore.default.Controller.extend({
         queryParams: ['lol'],
         lol: 'haha',
         init: function () {
@@ -62672,7 +62674,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.CatsIndexRoute = Ember.Route.extend({
+      App.CatsIndexRoute = _emberMetalCore.default.Route.extend({
         model: function () {
           return [];
         },
@@ -62685,7 +62687,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.CatsIndexController = Ember.Controller.extend({
+      App.CatsIndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['breed', 'name'],
         breed: 'Golden',
         name: null,
@@ -62701,28 +62703,28 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var controller = container.lookup('controller:home');
       setAndFlush(controller, 'foo', '456');
       equal(router.get('location.path'), '/?foo=456', 'url is correct');
-      equal(Ember.$('#link-to-about').attr('href'), '/about?lol=wat', 'link to about is correct');
+      equal(_emberMetalCore.default.$('#link-to-about').attr('href'), '/about?lol=wat', 'link to about is correct');
 
-      Ember.run(router, 'transitionTo', 'about');
+      _emberMetalCore.default.run(router, 'transitionTo', 'about');
       equal(router.get('location.path'), '/about', 'url is correct');
 
-      Ember.run(router, 'transitionTo', 'cats');
+      _emberMetalCore.default.run(router, 'transitionTo', 'cats');
 
       equal(router.get('location.path'), '/cats', 'url is correct');
-      equal(Ember.$('#cats-link').attr('href'), '/cats?name=domino', 'link to cats is correct');
-      Ember.run(Ember.$('#cats-link'), 'click');
+      equal(_emberMetalCore.default.$('#cats-link').attr('href'), '/cats?name=domino', 'link to cats is correct');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#cats-link'), 'click');
       equal(router.get('location.path'), '/cats?name=domino', 'url is correct');
     });
 
     QUnit.test('query params have been set by the time setupController is called', function () {
       expect(1);
 
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'wat'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         setupController: function (controller) {
           equal(controller.get('foo'), 'YEAH', 'controller\'s foo QP property set before setupController called');
         }
@@ -62733,12 +62735,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hooks receives query params (overridden by incoming url value)', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { omg: 'yes' });
         }
@@ -62757,12 +62759,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('index', { path: '/:something' });
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'fooapp'
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params, transition) {
           deepEqual(this.paramsFor('index'), { something: 'omg', foo: 'fooapp' }, 'could retrieve params for index');
         }
@@ -62773,23 +62775,23 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hook can query prefix-less application params (overridden by incoming url value)', function () {
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { appomg: 'appyes' });
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { omg: 'yes' });
           deepEqual(this.paramsFor('application'), { appomg: 'appyes' });
@@ -62805,12 +62807,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('Route#paramsFor fetches falsy query params', function () {
       expect(1);
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: true
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params, transition) {
           equal(params.foo, false);
         }
@@ -62821,23 +62823,23 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('model hook can query prefix-less application params', function () {
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { appomg: 'applol' });
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { omg: 'lol' });
           deepEqual(this.paramsFor('application'), { appomg: 'applol' });
@@ -62851,25 +62853,25 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams', function () {
       expect(6);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
       var appModelCount = 0;
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           appModelCount++;
         }
       });
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -62900,26 +62902,26 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('Use Ember.get to retrieve query params \'refreshModel\' configuration', function () {
       expect(6);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['appomg'],
         appomg: 'applol'
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
       var appModelCount = 0;
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           appModelCount++;
         }
       });
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
-        queryParams: Ember.Object.create({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
+        queryParams: _emberMetalCore.default.Object.create({
           unknownProperty: function (keyName) {
             return { refreshModel: true };
           }
@@ -62950,13 +62952,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     QUnit.test('can use refreshModel even w URL changes that remove QPs from address bar', function () {
       expect(4);
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
       var indexModelCount = 0;
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           omg: {
             refreshModel: true
@@ -62986,12 +62988,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('can opt into a replace query by specifying replace:true in the Router config hash', function () {
       expect(2);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['alex'],
         alex: 'matchneer'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             replace: true
@@ -63010,11 +63012,11 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('Route query params config can be configured using property name instead of URL key', function () {
       expect(2);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: [{ commitBy: 'commit_by' }]
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           commitBy: {
             replace: true
@@ -63033,13 +63035,13 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('An explicit replace:false on a changed QP always wins and causes a pushState', function () {
       expect(3);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['alex', 'steely'],
         alex: 'matchneer',
         steely: 'dan'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           alex: {
             replace: true
@@ -63054,18 +63056,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var appController = container.lookup('controller:application');
       expectedPushURL = '/?alex=wallace&steely=jan';
-      Ember.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'wallace', steely: 'jan' });
 
       expectedPushURL = '/?alex=wallace&steely=fran';
-      Ember.run(appController, 'setProperties', { steely: 'fran' });
+      _emberMetalCore.default.run(appController, 'setProperties', { steely: 'fran' });
 
       expectedReplaceURL = '/?alex=sriracha&steely=fran';
-      Ember.run(appController, 'setProperties', { alex: 'sriracha' });
+      _emberMetalCore.default.run(appController, 'setProperties', { alex: 'sriracha' });
     });
 
     QUnit.test('can opt into full transition by setting refreshModel in route queryParams when transitioning from child to parent', function () {
-      Ember.TEMPLATES.parent = compile('{{outlet}}');
-      Ember.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
+      _emberMetalCore.default.TEMPLATES.parent = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES['parent/child'] = compile('{{link-to \'Parent\' \'parent\' (query-params foo=\'change\') id=\'parent-link\'}}');
 
       App.Router.map(function () {
         this.resource('parent', function () {
@@ -63074,7 +63076,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       });
 
       var parentModelCount = 0;
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         model: function () {
           parentModelCount++;
         },
@@ -63085,7 +63087,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         }
       });
 
-      App.ParentController = Ember.Controller.extend({
+      App.ParentController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'abc'
       });
@@ -63097,20 +63099,20 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       container.lookup('controller:parent');
 
-      Ember.run(Ember.$('#parent-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#parent-link'), 'click');
 
       equal(parentModelCount, 2);
     });
 
     QUnit.test('Use Ember.get to retrieve query params \'replace\' configuration', function () {
       expect(2);
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['alex'],
         alex: 'matchneer'
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
-        queryParams: Ember.Object.create({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
+        queryParams: _emberMetalCore.default.Object.create({
           unknownProperty: function (keyName) {
             // We are simulating all qps requiring refresh
             return { replace: true };
@@ -63134,12 +63136,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         setupController: function (controller) {
           ok(true, 'setupController called');
           controller.set('omg', 'OVERRIDE');
@@ -63154,7 +63156,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       startingURL = '/about';
       bootApplication();
       equal(router.get('location.path'), '/about');
-      Ember.run(router, 'transitionTo', 'index');
+      _emberMetalCore.default.run(router, 'transitionTo', 'index');
       equal(router.get('location.path'), '/?omg=OVERRIDE');
     });
 
@@ -63165,12 +63167,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('about');
       });
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: ['lol']
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         setupController: function (controller) {
           ok(true, 'setupController called');
           controller.set('omg', ['OVERRIDE']);
@@ -63185,14 +63187,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       startingURL = '/about';
       bootApplication();
       equal(router.get('location.path'), '/about');
-      Ember.run(router, 'transitionTo', 'index');
+      _emberMetalCore.default.run(router, 'transitionTo', 'index');
       equal(router.get('location.path'), '/?omg=' + encodeURIComponent(JSON.stringify(['OVERRIDE'])));
     });
 
     QUnit.test('URL transitions that remove QPs still register as QP changes', function () {
       expect(2);
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['omg'],
         omg: 'lol'
       });
@@ -63202,7 +63204,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var indexController = container.lookup('controller:index');
       equal(indexController.get('omg'), 'borf');
-      Ember.run(router, 'transitionTo', '/');
+      _emberMetalCore.default.run(router, 'transitionTo', '/');
       equal(indexController.get('omg'), 'lol');
     });
 
@@ -63214,31 +63216,31 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         });
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'A\' \'abc.def\' (query-params foo=\'123\') id=\'one\'}}{{link-to \'B\' \'abc.def.zoo\' (query-params foo=\'123\' bar=\'456\') id=\'two\'}}{{outlet}}');
 
-      App.AbcDefController = Ember.Controller.extend({
+      App.AbcDefController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'lol'
       });
 
-      App.AbcDefZooController = Ember.Controller.extend({
+      App.AbcDefZooController = _emberMetalCore.default.Controller.extend({
         queryParams: ['bar'],
         bar: 'haha'
       });
 
       bootApplication();
       equal(router.get('location.path'), '');
-      equal(Ember.$('#one').attr('href'), '/abcdef?foo=123');
-      equal(Ember.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
+      equal(_emberMetalCore.default.$('#one').attr('href'), '/abcdef?foo=123');
+      equal(_emberMetalCore.default.$('#two').attr('href'), '/abcdef/zoo?bar=456&foo=123');
 
-      Ember.run(Ember.$('#one'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#one'), 'click');
       equal(router.get('location.path'), '/abcdef?foo=123');
-      Ember.run(Ember.$('#two'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#two'), 'click');
       equal(router.get('location.path'), '/abcdef/zoo?bar=456&foo=123');
     });
 
     QUnit.test('transitionTo supports query params', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'lol'
       });
@@ -63247,18 +63249,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('transitionTo supports query params (multiple)', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo', 'bar'],
         foo: 'lol',
         bar: 'wat'
@@ -63268,19 +63270,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: 'borf' } });
       equal(router.get('location.path'), '/?foo=borf', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': 'blaf' } });
       equal(router.get('location.path'), '/?foo=blaf', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': false } });
       equal(router.get('location.path'), '/?foo=false', 'longform supported (bool)');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: false } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: false } });
       equal(router.get('location.path'), '/?foo=false', 'shorhand supported (bool)');
     });
 
     QUnit.test('setting controller QP to empty string doesn\'t generate null in URL', function () {
       expect(1);
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: '123'
       });
@@ -63294,7 +63296,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('setting QP to empty string doesn\'t generate null in URL', function () {
       expect(1);
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: '123'
@@ -63310,12 +63312,12 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('A default boolean value deserializes QPs as booleans rather than strings', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: false
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           equal(params.foo, true, 'model hook received foo as boolean true');
         }
@@ -63332,7 +63334,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Query param without value are empty string', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: ''
       });
@@ -63349,7 +63351,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: []
       });
@@ -63367,7 +63369,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('(de)serialization: arrays', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: [1]
       });
@@ -63376,16 +63378,16 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       equal(router.get('location.path'), '');
 
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [2, 3] } });
       equal(router.get('location.path'), '/?foo=%5B2%2C3%5D', 'shorthand supported');
-      Ember.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { 'index:foo': [4, 5] } });
       equal(router.get('location.path'), '/?foo=%5B4%2C5%5D', 'longform supported');
-      Ember.run(router, 'transitionTo', { queryParams: { foo: [] } });
+      _emberMetalCore.default.run(router, 'transitionTo', { queryParams: { foo: [] } });
       equal(router.get('location.path'), '/?foo=%5B%5D', 'longform supported');
     });
 
     QUnit.test('Url with array query param sets controller property to array', function () {
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: ''
       });
@@ -63402,9 +63404,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
-        foo: Ember.A([])
+        foo: _emberMetalCore.default.A([])
       });
 
       bootApplication();
@@ -63413,28 +63415,28 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var controller = container.lookup('controller:home');
 
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/');
       deepEqual(controller.foo, []);
-      Ember.run(controller.foo, 'pushObject', 1);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 1);
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'pushObject', 2);
+      _emberMetalCore.default.run(controller.foo, 'pushObject', 2);
       equal(router.get('location.path'), '/?foo=%5B1%2C2%5D');
       deepEqual(controller.foo, [1, 2]);
-      Ember.run(controller.foo, 'popObject');
+      _emberMetalCore.default.run(controller.foo, 'popObject');
       equal(router.get('location.path'), '/?foo=%5B1%5D');
       deepEqual(controller.foo, [1]);
-      Ember.run(controller.foo, 'unshiftObject', 'lol');
+      _emberMetalCore.default.run(controller.foo, 'unshiftObject', 'lol');
       equal(router.get('location.path'), '/?foo=%5B%22lol%22%2C1%5D');
       deepEqual(controller.foo, ['lol', 1]);
     });
@@ -63447,22 +63449,22 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('home', { path: '/' });
       });
 
-      App.HomeRoute = Ember.Route.extend({
+      App.HomeRoute = _emberMetalCore.default.Route.extend({
         model: function () {
           modelCount++;
         }
       });
 
-      App.HomeController = Ember.Controller.extend({
+      App.HomeController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
-        foo: Ember.A([1])
+        foo: _emberMetalCore.default.A([1])
       });
 
       bootApplication();
 
       equal(modelCount, 1);
       var controller = container.lookup('controller:home');
-      setAndFlush(controller, 'model', Ember.A([1]));
+      setAndFlush(controller, 'model', _emberMetalCore.default.A([1]));
       equal(modelCount, 1);
       equal(router.get('location.path'), '');
     });
@@ -63478,37 +63480,37 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       // model if no other model could be resolved given the provided
       // params (and no custom model hook was defined), to be watched,
       // unless we return a copy of the params hash.
-      App.ApplicationController = Ember.Controller.extend({
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
         queryParams: ['woot'],
         woot: 'wat'
       });
 
-      App.OtherRoute = Ember.Route.extend({
+      App.OtherRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
-          var m = Ember.meta(trans.params.application);
+          var m = _emberMetalCore.default.meta(trans.params.application);
           ok(!m.watching.woot, 'A meta object isn\'t constructed for this params POJO');
         }
       });
 
       bootApplication();
 
-      Ember.run(router, 'transitionTo', 'other');
+      _emberMetalCore.default.run(router, 'transitionTo', 'other');
     });
 
     QUnit.test('A child of a resource route still defaults to parent route\'s model even if the child route has a query param', function () {
       expect(1);
 
-      App.IndexController = Ember.Controller.extend({
+      App.IndexController = _emberMetalCore.default.Controller.extend({
         queryParams: ['woot']
       });
 
-      App.ApplicationRoute = Ember.Route.extend({
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
           return { woot: true };
         }
       });
 
-      App.IndexRoute = Ember.Route.extend({
+      App.IndexRoute = _emberMetalCore.default.Route.extend({
         setupController: function (controller, model) {
           deepEqual(model, { woot: true }, 'index route inherited model route from parent route');
         }
@@ -63519,18 +63521,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
     QUnit.test('opting into replace does not affect transitions between routes', function () {
       expect(5);
-      Ember.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Foo\' \'foo\' id=\'foo-link\'}}' + '{{link-to \'Bar\' \'bar\' id=\'bar-no-qp-link\'}}' + '{{link-to \'Bar\' \'bar\' (query-params raytiley=\'isthebest\') id=\'bar-link\'}}' + '{{outlet}}');
       App.Router.map(function () {
         this.route('foo');
         this.route('bar');
       });
 
-      App.BarController = Ember.Controller.extend({
+      App.BarController = _emberMetalCore.default.Controller.extend({
         queryParams: ['raytiley'],
         raytiley: 'israd'
       });
 
-      App.BarRoute = Ember.Route.extend({
+      App.BarRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           raytiley: {
             replace: true
@@ -63542,19 +63544,19 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       var controller = container.lookup('controller:bar');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar';
-      Ember.run(Ember.$('#bar-no-qp-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-no-qp-link'), 'click');
 
       expectedReplaceURL = '/bar?raytiley=woot';
       setAndFlush(controller, 'raytiley', 'woot');
 
       expectedPushURL = '/foo';
-      Ember.run(Ember.$('#foo-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#foo-link'), 'click');
 
       expectedPushURL = '/bar?raytiley=isthebest';
-      Ember.run(Ember.$('#bar-link'), 'click');
+      _emberMetalCore.default.run(_emberMetalCore.default.$('#bar-link'), 'click');
     });
 
     QUnit.test('Undefined isn\'t deserialized into a string', function () {
@@ -63563,14 +63565,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
         this.route('example');
       });
 
-      Ember.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' id=\'the-link\'}}');
 
-      App.ExampleController = Ember.Controller.extend({
+      App.ExampleController = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo']
         // uncommon to not support default value, but should assume undefined.
       });
 
-      App.ExampleRoute = Ember.Route.extend({
+      App.ExampleRoute = _emberMetalCore.default.Route.extend({
         model: function (params) {
           deepEqual(params, { foo: undefined });
         }
@@ -63578,9 +63580,9 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       bootApplication();
 
-      var $link = Ember.$('#the-link');
+      var $link = _emberMetalCore.default.$('#the-link');
       equal($link.attr('href'), '/example');
-      Ember.run($link, 'click');
+      _emberMetalCore.default.run($link, 'click');
 
       var controller = container.lookup('controller:example');
       equal(get(controller, 'foo'), undefined);
@@ -63590,7 +63592,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
   QUnit.test('warn user that routes query params configuration must be an Object, not an Array', function () {
     expect(1);
 
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       queryParams: [{ commitBy: { replace: true } }]
     });
 
@@ -63599,7 +63601,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
   });
 });
-enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat) {
+enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -63607,11 +63609,11 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   function handleURL(path) {
-    return Ember.run(function () {
+    return _emberMetalCore.default.run(function () {
       return router.handleURL(path).then(function (value) {
         ok(true, 'url: `' + path + '` was handled');
         return value;
@@ -63626,10 +63628,10 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
   var expectedReplaceURL, expectedPushURL;
 
   function setAndFlush(obj, prop, value) {
-    Ember.run(obj, 'set', prop, value);
+    _emberMetalCore.default.run(obj, 'set', prop, value);
   }
 
-  var TestLocation = Ember.NoneLocation.extend({
+  var TestLocation = _emberMetalCore.default.NoneLocation.extend({
     initState: function () {
       this.set('path', startingURL);
     },
@@ -63658,8 +63660,8 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
   });
 
   function sharedSetup() {
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
@@ -63679,19 +63681,19 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       Router = App.Router;
 
-      App.LoadingRoute = Ember.Route.extend({});
+      App.LoadingRoute = _emberMetalCore.default.Route.extend({});
 
-      Ember.TEMPLATES.application = compile('{{outlet}}');
-      Ember.TEMPLATES.home = compile('<h3>Hours</h3>');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');
     });
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     });
   }
 
@@ -63706,14 +63708,14 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           });
         });
 
-        var articles = this.articles = Ember.A([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
+        var articles = this.articles = _emberMetalCore.default.A([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
 
-        App.ApplicationController = Ember.Controller.extend({
+        App.ApplicationController = _emberMetalCore.default.Controller.extend({
           articles: this.articles
         });
 
         var self = this;
-        App.ArticleRoute = Ember.Route.extend({
+        App.ArticleRoute = _emberMetalCore.default.Route.extend({
           queryParams: {
             q: {
               defaultValue: 'wat'
@@ -63731,7 +63733,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           }
         });
 
-        App.CommentsRoute = Ember.Route.extend({
+        App.CommentsRoute = _emberMetalCore.default.Route.extend({
           queryParams: {
             page: {
               defaultValue: 1
@@ -63739,14 +63741,14 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           }
         });
 
-        Ember.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
+        _emberMetalCore.default.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
 
         this.boot = function () {
           bootApplication();
 
-          self.$link1 = Ember.$('#a-1');
-          self.$link2 = Ember.$('#a-2');
-          self.$link3 = Ember.$('#a-3');
+          self.$link1 = _emberMetalCore.default.$('#a-1');
+          self.$link2 = _emberMetalCore.default.$('#a-2');
+          self.$link3 = _emberMetalCore.default.$('#a-3');
 
           equal(self.$link1.attr('href'), '/a/a-1');
           equal(self.$link2.attr('href'), '/a/a-2');
@@ -63765,7 +63767,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     QUnit.test('query params have \'model\' stickiness by default', function () {
       this.boot();
 
-      Ember.run(this.$link1, 'click');
+      _emberMetalCore.default.run(this.$link1, 'click');
       equal(router.get('location.path'), '/a/a-1');
 
       setAndFlush(this.controller, 'q', 'lol');
@@ -63774,7 +63776,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link2.attr('href'), '/a/a-2');
       equal(this.$link3.attr('href'), '/a/a-3');
 
-      Ember.run(this.$link2, 'click');
+      _emberMetalCore.default.run(this.$link2, 'click');
 
       equal(this.controller.get('q'), 'wat');
       equal(this.controller.get('z'), 0);
@@ -63819,12 +63821,12 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     });
 
     QUnit.test('query params have \'model\' stickiness by default (params-based transitions)', function () {
-      Ember.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a.id id=a.id}} {{/each}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a.id id=a.id}} {{/each}}');
 
       this.boot();
 
       this.expectedModelHookParams = { id: 'a-1', q: 'wat', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-1');
 
       deepEqual(this.controller.get('model'), { id: 'a-1' });
       equal(this.controller.get('q'), 'wat');
@@ -63834,7 +63836,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3');
 
       this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { q: 'lol' } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { q: 'lol' } });
 
       deepEqual(this.controller.get('model'), { id: 'a-2' });
       equal(this.controller.get('q'), 'lol');
@@ -63844,7 +63846,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3');
 
       this.expectedModelHookParams = { id: 'a-3', q: 'hay', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-3', { queryParams: { q: 'hay' } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-3', { queryParams: { q: 'hay' } });
 
       deepEqual(this.controller.get('model'), { id: 'a-3' });
       equal(this.controller.get('q'), 'hay');
@@ -63854,7 +63856,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3?q=hay');
 
       this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 1 };
-      Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { z: 1 } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { z: 1 } });
 
       deepEqual(this.controller.get('model'), { id: 'a-2' });
       equal(this.controller.get('q'), 'lol');
@@ -63871,7 +63873,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       this.boot();
 
-      Ember.run(this.$link1, 'click');
+      _emberMetalCore.default.run(this.$link1, 'click');
       equal(router.get('location.path'), '/a/a-1');
 
       setAndFlush(this.controller, 'q', 'lol');
@@ -63880,7 +63882,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link2.attr('href'), '/a/a-2?q=lol');
       equal(this.$link3.attr('href'), '/a/a-3?q=lol');
 
-      Ember.run(this.$link2, 'click');
+      _emberMetalCore.default.run(this.$link2, 'click');
 
       equal(this.controller.get('q'), 'lol');
       equal(this.controller.get('z'), 0);
@@ -63911,7 +63913,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     QUnit.test('\'model\' stickiness is scoped to current or first dynamic parent route', function () {
       this.boot();
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       var commentsCtrl = container.lookup('controller:comments');
       equal(commentsCtrl.get('page'), 1);
@@ -63923,11 +63925,11 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       setAndFlush(commentsCtrl, 'page', 3);
       equal(router.get('location.path'), '/a/a-1/comments?page=3');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-2');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-2');
       equal(commentsCtrl.get('page'), 1);
       equal(router.get('location.path'), '/a/a-2/comments');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
       equal(commentsCtrl.get('page'), 3);
       equal(router.get('location.path'), '/a/a-1/comments?page=3');
     });
@@ -63949,11 +63951,11 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      Ember.TEMPLATES.about = compile('{{link-to \'A\' \'comments\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'comments\' \'a-2\' id=\'two\'}}');
+      _emberMetalCore.default.TEMPLATES.about = compile('{{link-to \'A\' \'comments\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'comments\' \'a-2\' id=\'two\'}}');
 
       this.boot();
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       var commentsCtrl = container.lookup('controller:comments');
       equal(commentsCtrl.get('page'), 1);
@@ -63962,19 +63964,19 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       setAndFlush(commentsCtrl, 'page', 2);
       equal(router.get('location.path'), '/a/a-1/comments?page=2');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-2');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-2');
       equal(commentsCtrl.get('page'), 1);
       equal(this.controller.get('q'), 'wat');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       equal(router.get('location.path'), '/a/a-1/comments');
       equal(commentsCtrl.get('page'), 1);
 
-      Ember.run(router, 'transitionTo', 'about');
+      _emberMetalCore.default.run(router, 'transitionTo', 'about');
 
-      equal(Ember.$('#one').attr('href'), '/a/a-1/comments?q=imdone');
-      equal(Ember.$('#two').attr('href'), '/a/a-2/comments');
+      equal(_emberMetalCore.default.$('#one').attr('href'), '/a/a-1/comments?q=imdone');
+      equal(_emberMetalCore.default.$('#two').attr('href'), '/a/a-2/comments');
     });
   } else {
     QUnit.module('Model Dep Query Params', {
@@ -63987,14 +63989,14 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           });
         });
 
-        var articles = this.articles = Ember.A([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
+        var articles = this.articles = _emberMetalCore.default.A([{ id: 'a-1' }, { id: 'a-2' }, { id: 'a-3' }]);
 
-        App.ApplicationController = Ember.Controller.extend({
+        App.ApplicationController = _emberMetalCore.default.Controller.extend({
           articles: this.articles
         });
 
         var self = this;
-        App.ArticleRoute = Ember.Route.extend({
+        App.ArticleRoute = _emberMetalCore.default.Route.extend({
           model: function (params) {
             if (self.expectedModelHookParams) {
               deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
@@ -64004,25 +64006,25 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
           }
         });
 
-        App.ArticleController = Ember.Controller.extend({
+        App.ArticleController = _emberMetalCore.default.Controller.extend({
           queryParams: ['q', 'z'],
           q: 'wat',
           z: 0
         });
 
-        App.CommentsController = Ember.Controller.extend({
+        App.CommentsController = _emberMetalCore.default.Controller.extend({
           queryParams: 'page',
           page: 1
         });
 
-        Ember.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
+        _emberMetalCore.default.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a id=a.id}} {{/each}} {{outlet}}');
 
         this.boot = function () {
           bootApplication();
 
-          self.$link1 = Ember.$('#a-1');
-          self.$link2 = Ember.$('#a-2');
-          self.$link3 = Ember.$('#a-3');
+          self.$link1 = _emberMetalCore.default.$('#a-1');
+          self.$link2 = _emberMetalCore.default.$('#a-2');
+          self.$link3 = _emberMetalCore.default.$('#a-3');
 
           equal(self.$link1.attr('href'), '/a/a-1');
           equal(self.$link2.attr('href'), '/a/a-2');
@@ -64041,7 +64043,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     QUnit.test('query params have \'model\' stickiness by default', function () {
       this.boot();
 
-      Ember.run(this.$link1, 'click');
+      _emberMetalCore.default.run(this.$link1, 'click');
       equal(router.get('location.path'), '/a/a-1');
 
       setAndFlush(this.controller, 'q', 'lol');
@@ -64050,7 +64052,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link2.attr('href'), '/a/a-2');
       equal(this.$link3.attr('href'), '/a/a-3');
 
-      Ember.run(this.$link2, 'click');
+      _emberMetalCore.default.run(this.$link2, 'click');
 
       equal(this.controller.get('q'), 'wat');
       equal(this.controller.get('z'), 0);
@@ -64094,12 +64096,12 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     });
 
     QUnit.test('query params have \'model\' stickiness by default (params-based transitions)', function () {
-      Ember.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a.id id=a.id}} {{/each}}');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{#each articles as |a|}} {{link-to \'Article\' \'article\' a.id id=a.id}} {{/each}}');
 
       this.boot();
 
       this.expectedModelHookParams = { id: 'a-1', q: 'wat', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-1');
 
       deepEqual(this.controller.get('model'), { id: 'a-1' });
       equal(this.controller.get('q'), 'wat');
@@ -64109,7 +64111,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3');
 
       this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { q: 'lol' } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { q: 'lol' } });
 
       deepEqual(this.controller.get('model'), { id: 'a-2' });
       equal(this.controller.get('q'), 'lol');
@@ -64119,7 +64121,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3');
 
       this.expectedModelHookParams = { id: 'a-3', q: 'hay', z: 0 };
-      Ember.run(router, 'transitionTo', 'article', 'a-3', { queryParams: { q: 'hay' } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-3', { queryParams: { q: 'hay' } });
 
       deepEqual(this.controller.get('model'), { id: 'a-3' });
       equal(this.controller.get('q'), 'hay');
@@ -64129,7 +64131,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link3.attr('href'), '/a/a-3?q=hay');
 
       this.expectedModelHookParams = { id: 'a-2', q: 'lol', z: 1 };
-      Ember.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { z: 1 } });
+      _emberMetalCore.default.run(router, 'transitionTo', 'article', 'a-2', { queryParams: { z: 1 } });
 
       deepEqual(this.controller.get('model'), { id: 'a-2' });
       equal(this.controller.get('q'), 'lol');
@@ -64146,7 +64148,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
 
       this.boot();
 
-      Ember.run(this.$link1, 'click');
+      _emberMetalCore.default.run(this.$link1, 'click');
       equal(router.get('location.path'), '/a/a-1');
 
       setAndFlush(this.controller, 'q', 'lol');
@@ -64155,7 +64157,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       equal(this.$link2.attr('href'), '/a/a-2?q=lol');
       equal(this.$link3.attr('href'), '/a/a-3?q=lol');
 
-      Ember.run(this.$link2, 'click');
+      _emberMetalCore.default.run(this.$link2, 'click');
 
       equal(this.controller.get('q'), 'lol');
       equal(this.controller.get('z'), 0);
@@ -64186,7 +64188,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     QUnit.test('\'model\' stickiness is scoped to current or first dynamic parent route', function () {
       this.boot();
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       var commentsCtrl = container.lookup('controller:comments');
       equal(commentsCtrl.get('page'), 1);
@@ -64198,11 +64200,11 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       setAndFlush(commentsCtrl, 'page', 3);
       equal(router.get('location.path'), '/a/a-1/comments?page=3');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-2');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-2');
       equal(commentsCtrl.get('page'), 1);
       equal(router.get('location.path'), '/a/a-2/comments');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
       equal(commentsCtrl.get('page'), 3);
       equal(router.get('location.path'), '/a/a-1/comments?page=3');
     });
@@ -64224,10 +64226,10 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
         }
       });
 
-      Ember.TEMPLATES.about = compile('{{link-to \'A\' \'comments\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'comments\' \'a-2\' id=\'two\'}}');
+      _emberMetalCore.default.TEMPLATES.about = compile('{{link-to \'A\' \'comments\' \'a-1\' id=\'one\'}} {{link-to \'B\' \'comments\' \'a-2\' id=\'two\'}}');
 
       this.boot();
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       var commentsCtrl = container.lookup('controller:comments');
       equal(commentsCtrl.get('page'), 1);
@@ -64236,19 +64238,19 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
       setAndFlush(commentsCtrl, 'page', 2);
       equal(router.get('location.path'), '/a/a-1/comments?page=2');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-2');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-2');
       equal(commentsCtrl.get('page'), 1);
       equal(this.controller.get('q'), 'wat');
 
-      Ember.run(router, 'transitionTo', 'comments', 'a-1');
+      _emberMetalCore.default.run(router, 'transitionTo', 'comments', 'a-1');
 
       equal(router.get('location.path'), '/a/a-1/comments');
       equal(commentsCtrl.get('page'), 1);
 
-      Ember.run(router, 'transitionTo', 'about');
+      _emberMetalCore.default.run(router, 'transitionTo', 'about');
 
-      equal(Ember.$('#one').attr('href'), '/a/a-1/comments?q=imdone');
-      equal(Ember.$('#two').attr('href'), '/a/a-2/comments');
+      equal(_emberMetalCore.default.$('#one').attr('href'), '/a/a-1/comments?q=imdone');
+      equal(_emberMetalCore.default.$('#two').attr('href'), '/a/a-2/comments');
     });
 
     QUnit.test('can unit test without bucket cache', function () {
@@ -64260,7 +64262,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
     });
   }
 });
-enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat) {
+enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -64268,17 +64270,17 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   var startingURL = '';
   var expectedReplaceURL, expectedPushURL;
 
   function setAndFlush(obj, prop, value) {
-    Ember.run(obj, 'set', prop, value);
+    _emberMetalCore.default.run(obj, 'set', prop, value);
   }
 
-  var TestLocation = Ember.NoneLocation.extend({
+  var TestLocation = _emberMetalCore.default.NoneLocation.extend({
     initState: function () {
       this.set('path', startingURL);
     },
@@ -64307,8 +64309,8 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
   });
 
   function sharedSetup() {
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
@@ -64328,19 +64330,19 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
       Router = App.Router;
 
-      App.LoadingRoute = Ember.Route.extend({});
+      App.LoadingRoute = _emberMetalCore.default.Route.extend({});
 
-      Ember.TEMPLATES.application = compile('{{outlet}}');
-      Ember.TEMPLATES.home = compile('<h3>Hours</h3>');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');
     });
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     });
   }
 
@@ -64357,7 +64359,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
         this.boot = function () {
           bootApplication();
-          Ember.run(router, 'transitionTo', 'parent.child');
+          _emberMetalCore.default.run(router, 'transitionTo', 'parent.child');
         };
       },
 
@@ -64367,7 +64369,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
 
     QUnit.test('can remap same-named qp props', function () {
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           page: {
             as: 'parentPage',
@@ -64376,7 +64378,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
         }
       });
 
-      App.ParentChildRoute = Ember.Route.extend({
+      App.ParentChildRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           page: {
             as: 'childPage',
@@ -64402,14 +64404,14 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       setAndFlush(parentChildController, 'page', 1);
       equal(router.get('location.path'), '/parent/child');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         parentController.set('page', 2);
         parentChildController.set('page', 2);
       });
 
       equal(router.get('location.path'), '/parent/child?childPage=2&parentPage=2');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         parentController.set('page', 1);
         parentChildController.set('page', 1);
       });
@@ -64418,7 +64420,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
 
     QUnit.test('query params in the same route hierarchy with the same url key get auto-scoped', function () {
-      App.ParentRoute = Ember.Route.extend({
+      App.ParentRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             as: 'shared',
@@ -64427,7 +64429,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
         }
       });
 
-      App.ParentChildRoute = Ember.Route.extend({
+      App.ParentChildRoute = _emberMetalCore.default.Route.extend({
         queryParams: {
           bar: {
             as: 'shared',
@@ -64454,7 +64456,7 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
         this.boot = function () {
           bootApplication();
-          Ember.run(router, 'transitionTo', 'parent.child');
+          _emberMetalCore.default.run(router, 'transitionTo', 'parent.child');
         };
       },
 
@@ -64464,12 +64466,12 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
 
     QUnit.test('can remap same-named qp props', function () {
-      App.ParentController = Ember.Controller.extend({
+      App.ParentController = _emberMetalCore.default.Controller.extend({
         queryParams: { page: 'parentPage' },
         page: 1
       });
 
-      App.ParentChildController = Ember.Controller.extend({
+      App.ParentChildController = _emberMetalCore.default.Controller.extend({
         queryParams: { page: 'childPage' },
         page: 1
       });
@@ -64491,14 +64493,14 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
       setAndFlush(parentChildController, 'page', 1);
       equal(router.get('location.path'), '/parent/child');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         parentController.set('page', 2);
         parentChildController.set('page', 2);
       });
 
       equal(router.get('location.path'), '/parent/child?childPage=2&parentPage=2');
 
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         parentController.set('page', 1);
         parentChildController.set('page', 1);
       });
@@ -64507,12 +64509,12 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
 
     QUnit.test('query params in the same route hierarchy with the same url key get auto-scoped', function () {
-      App.ParentController = Ember.Controller.extend({
+      App.ParentController = _emberMetalCore.default.Controller.extend({
         queryParams: { foo: 'shared' },
         foo: 1
       });
 
-      App.ParentChildController = Ember.Controller.extend({
+      App.ParentChildController = _emberMetalCore.default.Controller.extend({
         queryParams: { bar: 'shared' },
         bar: 1
       });
@@ -64525,16 +64527,16 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
 
     QUnit.test('Support shared but overridable mixin pattern', function () {
 
-      var HasPage = Ember.Mixin.create({
+      var HasPage = _emberMetalCore.default.Mixin.create({
         queryParams: 'page',
         page: 1
       });
 
-      App.ParentController = Ember.Controller.extend(HasPage, {
+      App.ParentController = _emberMetalCore.default.Controller.extend(HasPage, {
         queryParams: { page: 'yespage' }
       });
 
-      App.ParentChildController = Ember.Controller.extend(HasPage);
+      App.ParentChildController = _emberMetalCore.default.Controller.extend(HasPage);
 
       this.boot();
 
@@ -64555,14 +64557,14 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
   }
 });
-enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember', 'ember-metal/features', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalFeatures, _emberRuntimeSystemString, _emberHtmlbarsCompat) {
+enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemString, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
   var App, Router, container, router, registry;
   var expectedReplaceURL, expectedPushURL;
 
-  var TestLocation = Ember.NoneLocation.extend({
+  var TestLocation = _emberMetalCore.default.NoneLocation.extend({
     initState: function () {
       this.set('path', startingURL);
     },
@@ -64592,12 +64594,12 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   function sharedSetup() {
-    Ember.run(function () {
-      App = Ember.Application.create({
+    _emberMetalCore.default.run(function () {
+      App = _emberMetalCore.default.Application.create({
         name: 'App',
         rootElement: '#qunit-fixture'
       });
@@ -64617,19 +64619,19 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
 
       Router = App.Router;
 
-      App.LoadingRoute = Ember.Route.extend({});
+      App.LoadingRoute = _emberMetalCore.default.Route.extend({});
 
-      Ember.TEMPLATES.application = compile('{{outlet}}');
-      Ember.TEMPLATES.home = compile('<h3>Hours</h3>');
+      _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+      _emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');
     });
   }
 
   function sharedTeardown() {
-    Ember.run(function () {
+    _emberMetalCore.default.run(function () {
       App.destroy();
       App = null;
 
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     });
   }
 
@@ -64649,9 +64651,9 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
-      Ember.TEMPLATES[routeName] = compile('{{link-to \'index\' \'index\' id=\'index-link\'}}');
+      _emberMetalCore.default.TEMPLATES[routeName] = compile('{{link-to \'index\' \'index\' id=\'index-link\'}}');
 
-      App[(0, _emberRuntimeSystemString.capitalize)(routeName) + 'Controller'] = Ember.Controller.extend({
+      App[(0, _emberRuntimeSystemString.capitalize)(routeName) + 'Controller'] = _emberMetalCore.default.Controller.extend({
         queryParams: ['foo'],
         foo: 'wat'
       });
@@ -64659,7 +64661,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
       startingURL = '/?foo=YEAH';
       bootApplication();
 
-      equal(Ember.$('#index-link').attr('href'), '/?foo=YEAH');
+      equal(_emberMetalCore.default.$('#index-link').attr('href'), '/?foo=YEAH');
     });
   };
 
@@ -64667,9 +64669,9 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     QUnit.test('param-less links in an app booted with query params in the URL don\'t reset the query params: ' + routeName, function () {
       expect(1);
 
-      Ember.TEMPLATES[routeName] = compile('{{link-to \'index\' \'index\' id=\'index-link\'}}');
+      _emberMetalCore.default.TEMPLATES[routeName] = compile('{{link-to \'index\' \'index\' id=\'index-link\'}}');
 
-      App[(0, _emberRuntimeSystemString.capitalize)(routeName) + 'Route'] = Ember.Route.extend({
+      App[(0, _emberRuntimeSystemString.capitalize)(routeName) + 'Route'] = _emberMetalCore.default.Route.extend({
         queryParams: {
           foo: {
             defaultValue: 'wat'
@@ -64680,7 +64682,7 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
       startingURL = '/?foo=YEAH';
       bootApplication();
 
-      equal(Ember.$('#index-link').attr('href'), '/?foo=YEAH');
+      equal(_emberMetalCore.default.$('#index-link').attr('href'), '/?foo=YEAH');
     });
   };
 
@@ -64692,17 +64694,17 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     testParamlessLinks('index');
   }
 });
-enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-template-compiler/system/compile'], function (exports, _ember, _emberTemplateCompilerSystemCompile) {
+enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler/system/compile'], function (exports, _ember, _emberMetalCore, _emberTemplateCompilerSystemCompile) {
 
   var Router, router, App, container;
 
   function bootApplication() {
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   function handleURL(path) {
-    return Ember.run(function () {
+    return _emberMetalCore.default.run(function () {
       return router.handleURL(path).then(function (value) {
         ok(true, 'url: `' + path + '` was handled');
         return value;
@@ -64715,8 +64717,8 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-templa
 
   QUnit.module('Router.map', {
     setup: function () {
-      Ember.run(function () {
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        App = _emberMetalCore.default.Application.create({
           name: 'App',
           rootElement: '#qunit-fixture'
         });
@@ -64734,11 +64736,11 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-templa
     },
 
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         App.destroy();
         App = null;
 
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
         //Ember.Logger.error = originalLoggerError;
       });
     }
@@ -64751,14 +64753,14 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-templa
       this.route('hello');
     });
 
-    ok(Ember.Router.detect(ret));
+    ok(_emberMetalCore.default.Router.detect(ret));
   });
 
   QUnit.test('Router.map can be called multiple times', function () {
     expect(4);
 
-    Ember.TEMPLATES.hello = (0, _emberTemplateCompilerSystemCompile.default)('Hello!');
-    Ember.TEMPLATES.goodbye = (0, _emberTemplateCompilerSystemCompile.default)('Goodbye!');
+    _emberMetalCore.default.TEMPLATES.hello = (0, _emberTemplateCompilerSystemCompile.default)('Hello!');
+    _emberMetalCore.default.TEMPLATES.goodbye = (0, _emberTemplateCompilerSystemCompile.default)('Goodbye!');
 
     App.Router.map(function () {
       this.route('hello');
@@ -64772,14 +64774,14 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-templa
 
     handleURL('/hello');
 
-    equal(Ember.$('#qunit-fixture').text(), 'Hello!', 'The hello template was rendered');
+    equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'Hello!', 'The hello template was rendered');
 
     handleURL('/goodbye');
 
-    equal(Ember.$('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
+    equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/features', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalFeatures, _emberHtmlbarsCompat, _emberViewsViewsView) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat, _emberViewsViewsView) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -64793,30 +64795,30 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
   function bootApplication(startingURL) {
 
     for (var name in templates) {
-      Ember.TEMPLATES[name] = compile(templates[name]);
+      _emberMetalCore.default.TEMPLATES[name] = compile(templates[name]);
     }
 
     if (startingURL) {
-      Ember.NoneLocation.reopen({
+      _emberMetalCore.default.NoneLocation.reopen({
         path: startingURL
       });
     }
 
     startingURL = startingURL || '';
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   QUnit.module('Loading/Error Substates', {
     setup: function () {
       counter = 1;
 
-      Ember.run(function () {
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        App = _emberMetalCore.default.Application.create({
           name: 'App',
           rootElement: '#qunit-fixture',
           // fake a modules resolver
-          Resolver: Ember.DefaultResolver.extend({ moduleBasedResolver: true })
+          Resolver: _emberMetalCore.default.DefaultResolver.extend({ moduleBasedResolver: true })
         });
 
         App.deferReadiness();
@@ -64840,14 +64842,14 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     },
 
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         App.destroy();
         App = null;
 
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
       });
 
-      Ember.NoneLocation.reopen({
+      _emberMetalCore.default.NoneLocation.reopen({
         path: ''
       });
     }
@@ -64856,19 +64858,19 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
   QUnit.test('Slow promise from a child route of application enters nested loading state', function () {
 
     var broModel = {};
-    var broDeferred = Ember.RSVP.defer();
+    var broDeferred = _emberMetalCore.default.RSVP.defer();
 
     Router.map(function () {
       this.route('bro');
     });
 
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         step(2, 'ApplicationRoute#setup');
       }
     });
 
-    App.BroRoute = Ember.Route.extend({
+    App.BroRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(1, 'BroRoute#model');
         return broDeferred.promise;
@@ -64877,19 +64879,19 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/bro');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
 
-    Ember.run(broDeferred, 'resolve', broModel);
+    _emberMetalCore.default.run(broDeferred, 'resolve', broModel);
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'BRO', 'bro template has loaded and replaced loading template');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'BRO', 'bro template has loaded and replaced loading template');
   });
 
   QUnit.test('Slow promises waterfall on startup', function () {
 
     expect(7);
 
-    var grandmaDeferred = Ember.RSVP.defer();
-    var sallyDeferred = Ember.RSVP.defer();
+    var grandmaDeferred = _emberMetalCore.default.RSVP.defer();
+    var sallyDeferred = _emberMetalCore.default.RSVP.defer();
 
     Router.map(function () {
       this.resource('grandma', function () {
@@ -64904,21 +64906,21 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     templates['mom/loading'] = 'MOMLOADING';
     templates['mom/sally'] = 'SALLY';
 
-    App.GrandmaRoute = Ember.Route.extend({
+    App.GrandmaRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(1, 'GrandmaRoute#model');
         return grandmaDeferred.promise;
       }
     });
 
-    App.MomRoute = Ember.Route.extend({
+    App.MomRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(2, 'Mom#model');
         return {};
       }
     });
 
-    App.MomSallyRoute = Ember.Route.extend({
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(3, 'SallyRoute#model');
         return sallyDeferred.promise;
@@ -64930,20 +64932,20 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/grandma/mom/sally');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'LOADING', 'The Loading template is nested in application template\'s outlet');
 
-    Ember.run(grandmaDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM MOMLOADING', 'Mom\'s child loading route is displayed due to sally\'s slow promise');
+    _emberMetalCore.default.run(grandmaDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM MOMLOADING', 'Mom\'s child loading route is displayed due to sally\'s slow promise');
 
-    Ember.run(sallyDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM SALLY', 'Sally template displayed');
+    _emberMetalCore.default.run(sallyDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM SALLY', 'Sally template displayed');
   });
 
   QUnit.test('ApplicationRoute#currentPath reflects loading state path', function () {
 
     expect(4);
 
-    var momDeferred = Ember.RSVP.defer();
+    var momDeferred = _emberMetalCore.default.RSVP.defer();
 
     Router.map(function () {
       this.resource('grandma', function () {
@@ -64955,7 +64957,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     templates['grandma/loading'] = 'GRANDMALOADING';
     templates['grandma/mom'] = 'MOM';
 
-    App.GrandmaMomRoute = Ember.Route.extend({
+    App.GrandmaMomRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return momDeferred.promise;
       }
@@ -64963,13 +64965,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/grandma/mom');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA GRANDMALOADING');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA GRANDMALOADING');
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.loading', 'currentPath reflects loading state');
 
-    Ember.run(momDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM');
+    _emberMetalCore.default.run(momDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM');
     equal(appController.get('currentPath'), 'grandma.mom', 'currentPath reflects final state');
   });
 
@@ -64977,15 +64979,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     expect(2);
 
-    var appDeferred = Ember.RSVP.defer();
+    var appDeferred = _emberMetalCore.default.RSVP.defer();
 
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return appDeferred.promise;
       }
     });
 
-    App.LoadingRoute = Ember.Route.extend({
+    App.LoadingRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         ok(false, 'shouldn\'t get here');
       }
@@ -64993,10 +64995,10 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication();
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), '', 'nothing has been rendered yet');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), '', 'nothing has been rendered yet');
 
-    Ember.run(appDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    _emberMetalCore.default.run(appDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
   QUnit.test('Don\'t enter loading route unless either route or template defined', function () {
@@ -65005,11 +65007,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     expect(2);
 
-    var indexDeferred = Ember.RSVP.defer();
+    var indexDeferred = _emberMetalCore.default.RSVP.defer();
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return indexDeferred.promise;
       }
@@ -65020,8 +65022,8 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     var appController = container.lookup('controller:application');
     ok(appController.get('currentPath') !== 'loading', 'loading state not entered');
 
-    Ember.run(indexDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    _emberMetalCore.default.run(indexDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
   QUnit.test('Enter loading route if only LoadingRoute defined', function () {
@@ -65030,16 +65032,16 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     expect(4);
 
-    var indexDeferred = Ember.RSVP.defer();
+    var indexDeferred = _emberMetalCore.default.RSVP.defer();
 
-    App.IndexRoute = Ember.Route.extend({
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(1, 'IndexRoute#model');
         return indexDeferred.promise;
       }
     });
 
-    App.LoadingRoute = Ember.Route.extend({
+    App.LoadingRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         step(2, 'LoadingRoute#setupController');
       }
@@ -65050,15 +65052,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'loading', 'loading state entered');
 
-    Ember.run(indexDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    _emberMetalCore.default.run(indexDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
   QUnit.test('Enter child loading state of pivot route', function () {
 
     expect(4);
 
-    var deferred = Ember.RSVP.defer();
+    var deferred = _emberMetalCore.default.RSVP.defer();
 
     Router.map(function () {
       this.resource('grandma', function () {
@@ -65071,15 +65073,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     templates['grandma/loading'] = 'GMONEYLOADING';
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.MomSallyRoute = Ember.Route.extend({
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         step(1, 'SallyRoute#setupController');
       }
     });
 
-    App.GrandmaSmellsRoute = Ember.Route.extend({
+    App.GrandmaSmellsRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return deferred.promise;
       }
@@ -65090,10 +65092,10 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.mom.sally', 'Initial route fully loaded');
 
-    Ember.run(router, 'transitionTo', 'grandma.smells');
+    _emberMetalCore.default.run(router, 'transitionTo', 'grandma.smells');
     equal(appController.get('currentPath'), 'grandma.loading', 'in pivot route\'s child loading state');
 
-    Ember.run(deferred, 'resolve', {});
+    _emberMetalCore.default.run(deferred, 'resolve', {});
 
     equal(appController.get('currentPath'), 'grandma.smells', 'Finished transition');
   });
@@ -65104,8 +65106,8 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     delete templates.loading;
 
-    var sallyDeferred = Ember.RSVP.defer();
-    var smellsDeferred = Ember.RSVP.defer();
+    var sallyDeferred = _emberMetalCore.default.RSVP.defer();
+    var smellsDeferred = _emberMetalCore.default.RSVP.defer();
 
     Router.map(function () {
       this.resource('grandma', function () {
@@ -65116,9 +65118,9 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       actions: {
         loading: function (transition, route) {
           ok(true, 'loading action received on ApplicationRoute');
@@ -65126,13 +65128,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       }
     });
 
-    App.MomSallyRoute = Ember.Route.extend({
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return sallyDeferred.promise;
       }
     });
 
-    App.GrandmaSmellsRoute = Ember.Route.extend({
+    App.GrandmaSmellsRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return smellsDeferred.promise;
       }
@@ -65142,14 +65144,14 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     var appController = container.lookup('controller:application');
     ok(!appController.get('currentPath'), 'Initial route fully loaded');
-    Ember.run(sallyDeferred, 'resolve', {});
+    _emberMetalCore.default.run(sallyDeferred, 'resolve', {});
 
     equal(appController.get('currentPath'), 'grandma.mom.sally', 'transition completed');
 
-    Ember.run(router, 'transitionTo', 'grandma.smells');
+    _emberMetalCore.default.run(router, 'transitionTo', 'grandma.smells');
     equal(appController.get('currentPath'), 'grandma.mom.sally', 'still in initial state because the only loading state is above the pivot route');
 
-    Ember.run(smellsDeferred, 'resolve', {});
+    _emberMetalCore.default.run(smellsDeferred, 'resolve', {});
 
     equal(appController.get('currentPath'), 'grandma.smells', 'Finished transition');
   });
@@ -65169,13 +65171,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.MomSallyRoute = Ember.Route.extend({
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return Ember.RSVP.reject({
+        return _emberMetalCore.default.RSVP.reject({
           msg: 'did it broke?'
         });
       },
@@ -65191,7 +65193,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     step(3, 'App finished booting');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA ERROR: did it broke?', 'error bubbles');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA ERROR: did it broke?', 'error bubbles');
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.error', 'Initial route fully loaded');
@@ -65201,16 +65203,16 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     expect(2);
 
-    var appDeferred = Ember.RSVP.defer();
+    var appDeferred = _emberMetalCore.default.RSVP.defer();
 
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return appDeferred.promise;
       }
     });
 
     var loadingRouteEntered = false;
-    App.ApplicationLoadingRoute = Ember.Route.extend({
+    App.ApplicationLoadingRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         loadingRouteEntered = true;
       }
@@ -65220,8 +65222,8 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     ok(loadingRouteEntered, 'ApplicationLoadingRoute was entered');
 
-    Ember.run(appDeferred, 'resolve', {});
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    _emberMetalCore.default.run(appDeferred, 'resolve', {});
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model enter application_loading if template present', function () {
@@ -65230,15 +65232,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     templates['application_loading'] = 'TOPLEVEL LOADING';
 
-    var appDeferred = Ember.RSVP.defer();
-    App.ApplicationRoute = Ember.Route.extend({
+    var appDeferred = _emberMetalCore.default.RSVP.defer();
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return appDeferred.promise;
       }
     });
 
     var loadingRouteEntered = false;
-    App.ApplicationLoadingRoute = Ember.Route.extend({
+    App.ApplicationLoadingRoute = _emberMetalCore.default.Route.extend({
       setupController: function () {
         loadingRouteEntered = true;
       }
@@ -65250,12 +65252,12 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication();
 
-    equal(Ember.$('#qunit-fixture > #toplevel-loading').text(), 'TOPLEVEL LOADING');
+    equal(_emberMetalCore.default.$('#qunit-fixture > #toplevel-loading').text(), 'TOPLEVEL LOADING');
 
-    Ember.run(appDeferred, 'resolve', {});
+    _emberMetalCore.default.run(appDeferred, 'resolve', {});
 
-    equal(Ember.$('#toplevel-loading', '#qunit-fixture').length, 0, 'top-level loading View has been entirely removed from DOM');
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    equal(_emberMetalCore.default.$('#toplevel-loading', '#qunit-fixture').length, 0, 'top-level loading View has been entirely removed from DOM');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 
   QUnit.test('Default error event moves into nested route, prioritizing more specifically named error route', function () {
@@ -65274,13 +65276,13 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.MomSallyRoute = Ember.Route.extend({
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         step(1, 'MomSallyRoute#model');
 
-        return Ember.RSVP.reject({
+        return _emberMetalCore.default.RSVP.reject({
           msg: 'did it broke?'
         });
       },
@@ -65296,7 +65298,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     step(3, 'App finished booting');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically-named mom error substate was entered over the other error route');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'GRANDMA MOM ERROR: did it broke?', 'the more specifically-named mom error substate was entered over the other error route');
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.mom_error', 'Initial route fully loaded');
@@ -65315,10 +65317,10 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    var deferred = Ember.RSVP.defer();
-    App.FooBarRoute = Ember.Route.extend({
+    var deferred = _emberMetalCore.default.RSVP.defer();
+    App.FooBarRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return deferred.promise;
       }
@@ -65326,11 +65328,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/foo/bar');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
 
-    Ember.run(deferred, 'resolve');
+    _emberMetalCore.default.run(deferred, 'resolve');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'YAY');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'YAY');
   });
 
   QUnit.test('Prioritized loading substate entry works with preserved-namespace nested routes', function () {
@@ -65346,10 +65348,10 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    var deferred = Ember.RSVP.defer();
-    App.FooBarRoute = Ember.Route.extend({
+    var deferred = _emberMetalCore.default.RSVP.defer();
+    App.FooBarRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return deferred.promise;
       }
@@ -65357,11 +65359,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/foo/bar');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'FOOBAR LOADING', 'foo.bar_loading was entered (as opposed to something like foo/foo/bar_loading)');
 
-    Ember.run(deferred, 'resolve');
+    _emberMetalCore.default.run(deferred, 'resolve');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'YAY');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'YAY');
   });
 
   QUnit.test('Prioritized error substate entry works with preserved-namespace nested routes', function () {
@@ -65377,11 +65379,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.FooBarRoute = Ember.Route.extend({
+    App.FooBarRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        return Ember.RSVP.reject({
+        return _emberMetalCore.default.RSVP.reject({
           msg: 'did it broke?'
         });
       }
@@ -65389,7 +65391,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/foo/bar');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'FOOBAR ERROR: did it broke?', 'foo.bar_error was entered (as opposed to something like foo/foo/bar_error)');
   });
 
   QUnit.test('Prioritized loading substate entry works with auto-generated index routes', function () {
@@ -65406,15 +65408,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    var deferred = Ember.RSVP.defer();
-    App.FooIndexRoute = Ember.Route.extend({
+    var deferred = _emberMetalCore.default.RSVP.defer();
+    App.FooIndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return deferred.promise;
       }
     });
-    App.FooRoute = Ember.Route.extend({
+    App.FooRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return true;
       }
@@ -65422,11 +65424,11 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/foo');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'FOO LOADING', 'foo.index_loading was entered');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'FOO LOADING', 'foo.index_loading was entered');
 
-    Ember.run(deferred, 'resolve');
+    _emberMetalCore.default.run(deferred, 'resolve');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'YAY');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'YAY');
   });
 
   QUnit.test('Prioritized error substate entry works with auto-generated index routes', function () {
@@ -65443,16 +65445,16 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
       });
     });
 
-    App.ApplicationController = Ember.Controller.extend();
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
 
-    App.FooIndexRoute = Ember.Route.extend({
+    App.FooIndexRoute = _emberMetalCore.default.Route.extend({
       model: function () {
-        return Ember.RSVP.reject({
+        return _emberMetalCore.default.RSVP.reject({
           msg: 'did it broke?'
         });
       }
     });
-    App.FooRoute = Ember.Route.extend({
+    App.FooRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         return true;
       }
@@ -65460,7 +65462,7 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication('/foo');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'FOO ERROR: did it broke?', 'foo.index_error was entered');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'FOO ERROR: did it broke?', 'foo.index_error was entered');
   });
 
   QUnit.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
@@ -65470,10 +65472,10 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
     templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
 
     var reject = true;
-    App.ApplicationRoute = Ember.Route.extend({
+    App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       model: function () {
         if (reject) {
-          return Ember.RSVP.reject({ msg: 'BAD NEWS BEARS' });
+          return _emberMetalCore.default.RSVP.reject({ msg: 'BAD NEWS BEARS' });
         } else {
           return {};
         }
@@ -65482,15 +65484,15 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/f
 
     bootApplication();
 
-    equal(Ember.$('#toplevel-error', '#qunit-fixture').text(), 'TOPLEVEL ERROR: BAD NEWS BEARS');
+    equal(_emberMetalCore.default.$('#toplevel-error', '#qunit-fixture').text(), 'TOPLEVEL ERROR: BAD NEWS BEARS');
 
     reject = false;
-    Ember.run(router, 'transitionTo', 'index');
+    _emberMetalCore.default.run(router, 'transitionTo', 'index');
 
-    equal(Ember.$('#app', '#qunit-fixture').text(), 'INDEX');
+    equal(_emberMetalCore.default.$('#app', '#qunit-fixture').text(), 'INDEX');
   });
 });
-enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberHtmlbarsCompat, _emberViewsViewsView) {
+enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsCompat, _emberViewsViewsView) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -65498,16 +65500,16 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-html
 
   function bootApplication() {
     for (var name in templates) {
-      Ember.TEMPLATES[name] = compile(templates[name]);
+      _emberMetalCore.default.TEMPLATES[name] = compile(templates[name]);
     }
     router = container.lookup('router:main');
-    Ember.run(App, 'advanceReadiness');
+    _emberMetalCore.default.run(App, 'advanceReadiness');
   }
 
   QUnit.module('Top Level DOM Structure', {
     setup: function () {
-      Ember.run(function () {
-        App = Ember.Application.create({
+      _emberMetalCore.default.run(function () {
+        App = _emberMetalCore.default.Application.create({
           name: 'App',
           rootElement: '#qunit-fixture'
         });
@@ -65529,14 +65531,14 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-html
     },
 
     teardown: function () {
-      Ember.run(function () {
+      _emberMetalCore.default.run(function () {
         App.destroy();
         App = null;
 
-        Ember.TEMPLATES = {};
+        _emberMetalCore.default.TEMPLATES = {};
       });
 
-      Ember.NoneLocation.reopen({
+      _emberMetalCore.default.NoneLocation.reopen({
         path: ''
       });
     }
@@ -65544,7 +65546,7 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-html
 
   QUnit.test('Topmost template always get an element', function () {
     bootApplication();
-    equal(Ember.$('#qunit-fixture > .ember-view').text(), 'hello world');
+    equal(_emberMetalCore.default.$('#qunit-fixture > .ember-view').text(), 'hello world');
   });
 
   QUnit.test('If topmost view has its own element, it doesn\'t get wrapped in a higher element', function () {
@@ -65552,10 +65554,10 @@ enifed('ember/tests/routing/toplevel_dom_test', ['exports', 'ember', 'ember-html
       classNames: ['im-special']
     }));
     bootApplication();
-    equal(Ember.$('#qunit-fixture > .im-special').text(), 'hello world');
+    equal(_emberMetalCore.default.$('#qunit-fixture > .im-special').text(), 'hello world');
   });
 });
-enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-htmlbars/compat', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/instrumentation'], function (exports, _emberHtmlbarsCompat, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalInstrumentation) {
+enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/instrumentation'], function (exports, _emberMetalCore, _emberHtmlbarsCompat, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalInstrumentation) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -65563,9 +65565,9 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-htmlbars/comp
 
   function setupExample() {
     // setup templates
-    Ember.TEMPLATES.application = compile('{{outlet}}');
-    Ember.TEMPLATES.index = compile('<h1>Node 1</h1>');
-    Ember.TEMPLATES.posts = compile('<h1>Node 1</h1>');
+    _emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h1>Node 1</h1>');
+    _emberMetalCore.default.TEMPLATES.posts = compile('<h1>Node 1</h1>');
 
     App.Router.map(function () {
       this.route('posts');
@@ -65580,7 +65582,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-htmlbars/comp
   QUnit.module('View Instrumentation', {
     setup: function () {
       (0, _emberMetalRun_loop.default)(function () {
-        App = Ember.Application.create({
+        App = _emberMetalCore.default.Application.create({
           rootElement: '#qunit-fixture'
         });
         App.deferReadiness();
@@ -65597,7 +65599,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-htmlbars/comp
     teardown: function () {
       (0, _emberMetalRun_loop.default)(App, 'destroy');
       App = null;
-      Ember.TEMPLATES = {};
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3254874c
+ * @version   2.0.0-canary+e2355a6c
  */
 
 (function() {
@@ -2658,7 +2658,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   exports.ChainNode = ChainNode;
 });
 // warn, assert, etc;
-enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
+enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
 
   /**
   @module ember
@@ -2819,7 +2819,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   ComputedPropertyPrototype.readOnly = function () {
     this._readOnly = true;
-    Ember.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
+    _emberMetalCore.default.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
     return this;
   };
 
@@ -3957,7 +3957,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+3254874c
+    @version 2.0.0-canary+e2355a6c
     @public
   */
 
@@ -3989,11 +3989,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+3254874c'
+    @default '2.0.0-canary+e2355a6c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+3254874c';
+  Ember.VERSION = '2.0.0-canary+e2355a6c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4316,8 +4316,9 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
 
   exports.default = environment;
 });
-enifed('ember-metal/error', ['exports'], function (exports) {
+enifed('ember-metal/error', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports.default = EmberError;
+
   var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
   /**
@@ -4341,7 +4342,7 @@ enifed('ember-metal/error', ['exports'], function (exports) {
     // This is useful because we can hide Ember implementation details
     // that are not very helpful for the user.
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, Ember.Error);
+      Error.captureStackTrace(this, _emberMetalCore.default.Error);
     }
     // Unfortunately errors are not enumerable in Chrome (at least), so `for prop in tmp` doesn't work.
     for (var idx = 0; idx < errorProps.length; idx++) {
@@ -5694,7 +5695,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
   };
 });
 // Ember.imports
-enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecate_property'], function (exports, _emberMetalUtils, _emberMetalDeprecate_property) {
+enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalDeprecate_property) {
 
   function missingFunction(fn) {
     throw new TypeError('' + Object.prototype.toString.call(fn) + ' is not a function');
@@ -5799,7 +5800,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
       @private
     */
     remove: function (obj, _guid) {
-      Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
+      _emberMetalCore.default.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
 
       return this.delete(obj, _guid);
     },
@@ -5946,7 +5947,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
     }
   }
 
-  Ember.Map = Map;
+  _emberMetalCore.default.Map = Map;
 
   /**
     @method create
@@ -6024,7 +6025,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
       @private
     */
     remove: function (key) {
-      Ember.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+      _emberMetalCore.default.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
 
       return this.delete(key);
     },
@@ -9723,7 +9724,7 @@ enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/merge'], funct
 
   exports.default = Subscriber;
 });
-enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, _stream) {
+enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'], function (exports, _emberMetalCore, _stream) {
   exports.isStream = isStream;
   exports.subscribe = subscribe;
   exports.unsubscribe = unsubscribe;
@@ -10003,14 +10004,14 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function addDependency(stream, dependency) {
-    Ember.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
+    _emberMetalCore.default.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
     if (isStream(stream)) {
       stream.addDependency(dependency);
     }
   }
 
   function zip(streams, callback, label) {
-    Ember.assert('Must call zip with a label', !!label);
+    _emberMetalCore.default.assert('Must call zip with a label', !!label);
 
     var stream = new _stream.default(function () {
       var array = readArray(streams);
@@ -10027,7 +10028,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function zipHash(object, callback, label) {
-    Ember.assert('Must call zipHash with a label', !!label);
+    _emberMetalCore.default.assert('Must call zipHash with a label', !!label);
 
     var stream = new _stream.default(function () {
       var hash = readHash(object);
@@ -10077,7 +10078,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
    */
 
   function chain(value, fn, label) {
-    Ember.assert('Must call chain with a label', !!label);
+    _emberMetalCore.default.assert('Must call chain with a label', !!label);
     if (isStream(value)) {
       var stream = new _stream.default(fn, function () {
         return '' + label + '(' + labelFor(value) + ')';
@@ -11284,12 +11285,12 @@ enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-
   EmberHandlebars.compile = _emberTemplateCompilerSystemCompile.default;
   EmberHandlebars.template = _emberTemplateCompilerSystemTemplate.default;
 });
-enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, _emberTemplateCompilerSystemCompile_options) {
+enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-metal/core', 'ember-template-compiler/system/compile_options'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCompile_options) {
 
   var compile, compileSpec;
 
   exports.default = function (string) {
-    if ((!compile || !compileSpec) && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+    if ((!compile || !compileSpec) && _emberMetalCore.default.__loader.registry['htmlbars-compiler/compiler']) {
       var Compiler = requireModule('htmlbars-compiler/compiler');
 
       compile = Compiler.compile;
@@ -12374,7 +12375,7 @@ enifed('ember-template-compiler/plugins/transform-single-arg-each', ['exports'],
     return (node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each' && node.params.length === 0;
   }
 });
-enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
 
   /**
     An HTMLBars AST transformation that replaces all instances of
@@ -12419,7 +12420,7 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 
 
         var moduleInfo = (0, _emberTemplateCompilerSystemCalculateLocationDisplay.default)(moduleName, node.program.loc);
 
-        Ember.deprecate('Using {{with}} without block syntax ' + moduleInfo + 'is deprecated. ' + 'Please use standard block form (`{{#with foo as |bar|}}`) ' + 'instead.', false, { url: 'http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code' });
+        _emberMetalCore.default.deprecate('Using {{with}} without block syntax ' + moduleInfo + 'is deprecated. ' + 'Please use standard block form (`{{#with foo as |bar|}}`) ' + 'instead.', false, { url: 'http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code' });
 
         var removedParams = node.params.splice(1, 2);
         var keyword = removedParams[1].original;
@@ -12471,11 +12472,7 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
     return moduleInfo;
   }
 });
-enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, _emberTemplateCompilerSystemCompile_options, _emberTemplateCompilerSystemTemplate) {
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
+enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/core', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCompile_options, _emberTemplateCompilerSystemTemplate) {
 
   var compile;
 
@@ -12491,7 +12488,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
   */
 
   exports.default = function (templateString, options) {
-    if (!compile && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+    if (!compile && _emberMetalCore.default.__loader.registry['htmlbars-compiler/compiler']) {
       compile = requireModule('htmlbars-compiler/compiler').compile;
     }
 
@@ -12504,6 +12501,10 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
     return (0, _emberTemplateCompilerSystemTemplate.default)(templateSpec);
   };
 });
+/**
+@module ember
+@submodule ember-template-compiler
+*/
 enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/merge', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalMerge, _emberTemplateCompilerPlugins) {
 
   /**
@@ -12540,7 +12541,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+3254874c',
+        revision: 'Ember@2.0.0-canary+e2355a6c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12553,7 +12554,8 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 @module ember
 @submodule ember-template-compiler
 */
-enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-compiler/system/compile_options'], function (exports, _emberTemplateCompilerSystemCompile_options) {
+enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/core', 'ember-template-compiler/system/compile_options'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCompile_options) {
+
   var compileSpec;
 
   /**
@@ -12568,7 +12570,7 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-template-
   */
 
   exports.default = function (templateString, options) {
-    if (!compileSpec && Ember.__loader.registry['htmlbars-compiler/compiler']) {
+    if (!compileSpec && _emberMetalCore.default.__loader.registry['htmlbars-compiler/compiler']) {
       compileSpec = requireModule('htmlbars-compiler/compiler').compileSpec;
     }
 

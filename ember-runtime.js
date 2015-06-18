@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3254874c
+ * @version   2.0.0-canary+e2355a6c
  */
 
 (function() {
@@ -1119,7 +1119,8 @@ enifed('calculateVersion', ['exports'], function (exports) {
     }
   };
 });
-enifed('container', ['exports', 'container/registry', 'container/container'], function (exports, _containerRegistry, _containerContainer) {
+enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'container/container'], function (exports, _emberMetalCore, _containerRegistry, _containerContainer) {
+
   /*
   Public api for the container is still in flux.
   The public api, specified on the application namespace should be considered the stable api.
@@ -1132,10 +1133,10 @@ enifed('container', ['exports', 'container/registry', 'container/container'], fu
    If model factory injections are enabled, models should not be
    accessed globally (only through `container.lookupFactory('model:modelName'))`);
   */
-  Ember.MODEL_FACTORY_INJECTIONS = false;
+  _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = false;
 
-  if (Ember.ENV && typeof Ember.ENV.MODEL_FACTORY_INJECTIONS !== 'undefined') {
-    Ember.MODEL_FACTORY_INJECTIONS = !!Ember.ENV.MODEL_FACTORY_INJECTIONS;
+  if (_emberMetalCore.default.ENV && typeof _emberMetalCore.default.ENV.MODEL_FACTORY_INJECTIONS !== 'undefined') {
+    _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = !!_emberMetalCore.default.ENV.MODEL_FACTORY_INJECTIONS;
   }
 
   exports.Registry = _containerRegistry.default;
@@ -3469,7 +3470,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   exports.ChainNode = ChainNode;
 });
 // warn, assert, etc;
-enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
+enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
 
   /**
   @module ember
@@ -3630,7 +3631,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/property_set', 'ember-me
   */
   ComputedPropertyPrototype.readOnly = function () {
     this._readOnly = true;
-    Ember.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
+    _emberMetalCore.default.assert('Computed properties that define a setter using the new syntax cannot be read-only', !(this._readOnly && this._setter && this._setter !== this._getter));
     return this;
   };
 
@@ -4768,7 +4769,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+3254874c
+    @version 2.0.0-canary+e2355a6c
     @public
   */
 
@@ -4800,11 +4801,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+3254874c'
+    @default '2.0.0-canary+e2355a6c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+3254874c';
+  Ember.VERSION = '2.0.0-canary+e2355a6c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5127,8 +5128,9 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
 
   exports.default = environment;
 });
-enifed('ember-metal/error', ['exports'], function (exports) {
+enifed('ember-metal/error', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports.default = EmberError;
+
   var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
   /**
@@ -5152,7 +5154,7 @@ enifed('ember-metal/error', ['exports'], function (exports) {
     // This is useful because we can hide Ember implementation details
     // that are not very helpful for the user.
     if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, Ember.Error);
+      Error.captureStackTrace(this, _emberMetalCore.default.Error);
     }
     // Unfortunately errors are not enumerable in Chrome (at least), so `for prop in tmp` doesn't work.
     for (var idx = 0; idx < errorProps.length; idx++) {
@@ -6505,7 +6507,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
   };
 });
 // Ember.imports
-enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecate_property'], function (exports, _emberMetalUtils, _emberMetalDeprecate_property) {
+enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalDeprecate_property) {
 
   function missingFunction(fn) {
     throw new TypeError('' + Object.prototype.toString.call(fn) + ' is not a function');
@@ -6610,7 +6612,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
       @private
     */
     remove: function (obj, _guid) {
-      Ember.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
+      _emberMetalCore.default.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
 
       return this.delete(obj, _guid);
     },
@@ -6757,7 +6759,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
     }
   }
 
-  Ember.Map = Map;
+  _emberMetalCore.default.Map = Map;
 
   /**
     @method create
@@ -6835,7 +6837,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/utils', 'ember-metal/deprecat
       @private
     */
     remove: function (key) {
-      Ember.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
+      _emberMetalCore.default.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
 
       return this.delete(key);
     },
@@ -10550,7 +10552,7 @@ enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/merge'], funct
 
   exports.default = Subscriber;
 });
-enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, _stream) {
+enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'], function (exports, _emberMetalCore, _stream) {
   exports.isStream = isStream;
   exports.subscribe = subscribe;
   exports.unsubscribe = unsubscribe;
@@ -10830,14 +10832,14 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function addDependency(stream, dependency) {
-    Ember.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
+    _emberMetalCore.default.assert('Cannot add a stream as a dependency to a non-stream', isStream(stream) || !isStream(dependency));
     if (isStream(stream)) {
       stream.addDependency(dependency);
     }
   }
 
   function zip(streams, callback, label) {
-    Ember.assert('Must call zip with a label', !!label);
+    _emberMetalCore.default.assert('Must call zip with a label', !!label);
 
     var stream = new _stream.default(function () {
       var array = readArray(streams);
@@ -10854,7 +10856,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
   }
 
   function zipHash(object, callback, label) {
-    Ember.assert('Must call zipHash with a label', !!label);
+    _emberMetalCore.default.assert('Must call zipHash with a label', !!label);
 
     var stream = new _stream.default(function () {
       var hash = readHash(object);
@@ -10904,7 +10906,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
    */
 
   function chain(value, fn, label) {
-    Ember.assert('Must call chain with a label', !!label);
+    _emberMetalCore.default.assert('Must call chain with a label', !!label);
     if (isStream(value)) {
       var stream = new _stream.default(fn, function () {
         return '' + label + '(' + labelFor(value) + ')';
@@ -14598,7 +14600,7 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
     }
   });
 });
-enifed('ember-runtime/copy', ['exports', 'ember-metal/utils', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetalUtils, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
+enifed('ember-runtime/copy', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetalCore, _emberMetalUtils, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
   exports.default = copy;
 
   function _copy(obj, deep, seen, copies) {
@@ -14614,7 +14616,7 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal/utils', 'ember-runtime/sys
       return copies[loc];
     }
 
-    Ember.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable', !(obj instanceof _emberRuntimeSystemObject.default) || _emberRuntimeMixinsCopyable.default && _emberRuntimeMixinsCopyable.default.detect(obj));
+    _emberMetalCore.default.assert('Cannot clone an Ember.Object that does not implement Ember.Copyable', !(obj instanceof _emberRuntimeSystemObject.default) || _emberRuntimeMixinsCopyable.default && _emberRuntimeMixinsCopyable.default.detect(obj));
 
     // IMPORTANT: this specific test will detect a native array only. Any other
     // object will need to implement Copyable.
@@ -15261,7 +15263,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
 */
 
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalMerge, _emberMetalMixin, _emberMetalProperty_get) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalMixin, _emberMetalProperty_get) {
 
   /**
     The `Ember.ActionHandler` mixin implements support for moving an `actions`
@@ -15394,12 +15396,12 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', '
       var hashName;
 
       if (!props._actions) {
-        Ember.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
+        _emberMetalCore.default.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
 
         if (!!props.actions && typeof props.actions === 'object') {
           hashName = 'actions';
         } else if (!!props.events && typeof props.events === 'object') {
-          Ember.deprecate('Action handlers contained in an `events` object are deprecated in favor' + ' of putting them in an `actions` object', false);
+          _emberMetalCore.default.deprecate('Action handlers contained in an `events` object are deprecated in favor' + ' of putting them in an `actions` object', false);
           hashName = 'events';
         }
 
@@ -15452,7 +15454,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/merge', '
       }
 
       if (target = (0, _emberMetalProperty_get.get)(this, 'target')) {
-        Ember.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
+        _emberMetalCore.default.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
         target.send.apply(target, arguments);
       }
     }
