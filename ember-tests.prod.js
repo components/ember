@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e2355a6c
+ * @version   2.0.0-canary+9bf5428c
  */
 
 (function() {
@@ -2897,7 +2897,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     (0, _emberMetalRun_loop.default)(app, 'reset');
   });
 });
-enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-routing'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberRouting) {
+enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-runtime/ext/rsvp', 'ember-template-compiler/system/compile', 'ember-routing'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberRuntimeExtRsvp, _emberTemplateCompilerSystemCompile, _emberRouting) {
 
   var App, logs, originalLogger;
 
@@ -2975,7 +2975,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/c
     (0, _emberMetalRun_loop.default)(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
-      equal(_emberMetalCore.default.keys(logs).length, 6, 'expected logs');
+      equal(Object.keys(logs).length, 6, 'expected logs');
     });
   });
 
@@ -2987,7 +2987,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/c
     (0, _emberMetalRun_loop.default)(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
-      equal((0, _emberMetalKeys.default)(logs).length, 0, 'expected no logs');
+      equal(Object.keys(logs).length, 0, 'expected no logs');
     });
   });
 
@@ -3089,7 +3089,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/c
     (0, _emberMetalRun_loop.default)(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
-      equal((0, _emberMetalKeys.default)(logs).length, 0, 'expected no logs');
+      equal(Object.keys(logs).length, 0, 'expected no logs');
     });
   });
 
@@ -3119,7 +3119,7 @@ enifed('ember-application/tests/system/logging_test', ['exports', 'ember-metal/c
     (0, _emberMetalRun_loop.default)(App, 'advanceReadiness');
 
     visit('/posts').then(function () {
-      equal((0, _emberMetalKeys.default)(logs).length, 0, 'expected no logs');
+      equal(Object.keys(logs).length, 0, 'expected no logs');
     });
   });
 });
@@ -18670,7 +18670,7 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/co
     });
   }
 });
-enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'ember-metal/features', 'container/registry', 'ember-metal/keys', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _emberMetalFeatures, _containerRegistry, _emberMetalKeys, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
+enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'ember-metal/features', 'container/registry', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _emberMetalFeatures, _containerRegistry, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
 
   var resolver, registry, container;
 
@@ -18697,7 +18697,7 @@ enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'e
   QUnit.test('includes helpers in the registry', function () {
     registry.register('helper:t', _emberHtmlbarsHelper.default);
     var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
-    var helpers = (0, _emberMetalKeys.default)(result);
+    var helpers = Object.keys(result);
 
     deepEqual(helpers, ['t'], 'helpers from the registry were known');
   });
@@ -18711,7 +18711,7 @@ enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'e
 
     registry.register('helper:t', _emberHtmlbarsHelper.default);
     var result = (0, _emberHtmlbarsSystemDiscoverKnownHelpers.default)(container);
-    var helpers = (0, _emberMetalKeys.default)(result);
+    var helpers = Object.keys(result);
 
     deepEqual(helpers, ['t', 'f'], 'helpers from the registry were known');
   });
@@ -22163,7 +22163,7 @@ enifed('ember-metal/tests/is_present_test', ['exports', 'ember-metal/is_present'
     equal(true, (0, _emberMetalIs_present.default)([1, 2, 3]), 'for a non-empty array');
   });
 });
-enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/keys', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalKeys, _emberMetalObserver) {
+enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalObserver) {
 
   function K() {
     return this;
@@ -22178,7 +22178,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     object1.age = '23';
     object1.place = 'Mangalore';
 
-    var object2 = (0, _emberMetalKeys.default)(object1);
+    var object2 = Object.keys(object1);
 
     deepEqual(object2, ['names', 'age', 'place']);
   });
@@ -22189,7 +22189,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
       toString: function () {}
     };
 
-    var object2 = (0, _emberMetalKeys.default)(object1);
+    var object2 = Object.keys(object1);
 
     deepEqual(object2, ['toString']);
   });
@@ -22200,7 +22200,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
 
     var beer = new Beer();
 
-    deepEqual((0, _emberMetalKeys.default)(beer), []);
+    deepEqual(Object.keys(beer), []);
   });
 
   QUnit.test('should return properties that were set after object creation', function () {
@@ -22211,7 +22211,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
 
     (0, _emberMetalProperty_set.set)(beer, 'brand', 'big daddy');
 
-    deepEqual((0, _emberMetalKeys.default)(beer), ['brand']);
+    deepEqual(Object.keys(beer), ['brand']);
   });
 
   QUnit.module('Keys behavior with observers');
@@ -22223,7 +22223,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     var beer = new Beer();
 
     (0, _emberMetalObserver.addObserver)(beer, 'type', K);
-    deepEqual((0, _emberMetalKeys.default)(beer), []);
+    deepEqual(Object.keys(beer), []);
     (0, _emberMetalObserver.removeObserver)(beer, 'type', K);
   });
 
@@ -22235,10 +22235,10 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
 
     (0, _emberMetalObserver.addObserver)(beer, 'brand', K);
 
-    deepEqual((0, _emberMetalKeys.default)(beer), []);
+    deepEqual(Object.keys(beer), []);
 
     (0, _emberMetalProperty_set.set)(beer, 'brand', 'Corona');
-    deepEqual((0, _emberMetalKeys.default)(beer), ['brand']);
+    deepEqual(Object.keys(beer), ['brand']);
 
     (0, _emberMetalObserver.removeObserver)(beer, 'brand', K);
   });
@@ -22252,7 +22252,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     (0, _emberMetalObserver.addObserver)(beer, 'type', K);
     (0, _emberMetalObserver.removeObserver)(beer, 'type', K);
 
-    deepEqual((0, _emberMetalKeys.default)(beer), []);
+    deepEqual(Object.keys(beer), []);
   });
 
   QUnit.test('observers switched on and off with setter in between', function () {
@@ -22265,7 +22265,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     (0, _emberMetalProperty_set.set)(beer, 'type', 'ale');
     (0, _emberMetalObserver.removeObserver)(beer, 'type', K);
 
-    deepEqual((0, _emberMetalKeys.default)(beer), ['type']);
+    deepEqual(Object.keys(beer), ['type']);
   });
 
   QUnit.test('observer switched on and off and then setter', function () {
@@ -22278,7 +22278,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     (0, _emberMetalObserver.removeObserver)(beer, 'type', K);
     (0, _emberMetalProperty_set.set)(beer, 'type', 'ale');
 
-    deepEqual((0, _emberMetalKeys.default)(beer), ['type']);
+    deepEqual(Object.keys(beer), ['type']);
   });
 });
 enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalLibraries) {
@@ -33823,7 +33823,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     equal(sum(), 6, 'recomputes when elements are removed');
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/keys', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-runtime/computed/array_computed', 'ember-runtime/computed/reduce_computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/subarray'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalRun_loop, _emberMetalMixin, _emberMetalKeys, _emberRuntimeSystemObject, _emberMetalComputed, _emberRuntimeComputedArray_computed, _emberRuntimeComputedReduce_computed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemSubarray) {
+enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-runtime/computed/array_computed', 'ember-runtime/computed/reduce_computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/subarray'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemObject, _emberMetalComputed, _emberRuntimeComputedArray_computed, _emberRuntimeComputedReduce_computed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemSubarray) {
 
   var obj, addCalls, removeCalls, callbackItems, shared;
 
@@ -34393,7 +34393,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
     deepEqual(titles, ['Kingsguard', 'Queen'], 'precond - value is correct');
 
     ok(meta.deps.people !== undefined, 'people has dependencies');
-    deepEqual((0, _emberMetalKeys.default)(meta.deps.people), ['titles'], 'only titles depends on people');
+    deepEqual(Object.keys(meta.deps.people), ['titles'], 'only titles depends on people');
     equal(meta.deps.people.titles, 1, 'titles depends on people exactly once');
     equal(meta.watching.people, 2, 'people has two watchers: the array listener and titles');
 
@@ -34406,7 +34406,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-m
     deepEqual(titles, [], 'value is correct');
     equal(meta.cache.titles, titles, 'value remains cached');
     ok(meta.deps.people !== undefined, 'people has dependencies');
-    deepEqual((0, _emberMetalKeys.default)(meta.deps.people), ['titles'], 'meta.deps.people is unchanged');
+    deepEqual(Object.keys(meta.deps.people), ['titles'], 'meta.deps.people is unchanged');
     equal(meta.deps.people.titles, 1, 'deps.people.titles is unchanged');
     equal(meta.watching.people, 2, 'watching.people is unchanged');
   });
@@ -44338,7 +44338,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
     deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
   });
 });
-enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/events', 'ember-runtime/system/object', 'ember-metal/keys'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalRun_loop, _emberMetalEvents, _emberRuntimeSystemObject, _emberMetalKeys) {
+enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/events', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalRun_loop, _emberMetalEvents, _emberRuntimeSystemObject) {
 
   var moduleOptions, originalLookup;
 
@@ -44660,14 +44660,14 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     });
 
     var expectedProperties = ['firstName', 'lastName'];
-    var actualProperties = (0, _emberMetalKeys.default)(obj);
+    var actualProperties = Object.keys(obj);
 
     deepEqual(actualProperties, expectedProperties, 'internal properties do not leak');
   });
 });
 
 // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/keys', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalKeys, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
 
   QUnit.module('ember-runtime/system/object/destroy_test');
 
@@ -44774,7 +44774,7 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     new LongLivedObject();
 
     (0, _emberMetalRun_loop.default)(function () {
-      var keys = (0, _emberMetalKeys.default)(objs);
+      var keys = Object.keys(objs);
       for (var i = 0, l = keys.length; i < l; i++) {
         objs[keys[i]].destroy();
       }
@@ -46978,7 +46978,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+e2355a6c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+9bf5428c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

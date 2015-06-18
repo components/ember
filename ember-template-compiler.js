@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e2355a6c
+ * @version   2.0.0-canary+9bf5428c
  */
 
 (function() {
@@ -1403,7 +1403,7 @@ enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 
     }
   };
 });
-enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'ember-metal/keys', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _emberMetalKeys, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
+enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
 
   _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
   _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
@@ -1443,8 +1443,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
   _emberMetalCore.default.generateGuid = _emberMetalUtils.generateGuid;
   _emberMetalCore.default.GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore.default.keys = _emberMetalKeys.default;
   _emberMetalCore.default.create = Object.create;
+  _emberMetalCore.default.keys = Object.keys;
   _emberMetalCore.default.platform = {
     defineProperty: true,
     hasPropertyAccessors: true
@@ -3957,7 +3957,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e2355a6c
+    @version 2.0.0-canary+9bf5428c
     @public
   */
 
@@ -3989,11 +3989,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e2355a6c'
+    @default '2.0.0-canary+9bf5428c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e2355a6c';
+  Ember.VERSION = '2.0.0-canary+9bf5428c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6223,10 +6223,9 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
   Map is mocked out to look like an Ember object, so you can do
   `Ember.Map.create()` for symmetry with other Ember classes.
 */
-enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, _emberMetalKeys) {
+enifed('ember-metal/merge', ['exports'], function (exports) {
   exports.default = merge;
   exports.assign = assign;
-
   /**
     Merge the contents of two objects together into the first object.
   
@@ -6250,7 +6249,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
       return original;
     }
 
-    var props = (0, _emberMetalKeys.default)(updates);
+    var props = Object.keys(updates);
     var prop;
     var length = props.length;
 
@@ -6273,7 +6272,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
         continue;
       }
 
-      var updates = (0, _emberMetalKeys.default)(arg);
+      var updates = Object.keys(arg);
 
       for (var _i = 0, _l = updates.length; _i < _l; _i++) {
         var prop = updates[_i];
@@ -9089,7 +9088,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
   };
 });
 /* queue, target, method */ /*target, method*/ /*queue, target, method*/
-enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 'ember-metal/property_set', 'ember-metal/keys'], function (exports, _emberMetalProperty_events, _emberMetalProperty_set, _emberMetalKeys) {
+enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 'ember-metal/property_set'], function (exports, _emberMetalProperty_events, _emberMetalProperty_set) {
   exports.default = setProperties;
 
   /**
@@ -9119,7 +9118,7 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
       return properties;
     }
     (0, _emberMetalProperty_events.changeProperties)(function () {
-      var props = (0, _emberMetalKeys.default)(properties);
+      var props = Object.keys(properties);
       var propertyName;
 
       for (var i = 0, l = props.length; i < l; i++) {
@@ -12541,7 +12540,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+e2355a6c',
+        revision: 'Ember@2.0.0-canary+9bf5428c',
         loc: program.loc,
         moduleName: options.moduleName
       };
