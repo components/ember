@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a90b7b3a
+ * @version   2.0.0-canary+41be946f
  */
 
 (function() {
@@ -3957,7 +3957,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a90b7b3a
+    @version 2.0.0-canary+41be946f
     @public
   */
 
@@ -3989,11 +3989,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a90b7b3a'
+    @default '2.0.0-canary+41be946f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a90b7b3a';
+  Ember.VERSION = '2.0.0-canary+41be946f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4939,7 +4939,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
     }
   }
 });
-enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, _emberMetalProperty_get, _emberMetalUtils) {
+enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
   exports.default = getProperties;
 
   /**
@@ -4971,7 +4971,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get', 'em
     var propertyNames = arguments;
     var i = 1;
 
-    if (arguments.length === 2 && (0, _emberMetalUtils.isArray)(arguments[1])) {
+    if (arguments.length === 2 && Array.isArray(arguments[1])) {
       i = 0;
       propertyNames = arguments[1];
     }
@@ -6472,7 +6472,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   function applyMergedProperties(obj, key, value, values) {
     var baseValue = values[key] || obj[key];
 
-    _emberMetalCore.default.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', !(0, _emberMetalUtils.isArray)(value));
+    _emberMetalCore.default.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', !Array.isArray(value));
 
     if (!baseValue) {
       return value;
@@ -10837,10 +10837,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
 
   var toString = Object.prototype.toString;
 
-  var isArray = Array.isArray || function (value) {
-    return value !== null && value !== undefined && typeof value === 'object' && typeof value.length === 'number' && toString.call(value) === '[object Array]';
-  };
-
   /**
     Forces the passed object to be part of an array. If the object is already
     an array, it will return the object. Otherwise, it will add the object to
@@ -10869,7 +10865,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
     if (obj === null || obj === undefined) {
       return [];
     }
-    return isArray(obj) ? obj : [obj];
+    return Array.isArray(obj) ? obj : [obj];
   }
 
   /**
@@ -10894,7 +10890,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
     if (obj === undefined) {
       return 'undefined';
     }
-    if (isArray(obj)) {
+    if (Array.isArray(obj)) {
       return '[' + obj + ']';
     }
     // for non objects
@@ -10992,7 +10988,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   exports.META_DESC = META_DESC;
   exports.EMPTY_META = EMPTY_META;
   exports.meta = meta;
-  exports.isArray = isArray;
   exports.makeArray = makeArray;
   exports.tryCatchFinally = tryCatchFinally;
   exports.deprecatedTryCatchFinally = deprecatedTryCatchFinally;
@@ -11006,7 +11001,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
 
   function watchKey(obj, keyName, meta) {
     // can't watch length on Array - it is special...
-    if (keyName === 'length' && (0, _emberMetalUtils.isArray)(obj)) {
+    if (keyName === 'length' && Array.isArray(obj)) {
       return;
     }
 
@@ -11120,7 +11115,7 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/utils', 'ember-metal/c
 
   function watchPath(obj, keyPath, meta) {
     // can't watch length on Array - it is special...
-    if (keyPath === 'length' && (0, _emberMetalUtils.isArray)(obj)) {
+    if (keyPath === 'length' && Array.isArray(obj)) {
       return;
     }
 
@@ -11148,7 +11143,7 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/utils', 'ember-metal/c
     }
   }
 });
-enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/chains', 'ember-metal/watch_key', 'ember-metal/watch_path', 'ember-metal/path_cache'], function (exports, _emberMetalUtils, _emberMetalChains, _emberMetalWatch_key, _emberMetalWatch_path, _emberMetalPath_cache) {
+enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/watch_key', 'ember-metal/watch_path', 'ember-metal/path_cache'], function (exports, _emberMetalChains, _emberMetalWatch_key, _emberMetalWatch_path, _emberMetalPath_cache) {
   exports.isWatching = isWatching;
   exports.unwatch = unwatch;
   exports.destroy = destroy;
@@ -11168,7 +11163,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
   */
   function watch(obj, _keyPath, m) {
     // can't watch length on Array - it is special...
-    if (_keyPath === 'length' && (0, _emberMetalUtils.isArray)(obj)) {
+    if (_keyPath === 'length' && Array.isArray(obj)) {
       return;
     }
 
@@ -11190,7 +11185,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/utils', 'ember-metal/cha
 
   function unwatch(obj, _keyPath, m) {
     // can't watch length on Array - it is special...
-    if (_keyPath === 'length' && (0, _emberMetalUtils.isArray)(obj)) {
+    if (_keyPath === 'length' && Array.isArray(obj)) {
       return;
     }
 
@@ -12540,7 +12535,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+a90b7b3a',
+        revision: 'Ember@2.0.0-canary+41be946f',
         loc: program.loc,
         moduleName: options.moduleName
       };
