@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+41be946f
+ * @version   2.0.0-canary+4b74503e
  */
 
 (function() {
@@ -2870,6 +2870,10 @@ enifed("dom-helper", ["exports", "./htmlbars-runtime/morph", "./morph-attr", "./
     // this will always be null or firstChild
     var child = index === null ? null : this.childAtIndex(fragment, index);
     this.insertBefore(fragment, this.createTextNode(""), child);
+  };
+
+  prototype.setMorphHTML = function (morph, html) {
+    morph.setHTML(html);
   };
 
   prototype.parseHTML = function (html, contextualElement) {
@@ -8688,7 +8692,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+41be946f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4b74503e';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -10366,7 +10370,7 @@ enifed("ember-htmlbars/templates/component", ["exports", "ember-template-compile
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "yield"]],
+      statements: [["content", "yield", ["loc", [null, [1, 0], [1, 9]]]]],
       locals: [],
       templates: []
     };
@@ -10393,7 +10397,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["inline", "view", [["get", "childView"]], []]],
+        statements: [["inline", "view", [["get", "childView", ["loc", [null, [1, 63], [1, 72]]]]], [], ["loc", [null, [1, 56], [1, 74]]]]],
         locals: ["childView"],
         templates: []
       };
@@ -10418,7 +10422,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "view._emptyView"]], ["_defaultTagName", ["get", "view._emptyViewTagName"]]]],
+          statements: [["inline", "view", [["get", "view._emptyView", ["loc", [null, [1, 108], [1, 123]]]]], ["_defaultTagName", ["get", "view._emptyViewTagName", ["loc", [null, [1, 140], [1, 162]]]]], ["loc", [null, [1, 101], [1, 164]]]]],
           locals: [],
           templates: []
         };
@@ -10441,7 +10445,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "view._emptyView"]], [], 0, null]],
+        statements: [["block", "if", [["get", "view._emptyView", ["loc", [null, [1, 84], [1, 99]]]]], [], 0, null, ["loc", [null, [1, 74], [1, 164]]]]],
         locals: [],
         templates: [child0]
       };
@@ -10464,7 +10468,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "each", [["get", "view.childViews"]], ["key", "elementId"], 0, 1]],
+      statements: [["block", "each", [["get", "view.childViews", ["loc", [null, [1, 8], [1, 23]]]]], ["key", "elementId"], 0, 1, ["loc", [null, [1, 0], [1, 173]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -10514,7 +10518,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
                 dom.insertBoundary(fragment, null);
                 return morphs;
               },
-              statements: [["inline", "legacy-yield", [["get", "item"]], []]],
+              statements: [["inline", "legacy-yield", [["get", "item", ["loc", [null, [5, 24], [5, 28]]]]], [], ["loc", [null, [5, 8], [5, 31]]]]],
               locals: [],
               templates: []
             };
@@ -10537,7 +10541,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "view", [["get", "attrs.itemViewClass"]], ["_defaultTagName", ["get", "view._itemTagName"]], 0, null]],
+            statements: [["block", "view", [["get", "attrs.itemViewClass", ["loc", [null, [4, 15], [4, 34]]]]], ["_defaultTagName", ["get", "view._itemTagName", ["loc", [null, [4, 51], [4, 68]]]]], 0, null, ["loc", [null, [4, 6], [6, 17]]]]],
             locals: [],
             templates: [child0]
           };
@@ -10561,7 +10565,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["inline", "legacy-yield", [["get", "item"]], []]],
+            statements: [["inline", "legacy-yield", [["get", "item", ["loc", [null, [8, 22], [8, 26]]]]], [], ["loc", [null, [8, 6], [8, 29]]]]],
             locals: [],
             templates: []
           };
@@ -10584,7 +10588,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "if", [["get", "attrs.itemViewClass"]], [], 0, 1]],
+          statements: [["block", "if", [["get", "attrs.itemViewClass", ["loc", [null, [3, 11], [3, 30]]]]], [], 0, 1, ["loc", [null, [3, 4], [9, 13]]]]],
           locals: [],
           templates: [child0, child1]
         };
@@ -10610,7 +10614,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
                 dom.insertBoundary(fragment, null);
                 return morphs;
               },
-              statements: [["inline", "legacy-yield", [["get", "item"]], []]],
+              statements: [["inline", "legacy-yield", [["get", "item", ["loc", [null, [13, 24], [13, 28]]]]], [], ["loc", [null, [13, 8], [13, 31]]]]],
               locals: [],
               templates: []
             };
@@ -10633,7 +10637,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["block", "view", [["get", "attrs.itemViewClass"]], ["controller", ["get", "item"], "_defaultTagName", ["get", "view._itemTagName"]], 0, null]],
+            statements: [["block", "view", [["get", "attrs.itemViewClass", ["loc", [null, [12, 15], [12, 34]]]]], ["controller", ["get", "item", ["loc", [null, [12, 46], [12, 50]]]], "_defaultTagName", ["get", "view._itemTagName", ["loc", [null, [12, 67], [12, 84]]]]], 0, null, ["loc", [null, [12, 6], [14, 17]]]]],
             locals: [],
             templates: [child0]
           };
@@ -10657,7 +10661,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
               dom.insertBoundary(fragment, null);
               return morphs;
             },
-            statements: [["inline", "legacy-yield", [["get", "item"]], ["controller", ["get", "item"]]]],
+            statements: [["inline", "legacy-yield", [["get", "item", ["loc", [null, [16, 22], [16, 26]]]]], ["controller", ["get", "item", ["loc", [null, [16, 38], [16, 42]]]]], ["loc", [null, [16, 6], [16, 45]]]]],
             locals: [],
             templates: []
           };
@@ -10680,7 +10684,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["block", "if", [["get", "attrs.itemViewClass"]], [], 0, 1]],
+          statements: [["block", "if", [["get", "attrs.itemViewClass", ["loc", [null, [11, 11], [11, 30]]]]], [], 0, 1, ["loc", [null, [11, 4], [17, 13]]]]],
           locals: [],
           templates: [child0, child1]
         };
@@ -10703,7 +10707,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "keyword"]], [], 0, 1]],
+        statements: [["block", "if", [["get", "keyword", ["loc", [null, [2, 9], [2, 16]]]]], [], 0, 1, ["loc", [null, [2, 2], [18, 11]]]]],
         locals: ["item"],
         templates: [child0, child1]
       };
@@ -10728,7 +10732,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "view._emptyView"]], ["_defaultTagName", ["get", "view._itemTagName"]]]],
+          statements: [["inline", "view", [["get", "view._emptyView", ["loc", [null, [20, 10], [20, 25]]]]], ["_defaultTagName", ["get", "view._itemTagName", ["loc", [null, [20, 42], [20, 59]]]]], ["loc", [null, [20, 2], [20, 62]]]]],
           locals: [],
           templates: []
         };
@@ -10751,7 +10755,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "view._emptyView"]], [], 0, null]],
+        statements: [["block", "if", [["get", "view._emptyView", ["loc", [null, [19, 11], [19, 26]]]]], [], 0, null, ["loc", [null, [19, 0], [21, 0]]]]],
         locals: [],
         templates: [child0]
       };
@@ -10774,7 +10778,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "each", [["get", "view._arrangedContent"]], ["-legacy-keyword", ["get", "keyword"]], 0, 1]],
+      statements: [["block", "each", [["get", "view._arrangedContent", ["loc", [null, [1, 9], [1, 30]]]]], ["-legacy-keyword", ["get", "keyword", ["loc", [null, [1, 47], [1, 54]]]]], 0, 1, ["loc", [null, [1, 0], [21, 11]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -10800,7 +10804,7 @@ enifed("ember-htmlbars/templates/link-to-escaped", ["exports", "ember-template-c
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "linkTitle"]],
+      statements: [["content", "linkTitle", ["loc", [null, [1, 0], [1, 13]]]]],
       locals: [],
       templates: []
     };
@@ -10826,7 +10830,7 @@ enifed("ember-htmlbars/templates/link-to-unescaped", ["exports", "ember-template
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "linkTitle"]],
+      statements: [["content", "linkTitle", ["loc", [null, [1, 0], [1, 15]]]]],
       locals: [],
       templates: []
     };
@@ -10854,7 +10858,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["content", "linkTitle"]],
+          statements: [["content", "linkTitle", ["loc", [null, [1, 38], [1, 51]]]]],
           locals: [],
           templates: []
         };
@@ -10878,7 +10882,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["content", "linkTitle"]],
+          statements: [["content", "linkTitle", ["loc", [null, [1, 59], [1, 74]]]]],
           locals: [],
           templates: []
         };
@@ -10901,7 +10905,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "attrs.escaped"]], [], 0, 1]],
+        statements: [["block", "if", [["get", "attrs.escaped", ["loc", [null, [1, 23], [1, 36]]]]], [], 0, 1, ["loc", [null, [1, 17], [1, 81]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -10925,7 +10929,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["content", "yield"]],
+        statements: [["content", "yield", ["loc", [null, [1, 89], [1, 98]]]]],
         locals: [],
         templates: []
       };
@@ -10948,7 +10952,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "if", [["get", "linkTitle"]], [], 0, 1]],
+      statements: [["block", "if", [["get", "linkTitle", ["loc", [null, [1, 6], [1, 15]]]]], [], 0, 1, ["loc", [null, [1, 0], [1, 105]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -10975,7 +10979,7 @@ enifed("ember-htmlbars/templates/select-optgroup", ["exports", "ember-template-c
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["inline", "view", [["get", "attrs.optionView"]], ["content", ["get", "item"], "selection", ["get", "attrs.selection"], "parentValue", ["get", "attrs.value"], "multiple", ["get", "attrs.multiple"], "optionLabelPath", ["get", "attrs.optionLabelPath"], "optionValuePath", ["get", "attrs.optionValuePath"]]]],
+        statements: [["inline", "view", [["get", "attrs.optionView", ["loc", [null, [1, 40], [1, 56]]]]], ["content", ["get", "item", ["loc", [null, [1, 65], [1, 69]]]], "selection", ["get", "attrs.selection", ["loc", [null, [1, 80], [1, 95]]]], "parentValue", ["get", "attrs.value", ["loc", [null, [1, 108], [1, 119]]]], "multiple", ["get", "attrs.multiple", ["loc", [null, [1, 129], [1, 143]]]], "optionLabelPath", ["get", "attrs.optionLabelPath", ["loc", [null, [1, 160], [1, 181]]]], "optionValuePath", ["get", "attrs.optionValuePath", ["loc", [null, [1, 198], [1, 219]]]]], ["loc", [null, [1, 33], [1, 221]]]]],
         locals: ["item"],
         templates: []
       };
@@ -10998,7 +11002,7 @@ enifed("ember-htmlbars/templates/select-optgroup", ["exports", "ember-template-c
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "each", [["get", "attrs.content"]], [], 0, null]],
+      statements: [["block", "each", [["get", "attrs.content", ["loc", [null, [1, 8], [1, 21]]]]], [], 0, null, ["loc", [null, [1, 0], [1, 230]]]]],
       locals: [],
       templates: [child0]
     };
@@ -11024,7 +11028,7 @@ enifed("ember-htmlbars/templates/select-option", ["exports", "ember-template-com
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "view.label"]],
+      statements: [["content", "view.label", ["loc", [null, [1, 0], [1, 16]]]]],
       locals: [],
       templates: []
     };
@@ -11052,7 +11056,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0]), 0, 0);
           return morphs;
         },
-        statements: [["content", "view.prompt"]],
+        statements: [["content", "view.prompt", ["loc", [null, [1, 36], [1, 51]]]]],
         locals: [],
         templates: []
       };
@@ -11077,7 +11081,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "view.groupView"]], ["content", ["get", "group.content"], "label", ["get", "group.label"], "selection", ["get", "view.selection"], "value", ["get", "view.value"], "multiple", ["get", "view.multiple"], "optionLabelPath", ["get", "view.optionLabelPath"], "optionValuePath", ["get", "view.optionValuePath"], "optionView", ["get", "view.optionView"]]]],
+          statements: [["inline", "view", [["get", "view.groupView", ["loc", [null, [1, 142], [1, 156]]]]], ["content", ["get", "group.content", ["loc", [null, [1, 165], [1, 178]]]], "label", ["get", "group.label", ["loc", [null, [1, 185], [1, 196]]]], "selection", ["get", "view.selection", ["loc", [null, [1, 207], [1, 221]]]], "value", ["get", "view.value", ["loc", [null, [1, 228], [1, 238]]]], "multiple", ["get", "view.multiple", ["loc", [null, [1, 248], [1, 261]]]], "optionLabelPath", ["get", "view.optionLabelPath", ["loc", [null, [1, 278], [1, 298]]]], "optionValuePath", ["get", "view.optionValuePath", ["loc", [null, [1, 315], [1, 335]]]], "optionView", ["get", "view.optionView", ["loc", [null, [1, 347], [1, 362]]]]], ["loc", [null, [1, 135], [1, 364]]]]],
           locals: ["group"],
           templates: []
         };
@@ -11100,7 +11104,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "each", [["get", "view.groupedContent"]], [], 0, null]],
+        statements: [["block", "each", [["get", "view.groupedContent", ["loc", [null, [1, 103], [1, 122]]]]], [], 0, null, ["loc", [null, [1, 95], [1, 373]]]]],
         locals: [],
         templates: [child0]
       };
@@ -11125,7 +11129,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
             dom.insertBoundary(fragment, null);
             return morphs;
           },
-          statements: [["inline", "view", [["get", "view.optionView"]], ["content", ["get", "item"], "selection", ["get", "view.selection"], "parentValue", ["get", "view.value"], "multiple", ["get", "view.multiple"], "optionLabelPath", ["get", "view.optionLabelPath"], "optionValuePath", ["get", "view.optionValuePath"]]]],
+          statements: [["inline", "view", [["get", "view.optionView", ["loc", [null, [1, 420], [1, 435]]]]], ["content", ["get", "item", ["loc", [null, [1, 444], [1, 448]]]], "selection", ["get", "view.selection", ["loc", [null, [1, 459], [1, 473]]]], "parentValue", ["get", "view.value", ["loc", [null, [1, 486], [1, 496]]]], "multiple", ["get", "view.multiple", ["loc", [null, [1, 506], [1, 519]]]], "optionLabelPath", ["get", "view.optionLabelPath", ["loc", [null, [1, 536], [1, 556]]]], "optionValuePath", ["get", "view.optionValuePath", ["loc", [null, [1, 573], [1, 593]]]]], ["loc", [null, [1, 413], [1, 595]]]]],
           locals: ["item"],
           templates: []
         };
@@ -11148,7 +11152,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "each", [["get", "view.content"]], [], 0, null]],
+        statements: [["block", "each", [["get", "view.content", ["loc", [null, [1, 389], [1, 401]]]]], [], 0, null, ["loc", [null, [1, 381], [1, 604]]]]],
         locals: [],
         templates: [child0]
       };
@@ -11175,7 +11179,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
         dom.insertBoundary(fragment, 0);
         return morphs;
       },
-      statements: [["block", "if", [["get", "view.prompt"]], [], 0, null], ["block", "if", [["get", "view.optionGroupPath"]], [], 1, 2]],
+      statements: [["block", "if", [["get", "view.prompt", ["loc", [null, [1, 6], [1, 17]]]]], [], 0, null, ["loc", [null, [1, 0], [1, 67]]]], ["block", "if", [["get", "view.optionGroupPath", ["loc", [null, [1, 73], [1, 93]]]]], [], 1, 2, ["loc", [null, [1, 67], [1, 611]]]]],
       locals: [],
       templates: [child0, child1, child2]
     };
@@ -11201,7 +11205,7 @@ enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-template-co
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["content", "outlet"]],
+      statements: [["content", "outlet", ["loc", [null, [1, 0], [1, 10]]]]],
       locals: [],
       templates: []
     };
@@ -14212,7 +14216,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+41be946f
+    @version 2.0.0-canary+4b74503e
     @public
   */
 
@@ -14244,11 +14248,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+41be946f'
+    @default '2.0.0-canary+4b74503e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+41be946f';
+  Ember.VERSION = '2.0.0-canary+4b74503e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22527,7 +22531,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+41be946f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+4b74503e';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23026,7 +23030,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+41be946f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4b74503e';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39238,7 +39242,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+41be946f',
+        revision: 'Ember@2.0.0-canary+4b74503e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44403,7 +44407,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+41be946f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+4b74503e';
 
   /**
   @module ember
@@ -50170,7 +50174,7 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
     switch (type) {
       case 'string':
         if (this.parseTextAsHTML) {
-          return this.setHTML(content);
+          return this.domHelper.setMorphHTML(this, content);
         }
         return this.setText(content);
       case 'object':
@@ -50374,18 +50378,12 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
     }
   };
 
-  Morph.prototype.insertBeforeNode = function Morph$insertBeforeNode(parent, reference) {
-    var current = this.firstNode;
-
-    while (current) {
-      var next = current.nextSibling;
-      parent.insertBefore(current, reference);
-      current = next;
-    }
+  Morph.prototype.insertBeforeNode = function Morph$insertBeforeNode(parentNode, refNode) {
+    (0, _morphRangeUtils.insertBefore)(parentNode, this.firstNode, this.lastNode, refNode);
   };
 
-  Morph.prototype.appendToNode = function Morph$appendToNode(parent) {
-    this.insertBeforeNode(parent, null);
+  Morph.prototype.appendToNode = function Morph$appendToNode(parentNode) {
+    (0, _morphRangeUtils.insertBefore)(parentNode, this.firstNode, this.lastNode, null);
   };
 
   exports.default = Morph;
@@ -50512,18 +50510,16 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 
-  function insertBefore(parentNode, firstNode, lastNode, _refNode) {
-    var node = lastNode;
-    var refNode = _refNode;
-    var prevNode;
+  function insertBefore(parentNode, firstNode, lastNode, refNode) {
+    var node = firstNode;
+    var nextNode;
     do {
-      prevNode = node.previousSibling;
+      nextNode = node.nextSibling;
       parentNode.insertBefore(node, refNode);
-      if (node === firstNode) {
+      if (node === lastNode) {
         break;
       }
-      refNode = node;
-      node = prevNode;
+      node = nextNode;
     } while (node);
   }
 });
