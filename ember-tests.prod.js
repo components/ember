@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9bf5428c
+ * @version   2.0.0-canary+a90b7b3a
  */
 
 (function() {
@@ -30779,7 +30779,7 @@ enifed('ember-routing/tests/location/hash_location_test', ['exports', 'ember-met
     _emberMetalCore.default.$(window).trigger('hashchange');
   });
 
-  QUnit.test('HashLocation.onUpdateURL doesnt execute callback if lastSetURL === path', function () {
+  QUnit.test('HashLocation.onUpdateURL doesn\'t execute callback if lastSetURL === path', function () {
     expect(0);
 
     createLocation({
@@ -46978,7 +46978,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+9bf5428c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a90b7b3a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
