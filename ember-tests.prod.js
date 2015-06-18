@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.1
+ * @version   1.13.1+a520fe27
  */
 
 (function() {
@@ -10056,7 +10056,9 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
     equal(view.$().text(), "123");
   });
 
-  QUnit.test("can specify `@guid` to represent the items GUID", function () {
+  QUnit.test("can specify `@guid` to represent the items GUID [DEPRECATED]", function () {
+    expectDeprecation("Using '@guid' with the {{each}} helper, is deprecated. Switch to '@identity' or remove 'key=' from your template.");
+
     (0, _emberRuntimeTestsUtils.runDestroy)(view);
     view = _emberViewsViewsView["default"].create({
       items: [{ id: 1 }, { id: 2 }, { id: 3 }],
@@ -10069,6 +10071,8 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
   });
 
   QUnit.test("can specify `@item` to represent primitive items", function () {
+    expectDeprecation("Using '@item' with the {{each}} helper, is deprecated. Switch to '@identity' or remove 'key=' from your template.");
+
     (0, _emberRuntimeTestsUtils.runDestroy)(view);
     view = _emberViewsViewsView["default"].create({
       items: [1, 2, 3],
@@ -10081,6 +10085,42 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
 
     (0, _emberMetalRun_loop["default"])(function () {
       (0, _emberMetalProperty_set.set)(view, "items", ["foo", "bar", "baz"]);
+    });
+
+    equal(view.$().text(), "foobarbaz");
+  });
+
+  QUnit.test("can specify `@identity` to represent primitive items", function () {
+    (0, _emberRuntimeTestsUtils.runDestroy)(view);
+    view = _emberViewsViewsView["default"].create({
+      items: [1, 2, 3],
+      template: (0, _emberTemplateCompilerSystemCompile["default"])("{{#each view.items key='@identity' as |item|}}{{item}}{{/each}}")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "123");
+
+    (0, _emberMetalRun_loop["default"])(function () {
+      (0, _emberMetalProperty_set.set)(view, "items", ["foo", "bar", "baz"]);
+    });
+
+    equal(view.$().text(), "foobarbaz");
+  });
+
+  QUnit.test("can specify `@identity` to represent mixed object and primitive items", function () {
+    (0, _emberRuntimeTestsUtils.runDestroy)(view);
+    view = _emberViewsViewsView["default"].create({
+      items: [1, { id: 2 }, 3],
+      template: (0, _emberTemplateCompilerSystemCompile["default"])("{{#each view.items key='@identity' as |item|}}{{#if item.id}}{{item.id}}{{else}}{{item}}{{/if}}{{/each}}")
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), "123");
+
+    (0, _emberMetalRun_loop["default"])(function () {
+      (0, _emberMetalProperty_set.set)(view, "items", ["foo", { id: "bar" }, "baz"]);
     });
 
     equal(view.$().text(), "foobarbaz");
@@ -47239,7 +47279,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.1", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.1+a520fe27", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
