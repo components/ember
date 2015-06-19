@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d8b1bb1b
+ * @version   2.0.0-canary+0df7bebb
  */
 
 (function() {
@@ -47029,7 +47029,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+d8b1bb1b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+0df7bebb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -49339,6 +49339,66 @@ enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', '
     });
 
     ok(true === view.triggerAction(), 'a valid target and action were specified');
+  });
+});
+enifed('ember-views/tests/streams/streams-test', ['exports', 'ember-views/streams/should_display', 'ember-metal/properties', 'ember-metal/computed'], function (exports, _emberViewsStreamsShould_display, _emberMetalProperties, _emberMetalComputed) {
+
+  QUnit.module('shouldDisplay');
+
+  QUnit.test('predicate permutations', function () {
+    equal((0, _emberViewsStreamsShould_display.default)(0), false, 'shouldDisplay(0)');
+    equal((0, _emberViewsStreamsShould_display.default)(-1), true, 'shouldDisplay(-1)');
+    equal((0, _emberViewsStreamsShould_display.default)(1), true, 'shouldDisplay(1)');
+    equal((0, _emberViewsStreamsShould_display.default)(Number(1)), true, 'shouldDisplay(Number(1))');
+    equal((0, _emberViewsStreamsShould_display.default)(Number(0)), false, 'shouldDisplay(Number(0))');
+    equal((0, _emberViewsStreamsShould_display.default)(Number(-1)), true, 'shouldDisplay(Number(-1))');
+    equal((0, _emberViewsStreamsShould_display.default)(Boolean(true)), true, 'shouldDisplay(Boolean(true))');
+    equal((0, _emberViewsStreamsShould_display.default)(Boolean(false)), false, 'shouldDisplay(Boolean(false))');
+    equal((0, _emberViewsStreamsShould_display.default)(NaN), false, 'shouldDisplay(NaN)');
+    equal((0, _emberViewsStreamsShould_display.default)('string'), true, 'shouldDisplay("string")');
+    equal((0, _emberViewsStreamsShould_display.default)(String('string')), true, 'shouldDisplay(String("string"))');
+    equal((0, _emberViewsStreamsShould_display.default)(Infinity), true, 'shouldDisplay(Infinity)');
+    equal((0, _emberViewsStreamsShould_display.default)(-Infinity), true, 'shouldDisplay(-Infinity)');
+    equal((0, _emberViewsStreamsShould_display.default)([]), false, 'shouldDisplay([])');
+    equal((0, _emberViewsStreamsShould_display.default)([1]), true, 'shouldDisplay([1])');
+    equal((0, _emberViewsStreamsShould_display.default)({}), true, 'shouldDisplay({})');
+    equal((0, _emberViewsStreamsShould_display.default)(true), true, 'shouldDisplay(true)');
+    equal((0, _emberViewsStreamsShould_display.default)(false), false, 'shouldDisplay(false)');
+    equal((0, _emberViewsStreamsShould_display.default)({ isTruthy: true }), true, 'shouldDisplay({ isTruthy: true })');
+    equal((0, _emberViewsStreamsShould_display.default)({ isTruthy: false }), false, 'shouldDisplay({ isTruthy: false })');
+
+    equal((0, _emberViewsStreamsShould_display.default)(function foo() {}), true, 'shouldDisplay(function (){})');
+
+    function falseFunction() {}
+    falseFunction.isTruthy = false;
+
+    equal((0, _emberViewsStreamsShould_display.default)(falseFunction), true, 'shouldDisplay(function.isTruthy = false)');
+
+    function trueFunction() {}
+    falseFunction.isTruthy = true;
+    equal((0, _emberViewsStreamsShould_display.default)(trueFunction), true, 'shouldDisplay(function.isTruthy = true)');
+
+    var truthyObj = {};
+    (0, _emberMetalProperties.defineProperty)(truthyObj, 'isTruthy', (0, _emberMetalComputed.default)(function () {
+      return true;
+    }));
+    equal((0, _emberViewsStreamsShould_display.default)(truthyObj), true, 'shouldDisplay(obj.get("isTruthy") === true)');
+
+    var falseyObj = {};
+    (0, _emberMetalProperties.defineProperty)(falseyObj, 'isTruthy', (0, _emberMetalComputed.default)(function () {
+      return false;
+    }));
+    equal((0, _emberViewsStreamsShould_display.default)(falseyObj), false, 'shouldDisplay(obj.get("isFalsey") === false)');
+
+    var falsyArray = [1];
+    falsyArray.isTruthy = false;
+    equal((0, _emberViewsStreamsShould_display.default)(falsyArray), false, '[1].isTruthy = false');
+
+    var falseyCPArray = [1];
+    (0, _emberMetalProperties.defineProperty)(falseyCPArray, 'isTruthy', (0, _emberMetalComputed.default)(function () {
+      return false;
+    }));
+    equal((0, _emberViewsStreamsShould_display.default)(falseyCPArray), false, 'shouldDisplay([1].get("isFalsey") === true');
   });
 });
 enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/views/container_view', 'ember-template-compiler/system/compile'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile) {

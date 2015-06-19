@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d8b1bb1b
+ * @version   2.0.0-canary+0df7bebb
  */
 
 (function() {
@@ -3472,6 +3472,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 });
 // warn, assert, etc;
 enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
+  exports.default = computed;
 
   /**
   @module ember
@@ -3991,6 +3992,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @return {Ember.ComputedProperty} property descriptor instance
     @public
   */
+
   function computed(func) {
     var args;
 
@@ -4770,7 +4772,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+d8b1bb1b
+    @version 2.0.0-canary+0df7bebb
     @public
   */
 
@@ -4802,11 +4804,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+d8b1bb1b'
+    @default '2.0.0-canary+0df7bebb'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+d8b1bb1b';
+  Ember.VERSION = '2.0.0-canary+0df7bebb';
 
   /**
     The hash of environment variables used to control various configuration
