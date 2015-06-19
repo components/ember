@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+bc7ec8d4
+ * @version   2.0.0-canary+d8b1bb1b
  */
 
 (function() {
@@ -15648,12 +15648,16 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
   });
 
   QUnit.test('should accept bindings as a string or an Ember.Binding', function () {
-    var ViewWithBindings = _emberViewsViewsView.default.extend({
-      oneWayBindingTestBinding: _emberMetalBinding.Binding.oneWay('context.direction'),
-      twoWayBindingTestBinding: _emberMetalBinding.Binding.from('context.direction'),
-      stringBindingTestBinding: 'context.direction',
-      template: (0, _emberTemplateCompilerSystemCompile.default)('one way: {{view.oneWayBindingTest}}, ' + 'two way: {{view.twoWayBindingTest}}, ' + 'string: {{view.stringBindingTest}}')
-    });
+    var ViewWithBindings;
+
+    expectDeprecation(function () {
+      ViewWithBindings = _emberViewsViewsView.default.extend({
+        oneWayBindingTestBinding: _emberMetalBinding.Binding.oneWay('context.direction'),
+        twoWayBindingTestBinding: _emberMetalBinding.Binding.from('context.direction'),
+        stringBindingTestBinding: 'context.direction',
+        template: (0, _emberTemplateCompilerSystemCompile.default)('one way: {{view.oneWayBindingTest}}, ' + 'two way: {{view.twoWayBindingTest}}, ' + 'string: {{view.stringBindingTest}}')
+      });
+    }, 'Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.');
 
     view = _emberViewsViewsView.default.create({
       viewWithBindingsClass: ViewWithBindings,
@@ -46862,7 +46866,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+bc7ec8d4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+d8b1bb1b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
