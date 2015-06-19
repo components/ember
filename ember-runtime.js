@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+bc7ec8d4
+ * @version   2.0.0-canary+d8b1bb1b
  */
 
 (function() {
@@ -2835,6 +2835,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/prope
       @public
     */
     oneWay: function (from, flag) {
+      _emberMetalCore.default.deprecate('Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.', false);
       var C = this;
       return new C(undefined, from).oneWay(flag);
     }
@@ -4769,7 +4770,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+bc7ec8d4
+    @version 2.0.0-canary+d8b1bb1b
     @public
   */
 
@@ -4801,11 +4802,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+bc7ec8d4'
+    @default '2.0.0-canary+d8b1bb1b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+bc7ec8d4';
+  Ember.VERSION = '2.0.0-canary+d8b1bb1b';
 
   /**
     The hash of environment variables used to control various configuration
