@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4b74503e
+ * @version   2.0.0-canary+bc7ec8d4
  */
 
 (function() {
@@ -4769,7 +4769,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4b74503e
+    @version 2.0.0-canary+bc7ec8d4
     @public
   */
 
@@ -4801,11 +4801,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4b74503e'
+    @default '2.0.0-canary+bc7ec8d4'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4b74503e';
+  Ember.VERSION = '2.0.0-canary+bc7ec8d4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13817,10 +13817,11 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     Example
   
     ```javascript
-    var obj = Ember.Object.createWithMixins({
-      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
-      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock'],
+    var obj = Ember.Object.extend({
       friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')
+    }).create({
+      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
+      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']
     });
   
     obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
@@ -19446,7 +19447,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetal.default.assert('Ember.Object.create no longer supports mixing in other definitions, use createWithMixins instead.', !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetal.default.assert('Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.', !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== 'object' && properties !== undefined) {
             throw new _emberMetalError.default('Ember.Object.create only accepts objects.');
@@ -19902,8 +19903,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       @static
       @param [arguments]*
       @private
+      @deprecated
     */
-    createWithMixins: function () {
+    createWithMixins: _emberMetal.default.deprecateFunc('.createWithMixins is deprecated, please use .create or .extend accordingly', function () {
       for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
@@ -19913,7 +19915,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
         this._initMixins(args);
       }
       return new C();
-    },
+    }),
 
     /**
       Creates an instance of a class. Accepts either no arguments, or an object
@@ -19939,7 +19941,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       ```
        NOTE: For performance reasons, you cannot declare methods or computed
       properties during `create`. You should instead declare methods and computed
-      properties when using `extend` or use the `createWithMixins` shorthand.
+      properties when using `extend`.
        @method create
       @static
       @param [arguments]*
