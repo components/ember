@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0401f9ba
+ * @version   2.0.0-canary+150708b9
  */
 
 (function() {
@@ -46866,7 +46866,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+0401f9ba', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+150708b9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -62247,6 +62247,46 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
 
       var controller = container.lookup('controller:example');
       equal(get(controller, 'foo'), undefined);
+    });
+
+    QUnit.test('Changing a query param property on a controller after navigating using a {{link-to}} should preserve the unchanged query params', function () {
+      expect(11);
+      Router.map(function () {
+        this.route('example');
+      });
+
+      _emberMetalCore.default.TEMPLATES.application = compile('{{link-to \'Example\' \'example\' (query-params bar=\'abc\' foo=\'def\') id=\'the-link1\'}}' + '{{link-to \'Example\' \'example\' (query-params bar=\'123\' foo=\'456\') id=\'the-link2\'}}');
+
+      App.ExampleRoute = _emberMetalCore.default.Route.extend({
+        queryParams: {
+          foo: { defaultValue: 'foo' },
+          bar: { defaultValue: 'bar' }
+        }
+      });
+
+      bootApplication();
+
+      var controller = container.lookup('controller:example');
+
+      var $link1 = _emberMetalCore.default.$('#the-link1');
+      var $link2 = _emberMetalCore.default.$('#the-link2');
+      equal($link1.attr('href'), '/example?bar=abc&foo=def');
+      equal($link2.attr('href'), '/example?bar=123&foo=456');
+
+      expectedPushURL = '/example?bar=abc&foo=def';
+      _emberMetalCore.default.run($link1, 'click');
+      equal(get(controller, 'bar'), 'abc');
+      equal(get(controller, 'foo'), 'def');
+
+      expectedPushURL = '/example?bar=123&foo=456';
+      _emberMetalCore.default.run($link2, 'click');
+      equal(get(controller, 'bar'), '123');
+      equal(get(controller, 'foo'), '456');
+
+      expectedPushURL = '/example?bar=rab&foo=456';
+      setAndFlush(controller, 'bar', 'rab');
+      equal(get(controller, 'bar'), 'rab');
+      equal(get(controller, 'foo'), '456');
     });
   } else {
     QUnit.test('Single query params can be set on ObjectController [DEPRECATED]', function () {
