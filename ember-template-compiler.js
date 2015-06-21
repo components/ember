@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+20fbf210
+ * @version   2.0.0-canary+af98f598
  */
 
 (function() {
@@ -1443,8 +1443,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
   _emberMetalCore.default.generateGuid = _emberMetalUtils.generateGuid;
   _emberMetalCore.default.GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore.default.create = Object.create;
-  _emberMetalCore.default.keys = Object.keys;
   _emberMetalCore.default.platform = {
     defineProperty: true,
     hasPropertyAccessors: true
@@ -1627,6 +1625,9 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   if (_emberMetalCore.default.__loader.registry['ember-debug']) {
     requireModule('ember-debug');
   }
+
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in-favour of Object.create', Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in-favour of Object.keys', Object.keys);
 
   exports.default = _emberMetalCore.default;
 });
@@ -3960,7 +3961,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+20fbf210
+    @version 2.0.0-canary+af98f598
     @public
   */
 
@@ -3992,11 +3993,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+20fbf210'
+    @default '2.0.0-canary+af98f598'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+20fbf210';
+  Ember.VERSION = '2.0.0-canary+af98f598';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12538,7 +12539,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+20fbf210',
+        revision: 'Ember@2.0.0-canary+af98f598',
         loc: program.loc,
         moduleName: options.moduleName
       };

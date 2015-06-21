@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+20fbf210
+ * @version   2.0.0-canary+af98f598
  */
 
 (function() {
@@ -22424,7 +22424,7 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/core', 'embe
   });
 });
 /* globals EmberDev */
-enifed('ember-metal/tests/main_test', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
+enifed('ember-metal/tests/main_test', ['exports', 'ember-metal'], function (exports, _emberMetal) {
 
   // From sindresourhus/semver-regex https://github.com/sindresorhus/semver-regex/blob/795b05628d96597ebcbe6d31ef4a432858365582/index.js#L3
   var SEMVER_REGEX = /^\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b$/;
@@ -22432,14 +22432,14 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal/core'], function 
   QUnit.module('ember-metal/core/main');
 
   QUnit.test('Ember registers itself', function () {
-    var lib = _emberMetalCore.default.libraries._registry[0];
+    var lib = _emberMetal.default.libraries._registry[0];
 
     equal(lib.name, 'Ember');
-    equal(lib.version, _emberMetalCore.default.VERSION);
+    equal(lib.version, _emberMetal.default.VERSION);
   });
 
   QUnit.test('Ember.VERSION is in alignment with SemVer v2.0.0', function () {
-    ok(SEMVER_REGEX.test(_emberMetalCore.default.VERSION), 'Ember.VERSION (' + _emberMetalCore.default.VERSION + ')is valid SemVer v2.0.0');
+    ok(SEMVER_REGEX.test(_emberMetal.default.VERSION), 'Ember.VERSION (' + _emberMetal.default.VERSION + ')is valid SemVer v2.0.0');
   });
 
   QUnit.test('SEMVER_REGEX properly validates and invalidates version numbers', function () {
@@ -22456,6 +22456,18 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal/core'], function 
     // Negative test cases
     validateVersionString('1.11.3.aba18a', false);
     validateVersionString('1.11', false);
+  });
+
+  QUnit.test('Ember.keys is deprecated', function () {
+    expectDeprecation(function () {
+      _emberMetal.default.keys({});
+    }, 'Ember.keys is deprecated in-favour of Object.keys');
+  });
+
+  QUnit.test('Ember.keys is deprecated', function () {
+    expectDeprecation(function () {
+      _emberMetal.default.create(null);
+    }, 'Ember.create is deprecated in-favour of Object.create');
   });
 });
 enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (exports, _emberMetalMap) {
@@ -27446,7 +27458,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
   (0, _emberMetalTestsProps_helper.testBoth)('watches should inherit', function (get, set) {
     var obj = { foo: 'baz' };
-    var objB = _emberMetalCore.default.create(obj);
+    var objB = Object.create(obj);
 
     addListeners(obj, 'foo');
     (0, _emberMetalWatching.watch)(obj, 'foo');
@@ -46908,7 +46920,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+20fbf210', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+af98f598', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -57162,7 +57174,7 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/co
     equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), null);
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
 
   var App, registry, container;
   var originalHelpers;
@@ -57171,7 +57183,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
     _emberMetalCore.default.TEMPLATES['components/expand-it'] = (0, _emberTemplateCompilerSystemCompile.default)('<p>hello {{yield}}</p>');
     _emberMetalCore.default.TEMPLATES.application = (0, _emberTemplateCompilerSystemCompile.default)('Hello world {{#expand-it}}world{{/expand-it}}');
 
-    originalHelpers = _emberMetalCore.default.A(_emberMetalCore.default.keys(_emberHtmlbarsHelpers.default));
+    originalHelpers = _emberMetalCore.default.A((0, _emberMetalKeys.default)(_emberHtmlbarsHelpers.default));
   }
 
   function cleanup() {
@@ -57187,7 +57199,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   }
 
   function cleanupHandlebarsHelpers() {
-    var currentHelpers = _emberMetalCore.default.A(_emberMetalCore.default.keys(_emberHtmlbarsHelpers.default));
+    var currentHelpers = _emberMetalCore.default.A((0, _emberMetalKeys.default)(_emberHtmlbarsHelpers.default));
 
     currentHelpers.forEach(function (name) {
       if (!originalHelpers.contains(name)) {
