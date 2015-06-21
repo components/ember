@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+319cbf59
+ * @version   2.0.0-canary+f896a896
  */
 
 (function() {
@@ -46866,7 +46866,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+319cbf59', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+f896a896', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -57835,7 +57835,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
 // Note: the reason we're not allowing undashed helpers is to avoid
 // a possible perf hit in hot code paths, i.e. _triageMustache.
 // We only presently perform container lookups if prop.indexOf('-') >= 0
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember-views/views/view', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember-views/views/view', 'ember-runtime/controllers/array_controller'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -57925,6 +57925,30 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     },
 
     teardown: sharedTeardown
+  });
+
+  // This test is designed to simulate the context of an ember-qunit/ember-test-helpers component integration test,
+  // so the container is available but it does not boot the entire app
+  QUnit.test('Using {{link-to}} does not cause an exception if it is rendered before the router has started routing', function (assert) {
+    Router.map(function () {
+      this.route('about');
+    });
+
+    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+    var component = _emberMetalCore.default.Component.extend({
+      layout: compile('{{#link-to "about"}}Go to About{{/link-to}}'),
+      container: container
+    }).create();
+
+    var router = container.lookup('router:main');
+    router.setupRouter();
+
+    _emberMetalCore.default.run(function () {
+      component.appendTo('#qunit-fixture');
+    });
+
+    assert.strictEqual(component.$('a').length, 1, 'the link is rendered');
   });
 
   QUnit.test('The {{link-to}} helper moves into the named route', function () {
