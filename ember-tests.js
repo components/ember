@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+d58a8b70
+ * @version   1.13.2+8ada9130
  */
 
 (function() {
@@ -36133,28 +36133,24 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should change normal properties when passing undefined', function () {
-    var ret = object.set('normal', undefined);
+    object.set('normal', undefined);
     equal(object.get('normal'), undefined);
-    equal(ret, undefined);
   });
 
-  QUnit.test('should replace the function for a non-computed property and return the value', function () {
-    var ret = object.set('method', 'changed');
+  QUnit.test('should replace the function for a non-computed property', function () {
+    object.set('method', 'changed');
     equal(object.get('_method'), 'method'); // make sure this was NOT run
     ok(typeof object.get('method') !== 'function');
-    equal(ret, 'changed');
   });
 
   QUnit.test('should replace prover when property value is null', function () {
-    var ret = object.set('nullProperty', 'changed');
+    object.set('nullProperty', 'changed');
     equal(object.get('nullProperty'), 'changed');
-    equal(ret, 'changed');
   });
 
   QUnit.test('should call unknownProperty with value when property is undefined', function () {
-    var ret = object.set('unknown', 'changed');
+    object.set('unknown', 'changed');
     equal(object.get('_unknown'), 'changed');
-    equal(ret, 'changed');
   });
 
   // ..........................................................
@@ -37870,7 +37866,7 @@ enifed("ember-runtime/tests/legacy_1x/system/set_test", ["exports", "ember-metal
   });
 
   QUnit.test("new Set() should accept anything that implements EmberArray", function () {
-    var arrayLikeObject = _emberRuntimeSystemObject["default"].createWithMixins(_emberRuntimeMixinsArray["default"], {
+    var arrayLikeObject = _emberRuntimeSystemObject["default"].extend(_emberRuntimeMixinsArray["default"]).create({
       _content: [a, b, c],
       length: 3,
       objectAt: function (idx) {
@@ -39036,7 +39032,7 @@ enifed('ember-runtime/tests/mixins/deferred_test', ['exports', 'ember-metal/core
         deprecationMade = message;
       };
 
-      deferred = _emberRuntimeSystemObject["default"].createWithMixins(_emberRuntimeMixinsDeferred["default"]);
+      deferred = _emberRuntimeSystemObject["default"].extend(_emberRuntimeMixinsDeferred["default"]).create();
       equal(deprecationMade, undefined, 'no deprecation was made on init');
 
       deferred.then(function (value) {
@@ -44820,7 +44816,7 @@ enifed("ember-runtime/tests/system/object/create_test", ["exports", "ember-metal
     }, ".createWithMixins is deprecated, please use .create or .extend accordingly");
   });
 });
-enifed("ember-runtime/tests/system/object/destroy_test", ["exports", "ember-metal/run_loop", "ember-metal/mixin", "ember-metal/binding", "ember-metal/property_events", "ember-metal/keys", "ember-metal/tests/props_helper", "ember-runtime/system/object"], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberMetalBinding, _emberMetalProperty_events, _emberMetalKeys, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
+enifed("ember-runtime/tests/system/object/destroy_test", ["exports", "ember-metal/platform/define_property", "ember-metal/run_loop", "ember-metal/property_set", "ember-metal/mixin", "ember-metal/binding", "ember-metal/property_events", "ember-metal/keys", "ember-metal/tests/props_helper", "ember-runtime/system/object"], function (exports, _emberMetalPlatformDefine_property, _emberMetalRun_loop, _emberMetalProperty_set, _emberMetalMixin, _emberMetalBinding, _emberMetalProperty_events, _emberMetalKeys, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
 
   QUnit.module("ember-runtime/system/object/destroy_test");
 
@@ -44842,16 +44838,25 @@ enifed("ember-runtime/tests/system/object/destroy_test", ["exports", "ember-meta
   });
 
   
-    // MANDATORY_SETTER moves value to meta.values
-    // a destroyed object removes meta but leaves the accessor
-    // that looks it up
-    QUnit.test("should raise an exception when modifying watched properties on a destroyed object", function () {
-      _emberRuntimeSystemObject["default"].extend({
-        fooDidChange: (0, _emberMetalMixin.observer)("foo", function () {})
-      }).create({
-        foo: "bar"
+    if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
+      // MANDATORY_SETTER moves value to meta.values
+      // a destroyed object removes meta but leaves the accessor
+      // that looks it up
+      QUnit.test("should raise an exception when modifying watched properties on a destroyed object", function () {
+        var obj = _emberRuntimeSystemObject["default"].extend({
+          foo: "bar",
+          fooDidChange: (0, _emberMetalMixin.observer)("foo", function () {})
+        }).create();
+
+        (0, _emberMetalRun_loop["default"])(function () {
+          obj.destroy();
+        });
+
+        throws(function () {
+          (0, _emberMetalProperty_set.set)(obj, "foo", "baz");
+        }, Error, "raises an exception");
       });
-    });
+    }
   
 
   QUnit.test("observers should not fire after an object has been destroyed", function () {
@@ -47314,7 +47319,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+d58a8b70", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+8ada9130", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
