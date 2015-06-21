@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+641b162b
+ * @version   1.13.2+d58a8b70
  */
 
 (function() {
@@ -5037,7 +5037,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.2+641b162b
+    @version 1.13.2+d58a8b70
     @public
   */
 
@@ -5069,11 +5069,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.2+641b162b'
+    @default '1.13.2+d58a8b70'
     @static
     @public
   */
-  Ember.VERSION = '1.13.2+641b162b';
+  Ember.VERSION = '1.13.2+d58a8b70';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15042,9 +15042,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
 // Ember.assert
 enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEnumerable_utils, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray) {
-  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
-
-  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
   exports.arrayControllerDeprecation = arrayControllerDeprecation;
