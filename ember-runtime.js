@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2
+ * @version   1.13.2+641b162b
  */
 
 (function() {
@@ -2254,8 +2254,6 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   _emberMetalCore["default"].generateGuid = _emberMetalUtils.generateGuid;
   _emberMetalCore["default"].GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore["default"].create = _emberMetalPlatformCreate["default"];
-  _emberMetalCore["default"].keys = _emberMetalKeys["default"];
   _emberMetalCore["default"].platform = {
     defineProperty: _emberMetalProperties.defineProperty,
     hasPropertyAccessors: _emberMetalPlatformDefine_property.hasPropertyAccessors
@@ -2444,6 +2442,9 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
   if (_emberMetalCore["default"].__loader.registry["ember-debug"]) {
     requireModule("ember-debug");
   }
+
+  _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in-favour of Object.create", _emberMetalPlatformCreate["default"]);
+  _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in-favour of Object.keys", _emberMetalKeys["default"]);
 
   exports["default"] = _emberMetalCore["default"];
 });
@@ -2975,6 +2976,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
       @public
     */
     oneWay: function (from, flag) {
+      _emberMetalCore["default"].deprecate("Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.", false);
       var C = this;
       return new C(undefined, from).oneWay(flag);
     }
@@ -5035,7 +5037,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.2
+    @version 1.13.2+641b162b
     @public
   */
 
@@ -5067,11 +5069,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.2'
+    @default '1.13.2+641b162b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.2';
+  Ember.VERSION = '1.13.2+641b162b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14623,10 +14625,11 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     Example
   
     ```javascript
-    var obj = Ember.Object.createWithMixins({
-      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
-      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock'],
+    var obj = Ember.Object.extend({
       friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')
+    }).create({
+      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
+      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']
     });
   
     obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
@@ -15039,6 +15042,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
 // Ember.assert
 enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEnumerable_utils, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray) {
+  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
+
+  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
   exports.arrayControllerDeprecation = arrayControllerDeprecation;
@@ -20325,7 +20331,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetal["default"].assert("Ember.Object.create no longer supports mixing in other definitions, use createWithMixins instead.", !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetal["default"].assert("Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.", !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== "object" && properties !== undefined) {
             throw new _emberMetalError["default"]("Ember.Object.create only accepts objects.");
@@ -20785,8 +20791,9 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
       @static
       @param [arguments]*
       @private
+      @deprecated
     */
-    createWithMixins: function () {
+    createWithMixins: _emberMetal["default"].deprecateFunc(".createWithMixins is deprecated, please use .create or .extend accordingly", function () {
       for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
@@ -20796,7 +20803,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
         this._initMixins(args);
       }
       return new C();
-    },
+    }),
 
     /**
       Creates an instance of a class. Accepts either no arguments, or an object
@@ -20822,7 +20829,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
       ```
        NOTE: For performance reasons, you cannot declare methods or computed
       properties during `create`. You should instead declare methods and computed
-      properties when using `extend` or use the `createWithMixins` shorthand.
+      properties when using `extend`.
        @method create
       @static
       @param [arguments]*

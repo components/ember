@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2
+ * @version   1.13.2+641b162b
  */
 
 (function() {
@@ -7109,7 +7109,7 @@ enifed("ember-htmlbars/helpers/bind-attr", ["exports"], function (exports) {});
   @return {String} HTML string
   @public
 */
-enifed("ember-htmlbars/helpers/each", ["exports", "ember-metal/enumerable_utils", "ember-htmlbars/utils/normalize-self", "ember-views/streams/should_display", "ember-htmlbars/utils/decode-each-key"], function (exports, _emberMetalEnumerable_utils, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/enumerable_utils', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalEnumerable_utils, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   exports["default"] = eachHelper;
 
   /**
@@ -7185,25 +7185,33 @@ enifed("ember-htmlbars/helpers/each", ["exports", "ember-metal/enumerable_utils"
     var keyPath = hash.key;
 
     if (blocks.template.arity === 0) {
-      Ember.deprecate(deprecation);
+      _emberMetalCore["default"].deprecate(deprecation);
     }
 
     if ((0, _emberViewsStreamsShould_display["default"])(list)) {
-      (0, _emberMetalEnumerable_utils.forEach)(list, function (item, i) {
-        var self;
-        if (blocks.template.arity === 0) {
-          self = (0, _emberHtmlbarsUtilsNormalizeSelf["default"])(item);
-        }
+      (function () {
+        var seenKeys = {};
+        (0, _emberMetalEnumerable_utils.forEach)(list, function (item, i) {
+          var self;
+          if (blocks.template.arity === 0) {
+            self = (0, _emberHtmlbarsUtilsNormalizeSelf["default"])(item);
+          }
 
-        var key = (0, _emberHtmlbarsUtilsDecodeEachKey["default"])(item, keyPath, i);
-        blocks.template.yieldItem(key, [item, i], self);
-      });
+          var key = (0, _emberHtmlbarsUtilsDecodeEachKey["default"])(item, keyPath, i);
+          if (seenKeys[key] === true) {
+            throw new _emberMetalError["default"]('Duplicate key found (\'' + key + '\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
+          } else {
+            seenKeys[key] = true;
+          }
+          blocks.template.yieldItem(key, [item, i], self);
+        });
+      })();
     } else if (blocks.inverse.yield) {
       blocks.inverse.yield();
     }
   }
 
-  var deprecation = "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.";
+  var deprecation = 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.';
   exports.deprecation = deprecation;
 });
 enifed("ember-htmlbars/helpers/if_unless", ["exports", "ember-metal/core", "ember-views/streams/should_display"], function (exports, _emberMetalCore, _emberViewsStreamsShould_display) {
@@ -8586,7 +8594,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.2";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.2+641b162b";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -11599,8 +11607,6 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   _emberMetalCore["default"].generateGuid = _emberMetalUtils.generateGuid;
   _emberMetalCore["default"].GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore["default"].create = _emberMetalPlatformCreate["default"];
-  _emberMetalCore["default"].keys = _emberMetalKeys["default"];
   _emberMetalCore["default"].platform = {
     defineProperty: _emberMetalProperties.defineProperty,
     hasPropertyAccessors: _emberMetalPlatformDefine_property.hasPropertyAccessors
@@ -11789,6 +11795,9 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
   if (_emberMetalCore["default"].__loader.registry["ember-debug"]) {
     requireModule("ember-debug");
   }
+
+  _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in-favour of Object.create", _emberMetalPlatformCreate["default"]);
+  _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in-favour of Object.keys", _emberMetalKeys["default"]);
 
   exports["default"] = _emberMetalCore["default"];
 });
@@ -12320,6 +12329,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
       @public
     */
     oneWay: function (from, flag) {
+      _emberMetalCore["default"].deprecate("Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.", false);
       var C = this;
       return new C(undefined, from).oneWay(flag);
     }
@@ -14380,7 +14390,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.2
+    @version 1.13.2+641b162b
     @public
   */
 
@@ -14412,11 +14422,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.2'
+    @default '1.13.2+641b162b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.2';
+  Ember.VERSION = '1.13.2+641b162b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23266,7 +23276,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.2";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.2+641b162b";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-transitioning-classes")) {
@@ -23776,7 +23786,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.2";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.2+641b162b";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -28581,7 +28591,7 @@ enifed("ember-routing/system/router", ["exports", "ember-metal/core", "ember-met
 @module ember
 @submodule ember-routing
 */
-enifed("ember-routing/system/router_state", ["exports", "ember-metal/core", "ember-runtime/system/object", "ember-metal/merge"], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalMerge) {
+enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 'ember-metal/keys', 'ember-runtime/system/object', 'ember-metal/merge'], function (exports, _emberMetalIs_empty, _emberMetalKeys, _emberRuntimeSystemObject, _emberMetalMerge) {
 
   var RouterState = _emberRuntimeSystemObject["default"].extend({
     emberRouter: null,
@@ -28594,7 +28604,7 @@ enifed("ember-routing/system/router_state", ["exports", "ember-metal/core", "emb
         return false;
       }
 
-      var emptyQueryParams = _emberMetalCore["default"].isEmpty(_emberMetalCore["default"].keys(queryParams));
+      var emptyQueryParams = (0, _emberMetalIs_empty["default"])((0, _emberMetalKeys["default"])(queryParams));
 
       if (queryParamsMustMatch && !emptyQueryParams) {
         var visibleQueryParams = {};
@@ -30410,10 +30420,11 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     Example
   
     ```javascript
-    var obj = Ember.Object.createWithMixins({
-      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
-      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock'],
+    var obj = Ember.Object.extend({
       friendsInCommon: Ember.computed.intersect('adaFriends', 'charlesFriends')
+    }).create({
+      adaFriends: ['Charles Babbage', 'John Hobhouse', 'William King', 'Mary Somerville'],
+      charlesFriends: ['William King', 'Mary Somerville', 'Ada Lovelace', 'George Peacock']
     });
   
     obj.get('friendsInCommon'); // ['William King', 'Mary Somerville']
@@ -30826,6 +30837,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
 // Ember.assert
 enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/enumerable_utils', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEnumerable_utils, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray) {
+  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
+
+  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
   exports.arrayControllerDeprecation = arrayControllerDeprecation;
@@ -36112,7 +36126,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetal["default"].assert("Ember.Object.create no longer supports mixing in other definitions, use createWithMixins instead.", !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetal["default"].assert("Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.", !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== "object" && properties !== undefined) {
             throw new _emberMetalError["default"]("Ember.Object.create only accepts objects.");
@@ -36572,8 +36586,9 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
       @static
       @param [arguments]*
       @private
+      @deprecated
     */
-    createWithMixins: function () {
+    createWithMixins: _emberMetal["default"].deprecateFunc(".createWithMixins is deprecated, please use .create or .extend accordingly", function () {
       for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
@@ -36583,7 +36598,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
         this._initMixins(args);
       }
       return new C();
-    },
+    }),
 
     /**
       Creates an instance of a class. Accepts either no arguments, or an object
@@ -36609,7 +36624,7 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
       ```
        NOTE: For performance reasons, you cannot declare methods or computed
       properties during `create`. You should instead declare methods and computed
-      properties when using `extend` or use the `createWithMixins` shorthand.
+      properties when using `extend`.
        @method create
       @static
       @param [arguments]*
@@ -40460,7 +40475,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.2",
+        revision: "Ember@1.13.2+641b162b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45628,7 +45643,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.2";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.2+641b162b";
 
   /**
   @module ember

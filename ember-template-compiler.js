@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2
+ * @version   1.13.2+641b162b
  */
 
 (function() {
@@ -476,8 +476,6 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   _emberMetalCore["default"].generateGuid = _emberMetalUtils.generateGuid;
   _emberMetalCore["default"].GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore["default"].create = _emberMetalPlatformCreate["default"];
-  _emberMetalCore["default"].keys = _emberMetalKeys["default"];
   _emberMetalCore["default"].platform = {
     defineProperty: _emberMetalProperties.defineProperty,
     hasPropertyAccessors: _emberMetalPlatformDefine_property.hasPropertyAccessors
@@ -666,6 +664,9 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
   if (_emberMetalCore["default"].__loader.registry["ember-debug"]) {
     requireModule("ember-debug");
   }
+
+  _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in-favour of Object.create", _emberMetalPlatformCreate["default"]);
+  _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in-favour of Object.keys", _emberMetalKeys["default"]);
 
   exports["default"] = _emberMetalCore["default"];
 });
@@ -1197,6 +1198,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
       @public
     */
     oneWay: function (from, flag) {
+      _emberMetalCore["default"].deprecate("Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.", false);
       var C = this;
       return new C(undefined, from).oneWay(flag);
     }
@@ -3257,7 +3259,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.2
+    @version 1.13.2+641b162b
     @public
   */
 
@@ -3289,11 +3291,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.2'
+    @default '1.13.2+641b162b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.2';
+  Ember.VERSION = '1.13.2+641b162b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12399,7 +12401,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.2",
+        revision: "Ember@1.13.2+641b162b",
         loc: program.loc,
         moduleName: options.moduleName
       };
