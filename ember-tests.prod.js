@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f896a896
+ * @version   2.0.0-canary+8ee36cb2
  */
 
 (function() {
@@ -10386,6 +10386,34 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     });
 
     equal(view.$().text(), 'foobarbaz');
+  });
+
+  QUnit.test('duplicate keys trigger a useful error (temporary until we can deal with this properly in HTMLBars)', function () {
+    (0, _emberRuntimeTestsUtils.runDestroy)(view);
+    view = _emberViewsViewsView.default.create({
+      items: ['a', 'a', 'a'],
+      template: (0, _emberTemplateCompilerSystemCompile.default)('{{#each view.items as |item|}}{{item}}{{/each}}')
+    });
+
+    throws(function () {
+      (0, _emberRuntimeTestsUtils.runAppend)(view);
+    }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
+  });
+
+  QUnit.test('pushing a new duplicate key will trigger a useful error (temporary until we can deal with this properly in HTMLBars)', function () {
+    (0, _emberRuntimeTestsUtils.runDestroy)(view);
+    view = _emberViewsViewsView.default.create({
+      items: (0, _emberRuntimeSystemNative_array.A)(['a', 'b', 'c']),
+      template: (0, _emberTemplateCompilerSystemCompile.default)('{{#each view.items as |item|}}{{item}}{{/each}}')
+    });
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    throws(function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        view.get('items').pushObject('a');
+      });
+    }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
   });
 
   testEachWithItem('{{#each foo in bar}}', false);
@@ -46866,7 +46894,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+f896a896', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+8ee36cb2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
