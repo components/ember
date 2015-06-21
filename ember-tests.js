@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8ee36cb2
+ * @version   2.0.0-canary+20fbf210
  */
 
 (function() {
@@ -32565,6 +32565,12 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), ['A', 'B', 'D'], 'properties unshifted in sequence are mapped correctly');
   });
 
+  QUnit.test('it complains if you invoke the wrong map macro', function () {
+    expectAssertion(function () {
+      return (0, _emberRuntimeComputedReduce_computed_macros.map)('array', 'property');
+    }, /map expects a callback function/);
+  });
+
   QUnit.module('computedMapBy', {
     setup: function () {
       (0, _emberMetalRun_loop.default)(function () {
@@ -32615,6 +32621,14 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     });
 
     equal(calls, 1, 'computedMapBy is observable');
+  });
+
+  QUnit.test('it complains with the wrong arguments', function () {
+    expectAssertion(function () {
+      return (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', function (a) {
+        return a;
+      });
+    }, /mapBy expects a property string/);
   });
 
   QUnit.module('computedFilter', {
@@ -47057,7 +47071,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8ee36cb2', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+20fbf210', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

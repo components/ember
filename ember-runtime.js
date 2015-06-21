@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8ee36cb2
+ * @version   2.0.0-canary+20fbf210
  */
 
 (function() {
@@ -4772,7 +4772,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8ee36cb2
+    @version 2.0.0-canary+20fbf210
     @public
   */
 
@@ -4804,11 +4804,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8ee36cb2'
+    @default '2.0.0-canary+20fbf210'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8ee36cb2';
+  Ember.VERSION = '2.0.0-canary+20fbf210';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13539,6 +13539,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function map(dependentKey, callback) {
+    _emberMetalCore.default.assert('Ember.computed.map expects a callback function for its second argument, ' + 'perhaps you meant to use "mapBy"', typeof callback === 'function');
+
     var options = {
       _suppressDeprecation: true,
 
@@ -13588,6 +13590,8 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function mapBy(dependentKey, propertyKey) {
+    _emberMetalCore.default.assert('Ember.computed.mapBy expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
+
     var callback = function (item) {
       return (0, _emberMetalProperty_get.get)(item, propertyKey);
     };
