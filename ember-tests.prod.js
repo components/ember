@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+8ada9130
+ * @version   1.13.2+e1c92c7a
  */
 
 (function() {
@@ -2983,7 +2983,7 @@ enifed("ember-application/tests/system/logging_test", ["exports", "ember-metal/r
     (0, _emberMetalRun_loop["default"])(App, "advanceReadiness");
 
     visit("/posts").then(function () {
-      equal(Ember.keys(logs).length, 6, "expected logs");
+      equal((0, _emberMetalKeys["default"])(logs).length, 6, "expected logs");
     });
   });
 
@@ -47191,7 +47191,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+8ada9130", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+e1c92c7a", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
