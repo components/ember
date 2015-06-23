@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+af98f598
+ * @version   2.0.0-canary+49d58530
  */
 
 (function() {
@@ -3461,7 +3461,7 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
        ```javascript
       this.get('controllers.post'); // instance of App.PostController
       ```
-       Given that you have a nested controller (nested resource):
+       Given that you have a nested controller (nested routes):
        ```javascript
       App.CommentsNewController = Ember.ObjectController.extend({
       });
@@ -8700,7 +8700,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+af98f598';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14228,7 +14228,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+af98f598
+    @version 2.0.0-canary+49d58530
     @public
   */
 
@@ -14260,11 +14260,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+af98f598'
+    @default '2.0.0-canary+49d58530'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+af98f598';
+  Ember.VERSION = '2.0.0-canary+49d58530';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22136,7 +22136,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
   
     ```javascript
     App.Router.map(function() {
-      this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
+      this.route("photoGallery", {path: "hamster-photos/:photo_id"});
     });
     ```
   
@@ -22161,7 +22161,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
   
     ```javascript
     App.Router.map(function() {
-      this.resource("photoGallery", {path: "hamster-photos/:photo_id"}, function() {
+      this.route("photoGallery", { path: "hamster-photos/:photo_id" }, function() {
         this.route("comment", {path: "comments/:comment_id"});
       });
     });
@@ -22188,7 +22188,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
   
     ```javascript
     App.Router.map(function() {
-      this.resource("photoGallery", {path: "hamster-photos/:photo_id"});
+      this.route("photoGallery", { path: "hamster-photos/:photo_id" });
     });
     ```
   
@@ -22543,7 +22543,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+af98f598';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23046,7 +23046,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+af98f598';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -23168,11 +23168,11 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       aController.transitionToRoute('blogPost', 1);
       ```
        Multiple models will be applied last to first recursively up the
-      resource tree.
+      route tree.
        ```javascript
       App.Router.map(function() {
-        this.resource('blogPost', {path:':blogPostId'}, function() {
-          this.resource('blogComment', {path: ':blogCommentId'});
+        this.route('blogPost', { path: ':blogPostId' }, function() {
+          this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });
         });
       });
        aController.transitionToRoute('blogComment', aPost, aComment);
@@ -23244,11 +23244,11 @@ enifed('ember-routing/ext/controller', ['exports', 'ember-metal/core', 'ember-me
       aController.replaceRoute('blogPost', 1);
       ```
        Multiple models will be applied last to first recursively up the
-      resource tree.
+      route tree.
        ```javascript
       App.Router.map(function() {
-        this.resource('blogPost', {path:':blogPostId'}, function() {
-          this.resource('blogComment', {path: ':blogCommentId'});
+        this.route('blogPost', { path: ':blogPostId' }, function() {
+          this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });
         });
       });
        aController.replaceRoute('blogComment', aPost, aComment);
@@ -23343,7 +23343,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
   
     ```javascript
     App.Router.map(function() {
-      this.resource('posts', function() {
+      this.route('posts', function() {
         this.route('new');
       });
     });
@@ -23364,7 +23364,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
   
     ```javascript
     App.Router.map(function() {
-      this.resource('posts', function() {
+      this.route('posts', function() {
         this.route('new');
       });
     });
@@ -23392,7 +23392,7 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
   
     ```javascript
     App.Router.map(function() {
-      this.resource('posts', function() {
+      this.route('posts', function() {
         this.route('new');
       });
     });
@@ -24526,8 +24526,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
         options = {};
       }
 
-      var type = options.resetNamespace === true ? 'resource' : 'route';
-      _emberMetalCore.default.assert('\'' + name + '\' cannot be used as a ' + type + ' name.', (function () {
+      _emberMetalCore.default.assert('\'' + name + '\' cannot be used as a route name.', (function () {
         if (options.overrideNameAssertion === true) {
           return true;
         }
@@ -24577,6 +24576,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
       }
 
       options.resetNamespace = true;
+      _emberMetalCore.default.deprecate('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
       this.route(name, options, callback);
     },
 
@@ -25517,11 +25517,11 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       this.transitionTo('blogPost', 1);
       ```
        Multiple models will be applied last to first recursively up the
-      resource tree.
+      route tree.
        ```javascript
       App.Router.map(function() {
-        this.resource('blogPost', { path:':blogPostId' }, function() {
-          this.resource('blogComment', { path: ':blogCommentId' });
+        this.route('blogPost', { path:':blogPostId' }, function() {
+          this.route('blogComment', { path: ':blogCommentId', resetNamespace: true });
         });
       });
        this.transitionTo('blogComment', aPost, aComment);
@@ -25567,7 +25567,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        Transition to a nested route
        ```javascript
       App.Router.map(function() {
-        this.resource('articles', { path: '/articles' }, function() {
+        this.route('articles', { path: '/articles' }, function() {
           this.route('new');
         });
       });
@@ -25583,8 +25583,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        ```javascript
       App.Router.map(function() {
         this.route('index');
-         this.resource('breakfast', { path: ':breakfastId' }, function() {
-          this.resource('cereal', { path: ':cerealId' });
+         this.route('breakfast', { path: ':breakfastId' }, function() {
+          this.route('cereal', { path: ':cerealId', resetNamespace: true });
         });
       });
        App.IndexRoute = Ember.Route.extend({
@@ -25600,7 +25600,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        Nested Route with Query String Example
        ```javascript
       App.Router.map(function() {
-        this.resource('fruits', function() {
+        this.route('fruits', function() {
           this.route('apples');
         });
       });
@@ -25978,7 +25978,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       this route.
        ```javascript
       App.Router.map(function() {
-        this.resource('post', { path: '/posts/:post_id' });
+        this.route('post', { path: '/posts/:post_id' });
       });
       ```
        The model for the `post` route is `store.find('post', params.post_id)`.
@@ -26116,7 +26116,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       for the URL.
        ```javascript
       App.Router.map(function() {
-        this.resource('post', { path: '/posts/:post_id' });
+        this.route('post', { path: '/posts/:post_id' });
       });
        App.PostRoute = Ember.Route.extend({
         model: function(params) {
@@ -26201,7 +26201,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        As an example, consider the router:
        ```javascript
       App.Router.map(function() {
-        this.resource('post', { path: '/posts/:post_id' });
+        this.route('post', { path: '/posts/:post_id' });
       });
       ```
        For the `post` route, a controller named `App.PostController` would
@@ -26299,13 +26299,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        Example
        ```javascript
       App.Router.map(function() {
-          this.resource('post', { path: '/post/:post_id' }, function() {
-              this.resource('comments');
+          this.route('post', { path: '/post/:post_id' }, function() {
+            this.route('comments', { resetNamespace: true });
           });
       });
        App.CommentsRoute = Ember.Route.extend({
           afterModel: function() {
-              this.set('post', this.modelFor('post'));
+            this.set('post', this.modelFor('post'));
           }
       });
       ```
@@ -26368,7 +26368,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        For example, given the following minimal router and templates:
        ```javascript
       Router.map(function() {
-        this.resource('photos');
+        this.route('photos');
       });
       ```
        ```handlebars
@@ -26422,7 +26422,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       // router
       Router.map(function() {
         this.route('index');
-        this.resource('post', { path: '/posts/:post_id' });
+        this.route('post', { path: '/posts/:post_id' });
       });
       ```
        ```javascript
@@ -26832,7 +26832,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       });
 
       function generateDSL() {
-        this.resource('application', { path: '/', overrideNameAssertion: true }, function () {
+        this.route('application', { path: '/', resetNamespace: true, overrideNameAssertion: true }, function () {
           for (var i = 0; i < dslCallbacks.length; i++) {
             dslCallbacks[i].call(this);
           }
@@ -27665,15 +27665,34 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
     /**
       The `Router.map` function allows you to define mappings from URLs to routes
-      and resources in your application. These mappings are defined within the
-      supplied callback function using `this.resource` and `this.route`.
+      in your application. These mappings are defined within the
+      supplied callback function using `this.route`.
+       The first parameter is the name of the route which is used by default as the
+      path name as well.
+       The second parameter is the optional options hash. Available options are:
+        * `path`: allows you to provide your own path as well as mark dynamic
+          segments.
+        * `resetNamespace`: false by default; when nesting routes, ember will
+          combine the route names to form the fully-qualified route name, which is
+          used with `{{link-to}}` or manually transitioning to routes. Setting
+          `resetNamespace: true` will cause the route not to inherit from its
+          parent route's names. This is handy for resources which can be accessed
+          in multiple places as well as preventing extremely long route names.
+          Keep in mind that the actual URL path behavior is still retained.
+       The third parameter is a function, which can be used to nest routes.
+      Nested routes, by default, will have the parent route tree's route name and
+      path prepended to it's own.
        ```javascript
       App.Router.map(function(){
-        this.route('about');
-        this.resource('article');
+        this.route('post', { path: '/post/:post_id' }, function() {
+          this.route('edit');
+          this.route('comments', { resetNamespace: true }, function() {
+            this.route('new');
+          });
+        });
       });
       ```
-       For more detailed examples please see
+       For more detailed documentation and examples please see
       [the guides](http://emberjs.com/guides/routing/defining-your-routes/).
        @method map
       @param callback
@@ -31324,7 +31343,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
       you must return `true` from the handler:
        ```js
       App.Router.map(function() {
-        this.resource("album", function() {
+        this.route("album", function() {
           this.route("song");
         });
       });
@@ -39264,7 +39283,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+af98f598',
+        revision: 'Ember@2.0.0-canary+49d58530',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44437,7 +44456,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+af98f598';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
 
   /**
   @module ember
@@ -46364,7 +46383,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     });
     ```
   
-    If you have nested resources, your Handlebars template will look like this:
+    If you have nested routes, your Handlebars template will look like this:
   
     ```html
     <script type='text/x-handlebars' data-template-name='posts/new'>

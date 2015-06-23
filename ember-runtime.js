@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+af98f598
+ * @version   2.0.0-canary+49d58530
  */
 
 (function() {
@@ -4773,7 +4773,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+af98f598
+    @version 2.0.0-canary+49d58530
     @public
   */
 
@@ -4805,11 +4805,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+af98f598'
+    @default '2.0.0-canary+49d58530'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+af98f598';
+  Ember.VERSION = '2.0.0-canary+49d58530';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15361,7 +15361,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
       you must return `true` from the handler:
        ```js
       App.Router.map(function() {
-        this.resource("album", function() {
+        this.route("album", function() {
           this.route("song");
         });
       });
