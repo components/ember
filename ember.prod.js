@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+49d58530
+ * @version   2.0.0-canary+2a64be6d
  */
 
 (function() {
@@ -8319,7 +8319,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2a64be6d';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -12116,6 +12116,10 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     return !(isObject(obj) && obj.isDescriptor && obj._cacheable);
   }
 
+  function Chains() {}
+
+  Chains.prototype = Object.create(null);
+
   var pendingQueue = [];
 
   // attempts to add the pendingQueue chains again. If some of them end up
@@ -12147,13 +12151,15 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
     if (!m.hasOwnProperty('chainWatchers')) {
       // FIXME?!
-      nodes = m.chainWatchers = {};
+      nodes = m.chainWatchers = new Chains();
     }
 
     if (!nodes[keyName]) {
-      nodes[keyName] = [];
+      nodes[keyName] = [node];
+    } else {
+      nodes[keyName].push(node);
     }
-    nodes[keyName].push(node);
+
     (0, _emberMetalWatch_key.watchKey)(obj, keyName, m);
   }
 
@@ -12195,6 +12201,10 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     // and for global paths (because the parent node is the object with
     // the observer on it)
     this._watching = value === undefined;
+
+    this._chains = undefined;
+    this._object = undefined;
+    this.count = 0;
 
     this._value = value;
     this._paths = {};
@@ -12334,19 +12344,19 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       this.unchain(key, path);
     },
 
-    count: 0,
-
     chain: function (key, path, src) {
       var chains = this._chains;
       var node;
-      if (!chains) {
-        chains = this._chains = {};
+      if (chains === undefined) {
+        chains = this._chains = new Chains();
+      } else {
+        node = chains[key];
       }
 
-      node = chains[key];
-      if (!node) {
+      if (node === undefined) {
         node = chains[key] = new ChainNode(this, key, src);
       }
+
       node.count++; // count chains...
 
       // chain rest of path if there is one
@@ -12371,7 +12381,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       // delete node if needed.
       node.count--;
       if (node.count <= 0) {
-        delete chains[node._key];
+        chains[node._key] = undefined;
         node.destroy();
       }
     },
@@ -12380,9 +12390,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       var chains = this._chains;
       if (chains) {
         for (var key in chains) {
-          if (!chains.hasOwnProperty(key)) {
-            continue;
-          }
           chains[key].willChange(events);
         }
       }
@@ -12450,9 +12457,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       var chains = this._chains;
       if (chains) {
         for (var key in chains) {
-          if (!chains.hasOwnProperty(key)) {
-            continue;
-          }
           chains[key].didChange(events);
         }
       }
@@ -12479,10 +12483,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       chainWatchers = m.chainWatchers;
       if (chainWatchers) {
         for (var key in chainWatchers) {
-          if (!chainWatchers.hasOwnProperty(key)) {
-            continue;
-          }
-
           chainNodes = chainWatchers[key];
           if (chainNodes) {
             for (var i = 0, l = chainNodes.length; i < l; i++) {
@@ -13801,7 +13801,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+49d58530
+    @version 2.0.0-canary+2a64be6d
     @public
   */
 
@@ -13833,11 +13833,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+49d58530'
+    @default '2.0.0-canary+2a64be6d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+49d58530';
+  Ember.VERSION = '2.0.0-canary+2a64be6d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20963,7 +20963,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
           nodes = node._chains;
           if (nodes) {
             for (key in nodes) {
-              if (nodes.hasOwnProperty(key)) {
+              if (nodes[key] !== undefined) {
                 NODE_STACK.push(nodes[key]);
               }
             }
@@ -21999,7 +21999,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2a64be6d';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22498,7 +22498,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2a64be6d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38624,7 +38624,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+49d58530',
+        revision: 'Ember@2.0.0-canary+2a64be6d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42529,7 +42529,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+49d58530';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2a64be6d';
 
   /**
   @module ember
