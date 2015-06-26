@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6130fa62
+ * @version   2.0.0-canary+9c919cae
  */
 
 (function() {
@@ -2273,7 +2273,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   _emberMetalCore.default.makeArray = _emberMetalUtils.makeArray;
   _emberMetalCore.default.canInvoke = _emberMetalUtils.canInvoke;
   _emberMetalCore.default.tryInvoke = _emberMetalUtils.tryInvoke;
-  _emberMetalCore.default.tryFinally = _emberMetalUtils.deprecatedTryFinally;
   _emberMetalCore.default.wrap = _emberMetalUtils.wrap;
   _emberMetalCore.default.apply = _emberMetalUtils.apply;
   _emberMetalCore.default.applyStr = _emberMetalUtils.applyStr;
@@ -4773,7 +4772,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+6130fa62
+    @version 2.0.0-canary+9c919cae
     @public
   */
 
@@ -4805,11 +4804,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+6130fa62'
+    @default '2.0.0-canary+9c919cae'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+6130fa62';
+  Ember.VERSION = '2.0.0-canary+9c919cae';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5396,16 +5395,13 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
       actions[actionIndex + 2] |= SUSPENDED; // mark the action as suspended
     }
 
-    function tryable() {
+    try {
       return callback.call(target);
-    }
-    function finalizer() {
+    } finally {
       if (actionIndex !== -1) {
         actions[actionIndex + 2] &= ~SUSPENDED;
       }
     }
-
-    return (0, _emberMetalUtils.tryFinally)(tryable, finalizer);
   }
 
   /**
@@ -5430,11 +5426,10 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
 
     var suspendedActions = [];
     var actionsList = [];
-    var eventName, actions, i, l;
 
-    for (i = 0, l = eventNames.length; i < l; i++) {
-      eventName = eventNames[i];
-      actions = actionsFor(obj, eventName);
+    for (var i = 0, l = eventNames.length; i < l; i++) {
+      var eventName = eventNames[i];
+      var actions = actionsFor(obj, eventName);
       var actionIndex = indexOf(actions, target, method);
 
       if (actionIndex !== -1) {
@@ -5444,18 +5439,14 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
       }
     }
 
-    function tryable() {
+    try {
       return callback.call(target);
-    }
-
-    function finalizer() {
+    } finally {
       for (var i = 0, l = suspendedActions.length; i < l; i++) {
         var actionIndex = suspendedActions[i];
         actionsList[i][actionIndex + 2] &= ~SUSPENDED;
       }
     }
-
-    return (0, _emberMetalUtils.tryFinally)(tryable, finalizer);
   }
 
   /**
@@ -5843,7 +5834,7 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/core', 'ember-m
   exports.default = InjectedProperty;
 });
 // Ember.assert
-enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalUtils) {
+enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports.instrument = instrument;
   exports._instrumentStart = _instrumentStart;
   exports.subscribe = subscribe;
@@ -5951,16 +5942,22 @@ enifed('ember-metal/instrumentation', ['exports', 'ember-metal/core', 'ember-met
     var finalizer = _instrumentStart(name, function () {
       return payload;
     });
+
     if (finalizer) {
-      var tryable = function _instrumenTryable() {
-        return callback.call(binding);
-      };
-      var catchable = function _instrumentCatchable(e) {
-        payload.exception = e;
-      };
-      return (0, _emberMetalUtils.tryCatchFinally)(tryable, catchable, finalizer);
+      return withFinalizer(callback, finalizer, payload, binding);
     } else {
       return callback.call(binding);
+    }
+  }
+
+  function withFinalizer(callback, finalizer, payload, binding) {
+    try {
+      return callback.call(binding);
+    } catch (e) {
+      payload.exception = e;
+      return payload;
+    } finally {
+      return finalizer();
     }
   }
 
@@ -8797,7 +8794,11 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   */
   function changeProperties(callback, binding) {
     beginPropertyChanges();
-    (0, _emberMetalUtils.tryFinally)(callback, endPropertyChanges, binding);
+    try {
+      callback.call(binding);
+    } finally {
+      endPropertyChanges.call(binding);
+    }
   }
 
   function notifyBeforeObservers(obj, keyName) {
@@ -9252,6 +9253,7 @@ enifed("ember-metal/replace", ["exports"], function (exports) {
   }
 });
 enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/property_events', 'backburner'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalProperty_events, _backburner) {
+  exports.default = run;
 
   function onBegin(current) {
     run.currentRunLoop = current;
@@ -9307,7 +9309,6 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/util
     @return {Object} return value from invoking the passed function.
     @public
   */
-  exports.default = run;
 
   function run() {
     return backburner.run.apply(backburner, arguments);
@@ -11492,183 +11493,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
     }
   }
 
-  // https://github.com/emberjs/ember.js/pull/1617
-  var needsFinallyFix = (function () {
-    var count = 0;
-    try {
-      // jscs:disable
-      try {} finally {
-        count++;
-        throw new Error('needsFinallyFixTest');
-      }
-      // jscs:enable
-    } catch (e) {}
-
-    return count !== 1;
-  })();
-
-  /**
-    Provides try/finally functionality, while working
-    around Safari's double finally bug.
-  
-    ```javascript
-    var tryable = function() {
-      someResource.lock();
-      runCallback(); // May throw error.
-    };
-  
-    var finalizer = function() {
-      someResource.unlock();
-    };
-  
-    Ember.tryFinally(tryable, finalizer);
-    ```
-  
-    @method tryFinally
-    @deprecated Use JavaScript's native try/finally
-    @for Ember
-    @param {Function} tryable The function to run the try callback
-    @param {Function} finalizer The function to run the finally callback
-    @param {Object} [binding] The optional calling object. Defaults to 'this'
-    @return {*} The return value is the that of the finalizer,
-    unless that value is undefined, in which case it is the return value
-    of the tryable
-    @private
-  */
-
-  var tryFinally;
-  if (needsFinallyFix) {
-    exports.tryFinally = tryFinally = function (tryable, finalizer, binding) {
-      var result, finalResult, finalError;
-
-      binding = binding || this;
-
-      try {
-        result = tryable.call(binding);
-      } finally {
-        try {
-          finalResult = finalizer.call(binding);
-        } catch (e) {
-          finalError = e;
-        }
-      }
-
-      if (finalError) {
-        throw finalError;
-      }
-
-      return finalResult === undefined ? result : finalResult;
-    };
-  } else {
-    exports.tryFinally = tryFinally = function (tryable, finalizer, binding) {
-      var result, finalResult;
-
-      binding = binding || this;
-
-      try {
-        result = tryable.call(binding);
-      } finally {
-        finalResult = finalizer.call(binding);
-      }
-
-      return finalResult === undefined ? result : finalResult;
-    };
-  }
-
-  var deprecatedTryFinally = function () {
-    _emberMetalCore.default.deprecate('tryFinally is deprecated. Please use JavaScript\'s native try/finally.', false);
-    return tryFinally.apply(this, arguments);
-  };
-
-  /**
-    Provides try/catch/finally functionality, while working
-    around Safari's double finally bug.
-  
-    ```javascript
-    var tryable = function() {
-      for (i = 0, l = listeners.length; i < l; i++) {
-        listener = listeners[i];
-        beforeValues[i] = listener.before(name, time(), payload);
-      }
-  
-      return callback.call(binding);
-    };
-  
-    var catchable = function(e) {
-      payload = payload || {};
-      payload.exception = e;
-    };
-  
-    var finalizer = function() {
-      for (i = 0, l = listeners.length; i < l; i++) {
-        listener = listeners[i];
-        listener.after(name, time(), payload, beforeValues[i]);
-      }
-    };
-  
-    Ember.tryCatchFinally(tryable, catchable, finalizer);
-    ```
-  
-    @method tryCatchFinally
-    @deprecated Use JavaScript's native try/catch/finally instead
-    @for Ember
-    @param {Function} tryable The function to run the try callback
-    @param {Function} catchable The function to run the catchable callback
-    @param {Function} finalizer The function to run the finally callback
-    @param {Object} [binding] The optional calling object. Defaults to 'this'
-    @return {*} The return value is the that of the finalizer,
-    unless that value is undefined, in which case it is the return value
-    of the tryable.
-    @private
-  */
-  var tryCatchFinally;
-  if (needsFinallyFix) {
-    exports.tryCatchFinally = tryCatchFinally = function (tryable, catchable, finalizer, binding) {
-      var result, finalResult, finalError;
-
-      binding = binding || this;
-
-      try {
-        result = tryable.call(binding);
-      } catch (error) {
-        result = catchable.call(binding, error);
-      } finally {
-        try {
-          finalResult = finalizer.call(binding);
-        } catch (e) {
-          finalError = e;
-        }
-      }
-
-      if (finalError) {
-        throw finalError;
-      }
-
-      return finalResult === undefined ? result : finalResult;
-    };
-  } else {
-    exports.tryCatchFinally = tryCatchFinally = function (tryable, catchable, finalizer, binding) {
-      var result, finalResult;
-
-      binding = binding || this;
-
-      try {
-        result = tryable.call(binding);
-      } catch (error) {
-        result = catchable.call(binding, error);
-      } finally {
-        finalResult = finalizer.call(binding);
-      }
-
-      return finalResult === undefined ? result : finalResult;
-    };
-  }
-
-  var deprecatedTryCatchFinally = function () {
-    _emberMetalCore.default.deprecate('tryCatchFinally is deprecated. Please use JavaScript\'s native try/catch/finally.', false);
-    return tryCatchFinally.apply(this, arguments);
-  };
-
   // ........................................
   // TYPING & ARRAY MESSAGING
   //
@@ -11827,11 +11651,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   exports.EMPTY_META = EMPTY_META;
   exports.meta = meta;
   exports.makeArray = makeArray;
-  exports.tryCatchFinally = tryCatchFinally;
-  exports.deprecatedTryCatchFinally = deprecatedTryCatchFinally;
   exports.canInvoke = canInvoke;
-  exports.tryFinally = tryFinally;
-  exports.deprecatedTryFinally = deprecatedTryFinally;
 });
 enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal/utils', 'ember-metal/properties'], function (exports, _emberMetalFeatures, _emberMetalUtils, _emberMetalProperties) {
   exports.watchKey = watchKey;
