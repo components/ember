@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+47ec6622
+ * @version   2.0.0-canary+9c919cae
  */
 
 (function() {
@@ -2611,13 +2611,9 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
       // then notify chains...
       var chains = this._chains;
-      var node;
       if (chains) {
         for (var key in chains) {
-          node = chains[key];
-          if (node !== undefined) {
-            node.didChange(events);
-          }
+          chains[key].didChange(events);
         }
       }
 
@@ -3964,7 +3960,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+47ec6622
+    @version 2.0.0-canary+9c919cae
     @public
   */
 
@@ -3996,11 +3992,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+47ec6622'
+    @default '2.0.0-canary+9c919cae'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+47ec6622';
+  Ember.VERSION = '2.0.0-canary+9c919cae';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6290,7 +6286,6 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
 });
 enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
   exports.mixin = mixin;
-  exports.default = Mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
@@ -6826,6 +6821,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @namespace Ember
     @public
   */
+  exports.default = Mixin;
 
   function Mixin(args, properties) {
     this.properties = properties;
@@ -12363,7 +12359,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+47ec6622',
+        revision: 'Ember@2.0.0-canary+9c919cae',
         loc: program.loc,
         moduleName: options.moduleName
       };

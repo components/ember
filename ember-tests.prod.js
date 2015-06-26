@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+47ec6622
+ * @version   2.0.0-canary+9c919cae
  */
 
 (function() {
@@ -32044,282 +32044,377 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalObserver, _emberMetalProperty_events, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
 
-  var obj;
-  QUnit.module('map', {
+  var obj, sorted, sortProps, items, userFnCalls, todos, filtered, union;
+
+  QUnit.module('computedMap', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array.@each.v', function (item) {
-          return item.v;
-        }),
-        mappedObjects: (0, _emberRuntimeComputedReduce_computed_macros.map)('arrayObjects.@each.v', function (item) {
-          return { name: item.v.name };
-        })
-      }).create({
-        arrayObjects: _emberMetalCore.default.A([{ v: { name: 'Robert' } }, { v: { name: 'Leanna' } }]),
+      (0, _emberMetalRun_loop.default)(function () {
+        userFnCalls = 0;
+        obj = _emberRuntimeSystemObject.default.extend({
 
-        array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+          mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array.@each.v', function (item) {
+            ++userFnCalls;
+            return item.v;
+          }),
+
+          arrayObjects: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ v: { name: 'Robert' } }), _emberRuntimeSystemObject.default.create({ v: { name: 'Leanna' } })]),
+          mappedObjects: (0, _emberRuntimeComputedReduce_computed_macros.map)('arrayObjects.@each.v', function (item) {
+            return {
+              name: item.v.name
+            };
+          })
+        }).create({
+          array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+        });
       });
     },
-
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('map is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('mapped', 1);
-    }, /Cannot set read-only property "mapped" on object:/);
   });
 
   QUnit.test('it maps simple properties', function () {
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 1]);
 
-    obj.get('array').pushObject({ v: 5 });
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').pushObject({ v: 5 });
+    });
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 1, 5]);
 
-    obj.get('array').removeAt(3);
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').removeAt(3);
+    });
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 5]);
+  });
+
+  QUnit.test('it caches properly', function () {
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    (0, _emberMetalProperty_get.get)(obj, 'mapped');
+
+    equal(userFnCalls, 4, 'precond - mapper called expected number of times');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      array.addObject({ v: 7 });
+    });
+
+    equal(userFnCalls, 5, 'precond - mapper called expected number of times');
+
+    (0, _emberMetalProperty_get.get)(obj, 'mapped');
+
+    equal(userFnCalls, 5, 'computedMap caches properly');
   });
 
   QUnit.test('it maps simple unshifted properties', function () {
-    var array = _emberMetalCore.default.A();
+    var array = _emberMetalCore.default.A([]);
 
-    obj = _emberRuntimeSystemObject.default.extend({
-      mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array', function (item) {
-        return item.toUpperCase();
-      })
-    }).create({
-      array: array
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array', function (item) {
+          return item.toUpperCase();
+        })
+      }).create({
+        array: array
+      });
+      (0, _emberMetalProperty_get.get)(obj, 'mapped');
     });
 
-    array.unshiftObject('c');
-    array.unshiftObject('b');
-    array.unshiftObject('a');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.unshiftObject('c');
+      array.unshiftObject('b');
+      array.unshiftObject('a');
 
-    array.popObject();
+      array.popObject();
+    });
 
-    deepEqual(obj.get('mapped'), ['A', 'B'], 'properties unshifted in sequence are mapped correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), ['A', 'B'], 'properties unshifted in sequence are mapped correctly');
   });
 
   QUnit.test('it passes the index to the callback', function () {
-    var array = ['a', 'b', 'c'];
+    var array = _emberMetalCore.default.A(['a', 'b', 'c']);
 
-    obj = _emberRuntimeSystemObject.default.extend({
-      mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array', function (item, index) {
-        return index;
-      })
-    }).create({
-      array: array
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array', function (item, index) {
+          return index;
+        })
+      }).create({
+        array: array
+      });
+      (0, _emberMetalProperty_get.get)(obj, 'mapped');
     });
 
-    deepEqual(obj.get('mapped'), [0, 1, 2], 'index is passed to callback correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [0, 1, 2], 'index is passed to callback correctly');
   });
 
   QUnit.test('it maps objects', function () {
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }]);
 
-    obj.get('arrayObjects').pushObject({
-      v: { name: 'Eddard' }
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('arrayObjects').pushObject({ v: { name: 'Eddard' } });
     });
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mappedObjects'), [{ name: 'Robert' }, { name: 'Leanna' }, { name: 'Eddard' }]);
 
-    obj.get('arrayObjects').removeAt(1);
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('arrayObjects').removeAt(1);
+    });
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Robert' }, { name: 'Eddard' }]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mappedObjects'), [{ name: 'Robert' }, { name: 'Eddard' }]);
 
-    (0, _emberMetalProperty_set.set)(obj.get('arrayObjects')[0], 'v', { name: 'Stannis' });
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('arrayObjects').objectAt(0).set('v', { name: 'Stannis' });
+    });
 
-    deepEqual(obj.get('mappedObjects'), [{ name: 'Stannis' }, { name: 'Eddard' }]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mappedObjects'), [{ name: 'Stannis' }, { name: 'Eddard' }]);
   });
 
   QUnit.test('it maps unshifted objects with property observers', function () {
-    var array = _emberMetalCore.default.A();
+    var array = _emberMetalCore.default.A([]);
     var cObj = { v: 'c' };
 
-    obj = _emberRuntimeSystemObject.default.extend({
-      mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array.@each.v', function (item) {
-        return (0, _emberMetalProperty_get.get)(item, 'v').toUpperCase();
-      })
-    }).create({
-      array: array
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        mapped: (0, _emberRuntimeComputedReduce_computed_macros.map)('array.@each.v', function (item) {
+          return (0, _emberMetalProperty_get.get)(item, 'v').toUpperCase();
+        })
+      }).create({
+        array: array
+      });
+      (0, _emberMetalProperty_get.get)(obj, 'mapped');
     });
 
-    array.unshiftObject(cObj);
-    array.unshiftObject({ v: 'b' });
-    array.unshiftObject({ v: 'a' });
+    (0, _emberMetalRun_loop.default)(function () {
+      array.unshiftObject(cObj);
+      array.unshiftObject({ v: 'b' });
+      array.unshiftObject({ v: 'a' });
 
-    (0, _emberMetalProperty_set.set)(cObj, 'v', 'd');
+      (0, _emberMetalProperty_set.set)(cObj, 'v', 'd');
+    });
 
     deepEqual(array.mapBy('v'), ['a', 'b', 'd'], 'precond - unmapped array is correct');
-    deepEqual(obj.get('mapped'), ['A', 'B', 'D'], 'properties unshifted in sequence are mapped correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), ['A', 'B', 'D'], 'properties unshifted in sequence are mapped correctly');
   });
 
-  QUnit.module('mapBy', {
+  QUnit.test('it complains if you invoke the wrong map macro', function () {
+    expectAssertion(function () {
+      return (0, _emberRuntimeComputedReduce_computed_macros.map)('array', 'property');
+    }, /map expects a callback function/);
+  });
+
+  QUnit.module('computedMapBy', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        mapped: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', 'v')
-      }).create({
-        array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          mapped: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', 'v')
+        }).create({
+          array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('mapBy is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('mapped', 1);
-    }, /Cannot set read-only property "mapped" on object:/);
   });
 
   QUnit.test('it maps properties', function () {
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+    (0, _emberMetalProperty_get.get)(obj, 'mapped');
 
-    obj.get('array').pushObject({ v: 5 });
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 1]);
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1, 5]);
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').pushObject({ v: 5 });
+    });
 
-    obj.get('array').removeAt(3);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 1, 5]);
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 5]);
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').removeAt(3);
+    });
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 5]);
   });
 
   QUnit.test('it is observable', function () {
+    (0, _emberMetalProperty_get.get)(obj, 'mapped');
     var calls = 0;
 
-    deepEqual(obj.get('mapped'), [1, 3, 2, 1]);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'mapped'), [1, 3, 2, 1]);
 
     (0, _emberMetalObserver.addObserver)(obj, 'mapped.@each', function () {
-      return calls++;
+      calls++;
     });
 
-    obj.get('array').pushObject({ v: 5 });
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').pushObject({ v: 5 });
+    });
 
-    equal(calls, 1, 'mapBy is observable');
+    equal(calls, 1, 'computedMapBy is observable');
   });
 
-  QUnit.module('filter', {
+  QUnit.test('it complains with the wrong arguments', function () {
+    expectAssertion(function () {
+      return (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', function (a) {
+        return a;
+      });
+    }, /mapBy expects a property string/);
+  });
+
+  QUnit.module('computedFilter', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item) {
-          return item % 2 === 0;
-        })
-      }).create({
-        array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6, 7, 8])
+      (0, _emberMetalRun_loop.default)(function () {
+        userFnCalls = 0;
+        obj = _emberRuntimeSystemObject.default.extend({
+          filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item) {
+            ++userFnCalls;
+            return item % 2 === 0;
+          })
+        }).create({
+          array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6, 7, 8])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
-  QUnit.test('filter is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('filtered', 1);
-    }, /Cannot set read-only property "filtered" on object:/);
-  });
-
   QUnit.test('it filters according to the specified filter function', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'filter filters by the specified function');
+    var filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
+
+    deepEqual(filtered, [2, 4, 6, 8], 'computedFilter filters by the specified function');
   });
 
   QUnit.test('it passes the index to the callback', function () {
-    obj = _emberRuntimeSystemObject.default.extend({
-      filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item, index) {
-        return index === 1;
-      })
-    }).create({
-      array: ['a', 'b', 'c']
+    var array = _emberMetalCore.default.A(['a', 'b', 'c']);
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item, index) {
+          return index === 1;
+        })
+      }).create({
+        array: array
+      });
+      (0, _emberMetalProperty_get.get)(obj, 'filtered');
     });
 
     deepEqual((0, _emberMetalProperty_get.get)(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
   });
 
   QUnit.test('it passes the array to the callback', function () {
-    obj = _emberRuntimeSystemObject.default.extend({
-      filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item, index, array) {
-        return index === (0, _emberMetalProperty_get.get)(array, 'length') - 2;
-      })
-    }).create({
-      array: _emberMetalCore.default.A(['a', 'b', 'c'])
+    var array = _emberMetalCore.default.A(['a', 'b', 'c']);
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('array', function (item, index, array) {
+          return index === array.get('length') - 2;
+        })
+      }).create({
+        array: array
+      });
+      (0, _emberMetalProperty_get.get)(obj, 'filtered');
     });
 
-    deepEqual(obj.get('filtered'), ['b'], 'array is passed to callback correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'filtered'), ['b'], 'array is passed to callback correctly');
   });
 
   QUnit.test('it caches properly', function () {
-    var array = obj.get('array');
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    (0, _emberMetalProperty_get.get)(obj, 'filtered');
 
-    var filtered = obj.get('filtered');
-    ok(filtered === obj.get('filtered'));
+    equal(userFnCalls, 8, 'precond - filter called expected number of times');
 
-    array.addObject(11);
-    var newFiltered = obj.get('filtered');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.addObject(11);
+    });
 
-    ok(filtered !== newFiltered);
+    equal(userFnCalls, 9, 'precond - filter called expected number of times');
 
-    ok(obj.get('filtered') === newFiltered);
+    (0, _emberMetalProperty_get.get)(obj, 'filtered');
+
+    equal(userFnCalls, 9, 'computedFilter caches properly');
   });
 
   QUnit.test('it updates as the array is modified', function () {
-    var array = obj.get('array');
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
 
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    deepEqual(filtered, [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
-    array.addObject(11);
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'objects not passing the filter are not added');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.addObject(11);
+    });
+    deepEqual(filtered, [2, 4, 6, 8], 'objects not passing the filter are not added');
 
-    array.addObject(12);
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8, 12], 'objects passing the filter are added');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.addObject(12);
+    });
+    deepEqual(filtered, [2, 4, 6, 8, 12], 'objects passing the filter are added');
 
-    array.removeObject(3);
-    array.removeObject(4);
-
-    deepEqual(obj.get('filtered'), [2, 6, 8, 12], 'objects removed from the dependent array are removed from the computed array');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.removeObject(3);
+      array.removeObject(4);
+    });
+    deepEqual(filtered, [2, 6, 8, 12], 'objects removed from the dependent array are removed from the computed array');
   });
 
   QUnit.test('the dependent array can be cleared one at a time', function () {
     var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
 
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    deepEqual(filtered, [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
-    // clear 1-8 but in a random order
-    array.removeObject(3);
-    array.removeObject(1);
-    array.removeObject(2);
-    array.removeObject(4);
-    array.removeObject(8);
-    array.removeObject(6);
-    array.removeObject(5);
-    array.removeObject(7);
+    (0, _emberMetalRun_loop.default)(function () {
+      // clear 1-8 but in a random order
+      array.removeObject(3);
+      array.removeObject(1);
+      array.removeObject(2);
+      array.removeObject(4);
+      array.removeObject(8);
+      array.removeObject(6);
+      array.removeObject(5);
+      array.removeObject(7);
+    });
 
-    deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
+    deepEqual(filtered, [], 'filtered array cleared correctly');
   });
 
   QUnit.test('the dependent array can be `clear`ed directly (#3272)', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
 
-    obj.get('array').clear();
+    deepEqual(filtered, [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
-    deepEqual(obj.get('filtered'), [], 'filtered array cleared correctly');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.clear();
+    });
+
+    deepEqual(filtered, [], 'filtered array cleared correctly');
   });
 
   QUnit.test('it updates as the array is replaced', function () {
-    deepEqual(obj.get('filtered'), [2, 4, 6, 8], 'precond - filtered array is initially correct');
+    (0, _emberMetalProperty_get.get)(obj, 'array');
+    var filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
 
-    obj.set('array', [20, 21, 22, 23, 24]);
+    deepEqual(filtered, [2, 4, 6, 8], 'precond - filtered array is initially correct');
 
-    deepEqual(obj.get('filtered'), [20, 22, 24], 'computed array is updated when array is changed');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'array', _emberMetalCore.default.A([20, 21, 22, 23, 24]));
+    });
+    deepEqual(filtered, [20, 22, 24], 'computed array is updated when array is changed');
   });
 
-  QUnit.module('filterBy', {
+  QUnit.module('computedFilterBy', {
     setup: function () {
       obj = _emberRuntimeSystemObject.default.extend({
         a1s: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('array', 'a', 1),
@@ -32330,60 +32425,70 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
-  QUnit.test('filterBy is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('as', 1);
-    }, /Cannot set read-only property "as" on object:/);
-  });
-
   QUnit.test('properties can be filtered by truthiness', function () {
-    deepEqual(obj.get('as').mapBy('name'), ['one', 'two', 'three'], 'properties can be filtered by existence');
-    deepEqual(obj.get('bs').mapBy('name'), ['three', 'four'], 'booleans can be filtered');
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var as = (0, _emberMetalProperty_get.get)(obj, 'as');
+    var bs = (0, _emberMetalProperty_get.get)(obj, 'bs');
 
-    (0, _emberMetalProperty_set.set)(obj.get('array')[0], 'a', undefined);
-    (0, _emberMetalProperty_set.set)(obj.get('array')[3], 'a', true);
+    deepEqual(as.mapBy('name'), ['one', 'two', 'three'], 'properties can be filtered by existence');
+    deepEqual(bs.mapBy('name'), ['three', 'four'], 'booleans can be filtered');
 
-    (0, _emberMetalProperty_set.set)(obj.get('array')[0], 'b', true);
-    (0, _emberMetalProperty_set.set)(obj.get('array')[3], 'b', false);
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(array.objectAt(0), 'a', undefined);
+      (0, _emberMetalProperty_set.set)(array.objectAt(3), 'a', true);
 
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to property changes');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to property changes');
+      (0, _emberMetalProperty_set.set)(array.objectAt(0), 'b', true);
+      (0, _emberMetalProperty_set.set)(array.objectAt(3), 'b', false);
+    });
+    deepEqual(as.mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to property changes');
+    deepEqual(bs.mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to property changes');
 
-    obj.get('array').pushObject({ name: 'five', a: 6, b: true });
+    (0, _emberMetalRun_loop.default)(function () {
+      array.pushObject({ name: 'five', a: 6, b: true });
+    });
+    deepEqual(as.mapBy('name'), ['two', 'three', 'four', 'five'], 'arrays computed by filter property respond to added objects');
+    deepEqual(bs.mapBy('name'), ['one', 'three', 'five'], 'arrays computed by filtered property respond to added objects');
 
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four', 'five'], 'arrays computed by filter property respond to added objects');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by filtered property respond to added objects');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.popObject();
+    });
+    deepEqual(as.mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to removed objects');
+    deepEqual(bs.mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to removed objects');
 
-    obj.get('array').popObject();
-
-    deepEqual(obj.get('as').mapBy('name'), ['two', 'three', 'four'], 'arrays computed by filter property respond to removed objects');
-    deepEqual(obj.get('bs').mapBy('name'), ['one', 'three'], 'arrays computed by filtered property respond to removed objects');
-
-    obj.set('array', [{ name: 'six', a: 12, b: true }]);
-
-    deepEqual(obj.get('as').mapBy('name'), ['six'], 'arrays computed by filter property respond to array changes');
-    deepEqual(obj.get('bs').mapBy('name'), ['six'], 'arrays computed by filtered property respond to array changes');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'array', _emberMetalCore.default.A([{ name: 'six', a: 12, b: true }]));
+    });
+    deepEqual(as.mapBy('name'), ['six'], 'arrays computed by filter property respond to array changes');
+    deepEqual(bs.mapBy('name'), ['six'], 'arrays computed by filtered property respond to array changes');
   });
 
   QUnit.test('properties can be filtered by values', function () {
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'properties can be filtered by matching value');
+    var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var a1s = (0, _emberMetalProperty_get.get)(obj, 'a1s');
 
-    obj.get('array').pushObject({ name: 'five', a: 1 });
+    deepEqual(a1s.mapBy('name'), ['one', 'three'], 'properties can be filtered by matching value');
 
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three', 'five'], 'arrays computed by matching value respond to added objects');
+    (0, _emberMetalRun_loop.default)(function () {
+      array.pushObject({ name: 'five', a: 1 });
+    });
+    deepEqual(a1s.mapBy('name'), ['one', 'three', 'five'], 'arrays computed by matching value respond to added objects');
 
-    obj.get('array').popObject();
+    (0, _emberMetalRun_loop.default)(function () {
+      array.popObject();
+    });
+    deepEqual(a1s.mapBy('name'), ['one', 'three'], 'arrays computed by matching value respond to removed objects');
 
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'three'], 'arrays computed by matching value respond to removed objects');
-
-    (0, _emberMetalProperty_set.set)(obj.get('array')[1], 'a', 1);
-    (0, _emberMetalProperty_set.set)(obj.get('array')[2], 'a', 2);
-
-    deepEqual(obj.get('a1s').mapBy('name'), ['one', 'two'], 'arrays computed by matching value respond to modified properties');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(array.objectAt(1), 'a', 1);
+      (0, _emberMetalProperty_set.set)(array.objectAt(2), 'a', 2);
+    });
+    deepEqual(a1s.mapBy('name'), ['one', 'two'], 'arrays computed by matching value respond to modified properties');
   });
 
   QUnit.test('properties values can be replaced', function () {
@@ -32391,169 +32496,183 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
       a1s: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('array', 'a', 1),
       a1bs: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('a1s', 'b')
     }).create({
-      array: []
+      array: _emberMetalCore.default.A([])
     });
 
-    deepEqual(obj.get('a1bs').mapBy('name'), [], 'properties can be filtered by matching value');
+    var a1bs = (0, _emberMetalProperty_get.get)(obj, 'a1bs');
+    deepEqual(a1bs.mapBy('name'), [], 'properties can be filtered by matching value');
 
-    (0, _emberMetalProperty_set.set)(obj, 'array', [{ name: 'item1', a: 1, b: true }]);
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'array', _emberMetalCore.default.A([{ name: 'item1', a: 1, b: true }]));
+    });
 
-    deepEqual(obj.get('a1bs').mapBy('name'), ['item1'], 'properties can be filtered by matching value');
+    a1bs = (0, _emberMetalProperty_get.get)(obj, 'a1bs');
+    deepEqual(a1bs.mapBy('name'), ['item1'], 'properties can be filtered by matching value');
   });
 
   [['uniq', _emberRuntimeComputedReduce_computed_macros.uniq], ['union', _emberRuntimeComputedReduce_computed_macros.union]].forEach(function (tuple) {
-    var name = tuple[0];
-    var macro = tuple[1];
+    var alias = tuple[0];
+    var testedFunc = tuple[1];
 
-    QUnit.module('computed.' + name, {
+    QUnit.module('computed.' + alias, {
       setup: function () {
-        obj = _emberRuntimeSystemObject.default.extend({
-          union: macro('array', 'array2', 'array3')
-        }).create({
-          array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
-          array2: _emberMetalCore.default.A([4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 9]),
-          array3: _emberMetalCore.default.A([1, 8, 10])
+        (0, _emberMetalRun_loop.default)(function () {
+          union = testedFunc('array', 'array2', 'array3');
+          obj = _emberRuntimeSystemObject.default.extend({
+            union: union
+          }).create({
+            array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
+            array2: _emberMetalCore.default.A([4, 5, 6, 7, 8, 9, 4, 5, 6, 7, 8, 9]),
+            array3: _emberMetalCore.default.A([1, 8, 10])
+          });
         });
       },
       teardown: function () {
-        _emberMetalCore.default.run(obj, 'destroy');
+        (0, _emberMetalRun_loop.default)(function () {
+          obj.destroy();
+        });
       }
     });
 
-    QUnit.test('' + name + ' is readOnly', function () {
-      QUnit.throws(function () {
-        obj.set('union', 1);
-      }, /Cannot set read-only property "union" on object:/);
-    });
-
     QUnit.test('does not include duplicates', function () {
-      var array = obj.get('array');
-      var array2 = obj.get('array2');
+      var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+      var array2 = (0, _emberMetalProperty_get.get)(obj, 'array2');
+      (0, _emberMetalProperty_get.get)(obj, 'array3');
+      var union = (0, _emberMetalProperty_get.get)(obj, 'union');
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' does not include duplicates');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], alias + ' does not include duplicates');
 
-      array.pushObject(8);
+      (0, _emberMetalRun_loop.default)(function () {
+        array.pushObject(8);
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' does not add existing items');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], alias + ' does not add existing items');
 
-      array.pushObject(11);
+      (0, _emberMetalRun_loop.default)(function () {
+        array.pushObject(11);
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], name + ' adds new items');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], alias + ' adds new items');
 
-      array2.removeAt(6); // remove 7
+      (0, _emberMetalRun_loop.default)(function () {
+        array2.removeAt(6); // remove 7
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], name + ' does not remove items that are still in the dependent array');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], alias + ' does not remove items that are still in the dependent array');
 
-      array2.removeObject(7);
+      (0, _emberMetalRun_loop.default)(function () {
+        array2.removeObject(7);
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 8, 9, 10, 11], name + ' removes items when their last instance is gone');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 8, 9, 10, 11], alias + ' removes items when their last instance is gone');
     });
 
     QUnit.test('has set-union semantics', function () {
-      var array = obj.get('array');
+      var array = (0, _emberMetalProperty_get.get)(obj, 'array');
+      (0, _emberMetalProperty_get.get)(obj, 'array2');
+      (0, _emberMetalProperty_get.get)(obj, 'array3');
+      var union = (0, _emberMetalProperty_get.get)(obj, 'union');
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], name + ' is initially correct');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], alias + ' is initially correct');
 
-      array.removeObject(6);
+      (0, _emberMetalRun_loop.default)(function () {
+        array.removeObject(6);
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'objects are not removed if they exist in other dependent arrays');
+      deepEqual(union, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'objects are not removed if they exist in other dependent arrays');
 
-      array.clear();
+      (0, _emberMetalRun_loop.default)(function () {
+        array.clear();
+      });
 
-      deepEqual(obj.get('union').sort(function (x, y) {
-        return x - y;
-      }), [1, 4, 5, 6, 7, 8, 9, 10], 'objects are removed when they are no longer in any dependent array');
+      deepEqual(union, [1, 4, 5, 6, 7, 8, 9, 10], 'objects are removed when they are no longer in any dependent array');
+    });
+
+    QUnit.test('does not need to query the accumulated array while building it', function () {
+      var indexOfCalls = [];
+      var CountIndexOfCalls = _emberMetalMixin.Mixin.create({
+        indexOf: function () {
+          indexOfCalls.push(arguments);
+          return this._super.apply(this, arguments);
+        }
+      });
+      union.initialValue = function () {
+        return CountIndexOfCalls.apply(_emberMetalCore.default.A([]));
+      };
+      (0, _emberMetalProperty_get.get)(obj, 'union');
+      ok(indexOfCalls.length === 0, 'Ember.computed.' + alias + ' should not need to query the union as it is being built');
     });
   });
 
   QUnit.module('computed.intersect', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        intersection: (0, _emberRuntimeComputedReduce_computed_macros.intersect)('array', 'array2', 'array3')
-      }).create({
-        array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
-        array2: _emberMetalCore.default.A([3, 3, 3, 4, 5]),
-        array3: _emberMetalCore.default.A([3, 5, 6, 7, 8])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          intersection: (0, _emberRuntimeComputedReduce_computed_macros.intersect)('array', 'array2', 'array3')
+        }).create({
+          array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
+          array2: _emberMetalCore.default.A([3, 3, 3, 4, 5]),
+          array3: _emberMetalCore.default.A([3, 5, 6, 7, 8])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('intersect is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('intersection', 1);
-    }, /Cannot set read-only property "intersection" on object:/);
   });
 
   QUnit.test('it has set-intersection semantics', function () {
-    var array2 = obj.get('array2');
-    var array3 = obj.get('array3');
+    (0, _emberMetalProperty_get.get)(obj, 'array');
+    var array2 = (0, _emberMetalProperty_get.get)(obj, 'array2');
+    var array3 = (0, _emberMetalProperty_get.get)(obj, 'array3');
+    var intersection = (0, _emberMetalProperty_get.get)(obj, 'intersection');
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
-      return x - y;
-    }), [3, 5], 'intersection is initially correct');
+    deepEqual(intersection, [3, 5], 'intersection is initially correct');
 
-    array2.shiftObject();
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.shiftObject();
+    });
+    deepEqual(intersection, [3, 5], 'objects are not removed when they are still in all dependent arrays');
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
-      return x - y;
-    }), [3, 5], 'objects are not removed when they are still in all dependent arrays');
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.shiftObject();
+    });
+    deepEqual(intersection, [3, 5], 'objects are not removed when they are still in all dependent arrays');
 
-    array2.shiftObject();
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.shiftObject();
+    });
+    deepEqual(intersection, [5], 'objects are removed once they are gone from all dependent arrays');
 
-    deepEqual(obj.get('intersection').sort(function (x, y) {
-      return x - y;
-    }), [3, 5], 'objects are not removed when they are still in all dependent arrays');
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.pushObject(1);
+    });
+    deepEqual(intersection, [5], 'objects are not added as long as they are missing from any dependent array');
 
-    array2.shiftObject();
-
-    deepEqual(obj.get('intersection'), [5], 'objects are removed once they are gone from all dependent arrays');
-
-    array2.pushObject(1);
-
-    deepEqual(obj.get('intersection'), [5], 'objects are not added as long as they are missing from any dependent array');
-
-    array3.pushObject(1);
-
-    deepEqual(obj.get('intersection').sort(function (x, y) {
-      return x - y;
-    }), [1, 5], 'objects added once they belong to all dependent arrays');
+    (0, _emberMetalRun_loop.default)(function () {
+      array3.pushObject(1);
+    });
+    deepEqual(intersection, [5, 1], 'objects added once they belong to all dependent arrays');
   });
 
-  QUnit.module('setDiff', {
+  QUnit.module('computedSetDiff', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        diff: (0, _emberRuntimeComputedReduce_computed_macros.setDiff)('array', 'array2')
-      }).create({
-        array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6, 7]),
-        array2: _emberMetalCore.default.A([3, 4, 5, 10])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          diff: (0, _emberRuntimeComputedReduce_computed_macros.setDiff)('array', 'array2')
+        }).create({
+          array: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6, 7]),
+          array2: _emberMetalCore.default.A([3, 4, 5, 10])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('setDiff is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('diff', 1);
-    }, /Cannot set read-only property "diff" on object:/);
   });
 
   QUnit.test('it throws an error if given fewer or more than two dependent properties', function () {
@@ -32578,336 +32697,449 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
   });
 
   QUnit.test('it has set-diff semantics', function () {
-    var array1 = obj.get('array');
-    var array2 = obj.get('array2');
+    var array1 = (0, _emberMetalProperty_get.get)(obj, 'array');
+    var array2 = (0, _emberMetalProperty_get.get)(obj, 'array2');
+    var diff = (0, _emberMetalProperty_get.get)(obj, 'diff');
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 6, 7], 'set-diff is initially correct');
+    deepEqual(diff, [1, 2, 6, 7], 'set-diff is initially correct');
 
-    array2.popObject();
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.popObject();
+    });
+    deepEqual(diff, [1, 2, 6, 7], 'removing objects from the remove set has no effect if the object is not in the keep set');
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 6, 7], 'removing objects from the remove set has no effect if the object is not in the keep set');
+    (0, _emberMetalRun_loop.default)(function () {
+      array2.shiftObject();
+    });
+    deepEqual(diff, [1, 2, 6, 7, 3], 'removing objects from the remove set adds them if they\'re in the keep set');
 
-    array2.shiftObject();
+    (0, _emberMetalRun_loop.default)(function () {
+      array1.removeObject(3);
+    });
+    deepEqual(diff, [1, 2, 6, 7], 'removing objects from the keep array removes them from the computed array');
 
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 3, 6, 7], 'removing objects from the remove set adds them if they\'re in the keep set');
+    (0, _emberMetalRun_loop.default)(function () {
+      array1.pushObject(5);
+    });
+    deepEqual(diff, [1, 2, 6, 7], 'objects added to the keep array that are in the remove array are not added to the computed array');
 
-    array1.removeObject(3);
-
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 6, 7], 'removing objects from the keep array removes them from the computed array');
-
-    array1.pushObject(5);
-
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 6, 7], 'objects added to the keep array that are in the remove array are not added to the computed array');
-
-    array1.pushObject(22);
-
-    deepEqual(obj.get('diff').sort(function (x, y) {
-      return x - y;
-    }), [1, 2, 6, 7, 22], 'objects added to the keep array not in the remove array are added to the computed array');
+    (0, _emberMetalRun_loop.default)(function () {
+      array1.pushObject(22);
+    });
+    deepEqual(diff, [1, 2, 6, 7, 22], 'objects added to the keep array not in the remove array are added to the computed array');
   });
 
   function commonSortTests() {
     QUnit.test('arrays are initially sorted', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
-    });
+      (0, _emberMetalRun_loop.default)(function () {
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      });
 
-    QUnit.test('default sort order is correct', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'array is initially sorted');
     });
 
     QUnit.test('changing the dependent array updates the sorted array', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+      (0, _emberMetalRun_loop.default)(function () {
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      });
 
-      obj.set('items', [{ fname: 'Roose', lname: 'Bolton' }, { fname: 'Theon', lname: 'Greyjoy' }, { fname: 'Ramsey', lname: 'Bolton' }, { fname: 'Stannis', lname: 'Baratheon' }]);
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Stannis', 'Ramsey', 'Roose', 'Theon'], 'changing dependent array updates sorted array');
+      (0, _emberMetalRun_loop.default)(function () {
+        (0, _emberMetalProperty_set.set)(obj, 'items', _emberMetalCore.default.A([{
+          fname: 'Roose', lname: 'Bolton'
+        }, {
+          fname: 'Theon', lname: 'Greyjoy'
+        }, {
+          fname: 'Ramsey', lname: 'Bolton'
+        }, {
+          fname: 'Stannis', lname: 'Baratheon'
+        }]));
+      });
+
+      deepEqual(sorted.mapBy('fname'), ['Stannis', 'Ramsey', 'Roose', 'Theon'], 'changing dependent array updates sorted array');
     });
 
     QUnit.test('adding to the dependent array updates the sorted array', function () {
-      var items = obj.get('items');
-
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
-
-      items.pushObject({
-        fname: 'Tyrion',
-        lname: 'Lannister'
+      (0, _emberMetalRun_loop.default)(function () {
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+        items = (0, _emberMetalProperty_get.get)(obj, 'items');
       });
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb'], 'Adding to the dependent array updates the sorted array');
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+
+      (0, _emberMetalRun_loop.default)(function () {
+        items.pushObject({ fname: 'Tyrion', lname: 'Lannister' });
+      });
+
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb'], 'Adding to the dependent array updates the sorted array');
     });
 
     QUnit.test('removing from the dependent array updates the sorted array', function () {
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+      (0, _emberMetalRun_loop.default)(function () {
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+        items = (0, _emberMetalProperty_get.get)(obj, 'items');
+      });
 
-      obj.get('items').popObject();
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb'], 'Removing from the dependent array updates the sorted array');
+      (0, _emberMetalRun_loop.default)(function () {
+        items.popObject();
+      });
+
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Robb'], 'Removing from the dependent array updates the sorted array');
     });
 
     QUnit.test('distinct items may be sort-equal, although their relative order will not be guaranteed', function () {
-      // We recreate jaime and "Cersei" here only for test stability: we want
-      // their guid-ordering to be deterministic
-      var jaimeInDisguise = {
-        fname: 'Cersei',
-        lname: 'Lannister',
-        age: 34
-      };
+      var jaime, jaimeInDisguise;
 
-      var jaime = {
-        fname: 'Jaime',
-        lname: 'Lannister',
-        age: 34
-      };
+      (0, _emberMetalRun_loop.default)(function () {
+        // We recreate jaime and "Cersei" here only for test stability: we want
+        // their guid-ordering to be deterministic
+        jaimeInDisguise = _emberRuntimeSystemObject.default.create({
+          fname: 'Cersei', lname: 'Lannister', age: 34
+        });
+        jaime = _emberRuntimeSystemObject.default.create({
+          fname: 'Jaime', lname: 'Lannister', age: 34
+        });
+        items = (0, _emberMetalProperty_get.get)(obj, 'items');
 
-      var items = obj.get('items');
+        items.replace(0, 1, jaime);
+        items.replace(1, 1, jaimeInDisguise);
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      });
 
-      items.replace(0, 1, jaime);
-      items.replace(1, 1, jaimeInDisguise);
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+      (0, _emberMetalRun_loop.default)(function () {
+        // comparator will now return 0.
+        // Apparently it wasn't a very good disguise.
+        jaimeInDisguise.set('fname', 'Jaime');
+      });
 
-      (0, _emberMetalProperty_set.set)(jaimeInDisguise, 'fname', 'Jaime');
+      deepEqual(sorted.mapBy('fname'), ['Jaime', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
+      (0, _emberMetalRun_loop.default)(function () {
+        // comparator will again return non-zero
+        jaimeInDisguise.set('fname', 'Cersei');
+      });
 
-      (0, _emberMetalProperty_set.set)(jaimeInDisguise, 'fname', 'Cersei');
-
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'sorted array is updated');
     });
 
     QUnit.test('guid sort-order fallback with a search proxy is not confused by non-search ObjectProxys', function () {
-      var tyrion = {
-        fname: 'Tyrion',
-        lname: 'Lannister'
-      };
-
+      var tyrion = { fname: 'Tyrion', lname: 'Lannister' };
       var tyrionInDisguise = _emberRuntimeSystemObject_proxy.default.create({
         fname: 'Yollo',
         lname: '',
         content: tyrion
       });
 
-      var items = obj.get('items');
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
 
-      items.pushObject(tyrion);
+      (0, _emberMetalRun_loop.default)(function () {
+        sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+        items.pushObject(tyrion);
+      });
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
+      deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
 
-      items.pushObject(tyrionInDisguise);
+      (0, _emberMetalRun_loop.default)(function () {
+        items.pushObject(tyrionInDisguise);
+      });
 
-      deepEqual(obj.get('sortedItems').mapBy('fname'), ['Yollo', 'Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
+      deepEqual(sorted.mapBy('fname'), ['Yollo', 'Cersei', 'Jaime', 'Tyrion', 'Bran', 'Robb']);
     });
   }
 
-  QUnit.module('sort - sortProperties', {
+  QUnit.module('computedSort - sortProperties', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'itemSorting')
-      }).create({
-        itemSorting: _emberMetalCore.default.A(['lname', 'fname']),
-        items: _emberMetalCore.default.A([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'itemSorting')
+        }).create({
+          itemSorting: _emberMetalCore.default.A(['lname', 'fname']),
+          items: _emberMetalCore.default.A([{
+            fname: 'Jaime', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Cersei', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Robb', lname: 'Stark', age: 16
+          }, {
+            fname: 'Bran', lname: 'Stark', age: 8
+          }])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('sort is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('sortedItems', 1);
-    }, /Cannot set read-only property "sortedItems" on object:/);
   });
 
   commonSortTests();
 
   QUnit.test('updating sort properties detaches observers for old sort properties', function () {
-    var objectToRemove = obj.get('items')[3];
+    var objectToRemove = (0, _emberMetalProperty_get.get)(obj, 'items').objectAt(3);
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+    });
 
-    obj.set('itemSorting', _emberMetalCore.default.A(['fname:desc']));
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'itemSorting', _emberMetalCore.default.A(['fname:desc']));
+    });
 
-    obj.get('items').removeObject(objectToRemove);
+    deepEqual(sorted.mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after removing item array is updated');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_get.get)(obj, 'items').removeObject(objectToRemove);
+    });
 
-    (0, _emberMetalProperty_set.set)(objectToRemove, 'lname', 'Updated-Stark');
+    deepEqual(sorted.mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after removing item array is updated');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after changing removed item array is not updated');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(objectToRemove, 'lname', 'Updated-Stark');
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Robb', 'Jaime', 'Cersei'], 'after changing removed item array is not updated');
   });
 
   QUnit.test('updating sort properties updates the sorted array', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+    });
 
-    obj.set('itemSorting', _emberMetalCore.default.A(['fname:desc']));
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'itemSorting', _emberMetalCore.default.A(['fname:desc']));
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Robb', 'Jaime', 'Cersei', 'Bran'], 'after updating sort properties array is updated');
   });
 
-  QUnit.test('updating sort properties invalidates the sorted array', function () {
-    var sortProps = obj.get('itemSorting');
+  QUnit.test('updating sort properties in place updates the sorted array', function () {
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      sortProps = (0, _emberMetalProperty_get.get)(obj, 'itemSorting');
+    });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    sortProps.clear();
-    sortProps.pushObject('fname');
+    (0, _emberMetalRun_loop.default)(function () {
+      sortProps.clear();
+      sortProps.pushObject('fname');
+    });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'after updating sort properties array is updated');
+    deepEqual(sorted.mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'after updating sort properties array is updated');
   });
 
-  QUnit.test('updating new sort properties invalidates the sorted array', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+  QUnit.test('updating new sort properties in place updates the sorted array', function () {
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+    });
 
-    obj.set('itemSorting', _emberMetalCore.default.A(['age:desc', 'fname:asc']));
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Robb', 'Bran'], 'precond - array is correct after item sorting is changed');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'itemSorting', _emberMetalCore.default.A(['age:desc', 'fname:asc']));
+    });
 
-    (0, _emberMetalProperty_set.set)(obj.get('items')[1], 'age', 29);
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Robb', 'Bran'], 'precond - array is correct after item sorting is changed');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Cersei', 'Robb', 'Bran'], 'after updating sort properties array is updated');
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+
+      var cersei = items.objectAt(1);
+      (0, _emberMetalProperty_set.set)(cersei, 'age', 29); // how vain
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Jaime', 'Cersei', 'Robb', 'Bran'], 'after updating sort properties array is updated');
   });
 
   QUnit.test('sort direction defaults to ascending', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb']);
-  });
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+    });
 
-  QUnit.test('sort direction defaults to ascending (with sort property change)', function () {
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    obj.set('itemSorting', _emberMetalCore.default.A(['fname']));
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'itemSorting', _emberMetalCore.default.A(['fname']));
+    });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'sort direction defaults to ascending');
+    deepEqual(sorted.mapBy('fname'), ['Bran', 'Cersei', 'Jaime', 'Robb'], 'sort direction defaults to ascending');
   });
 
   QUnit.test('updating an item\'s sort properties updates the sorted array', function () {
-    var tyrionInDisguise = obj.get('items')[1];
+    var tyrionInDisguise;
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    (0, _emberMetalProperty_set.set)(tyrionInDisguise, 'fname', 'Tyrion');
+    tyrionInDisguise = items.objectAt(1);
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating an item\'s sort properties updates the sorted array');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(tyrionInDisguise, 'fname', 'Tyrion');
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating an item\'s sort properties updates the sorted array');
   });
 
   QUnit.test('updating several of an item\'s sort properties updated the sorted array', function () {
-    var sansaInDisguise = obj.get('items')[1];
+    var sansaInDisguise;
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
-
-    (0, _emberMetalSet_properties.default)(sansaInDisguise, {
-      fname: 'Sansa',
-      lname: 'Stark'
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
     });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Bran', 'Robb', 'Sansa'], 'updating an item\'s sort properties updates the sorted array');
+    sansaInDisguise = items.objectAt(1);
+
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalSet_properties.default)(sansaInDisguise, {
+        fname: 'Sansa',
+        lname: 'Stark'
+      });
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Jaime', 'Bran', 'Robb', 'Sansa'], 'updating an item\'s sort properties updates the sorted array');
   });
 
   QUnit.test('updating an item\'s sort properties does not error when binary search does a self compare (#3273)', function () {
-    var jaime = {
-      name: 'Jaime',
-      status: 1
-    };
+    var jaime, cersei;
 
-    var cersei = {
-      name: 'Cersei',
-      status: 2
-    };
+    (0, _emberMetalRun_loop.default)(function () {
+      jaime = _emberRuntimeSystemObject.default.create({
+        name: 'Jaime',
+        status: 1
+      });
+      cersei = _emberRuntimeSystemObject.default.create({
+        name: 'Cersei',
+        status: 2
+      });
 
-    var obj = _emberRuntimeSystemObject.default.extend({
-      sortProps: ['status'],
-      sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('people', 'sortProps')
-    }).create({
-      people: [jaime, cersei]
+      obj = _emberRuntimeSystemObject.default.extend({
+        sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('people', 'sortProps')
+      }).create({
+        people: _emberMetalCore.default.A([jaime, cersei]),
+        sortProps: _emberMetalCore.default.A(['status'])
+      });
     });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'precond - array is initially sorted');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei], 'precond - array is initially sorted');
 
-    (0, _emberMetalProperty_set.set)(cersei, 'status', 3);
+    (0, _emberMetalRun_loop.default)(function () {
+      cersei.set('status', 3);
+    });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei], 'array is sorted correctly');
 
-    (0, _emberMetalProperty_set.set)(cersei, 'status', 2);
+    (0, _emberMetalRun_loop.default)(function () {
+      cersei.set('status', 2);
+    });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei], 'array is sorted correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei], 'array is sorted correctly');
   });
 
   QUnit.test('array observers do not leak', function () {
-    var daria = { name: 'Daria' };
-    var jane = { name: 'Jane' };
+    var jaime;
 
-    var sisters = [jane, daria];
-
-    var sortProps = _emberMetalCore.default.A(['name']);
-    var jaime = _emberRuntimeSystemObject.default.extend({
-      sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('sisters', 'sortProps'),
-      sortProps: sortProps
-    }).create({
-      sisters: sisters
+    var daria = _emberRuntimeSystemObject.default.create({
+      name: 'Daria'
     });
 
-    jaime.get('sortedPeople');
-    _emberMetalCore.default.run(jaime, 'destroy');
+    var jane = _emberRuntimeSystemObject.default.create({
+      name: 'Jane'
+    });
 
-    try {
-      sortProps.pushObject({
-        name: 'Anna'
+    var sisters = _emberMetalCore.default.A([jane, daria]);
+    var sortProps;
+
+    (0, _emberMetalRun_loop.default)(function () {
+      sortProps = _emberMetalCore.default.A(['name']);
+      jaime = _emberRuntimeSystemObject.default.extend({
+        sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('sisters', 'sortProps'),
+        sortProps: sortProps
+      }).create({
+        sisters: sisters
       });
-      ok(true);
-    } catch (e) {
-      ok(false, e);
-    }
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      jaime.get('sortedPeople');
+      jaime.destroy();
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      try {
+        sortProps.pushObject({
+          name: 'Anna'
+        });
+        ok(true);
+      } catch (e) {
+        ok(false, e);
+      }
+    });
   });
 
   QUnit.test('property paths in sort properties update the sorted array', function () {
-    var jaime = {
-      relatedObj: { status: 1, firstName: 'Jaime', lastName: 'Lannister' }
-    };
+    var jaime, cersei, sansa;
 
-    var cersei = {
-      relatedObj: { status: 2, firstName: 'Cersei', lastName: 'Lannister' }
-    };
+    (0, _emberMetalRun_loop.default)(function () {
+      jaime = _emberRuntimeSystemObject.default.create({
+        relatedObj: _emberRuntimeSystemObject.default.create({ status: 1, firstName: 'Jaime', lastName: 'Lannister' })
+      });
+      cersei = _emberRuntimeSystemObject.default.create({
+        relatedObj: _emberRuntimeSystemObject.default.create({ status: 2, firstName: 'Cersei', lastName: 'Lannister' })
+      });
+      sansa = _emberRuntimeSystemObject.default.create({
+        relatedObj: _emberRuntimeSystemObject.default.create({ status: 3, firstName: 'Sansa', lastName: 'Stark' })
+      });
 
-    var sansa = _emberRuntimeSystemObject.default.create({
-      relatedObj: { status: 3, firstName: 'Sansa', lastName: 'Stark' }
+      obj = _emberRuntimeSystemObject.default.extend({
+        sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('people', 'sortProps')
+      }).create({
+        people: _emberMetalCore.default.A([jaime, cersei, sansa]),
+        sortProps: _emberMetalCore.default.A(['relatedObj.status'])
+      });
     });
 
-    var obj = _emberRuntimeSystemObject.default.extend({
-      sortProps: ['relatedObj.status'],
-      sortedPeople: (0, _emberRuntimeComputedReduce_computed_macros.sort)('people', 'sortProps')
-    }).create({
-      people: [jaime, cersei, sansa]
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei, sansa], 'precond - array is initially sorted');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      cersei.set('status', 3);
     });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'precond - array is initially sorted');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
-    (0, _emberMetalProperty_get.get)(cersei, 'status', 3);
+    (0, _emberMetalRun_loop.default)(function () {
+      cersei.set('status', 1);
+    });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
-    (0, _emberMetalProperty_set.set)(cersei, 'status', 1);
+    (0, _emberMetalRun_loop.default)(function () {
+      sansa.set('status', 1);
+    });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
-    sansa.set('status', 1);
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.set('sortProps', _emberMetalCore.default.A(['relatedObj.firstName']));
+    });
 
-    deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
-
-    obj.set('sortProps', ['relatedObj.firstName']);
-
-    deepEqual(obj.get('sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
   });
 
   function sortByLnameFname(a, b) {
@@ -32931,247 +33163,352 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     return fna > fnb ? 1 : -1;
   }
 
-  QUnit.module('sort - sort function', {
+  QUnit.module('computedSort - sort function', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items.@each.fname', sortByLnameFname)
-      }).create({
-        items: _emberMetalCore.default.A([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items.@each.fname', sortByLnameFname)
+        }).create({
+          items: _emberMetalCore.default.A([{
+            fname: 'Jaime', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Cersei', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Robb', lname: 'Stark', age: 16
+          }, {
+            fname: 'Bran', lname: 'Stark', age: 8
+          }])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
-  });
-
-  QUnit.test('sort (with function) is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('sortedItems', 1);
-    }, /Cannot set read-only property "sortedItems" on object:/);
   });
 
   commonSortTests();
 
   QUnit.test('changing item properties specified via @each triggers a resort of the modified item', function () {
-    var items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    var tyrionInDisguise;
 
-    var tyrionInDisguise = items[1];
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    tyrionInDisguise = items.objectAt(1);
 
-    (0, _emberMetalProperty_set.set)(tyrionInDisguise, 'fname', 'Tyrion');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating a specified property on an item resorts it');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(tyrionInDisguise, 'fname', 'Tyrion');
+    });
+
+    deepEqual(sorted.mapBy('fname'), ['Jaime', 'Tyrion', 'Bran', 'Robb'], 'updating a specified property on an item resorts it');
   });
 
   QUnit.test('changing item properties not specified via @each does not trigger a resort', function () {
-    var items = obj.get('items');
-    var cersei = items[1];
+    var cersei;
 
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedItems');
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    (0, _emberMetalProperty_set.set)(cersei, 'lname', 'Stark'); // plot twist! (possibly not canon)
+    cersei = items.objectAt(1);
+
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'precond - array is initially sorted');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(cersei, 'lname', 'Stark'); // plot twist! (possibly not canon)
+    });
 
     // The array has become unsorted.  If your sort function is sensitive to
     // properties, they *must* be specified as dependent item property keys or
     // we'll be doing binary searches on unsorted arrays.
-    deepEqual(obj.get('sortedItems').mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'updating an unspecified property on an item does not resort it');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime', 'Bran', 'Robb'], 'updating an unspecified property on an item does not resort it');
   });
 
-  QUnit.module('sort - stability', {
+  QUnit.module('computedSort - stability', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        sortProps: ['count', 'name'],
-        sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'sortProps')
-      }).create({
-        items: [{ name: 'A', count: 1 }, { name: 'B', count: 1 }, { name: 'C', count: 1 }, { name: 'D', count: 1 }]
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          sortProps: _emberMetalCore.default.A(['count', 'name']),
+          sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'sortProps')
+        }).create({
+          items: _emberMetalCore.default.A(_emberMetalCore.default.A([{
+            name: 'A', count: 1
+          }, {
+            name: 'B', count: 1
+          }, {
+            name: 'C', count: 1
+          }, {
+            name: 'D', count: 1
+          }]).map(function (elt) {
+            return _emberRuntimeSystemObject.default.create(elt);
+          }))
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
   QUnit.test('sorts correctly as only one property changes', function () {
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
-
-    (0, _emberMetalProperty_set.set)(obj.get('items')[3], 'count', 2);
-
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'final');
-  });
-
-  QUnit.module('sort - concurrency', {
-    setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        sortProps: ['count'],
-        sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'sortProps'),
-        customSortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items.@each.count', function (a, b) {
-          return a.count - b.count;
-        })
-      }).create({
-        items: _emberMetalCore.default.A([{ name: 'A', count: 1 }, { name: 'B', count: 2 }, { name: 'C', count: 3 }, { name: 'D', count: 4 }])
-      });
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
-    }
-  });
-
-  QUnit.test('sorts correctly after mutation to the sort properties', function () {
-    var sorted = obj.get('sortedItems');
+    var sorted;
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = obj.get('sortedItems');
+    });
     deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
-
-    (0, _emberMetalProperty_set.set)(obj.get('items')[1], 'count', 5);
-    (0, _emberMetalProperty_set.set)(obj.get('items')[2], 'count', 6);
-
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    obj.get('items').objectAt(3).set('count', 2);
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = obj.get('sortedItems');
+    });
+    deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'final');
   });
 
-  QUnit.test('sort correctl after mutation to the sor ', function () {
-    deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
-
-    (0, _emberMetalProperty_set.set)(obj.get('items')[1], 'count', 5);
-    (0, _emberMetalProperty_set.set)(obj.get('items')[2], 'count', 6);
-
-    deepEqual(obj.get('customSortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
-
-    deepEqual(obj.get('sortedItems').mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
-  });
-
-  QUnit.module('max', {
+  QUnit.module('computedSort - concurrency', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        max: (0, _emberRuntimeComputedReduce_computed_macros.max)('items')
-      }).create({
-        items: _emberMetalCore.default.A([1, 2, 3])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          sortProps: _emberMetalCore.default.A(['count']),
+          sortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items', 'sortProps'),
+          customSortedItems: (0, _emberRuntimeComputedReduce_computed_macros.sort)('items.@each.count', function (a, b) {
+            return (0, _emberMetalProperty_get.get)(a, 'count') - (0, _emberMetalProperty_get.get)(b, 'count');
+          })
+        }).create({
+          items: _emberMetalCore.default.A(_emberMetalCore.default.A([{
+            name: 'A', count: 1
+          }, {
+            name: 'B', count: 2
+          }, {
+            name: 'C', count: 3
+          }, {
+            name: 'D', count: 4
+          }]).map(function (elt) {
+            return _emberRuntimeSystemObject.default.create(elt);
+          }))
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
-  QUnit.test('max is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('max', 1);
-    }, /Cannot set read-only property "max" on object:/);
+  QUnit.test('sorts correctly when there are concurrent changes', function () {
+    var sorted;
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = obj.get('sortedItems');
+    });
+    deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+    _emberMetalCore.default.changeProperties(function () {
+      obj.get('items').objectAt(1).set('count', 5);
+      obj.get('items').objectAt(2).set('count', 6);
+    });
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = obj.get('sortedItems');
+    });
+    deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+  });
+
+  QUnit.test('sorts correctly with a user-provided comparator when there are concurrent changes', function () {
+    var sorted;
+    (0, _emberMetalRun_loop.default)(function () {
+      sorted = obj.get('customSortedItems');
+      deepEqual(sorted.mapBy('name'), ['A', 'B', 'C', 'D'], 'initial');
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      _emberMetalCore.default.changeProperties(function () {
+        obj.get('items').objectAt(1).set('count', 5);
+        obj.get('items').objectAt(2).set('count', 6);
+      });
+      sorted = obj.get('customSortedItems');
+      deepEqual(sorted.mapBy('name'), ['A', 'D', 'B', 'C'], 'final');
+    });
+  });
+
+  QUnit.module('computedMax', {
+    setup: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          max: (0, _emberRuntimeComputedReduce_computed_macros.max)('items')
+        }).create({
+          items: _emberMetalCore.default.A([1, 2, 3])
+        });
+      });
+    },
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
   });
 
   QUnit.test('max tracks the max number as objects are added', function () {
-    equal(obj.get('max'), 3, 'precond - max is initially correct');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 3, 'precond - max is initially correct');
 
-    var items = obj.get('items');
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    items.pushObject(5);
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(5);
+    });
 
-    equal(obj.get('max'), 5, 'max updates when a larger number is added');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 5, 'max updates when a larger number is added');
 
-    items.pushObject(2);
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(2);
+    });
 
-    equal(obj.get('max'), 5, 'max does not update when a smaller number is added');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 5, 'max does not update when a smaller number is added');
   });
 
   QUnit.test('max recomputes when the current max is removed', function () {
-    equal(obj.get('max'), 3, 'precond - max is initially correct');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 3, 'precond - max is initially correct');
 
-    obj.get('items').removeObject(2);
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+      items.removeObject(2);
+    });
 
-    equal(obj.get('max'), 3, 'max is unchanged when a non-max item is removed');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 3, 'max is unchanged when a non-max item is removed');
 
-    obj.get('items').removeObject(3);
+    (0, _emberMetalRun_loop.default)(function () {
+      items.removeObject(3);
+    });
 
-    equal(obj.get('max'), 1, 'max is recomputed when the current max is removed');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 1, 'max is recomputed when the current max is removed');
   });
 
-  QUnit.module('min', {
+  QUnit.module('computedMin', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        min: (0, _emberRuntimeComputedReduce_computed_macros.min)('items')
-      }).create({
-        items: _emberMetalCore.default.A([1, 2, 3])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          min: (0, _emberRuntimeComputedReduce_computed_macros.min)('items')
+        }).create({
+          items: _emberMetalCore.default.A([1, 2, 3])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
-  QUnit.test('min is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('min', 1);
-    }, /Cannot set read-only property "min" on object:/);
-  });
-
   QUnit.test('min tracks the min number as objects are added', function () {
-    equal(obj.get('min'), 1, 'precond - min is initially correct');
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), 1, 'precond - min is initially correct');
 
-    obj.get('items').pushObject(-2);
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    equal(obj.get('min'), -2, 'min updates when a smaller number is added');
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(-2);
+    });
 
-    obj.get('items').pushObject(2);
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), -2, 'min updates when a smaller number is added');
 
-    equal(obj.get('min'), -2, 'min does not update when a larger number is added');
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(2);
+    });
+
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), -2, 'min does not update when a larger number is added');
   });
 
   QUnit.test('min recomputes when the current min is removed', function () {
-    var items = obj.get('items');
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), 1, 'precond - min is initially correct');
 
-    equal(obj.get('min'), 1, 'precond - min is initially correct');
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+      items.removeObject(2);
+    });
 
-    items.removeObject(2);
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), 1, 'min is unchanged when a non-min item is removed');
 
-    equal(obj.get('min'), 1, 'min is unchanged when a non-min item is removed');
+    (0, _emberMetalRun_loop.default)(function () {
+      items.removeObject(1);
+    });
 
-    items.removeObject(1);
-
-    equal(obj.get('min'), 3, 'min is recomputed when the current min is removed');
+    equal((0, _emberMetalProperty_get.get)(obj, 'min'), 3, 'min is recomputed when the current min is removed');
   });
 
   QUnit.module('Ember.arrayComputed - mixed sugar', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        lannisters: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('items', 'lname', 'Lannister'),
-        lannisterSorting: _emberMetalCore.default.A(['fname']),
-        sortedLannisters: (0, _emberRuntimeComputedReduce_computed_macros.sort)('lannisters', 'lannisterSorting'),
-
-        starks: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('items', 'lname', 'Stark'),
-        starkAges: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('starks', 'age'),
-        oldestStarkAge: (0, _emberRuntimeComputedReduce_computed_macros.max)('starkAges')
-      }).create({
-        items: _emberMetalCore.default.A([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          lannisters: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('items', 'lname', 'Lannister'),
+          sortedLannisters: (0, _emberRuntimeComputedReduce_computed_macros.sort)('lannisters', 'lannisterSorting'),
+          starks: (0, _emberRuntimeComputedReduce_computed_macros.filterBy)('items', 'lname', 'Stark'),
+          starkAges: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('starks', 'age'),
+          oldestStarkAge: (0, _emberRuntimeComputedReduce_computed_macros.max)('starkAges')
+        }).create({
+          lannisterSorting: _emberMetalCore.default.A(['fname']),
+          items: _emberMetalCore.default.A([{
+            fname: 'Jaime', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Cersei', lname: 'Lannister', age: 34
+          }, {
+            fname: 'Robb', lname: 'Stark', age: 16
+          }, {
+            fname: 'Bran', lname: 'Stark', age: 8
+          }])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
   QUnit.test('filtering and sorting can be combined', function () {
-    var items = obj.get('items');
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sortedLannisters');
+    });
 
-    deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Jaime'], 'precond - array is initially filtered and sorted');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Jaime'], 'precond - array is initially filtered and sorted');
 
-    items.pushObject({ fname: 'Tywin', lname: 'Lannister' });
-    items.pushObject({ fname: 'Lyanna', lname: 'Stark' });
-    items.pushObject({ fname: 'Gerion', lname: 'Lannister' });
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject({ fname: 'Tywin', lname: 'Lannister' });
+      items.pushObject({ fname: 'Lyanna', lname: 'Stark' });
+      items.pushObject({ fname: 'Gerion', lname: 'Lannister' });
+    });
 
-    deepEqual(obj.get('sortedLannisters').mapBy('fname'), ['Cersei', 'Gerion', 'Jaime', 'Tywin'], 'updates propagate to array');
+    deepEqual(sorted.mapBy('fname'), ['Cersei', 'Gerion', 'Jaime', 'Tywin'], 'updates propagate to array');
   });
 
   QUnit.test('filtering, sorting and reduce (max) can be combined', function () {
-    var items = obj.get('items');
+    (0, _emberMetalRun_loop.default)(function () {
+      items = (0, _emberMetalProperty_get.get)(obj, 'items');
+    });
 
-    equal(16, obj.get('oldestStarkAge'), 'precond - end of chain is initially correct');
+    equal(16, (0, _emberMetalProperty_get.get)(obj, 'oldestStarkAge'), 'precond - end of chain is initially correct');
 
-    items.pushObject({ fname: 'Rickon', lname: 'Stark', age: 5 });
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject({ fname: 'Rickon', lname: 'Stark', age: 5 });
+    });
 
-    equal(16, obj.get('oldestStarkAge'), 'chain is updated correctly');
+    equal(16, (0, _emberMetalProperty_get.get)(obj, 'oldestStarkAge'), 'chain is updated correctly');
 
-    items.pushObject({ fname: 'Eddard', lname: 'Stark', age: 35 });
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject({ fname: 'Eddard', lname: 'Stark', age: 35 });
+    });
 
-    equal(35, obj.get('oldestStarkAge'), 'chain is updated correctly');
+    equal(35, (0, _emberMetalProperty_get.get)(obj, 'oldestStarkAge'), 'chain is updated correctly');
   });
 
   function todo(name, priority) {
@@ -33194,95 +33531,1195 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
   QUnit.module('Ember.arrayComputed - chains', {
     setup: function () {
       obj = _emberRuntimeSystemObject.default.extend({
-        sorted: (0, _emberRuntimeComputedReduce_computed_macros.sort)('todos.@each.priority', priorityComparator),
-        filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('sorted.@each.priority', evenPriorities)
+        filtered: (0, _emberRuntimeComputedReduce_computed_macros.filter)('sorted.@each.priority', evenPriorities),
+        sorted: (0, _emberRuntimeComputedReduce_computed_macros.sort)('todos.@each.priority', priorityComparator)
       }).create({
         todos: _emberMetalCore.default.A([todo('E', 4), todo('D', 3), todo('C', 2), todo('B', 1), todo('A', 0)])
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
   QUnit.test('it can filter and sort when both depend on the same item property', function () {
-    deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos initially correct');
-    deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'D', 'E'], 'precond - sorted initially correct');
-    deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E'], 'precond - filtered initially correct');
+    (0, _emberMetalRun_loop.default)(function () {
+      filtered = (0, _emberMetalProperty_get.get)(obj, 'filtered');
+      sorted = (0, _emberMetalProperty_get.get)(obj, 'sorted');
+      todos = (0, _emberMetalProperty_get.get)(obj, 'todos');
+    });
 
-    (0, _emberMetalProperty_set.set)(obj.get('todos')[1], 'priority', 6);
+    deepEqual(todos.mapProperty('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos initially correct');
+    deepEqual(sorted.mapProperty('name'), ['A', 'B', 'C', 'D', 'E'], 'precond - sorted initially correct');
+    deepEqual(filtered.mapProperty('name'), ['A', 'C', 'E'], 'precond - filtered initially correct');
 
-    deepEqual(obj.get('todos').mapBy('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos remain correct');
-    deepEqual(obj.get('sorted').mapBy('name'), ['A', 'B', 'C', 'E', 'D'], 'precond - sorted updated correctly');
-    deepEqual(obj.get('filtered').mapBy('name'), ['A', 'C', 'E', 'D'], 'filtered updated correctly');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_events.beginPropertyChanges)();
+      // here we trigger several changes
+      //  A. D.priority 3 -> 6
+      //    1. updated sorted from item property change
+      //      a. remove D; reinsert D
+      //      b. update filtered from sorted change
+      //    2. update filtered from item property change
+      //
+      // If 1.b happens before 2 it should invalidate 2
+      todos.objectAt(1).set('priority', 6);
+      (0, _emberMetalProperty_events.endPropertyChanges)();
+    });
+
+    deepEqual(todos.mapProperty('name'), ['E', 'D', 'C', 'B', 'A'], 'precond - todos remain correct');
+    deepEqual(sorted.mapProperty('name'), ['A', 'B', 'C', 'E', 'D'], 'precond - sorted updated correctly');
+    deepEqual(filtered.mapProperty('name'), ['A', 'C', 'E', 'D'], 'filtered updated correctly');
   });
 
-  var userFnCalls;
   QUnit.module('Chaining array and reduced CPs', {
     setup: function () {
-      userFnCalls = 0;
-      obj = _emberRuntimeSystemObject.default.extend({
-        mapped: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', 'v'),
-        max: (0, _emberRuntimeComputedReduce_computed_macros.max)('mapped'),
-        maxDidChange: (0, _emberMetalMixin.observer)('max', function () {
-          return userFnCalls++;
-        })
-      }).create({
-        array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+      (0, _emberMetalRun_loop.default)(function () {
+        userFnCalls = 0;
+        obj = _emberRuntimeSystemObject.default.extend({
+          mapped: (0, _emberRuntimeComputedReduce_computed_macros.mapBy)('array', 'v'),
+          max: (0, _emberRuntimeComputedReduce_computed_macros.max)('mapped'),
+          maxDidChange: (0, _emberMetalMixin.observer)('max', function () {
+            userFnCalls++;
+          })
+        }).create({
+          array: _emberMetalCore.default.A([{ v: 1 }, { v: 3 }, { v: 2 }, { v: 1 }])
+        });
       });
     },
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
   QUnit.test('it computes interdependent array computed properties', function () {
-    equal(obj.get('max'), 3, 'sanity - it properly computes the maximum value');
+    (0, _emberMetalProperty_get.get)(obj, 'mapped');
+
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 3, 'sanity - it properly computes the maximum value');
+    equal(userFnCalls, 0, 'observer is not called on initialisation');
 
     var calls = 0;
-
     (0, _emberMetalObserver.addObserver)(obj, 'max', function () {
-      return calls++;
+      calls++;
     });
 
-    obj.get('array').pushObject({ v: 5 });
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('array').pushObject({ v: 5 });
+    });
 
-    equal(obj.get('max'), 5, 'maximum value is updated correctly');
+    equal((0, _emberMetalProperty_get.get)(obj, 'max'), 5, 'maximum value is updated correctly');
     equal(userFnCalls, 1, 'object defined observers fire');
     equal(calls, 1, 'runtime created observers fire');
   });
 
-  QUnit.module('sum', {
+  QUnit.module('computedSum', {
     setup: function () {
-      obj = _emberRuntimeSystemObject.default.extend({
-        total: (0, _emberRuntimeComputedReduce_computed_macros.sum)('array')
-      }).create({
-        array: _emberMetalCore.default.A([1, 2, 3])
+      (0, _emberMetalRun_loop.default)(function () {
+        obj = _emberRuntimeSystemObject.default.extend({
+          total: (0, _emberRuntimeComputedReduce_computed_macros.sum)('array')
+        }).create({
+          array: _emberMetalCore.default.A([1, 2, 3])
+        });
       });
     },
-
     teardown: function () {
-      _emberMetalCore.default.run(obj, 'destroy');
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
     }
   });
 
-  QUnit.test('sum is readOnly', function () {
-    QUnit.throws(function () {
-      obj.set('total', 1);
-    }, /Cannot set read-only property "total" on object:/);
-  });
   QUnit.test('sums the values in the dependentKey', function () {
-    equal(obj.get('total'), 6, 'sums the values');
+    var sum = (0, _emberMetalProperty_get.get)(obj, 'total');
+    equal(sum, 6, 'sums the values');
   });
 
   QUnit.test('updates when array is modified', function () {
-    obj.get('array').pushObject(1);
+    var sum = function () {
+      return (0, _emberMetalProperty_get.get)(obj, 'total');
+    };
 
-    equal(obj.get('total'), 7, 'recomputed when elements are added');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_get.get)(obj, 'array').pushObject(1);
+    });
 
-    obj.get('array').popObject();
+    equal(sum(), 7, 'recomputed when elements are added');
 
-    equal(obj.get('total'), 6, 'recomputes when elements are removed');
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_get.get)(obj, 'array').popObject();
+    });
+
+    equal(sum(), 6, 'recomputes when elements are removed');
+  });
+});
+enifed('ember-runtime/tests/computed/reduce_computed_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-runtime/computed/array_computed', 'ember-runtime/computed/reduce_computed', 'ember-runtime/system/array_proxy', 'ember-runtime/system/subarray'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemObject, _emberMetalComputed, _emberRuntimeComputedArray_computed, _emberRuntimeComputedReduce_computed, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemSubarray) {
+
+  var obj, addCalls, removeCalls, callbackItems, shared;
+
+  QUnit.module('arrayComputed - [DEPRECATED]', {
+    setup: function () {
+      addCalls = removeCalls = 0;
+
+      expectDeprecation(function () {
+
+        obj = _emberRuntimeSystemObject.default.extend({
+          // Users would obviously just use `Ember.computed.map`
+          // This implementation is fine for these tests, but doesn't properly work as
+          // it's not index based.
+          evenNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', {
+            addedItem: function (array, item) {
+              addCalls++;
+              if (item % 2 === 0) {
+                array.pushObject(item);
+              }
+              return array;
+            },
+            removedItem: function (array, item) {
+              removeCalls++;
+              array.removeObject(item);
+              return array;
+            }
+          }),
+
+          evenNumbersMultiDep: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', 'otherNumbers', {
+            addedItem: function (array, item) {
+              if (item % 2 === 0) {
+                array.pushObject(item);
+              }
+              return array;
+            }
+          }),
+
+          evenNestedNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
+            addedItem: function (array, item, keyName) {
+              var value = item.get('v');
+              if (value % 2 === 0) {
+                array.pushObject(value);
+              }
+              return array;
+            },
+            removedItem: function (array, item, keyName) {
+              array.removeObject(item.get('v'));
+              return array;
+            }
+          }).property('nestedNumbers.@each.v')
+        }).create({
+          numbers: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6]),
+          otherNumbers: _emberMetalCore.default.A([7, 8, 9]),
+          nestedNumbers: _emberMetalCore.default.A([1, 2, 3, 4, 5, 6].map(function (n) {
+            return _emberRuntimeSystemObject.default.create({ p: 'otherProperty', v: n });
+          }))
+        });
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
+    },
+
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
+  });
+
+  QUnit.test('reduceComputed is deprecated', function () {
+    expectDeprecation(/Ember.reduceComputed is deprecated/);
+    (0, _emberRuntimeComputedReduce_computed.reduceComputed)({ initialValue: 0 });
+  });
+
+  QUnit.test('arrayComputed is deprecated', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+    (0, _emberRuntimeComputedArray_computed.arrayComputed)({});
+  });
+
+  QUnit.test('array computed properties are instances of ComputedProperty', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
+    ok((0, _emberRuntimeComputedArray_computed.arrayComputed)({}) instanceof _emberMetalComputed.ComputedProperty);
+  });
+
+  QUnit.test('when the dependent array is null or undefined, `addedItem` is not called and only the initial value is returned', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      doubledNumbers: (0, _emberRuntimeComputedArray_computed.arrayComputed)('numbers', {
+        addedItem: function (array, n) {
+          addCalls++;
+          array.pushObject(n * 2);
+          return array;
+        }
+      })
+    }).create({
+      numbers: null
+    });
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'doubledNumbers'), [], 'When the dependent array is null, the initial value is returned');
+    equal(addCalls, 0, '`addedItem` is not called when the dependent array is null');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'numbers', _emberMetalCore.default.A([1, 2]));
+    });
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'doubledNumbers'), [2, 4], 'An initially null dependent array can still be set later');
+    equal(addCalls, 2, '`addedItem` is called when the dependent array is initially set');
+  });
+
+  QUnit.test('on first retrieval, array computed properties are computed', function () {
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbers'), [2, 4, 6], 'array computed properties are correct on first invocation');
+  });
+
+  QUnit.test('on first retrieval, array computed properties with multiple dependent keys are computed', function () {
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbersMultiDep'), [2, 4, 6, 8], 'array computed properties are correct on first invocation');
+  });
+
+  QUnit.test('on first retrieval, array computed properties dependent on nested objects are computed', function () {
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNestedNumbers'), [2, 4, 6], 'array computed properties are correct on first invocation');
+  });
+
+  QUnit.test('after the first retrieval, array computed properties observe additions to dependent arrays', function () {
+    var numbers = (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    // set up observers
+    var evenNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNumbers');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      numbers.pushObjects([7, 8]);
+    });
+
+    deepEqual(evenNumbers, [2, 4, 6, 8], 'array computed properties watch dependent arrays');
+  });
+
+  QUnit.test('after the first retrieval, array computed properties observe removals from dependent arrays', function () {
+    var numbers = (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    // set up observers
+    var evenNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNumbers');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      numbers.removeObjects([3, 4]);
+    });
+
+    deepEqual(evenNumbers, [2, 6], 'array computed properties watch dependent arrays');
+  });
+
+  QUnit.test('after first retrieval, array computed properties can observe properties on array items', function () {
+    var nestedNumbers = (0, _emberMetalProperty_get.get)(obj, 'nestedNumbers');
+    var evenNestedNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNestedNumbers');
+
+    deepEqual(evenNestedNumbers, [2, 4, 6], 'precond -- starts off with correct values');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      nestedNumbers.objectAt(0).set('v', 22);
+    });
+
+    deepEqual(nestedNumbers.mapBy('v'), [22, 2, 3, 4, 5, 6], 'nested numbers is updated');
+    deepEqual(evenNestedNumbers, [2, 4, 6, 22], 'adds new number');
+  });
+
+  QUnit.test('changes to array computed properties happen synchronously', function () {
+    var nestedNumbers = (0, _emberMetalProperty_get.get)(obj, 'nestedNumbers');
+    var evenNestedNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNestedNumbers');
+
+    deepEqual(evenNestedNumbers, [2, 4, 6], 'precond -- starts off with correct values');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      nestedNumbers.objectAt(0).set('v', 22);
+      deepEqual(nestedNumbers.mapBy('v'), [22, 2, 3, 4, 5, 6], 'nested numbers is updated');
+      deepEqual(evenNestedNumbers, [2, 4, 6, 22], 'adds new number');
+    });
+  });
+
+  QUnit.test('multiple dependent keys can be specified via brace expansion', function () {
+    var obj = _emberRuntimeSystemObject.default.extend({
+      foo: (0, _emberRuntimeComputedReduce_computed.reduceComputed)({
+        initialValue: _emberMetalCore.default.A(),
+        addedItem: function (array, item) {
+          array.pushObject('a:' + item);
+          return array;
+        },
+        removedItem: function (array, item) {
+          array.pushObject('r:' + item);
+          return array;
+        }
+      }).property('{bar,baz}')
+    }).create({
+      bar: _emberMetalCore.default.A(),
+      baz: _emberMetalCore.default.A()
+    });
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), [], 'initially empty');
+
+    (0, _emberMetalProperty_get.get)(obj, 'bar').pushObject(1);
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), ['a:1'], 'added item from brace-expanded dependency');
+
+    (0, _emberMetalProperty_get.get)(obj, 'baz').pushObject(2);
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), ['a:1', 'a:2'], 'added item from brace-expanded dependency');
+
+    (0, _emberMetalProperty_get.get)(obj, 'bar').popObject();
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), ['a:1', 'a:2', 'r:1'], 'removed item from brace-expanded dependency');
+
+    (0, _emberMetalProperty_get.get)(obj, 'baz').popObject();
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), ['a:1', 'a:2', 'r:1', 'r:2'], 'removed item from brace-expanded dependency');
+  });
+
+  QUnit.test('multiple item property keys can be specified via brace expansion', function () {
+    var expected = _emberMetalCore.default.A();
+    var item = { propA: 'A', propB: 'B', propC: 'C' };
+    var obj = _emberRuntimeSystemObject.default.extend({
+      foo: (0, _emberRuntimeComputedReduce_computed.reduceComputed)({
+        initialValue: _emberMetalCore.default.A(),
+        addedItem: function (array, item, changeMeta) {
+          array.pushObject('a:' + (0, _emberMetalProperty_get.get)(item, 'propA') + ':' + (0, _emberMetalProperty_get.get)(item, 'propB') + ':' + (0, _emberMetalProperty_get.get)(item, 'propC'));
+          return array;
+        },
+        removedItem: function (array, item, changeMeta) {
+          array.pushObject('r:' + (0, _emberMetalProperty_get.get)(item, 'propA') + ':' + (0, _emberMetalProperty_get.get)(item, 'propB') + ':' + (0, _emberMetalProperty_get.get)(item, 'propC'));
+          return array;
+        }
+      }).property('bar.@each.{propA,propB}')
+    }).create({
+      bar: _emberMetalCore.default.A([item])
+    });
+
+    expected.pushObjects(['a:A:B:C']);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), expected, 'initially added dependent item');
+
+    (0, _emberMetalProperty_set.set)(item, 'propA', 'AA');
+
+    expected.pushObjects(['r:AA:B:C', 'a:AA:B:C']);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), expected, 'observing item property key specified via brace expansion');
+
+    (0, _emberMetalProperty_set.set)(item, 'propB', 'BB');
+
+    expected.pushObjects(['r:AA:BB:C', 'a:AA:BB:C']);
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), expected, 'observing item property key specified via brace expansion');
+
+    (0, _emberMetalProperty_set.set)(item, 'propC', 'CC');
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'foo'), expected, 'not observing unspecified item properties');
+  });
+
+  QUnit.test('doubly nested item property keys (@each.foo.@each) are not supported', function () {
+    (0, _emberMetalRun_loop.default)(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        people: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
+          addedItem: function (array, item) {
+            array.pushObject((0, _emberMetalProperty_get.get)(item, 'first.firstObject'));
+            return array;
+          }
+        }).property('peopleByOrdinalPosition.@each.first'),
+        names: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
+          addedItem: function (array, item) {
+            equal((0, _emberMetalProperty_get.get)(item, 'name'), 'Jaime Lannister');
+            array.pushObject(item.get('name'));
+            return array;
+          }
+        }).property('people.@each.name')
+      }).create({
+        peopleByOrdinalPosition: _emberMetalCore.default.A([{ first: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ name: 'Jaime Lannister' })]) }])
+      });
+    });
+
+    equal(obj.get('names.firstObject'), 'Jaime Lannister', 'Doubly nested item properties can be retrieved manually');
+
+    throws(function () {
+      obj = _emberRuntimeSystemObject.default.extend({
+        names: (0, _emberRuntimeComputedArray_computed.arrayComputed)({
+          addedItem: function (array, item) {
+            array.pushObject(item);
+            return array;
+          }
+        }).property('people.@each.first.@each.name')
+      }).create({
+        people: [{ first: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ name: 'Jaime Lannister' })]) }]
+      });
+    }, /Nested @each/, 'doubly nested item property keys are not supported');
+  });
+
+  QUnit.test('after the first retrieval, array computed properties observe dependent arrays', function () {
+    (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    var evenNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNumbers');
+
+    deepEqual(evenNumbers, [2, 4, 6], 'precond -- starts off with correct values');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'numbers', _emberMetalCore.default.A([20, 23, 28]));
+    });
+
+    deepEqual(evenNumbers, [20, 28], 'array computed properties watch dependent arrays');
+  });
+
+  QUnit.test('array observers are torn down when dependent arrays change', function () {
+    var numbers = (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    (0, _emberMetalProperty_get.get)(obj, 'evenNumbers');
+
+    equal(addCalls, 6, 'precond - add has been called for each item in the array');
+    equal(removeCalls, 0, 'precond - removed has not been called');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'numbers', _emberMetalCore.default.A([20, 23, 28]));
+    });
+
+    equal(addCalls, 9, 'add is called for each item in the new array');
+    equal(removeCalls, 0, 'remove is not called when the array is reset');
+
+    numbers.replace(0, numbers.get('length'), _emberMetalCore.default.A([7, 8, 9, 10]));
+
+    equal(addCalls, 9, 'add is not called');
+    equal(removeCalls, 0, 'remove is not called');
+  });
+
+  QUnit.test('modifying properties on dependent array items triggers observers exactly once', function () {
+    var numbers = (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    var evenNumbers = (0, _emberMetalProperty_get.get)(obj, 'evenNumbers');
+
+    equal(addCalls, 6, 'precond - add has not been called for each item in the array');
+    equal(removeCalls, 0, 'precond - removed has not been called');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      numbers.replace(0, 2, [7, 8, 9, 10]);
+    });
+
+    equal(addCalls, 10, 'add is called for each item added');
+    equal(removeCalls, 2, 'removed is called for each item removed');
+    deepEqual(evenNumbers, [4, 6, 8, 10], 'sanity check - dependent arrays are updated');
+  });
+
+  QUnit.test('multiple array computed properties on the same object can observe dependent arrays', function () {
+    var numbers = (0, _emberMetalProperty_get.get)(obj, 'numbers');
+    var otherNumbers = (0, _emberMetalProperty_get.get)(obj, 'otherNumbers');
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbers'), [2, 4, 6], 'precond - evenNumbers is initially correct');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbersMultiDep'), [2, 4, 6, 8], 'precond - evenNumbersMultiDep is initially correct');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      numbers.pushObject(12);
+      otherNumbers.pushObject(14);
+    });
+
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbers'), [2, 4, 6, 12], 'evenNumbers is updated');
+    deepEqual((0, _emberMetalProperty_get.get)(obj, 'evenNumbersMultiDep'), [2, 4, 6, 8, 12, 14], 'evenNumbersMultiDep is updated');
+  });
+
+  QUnit.test('an error is thrown when a reduceComputed is defined without an initialValue property', function () {
+    var defineExploder = function () {
+      _emberRuntimeSystemObject.default.extend({
+        exploder: (0, _emberRuntimeComputedReduce_computed.reduceComputed)('collection', {
+          initialize: function (initialValue, changeMeta, instanceMeta) {},
+
+          addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+            return item;
+          },
+
+          removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+            return item;
+          }
+        })
+      }).create({
+        collection: _emberMetalCore.default.A()
+      });
+    };
+
+    throws(defineExploder, /declared\ without\ an\ initial\ value/, 'an error is thrown when the reduceComputed is defined without an initialValue');
+  });
+
+  QUnit.test('dependent arrays with multiple item properties are not double-counted', function () {
+    var obj = _emberRuntimeSystemObject.default.extend({
+      items: _emberMetalCore.default.A([{ foo: true }, { bar: false }, { bar: true }]),
+      countFooOrBar: (0, _emberRuntimeComputedReduce_computed.reduceComputed)({
+        initialValue: 0,
+        addedItem: function (acc) {
+          ++addCalls;
+          return acc;
+        },
+
+        removedItem: function (acc) {
+          ++removeCalls;
+          return acc;
+        }
+      }).property('items.@each.foo', 'items.@each.bar', 'items')
+    }).create();
+
+    equal(0, addCalls, 'precond - no adds yet');
+    equal(0, removeCalls, 'precond - no removes yet');
+
+    (0, _emberMetalProperty_get.get)(obj, 'countFooOrBar');
+
+    equal(3, addCalls, 'all items added once');
+    equal(0, removeCalls, 'no removes yet');
+  });
+
+  QUnit.test('dependent arrays can use `replace` with an out of bounds index to add items', function () {
+    var dependentArray = _emberMetalCore.default.A();
+    var array;
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: dependentArray,
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', {
+        addedItem: function (acc, item, changeMeta) {
+          acc.insertAt(changeMeta.index, item);
+          return acc;
+        },
+        removedItem: function (acc) {
+          return acc;
+        }
+      })
+    }).create();
+
+    array = (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    deepEqual(array, [], 'precond - computed array is initially empty');
+
+    dependentArray.replace(100, 0, [1, 2]);
+
+    deepEqual(array, [1, 2], 'index >= length treated as a push');
+
+    dependentArray.replace(-100, 0, [3, 4]);
+
+    deepEqual(array, [3, 4, 1, 2], 'index < 0 treated as an unshift');
+  });
+
+  QUnit.test('dependent arrays can use `replace` with a negative index to remove items indexed from the right', function () {
+    var dependentArray = _emberMetalCore.default.A([1, 2, 3, 4, 5]);
+    var array;
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: dependentArray,
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', {
+        addedItem: function (acc, item) {
+          return acc;
+        },
+        removedItem: function (acc, item) {
+          acc.pushObject(item);
+          return acc;
+        }
+      })
+    }).create();
+
+    array = (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    deepEqual(array, [], 'precond - no items have been removed initially');
+
+    dependentArray.replace(-3, 2);
+
+    deepEqual(array, [4, 3], 'index < 0 used as a right index for removal');
+  });
+
+  QUnit.test('dependent arrays that call `replace` with an out of bounds index to remove items is a no-op', function () {
+    var dependentArray = _emberMetalCore.default.A([1, 2]);
+    var array;
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: dependentArray,
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', {
+        addedItem: function (acc, item, changeMeta) {
+          return acc;
+        },
+        removedItem: function (acc) {
+          ok(false, 'no items have been removed');
+        }
+      })
+    }).create();
+
+    array = (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    deepEqual(array, [], 'precond - computed array is initially empty');
+
+    dependentArray.replace(100, 2);
+  });
+
+  QUnit.test('dependent arrays that call `replace` with a too-large removedCount a) works and b) still right-truncates', function () {
+    var dependentArray = _emberMetalCore.default.A([1, 2]);
+    var array;
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: dependentArray,
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', {
+        addedItem: function (acc, item) {
+          return acc;
+        },
+        removedItem: function (acc, item) {
+          acc.pushObject(item);
+          return acc;
+        }
+      })
+    }).create();
+
+    array = (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    deepEqual(array, [], 'precond - computed array is initially empty');
+
+    dependentArray.replace(1, 200);
+
+    deepEqual(array, [2], 'array was correctly right-truncated');
+  });
+
+  QUnit.test('removedItem is not erroneously called for dependent arrays during a recomputation', function () {
+    function addedItem(array, item, changeMeta) {
+      array.insertAt(changeMeta.index, item);
+      return array;
+    }
+
+    function removedItem(array, item, changeMeta) {
+      ok((0, _emberMetalProperty_get.get)(array, 'length') > changeMeta.index, 'removedItem not called with invalid index');
+      array.removeAt(changeMeta.index, 1);
+      return array;
+    }
+
+    var options = {
+      addedItem: addedItem,
+      removedItem: removedItem
+    };
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: _emberMetalCore.default.A([1, 2]),
+      identity0: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', options),
+      identity1: (0, _emberRuntimeComputedArray_computed.arrayComputed)('identity0', options)
+    }).create();
+
+    (0, _emberMetalProperty_get.get)(obj, 'identity1');
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.notifyPropertyChange('dependentArray');
+    });
+
+    ok(true, 'removedItem not invoked with invalid index');
+  });
+
+  QUnit.module('arrayComputed - recomputation DKs', {
+    setup: function () {
+      expectDeprecation(function () {
+
+        obj = _emberRuntimeSystemObject.default.extend({
+          people: _emberMetalCore.default.A([{
+            name: 'Jaime Lannister',
+            title: 'Kingsguard'
+          }, {
+            name: 'Cersei Lannister',
+            title: 'Queen'
+          }]),
+
+          titles: (0, _emberRuntimeComputedArray_computed.arrayComputed)('people', {
+            addedItem: function (acc, person) {
+              acc.pushObject((0, _emberMetalProperty_get.get)(person, 'title'));
+              return acc;
+            }
+          })
+        }).create();
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
+    },
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
+  });
+
+  QUnit.test('recomputations from `arrayComputed` observers add back dependent keys', function () {
+    var meta = (0, _emberMetalUtils.meta)(obj);
+    (0, _emberMetalProperty_get.get)(obj, 'people');
+    var titles;
+
+    equal(meta.deps, undefined, 'precond - nobody depends on people\'');
+    equal(meta.watching.people, undefined, 'precond - nobody is watching people');
+
+    titles = (0, _emberMetalProperty_get.get)(obj, 'titles');
+
+    deepEqual(titles, ['Kingsguard', 'Queen'], 'precond - value is correct');
+
+    ok(meta.deps.people !== undefined, 'people has dependencies');
+    deepEqual(Object.keys(meta.deps.people), ['titles'], 'only titles depends on people');
+    equal(meta.deps.people.titles, 1, 'titles depends on people exactly once');
+    equal(meta.watching.people, 2, 'people has two watchers: the array listener and titles');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'people', _emberMetalCore.default.A());
+    });
+
+    // Regular CPs are invalidated when their dependent keys change, but array
+    // computeds keep refs up to date
+    deepEqual(titles, [], 'value is correct');
+    equal(meta.cache.titles, titles, 'value remains cached');
+    ok(meta.deps.people !== undefined, 'people has dependencies');
+    deepEqual(Object.keys(meta.deps.people), ['titles'], 'meta.deps.people is unchanged');
+    equal(meta.deps.people.titles, 1, 'deps.people.titles is unchanged');
+    equal(meta.watching.people, 2, 'watching.people is unchanged');
+  });
+
+  QUnit.module('Ember.arryComputed - self chains', {
+    setup: function () {
+      var a = _emberRuntimeSystemObject.default.create({ name: 'a' });
+      var b = _emberRuntimeSystemObject.default.create({ name: 'b' });
+
+      expectDeprecation(function () {
+
+        obj = _emberRuntimeSystemArray_proxy.default.extend({
+          names: (0, _emberRuntimeComputedArray_computed.arrayComputed)('@this.@each.name', {
+            addedItem: function (array, item, changeMeta, instanceMeta) {
+              var mapped = (0, _emberMetalProperty_get.get)(item, 'name');
+              array.insertAt(changeMeta.index, mapped);
+              return array;
+            },
+            removedItem: function (array, item, changeMeta, instanceMeta) {
+              array.removeAt(changeMeta.index, 1);
+              return array;
+            }
+          })
+        }).create({
+          content: _emberMetalCore.default.A([a, b])
+        });
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
+    },
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
+  });
+
+  QUnit.test('@this can be used to treat the object as the array itself', function () {
+    var names = (0, _emberMetalProperty_get.get)(obj, 'names');
+
+    deepEqual(names, ['a', 'b'], 'precond - names is initially correct');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.objectAt(1).set('name', 'c');
+    });
+
+    deepEqual(names, ['a', 'c'], '@this can be used with item property observers');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.pushObject({ name: 'd' });
+    });
+
+    deepEqual(names, ['a', 'c', 'd'], '@this observes new items');
+  });
+
+  QUnit.module('arrayComputed - changeMeta property observers', {
+    setup: function () {
+      callbackItems = [];
+      (0, _emberMetalRun_loop.default)(function () {
+        expectDeprecation(function () {
+          obj = _emberRuntimeSystemObject.default.extend({
+            itemsN: (0, _emberRuntimeComputedArray_computed.arrayComputed)('items.@each.n', {
+              addedItem: function (array, item, changeMeta, instanceMeta) {
+                callbackItems.push('add:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
+              },
+              removedItem: function (array, item, changeMeta, instanceMeta) {
+                callbackItems.push('remove:' + changeMeta.index + ':' + (0, _emberMetalProperty_get.get)(changeMeta.item, 'n'));
+              }
+            })
+          }).create({
+            items: _emberMetalCore.default.A([_emberRuntimeSystemObject.default.create({ n: 'zero' }), _emberRuntimeSystemObject.default.create({ n: 'one' })])
+          });
+        }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
+      });
+    },
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
+  });
+
+  QUnit.test('changeMeta includes item and index', function () {
+    var expected, items, item;
+
+    items = (0, _emberMetalProperty_get.get)(obj, 'items');
+
+    // initial computation add0 add1
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('itemsN');
+    });
+
+    // add2
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(_emberRuntimeSystemObject.default.create({ n: 'two' }));
+    });
+
+    // remove2
+    (0, _emberMetalRun_loop.default)(function () {
+      items.popObject();
+    });
+
+    // remove0 add0
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)((0, _emberMetalProperty_get.get)(items, 'firstObject'), 'n', 'zero\'');
+    });
+
+    expected = ['add:0:zero', 'add:1:one', 'add:2:two', 'remove:2:two', 'remove:0:zero\'', 'add:0:zero\''];
+    deepEqual(callbackItems, expected, 'changeMeta includes items');
+
+    // [zero', one] -> [zero', one, five, six]
+    // add2 add3
+    (0, _emberMetalRun_loop.default)(function () {
+      items.pushObject(_emberRuntimeSystemObject.default.create({ n: 'five' }));
+      items.pushObject(_emberRuntimeSystemObject.default.create({ n: 'six' }));
+    });
+
+    // remove0 add0
+    (0, _emberMetalRun_loop.default)(function () {
+      items.objectAt(0).set('n', 'zero\'\'');
+    });
+
+    expected = expected.concat(['add:2:five', 'add:3:six', 'remove:0:zero\'\'', 'add:0:zero\'\'']);
+    deepEqual(callbackItems, expected, 'changeMeta includes items');
+
+    // [zero'', one, five, six] -> [zero'', five, six]
+    // remove1
+    (0, _emberMetalRun_loop.default)(function () {
+      item = items.objectAt(1);
+      items.removeAt(1, 1);
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      // observer should have been removed from the deleted item
+      item.set('n', 'ten thousand');
+    });
+
+    // [zero'', five, six] -> [zero'', five, seven]
+    // remove2 add2
+    (0, _emberMetalRun_loop.default)(function () {
+      items.objectAt(2).set('n', 'seven');
+    });
+
+    // observer should have been added to the new item
+    expected = expected.concat(['remove:1:one', 'remove:2:seven', 'add:2:seven']);
+    deepEqual(callbackItems, expected, 'changeMeta includes items');
+
+    // reset (does not call remove)
+    (0, _emberMetalRun_loop.default)(function () {
+      item = items.objectAt(1);
+      (0, _emberMetalProperty_set.set)(obj, 'items', _emberMetalCore.default.A([]));
+    });
+
+    (0, _emberMetalRun_loop.default)(function () {
+      // observers should have been removed from the items in the old array
+      (0, _emberMetalProperty_set.set)(item, 'n', 'eleven thousand');
+    });
+
+    deepEqual(callbackItems, expected, 'items removed from the array had observers removed');
+  });
+
+  QUnit.test('changeMeta includes changedCount and arrayChanged', function () {
+    var obj = _emberRuntimeSystemObject.default.extend({
+      lettersArrayComputed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('letters', {
+        addedItem: function (array, item, changeMeta, instanceMeta) {
+          callbackItems.push('add:' + changeMeta.changedCount + ':' + changeMeta.arrayChanged.join(''));
+        },
+        removedItem: function (array, item, changeMeta, instanceMeta) {
+          callbackItems.push('remove:' + changeMeta.changedCount + ':' + changeMeta.arrayChanged.join(''));
+        }
+      })
+    }).create({
+      letters: _emberMetalCore.default.A(['a', 'b'])
+    });
+
+    var letters = (0, _emberMetalProperty_get.get)(obj, 'letters');
+
+    obj.get('lettersArrayComputed');
+    letters.pushObject('c');
+    letters.popObject();
+    letters.replace(0, 1, ['d']);
+    letters.removeAt(0, letters.length);
+
+    var expected = ['add:2:ab', 'add:2:ab', 'add:1:abc', 'remove:1:abc', 'remove:1:ab', 'add:1:db', 'remove:2:db', 'remove:2:db'];
+    deepEqual(callbackItems, expected, 'changeMeta has count and changed');
+  });
+
+  QUnit.test('`updateIndexes` is not over-eager about skipping retain:n (#4620)', function () {
+    var tracked = _emberMetalCore.default.A();
+    obj = _emberRuntimeSystemObject.default.extend({
+      content: _emberMetalCore.default.A([{ n: 'one' }, { n: 'two' }]),
+      items: (0, _emberRuntimeComputedArray_computed.arrayComputed)('content.@each.n', {
+        addedItem: function (array, item, changeMeta) {
+          tracked.push('+' + (0, _emberMetalProperty_get.get)(item, 'n') + '@' + changeMeta.index);
+          array.insertAt(changeMeta.index, item);
+          return array;
+        },
+        removedItem: function (array, item, changeMeta) {
+          tracked.push('-' + (changeMeta.previousValues ? changeMeta.previousValues.n : (0, _emberMetalProperty_get.get)(item, 'n')) + '@' + changeMeta.index);
+          array.removeAt(changeMeta.index);
+          return array;
+        }
+      })
+    }).create();
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('items');
+    });
+
+    deepEqual(tracked, ['+one@0', '+two@1'], 'precond - array is set up correctly');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      obj.get('content').shiftObject();
+    });
+
+    deepEqual(tracked, ['+one@0', '+two@1', '-one@0'], 'array handles unshift correctly');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'content.lastObject.n', 'three');
+    });
+
+    deepEqual(tracked, ['+one@0', '+two@1', '-one@0', '-two@0', '+three@0'], 'array handles a change when operations are delete:m retain:n-m');
+  });
+
+  QUnit.test('when initialValue is undefined, everything works as advertised', function () {
+    var chars = _emberRuntimeSystemObject.default.extend({
+      firstUpper: (0, _emberRuntimeComputedReduce_computed.reduceComputed)('letters', {
+        initialValue: undefined,
+
+        initialize: function (initialValue, changeMeta, instanceMeta) {
+          instanceMeta.matchingItems = _emberMetalCore.default.A();
+          instanceMeta.subArray = new _emberRuntimeSystemSubarray.default();
+          instanceMeta.firstMatch = function () {
+            return (0, _emberMetalProperty_get.getWithDefault)(instanceMeta.matchingItems, 'firstObject', initialValue);
+          };
+        },
+
+        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          var filterIndex;
+          filterIndex = instanceMeta.subArray.addItem(changeMeta.index, item.toUpperCase() === item);
+          if (filterIndex > -1) {
+            instanceMeta.matchingItems.insertAt(filterIndex, item);
+          }
+          return instanceMeta.firstMatch();
+        },
+
+        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          var filterIndex = instanceMeta.subArray.removeItem(changeMeta.index);
+          if (filterIndex > -1) {
+            instanceMeta.matchingItems.removeAt(filterIndex);
+          }
+          return instanceMeta.firstMatch();
+        }
+      })
+    }).create({
+      letters: _emberMetalCore.default.A()
+    });
+    equal((0, _emberMetalProperty_get.get)(chars, 'firstUpper'), undefined, 'initialValue is undefined');
+
+    (0, _emberMetalProperty_get.get)(chars, 'letters').pushObjects(['a', 'b', 'c']);
+
+    equal((0, _emberMetalProperty_get.get)(chars, 'firstUpper'), undefined, 'result is undefined when no matches are present');
+
+    (0, _emberMetalProperty_get.get)(chars, 'letters').pushObjects(['A', 'B', 'C']);
+
+    equal((0, _emberMetalProperty_get.get)(chars, 'firstUpper'), 'A', 'result is the first match when matching objects are present');
+
+    (0, _emberMetalProperty_get.get)(chars, 'letters').removeAt(3);
+
+    equal((0, _emberMetalProperty_get.get)(chars, 'firstUpper'), 'B', 'result is the next match when the first matching object is removed');
+  });
+
+  QUnit.module('arrayComputed - completely invalidating dependencies', {
+    setup: function () {
+      addCalls = removeCalls = 0;
+    }
+  });
+
+  QUnit.test('non-array dependencies completely invalidate a reduceComputed CP', function () {
+    var dependentArray = _emberMetalCore.default.A();
+
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      nonArray: 'v0',
+      dependentArray: dependentArray,
+
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', 'nonArray', {
+        addedItem: function (array) {
+          ++addCalls;
+          return array;
+        },
+
+        removedItem: function (array) {
+          --removeCalls;
+          return array;
+        }
+      })
+    }).create();
+
+    (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    equal(addCalls, 0, 'precond - add has not initially been called');
+    equal(removeCalls, 0, 'precond - remove has not initially been called');
+
+    dependentArray.pushObjects([1, 2]);
+
+    equal(addCalls, 2, 'add called one-at-a-time for dependent array changes');
+    equal(removeCalls, 0, 'remove not called');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      (0, _emberMetalProperty_set.set)(obj, 'nonArray', 'v1');
+    });
+
+    equal(addCalls, 4, 'array completely recomputed when non-array dependency changed');
+    equal(removeCalls, 0, 'remove not called');
+  });
+
+  QUnit.test('array dependencies specified with `.[]` completely invalidate a reduceComputed CP', function () {
+    expectDeprecation(/Ember.arrayComputed is deprecated/);
+
+    var dependentArray = _emberMetalCore.default.A();
+    var totallyInvalidatingDependentArray = _emberMetalCore.default.A();
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      totallyInvalidatingDependentArray: totallyInvalidatingDependentArray,
+      dependentArray: dependentArray,
+
+      computed: (0, _emberRuntimeComputedArray_computed.arrayComputed)('dependentArray', 'totallyInvalidatingDependentArray.[]', {
+        addedItem: function (array, item) {
+          ok(item !== 3, 'totally invalidating items are never passed to the one-at-a-time callbacks');
+          ++addCalls;
+          return array;
+        },
+
+        removedItem: function (array, item) {
+          ok(item !== 3, 'totally invalidating items are never passed to the one-at-a-time callbacks');
+          --removeCalls;
+          return array;
+        }
+      })
+    }).create();
+
+    (0, _emberMetalProperty_get.get)(obj, 'computed');
+
+    equal(addCalls, 0, 'precond - add has not initially been called');
+    equal(removeCalls, 0, 'precond - remove has not initially been called');
+
+    dependentArray.pushObjects([1, 2]);
+
+    equal(addCalls, 2, 'add called one-at-a-time for dependent array changes');
+    equal(removeCalls, 0, 'remove not called');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      totallyInvalidatingDependentArray.pushObject(3);
+    });
+
+    equal(addCalls, 4, 'array completely recomputed when totally invalidating dependent array modified');
+    equal(removeCalls, 0, 'remove not called');
+  });
+
+  QUnit.test('returning undefined in addedItem/removedItem completely invalidates a reduceComputed CP', function () {
+    expectDeprecation(/Ember.reduceComputed is deprecated/);
+
+    var dependentArray = _emberMetalCore.default.A([3, 2, 1]);
+    var counter = 0;
+
+    obj = _emberRuntimeSystemObject.default.extend({
+      dependentArray: dependentArray,
+
+      computed: (0, _emberRuntimeComputedReduce_computed.reduceComputed)('dependentArray', {
+        initialValue: Infinity,
+
+        addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          return Math.min(accumulatedValue, item);
+        },
+
+        removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
+          if (item > accumulatedValue) {
+            return accumulatedValue;
+          }
+        }
+      }),
+
+      computedDidChange: (0, _emberMetalMixin.observer)('computed', function () {
+        counter++;
+      })
+    }).create();
+
+    (0, _emberMetalProperty_get.get)(obj, 'computed');
+    equal((0, _emberMetalProperty_get.get)(obj, 'computed'), 1);
+    equal(counter, 0);
+
+    dependentArray.pushObject(10);
+    equal((0, _emberMetalProperty_get.get)(obj, 'computed'), 1);
+    equal(counter, 0);
+
+    dependentArray.removeObject(10);
+    equal((0, _emberMetalProperty_get.get)(obj, 'computed'), 1);
+    equal(counter, 0);
+
+    dependentArray.removeObject(1);
+    equal((0, _emberMetalProperty_get.get)(obj, 'computed'), 2);
+    equal(counter, 1);
+  });
+
+  if (!_emberMetalCore.default.EXTEND_PROTOTYPES && !_emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
+    QUnit.test('reduceComputed complains about array dependencies that are not `Ember.Array`s', function () {
+      expectDeprecation(/Ember.reduceComputed is deprecated/);
+
+      var Type = _emberRuntimeSystemObject.default.extend({
+        rc: (0, _emberRuntimeComputedReduce_computed.reduceComputed)('array', {
+          initialValue: 0,
+          addedItem: function (v) {
+            return v;
+          },
+          removedItem: function (v) {
+            return v;
+          }
+        })
+      });
+
+      expectAssertion(function () {
+        obj = Type.create({ array: [] });
+        (0, _emberMetalProperty_get.get)(obj, 'rc');
+      }, /must be an `Ember.Array`/, 'Ember.reduceComputed complains about dependent non-extended native arrays');
+    });
+  }
+
+  QUnit.module('arrayComputed - misc', {
+    setup: function () {
+      callbackItems = [];
+
+      shared = _emberMetalCore.default.Object.create({
+        flag: false
+      });
+
+      var Item = _emberMetalCore.default.Object.extend({
+        shared: shared,
+        flag: (0, _emberMetalComputed.computed)('shared.flag', function () {
+          return this.get('shared.flag');
+        })
+      });
+
+      expectDeprecation(function () {
+        obj = _emberMetalCore.default.Object.extend({
+          upstream: _emberMetalCore.default.A([Item.create(), Item.create()]),
+          arrayCP: (0, _emberRuntimeComputedArray_computed.arrayComputed)('upstream.@each.flag', {
+            addedItem: function (array, item) {
+              callbackItems.push('add:' + item.get('flag'));
+              return array;
+            },
+
+            removedItem: function (array, item) {
+              callbackItems.push('remove:' + item.get('flag'));
+              return array;
+            }
+          })
+        }).create();
+      }, 'Ember.arrayComputed is deprecated. Replace it with plain array methods');
+    },
+
+    teardown: function () {
+      (0, _emberMetalRun_loop.default)(function () {
+        obj.destroy();
+      });
+    }
+  });
+
+  QUnit.test('item property change flushes are gated by a semaphore', function () {
+    obj.get('arrayCP');
+    deepEqual(callbackItems, ['add:false', 'add:false'], 'precond - calls are initially correct');
+
+    callbackItems.splice(0, 2);
+
+    shared.set('flag', true);
+    deepEqual(callbackItems, ['remove:true', 'add:true', 'remove:true', 'add:true'], 'item property flushes that depend on a shared prop are gated by a semaphore');
   });
 });
 enifed('ember-runtime/tests/controllers/array_controller_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/controllers/array_controller', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeControllersArray_controller, _emberMetalProperty_set, _emberMetalProperty_get) {
@@ -33994,9 +35431,7 @@ enifed('ember-runtime/tests/controllers/item_controller_class_test', ['exports',
       sorted: (0, _emberRuntimeComputedReduce_computed_macros.sort)('@this', 'sortProperties')
     });
 
-    var sortedNames = arrayController.get('sorted').mapBy('model.name');
-
-    deepEqual(sortedNames, ['Jaime', 'Cersei'], 'ArrayController items can be sorted on itemController properties');
+    deepEqual(arrayController.get('sorted').mapProperty('model.name'), ['Jaime', 'Cersei'], 'ArrayController items can be sorted on itemController properties');
   });
 });
 enifed('ember-runtime/tests/controllers/object_controller_test', ['exports', 'ember-runtime/controllers/object_controller', 'ember-metal/mixin'], function (exports, _emberRuntimeControllersObject_controller, _emberMetalMixin) {
@@ -45234,7 +46669,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+47ec6622', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+9c919cae', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
