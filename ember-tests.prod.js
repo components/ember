@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+47ec6622
+ * @version   2.0.0-canary+dc479cef
  */
 
 (function() {
@@ -45234,7 +45234,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+47ec6622', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+dc479cef', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -57573,6 +57573,40 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     _emberMetalCore.default.TEMPLATES.index = compile('{{#link-to \'index\' (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}');
     bootApplication();
     equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
+  });
+
+  QUnit.test('{{link-to}} with only query-params updates when route changes', function () {
+    Router.map(function () {
+      this.route('about');
+    });
+
+    if ((0, _emberMetalFeatures.default)('ember-routing-route-configured-query-params')) {
+      App.ApplicationRoute = _emberMetalCore.default.Route.extend({
+        queryParams: {
+          foo: {
+            defaultValue: '123'
+          },
+          bar: {
+            defaultValue: 'yes'
+          }
+        }
+      });
+    } else {
+      App.ApplicationController = _emberMetalCore.default.Controller.extend({
+        queryParams: ['foo', 'bar'],
+        foo: '123',
+        bar: 'yes'
+      });
+    }
+
+    _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to (query-params foo=\'456\' bar=\'NAW\') id=\'the-link\'}}Index{{/link-to}}');
+    bootApplication();
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=NAW&foo=456', 'link has right href');
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/about');
+    });
+    equal(_emberMetalCore.default.$('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
   });
 });
 enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
