@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9c919cae
+ * @version   2.0.0-canary+47ec6622
  */
 
 (function() {
@@ -8700,7 +8700,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+9c919cae';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+47ec6622';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -12878,9 +12878,13 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
       // then notify chains...
       var chains = this._chains;
+      var node;
       if (chains) {
         for (var key in chains) {
-          chains[key].didChange(events);
+          node = chains[key];
+          if (node !== undefined) {
+            node.didChange(events);
+          }
         }
       }
 
@@ -14227,7 +14231,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9c919cae
+    @version 2.0.0-canary+47ec6622
     @public
   */
 
@@ -14259,11 +14263,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9c919cae'
+    @default '2.0.0-canary+47ec6622'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9c919cae';
+  Ember.VERSION = '2.0.0-canary+47ec6622';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16553,6 +16557,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
 });
 enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
   exports.mixin = mixin;
+  exports.default = Mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
@@ -17088,7 +17093,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @namespace Ember
     @public
   */
-  exports.default = Mixin;
 
   function Mixin(args, properties) {
     this.properties = properties;
@@ -22363,7 +22367,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+9c919cae';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+47ec6622';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22866,7 +22870,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+9c919cae';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+47ec6622';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -27892,7 +27896,7 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
     }
   }
 });
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/array_computed', 'ember-runtime/computed/reduce_computed', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedArray_computed, _emberRuntimeComputedReduce_computed, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   // END IMPORTS
 
   // BEGIN EXPORTS
@@ -27921,11 +27925,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.PromiseProxyMixin = _emberRuntimeMixinsPromise_proxy.default;
 
   _emberMetal.default.Observable = _emberRuntimeMixinsObservable.default;
-
-  _emberMetal.default.arrayComputed = _emberRuntimeComputedArray_computed.arrayComputed;
-  _emberMetal.default.ArrayComputedProperty = _emberRuntimeComputedArray_computed.ArrayComputedProperty;
-  _emberMetal.default.reduceComputed = _emberRuntimeComputedReduce_computed.reduceComputed;
-  _emberMetal.default.ReduceComputedProperty = _emberRuntimeComputedReduce_computed.ReduceComputedProperty;
 
   _emberMetal.default.typeOf = _emberRuntimeUtils.typeOf;
   _emberMetal.default.isArray = Array.isArray;
@@ -28102,1077 +28101,58 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     }
   }
 });
-enifed('ember-runtime/computed/array_computed', ['exports', 'ember-metal/core', 'ember-runtime/computed/reduce_computed', 'ember-metal/observer', 'ember-metal/error'], function (exports, _emberMetalCore, _emberRuntimeComputedReduce_computed, _emberMetalObserver, _emberMetalError) {
-
-  var a_slice = [].slice;
-
-  function ArrayComputedProperty() {
-    var cp = this;
-
-    this._isArrayComputed = true;
-    _emberRuntimeComputedReduce_computed.ReduceComputedProperty.apply(this, arguments);
-
-    this._getter = (function (reduceFunc) {
-      return function (propertyName) {
-        if (!cp._hasInstanceMeta(this, propertyName)) {
-          // When we recompute an array computed property, we need already
-          // retrieved arrays to be updated; we can't simply empty the cache and
-          // hope the array is re-retrieved.
-          cp._dependentKeys.forEach(function (dependentKey) {
-            (0, _emberMetalObserver.addObserver)(this, dependentKey, function () {
-              cp.recomputeOnce.call(this, propertyName);
-            });
-          }, this);
-        }
-
-        return reduceFunc.apply(this, arguments);
-      };
-    })(this._getter);
-
-    return this;
-  }
-
-  ArrayComputedProperty.prototype = Object.create(_emberRuntimeComputedReduce_computed.ReduceComputedProperty.prototype);
-
-  ArrayComputedProperty.prototype.initialValue = function () {
-    return _emberMetalCore.default.A();
-  };
-
-  ArrayComputedProperty.prototype.resetValue = function (array) {
-    array.clear();
-    return array;
-  };
-
-  // This is a stopgap to keep the reference counts correct with lazy CPs.
-  ArrayComputedProperty.prototype.didChange = function (obj, keyName) {
-    return;
-  };
-
-  /**
-    Creates a computed property which operates on dependent arrays and
-    is updated with "one at a time" semantics. When items are added or
-    removed from the dependent array(s) an array computed only operates
-    on the change instead of re-evaluating the entire array. This should
-    return an array, if you'd like to use "one at a time" semantics and
-    compute some value other then an array look at
-    `Ember.reduceComputed`.
-  
-    If there are more than one arguments the first arguments are
-    considered to be dependent property keys. The last argument is
-    required to be an options object. The options object can have the
-    following three properties.
-  
-    `initialize` - An optional initialize function. Typically this will be used
-    to set up state on the instanceMeta object.
-  
-    `removedItem` - A function that is called each time an element is
-    removed from the array.
-  
-    `addedItem` - A function that is called each time an element is
-    added to the array.
-  
-  
-    The `initialize` function has the following signature:
-  
-    ```javascript
-    function(array, changeMeta, instanceMeta)
-    ```
-  
-    `array` - The initial value of the arrayComputed, an empty array.
-  
-    `changeMeta` - An object which contains meta information about the
-    computed. It contains the following properties:
-  
-       - `property` the computed property
-       - `propertyName` the name of the property on the object
-  
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-  
-  
-    The `removedItem` and `addedItem` functions both have the following signature:
-  
-    ```javascript
-    function(accumulatedValue, item, changeMeta, instanceMeta)
-    ```
-  
-    `accumulatedValue` - The value returned from the last time
-    `removedItem` or `addedItem` was called or an empty array.
-  
-    `item` - the element added or removed from the array
-  
-    `changeMeta` - An object which contains meta information about the
-    change. It contains the following properties:
-  
-      - `property` the computed property
-      - `propertyName` the name of the property on the object
-      - `index` the index of the added or removed item
-      - `item` the added or removed item: this is exactly the same as
-        the second arg
-      - `arrayChanged` the array that triggered the change. Can be
-        useful when depending on multiple arrays.
-  
-    For property changes triggered on an item property change (when
-    depKey is something like `someArray.@each.someProperty`),
-    `changeMeta` will also contain the following property:
-  
-      - `previousValues` an object whose keys are the properties that changed on
-      the item, and whose values are the item's previous values.
-  
-    `previousValues` is important Ember coalesces item property changes via
-    Ember.run.once. This means that by the time removedItem gets called, item has
-    the new values, but you may need the previous value (eg for sorting &
-    filtering).
-  
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-  
-    The `removedItem` and `addedItem` functions should return the accumulated
-    value. It is acceptable to not return anything (ie return undefined)
-    to invalidate the computation. This is generally not a good idea for
-    arrayComputed but it's used in eg max and min.
-  
-    Example
-  
-    ```javascript
-    Ember.computed.map = function(dependentKey, callback) {
-      var options = {
-        addedItem: function(array, item, changeMeta, instanceMeta) {
-          var mapped = callback(item);
-          array.insertAt(changeMeta.index, mapped);
-          return array;
-        },
-        removedItem: function(array, item, changeMeta, instanceMeta) {
-          array.removeAt(changeMeta.index, 1);
-          return array;
-        }
-      };
-  
-      return Ember.arrayComputed(dependentKey, options);
-    };
-    ```
-  
-    @method arrayComputed
-    @for Ember
-    @param {String} [dependentKeys*]
-    @param {Object} options
-    @return {Ember.ComputedProperty}
-    @deprecated
-    @private
-  */
-  function arrayComputed(options) {
-    var args;
-
-    if (arguments.length > 1) {
-      args = a_slice.call(arguments, 0, -1);
-      options = a_slice.call(arguments, -1)[0];
-    }
-
-    if (typeof options !== 'object') {
-      throw new _emberMetalError.default('Array Computed Property declared without an options hash');
-    }
-
-    var cp = new ArrayComputedProperty(options);
-
-    if (args) {
-      cp.property.apply(cp, args);
-    }
-
-    return cp;
-  }
-
-  exports.arrayComputed = arrayComputed;
-  exports.ArrayComputedProperty = ArrayComputedProperty;
-});
-enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/property_events', 'ember-metal/expand_properties', 'ember-metal/observer', 'ember-metal/computed', 'ember-runtime/system/tracked_array', 'ember-runtime/mixins/array', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberMetalError, _emberMetalProperty_events, _emberMetalExpand_properties, _emberMetalObserver, _emberMetalComputed, _emberRuntimeSystemTracked_array, _emberRuntimeMixinsArray, _emberMetalRun_loop) {
-  exports.reduceComputed = reduceComputed;
-
-  var cacheSet = _emberMetalComputed.cacheFor.set;
-  var cacheGet = _emberMetalComputed.cacheFor.get;
-  var cacheRemove = _emberMetalComputed.cacheFor.remove;
-  var a_slice = [].slice;
-  // Here we explicitly don't allow `@each.foo`; it would require some special
-  // testing, but there's no particular reason why it should be disallowed.
-  var eachPropertyPattern = /^(.*)\.@each\.(.*)/;
-  var doubleEachPropertyPattern = /(.*\.@each){2,}/;
-  var arrayBracketPattern = /\.\[\]$/;
-
-  function get(obj, key) {
-    if (key === '@this') {
-      return obj;
-    }
-
-    return (0, _emberMetalProperty_get.get)(obj, key);
-  }
-
-  /*
-    Tracks changes to dependent arrays, as well as to properties of items in
-    dependent arrays.
-  
-    @class DependentArraysObserver
-  */
-  function DependentArraysObserver(callbacks, cp, instanceMeta, context, propertyName, sugarMeta) {
-    // user specified callbacks for `addedItem` and `removedItem`
-    this.callbacks = callbacks;
-
-    // the computed property: remember these are shared across instances
-    this.cp = cp;
-
-    // the ReduceComputedPropertyInstanceMeta this DependentArraysObserver is
-    // associated with
-    this.instanceMeta = instanceMeta;
-
-    // A map of array guids to dependentKeys, for the given context.  We track
-    // this because we want to set up the computed property potentially before the
-    // dependent array even exists, but when the array observer fires, we lack
-    // enough context to know what to update: we can recover that context by
-    // getting the dependentKey.
-    this.dependentKeysByGuid = {};
-
-    // a map of dependent array guids -> TrackedArray instances.  We use
-    // this to lazily recompute indexes for item property observers.
-    this.trackedArraysByGuid = {};
-
-    // We suspend observers to ignore replacements from `reset` when totally
-    // recomputing.  Unfortunately we cannot properly suspend the observers
-    // because we only have the key; instead we make the observers no-ops
-    this.suspended = false;
-
-    // This is used to coalesce item changes from property observers within a
-    // single item.
-    this.changedItems = {};
-    // This is used to coalesce item changes for multiple items that depend on
-    // some shared state.
-    this.changedItemCount = 0;
-  }
-
-  function ItemPropertyObserverContext(dependentArray, index, trackedArray) {
-    _emberMetalCore.default.assert('Internal error: trackedArray is null or undefined', trackedArray);
-
-    this.dependentArray = dependentArray;
-    this.index = index;
-    this.item = dependentArray.objectAt(index);
-    this.trackedArray = trackedArray;
-    this.beforeObserver = null;
-    this.observer = null;
-    this.destroyed = false;
-  }
-
-  DependentArraysObserver.prototype = {
-    setValue: function (newValue) {
-      this.instanceMeta.setValue(newValue, true);
-    },
-
-    getValue: function () {
-      return this.instanceMeta.getValue();
-    },
-
-    setupObservers: function (dependentArray, dependentKey) {
-      this.dependentKeysByGuid[(0, _emberMetalUtils.guidFor)(dependentArray)] = dependentKey;
-
-      dependentArray.addArrayObserver(this, {
-        willChange: 'dependentArrayWillChange',
-        didChange: 'dependentArrayDidChange'
-      });
-
-      if (this.cp._itemPropertyKeys[dependentKey]) {
-        this.setupPropertyObservers(dependentKey, this.cp._itemPropertyKeys[dependentKey]);
-      }
-    },
-
-    teardownObservers: function (dependentArray, dependentKey) {
-      var itemPropertyKeys = this.cp._itemPropertyKeys[dependentKey] || [];
-
-      delete this.dependentKeysByGuid[(0, _emberMetalUtils.guidFor)(dependentArray)];
-
-      this.teardownPropertyObservers(dependentKey, itemPropertyKeys);
-
-      dependentArray.removeArrayObserver(this, {
-        willChange: 'dependentArrayWillChange',
-        didChange: 'dependentArrayDidChange'
-      });
-    },
-
-    suspendArrayObservers: function (callback, binding) {
-      var oldSuspended = this.suspended;
-      this.suspended = true;
-      callback.call(binding);
-      this.suspended = oldSuspended;
-    },
-
-    setupPropertyObservers: function (dependentKey, itemPropertyKeys) {
-      var dependentArray = get(this.instanceMeta.context, dependentKey);
-      var length = get(dependentArray, 'length');
-      var observerContexts = new Array(length);
-
-      this.resetTransformations(dependentKey, observerContexts);
-
-      dependentArray.forEach(function (item, index) {
-        var observerContext = this.createPropertyObserverContext(dependentArray, index, this.trackedArraysByGuid[dependentKey]);
-        observerContexts[index] = observerContext;
-
-        itemPropertyKeys.forEach(function (propertyKey) {
-          (0, _emberMetalObserver.addBeforeObserver)(item, propertyKey, this, observerContext.beforeObserver);
-          (0, _emberMetalObserver.addObserver)(item, propertyKey, this, observerContext.observer);
-        }, this);
-      }, this);
-    },
-
-    teardownPropertyObservers: function (dependentKey, itemPropertyKeys) {
-      var dependentArrayObserver = this;
-      var trackedArray = this.trackedArraysByGuid[dependentKey];
-      var beforeObserver, observer, item;
-
-      if (!trackedArray) {
-        return;
-      }
-
-      trackedArray.apply(function (observerContexts, offset, operation) {
-        if (operation === _emberRuntimeSystemTracked_array.default.DELETE) {
-          return;
-        }
-
-        observerContexts.forEach(function (observerContext) {
-          observerContext.destroyed = true;
-          beforeObserver = observerContext.beforeObserver;
-          observer = observerContext.observer;
-          item = observerContext.item;
-
-          itemPropertyKeys.forEach(function (propertyKey) {
-            (0, _emberMetalObserver.removeBeforeObserver)(item, propertyKey, dependentArrayObserver, beforeObserver);
-            (0, _emberMetalObserver.removeObserver)(item, propertyKey, dependentArrayObserver, observer);
-          });
-        });
-      });
-    },
-
-    createPropertyObserverContext: function (dependentArray, index, trackedArray) {
-      var observerContext = new ItemPropertyObserverContext(dependentArray, index, trackedArray);
-
-      this.createPropertyObserver(observerContext);
-
-      return observerContext;
-    },
-
-    createPropertyObserver: function (observerContext) {
-      var dependentArrayObserver = this;
-
-      observerContext.beforeObserver = function (obj, keyName) {
-        return dependentArrayObserver.itemPropertyWillChange(obj, keyName, observerContext.dependentArray, observerContext);
-      };
-
-      observerContext.observer = function (obj, keyName) {
-        return dependentArrayObserver.itemPropertyDidChange(obj, keyName, observerContext.dependentArray, observerContext);
-      };
-    },
-
-    resetTransformations: function (dependentKey, observerContexts) {
-      this.trackedArraysByGuid[dependentKey] = new _emberRuntimeSystemTracked_array.default(observerContexts);
-    },
-
-    trackAdd: function (dependentKey, index, newItems) {
-      var trackedArray = this.trackedArraysByGuid[dependentKey];
-
-      if (trackedArray) {
-        trackedArray.addItems(index, newItems);
-      }
-    },
-
-    trackRemove: function (dependentKey, index, removedCount) {
-      var trackedArray = this.trackedArraysByGuid[dependentKey];
-
-      if (trackedArray) {
-        return trackedArray.removeItems(index, removedCount);
-      }
-
-      return [];
-    },
-
-    updateIndexes: function (trackedArray, array) {
-      var length = get(array, 'length');
-      // OPTIMIZE: we could stop updating once we hit the object whose observer
-      // fired; ie partially apply the transformations
-      trackedArray.apply(function (observerContexts, offset, operation, operationIndex) {
-        // we don't even have observer contexts for removed items, even if we did,
-        // they no longer have any index in the array
-        if (operation === _emberRuntimeSystemTracked_array.default.DELETE) {
-          return;
-        }
-        if (operationIndex === 0 && operation === _emberRuntimeSystemTracked_array.default.RETAIN && observerContexts.length === length && offset === 0) {
-          // If we update many items we don't want to walk the array each time: we
-          // only need to update the indexes at most once per run loop.
-          return;
-        }
-
-        observerContexts.forEach(function (context, index) {
-          context.index = index + offset;
-        });
-      });
-    },
-
-    dependentArrayWillChange: function (dependentArray, index, removedCount, addedCount) {
-      if (this.suspended) {
-        return;
-      }
-
-      var removedItem = this.callbacks.removedItem;
-      var changeMeta;
-      var guid = (0, _emberMetalUtils.guidFor)(dependentArray);
-      var dependentKey = this.dependentKeysByGuid[guid];
-      var itemPropertyKeys = this.cp._itemPropertyKeys[dependentKey] || [];
-      var length = get(dependentArray, 'length');
-      var normalizedIndex = normalizeIndex(index, length, 0);
-      var normalizedRemoveCount = normalizeRemoveCount(normalizedIndex, length, removedCount);
-      var item, itemIndex, sliceIndex, observerContexts;
-
-      observerContexts = this.trackRemove(dependentKey, normalizedIndex, normalizedRemoveCount);
-
-      function removeObservers(propertyKey) {
-        observerContexts[sliceIndex].destroyed = true;
-        (0, _emberMetalObserver.removeBeforeObserver)(item, propertyKey, this, observerContexts[sliceIndex].beforeObserver);
-        (0, _emberMetalObserver.removeObserver)(item, propertyKey, this, observerContexts[sliceIndex].observer);
-      }
-
-      for (sliceIndex = normalizedRemoveCount - 1; sliceIndex >= 0; --sliceIndex) {
-        itemIndex = normalizedIndex + sliceIndex;
-        if (itemIndex >= length) {
-          break;
-        }
-
-        item = dependentArray.objectAt(itemIndex);
-
-        itemPropertyKeys.forEach(removeObservers, this);
-
-        changeMeta = new ChangeMeta(dependentArray, item, itemIndex, this.instanceMeta.propertyName, this.cp, normalizedRemoveCount);
-        this.setValue(removedItem.call(this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
-      }
-      this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
-    },
-
-    dependentArrayDidChange: function (dependentArray, index, removedCount, addedCount) {
-      if (this.suspended) {
-        return;
-      }
-
-      var addedItem = this.callbacks.addedItem;
-      var guid = (0, _emberMetalUtils.guidFor)(dependentArray);
-      var dependentKey = this.dependentKeysByGuid[guid];
-      var observerContexts = new Array(addedCount);
-      var itemPropertyKeys = this.cp._itemPropertyKeys[dependentKey];
-      var length = get(dependentArray, 'length');
-      var normalizedIndex = normalizeIndex(index, length, addedCount);
-      var endIndex = normalizedIndex + addedCount;
-      var changeMeta, observerContext;
-
-      dependentArray.slice(normalizedIndex, endIndex).forEach(function (item, sliceIndex) {
-        if (itemPropertyKeys) {
-          observerContext = this.createPropertyObserverContext(dependentArray, normalizedIndex + sliceIndex, this.trackedArraysByGuid[dependentKey]);
-          observerContexts[sliceIndex] = observerContext;
-
-          itemPropertyKeys.forEach(function (propertyKey) {
-            (0, _emberMetalObserver.addBeforeObserver)(item, propertyKey, this, observerContext.beforeObserver);
-            (0, _emberMetalObserver.addObserver)(item, propertyKey, this, observerContext.observer);
-          }, this);
-        }
-
-        changeMeta = new ChangeMeta(dependentArray, item, normalizedIndex + sliceIndex, this.instanceMeta.propertyName, this.cp, addedCount);
-        this.setValue(addedItem.call(this.instanceMeta.context, this.getValue(), item, changeMeta, this.instanceMeta.sugarMeta));
-      }, this);
-      this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
-      this.trackAdd(dependentKey, normalizedIndex, observerContexts);
-    },
-
-    itemPropertyWillChange: function (obj, keyName, array, observerContext) {
-      var guid = (0, _emberMetalUtils.guidFor)(obj);
-
-      if (!this.changedItems[guid]) {
-        this.changedItems[guid] = {
-          array: array,
-          observerContext: observerContext,
-          obj: obj,
-          previousValues: {}
-        };
-      }
-
-      ++this.changedItemCount;
-      this.changedItems[guid].previousValues[keyName] = get(obj, keyName);
-    },
-
-    itemPropertyDidChange: function (obj, keyName, array, observerContext) {
-      if (--this.changedItemCount === 0) {
-        this.flushChanges();
-      }
-    },
-
-    flushChanges: function () {
-      var changedItems = this.changedItems;
-      var key, c, changeMeta;
-
-      for (key in changedItems) {
-        c = changedItems[key];
-        if (c.observerContext.destroyed) {
-          continue;
-        }
-
-        this.updateIndexes(c.observerContext.trackedArray, c.observerContext.dependentArray);
-
-        changeMeta = new ChangeMeta(c.array, c.obj, c.observerContext.index, this.instanceMeta.propertyName, this.cp, changedItems.length, c.previousValues);
-        this.setValue(this.callbacks.removedItem.call(this.instanceMeta.context, this.getValue(), c.obj, changeMeta, this.instanceMeta.sugarMeta));
-        this.setValue(this.callbacks.addedItem.call(this.instanceMeta.context, this.getValue(), c.obj, changeMeta, this.instanceMeta.sugarMeta));
-      }
-
-      this.changedItems = {};
-      this.callbacks.flushedChanges.call(this.instanceMeta.context, this.getValue(), this.instanceMeta.sugarMeta);
-    }
-  };
-
-  function normalizeIndex(index, length, newItemsOffset) {
-    if (index < 0) {
-      return Math.max(0, length + index);
-    } else if (index < length) {
-      return index;
-    } else {
-      // index > length
-      return Math.min(length - newItemsOffset, index);
-    }
-  }
-
-  function normalizeRemoveCount(index, length, removedCount) {
-    return Math.min(removedCount, length - index);
-  }
-
-  function ChangeMeta(dependentArray, item, index, propertyName, property, changedCount, previousValues) {
-    this.arrayChanged = dependentArray;
-    this.index = index;
-    this.item = item;
-    this.propertyName = propertyName;
-    this.property = property;
-    this.changedCount = changedCount;
-
-    if (previousValues) {
-      // previous values only available for item property changes
-      this.previousValues = previousValues;
-    }
-  }
-
-  function addItems(dependentArray, callbacks, cp, propertyName, meta) {
-    dependentArray.forEach(function (item, index) {
-      meta.setValue(callbacks.addedItem.call(this, meta.getValue(), item, new ChangeMeta(dependentArray, item, index, propertyName, cp, dependentArray.length), meta.sugarMeta));
-    }, this);
-    callbacks.flushedChanges.call(this, meta.getValue(), meta.sugarMeta);
-  }
-
-  function reset(cp, propertyName) {
-    var hadMeta = cp._hasInstanceMeta(this, propertyName);
-    var meta = cp._instanceMeta(this, propertyName);
-
-    if (hadMeta) {
-      meta.setValue(cp.resetValue(meta.getValue()));
-    }
-
-    if (cp.options.initialize) {
-      cp.options.initialize.call(this, meta.getValue(), {
-        property: cp,
-        propertyName: propertyName
-      }, meta.sugarMeta);
-    }
-  }
-
-  function partiallyRecomputeFor(obj, dependentKey) {
-    if (arrayBracketPattern.test(dependentKey)) {
-      return false;
-    }
-
-    var value = get(obj, dependentKey);
-    return _emberRuntimeMixinsArray.default.detect(value);
-  }
-
-  function ReduceComputedPropertyInstanceMeta(context, propertyName, initialValue) {
-    this.context = context;
-    this.propertyName = propertyName;
-    var contextMeta = (0, _emberMetalUtils.meta)(context);
-    var contextCache = contextMeta.cache;
-    if (!contextCache) {
-      contextCache = contextMeta.cache = {};
-    }
-    this.cache = contextCache;
-    this.dependentArrays = {};
-    this.sugarMeta = {};
-    this.initialValue = initialValue;
-  }
-
-  ReduceComputedPropertyInstanceMeta.prototype = {
-    getValue: function () {
-      var value = cacheGet(this.cache, this.propertyName);
-
-      if (value !== undefined) {
-        return value;
-      } else {
-        return this.initialValue;
-      }
-    },
-
-    setValue: function (newValue, triggerObservers) {
-      // This lets sugars force a recomputation, handy for very simple
-      // implementations of eg max.
-      if (newValue === cacheGet(this.cache, this.propertyName)) {
-        return;
-      }
-
-      if (triggerObservers) {
-        (0, _emberMetalProperty_events.propertyWillChange)(this.context, this.propertyName);
-      }
-
-      if (newValue === undefined) {
-        cacheRemove(this.cache, this.propertyName);
-      } else {
-        cacheSet(this.cache, this.propertyName, newValue);
-      }
-
-      if (triggerObservers) {
-        (0, _emberMetalProperty_events.propertyDidChange)(this.context, this.propertyName);
-      }
-    }
-  };
-
-  /**
-    A computed property whose dependent keys are arrays and which is updated with
-    "one at a time" semantics.
-  
-    @class ReduceComputedProperty
-    @namespace Ember
-    @extends Ember.ComputedProperty
-    @constructor
-    @private
-  */
-
-  exports.ReduceComputedProperty = ReduceComputedProperty;
-  // TODO: default export
-
-  function ReduceComputedProperty(options) {
-    var cp = this;
-
-    // use options._suppressDeprecation to allow us to deprecate
-    // arrayComputed and reduceComputed themselves, but not the
-    // default internal macros which will be reimplemented as plain
-    // array methods
-    if (this._isArrayComputed) {
-      _emberMetalCore.default.deprecate('Ember.arrayComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
-    } else {
-      _emberMetalCore.default.deprecate('Ember.reduceComputed is deprecated. Replace it with plain array methods', options._suppressDeprecation);
-    }
-
-    this.options = options;
-    this._dependentKeys = null;
-    this._cacheable = true;
-    // A map of dependentKey -> [itemProperty, ...] that tracks what properties of
-    // items in the array we must track to update this property.
-    this._itemPropertyKeys = {};
-    this._previousItemPropertyKeys = {};
-
-    this.readOnly();
-
-    this.recomputeOnce = function (propertyName) {
-      // What we really want to do is coalesce by <cp, propertyName>.
-      // We need a form of `scheduleOnce` that accepts an arbitrary token to
-      // coalesce by, in addition to the target and method.
-      _emberMetalRun_loop.default.once(this, recompute, propertyName);
-    };
-
-    var recompute = function (propertyName) {
-      var meta = cp._instanceMeta(this, propertyName);
-      var callbacks = cp._callbacks();
-
-      reset.call(this, cp, propertyName);
-
-      meta.dependentArraysObserver.suspendArrayObservers(function () {
-        cp._dependentKeys.forEach(function (dependentKey) {
-          _emberMetalCore.default.assert('dependent array ' + dependentKey + ' must be an `Ember.Array`.  ' + 'If you are not extending arrays, you will need to wrap native arrays with `Ember.A`', !(Array.isArray(get(this, dependentKey)) && !_emberRuntimeMixinsArray.default.detect(get(this, dependentKey))));
-
-          if (!partiallyRecomputeFor(this, dependentKey)) {
-            return;
-          }
-
-          var dependentArray = get(this, dependentKey);
-          var previousDependentArray = meta.dependentArrays[dependentKey];
-
-          if (dependentArray === previousDependentArray) {
-
-            // The array may be the same, but our item property keys may have
-            // changed, so we set them up again.  We can't easily tell if they've
-            // changed: the array may be the same object, but with different
-            // contents.
-            if (cp._previousItemPropertyKeys[dependentKey]) {
-              meta.dependentArraysObserver.teardownPropertyObservers(dependentKey, cp._previousItemPropertyKeys[dependentKey]);
-              delete cp._previousItemPropertyKeys[dependentKey];
-              meta.dependentArraysObserver.setupPropertyObservers(dependentKey, cp._itemPropertyKeys[dependentKey]);
-            }
-          } else {
-            meta.dependentArrays[dependentKey] = dependentArray;
-
-            if (previousDependentArray) {
-              meta.dependentArraysObserver.teardownObservers(previousDependentArray, dependentKey);
-            }
-
-            if (dependentArray) {
-              meta.dependentArraysObserver.setupObservers(dependentArray, dependentKey);
-            }
-          }
-        }, this);
-      }, this);
-
-      cp._dependentKeys.forEach(function (dependentKey) {
-        if (!partiallyRecomputeFor(this, dependentKey)) {
-          return;
-        }
-
-        var dependentArray = get(this, dependentKey);
-
-        if (dependentArray) {
-          addItems.call(this, dependentArray, callbacks, cp, propertyName, meta);
-        }
-      }, this);
-    };
-
-    this._getter = function (propertyName) {
-      _emberMetalCore.default.assert('Computed reduce values require at least one dependent key', cp._dependentKeys);
-
-      recompute.call(this, propertyName);
-
-      return cp._instanceMeta(this, propertyName).getValue();
-    };
-  }
-
-  ReduceComputedProperty.prototype = Object.create(_emberMetalComputed.ComputedProperty.prototype);
-
-  function defaultCallback(computedValue) {
-    return computedValue;
-  }
-
-  ReduceComputedProperty.prototype._callbacks = function () {
-    if (!this.callbacks) {
-      var options = this.options;
-
-      this.callbacks = {
-        removedItem: options.removedItem || defaultCallback,
-        addedItem: options.addedItem || defaultCallback,
-        flushedChanges: options.flushedChanges || defaultCallback
-      };
-    }
-
-    return this.callbacks;
-  };
-
-  ReduceComputedProperty.prototype._hasInstanceMeta = function (context, propertyName) {
-    var contextMeta = context.__ember_meta__;
-    var cacheMeta = contextMeta && contextMeta.cacheMeta;
-    return !!(cacheMeta && cacheMeta[propertyName]);
-  };
-
-  ReduceComputedProperty.prototype._instanceMeta = function (context, propertyName) {
-    var contextMeta = context.__ember_meta__;
-    var cacheMeta = contextMeta.cacheMeta;
-    var meta = cacheMeta && cacheMeta[propertyName];
-
-    if (!cacheMeta) {
-      cacheMeta = contextMeta.cacheMeta = {};
-    }
-    if (!meta) {
-      meta = cacheMeta[propertyName] = new ReduceComputedPropertyInstanceMeta(context, propertyName, this.initialValue());
-      meta.dependentArraysObserver = new DependentArraysObserver(this._callbacks(), this, meta, context, propertyName, meta.sugarMeta);
-    }
-
-    return meta;
-  };
-
-  ReduceComputedProperty.prototype.initialValue = function () {
-    if (typeof this.options.initialValue === 'function') {
-      return this.options.initialValue();
-    } else {
-      return this.options.initialValue;
-    }
-  };
-
-  ReduceComputedProperty.prototype.resetValue = function (value) {
-    return this.initialValue();
-  };
-
-  ReduceComputedProperty.prototype.itemPropertyKey = function (dependentArrayKey, itemPropertyKey) {
-    this._itemPropertyKeys[dependentArrayKey] = this._itemPropertyKeys[dependentArrayKey] || [];
-    this._itemPropertyKeys[dependentArrayKey].push(itemPropertyKey);
-  };
-
-  ReduceComputedProperty.prototype.clearItemPropertyKeys = function (dependentArrayKey) {
-    if (this._itemPropertyKeys[dependentArrayKey]) {
-      this._previousItemPropertyKeys[dependentArrayKey] = this._itemPropertyKeys[dependentArrayKey];
-      this._itemPropertyKeys[dependentArrayKey] = [];
-    }
-  };
-
-  ReduceComputedProperty.prototype.property = function () {
-    var cp = this;
-    var args = a_slice.call(arguments);
-    var propertyArgs = {};
-    var match, dependentArrayKey;
-
-    args.forEach(function (dependentKey) {
-      if (doubleEachPropertyPattern.test(dependentKey)) {
-        throw new _emberMetalError.default('Nested @each properties not supported: ' + dependentKey);
-      } else if (match = eachPropertyPattern.exec(dependentKey)) {
-        dependentArrayKey = match[1];
-
-        var itemPropertyKeyPattern = match[2];
-        var addItemPropertyKey = function (itemPropertyKey) {
-          cp.itemPropertyKey(dependentArrayKey, itemPropertyKey);
-        };
-
-        (0, _emberMetalExpand_properties.default)(itemPropertyKeyPattern, addItemPropertyKey);
-        propertyArgs[(0, _emberMetalUtils.guidFor)(dependentArrayKey)] = dependentArrayKey;
-      } else {
-        propertyArgs[(0, _emberMetalUtils.guidFor)(dependentKey)] = dependentKey;
-      }
-    });
-
-    var propertyArgsToArray = [];
-    for (var guid in propertyArgs) {
-      propertyArgsToArray.push(propertyArgs[guid]);
-    }
-
-    return _emberMetalComputed.ComputedProperty.prototype.property.apply(this, propertyArgsToArray);
-  };
-
-  /**
-    Creates a computed property which operates on dependent arrays and
-    is updated with "one at a time" semantics. When items are added or
-    removed from the dependent array(s) a reduce computed only operates
-    on the change instead of re-evaluating the entire array.
-  
-    If there are more than one arguments the first arguments are
-    considered to be dependent property keys. The last argument is
-    required to be an options object. The options object can have the
-    following four properties:
-  
-    `initialValue` - A value or function that will be used as the initial
-    value for the computed. If this property is a function the result of calling
-    the function will be used as the initial value. This property is required.
-  
-    `initialize` - An optional initialize function. Typically this will be used
-    to set up state on the instanceMeta object.
-  
-    `removedItem` - A function that is called each time an element is removed
-    from the array.
-  
-    `addedItem` - A function that is called each time an element is added to
-    the array.
-  
-  
-    The `initialize` function has the following signature:
-  
-    ```javascript
-    function(initialValue, changeMeta, instanceMeta)
-    ```
-  
-    `initialValue` - The value of the `initialValue` property from the
-    options object.
-  
-    `changeMeta` - An object which contains meta information about the
-    computed. It contains the following properties:
-  
-       - `property` the computed property
-       - `propertyName` the name of the property on the object
-  
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-  
-  
-    The `removedItem` and `addedItem` functions both have the following signature:
-  
-    ```javascript
-    function(accumulatedValue, item, changeMeta, instanceMeta)
-    ```
-  
-    `accumulatedValue` - The value returned from the last time
-    `removedItem` or `addedItem` was called or `initialValue`.
-  
-    `item` - the element added or removed from the array
-  
-    `changeMeta` - An object which contains meta information about the
-    change. It contains the following properties:
-  
-      - `property` the computed property
-      - `propertyName` the name of the property on the object
-      - `index` the index of the added or removed item
-      - `item` the added or removed item: this is exactly the same as
-        the second arg
-      - `arrayChanged` the array that triggered the change. Can be
-        useful when depending on multiple arrays.
-  
-    For property changes triggered on an item property change (when
-    depKey is something like `someArray.@each.someProperty`),
-    `changeMeta` will also contain the following property:
-  
-      - `previousValues` an object whose keys are the properties that changed on
-      the item, and whose values are the item's previous values.
-  
-    `previousValues` is important Ember coalesces item property changes via
-    Ember.run.once. This means that by the time removedItem gets called, item has
-    the new values, but you may need the previous value (eg for sorting &
-    filtering).
-  
-    `instanceMeta` - An object that can be used to store meta
-    information needed for calculating your computed. For example a
-    unique computed might use this to store the number of times a given
-    element is found in the dependent array.
-  
-    The `removedItem` and `addedItem` functions should return the accumulated
-    value. It is acceptable to not return anything (ie return undefined)
-    to invalidate the computation. This is generally not a good idea for
-    arrayComputed but it's used in eg max and min.
-  
-    Note that observers will be fired if either of these functions return a value
-    that differs from the accumulated value.  When returning an object that
-    mutates in response to array changes, for example an array that maps
-    everything from some other array (see `Ember.computed.map`), it is usually
-    important that the *same* array be returned to avoid accidentally triggering observers.
-  
-    Example
-  
-    ```javascript
-    Ember.computed.max = function(dependentKey) {
-      return Ember.reduceComputed(dependentKey, {
-        initialValue: -Infinity,
-  
-        addedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          return Math.max(accumulatedValue, item);
-        },
-  
-        removedItem: function(accumulatedValue, item, changeMeta, instanceMeta) {
-          if (item < accumulatedValue) {
-            return accumulatedValue;
-          }
-        }
-      });
-    };
-    ```
-  
-    Dependent keys may refer to `@this` to observe changes to the object itself,
-    which must be array-like, rather than a property of the object.  This is
-    mostly useful for array proxies, to ensure objects are retrieved via
-    `objectAtContent`.  This is how you could sort items by properties defined on an item controller.
-  
-    Example
-  
-    ```javascript
-    App.PeopleController = Ember.ArrayController.extend({
-      itemController: 'person',
-  
-      sortedPeople: Ember.computed.sort('@this.@each.reversedName', function(personA, personB) {
-        // `reversedName` isn't defined on Person, but we have access to it via
-        // the item controller App.PersonController.  If we'd used
-        // `content.@each.reversedName` above, we would be getting the objects
-        // directly and not have access to `reversedName`.
-        //
-        var reversedNameA = get(personA, 'reversedName');
-        var reversedNameB = get(personB, 'reversedName');
-  
-        return Ember.compare(reversedNameA, reversedNameB);
-      })
-    });
-  
-    App.PersonController = Ember.ObjectController.extend({
-      reversedName: function() {
-        return reverse(get(this, 'name'));
-      }.property('name')
-    });
-    ```
-  
-    Dependent keys whose values are not arrays are treated as regular
-    dependencies: when they change, the computed property is completely
-    recalculated.  It is sometimes useful to have dependent arrays with similar
-    semantics.  Dependent keys which end in `.[]` do not use "one at a time"
-    semantics.  When an item is added or removed from such a dependency, the
-    computed property is completely recomputed.
-  
-    When the computed property is completely recomputed, the `accumulatedValue`
-    is discarded, it starts with `initialValue` again, and each item is passed
-    to `addedItem` in turn.
-  
-    Example
-  
-    ```javascript
-    Ember.Object.extend({
-      // When `string` is changed, `computed` is completely recomputed.
-      string: 'a string',
-  
-      // When an item is added to `array`, `addedItem` is called.
-      array: [],
-  
-      // When an item is added to `anotherArray`, `computed` is completely
-      // recomputed.
-      anotherArray: [],
-  
-      computed: Ember.reduceComputed('string', 'array', 'anotherArray.[]', {
-        addedItem: addedItemCallback,
-        removedItem: removedItemCallback
-      })
-    });
-    ```
-  
-    @method reduceComputed
-    @for Ember
-    @param {String} [dependentKeys*]
-    @param {Object} options
-    @return {Ember.ComputedProperty}
-    @deprecated
-    @public
-  */
-
-  function reduceComputed(options) {
-    var args;
-
-    if (arguments.length > 1) {
-      args = a_slice.call(arguments, 0, -1);
-      options = a_slice.call(arguments, -1)[0];
-    }
-
-    if (typeof options !== 'object') {
-      throw new _emberMetalError.default('Reduce Computed Property declared without an options hash');
-    }
-
-    if (!('initialValue' in options)) {
-      throw new _emberMetalError.default('Reduce Computed Property declared without an initial value');
-    }
-
-    var cp = new ReduceComputedProperty(options);
-
-    if (args) {
-      cp.property.apply(cp, args);
-    }
-
-    return cp;
-  }
-});
-// Ember.assert
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-runtime/computed/array_computed', 'ember-runtime/computed/reduce_computed', 'ember-runtime/system/subarray', 'ember-runtime/compare'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberMetalError, _emberMetalRun_loop, _emberMetalObserver, _emberRuntimeComputedArray_computed, _emberRuntimeComputedReduce_computed, _emberRuntimeSystemSubarray, _emberRuntimeCompare) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils) {
   exports.sum = sum;
   exports.max = max;
   exports.min = min;
   exports.map = map;
   exports.mapBy = mapBy;
+  exports.mapProperty = mapProperty;
   exports.filter = filter;
   exports.filterBy = filterBy;
+  exports.filterProperty = filterProperty;
   exports.uniq = uniq;
   exports.intersect = intersect;
   exports.setDiff = setDiff;
   exports.sort = sort;
 
-  var a_slice = [].slice;
+  function reduceMacro(dependentKey, callback, initialValue) {
+    return (0, _emberMetalComputed.computed)('' + dependentKey + '.[]', function () {
+      return (0, _emberMetalProperty_get.get)(this, dependentKey).reduce(callback, initialValue);
+    }).readOnly();
+  }
+
+  function arrayMacro(dependentKey, callback) {
+    // This is a bit ugly
+    var propertyName;
+    if (/@each/.test(dependentKey)) {
+      propertyName = dependentKey.replace(/\.@each.*$/, '');
+    } else {
+      propertyName = dependentKey;
+      dependentKey += '.[]';
+    }
+
+    return (0, _emberMetalComputed.computed)(dependentKey, function () {
+      var value = (0, _emberMetalProperty_get.get)(this, propertyName);
+      if ((0, _emberRuntimeUtils.isArray)(value)) {
+        return _emberMetalCore.default.A(callback(value));
+      } else {
+        return _emberMetalCore.default.A();
+      }
+    }).readOnly();
+  }
+
+  function multiArrayMacro(dependentKeys, callback) {
+    var args = dependentKeys.map(function (key) {
+      return '' + key + '.[]';
+    });
+
+    args.push(function () {
+      return _emberMetalCore.default.A(callback.call(this, dependentKeys));
+    });
+
+    return _emberMetalComputed.computed.apply(this, args).readOnly();
+  }
 
   /**
     A computed property that returns the sum of the value
@@ -29187,18 +28167,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function sum(dependentKey) {
-    return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
-      _suppressDeprecation: true,
-      initialValue: 0,
-
-      addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        return accumulatedValue + item;
-      },
-
-      removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        return accumulatedValue - item;
-      }
-    });
+    return reduceMacro(dependentKey, function (sum, item) {
+      return sum + item;
+    }, 0);
   }
 
   /**
@@ -29237,20 +28208,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function max(dependentKey) {
-    return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
-      _suppressDeprecation: true,
-      initialValue: -Infinity,
-
-      addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        return Math.max(accumulatedValue, item);
-      },
-
-      removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        if (item < accumulatedValue) {
-          return accumulatedValue;
-        }
-      }
-    });
+    return reduceMacro(dependentKey, function (max, item) {
+      return Math.max(max, item);
+    }, -Infinity);
   }
 
   /**
@@ -29289,21 +28249,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function min(dependentKey) {
-    return (0, _emberRuntimeComputedReduce_computed.reduceComputed)(dependentKey, {
-      _suppressDeprecation: true,
-
-      initialValue: Infinity,
-
-      addedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        return Math.min(accumulatedValue, item);
-      },
-
-      removedItem: function (accumulatedValue, item, changeMeta, instanceMeta) {
-        if (item > accumulatedValue) {
-          return accumulatedValue;
-        }
-      }
-    });
+    return reduceMacro(dependentKey, function (min, item) {
+      return Math.min(min, item);
+    }, Infinity);
   }
 
   /**
@@ -29342,23 +28290,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function map(dependentKey, callback) {
-    _emberMetalCore.default.assert('Ember.computed.map expects a callback function for its second argument, ' + 'perhaps you meant to use "mapBy"', typeof callback === 'function');
-
-    var options = {
-      _suppressDeprecation: true,
-
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var mapped = callback.call(this, item, changeMeta.index);
-        array.insertAt(changeMeta.index, mapped);
-        return array;
-      },
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        array.removeAt(changeMeta.index, 1);
-        return array;
-      }
-    };
-
-    return (0, _emberRuntimeComputedArray_computed.arrayComputed)(dependentKey, options);
+    return arrayMacro(dependentKey, function (value) {
+      return value.map(callback);
+    });
   }
 
   /**
@@ -29395,10 +28329,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   function mapBy(dependentKey, propertyKey) {
     _emberMetalCore.default.assert('Ember.computed.mapBy expects a property string for its second argument, ' + 'perhaps you meant to use "map"', typeof propertyKey === 'string');
 
-    var callback = function (item) {
+    return map('' + dependentKey + '.@each.' + propertyKey, function (item) {
       return (0, _emberMetalProperty_get.get)(item, propertyKey);
-    };
-    return map(dependentKey + '.@each.' + propertyKey, callback);
+    });
   }
 
   /**
@@ -29409,9 +28342,12 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @param propertyKey
     @public
   */
-  var mapProperty = mapBy;
 
-  exports.mapProperty = mapProperty;
+  function mapProperty() {
+    _emberMetalCore.default.deprecate('Ember.computed.mapProperty is deprecated. Please use Ember.computed.mapBy.');
+    return mapBy.apply(this, arguments);
+  }
+
   /**
     Filters the array by the callback.
   
@@ -29451,36 +28387,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function filter(dependentKey, callback) {
-    var options = {
-      _suppressDeprecation: true,
-
-      initialize: function (array, changeMeta, instanceMeta) {
-        instanceMeta.filteredArrayIndexes = new _emberRuntimeSystemSubarray.default();
-      },
-
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var match = !!callback.call(this, item, changeMeta.index, changeMeta.arrayChanged);
-        var filterIndex = instanceMeta.filteredArrayIndexes.addItem(changeMeta.index, match);
-
-        if (match) {
-          array.insertAt(filterIndex, item);
-        }
-
-        return array;
-      },
-
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        var filterIndex = instanceMeta.filteredArrayIndexes.removeItem(changeMeta.index);
-
-        if (filterIndex > -1) {
-          array.removeAt(filterIndex);
-        }
-
-        return array;
-      }
-    };
-
-    return (0, _emberRuntimeComputedArray_computed.arrayComputed)(dependentKey, options);
+    return arrayMacro(dependentKey, function (value) {
+      return value.filter(callback);
+    });
   }
 
   /**
@@ -29524,7 +28433,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       };
     }
 
-    return filter(dependentKey + '.@each.' + propertyKey, callback);
+    return filter('' + dependentKey + '.@each.' + propertyKey, callback);
   }
 
   /**
@@ -29536,9 +28445,12 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @deprecated Use `Ember.computed.filterBy` instead
     @public
   */
-  var filterProperty = filterBy;
 
-  exports.filterProperty = filterProperty;
+  function filterProperty() {
+    _emberMetalCore.default.deprecate('Ember.computed.filterProperty is deprecated. Please use Ember.computed.filterBy.');
+    return filterBy.apply(this, arguments);
+  }
+
   /**
     A computed property which returns a new array with all the unique
     elements from one or more dependent arrays.
@@ -29571,40 +28483,28 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function uniq() {
-    var args = a_slice.call(arguments);
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
 
-    args.push({
-      _suppressDeprecation: true,
+    return multiArrayMacro(args, function (dependentKeys) {
+      var _this = this;
 
-      initialize: function (array, changeMeta, instanceMeta) {
-        instanceMeta.itemCounts = {};
-      },
+      var uniq = _emberMetalCore.default.A();
 
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var guid = (0, _emberMetalUtils.guidFor)(item);
-
-        if (!instanceMeta.itemCounts[guid]) {
-          instanceMeta.itemCounts[guid] = 1;
-          array.pushObject(item);
-        } else {
-          ++instanceMeta.itemCounts[guid];
+      dependentKeys.forEach(function (dependentKey) {
+        var value = (0, _emberMetalProperty_get.get)(_this, dependentKey);
+        if ((0, _emberRuntimeUtils.isArray)(value)) {
+          value.forEach(function (item) {
+            if (uniq.indexOf(item) === -1) {
+              uniq.push(item);
+            }
+          });
         }
-        return array;
-      },
+      });
 
-      removedItem: function (array, item, _, instanceMeta) {
-        var guid = (0, _emberMetalUtils.guidFor)(item);
-        var itemCounts = instanceMeta.itemCounts;
-
-        if (--itemCounts[guid] === 0) {
-          array.removeObject(item);
-        }
-
-        return array;
-      }
+      return uniq;
     });
-
-    return _emberRuntimeComputedArray_computed.arrayComputed.apply(null, args);
   }
 
   /**
@@ -29646,62 +28546,40 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
 
   function intersect() {
-    var args = a_slice.call(arguments);
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
 
-    args.push({
-      _suppressDeprecation: true,
+    return multiArrayMacro(args, function (dependentKeys) {
+      var _this2 = this;
 
-      initialize: function (array, changeMeta, instanceMeta) {
-        instanceMeta.itemCounts = {};
-      },
+      var arrays = dependentKeys.map(function (dependentKey) {
+        var array = (0, _emberMetalProperty_get.get)(_this2, dependentKey);
 
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var itemGuid = (0, _emberMetalUtils.guidFor)(item);
-        var dependentGuid = (0, _emberMetalUtils.guidFor)(changeMeta.arrayChanged);
-        var numberOfDependentArrays = changeMeta.property._dependentKeys.length;
-        var itemCounts = instanceMeta.itemCounts;
+        return (0, _emberRuntimeUtils.isArray)(array) ? array : [];
+      });
 
-        if (!itemCounts[itemGuid]) {
-          itemCounts[itemGuid] = {};
-        }
-
-        if (itemCounts[itemGuid][dependentGuid] === undefined) {
-          itemCounts[itemGuid][dependentGuid] = 0;
-        }
-
-        if (++itemCounts[itemGuid][dependentGuid] === 1 && numberOfDependentArrays === Object.keys(itemCounts[itemGuid]).length) {
-          array.addObject(item);
-        }
-
-        return array;
-      },
-
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        var itemGuid = (0, _emberMetalUtils.guidFor)(item);
-        var dependentGuid = (0, _emberMetalUtils.guidFor)(changeMeta.arrayChanged);
-        var numberOfArraysItemAppearsIn;
-        var itemCounts = instanceMeta.itemCounts;
-
-        if (itemCounts[itemGuid][dependentGuid] === undefined) {
-          itemCounts[itemGuid][dependentGuid] = 0;
-        }
-
-        if (--itemCounts[itemGuid][dependentGuid] === 0) {
-          delete itemCounts[itemGuid][dependentGuid];
-          numberOfArraysItemAppearsIn = Object.keys(itemCounts[itemGuid]).length;
-
-          if (numberOfArraysItemAppearsIn === 0) {
-            delete itemCounts[itemGuid];
+      var results = arrays.pop().filter(function (candidate) {
+        for (var i = 0; i < arrays.length; i++) {
+          var found = false;
+          var array = arrays[i];
+          for (var j = 0; j < array.length; j++) {
+            if (array[j] === candidate) {
+              found = true;
+              break;
+            }
           }
 
-          array.removeObject(item);
+          if (found === false) {
+            return false;
+          }
         }
 
-        return array;
-      }
-    });
+        return true;
+      });
 
-    return _emberRuntimeComputedArray_computed.arrayComputed.apply(null, args);
+      return _emberMetalCore.default.A(results);
+    });
   }
 
   /**
@@ -29742,79 +28620,21 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       throw new _emberMetalError.default('setDiff requires exactly two dependent arrays.');
     }
 
-    return (0, _emberRuntimeComputedArray_computed.arrayComputed)(setAProperty, setBProperty, {
-      _suppressDeprecation: true,
+    return (0, _emberMetalComputed.computed)('' + setAProperty + '.[]', '' + setBProperty + '.[]', function () {
+      var setA = this.get(setAProperty);
+      var setB = this.get(setBProperty);
 
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var setA = (0, _emberMetalProperty_get.get)(this, setAProperty);
-        var setB = (0, _emberMetalProperty_get.get)(this, setBProperty);
-
-        if (changeMeta.arrayChanged === setA) {
-          if (!setB.contains(item)) {
-            array.addObject(item);
-          }
-        } else {
-          array.removeObject(item);
-        }
-
-        return array;
-      },
-
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        var setA = (0, _emberMetalProperty_get.get)(this, setAProperty);
-        var setB = (0, _emberMetalProperty_get.get)(this, setBProperty);
-
-        if (changeMeta.arrayChanged === setB) {
-          if (setA.contains(item)) {
-            array.addObject(item);
-          }
-        } else {
-          array.removeObject(item);
-        }
-
-        return array;
+      if (!(0, _emberRuntimeUtils.isArray)(setA)) {
+        return _emberMetalCore.default.A();
       }
-    });
-  }
+      if (!(0, _emberRuntimeUtils.isArray)(setB)) {
+        return _emberMetalCore.default.A(setA);
+      }
 
-  function binarySearch(array, item, low, high) {
-    var mid, midItem, res, guidMid, guidItem;
-
-    if (arguments.length < 4) {
-      high = (0, _emberMetalProperty_get.get)(array, 'length');
-    }
-
-    if (arguments.length < 3) {
-      low = 0;
-    }
-
-    if (low === high) {
-      return low;
-    }
-
-    mid = low + Math.floor((high - low) / 2);
-    midItem = array.objectAt(mid);
-
-    guidMid = (0, _emberMetalUtils.guidFor)(midItem);
-    guidItem = (0, _emberMetalUtils.guidFor)(item);
-
-    if (guidMid === guidItem) {
-      return mid;
-    }
-
-    res = this.order(midItem, item);
-
-    if (res === 0) {
-      res = guidMid < guidItem ? -1 : 1;
-    }
-
-    if (res < 0) {
-      return this.binarySearch(array, item, mid + 1, high);
-    } else if (res > 0) {
-      return this.binarySearch(array, item, low, mid);
-    }
-
-    return mid;
+      return setA.filter(function (x) {
+        return setB.indexOf(x) === -1;
+      });
+    }).readOnly();
   }
 
   /**
@@ -29894,147 +28714,75 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 
   function customSort(itemsKey, comparator) {
-    return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
-      _suppressDeprecation: true,
-
-      initialize: function (array, changeMeta, instanceMeta) {
-        instanceMeta.order = comparator;
-        instanceMeta.binarySearch = binarySearch;
-        instanceMeta.waitingInsertions = [];
-        instanceMeta.insertWaiting = function () {
-          var index, item;
-          var waiting = instanceMeta.waitingInsertions;
-          instanceMeta.waitingInsertions = [];
-          for (var i = 0; i < waiting.length; i++) {
-            item = waiting[i];
-            index = instanceMeta.binarySearch(array, item);
-            array.insertAt(index, item);
-          }
-        };
-        instanceMeta.insertLater = function (item) {
-          this.waitingInsertions.push(item);
-        };
-      },
-
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        instanceMeta.insertLater(item);
-        return array;
-      },
-
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        array.removeObject(item);
-        return array;
-      },
-
-      flushedChanges: function (array, instanceMeta) {
-        instanceMeta.insertWaiting();
-      }
+    return arrayMacro(itemsKey, function (value) {
+      return value.slice().sort(comparator);
     });
   }
 
+  // This one needs to dynamically set up and tear down observers on the itemsKey
+  // depending on the sortProperties
   function propertySort(itemsKey, sortPropertiesKey) {
-    return (0, _emberRuntimeComputedArray_computed.arrayComputed)(itemsKey, {
-      _suppressDeprecation: true,
+    var cp = new _emberMetalComputed.ComputedProperty(function (key) {
+      var _this3 = this;
 
-      initialize: function (array, changeMeta, instanceMeta) {
-        function setupSortProperties() {
-          var sortPropertyDefinitions = (0, _emberMetalProperty_get.get)(this, sortPropertiesKey);
-          var sortProperties = instanceMeta.sortProperties = [];
-          var sortPropertyAscending = instanceMeta.sortPropertyAscending = {};
-          var sortProperty, idx, asc;
+      function didChange() {
+        this.notifyPropertyChange(key);
+      }
 
-          _emberMetalCore.default.assert('Cannot sort: \'' + sortPropertiesKey + '\' is not an array.', Array.isArray(sortPropertyDefinitions));
+      var items = itemsKey === '@this' ? this : (0, _emberMetalProperty_get.get)(this, itemsKey);
+      var sortProperties = (0, _emberMetalProperty_get.get)(this, sortPropertiesKey);
 
-          changeMeta.property.clearItemPropertyKeys(itemsKey);
+      // TODO: Ideally we'd only do this if things have changed
+      if (cp._sortPropObservers) {
+        cp._sortPropObservers.forEach(function (args) {
+          return _emberMetalObserver.removeObserver.apply(null, args);
+        });
+      }
 
-          sortPropertyDefinitions.forEach(function (sortPropertyDefinition) {
-            if ((idx = sortPropertyDefinition.indexOf(':')) !== -1) {
-              sortProperty = sortPropertyDefinition.substring(0, idx);
-              asc = sortPropertyDefinition.substring(idx + 1).toLowerCase() !== 'desc';
-            } else {
-              sortProperty = sortPropertyDefinition;
-              asc = true;
-            }
+      cp._sortPropObservers = [];
 
-            sortProperties.push(sortProperty);
-            sortPropertyAscending[sortProperty] = asc;
-            changeMeta.property.itemPropertyKey(itemsKey, sortProperty);
-          });
+      if (!(0, _emberRuntimeUtils.isArray)(sortProperties)) {
+        return items;
+      }
 
-          this.addObserver(sortPropertiesKey + '.@each', this, updateSortPropertiesOnce);
-        }
+      // Normalize properties
+      var normalizedSort = sortProperties.map(function (p) {
+        var _p$split = p.split(':');
 
-        function updateSortPropertiesOnce() {
-          _emberMetalRun_loop.default.once(this, updateSortProperties, changeMeta.propertyName);
-        }
+        var prop = _p$split[0];
+        var direction = _p$split[1];
 
-        function updateSortProperties(propertyName) {
-          setupSortProperties.call(this);
-          changeMeta.property.recomputeOnce.call(this, propertyName);
-        }
+        direction = direction || 'asc';
 
-        (0, _emberMetalObserver.addObserver)(this, sortPropertiesKey, updateSortPropertiesOnce);
-        setupSortProperties.call(this);
+        return [prop, direction];
+      });
 
-        instanceMeta.order = function (itemA, itemB) {
-          var sortProperty, result, asc;
-          var keyA = this.keyFor(itemA);
-          var keyB = this.keyFor(itemB);
+      // TODO: Ideally we'd only do this if things have changed
+      // Add observers
+      normalizedSort.forEach(function (prop) {
+        var args = [_this3, '' + itemsKey + '.@each.' + prop[0], didChange];
+        cp._sortPropObservers.push(args);
+        _emberMetalObserver.addObserver.apply(null, args);
+      });
 
-          for (var i = 0; i < this.sortProperties.length; ++i) {
-            sortProperty = this.sortProperties[i];
+      return _emberMetalCore.default.A(items.slice().sort(function (itemA, itemB) {
 
-            result = (0, _emberRuntimeCompare.default)(keyA[sortProperty], keyB[sortProperty]);
+        for (var i = 0; i < normalizedSort.length; ++i) {
+          var _normalizedSort$i = normalizedSort[i];
+          var prop = _normalizedSort$i[0];
+          var direction = _normalizedSort$i[1];
 
-            if (result !== 0) {
-              asc = this.sortPropertyAscending[sortProperty];
-              return asc ? result : -1 * result;
-            }
+          var result = (0, _emberRuntimeCompare.default)((0, _emberMetalProperty_get.get)(itemA, prop), (0, _emberMetalProperty_get.get)(itemB, prop));
+          if (result !== 0) {
+            return direction === 'desc' ? -1 * result : result;
           }
+        }
 
-          return 0;
-        };
-
-        instanceMeta.binarySearch = binarySearch;
-        setupKeyCache(instanceMeta);
-      },
-
-      addedItem: function (array, item, changeMeta, instanceMeta) {
-        var index = instanceMeta.binarySearch(array, item);
-        array.insertAt(index, item);
-        return array;
-      },
-
-      removedItem: function (array, item, changeMeta, instanceMeta) {
-        var index = instanceMeta.binarySearch(array, item);
-        array.removeAt(index);
-        instanceMeta.dropKeyFor(item);
-        return array;
-      }
+        return 0;
+      }));
     });
-  }
 
-  function setupKeyCache(instanceMeta) {
-    instanceMeta.keyFor = function (item) {
-      var guid = (0, _emberMetalUtils.guidFor)(item);
-      if (this.keyCache[guid]) {
-        return this.keyCache[guid];
-      }
-      var sortProperty;
-      var key = {};
-      for (var i = 0; i < this.sortProperties.length; ++i) {
-        sortProperty = this.sortProperties[i];
-        key[sortProperty] = (0, _emberMetalProperty_get.get)(item, sortProperty);
-      }
-      return this.keyCache[guid] = key;
-    };
-
-    instanceMeta.dropKeyFor = function (item) {
-      var guid = (0, _emberMetalUtils.guidFor)(item);
-      this.keyCache[guid] = null;
-    };
-
-    instanceMeta.keyCache = {};
+    return cp.property('' + itemsKey + '.[]', '' + sortPropertiesKey + '.[]').readOnly();
   }
 });
 /**
@@ -39103,7 +37851,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+9c919cae',
+        revision: 'Ember@2.0.0-canary+47ec6622',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44276,7 +43024,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+9c919cae';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+47ec6622';
 
   /**
   @module ember
