@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+e0863b61
+ * @version   1.13.2+2dcc8091
  */
 
 (function() {
@@ -14932,6 +14932,86 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 });
+enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+
+  var registry, container, view;
+
+  QUnit.module('component - attrs lookup', {
+    setup: function () {
+      registry = new _containerRegistry["default"]();
+      container = registry.container();
+      registry.optionsForType('component', { singleton: false });
+      registry.optionsForType('view', { singleton: false });
+      registry.optionsForType('template', { instantiate: false });
+      registry.register('component-lookup:main', _emberViewsComponent_lookup["default"]);
+    },
+
+    teardown: function () {
+      (0, _emberRuntimeTestsUtils.runDestroy)(container);
+      (0, _emberRuntimeTestsUtils.runDestroy)(view);
+      registry = container = view = null;
+    }
+  });
+
+  QUnit.test('should be able to lookup attrs without `attrs.` - template access', function () {
+    registry.register('template:components/foo-bar', (0, _emberTemplateCompilerSystemCompile["default"])('{{first}}'));
+
+    view = _emberViewsViewsView["default"].extend({
+      template: (0, _emberTemplateCompilerSystemCompile["default"])('{{foo-bar first="first attr"}}'),
+      container: container
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), 'first attr');
+  });
+
+  QUnit.test('should be able to lookup attrs without `attrs.` - component access', function () {
+    var component;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent["default"].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      }
+    }));
+
+    view = _emberViewsViewsView["default"].extend({
+      template: (0, _emberTemplateCompilerSystemCompile["default"])('{{foo-bar first="first attr"}}'),
+      container: container
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(component.get('first'), 'first attr');
+  });
+
+  QUnit.test('should be able to modify a provided attr into local state #11571 / #11559', function () {
+    var component;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent["default"].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      },
+
+      didReceiveAttrs: function () {
+        this.set('first', this.getAttr('first').toUpperCase());
+      }
+    }));
+    registry.register('template:components/foo-bar', (0, _emberTemplateCompilerSystemCompile["default"])('{{first}}'));
+
+    view = _emberViewsViewsView["default"].extend({
+      template: (0, _emberTemplateCompilerSystemCompile["default"])('{{foo-bar first="first attr"}}'),
+      container: container
+    }).create();
+
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
+    equal(component.get('first'), 'FIRST ATTR', 'component lookup uses local state');
+  });
+});
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set) {
 
   var view, MyApp, originalLookup, lookup;
@@ -15112,7 +15192,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     equal(trim(view.$().text()), 'one way: down, two way: down, string: down');
   });
 });
-enifed("ember-htmlbars/tests/integration/block_params_test", ["exports", "container/registry", "ember-metal/run_loop", "ember-views/component_lookup", "ember-views/views/view", "ember-template-compiler/system/compile", "ember-htmlbars/helpers", "ember-runtime/tests/utils"], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils) {
+enifed("ember-htmlbars/tests/integration/block_params_test", ["exports", "container/registry", "ember-metal/run_loop", "ember-views/component_lookup", "ember-views/views/view", "ember-views/views/component", "ember-template-compiler/system/compile", "ember-htmlbars/helpers", "ember-runtime/tests/utils"], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils) {
 
   var registry, container, view;
 
@@ -15197,6 +15277,47 @@ enifed("ember-htmlbars/tests/integration/block_params_test", ["exports", "contai
     (0, _emberRuntimeTestsUtils.runAppend)(view);
 
     equal(view.$().text(), "ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn");
+
+    (0, _emberMetalRun_loop["default"])(function () {
+      view.set("committer1", { name: "wycats" });
+    });
+
+    equal(view.$().text(), "ebryn[wycats[machty]wycats]ebryn[machty[wycats]machty]ebryn");
+  });
+
+  QUnit.test("#11519 - block param infinite loop", function (assert) {
+    // To trigger this case, a component must 1) consume a KeyStream and then yield that KeyStream
+    // into a parent light scope.
+    registry.register("template:components/block-with-yield", (0, _emberTemplateCompilerSystemCompile["default"])("{{danger}} {{yield danger}}"));
+
+    var component;
+    registry.register("component:block-with-yield", _emberViewsViewsComponent["default"].extend({
+      init: function () {
+        component = this;
+        return this._super.apply(this, arguments);
+      },
+
+      danger: 0
+    }));
+
+    view = _emberViewsViewsView["default"].create({
+      container: container,
+      template: (0, _emberTemplateCompilerSystemCompile["default"])("{{#block-with-yield as |dangerBlockParam|}} {{/block-with-yield}}")
+    });
+
+    // On initial render, create streams. The bug will not have manifested yet, but at this point
+    // we have created streams that create a circular invalidation.
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    // Trigger a revalidation, which will cause an infinite loop without the fix
+    // in place.  Note that we do not see the infinite loop is in testing mode,
+    // because a deprecation warning about re-renders is issued, which Ember
+    // treats as an exception.
+    (0, _emberMetalRun_loop["default"])(function () {
+      component.set("danger", 1);
+    });
+
+    assert.equal(view.$().text().trim(), "1");
   });
 });
 enifed("ember-htmlbars/tests/integration/component_element_id_test", ["exports", "ember-views/views/view", "ember-runtime/system/container", "ember-template-compiler/system/compile", "ember-runtime/tests/utils", "ember-views/component_lookup", "ember-views/views/component"], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsComponent) {
@@ -47320,7 +47441,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+e0863b61", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+2dcc8091", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -59855,6 +59976,29 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-runtime/c
 
     Ember.$("#app-link").click();
     equal(router.get("location.path"), "/parent");
+  });
+
+  QUnit.test("{{link-to}} with only query-params updates when route changes", function () {
+    Router.map(function () {
+      this.route("about");
+    });
+
+    
+      App.ApplicationController = Ember.Controller.extend({
+        queryParams: ["quux", "norf"],
+        quux: "123",
+        norf: "yes"
+      });
+    
+
+    Ember.TEMPLATES.application = compile("{{#link-to (query-params quux='456' norf='NAW') id='the-link'}}Index{{/link-to}}");
+    bootApplication();
+    equal(Ember.$("#the-link").attr("href"), "/?norf=NAW&quux=456", "link has right href");
+
+    Ember.run(function () {
+      router.handleURL("/about");
+    });
+    equal(Ember.$("#the-link").attr("href"), "/about?norf=NAW&quux=456", "link has right href");
   });
 
   function basicEagerURLUpdateTest(setTagName) {
