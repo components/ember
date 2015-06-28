@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2b6e4b68
+ * @version   2.0.0-canary+165cd58f
  */
 
 (function() {
@@ -8316,7 +8316,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2b6e4b68';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+165cd58f';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13801,7 +13801,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+2b6e4b68
+    @version 2.0.0-canary+165cd58f
     @public
   */
 
@@ -13833,11 +13833,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+2b6e4b68'
+    @default '2.0.0-canary+165cd58f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+2b6e4b68';
+  Ember.VERSION = '2.0.0-canary+165cd58f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21822,7 +21822,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2b6e4b68';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+165cd58f';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22330,7 +22330,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2b6e4b68';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+165cd58f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -24886,7 +24886,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         containing a mapping of query parameters
       @return {Transition} the transition object associated with this
         attempted transition
-      @private
+      @public
     */
     transitionTo: function (name, context) {
       var router = this.router;
@@ -25999,7 +25999,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       var newControllerParameterConfiguration = {};
-      (0, _emberMetalMerge.default)(newControllerParameterConfiguration, controllerQP[cqpName], routeQP[cqpName]);
+      (0, _emberMetalMerge.default)(newControllerParameterConfiguration, controllerQP[cqpName]);
+      (0, _emberMetalMerge.default)(newControllerParameterConfiguration, routeQP[cqpName]);
 
       qps[cqpName] = newControllerParameterConfiguration;
 
@@ -27235,6 +27236,28 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
     handlerInfos._namesStashed = true;
   }
 
+  function _calculateCacheValuePrefix(prefix, part) {
+    // calculates the dot seperated sections from prefix that are also
+    // at the start of part - which gives us the route name
+
+    // given : prefix = site.article.comments, part = site.article.id
+    //      - returns: site.article (use get(values[site.article], 'id') to get the dynamic part - used below)
+
+    // given : prefix = site.article, part = site.article.id
+    //      - returns: site.article. (use get(values[site.article], 'id') to get the dynamic part - used below)
+
+    var prefixParts = prefix.split('.');
+    var currPrefix = '';
+    for (var i = 0, len = prefixParts.length; i < len; i++) {
+      var currPart = prefixParts.slice(0, i + 1).join('.');
+      if (part.indexOf(currPart) !== 0) {
+        break;
+      }
+      currPrefix = currPart;
+    }
+    return currPrefix;
+  }
+
   /*
     Stolen from Controller
   */
@@ -27244,7 +27267,14 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
     var suffixes = '';
     for (var i = 0, len = parts.length; i < len; ++i) {
       var part = parts[i];
-      var value = (0, _emberMetalProperty_get.get)(values, part);
+      var cacheValuePrefix = _calculateCacheValuePrefix(prefix, part);
+      var value;
+      if (cacheValuePrefix && cacheValuePrefix in values) {
+        var partRemovedPrefix = part.indexOf(cacheValuePrefix) === 0 ? part.substr(cacheValuePrefix.length + 1) : part;
+        value = (0, _emberMetalProperty_get.get)(values[cacheValuePrefix], partRemovedPrefix);
+      } else {
+        value = (0, _emberMetalProperty_get.get)(values, part);
+      }
       suffixes += '::' + part + ':' + value;
     }
     return prefix + suffixes.replace(ALL_PERIODS_REGEX, '-');
@@ -37205,7 +37235,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+2b6e4b68',
+        revision: 'Ember@2.0.0-canary+165cd58f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41110,7 +41140,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2b6e4b68';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+165cd58f';
 
   /**
   @module ember
