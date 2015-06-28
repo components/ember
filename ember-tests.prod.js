@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2e505cd6
+ * @version   2.0.0-canary+2b6e4b68
  */
 
 (function() {
@@ -15780,7 +15780,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     equal(trim(view.$().text()), 'one way: down, two way: down, string: down');
   });
 });
-enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils) {
 
   var registry, container, view;
 
@@ -15865,6 +15865,47 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'contai
     (0, _emberRuntimeTestsUtils.runAppend)(view);
 
     equal(view.$().text(), 'ebryn[trek[machty]trek]ebryn[machty[trek]machty]ebryn');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      view.set('committer1', { name: 'wycats' });
+    });
+
+    equal(view.$().text(), 'ebryn[wycats[machty]wycats]ebryn[machty[wycats]machty]ebryn');
+  });
+
+  QUnit.test('#11519 - block param infinite loop', function (assert) {
+    // To trigger this case, a component must 1) consume a KeyStream and then yield that KeyStream
+    // into a parent light scope.
+    registry.register('template:components/block-with-yield', (0, _emberTemplateCompilerSystemCompile.default)('{{danger}} {{yield danger}}'));
+
+    var component;
+    registry.register('component:block-with-yield', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        component = this;
+        return this._super.apply(this, arguments);
+      },
+
+      danger: 0
+    }));
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      template: (0, _emberTemplateCompilerSystemCompile.default)('{{#block-with-yield as |dangerBlockParam|}} {{/block-with-yield}}')
+    });
+
+    // On initial render, create streams. The bug will not have manifested yet, but at this point
+    // we have created streams that create a circular invalidation.
+    (0, _emberRuntimeTestsUtils.runAppend)(view);
+
+    // Trigger a revalidation, which will cause an infinite loop without the fix
+    // in place.  Note that we do not see the infinite loop is in testing mode,
+    // because a deprecation warning about re-renders is issued, which Ember
+    // treats as an exception.
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set('danger', 1);
+    });
+
+    assert.equal(view.$().text().trim(), '1');
   });
 });
 enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsComponent) {
@@ -45314,7 +45355,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+2e505cd6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+2b6e4b68', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
