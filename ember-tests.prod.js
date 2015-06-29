@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+2dcc8091
+ * @version   1.13.2+777a00d8
  */
 
 (function() {
@@ -28830,6 +28830,22 @@ enifed("ember-routing-htmlbars/tests/helpers/link-to_test", ["exports", "ember-r
     equal(view.$("b").length, 1, "<b> was found");
   });
 
+  QUnit.test("reopening on LinkView actually reopens on LinkComponent", function () {
+    expect(2);
+    var oldreopen = Ember.LinkComponent.reopen;
+
+    Ember.LinkComponent.reopen = function () {
+      ok(true, "reopen was called on LinkComponent");
+      return oldreopen.apply(this, arguments);
+    };
+
+    expectDeprecation(function () {
+      Ember.LinkView.reopen({});
+    });
+
+    Ember.LinkComponent.reopen = oldreopen;
+  });
+
   QUnit.test("unwraps controllers", function () {
     var template = "{{#link-to 'index' view.otherController}}Text{{/link-to}}";
 
@@ -47313,7 +47329,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+2dcc8091", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+777a00d8", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
