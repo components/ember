@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+2a3ab715
+ * @version   2.0.0-beta.1+e4b425c8
  */
 
 (function() {
@@ -2437,8 +2437,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     requireModule('ember-debug');
   }
 
-  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in-favour of Object.create', Object.create);
-  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in-favour of Object.keys', Object.keys);
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', Object.keys);
 
   exports.default = _emberMetalCore.default;
 });
@@ -3356,9 +3356,13 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
     willChange: function (events) {
       var chains = this._chains;
+      var node;
       if (chains) {
         for (var key in chains) {
-          chains[key].willChange(events);
+          node = chains[key];
+          if (node !== undefined) {
+            node.willChange(events);
+          }
         }
       }
 
@@ -3458,7 +3462,10 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
           chainNodes = chainWatchers[key];
           if (chainNodes) {
             for (var i = 0, l = chainNodes.length; i < l; i++) {
-              chainNodes[i].didChange(null);
+              var node = chainNodes[i];
+              if (node) {
+                node.didChange(null);
+              }
             }
           }
         }
@@ -4776,7 +4783,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1+2a3ab715
+    @version 2.0.0-beta.1+e4b425c8
     @public
   */
 
@@ -4808,11 +4815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+2a3ab715'
+    @default '2.0.0-beta.1+e4b425c8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1+2a3ab715';
+  Ember.VERSION = '2.0.0-beta.1+e4b425c8';
 
   /**
     The hash of environment variables used to control various configuration
