@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5adf9662
+ * @version   2.0.0-canary+0c8910d1
  */
 
 (function() {
@@ -3356,9 +3356,13 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
     willChange: function (events) {
       var chains = this._chains;
+      var node;
       if (chains) {
         for (var key in chains) {
-          chains[key].willChange(events);
+          node = chains[key];
+          if (node !== undefined) {
+            node.willChange(events);
+          }
         }
       }
 
@@ -3458,7 +3462,10 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
           chainNodes = chainWatchers[key];
           if (chainNodes) {
             for (var i = 0, l = chainNodes.length; i < l; i++) {
-              chainNodes[i].didChange(null);
+              var node = chainNodes[i];
+              if (node) {
+                node.didChange(null);
+              }
             }
           }
         }
@@ -4776,7 +4783,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+5adf9662
+    @version 2.0.0-canary+0c8910d1
     @public
   */
 
@@ -4808,11 +4815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+5adf9662'
+    @default '2.0.0-canary+0c8910d1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+5adf9662';
+  Ember.VERSION = '2.0.0-canary+0c8910d1';
 
   /**
     The hash of environment variables used to control various configuration
