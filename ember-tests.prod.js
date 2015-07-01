@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d8a67e4c
+ * @version   2.0.0-canary+2e890543
  */
 
 (function() {
@@ -45433,7 +45433,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+d8a67e4c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+2e890543', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -57299,28 +57299,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     _emberMetalCore.default.run(postController, 'set', 'model', secondPost);
 
     equal(normalizeUrl($link.attr('href')), '/posts/2', 'self link updated to post 2');
-  });
-
-  QUnit.test('{{linkTo}} is aliased', function () {
-    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#linkTo \'about\' id=\'about-link\' replace=true}}About{{/linkTo}}');
-
-    Router.map(function () {
-      this.route('about');
-    });
-
-    expectDeprecation(function () {
-      bootApplication();
-    }, 'The \'linkTo\' view helper is deprecated in favor of \'link-to\'');
-
-    _emberMetalCore.default.run(function () {
-      router.handleURL('/');
-    });
-
-    _emberMetalCore.default.run(function () {
-      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
-    });
-
-    equal(container.lookup('controller:application').get('currentRouteName'), 'about', 'linkTo worked properly');
   });
 
   QUnit.test('The {{link-to}} helper is active when a route is active', function () {
