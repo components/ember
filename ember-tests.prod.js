@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+0472f7a2
+ * @version   1.13.2+616f7a7e
  */
 
 (function() {
@@ -29183,6 +29183,31 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test", ["exports", "ember-me
     equal(top.$().text().trim(), "second");
   });
 
+  QUnit.test("views created by {{outlet}} should get destroyed", function () {
+    var inserted = 0;
+    var destroyed = 0;
+    var routerState = {
+      render: {
+        ViewClass: _emberViewsViewsView["default"].extend({
+          didInsertElement: function () {
+            inserted++;
+          },
+          willDestroyElement: function () {
+            destroyed++;
+          }
+        })
+      },
+      outlets: {}
+    };
+    top.setOutletState(routerState);
+    (0, _emberRuntimeTestsUtils.runAppend)(top);
+    equal(inserted, 1, "expected to see view inserted");
+    (0, _emberMetalRun_loop["default"])(function () {
+      top.setOutletState(withTemplate("hello world"));
+    });
+    equal(destroyed, 1, "expected to see view destroyed");
+  });
+
   function withTemplate(string) {
     return {
       render: {
@@ -47338,7 +47363,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile["default"])(templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+0472f7a2", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+616f7a7e", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
