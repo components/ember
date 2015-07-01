@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+e4b425c8
+ * @version   2.0.0-beta.1+b787153a
  */
 
 (function() {
@@ -9039,6 +9039,13 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/fea
 
     assert.equal(component.$('li').length, 1, 'one li is rendered');
     assert.equal(component.$('li').text(), 'First Category: 123', 'the list is rendered after being set');
+
+    (0, _emberMetalRun_loop.default)(function () {
+      component.set('categories', null);
+    });
+
+    assert.equal(component.$('li').length, 1, 'one li is rendered');
+    assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
 enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberMetalComputed, _emberRuntimeControllersArray_controller, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeSystemContainer, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
@@ -22175,13 +22182,13 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal'], function (expo
   QUnit.test('Ember.keys is deprecated', function () {
     expectDeprecation(function () {
       _emberMetal.default.keys({});
-    }, 'Ember.keys is deprecated in-favour of Object.keys');
+    }, 'Ember.keys is deprecated in favor of Object.keys');
   });
 
   QUnit.test('Ember.keys is deprecated', function () {
     expectDeprecation(function () {
       _emberMetal.default.create(null);
-    }, 'Ember.create is deprecated in-favour of Object.create');
+    }, 'Ember.create is deprecated in favor of Object.create');
   });
 });
 enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (exports, _emberMetalMap) {
@@ -44973,7 +44980,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = (0, _emberTemplateCompilerSystemCompile.default)(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-beta.1+e4b425c8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-beta.1+b787153a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
