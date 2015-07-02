@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2e890543
+ * @version   2.0.0-canary+a49894f4
  */
 
 (function() {
@@ -360,7 +360,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
-    if ((0, _emberMetalFeatures.default)('features-stripped-test')) {
+    if (_emberMetalFeatures.default('features-stripped-test')) {
       featuresWereStripped = false;
     }
 
@@ -412,15 +412,15 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 /*global __fail__*/
 enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
   var deprecationLevels = {
-    RAISE: (0, _emberMetalUtils.symbol)('RAISE'),
-    LOG: (0, _emberMetalUtils.symbol)('LOG'),
-    SILENCE: (0, _emberMetalUtils.symbol)('SILENCE')
+    RAISE: _emberMetalUtils.symbol('RAISE'),
+    LOG: _emberMetalUtils.symbol('LOG'),
+    SILENCE: _emberMetalUtils.symbol('SILENCE')
   };
 
   exports.deprecationLevels = deprecationLevels;
   exports.default = {
     defaultLevel: deprecationLevels.LOG,
-    individualLevels: (0, _emberMetalDictionary.default)(null),
+    individualLevels: _emberMetalDictionary.default(null),
     setDefaultLevel: function (level) {
       this.defaultLevel = level;
     },
@@ -527,7 +527,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
       QUnit.start();
     },
     exception: function (error) {
-      ok(false, (0, _emberMetalUtils.inspect)(error));
+      ok(false, _emberMetalUtils.inspect(error));
     }
   });
 });
@@ -544,19 +544,19 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   function currentRouteName(app) {
     var appController = app.__container__.lookup('controller:application');
 
-    return (0, _emberMetalProperty_get.get)(appController, 'currentRouteName');
+    return _emberMetalProperty_get.get(appController, 'currentRouteName');
   }
 
   function currentPath(app) {
     var appController = app.__container__.lookup('controller:application');
 
-    return (0, _emberMetalProperty_get.get)(appController, 'currentPath');
+    return _emberMetalProperty_get.get(appController, 'currentPath');
   }
 
   function currentURL(app) {
     var router = app.__container__.lookup('router:main');
 
-    return (0, _emberMetalProperty_get.get)(router, 'location').getURL();
+    return _emberMetalProperty_get.get(router, 'location').getURL();
   }
 
   function pauseTest() {
@@ -568,7 +568,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     if (el && el.is(':input, [contenteditable=true]')) {
       var type = el.prop('type');
       if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
-        (0, _emberMetalRun_loop.default)(el, function () {
+        _emberMetalRun_loop.default(el, function () {
           // Firefox does not trigger the `focusin` event if the window
           // does not have focus. If the document doesn't have focus just
           // use trigger('focusin') instead.
@@ -590,13 +590,13 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
       router.location.setURL(url);
 
       if (shouldHandleURL) {
-        (0, _emberMetalRun_loop.default)(app.__deprecatedInstance__, 'handleURL', url);
+        _emberMetalRun_loop.default(app.__deprecatedInstance__, 'handleURL', url);
       }
     });
 
     if (app._readinessDeferrals > 0) {
       router['initialURL'] = url;
-      (0, _emberMetalRun_loop.default)(app, 'advanceReadiness');
+      _emberMetalRun_loop.default(app, 'advanceReadiness');
       delete router['initialURL'];
     } else {
       shouldHandleURL = true;
@@ -607,12 +607,12 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
 
   function click(app, selector, context) {
     var $el = app.testHelpers.findWithAssert(selector, context);
-    (0, _emberMetalRun_loop.default)($el, 'mousedown');
+    _emberMetalRun_loop.default($el, 'mousedown');
 
     focus($el);
 
-    (0, _emberMetalRun_loop.default)($el, 'mouseup');
-    (0, _emberMetalRun_loop.default)($el, 'click');
+    _emberMetalRun_loop.default($el, 'mouseup');
+    _emberMetalRun_loop.default($el, 'click');
 
     return app.testHelpers.wait();
   }
@@ -678,7 +678,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
 
     var event = _emberViewsSystemJquery.default.Event(type, options);
 
-    (0, _emberMetalRun_loop.default)($el, 'trigger', event);
+    _emberMetalRun_loop.default($el, 'trigger', event);
 
     return app.testHelpers.wait();
   }
@@ -707,7 +707,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     }
     $el = app.testHelpers.findWithAssert(selector, context);
     focus($el);
-    (0, _emberMetalRun_loop.default)(function () {
+    _emberMetalRun_loop.default(function () {
       $el.val(text).change();
     });
     return app.testHelpers.wait();
@@ -723,7 +723,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
 
   function find(app, selector, context) {
     var $el;
-    context = context || (0, _emberMetalProperty_get.get)(app, 'rootElement');
+    context = context || _emberMetalProperty_get.get(app, 'rootElement');
     $el = app.$(selector, context);
 
     return $el;
@@ -765,7 +765,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
         clearInterval(watcher);
 
         // Synchronously resolve the promise
-        (0, _emberMetalRun_loop.default)(null, resolve, value);
+        _emberMetalRun_loop.default(null, resolve, value);
       }, 10);
     });
   }
@@ -809,7 +809,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   */
   asyncHelper('click', click);
 
-  if ((0, _emberMetalFeatures.default)('ember-testing-checkbox-helpers')) {
+  if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
     /**
       Checks a checkbox. Ensures the presence of the `checked` attribute
        Example:
@@ -1056,7 +1056,7 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load
 
   var name = 'deferReadiness in `testing` mode';
 
-  (0, _emberRuntimeSystemLazy_load.onLoad)('Ember.Application', function (Application) {
+  _emberRuntimeSystemLazy_load.onLoad('Ember.Application', function (Application) {
     if (!Application.initializers[name]) {
       Application.initializer({
         name: name,
@@ -1117,10 +1117,10 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     requests = [];
     Test.pendingAjaxRequests = requests.length;
 
-    (0, _emberViewsSystemJquery.default)(document).off('ajaxSend', incrementAjaxPendingRequests);
-    (0, _emberViewsSystemJquery.default)(document).off('ajaxComplete', decrementAjaxPendingRequests);
-    (0, _emberViewsSystemJquery.default)(document).on('ajaxSend', incrementAjaxPendingRequests);
-    (0, _emberViewsSystemJquery.default)(document).on('ajaxComplete', decrementAjaxPendingRequests);
+    _emberViewsSystemJquery.default(document).off('ajaxSend', incrementAjaxPendingRequests);
+    _emberViewsSystemJquery.default(document).off('ajaxComplete', decrementAjaxPendingRequests);
+    _emberViewsSystemJquery.default(document).on('ajaxSend', incrementAjaxPendingRequests);
+    _emberViewsSystemJquery.default(document).on('ajaxComplete', decrementAjaxPendingRequests);
   }
 });
 
@@ -1453,7 +1453,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
   function run(fn) {
     if (!_emberMetalRun_loop.default.currentRunLoop) {
-      return (0, _emberMetalRun_loop.default)(fn);
+      return _emberMetalRun_loop.default(fn);
     } else {
       return fn();
     }
@@ -1511,7 +1511,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
       @public
     */
     setupForTesting: function () {
-      (0, _emberTestingSetup_for_testing.default)();
+      _emberTestingSetup_for_testing.default();
 
       this.testing = true;
 
