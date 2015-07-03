@@ -1,6 +1,6 @@
 {
   "name": "ember",
-  "version": "1.13.2+7c218cab",
+  "version": "1.13.2+4c768f29",
   "main": [
     "./ember.debug.js",
     "./ember-template-compiler.js"

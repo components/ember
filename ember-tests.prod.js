@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+7c218cab
+ * @version   1.13.2+4c768f29
  */
 
 (function() {
@@ -47363,7 +47363,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+7c218cab", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+4c768f29", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58313,7 +58313,7 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
     ok(serviceCalled, "service was injected, method called");
   });
 });
-enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-runtime/controllers/object_controller", "ember-htmlbars/compat", "ember-views/views/view", "ember-runtime/controllers/array_controller"], function (exports, _ember, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
+enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/component_lookup", "ember-runtime/controllers/object_controller", "ember-htmlbars/compat", "ember-views/views/view", "ember-runtime/controllers/array_controller"], function (exports, _ember, _emberViewsComponent_lookup, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView, _emberRuntimeControllersArray_controller) {
 
   var compile = _emberHtmlbarsCompat["default"].compile;
 
@@ -58403,6 +58403,45 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-runtime/c
     },
 
     teardown: sharedTeardown
+  });
+
+  // These two tests are designed to simulate the context of an ember-qunit/ember-test-helpers component integration test,
+  // so the container is available but it does not boot the entire app
+  QUnit.test("Using {{link-to}} does not cause an exception if it is rendered before the router has started routing", function (assert) {
+    Router.map(function () {
+      this.route("about");
+    });
+
+    registry.register("component-lookup:main", _emberViewsComponent_lookup["default"]);
+
+    var component = Ember.Component.extend({
+      layout: compile("{{#link-to \"about\"}}Go to About{{/link-to}}"),
+      container: container
+    }).create();
+
+    var router = container.lookup("router:main");
+    router.setupRouter();
+
+    Ember.run(function () {
+      component.appendTo("#qunit-fixture");
+    });
+
+    assert.strictEqual(component.$("a").length, 1, "the link is rendered");
+  });
+
+  QUnit.test("Using {{link-to}} does not cause an exception if it is rendered without a router.js instance", function (assert) {
+    registry.register("component-lookup:main", _emberViewsComponent_lookup["default"]);
+
+    var component = Ember.Component.extend({
+      layout: compile("{{#link-to \"nonexistent\"}}Does not work.{{/link-to}}"),
+      container: container
+    }).create();
+
+    Ember.run(function () {
+      component.appendTo("#qunit-fixture");
+    });
+
+    assert.strictEqual(component.$("a").length, 1, "the link is rendered");
   });
 
   QUnit.test("The {{link-to}} helper moves into the named route", function () {
