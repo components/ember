@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+92502ba8
+ * @version   2.0.0-canary+f789afb8
  */
 
 (function() {
@@ -4783,7 +4783,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+92502ba8
+    @version 2.0.0-canary+f789afb8
     @public
   */
 
@@ -4815,11 +4815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+92502ba8'
+    @default '2.0.0-canary+f789afb8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+92502ba8';
+  Ember.VERSION = '2.0.0-canary+f789afb8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11967,7 +11967,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   EmComputed.sort = _emberRuntimeComputedReduce_computed_macros.sort;
   EmComputed.setDiff = _emberRuntimeComputedReduce_computed_macros.setDiff;
   EmComputed.mapBy = _emberRuntimeComputedReduce_computed_macros.mapBy;
-  EmComputed.mapProperty = _emberRuntimeComputedReduce_computed_macros.mapProperty;
   EmComputed.filter = _emberRuntimeComputedReduce_computed_macros.filter;
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
@@ -12134,7 +12133,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   exports.min = min;
   exports.map = map;
   exports.mapBy = mapBy;
-  exports.mapProperty = mapProperty;
   exports.filter = filter;
   exports.filterBy = filterBy;
   exports.uniq = uniq;
@@ -12358,20 +12356,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return map(dependentKey + '.@each.' + propertyKey, function (item) {
       return _emberMetalProperty_get.get(item, propertyKey);
     });
-  }
-
-  /**
-    @method mapProperty
-    @for Ember.computed
-    @deprecated Use `Ember.computed.mapBy` instead
-    @param dependentKey
-    @param propertyKey
-    @public
-  */
-
-  function mapProperty() {
-    _emberMetalCore.default.deprecate('Ember.computed.mapProperty is deprecated. Please use Ember.computed.mapBy.');
-    return mapBy.apply(this, arguments);
   }
 
   /**
@@ -15010,18 +14994,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
         return _emberMetalProperty_get.get(next, key);
       });
     },
-
-    /**
-      Similar to map, this specialized function returns the value of the named
-      property on all items in the enumeration.
-       @method mapProperty
-      @param {String} key name of the property
-      @return {Array} The mapped array.
-      @deprecated Use `mapBy` instead
-      @private
-    */
-
-    mapProperty: _emberMetalMixin.aliasMethod('mapBy'),
 
     /**
       Returns an array with all of the items in the enumeration that the passed
