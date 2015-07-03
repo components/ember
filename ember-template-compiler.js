@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f789afb8
+ * @version   2.0.0-canary+0465f5b3
  */
 
 (function() {
@@ -2555,35 +2555,17 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       }
 
       if (this._parent) {
-        this._parent.chainWillChange(this, this._key, 1, events);
+        this._parent.notifyChainChange(this, this._key, 1, events);
       }
     },
 
-    chainWillChange: function (chain, path, depth, events) {
+    notifyChainChange: function (chain, path, depth, events) {
       if (this._key) {
         path = this._key + '.' + path;
       }
 
       if (this._parent) {
-        this._parent.chainWillChange(this, path, depth + 1, events);
-      } else {
-        if (depth > 1) {
-          events.push(this.value(), path);
-        }
-        path = 'this.' + path;
-        if (this._paths[path] > 0) {
-          events.push(this.value(), path);
-        }
-      }
-    },
-
-    chainDidChange: function (chain, path, depth, events) {
-      if (this._key) {
-        path = this._key + '.' + path;
-      }
-
-      if (this._parent) {
-        this._parent.chainDidChange(this, path, depth + 1, events);
+        this._parent.notifyChainChange(this, path, depth + 1, events);
       } else {
         if (depth > 1) {
           events.push(this.value(), path);
@@ -2632,7 +2614,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
       // and finally tell parent about my path changing...
       if (this._parent) {
-        this._parent.chainDidChange(this, this._key, 1, events);
+        this._parent.notifyChainChange(this, this._key, 1, events);
       }
     }
   };
@@ -3971,7 +3953,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+f789afb8
+    @version 2.0.0-canary+0465f5b3
     @public
   */
 
@@ -4003,11 +3985,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+f789afb8'
+    @default '2.0.0-canary+0465f5b3'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+f789afb8';
+  Ember.VERSION = '2.0.0-canary+0465f5b3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12373,7 +12355,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+f789afb8',
+        revision: 'Ember@2.0.0-canary+0465f5b3',
         loc: program.loc,
         moduleName: options.moduleName
       };
