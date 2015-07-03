@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7bb3e212
+ * @version   2.0.0-canary+7bdbf4fd
  */
 
 (function() {
@@ -45433,7 +45433,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7bb3e212', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+7bdbf4fd', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -56496,7 +56496,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     teardown: sharedTeardown
   });
 
-  // This test is designed to simulate the context of an ember-qunit/ember-test-helpers component integration test,
+  // These two tests are designed to simulate the context of an ember-qunit/ember-test-helpers component integration test,
   // so the container is available but it does not boot the entire app
   QUnit.test('Using {{link-to}} does not cause an exception if it is rendered before the router has started routing', function (assert) {
     Router.map(function () {
@@ -56512,6 +56512,21 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
 
     var router = container.lookup('router:main');
     router.setupRouter();
+
+    _emberMetalCore.default.run(function () {
+      component.appendTo('#qunit-fixture');
+    });
+
+    assert.strictEqual(component.$('a').length, 1, 'the link is rendered');
+  });
+
+  QUnit.test('Using {{link-to}} does not cause an exception if it is rendered without a router.js instance', function (assert) {
+    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+    var component = _emberMetalCore.default.Component.extend({
+      layout: compile('{{#link-to "nonexistent"}}Does not work.{{/link-to}}'),
+      container: container
+    }).create();
 
     _emberMetalCore.default.run(function () {
       component.appendTo('#qunit-fixture');
