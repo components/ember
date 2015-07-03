@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+065947c3
+ * @version   2.0.0-canary+780b1dfe
  */
 
 (function() {
@@ -4783,7 +4783,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+065947c3
+    @version 2.0.0-canary+780b1dfe
     @public
   */
 
@@ -4815,11 +4815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+065947c3'
+    @default '2.0.0-canary+780b1dfe'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+065947c3';
+  Ember.VERSION = '2.0.0-canary+780b1dfe';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11970,7 +11970,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   EmComputed.mapProperty = _emberRuntimeComputedReduce_computed_macros.mapProperty;
   EmComputed.filter = _emberRuntimeComputedReduce_computed_macros.filter;
   EmComputed.filterBy = _emberRuntimeComputedReduce_computed_macros.filterBy;
-  EmComputed.filterProperty = _emberRuntimeComputedReduce_computed_macros.filterProperty;
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
@@ -12138,7 +12137,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   exports.mapProperty = mapProperty;
   exports.filter = filter;
   exports.filterBy = filterBy;
-  exports.filterProperty = filterProperty;
   exports.uniq = uniq;
   exports.intersect = intersect;
   exports.setDiff = setDiff;
@@ -12462,21 +12460,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     }
 
     return filter(dependentKey + '.@each.' + propertyKey, callback);
-  }
-
-  /**
-    @method filterProperty
-    @for Ember.computed
-    @param dependentKey
-    @param propertyKey
-    @param value
-    @deprecated Use `Ember.computed.filterBy` instead
-    @public
-  */
-
-  function filterProperty() {
-    _emberMetalCore.default.deprecate('Ember.computed.filterProperty is deprecated. Please use Ember.computed.filterBy.');
-    return filterBy.apply(this, arguments);
   }
 
   /**
@@ -15115,19 +15098,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     filterBy: function (key, value) {
       return this.filter(iter.apply(this, arguments));
     },
-
-    /**
-      Returns an array with just the items with the matched property. You
-      can pass an optional second argument with the target value. Otherwise
-      this will match any property that evaluates to `true`.
-       @method filterProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Array} filtered array
-      @deprecated Use `filterBy` instead
-      @private
-    */
-    filterProperty: _emberMetalMixin.aliasMethod('filterBy'),
 
     /**
       Returns an array with the items that do not have truthy values for

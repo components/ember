@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+065947c3
+ * @version   2.0.0-canary+780b1dfe
  */
 
 (function() {
@@ -39672,12 +39672,6 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
     deepEqual(obj.filterBy('foo'), ary.slice(0, 2), 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should be aliased to filterProperty', function () {
-    var ary = [];
-
-    equal(ary.filterProperty, ary.filterBy);
-  });
-
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/system/object', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeSystemObject, _emberRuntimeTestsSuitesSuite) {
@@ -45433,7 +45427,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+065947c3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+780b1dfe', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
