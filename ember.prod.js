@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0465f5b3
+ * @version   2.0.0-canary+3c23610d
  */
 
 (function() {
@@ -2667,8 +2667,12 @@ enifed("dom-helper", ["exports", "./htmlbars-runtime/morph", "./morph-attr", "./
         }
       }
     } else {
-      var normalized = _domHelperProp.normalizeProperty(element, name);
-      if (normalized) {
+      var _normalizeProperty = _domHelperProp.normalizeProperty(element, name);
+
+      var normalized = _normalizeProperty.normalized;
+      var type = _normalizeProperty.type;
+
+      if (type === "prop") {
         element[normalized] = value;
       } else {
         if (_domHelperProp.isAttrRemovalValue(value)) {
@@ -3294,66 +3298,74 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
     return value === null || value === undefined;
   }
 
-  function UNDEFINED() {}
+  /*
+   *
+   * @method normalizeProperty
+   * @param element {HTMLElement}
+   * @param slotName {String}
+   * @returns {Object} { name, type }
+   */
 
-  // TODO should this be an o_create kind of thing?
-  var propertyCaches = {};
+  function normalizeProperty(element, slotName) {
+    var type, normalized;
 
-  exports.propertyCaches = propertyCaches;
-
-  function normalizeProperty(element, attrName) {
-    var tagName = element.tagName;
-    var key, cachedAttrName;
-    var cache = propertyCaches[tagName];
-    if (!cache) {
-      // TODO should this be an o_create kind of thing?
-      cache = {};
-      for (cachedAttrName in element) {
-        key = cachedAttrName.toLowerCase();
-        if (isSettable(element, cachedAttrName)) {
-          cache[key] = cachedAttrName;
-        } else {
-          cache[key] = UNDEFINED;
-        }
+    if (slotName in element) {
+      normalized = slotName;
+      type = 'prop';
+    } else {
+      var lower = slotName.toLowerCase();
+      if (lower in element) {
+        type = 'prop';
+        normalized = lower;
+      } else {
+        type = 'attr';
+        normalized = slotName;
       }
-      propertyCaches[tagName] = cache;
     }
 
-    // presumes that the attrName has been lowercased.
-    var value = cache[attrName];
-    return value === UNDEFINED ? undefined : value;
+    if (type === 'prop' && preferAttr(element.tagName, normalized)) {
+      type = 'attr';
+    }
+
+    return { normalized: normalized, type: type };
   }
 
-  // elements with a property that does not conform to the spec in certain
-  // browsers. In these cases, we'll end up using setAttribute instead
-  var badPairs = [{
+  // properties that MUST be set as attributes, due to:
+  // * browser bug
+  // * strange spec outlier
+  var ATTR_OVERRIDES = {
+
     // phantomjs < 2.0 lets you set it as a prop but won't reflect it
     // back to the attribute. button.getAttribute('type') === null
-    tagName: 'BUTTON',
-    propName: 'type'
-  }, {
-    // Some version of IE (like IE9) actually throw an exception
-    // if you set input.type = 'something-unknown'
-    tagName: 'INPUT',
-    propName: 'type'
-  }, {
-    // Some versions of IE (IE8) throw an exception when setting
-    // `input.list = 'somestring'`:
-    // https://github.com/emberjs/ember.js/issues/10908
-    // https://github.com/emberjs/ember.js/issues/11364
-    tagName: 'INPUT',
-    propName: 'list'
-  }];
+    BUTTON: { type: true, form: true },
 
-  function isSettable(element, attrName) {
-    for (var i = 0, l = badPairs.length; i < l; i++) {
-      var pair = badPairs[i];
-      if (pair.tagName === element.tagName && pair.propName === attrName) {
-        return false;
-      }
-    }
+    INPUT: {
+      // TODO: remove when IE8 is droped
+      // Some versions of IE (IE8) throw an exception when setting
+      // `input.list = 'somestring'`:
+      // https://github.com/emberjs/ember.js/issues/10908
+      // https://github.com/emberjs/ember.js/issues/11364
+      list: true,
+      // Some version of IE (like IE9) actually throw an exception
+      // if you set input.type = 'something-unknown'
+      type: true,
+      form: true
+    },
 
-    return true;
+    // element.form is actually a legitimate readOnly property, that is to be
+    // mutated, but must be mutated by setAttribute...
+    SELECT: { form: true },
+    OPTION: { form: true },
+    TEXTAREA: { form: true },
+    LABEL: { form: true },
+    FIELDSET: { form: true },
+    LEGEND: { form: true },
+    OBJECT: { form: true }
+  };
+
+  function preferAttr(tagName, propName) {
+    var tag = ATTR_OVERRIDES[tagName.toUpperCase()];
+    return tag && tag[propName.toLowerCase()] || false;
   }
 });
 enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/ext/controller'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationExtController) {
@@ -8316,7 +8328,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+0465f5b3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+3c23610d';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13802,7 +13814,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0465f5b3
+    @version 2.0.0-canary+3c23610d
     @public
   */
 
@@ -13834,11 +13846,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0465f5b3'
+    @default '2.0.0-canary+3c23610d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0465f5b3';
+  Ember.VERSION = '2.0.0-canary+3c23610d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21805,7 +21817,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+0465f5b3';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+3c23610d';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22313,7 +22325,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+0465f5b3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+3c23610d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37169,7 +37181,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+0465f5b3',
+        revision: 'Ember@2.0.0-canary+3c23610d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37488,6 +37500,7 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
 // Ember.deprecate
 enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquery', 'ember-metal/core', 'dom-helper/prop', 'ember-views/system/platform'], function (exports, _emberViewsSystemJquery, _emberMetalCore, _domHelperProp, _emberViewsSystemPlatform) {
   exports.renderComponentWithBuffer = renderComponentWithBuffer;
+  exports.default = RenderBuffer;
 
   // The HTML spec allows for "omitted start tags". These tags are optional
   // when their intended child is the first thing in the parent tag. For
@@ -37615,14 +37628,25 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
     @private
   */
 
-  var RenderBuffer = function (domHelper) {
+  function RenderBuffer(domHelper) {
         this.buffer = null;
     this.childViews = [];
     this.attrNodes = [];
 
     
     this.dom = domHelper;
-  };
+
+    this.tagName = undefined;
+    this.buffer = null;
+    this._element = null;
+    this._outerContextualElement = undefined;
+    this.elementClasses = null;
+    this.elementId = null;
+    this.elementAttributes = null;
+    this.elementProperties = null;
+    this.elementTag = null;
+    this.elementStyle = null;
+  }
 
   RenderBuffer.prototype = {
 
@@ -37959,9 +37983,11 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
 
       if (props) {
         for (prop in props) {
-          var normalizedCase = _domHelperProp.normalizeProperty(element, prop.toLowerCase()) || prop;
+          var _normalizeProperty = _domHelperProp.normalizeProperty(element, prop);
 
-          this.dom.setPropertyStrict(element, normalizedCase, props[prop]);
+          var normalized = _normalizeProperty.normalized;
+
+          this.dom.setPropertyStrict(element, normalized, props[prop]);
         }
 
         this.elementProperties = null;
@@ -38069,8 +38095,6 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
       return this.buffer;
     }
   };
-
-  exports.default = RenderBuffer;
 });
 /**
 @module ember
@@ -41074,7 +41098,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+0465f5b3';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+3c23610d';
 
   /**
   @module ember
@@ -44224,7 +44248,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
     }
   };
 
-  var AlwaysDirtyVisitor = _htmlbarsUtilObjectUtils.merge(_htmlbarsUtilObjectUtils.createObject(base), {
+  var AlwaysDirtyVisitor = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
     // [ 'block', path, params, hash, templateId, inverseId ]
     block: function (node, morph, env, scope, template, visitor) {
       var path = node[1],
@@ -44319,7 +44343,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
   });
 
   exports.AlwaysDirtyVisitor = AlwaysDirtyVisitor;
-  exports.default = _htmlbarsUtilObjectUtils.merge(_htmlbarsUtilObjectUtils.createObject(base), {
+  exports.default = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
     // [ 'block', path, params, hash, templateId, inverseId ]
     block: function (node, morph, env, scope, template, visitor) {
       dirtyCheck(env, morph, visitor, function (visitor) {
@@ -44859,8 +44883,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function createChildScope(parent) {
-    var scope = _htmlbarsUtilObjectUtils.createObject(parent);
-    scope.locals = _htmlbarsUtilObjectUtils.createObject(parent.locals);
+    var scope = Object.create(parent);
+    scope.locals = Object.create(parent.locals);
     return scope;
   }
 
@@ -45559,7 +45583,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 /* morph, env, scope, params, hash */ /* env, scope, path */ /* env, scope */
 // this function is used to handle host-specified extensions to scope
 // other than `self`, `locals` and `block`.
-enifed("htmlbars-runtime/morph", ["exports", "../morph-range", "../htmlbars-util/object-utils"], function (exports, _morphRange, _htmlbarsUtilObjectUtils) {
+enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (exports, _morphRange) {
 
   var guid = 1;
 
@@ -45602,7 +45626,7 @@ enifed("htmlbars-runtime/morph", ["exports", "../morph-range", "../htmlbars-util
     return morph;
   };
 
-  var prototype = HTMLBarsMorph.prototype = _htmlbarsUtilObjectUtils.createObject(_morphRange.default.prototype);
+  var prototype = HTMLBarsMorph.prototype = Object.create(_morphRange.default.prototype);
   prototype.constructor = HTMLBarsMorph;
   prototype.super$constructor = _morphRange.default;
 
@@ -46263,10 +46287,8 @@ enifed('htmlbars-util/namespaces', ['exports'], function (exports) {
     return namespace || null;
   }
 });
-enifed('htmlbars-util/object-utils', ['exports'], function (exports) {
+enifed("htmlbars-util/object-utils", ["exports"], function (exports) {
   exports.merge = merge;
-  exports.createObject = createObject;
-  exports.objectKeys = objectKeys;
   exports.shallowCopy = shallowCopy;
   exports.keySet = keySet;
   exports.keyLength = keyLength;
@@ -46281,41 +46303,8 @@ enifed('htmlbars-util/object-utils', ['exports'], function (exports) {
     return options;
   }
 
-  // IE8 does not have Object.create, so use a polyfill if needed.
-  // Polyfill based on Mozilla's (MDN)
-
-  function createObject(obj) {
-    if (typeof Object.create === 'function') {
-      return Object.create(obj);
-    } else {
-      var Temp = function () {};
-      Temp.prototype = obj;
-      return new Temp();
-    }
-  }
-
-  function objectKeys(obj) {
-    if (typeof Object.keys === 'function') {
-      return Object.keys(obj);
-    } else {
-      return legacyKeys(obj);
-    }
-  }
-
   function shallowCopy(obj) {
     return merge({}, obj);
-  }
-
-  function legacyKeys(obj) {
-    var keys = [];
-
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        keys.push(prop);
-      }
-    }
-
-    return keys;
   }
 
   function keySet(obj) {
@@ -46645,20 +46634,24 @@ enifed("morph-attr", ["exports", "./morph-attr/sanitize-attribute-value", "./dom
     this.rendered = false;
     this._renderedInitially = false;
 
-    var normalizedAttrName = _domHelperProp.normalizeProperty(this.element, attrName);
     if (this.namespace) {
       this._update = updateAttributeNS;
       this._get = getAttributeNS;
       this.attrName = attrName;
     } else {
-      if (element.namespaceURI === _domHelperBuildHtmlDom.svgNamespace || attrName === "style" || !normalizedAttrName) {
+      var _normalizeProperty = _domHelperProp.normalizeProperty(this.element, attrName);
+
+      var normalized = _normalizeProperty.normalized;
+      var type = _normalizeProperty.type;
+
+      if (element.namespaceURI === _domHelperBuildHtmlDom.svgNamespace || attrName === "style" || type === "attr") {
         this._update = updateAttribute;
         this._get = getAttribute;
-        this.attrName = attrName;
+        this.attrName = normalized;
       } else {
         this._update = updateProperty;
         this._get = getProperty;
-        this.attrName = normalizedAttrName;
+        this.attrName = normalized;
       }
     }
   }
@@ -46712,7 +46705,8 @@ enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
     'LINK': true,
     'IMG': true,
     'IFRAME': true,
-    'BASE': true
+    'BASE': true,
+    'FORM': true
   };
 
   var badTagsForDataURI = {
@@ -46722,7 +46716,8 @@ enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
   var badAttributes = {
     'href': true,
     'src': true,
-    'background': true
+    'background': true,
+    'action': true
   };
 
   exports.badAttributes = badAttributes;

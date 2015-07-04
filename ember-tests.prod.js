@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0465f5b3
+ * @version   2.0.0-canary+3c23610d
  */
 
 (function() {
@@ -5274,7 +5274,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     equal(view.element.firstChild.maxLength, 1);
   });
 
-  QUnit.test('quoted maxlength sets the property and attribute', function () {
+  QUnit.test('quoted maxlength sets the attribute and is reflected as a property', function () {
     view = _emberViewsViewsView.default.create({
       context: { length: 5 },
       template: _emberTemplateCompilerSystemCompile.default('<input maxlength=\'{{length}}\'>')
@@ -5285,7 +5285,7 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
 
     if (canSetFalsyMaxLength()) {
       _emberMetalCore.default.run(view, view.set, 'context.length', null);
-      equal(view.element.firstChild.maxLength, 0);
+      equal(view.element.firstChild.maxLength, document.createElement('input').maxLength);
     } else {
       _emberMetalCore.default.run(view, view.set, 'context.length', 1);
       equal(view.element.firstChild.maxLength, 1);
@@ -45422,7 +45422,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+0465f5b3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+3c23610d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

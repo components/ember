@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0465f5b3
+ * @version   2.0.0-canary+3c23610d
  */
 
 (function() {
@@ -3953,7 +3953,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0465f5b3
+    @version 2.0.0-canary+3c23610d
     @public
   */
 
@@ -3985,11 +3985,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0465f5b3'
+    @default '2.0.0-canary+3c23610d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0465f5b3';
+  Ember.VERSION = '2.0.0-canary+3c23610d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12355,7 +12355,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-canary+0465f5b3',
+        revision: 'Ember@2.0.0-canary+3c23610d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13846,7 +13846,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
     }
   };
 
-  var AlwaysDirtyVisitor = _htmlbarsUtilObjectUtils.merge(_htmlbarsUtilObjectUtils.createObject(base), {
+  var AlwaysDirtyVisitor = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
     // [ 'block', path, params, hash, templateId, inverseId ]
     block: function (node, morph, env, scope, template, visitor) {
       var path = node[1],
@@ -13941,7 +13941,7 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
   });
 
   exports.AlwaysDirtyVisitor = AlwaysDirtyVisitor;
-  exports.default = _htmlbarsUtilObjectUtils.merge(_htmlbarsUtilObjectUtils.createObject(base), {
+  exports.default = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
     // [ 'block', path, params, hash, templateId, inverseId ]
     block: function (node, morph, env, scope, template, visitor) {
       dirtyCheck(env, morph, visitor, function (visitor) {
@@ -14481,8 +14481,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   }
 
   function createChildScope(parent) {
-    var scope = _htmlbarsUtilObjectUtils.createObject(parent);
-    scope.locals = _htmlbarsUtilObjectUtils.createObject(parent.locals);
+    var scope = Object.create(parent);
+    scope.locals = Object.create(parent.locals);
     return scope;
   }
 
@@ -15181,7 +15181,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 /* morph, env, scope, params, hash */ /* env, scope, path */ /* env, scope */
 // this function is used to handle host-specified extensions to scope
 // other than `self`, `locals` and `block`.
-enifed("htmlbars-runtime/morph", ["exports", "../morph-range", "../htmlbars-util/object-utils"], function (exports, _morphRange, _htmlbarsUtilObjectUtils) {
+enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (exports, _morphRange) {
 
   var guid = 1;
 
@@ -15224,7 +15224,7 @@ enifed("htmlbars-runtime/morph", ["exports", "../morph-range", "../htmlbars-util
     return morph;
   };
 
-  var prototype = HTMLBarsMorph.prototype = _htmlbarsUtilObjectUtils.createObject(_morphRange.default.prototype);
+  var prototype = HTMLBarsMorph.prototype = Object.create(_morphRange.default.prototype);
   prototype.constructor = HTMLBarsMorph;
   prototype.super$constructor = _morphRange.default;
 
@@ -17328,20 +17328,6 @@ enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../h
 
   exports.default = preprocess;
 
-  var splitLines;
-  // IE8 throws away blank pieces when splitting strings with a regex
-  // So we split using a string instead as appropriate
-  if ("foo\n\nbar".split(/\n/).length === 2) {
-    splitLines = function (str) {
-      var clean = str.replace(/\r\n?/g, "\n");
-      return clean.split("\n");
-    };
-  } else {
-    splitLines = function (str) {
-      return str.split(/(?:\r\n?|\n)/g);
-    };
-  }
-
   var entityParser = new _simpleHtmlTokenizerEntityParser.default(_simpleHtmlTokenizerCharRefsFull.default);
 
   function Parser(source, options) {
@@ -17353,7 +17339,7 @@ enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../h
     this.currentAttribute = null;
 
     if (typeof source === "string") {
-      this.source = splitLines(source);
+      this.source = source.split(/(?:\r\n?|\n)/g);
     }
   }
 
@@ -17978,7 +17964,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
   exports.normalizeInnerHTML = normalizeInnerHTML;
   exports.isCheckedInputHTML = isCheckedInputHTML;
   exports.getTextContent = getTextContent;
-  exports.createObject = createObject;
 
   function equalInnerHTML(fragment, html) {
     var actualHTML = normalizeInnerHTML(fragment.innerHTML);
@@ -18002,13 +17987,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
     equalInnerHTML(div, html);
   }
 
-  // IE8 removes comments and does other unspeakable things with innerHTML
-  var ie8GenerateTokensNeeded = (function () {
-    var div = document.createElement("div");
-    div.innerHTML = "<!-- foobar -->";
-    return div.innerHTML === "";
-  })();
-
   function generateTokens(fragmentOrHtml) {
     var div = document.createElement("div");
     if (typeof fragmentOrHtml === "string") {
@@ -18016,13 +17994,7 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
     } else {
       div.appendChild(fragmentOrHtml.cloneNode(true));
     }
-    if (ie8GenerateTokensNeeded) {
-      // IE8 drops comments and does other unspeakable things on `innerHTML`.
-      // So in that case we do it to both the expected and actual so that they match.
-      var div2 = document.createElement("div");
-      div2.innerHTML = div.innerHTML;
-      div.innerHTML = div2.innerHTML;
-    }
+
     return { tokens: _simpleHtmlTokenizer.tokenize(div.innerHTML), html: div.innerHTML };
   }
 
@@ -18063,11 +18035,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
     deepEqual(fragTokens.tokens, htmlTokens.tokens, msg);
   }
 
-  // detect weird IE8 html strings
-  var ie8InnerHTMLTestElement = document.createElement("div");
-  ie8InnerHTMLTestElement.setAttribute("id", "womp");
-  var ie8InnerHTML = ie8InnerHTMLTestElement.outerHTML.indexOf("id=womp") > -1;
-
   // detect side-effects of cloning svg elements in IE9-11
   var ieSVGInnerHTML = (function () {
     if (!document.createElementNS) {
@@ -18081,28 +18048,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
   })();
 
   function normalizeInnerHTML(actualHTML) {
-    if (ie8InnerHTML) {
-      // drop newlines in IE8
-      actualHTML = actualHTML.replace(/\r\n/gm, "");
-      // downcase ALLCAPS tags in IE8
-      actualHTML = actualHTML.replace(/<\/?[A-Z\-]+/gi, function (tag) {
-        return tag.toLowerCase();
-      });
-      // quote ids in IE8
-      actualHTML = actualHTML.replace(/id=([^ >]+)/gi, function (match, id) {
-        return "id=\"" + id + "\"";
-      });
-      // IE8 adds ':' to some tags
-      // <keygen> becomes <:keygen>
-      actualHTML = actualHTML.replace(/<(\/?):([^ >]+)/gi, function (match, slash, tag) {
-        return "<" + slash + tag;
-      });
-
-      // Normalize the style attribute
-      actualHTML = actualHTML.replace(/style="(.+?)"/gi, function (match, val) {
-        return "style=\"" + val.toLowerCase() + ";\"";
-      });
-    }
     if (ieSVGInnerHTML) {
       // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
       // drop namespace attribute
@@ -18134,19 +18079,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
       return el.nodeValue;
     } else {
       return el[textProperty];
-    }
-  }
-
-  // IE8 does not have Object.create, so use a polyfill if needed.
-  // Polyfill based on Mozilla's (MDN)
-
-  function createObject(obj) {
-    if (typeof Object.create === "function") {
-      return Object.create(obj);
-    } else {
-      var Temp = function () {};
-      Temp.prototype = obj;
-      return new Temp();
     }
   }
 });
@@ -18452,10 +18384,8 @@ enifed('htmlbars-util/namespaces', ['exports'], function (exports) {
     return namespace || null;
   }
 });
-enifed('htmlbars-util/object-utils', ['exports'], function (exports) {
+enifed("htmlbars-util/object-utils", ["exports"], function (exports) {
   exports.merge = merge;
-  exports.createObject = createObject;
-  exports.objectKeys = objectKeys;
   exports.shallowCopy = shallowCopy;
   exports.keySet = keySet;
   exports.keyLength = keyLength;
@@ -18470,41 +18400,8 @@ enifed('htmlbars-util/object-utils', ['exports'], function (exports) {
     return options;
   }
 
-  // IE8 does not have Object.create, so use a polyfill if needed.
-  // Polyfill based on Mozilla's (MDN)
-
-  function createObject(obj) {
-    if (typeof Object.create === 'function') {
-      return Object.create(obj);
-    } else {
-      var Temp = function () {};
-      Temp.prototype = obj;
-      return new Temp();
-    }
-  }
-
-  function objectKeys(obj) {
-    if (typeof Object.keys === 'function') {
-      return Object.keys(obj);
-    } else {
-      return legacyKeys(obj);
-    }
-  }
-
   function shallowCopy(obj) {
     return merge({}, obj);
-  }
-
-  function legacyKeys(obj) {
-    var keys = [];
-
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        keys.push(prop);
-      }
-    }
-
-    return keys;
   }
 
   function keySet(obj) {
