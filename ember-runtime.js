@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+4c768f29
+ * @version   1.13.2+19349aa9
  */
 
 (function() {
@@ -2443,8 +2443,8 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
     requireModule("ember-debug");
   }
 
-  _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in-favour of Object.create", _emberMetalPlatformCreate["default"]);
-  _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in-favour of Object.keys", _emberMetalKeys["default"]);
+  _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in favor of Object.create", _emberMetalPlatformCreate["default"]);
+  _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in favor of Object.keys", _emberMetalKeys["default"]);
 
   exports["default"] = _emberMetalCore["default"];
 });
@@ -3489,12 +3489,13 @@ enifed("ember-metal/chains", ["exports", "ember-metal/core", "ember-metal/proper
 
     willChange: function (events) {
       var chains = this._chains;
+      var node;
       if (chains) {
         for (var key in chains) {
-          if (!chains.hasOwnProperty(key)) {
-            continue;
+          node = chains[key];
+          if (node !== undefined) {
+            node.willChange(events);
           }
-          chains[key].willChange(events);
         }
       }
 
@@ -3597,7 +3598,10 @@ enifed("ember-metal/chains", ["exports", "ember-metal/core", "ember-metal/proper
           chainNodes = chainWatchers[key];
           if (chainNodes) {
             for (var i = 0, l = chainNodes.length; i < l; i++) {
-              chainNodes[i].didChange(null);
+              var node = chainNodes[i];
+              if (node) {
+                node.didChange(null);
+              }
             }
           }
         }
@@ -5037,7 +5041,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.2+4c768f29
+    @version 1.13.2+19349aa9
     @public
   */
 
@@ -5069,11 +5073,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.2+4c768f29'
+    @default '1.13.2+19349aa9'
     @static
     @public
   */
-  Ember.VERSION = '1.13.2+4c768f29';
+  Ember.VERSION = '1.13.2+19349aa9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17613,7 +17617,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} [value] optional value to test against.
       @return {Boolean}
       @since 1.3.0
-      @private
+      @public
     */
     isEvery: function (key, value) {
       return this.every(iter.apply(this, arguments));

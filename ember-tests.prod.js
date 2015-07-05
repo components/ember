@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+4c768f29
+ * @version   1.13.2+19349aa9
  */
 
 (function() {
@@ -5183,7 +5183,7 @@ enifed("ember-htmlbars/tests/attr_nodes/property_test", ["exports", "ember-views
       equal(view.element.firstChild.maxLength, 1);
     });
 
-    QUnit.test("quoted maxlength sets the property and attribute", function () {
+    QUnit.test("quoted maxlength sets the attribute and is reflected as a property", function () {
       view = _emberViewsViewsView["default"].create({
         context: { length: 5 },
         template: _emberTemplateCompilerSystemCompile["default"]("<input maxlength='{{length}}'>")
@@ -5194,7 +5194,7 @@ enifed("ember-htmlbars/tests/attr_nodes/property_test", ["exports", "ember-views
 
       if (canSetFalsyMaxLength()) {
         Ember.run(view, view.set, "context.length", null);
-        equal(view.element.firstChild.maxLength, 0);
+        equal(view.element.firstChild.maxLength, document.createElement("input").maxLength);
       } else {
         Ember.run(view, view.set, "context.length", 1);
         equal(view.element.firstChild.maxLength, 1);
@@ -19760,20 +19760,67 @@ enifed("ember-metal/tests/cache_test", ["exports", "ember-metal/cache"], functio
     equal(cache.get("c"), "C");
   });
 });
-enifed("ember-metal/tests/chains_test", ["exports", "ember-metal/observer", "ember-metal/chains", "ember-metal/platform/create"], function (exports, _emberMetalObserver, _emberMetalChains, _emberMetalPlatformCreate) {
+enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'ember-metal/property_get', 'ember-metal/chains', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/property_events'], function (exports, _emberMetalObserver, _emberMetalProperty_get, _emberMetalChains, _emberMetalProperties, _emberMetalComputed, _emberMetalProperty_events) {
 
-  QUnit.module("Chains");
+  QUnit.module('Chains');
 
-  QUnit.test("finishChains should properly copy chains from prototypes to instances", function () {
+  QUnit.test('finishChains should properly copy chains from prototypes to instances', function () {
     function didChange() {}
 
     var obj = {};
-    _emberMetalObserver.addObserver(obj, "foo.bar", null, didChange);
+    _emberMetalObserver.addObserver(obj, 'foo.bar', null, didChange);
 
-    var childObj = _emberMetalPlatformCreate["default"](obj);
+    var childObj = create(obj);
     _emberMetalChains.finishChains(childObj);
 
-    ok(obj["__ember_meta__"].chains !== childObj["__ember_meta__"].chains, "The chains object is copied");
+    ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, 'The chains object is copied');
+  });
+
+  QUnit.test('observer and CP chains', function () {
+    var obj = {};
+
+    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed["default"]('qux.[]', function () {}));
+    _emberMetalProperties.defineProperty(obj, 'qux', _emberMetalComputed["default"](function () {}));
+
+    // create DK chains
+    _emberMetalProperty_get.get(obj, 'foo');
+
+    // create observer chain
+    _emberMetalObserver.addObserver(obj, 'qux.length', function () {});
+
+    /*
+               +-----+
+               | qux |   root CP
+               +-----+
+                  ^
+           +------+-----+
+           |            |
+       +--------+    +----+
+       | length |    | [] |  chainWatchers
+       +--------+    +----+
+        observer       CP(foo, 'qux.[]')
+    */
+
+    // invalidate qux
+    _emberMetalProperty_events.propertyDidChange(obj, 'qux');
+
+    // CP chain is blown away
+
+    /*
+               +-----+
+               | qux |   root CP
+               +-----+
+                  ^
+           +------+xxxxxx
+           |            x
+       +--------+    xxxxxx
+       | length |    x [] x  chainWatchers
+       +--------+    xxxxxx
+        observer       CP(foo, 'qux.[]')
+    */
+
+    _emberMetalProperty_get.get(obj, 'qux'); // CP chain re-recreated
+    ok(true, 'no crash');
   });
 });
 enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/platform/create', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/observer', 'ember-metal/enumerable_utils'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalPlatformCreate, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalObserver, _emberMetalEnumerable_utils) {
@@ -21791,13 +21838,13 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal'], function (expo
   QUnit.test('Ember.keys is deprecated', function () {
     expectDeprecation(function () {
       _emberMetal["default"].keys({});
-    }, 'Ember.keys is deprecated in-favour of Object.keys');
+    }, 'Ember.keys is deprecated in favor of Object.keys');
   });
 
   QUnit.test('Ember.keys is deprecated', function () {
     expectDeprecation(function () {
       _emberMetal["default"].create(null);
-    }, 'Ember.create is deprecated in-favour of Object.create');
+    }, 'Ember.create is deprecated in favor of Object.create');
   });
 });
 enifed("ember-metal/tests/map_test", ["exports", "ember-metal/map", "ember-metal/platform/define_property"], function (exports, _emberMetalMap, _emberMetalPlatformDefine_property) {
@@ -29181,6 +29228,31 @@ enifed("ember-routing-htmlbars/tests/helpers/outlet_test", ["exports", "ember-me
       routerState.render.controller.set("outletName", "second");
     });
     equal(top.$().text().trim(), "second");
+  });
+
+  QUnit.test("views created by {{outlet}} should get destroyed", function () {
+    var inserted = 0;
+    var destroyed = 0;
+    var routerState = {
+      render: {
+        ViewClass: _emberViewsViewsView["default"].extend({
+          didInsertElement: function () {
+            inserted++;
+          },
+          willDestroyElement: function () {
+            destroyed++;
+          }
+        })
+      },
+      outlets: {}
+    };
+    top.setOutletState(routerState);
+    _emberRuntimeTestsUtils.runAppend(top);
+    equal(inserted, 1, "expected to see view inserted");
+    _emberMetalRun_loop["default"](function () {
+      top.setOutletState(withTemplate("hello world"));
+    });
+    equal(destroyed, 1, "expected to see view destroyed");
   });
 
   QUnit.test("views created by {{outlet}} should get destroyed", function () {
@@ -47363,7 +47435,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+4c768f29", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+19349aa9", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
