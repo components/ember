@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.2+19349aa9
+ * @version   1.13.2+ecba1281
  */
 
 (function() {
@@ -19770,7 +19770,7 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
     var obj = {};
     _emberMetalObserver.addObserver(obj, 'foo.bar', null, didChange);
 
-    var childObj = create(obj);
+    var childObj = Object.create(obj);
     _emberMetalChains.finishChains(childObj);
 
     ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, 'The chains object is copied');
@@ -19779,8 +19779,8 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
   QUnit.test('observer and CP chains', function () {
     var obj = {};
 
-    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed["default"]('qux.[]', function () {}));
-    _emberMetalProperties.defineProperty(obj, 'qux', _emberMetalComputed["default"](function () {}));
+    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed('qux.[]', function () {}));
+    _emberMetalProperties.defineProperty(obj, 'qux', _emberMetalComputed.computed(function () {}));
 
     // create DK chains
     _emberMetalProperty_get.get(obj, 'foo');
@@ -47435,7 +47435,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.2+19349aa9", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.2+ecba1281", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
