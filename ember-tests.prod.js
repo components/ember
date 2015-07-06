@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a9e83790
+ * @version   2.0.0-canary+35f8a351
  */
 
 (function() {
@@ -16689,6 +16689,39 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     equal(innerTemplate.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
     equal(innerLayout.parentView, outer, 'receives the wrapping component as its parentView in layout');
+    equal(outer.parentView, view, 'x-outer receives the ambient scope as its parentView');
+  });
+
+  QUnit.test('newly-added sub-components get correct parentView', function () {
+    var outer, inner;
+
+    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        outer = this;
+      }
+    }));
+
+    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        inner = this;
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{#if view.showInner}}{{x-inner}}{{/if}}{{/x-outer}}'),
+      container: container,
+      showInner: false
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop.default(function () {
+      view.set('showInner', true);
+    });
+
+    equal(inner.parentView, outer, 'receives the wrapping component as its parentView in template blocks');
     equal(outer.parentView, view, 'x-outer receives the ambient scope as its parentView');
   });
 
@@ -45422,7 +45455,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a9e83790', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+35f8a351', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
