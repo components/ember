@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8afb5069
+ * @version   2.0.0-canary+fc3a8d14
  */
 
 (function() {
@@ -25500,7 +25500,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     // trigger deferred behavior
     _emberMetalRun_loop.default(function () {
       mixin = _emberMetalMixin.Mixin.create({
-        fooDidChange: _emberMetalMixin.immediateObserver('foo', function () {
+        fooDidChange: _emberMetalMixin._immediateObserver('foo', function () {
           observerCalled++;
           equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
         })
@@ -25535,12 +25535,14 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
       _emberMetalRun_loop.default(function () {
-        mixin = _emberMetalMixin.Mixin.create({
-          fooDidChange: (function () {
-            observerCalled++;
-            equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-          }).observesImmediately('{foo,bar}')
-        });
+        expectDeprecation(function () {
+          mixin = _emberMetalMixin.Mixin.create({
+            fooDidChange: (function () {
+              observerCalled++;
+              equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
+            }).observesImmediately('{foo,bar}')
+          });
+        }, /Function#observesImmediately is deprecated. Use Function#observes instead/);
 
         mixin.apply(obj);
 
@@ -25573,7 +25575,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     // trigger deferred behavior
     _emberMetalRun_loop.default(function () {
       mixin = _emberMetalMixin.Mixin.create({
-        fooDidChange: _emberMetalMixin.immediateObserver('{foo,bar}', function () {
+        fooDidChange: _emberMetalMixin._immediateObserver('{foo,bar}', function () {
           observerCalled++;
           equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
         })
@@ -25602,7 +25604,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   _emberMetalTestsProps_helper.testBoth('immediate observers are for internal properties only', function (get, set) {
     expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
     expectAssertion(function () {
-      _emberMetalMixin.immediateObserver('foo.bar', function () {
+      _emberMetalMixin._immediateObserver('foo.bar', function () {
         return this;
       });
     }, 'Immediate observers must observe internal properties only, not properties on other objects.');
@@ -45472,7 +45474,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8afb5069', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+fc3a8d14', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

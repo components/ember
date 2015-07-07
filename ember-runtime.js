@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8afb5069
+ * @version   2.0.0-canary+fc3a8d14
  */
 
 (function() {
@@ -2343,20 +2343,20 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
   _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
   _emberMetalCore.default.removeObserver = _emberMetalObserver.removeObserver;
-  _emberMetalCore.default.addBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.addBeforeObserver is deprecated and will be removed in the near future. See http://emberjs.com/deprecations/v1.x/#toc_beforeobserver', _emberMetalObserver._addBeforeObserver);
+  _emberMetalCore.default.addBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.addBeforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._addBeforeObserver);
   _emberMetalCore.default._suspendBeforeObserver = _emberMetalObserver._suspendBeforeObserver;
   _emberMetalCore.default._suspendBeforeObservers = _emberMetalObserver._suspendBeforeObservers;
   _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
   _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
-  _emberMetalCore.default.beforeObserversFor = _emberMetalCore.default.deprecateFunc('Ember.beforeObserversFor is deprecated and will be removed in the near future. See http://emberjs.com/deprecations/v1.x/#toc_beforeobserver', _emberMetalObserver._beforeObserversFor);
-  _emberMetalCore.default.removeBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.removeBeforeObserver is deprecated and will be removed in the near future. See http://emberjs.com/deprecations/v1.x/#toc_beforeobserver', _emberMetalObserver._removeBeforeObserver);
+  _emberMetalCore.default.beforeObserversFor = _emberMetalCore.default.deprecateFunc('Ember.beforeObserversFor is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._beforeObserversFor);
+  _emberMetalCore.default.removeBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.removeBeforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._removeBeforeObserver);
 
   _emberMetalCore.default.IS_BINDING = _emberMetalMixin.IS_BINDING;
   _emberMetalCore.default.required = _emberMetalMixin.required;
   _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
   _emberMetalCore.default.observer = _emberMetalMixin.observer;
-  _emberMetalCore.default.immediateObserver = _emberMetalMixin.immediateObserver;
-  _emberMetalCore.default.beforeObserver = _emberMetalCore.default.deprecateFunc('Ember.beforeObserver is deprecated and will be removed in the near future. See http://emberjs.com/deprecations/v1.x/#toc_beforeobserver', _emberMetalMixin._beforeObserver);
+  _emberMetalCore.default.immediateObserver = _emberMetalMixin._immediateObserver;
+  _emberMetalCore.default.beforeObserver = _emberMetalCore.default.deprecateFunc('Ember.beforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalMixin._beforeObserver);
   _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
   _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
 
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8afb5069
+    @version 2.0.0-canary+fc3a8d14
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8afb5069'
+    @default '2.0.0-canary+fc3a8d14'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8afb5069';
+  Ember.VERSION = '2.0.0-canary+fc3a8d14';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7095,7 +7095,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
-  exports.immediateObserver = immediateObserver;
+  exports._immediateObserver = _immediateObserver;
   exports._beforeObserver = _beforeObserver;
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -7979,7 +7979,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @private
   */
 
-  function immediateObserver() {
+  function _immediateObserver() {
     _emberMetalCore.default.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.');
 
     for (var i = 0, l = arguments.length; i < l; i++) {
@@ -13338,8 +13338,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
         }.observes('value')
       });
       ```
-       In the future this method may become asynchronous. If you want to ensure
-      synchronous behavior, use `observesImmediately`.
+       In the future this method may become asynchronous.
        See `Ember.observer`.
        @method observes
       @for Function
@@ -13354,6 +13353,19 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
       return _emberMetalMixin.observer.apply(this, args);
     };
 
+    FunctionPrototype._observesImmediately = function () {
+      _emberMetalCore.default.assert('Immediate observers must observe internal properties only, ' + 'not properties on other objects.', function checkIsInternalProperty() {
+        for (var i = 0, l = arguments.length; i < l; i++) {
+          if (arguments[i].indexOf('.') !== -1) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      // observes handles property expansion
+      return this.observes.apply(this, arguments);
+    };
     /**
       The `observesImmediately` extension of Javascript's Function prototype is
       available when `Ember.EXTEND_PROTOTYPES` or
@@ -13373,21 +13385,10 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
        See `Ember.immediateObserver`.
        @method observesImmediately
       @for Function
+      @deprecated
       @private
     */
-    FunctionPrototype.observesImmediately = function () {
-      _emberMetalCore.default.assert('Immediate observers must observe internal properties only, ' + 'not properties on other objects.', function checkIsInternalProperty() {
-        for (var i = 0, l = arguments.length; i < l; i++) {
-          if (arguments[i].indexOf('.') !== -1) {
-            return false;
-          }
-        }
-        return true;
-      });
-
-      // observes handles property expansion
-      return this.observes.apply(this, arguments);
-    };
+    FunctionPrototype.observesImmediately = _emberMetalCore.default.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', FunctionPrototype._observesImmediately);
 
     /**
       The `observesBefore` extension of Javascript's Function prototype is
