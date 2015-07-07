@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1dcd6522
+ * @version   2.0.0-canary+15aa7246
  */
 
 (function() {
@@ -31581,6 +31581,30 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     equal(undefined, route.send('nonexistent', 1, 2, 3));
   });
 
+  QUnit.test('.send just calls an action if the routers internal router property is absent', function () {
+    expect(7);
+    var route = _emberRoutingSystemRoute.default.extend({
+      router: {},
+      actions: {
+        returnsTrue: function (foo, bar) {
+          equal(foo, 1);
+          equal(bar, 2);
+          equal(this, route);
+          return true;
+        },
+
+        returnsFalse: function () {
+          ok(true, 'returnsFalse was called');
+          return false;
+        }
+      }
+    }).create();
+
+    equal(true, route.send('returnsTrue', 1, 2));
+    equal(false, route.send('returnsFalse'));
+    equal(undefined, route.send('nonexistent', 1, 2, 3));
+  });
+
   QUnit.module('Ember.Route serialize', {
     setup: setup,
     teardown: teardown
@@ -45455,7 +45479,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+1dcd6522', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+15aa7246', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
