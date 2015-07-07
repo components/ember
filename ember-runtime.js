@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ae30a61e
+ * @version   2.0.0-canary+8afb5069
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ae30a61e
+    @version 2.0.0-canary+8afb5069
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ae30a61e'
+    @default '2.0.0-canary+8afb5069'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ae30a61e';
+  Ember.VERSION = '2.0.0-canary+8afb5069';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13541,7 +13541,11 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
       @private
     */
     StringPrototype.fmt = function () {
-      return _emberRuntimeSystemString.fmt(this, arguments);
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return _emberRuntimeSystemString.fmt(this, args);
     };
 
     /**
@@ -13561,7 +13565,11 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
       @private
     */
     StringPrototype.loc = function () {
-      return _emberRuntimeSystemString.loc(this, arguments);
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return _emberRuntimeSystemString.loc(this, args);
     };
 
     /**
