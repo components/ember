@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+4aab5ad8
+ * @version   2.0.0-beta.1+d1a1a7c3
  */
 
 (function() {
@@ -4783,7 +4783,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1+4aab5ad8
+    @version 2.0.0-beta.1+d1a1a7c3
     @public
   */
 
@@ -4815,11 +4815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+4aab5ad8'
+    @default '2.0.0-beta.1+d1a1a7c3'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1+4aab5ad8';
+  Ember.VERSION = '2.0.0-beta.1+d1a1a7c3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12971,7 +12971,8 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      _emberMetalCore.default.deprecate(arrayControllerDeprecation);
+      _emberMetalCore.default.deprecate(arrayControllerDeprecation, this.isGenerated);
+
       this._super.apply(this, arguments);
       this._subControllers = [];
     },
@@ -15359,16 +15360,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @private
     */
     anyBy: _emberMetalMixin.aliasMethod('isAny'),
-
-    /**
-      @method someProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Boolean}
-      @deprecated Use `isAny` instead
-      @private
-    */
-    someProperty: _emberMetalMixin.aliasMethod('isAny'),
 
     /**
       This will combine the values of the enumerator into a single value. It
