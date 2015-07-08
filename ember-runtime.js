@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+723a82e5
+ * @version   2.0.0-canary+2d0d1cd1
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+723a82e5
+    @version 2.0.0-canary+2d0d1cd1
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+723a82e5'
+    @default '2.0.0-canary+2d0d1cd1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+723a82e5';
+  Ember.VERSION = '2.0.0-canary+2d0d1cd1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15112,7 +15112,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Object} Found item or `undefined`.
-      @private
+      @public
     */
     find: function (callback, target) {
       var len = _emberMetalProperty_get.get(this, 'length');
