@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b1d83df6
+ * @version   2.0.0-canary+5e86d5ca
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b1d83df6
+    @version 2.0.0-canary+5e86d5ca
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b1d83df6'
+    @default '2.0.0-canary+5e86d5ca'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b1d83df6';
+  Ember.VERSION = '2.0.0-canary+5e86d5ca';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15032,7 +15032,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Array} A rejected array.
-       @private
+      @public
     */
     reject: function (callback, target) {
       return this.filter(function () {
