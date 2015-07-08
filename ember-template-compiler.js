@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9ff18d05
+ * @version   2.0.0-canary+4b9145c2
  */
 
 (function() {
@@ -3984,7 +3984,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+9ff18d05
+    @version 2.0.0-canary+4b9145c2
     @public
   */
 
@@ -4016,11 +4016,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+9ff18d05'
+    @default '2.0.0-canary+4b9145c2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+9ff18d05';
+  Ember.VERSION = '2.0.0-canary+4b9145c2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5763,7 +5763,6 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     @private
   */
   function OrderedSet() {
-
     if (this instanceof OrderedSet) {
       this.clear();
       this._silenceRemoveDeprecation = false;
@@ -8299,7 +8298,6 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
     if (desc) {
       desc.set(obj, keyName, value);
     } else {
-
       if (obj !== null && value !== undefined && typeof obj === 'object' && obj[keyName] === value) {
         return value;
       }
@@ -10366,7 +10364,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   */
 
   function guidFor(obj) {
-
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
       return '(undefined)';
@@ -11481,7 +11478,6 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-block-params', ['ex
 
     walker.visit(ast, function (node) {
       if (validate(node)) {
-
         var removedParams = node.params.splice(0, 2);
         var keyword = removedParams[0].original;
         var moduleInfo = undefined;
@@ -11555,7 +11551,6 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
-
         if (node.program && node.program.blockParams.length) {
           throw new Error('You cannot use keyword (`{{each foo in bar}}`) and block params (`{{each bar as |foo|}}`) at the same time.');
         }
@@ -11623,7 +11618,6 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
 
   function validate(node) {
     if ((node.type === 'BlockStatement' || node.type === 'MustacheStatement') && node.path.original === 'each') {
-
       return any(node.hash.pairs, function (pair) {
         var key = pair.key;
         return key === 'itemController' || key === 'itemView' || key === 'itemViewClass' || key === 'tagName' || key === 'emptyView' || key === 'emptyViewClass';
@@ -12132,7 +12126,6 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 
 
     walker.visit(ast, function (node) {
       if (pluginContext.validate(node)) {
-
         if (node.program && node.program.blockParams.length) {
           throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
         }
@@ -12261,7 +12254,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+9ff18d05',
+        revision: 'Ember@2.0.0-canary+4b9145c2',
         loc: program.loc,
         moduleName: options.moduleName
       };

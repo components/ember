@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9ff18d05
+ * @version   2.0.0-canary+4b9145c2
  */
 
 (function() {
@@ -3297,7 +3297,6 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     application = _emberMetalRun_loop.default(Application, 'create');
 
     _emberMetalRun_loop.default(function () {
-
       application.ready = function () {
         didBecomeReady = true;
       };
@@ -4544,7 +4543,6 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     _emberMetalRun_loop.default(App, 'advanceReadiness');
 
     var modelTypesAdded = function (types) {
-
       equal(types.length, 1);
       var postType = types[0];
       equal(postType.name, 'post', 'Correctly sets the name');
@@ -4595,7 +4593,6 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     _emberMetalRun_loop.default(App, 'advanceReadiness');
 
     var modelTypesAdded = function (types) {
-
       equal(types.length, 1);
       var postType = types[0];
 
@@ -4628,7 +4625,6 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     };
 
     var modelTypesUpdated = function (types) {
-
       var postType = types[0];
       equal(postType.count, 4, 'Correctly updates the count');
     };
@@ -4881,7 +4877,6 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
   });
 
   if (isInlineIfEnabled) {
-
     QUnit.test('class attribute accepts nested helpers, and updates', function () {
       view = _emberViewsViewsView.default.create({
         context: {
@@ -6895,7 +6890,6 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
   });
 
   if (!EmberDev.runningProdBuild) {
-
     QUnit.test('no warnings are triggered from setting style attribute', function () {
       component = _emberViewsViewsComponent.default.create({
         container: container,
@@ -16185,7 +16179,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
   // jscs:disable validateIndentation
   if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-
     QUnit.module('component - invocation (angle brackets)', {
       setup: function () {
         commonSetup();
@@ -17359,7 +17352,6 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 
   // jscs:disable validateIndentation
   if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-
     QUnit.test('mutable bindings work as angle-bracket component attributes', function (assert) {
       var middle;
 
@@ -18609,7 +18601,6 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['exports', 'ember-
   });
 
   QUnit.test('bound helpers should support multiple bound properties', function () {
-
     registry.register('helper:x-combine', _emberHtmlbarsSystemMake_bound_helper.default(function (params, hash, options, env) {
       return params.join('');
     }));
@@ -19181,7 +19172,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
   //
 
   QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
       someProperty: 'foo',
       propertyDidChange: _emberMetalMixin.observer('someProperty', function () {})
@@ -19220,7 +19210,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
   });
 
   QUnit.test('should call unknownProperty if defined and value is undefined', function () {
-
     var obj = {
       count: 0,
       unknownProperty: function (key) {
@@ -19260,7 +19249,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
   //
 
   QUnit.test('(regression) watched properties on unmodified inherited objects should still return their original value', function () {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
       someProperty: 'foo',
       propertyDidChange: _emberMetalMixin.observer('someProperty', function () {})
@@ -19674,7 +19662,6 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
   });
 
   QUnit.test('should call setUnknownProperty if defined and value is undefined', function () {
-
     var obj = {
       count: 0,
 
@@ -20171,7 +20158,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   QUnit.test('defining computed property should invoke property on get', function () {
-
     var obj = {};
     var count = 0;
     _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed(function (key) {
@@ -20401,7 +20387,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   _emberMetalTestsProps_helper.testBoth('cacheFor should return falsy cached values', function (get, set) {
-
     _emberMetalProperties.defineProperty(obj, 'falsy', _emberMetalComputed.computed(function () {
       return false;
     }));
@@ -20532,7 +20517,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   _emberMetalTestsProps_helper.testBoth('redefining a property should undo old dependent keys', function (get, set) {
-
     equal(_emberMetalWatching.isWatching(obj, 'bar'), false, 'precond not watching dependent key');
     equal(get(obj, 'foo'), 'bar 1');
     equal(_emberMetalWatching.isWatching(obj, 'bar'), true, 'lazily watching dependent key');
@@ -20633,7 +20617,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('computed - dependentkey with chained properties', moduleOpts);
 
   _emberMetalTestsProps_helper.testBoth('depending on simple chain', function (get, set) {
-
     // assign computed property
     _emberMetalProperties.defineProperty(obj, 'prop', _emberMetalComputed.computed(func).property('foo.bar.baz.biff'));
 
@@ -20677,7 +20660,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   _emberMetalTestsProps_helper.testBoth('depending on Global chain', function (get, set) {
-
     // assign computed property
     _emberMetalProperties.defineProperty(obj, 'prop', _emberMetalComputed.computed(function () {
       count++;
@@ -20803,7 +20785,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('computed edge cases');
 
   QUnit.test('adding a computed property should show up in key iteration', function () {
-
     var obj = {};
     _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed(function () {}));
 
@@ -21108,7 +21089,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('adding a listener more than once should only invoke once', function () {
-
     var obj = {};
     var count = 0;
     var F = function () {
@@ -21198,7 +21178,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('calling sendEvent with extra params should be passed to listeners', function () {
-
     var obj = {};
     var params = null;
     _emberMetalEvents.addListener(obj, 'event!', function () {
@@ -21229,7 +21208,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('hasListeners tells you if there are listeners for a given event', function () {
-
     var obj = {};
     var F = function () {};
     var F2 = function () {};
@@ -21322,7 +21300,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
   });
 
   QUnit.test('a listener added as part of a mixin may be overridden', function () {
-
     var triggered = 0;
     var FirstMixin = _emberMetalMixin.Mixin.create({
       foo: _emberMetalEvents.on('bar', function () {
@@ -21538,7 +21515,6 @@ enifed('ember-metal/tests/injected_property_test', ['exports', 'ember-metal/prop
 enifed('ember-metal/tests/instrumentation_test', ['exports', 'ember-metal/instrumentation'], function (exports, _emberMetalInstrumentation) {
 
   QUnit.module('Ember Instrumentation', {
-    setup: function () {},
     teardown: function () {
       _emberMetalInstrumentation.reset();
     }
@@ -22212,7 +22188,6 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     });
 
     QUnit.test('forEach throws without a callback as the first argument', function () {
-
       equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
     });
 
@@ -22927,7 +22902,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   QUnit.module('Mixin concatenatedProperties');
 
   QUnit.test('defining concatenated properties should concat future version', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: ['a', 'b', 'c']
@@ -22942,7 +22916,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('defining concatenated properties should concat future version', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       concatenatedProperties: null
     });
@@ -22957,7 +22930,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('concatenatedProperties should be concatenated', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: ['a', 'b', 'c']
@@ -22980,7 +22952,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('adding a prop that is not an array should make array', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: [1, 2, 3]
@@ -22995,7 +22966,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('adding a prop that is not an array should make array', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       concatenatedProperties: ['foo'],
       foo: 'bar'
@@ -23006,7 +22976,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('adding a non-concatenable property that already has a defined value should result in an array with both values', function () {
-
     var mixinA = _emberMetalMixin.Mixin.create({
       foo: 1
     });
@@ -23021,7 +22990,6 @@ enifed('ember-metal/tests/mixin/concatenated_properties_test', ['exports', 'embe
   });
 
   QUnit.test('adding a concatenable property that already has a defined value should result in a concatenated value', function () {
-
     var mixinA = _emberMetalMixin.Mixin.create({
       foobar: 'foo'
     });
@@ -23040,7 +23008,6 @@ enifed('ember-metal/tests/mixin/detect_test', ['exports', 'ember-metal/mixin'], 
   QUnit.module('Mixin.detect');
 
   QUnit.test('detect() finds a directly applied mixin', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create();
     var obj = {};
 
@@ -23113,7 +23080,6 @@ enifed('ember-metal/tests/mixin/introspection_test', ['exports', 'ember-metal/ut
   });
 
   QUnit.test('Ember.mixins()', function () {
-
     function mapGuids(ary) {
       return ary.map(function (x) {
         return _emberMetalUtils.guidFor(x);
@@ -23131,7 +23097,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   QUnit.module('Mixin mergedProperties');
 
   QUnit.test('defining mergedProperties should merge future version', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: true, b: true, c: true }
@@ -23146,7 +23111,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('defining mergedProperties on future mixin should merged into past', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       foo: { a: true, b: true, c: true }
     });
@@ -23161,7 +23125,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('defining mergedProperties with null properties should keep properties null', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       mergedProperties: ['foo'],
       foo: null
@@ -23176,7 +23139,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('mergedProperties\' properties can get overwritten', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: 1 }
@@ -23191,7 +23153,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('mergedProperties should be concatenated', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       mergedProperties: ['foo'],
       foo: { a: true, b: true, c: true }
@@ -23214,7 +23175,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('mergedProperties should exist even if not explicitly set on create', function () {
-
     var AnObj = _emberMetalCore.default.Object.extend({
       mergedProperties: ['options'],
       options: {
@@ -23236,7 +23196,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('mergedProperties\' overwriting methods can call _super', function () {
-
     expect(4);
 
     var MixinA = _emberMetalMixin.Mixin.create({
@@ -23272,7 +23231,6 @@ enifed('ember-metal/tests/mixin/merged_properties_test', ['exports', 'ember-meta
   });
 
   QUnit.test('Merging an Array should raise an error', function () {
-
     expect(1);
 
     var MixinA = _emberMetalMixin.Mixin.create({
@@ -23294,7 +23252,6 @@ enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/mixin'], 
   QUnit.module('Mixin Methods');
 
   QUnit.test('defining simple methods', function () {
-
     var MixinA, obj, props;
 
     props = {
@@ -23363,7 +23320,6 @@ enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/mixin'], 
   });
 
   QUnit.test('overriding inherited objects', function () {
-
     var cnt = 0;
     var MixinA = _emberMetalMixin.Mixin.create({
       foo: function () {
@@ -23500,7 +23456,6 @@ enifed('ember-metal/tests/mixin/method_test', ['exports', 'ember-metal/mixin'], 
   QUnit.module('system/mixin/method_test BUGS');
 
   QUnit.test('applying several mixins at once with sup already defined causes infinite loop', function () {
-
     var cnt = 0;
     var MixinA = _emberMetalMixin.Mixin.create({
       foo: function () {
@@ -23536,7 +23491,6 @@ enifed('ember-metal/tests/mixin/observer_test', ['exports', 'ember-metal/tests/p
   QUnit.module('Mixin observer');
 
   _emberMetalTestsProps_helper.testBoth('global observer helper', function (get, set) {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
 
       count: 0,
@@ -23555,7 +23509,6 @@ enifed('ember-metal/tests/mixin/observer_test', ['exports', 'ember-metal/tests/p
   });
 
   _emberMetalTestsProps_helper.testBoth('global observer helper takes multiple params', function (get, set) {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
 
       count: 0,
@@ -23575,7 +23528,6 @@ enifed('ember-metal/tests/mixin/observer_test', ['exports', 'ember-metal/tests/p
   });
 
   _emberMetalTestsProps_helper.testBoth('replacing observer should remove old observer', function (get, set) {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
 
       count: 0,
@@ -23841,7 +23793,6 @@ enifed('ember-metal/tests/mixin/required_test', ['exports', 'ember-metal/mixin',
 enifed('ember-metal/tests/mixin/without_test', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
 
   QUnit.test('without should create a new mixin excluding named properties', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({
       foo: 'FOO',
       bar: 'BAR'
@@ -23865,7 +23816,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('addObserver');
 
   _emberMetalTestsProps_helper.testBoth('observer should fire when property is modified', function (get, set) {
-
     var obj = {};
     var count = 0;
 
@@ -24464,7 +24414,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('removeObserver');
 
   _emberMetalTestsProps_helper.testBoth('removing observer should stop firing', function (get, set) {
-
     var obj = {};
     var count = 0;
     function F() {
@@ -24550,7 +24499,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('_addBeforeObserver');
 
   _emberMetalTestsProps_helper.testBoth('observer should fire before a property is modified', function (get, set) {
-
     var obj = { foo: 'foo' };
     var count = 0;
 
@@ -24791,7 +24739,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   });
 
   _emberMetalTestsProps_helper.testBoth('depending on a simple chain', function (get, set) {
-
     var val;
     _emberMetalObserver.addObserver(obj, 'foo.bar.baz.biff', function (target, key) {
       val = get(target, key);
@@ -24876,7 +24823,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   QUnit.module('props/observer_test - setting identical values');
 
   _emberMetalTestsProps_helper.testBoth('setting simple prop should not trigger', function (get, set) {
-
     var obj = { foo: 'bar' };
     var count = 0;
 
@@ -25183,7 +25129,6 @@ enifed('ember-metal/tests/properties_test', ['exports', 'ember-metal/computed', 
   QUnit.module('Ember.defineProperty');
 
   QUnit.test('toString', function () {
-
     var obj = {};
     _emberMetalProperties.defineProperty(obj, 'toString', undefined, function () {
       return 'FOO';
@@ -25285,7 +25230,6 @@ enifed('ember-metal/tests/props_helper', ['exports', 'ember-metal/core', 'ember-
 
   // used by unit tests to test both accessor mode and non-accessor mode
   var testBoth = function (testname, callback) {
-
     function emberget(x, y) {
       return _emberMetalProperty_get.get(x, y);
     }
@@ -25447,7 +25391,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
   });
 
   asyncTest('should invoke after specified period of time - function only', function () {
-
     var invoked = false;
 
     _emberMetalRun_loop.default(function () {
@@ -25463,7 +25406,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
   });
 
   asyncTest('should invoke after specified period of time - target/method', function () {
-
     var obj = { invoked: false };
 
     _emberMetalRun_loop.default(function () {
@@ -25479,7 +25421,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
   });
 
   asyncTest('should invoke after specified period of time - target/method/args', function () {
-
     var obj = { invoked: 0 };
 
     _emberMetalRun_loop.default(function () {
@@ -25580,7 +25521,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
   // });
 
   asyncTest('inception calls to run.later should run callbacks in separate run loops', function () {
-
     var runLoop, finished;
 
     _emberMetalRun_loop.default(function () {
@@ -25605,7 +25545,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
   });
 
   asyncTest('setTimeout should never run with a negative wait', function () {
-
     // Rationale: The old run loop code was susceptible to an occasional
     // bug where invokeLaterTimers would be scheduled with a setTimeout
     // with a negative wait. Modern browsers normalize this to 0, but
@@ -25624,7 +25563,6 @@ enifed('ember-metal/tests/run_loop/later_test', ['exports', 'ember-metal/is_none
 
     var count = 0;
     _emberMetalRun_loop.default(function () {
-
       _emberMetalRun_loop.default.later(function () {
         count++;
 
@@ -25655,7 +25593,6 @@ enifed('ember-metal/tests/run_loop/next_test', ['exports', 'ember-metal/run_loop
   QUnit.module('run.next');
 
   asyncTest('should invoke immediately on next timeout', function () {
-
     var invoked = false;
 
     _emberMetalRun_loop.default(function () {
@@ -25711,7 +25648,6 @@ enifed('ember-metal/tests/run_loop/once_test', ['exports', 'ember-metal/run_loop
   QUnit.module('system/run_loop/once_test');
 
   QUnit.test('calling invokeOnce more than once invokes only once', function () {
-
     var count = 0;
     _emberMetalRun_loop.default(function () {
       var F = function () {
@@ -25726,7 +25662,6 @@ enifed('ember-metal/tests/run_loop/once_test', ['exports', 'ember-metal/run_loop
   });
 
   QUnit.test('should differentiate based on target', function () {
-
     var A = { count: 0 };
     var B = { count: 0 };
     _emberMetalRun_loop.default(function () {
@@ -25744,7 +25679,6 @@ enifed('ember-metal/tests/run_loop/once_test', ['exports', 'ember-metal/run_loop
   });
 
   QUnit.test('should ignore other arguments - replacing previous ones', function () {
-
     var A = { count: 0 };
     var B = { count: 0 };
     _emberMetalRun_loop.default(function () {
@@ -25762,7 +25696,6 @@ enifed('ember-metal/tests/run_loop/once_test', ['exports', 'ember-metal/run_loop
   });
 
   QUnit.test('should be inside of a runloop when running', function () {
-
     _emberMetalRun_loop.default(function () {
       _emberMetalRun_loop.default.once(function () {
         ok(!!_emberMetalRun_loop.default.currentRunLoop, 'should have a runloop');
@@ -25959,7 +25892,6 @@ enifed('ember-metal/tests/run_loop/sync_test', ['exports', 'ember-metal/run_loop
     var cnt = 0;
 
     _emberMetalRun_loop.default(function () {
-
       function cntup() {
         cnt++;
       }
@@ -26684,7 +26616,6 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
   }
 
   _emberMetalTestsProps_helper.testBoth('unwatching a computed property - regular get/set', function (get, set) {
-
     var obj = {};
     _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed({
       get: function () {
@@ -26710,7 +26641,6 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
   });
 
   _emberMetalTestsProps_helper.testBoth('unwatching a regular property - regular get/set', function (get, set) {
-
     var obj = { foo: 'BIFF' };
     addListeners(obj, 'foo');
 
@@ -26727,7 +26657,6 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
   });
 
   QUnit.test('unwatching should be nested', function () {
-
     var obj = { foo: 'BIFF' };
     addListeners(obj, 'foo');
 
@@ -26751,7 +26680,6 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
   });
 
   _emberMetalTestsProps_helper.testBoth('unwatching "length" property on an object', function (get, set) {
-
     var obj = { foo: 'RUN' };
     addListeners(obj, 'length');
 
@@ -28555,7 +28483,6 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
   });
 
   QUnit.test('a quoteless parameter that does not resolve to a value asserts', function () {
-
     var controller = _emberRuntimeControllersController.default.extend({
       actions: {
         ohNoeNotValid: function () {}
@@ -33985,7 +33912,6 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/core', 
   QUnit.module('Function.prototype.observes() helper');
 
   _emberMetalTestsProps_helper.testBoth('global observer helper takes multiple params', function (get, set) {
-
     if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.observes, 'Function.prototype helper disabled');
       return;
@@ -34012,7 +33938,6 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/core', 
   QUnit.module('Function.prototype.on() helper');
 
   _emberMetalTestsProps_helper.testBoth('sets up an event listener, and can trigger the function on multiple events', function (get, set) {
-
     if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.on, 'Function.prototype helper disabled');
       return;
@@ -34037,7 +33962,6 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/core', 
   });
 
   _emberMetalTestsProps_helper.testBoth('can be chained with observes', function (get, set) {
-
     if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('Function.prototype helper disabled');
       return;
@@ -34063,7 +33987,6 @@ enifed('ember-runtime/tests/ext/function_test', ['exports', 'ember-metal/core', 
   QUnit.module('Function.prototype.property() helper');
 
   _emberMetalTestsProps_helper.testBoth('sets up a ComputedProperty', function (get, set) {
-
     if (_emberMetalCore.default.EXTEND_PROTOTYPES === false) {
       ok('undefined' === typeof Function.prototype.property, 'Function.prototype helper disabled');
       return;
@@ -34092,7 +34015,6 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
   QUnit.module('system/mixin/binding_test');
 
   QUnit.test('Defining a property ending in Binding should setup binding when applied', function () {
-
     var MyMixin = _emberMetalMixin.Mixin.create({
       fooBinding: 'bar.baz'
     });
@@ -34824,7 +34746,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('getting values should call function return value', function () {
-
     // get each property twice. Verify return.
     var keys = _emberRuntimeSystemString.w('computed computedCached dependent dependentFront dependentCached');
 
@@ -34844,13 +34765,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('setting values should call function return value', function () {
-
     // get each property twice. Verify return.
     var keys = _emberRuntimeSystemString.w('computed dependent dependentFront computedCached dependentCached');
     var values = _emberRuntimeSystemString.w('value1 value2');
 
     keys.forEach(function (key) {
-
       equal(object.set(key, values[0]), values[0], _emberRuntimeSystemString.fmt('Try #1: object.set(%@, %@) should run function', [key, values[0]]));
 
       equal(object.set(key, values[1]), values[1], _emberRuntimeSystemString.fmt('Try #2: object.set(%@, %@) should run function', [key, values[1]]));
@@ -34874,7 +34793,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('notify change should clear cache', function () {
-
     // call get several times to collect call count
     object.get('computedCached'); // should run func
     object.get('computedCached'); // should not run func
@@ -34886,7 +34804,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('change dependent should clear cache', function () {
-
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
     equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
@@ -34897,7 +34814,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('just notifying change of dependent should clear cache', function () {
-
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
     equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
@@ -34908,7 +34824,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('changing dependent should clear nested cache', function () {
-
     // call get several times to collect call count
     var ret1 = object.get('nestedInc'); // should run func
     equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
@@ -34919,7 +34834,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('just notifying change of dependent should clear nested cache', function () {
-
     // call get several times to collect call count
     var ret1 = object.get('nestedInc'); // should run func
     equal(object.get('nestedInc'), ret1, 'multiple calls should not run cached prop');
@@ -34932,7 +34846,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   // This verifies a specific bug encountered where observers for computed
   // properties would fire before their prop caches were cleared.
   QUnit.test('change dependent should clear cache when observers of dependent are called', function () {
-
     // call get several times to collect call count
     var ret1 = object.get('inc'); // should run func
     equal(object.get('inc'), ret1, 'multiple calls should not run cached prop');
@@ -35066,7 +34979,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   //
 
   QUnit.module('Observable objects & object properties ', {
-
     setup: function () {
       object = ObservableObject.extend({
         getEach: function () {
@@ -35099,7 +35011,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
         normalArray: _emberMetalCore.default.A([1, 2, 3, 4, 5])
       });
     }
-
   });
 
   QUnit.test('incrementProperty and decrementProperty', function () {
@@ -35171,9 +35082,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
 
   QUnit.module('object.addObserver()', {
     setup: function () {
-
       ObjectC = ObservableObject.create({
-
         objectE: ObservableObject.create({
           propertyVal: 'chainedProperty'
         }),
@@ -35194,7 +35103,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
         chainedObserver: function () {
           this.normal2 = 'chainedPropertyObserved';
         }
-
       });
     }
   });
@@ -35217,7 +35125,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   QUnit.module('object.removeObserver()', {
     setup: function () {
       ObjectD = ObservableObject.create({
-
         objectF: ObservableObject.create({
           propertyVal: 'chainedProperty'
         }),
@@ -35292,7 +35199,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.module('Bind function ', {
-
     setup: function () {
       originalLookup = _emberMetalCore.default.lookup;
       objectA = ObservableObject.create({
@@ -35340,7 +35246,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   //
 
   QUnit.test('changing chained observer object to null should not raise exception', function () {
-
     var obj = ObservableObject.create({
       foo: ObservableObject.create({
         bar: ObservableObject.create({ bat: 'BAT' })
@@ -35443,7 +35348,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
   });
 
   QUnit.test('should observe the changes within the nested begin / end property changes', function () {
-
     //start the outer nest
     ObjectA.beginPropertyChanges();
 
@@ -35466,7 +35370,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
   });
 
   QUnit.test('should observe the changes within the begin and end property changes', function () {
-
     ObjectA.beginPropertyChanges();
     ObjectA.set('foo', 'changeFooValue');
 
@@ -35504,7 +35407,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/propertyChanges_test', [
   });
 
   QUnit.test('should invalidate function property cache when notifyPropertyChange is called', function () {
-
     var a = ObservableObject.extend({
       b: _emberMetalComputed.computed({
         get: function () {
@@ -35620,7 +35522,6 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-m
   });
 
   QUnit.test('deferred observing during bindings', function () {
-
     // setup special binding
     fromObject = _emberRuntimeSystemObject.default.create({
       value1: 'value1',
@@ -35777,7 +35678,6 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-m
   });
 
   QUnit.test('two bindings to the same value should sync in the order they are initialized', function () {
-
     _emberMetalRun_loop.default.begin();
 
     var a = _emberRuntimeSystemObject.default.create({
@@ -36328,7 +36228,6 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-
 
   QUnit.test('Should propagate bindings after the RunLoop completes (using Ember.RunLoop)', function () {
     _emberMetalRun_loop.default(function () {
-
       //Binding of output of MyApp.first object to input of MyApp.second object
       binding1 = _emberMetalBinding.Binding.from('first.output').to('second.input').connect(MyApp);
 
@@ -36507,7 +36406,6 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 
   QUnit.module('mixins/array/arrayContent[Will|Did]Change');
 
   QUnit.test('should notify observers of []', function () {
-
     obj = DummyArray.extend({
       enumerablePropertyDidChange: _emberMetalMixin.observer('[]', function () {
         this._count++;
@@ -36718,7 +36616,6 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 
   });
 
   QUnit.test('adding an object should notify (@each)', function () {
-
     var called = 0;
 
     var observerObject = _emberRuntimeSystemObject.default.create({
@@ -36739,7 +36636,6 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 
   });
 
   QUnit.test('adding an object should notify (@each.isDone)', function () {
-
     var called = 0;
 
     var observerObject = _emberRuntimeSystemObject.default.create({
@@ -36759,7 +36655,6 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 
   });
 
   QUnit.test('using @each to observe arrays that does not return objects raise error', function () {
-
     var called = 0;
 
     var observerObject = _emberRuntimeSystemObject.default.create({
@@ -37100,7 +36995,6 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-metal/co
   QUnit.module('mixins/enumerable/enumerableContentDidChange');
 
   QUnit.test('should notify observers of []', function () {
-
     var obj = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsEnumerable.default, {
       nextObject: function () {}, // avoid exceptions
 
@@ -37282,7 +37176,6 @@ enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal
     },
 
     replace: function (idx, amt, objects) {
-
       var args = objects ? objects.slice() : [];
       var removeAmt = amt;
       var addAmt = args.length;
@@ -40477,7 +40370,6 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
   suite.module('replace');
 
   suite.test('[].replace(0,0,\'X\') => [\'X\'] + notify', function () {
-
     var obj, exp, observer;
     exp = this.newFixture(1);
     obj = this.newObject([]);
@@ -40587,7 +40479,6 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
   });
 
   suite.test('Adding object should notify enumerable observer', function () {
-
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeEnumerable(obj);
@@ -40600,7 +40491,6 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
   });
 
   suite.test('Adding object should notify array observer', function () {
-
     var fixtures = this.newFixture(4);
     var obj = this.newObject(fixtures);
     var observer = this.newObserver(obj).observeArray(obj);
@@ -41429,7 +41319,6 @@ enifed('ember-runtime/tests/system/application/base_test', ['exports', 'ember-ru
   QUnit.module('Ember.Application');
 
   QUnit.test('Ember.Application should be a subclass of Ember.Namespace', function () {
-
     ok(_emberRuntimeSystemNamespace.default.detect(_emberRuntimeSystemApplication.default), 'Ember.Application subclass of Ember.Namespace');
   });
 });
@@ -41880,7 +41769,6 @@ enifed('ember-runtime/tests/system/array_proxy/content_update_test', ['exports',
   QUnit.module('Ember.ArrayProxy - content update');
 
   QUnit.test('The `contentArrayDidChange` method is invoked after `content` is updated.', function () {
-
     var proxy;
     var observerCalled = false;
 
@@ -41966,7 +41854,6 @@ enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run
   });
 
   QUnit.test('hooks in ENV.EMBER_LOAD_HOOKS[\'hookName\'] get executed', function () {
-
     // Note that the necessary code to perform this test is run before
     // the Ember lib is loaded in tests/index.html
 
@@ -42187,7 +42074,6 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
   QUnit.module('EmberObject computed property');
 
   _emberMetalTestsProps_helper.testWithDefault('computed property on instance', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       foo: _emberMetalComputed.computed(function () {
         return 'FOO';
@@ -42198,7 +42084,6 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testWithDefault('computed property on subclass', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       foo: _emberMetalComputed.computed(function () {
         return 'FOO';
@@ -42215,7 +42100,6 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testWithDefault('replacing computed property with regular val', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       foo: _emberMetalComputed.computed(function () {
         return 'FOO';
@@ -42230,7 +42114,6 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testWithDefault('complex depndent keys', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
 
       init: function () {
@@ -42269,9 +42152,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testWithDefault('complex dependent keys changing complex dependent keys', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
-
       init: function () {
         this._super.apply(this, arguments);
         set(this, 'bar', { baz: 'BIFF' });
@@ -42283,11 +42164,9 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
         set(this, 'count', get(this, 'count') + 1);
         return _emberMetalProperty_get.get(get(this, 'bar'), 'baz') + ' ' + get(this, 'count');
       }).property('bar.baz')
-
     });
 
     var Subclass = MyClass.extend({
-
       init: function () {
         this._super.apply(this, arguments);
         set(this, 'bar2', { baz: 'BIFF2' });
@@ -42537,7 +42416,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
   QUnit.module('EmberObject.createWithMixins', moduleOptions);
 
   QUnit.test('Creates a new object that contains passed properties', function () {
-
     var called = false;
     var obj = _emberRuntimeSystemObject.default.extend({
       method: function () {
@@ -42557,7 +42435,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
   //
 
   QUnit.test('Creates a new object that includes mixins and properties', function () {
-
     var MixinA = _emberMetalMixin.Mixin.create({ mixinA: 'A' });
 
     expectDeprecation(function () {
@@ -42760,7 +42637,6 @@ enifed('ember-runtime/tests/system/object/detectInstance_test', ['exports', 'emb
   QUnit.module('system/object/detectInstance');
 
   QUnit.test('detectInstance detects instances correctly', function () {
-
     var A = _emberRuntimeSystemObject.default.extend();
     var B = A.extend();
     var C = A.extend();
@@ -42796,7 +42672,6 @@ enifed('ember-runtime/tests/system/object/detect_test', ['exports', 'ember-runti
   QUnit.module('system/object/detect');
 
   QUnit.test('detect detects classes correctly', function () {
-
     var A = _emberRuntimeSystemObject.default.extend();
     var B = A.extend();
     var C = A.extend();
@@ -43073,7 +42948,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   QUnit.module('EmberObject observer');
 
   _emberMetalTestsProps_helper.testBoth('observer on class', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
 
       count: 0,
@@ -43092,7 +42966,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testBoth('observer on subclass', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
 
       count: 0,
@@ -43120,7 +42993,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testBoth('observer on instance', function (get, set) {
-
     var obj = _emberRuntimeSystemObject.default.extend({
       foo: _emberMetalMixin.observer('bar', function () {
         set(this, 'count', get(this, 'count') + 1);
@@ -43136,7 +43008,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testBoth('observer on instance overriding class', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       count: 0,
 
@@ -43162,7 +43033,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testBoth('observer should not fire after being destroyed', function (get, set) {
-
     var obj = _emberRuntimeSystemObject.default.extend({
       count: 0,
       foo: _emberMetalMixin.observer('bar', function () {
@@ -43191,7 +43061,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   //
 
   _emberMetalTestsProps_helper.testBoth('chain observer on class', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       count: 0,
 
@@ -43221,7 +43090,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
   });
 
   _emberMetalTestsProps_helper.testBoth('chain observer on class', function (get, set) {
-
     var MyClass = _emberRuntimeSystemObject.default.extend({
       count: 0,
 
@@ -43294,7 +43162,6 @@ enifed('ember-runtime/tests/system/object/reopenClass_test', ['exports', 'ember-
   QUnit.module('system/object/reopenClass');
 
   QUnit.test('adds new properties to subclass', function () {
-
     var Subclass = _emberRuntimeSystemObject.default.extend();
     Subclass.reopenClass({
       foo: function () {
@@ -43308,7 +43175,6 @@ enifed('ember-runtime/tests/system/object/reopenClass_test', ['exports', 'ember-
   });
 
   QUnit.test('class properties inherited by subclasses', function () {
-
     var Subclass = _emberRuntimeSystemObject.default.extend();
     Subclass.reopenClass({
       foo: function () {
@@ -43328,7 +43194,6 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['exports', 'ember-metal
   QUnit.module('system/core_object/reopen');
 
   QUnit.test('adds new properties to subclass instance', function () {
-
     var Subclass = _emberRuntimeSystemObject.default.extend();
     Subclass.reopen({
       foo: function () {
@@ -43342,7 +43207,6 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['exports', 'ember-metal
   });
 
   QUnit.test('reopened properties inherited by subclasses', function () {
-
     var Subclass = _emberRuntimeSystemObject.default.extend();
     var SubSub = Subclass.extend();
 
@@ -44873,7 +44737,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+9ff18d05', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+4b9145c2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -46985,7 +46849,6 @@ enifed('ember-views/tests/compat/render_buffer_test', ['exports', 'ember-views/s
   });
 
   if ('namespaceURI' in document.createElement('div')) {
-
     QUnit.module('RenderBuffer namespaces');
 
     QUnit.test('properly makes a content string SVG namespace inside an SVG tag', function () {
@@ -49395,7 +49258,6 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
   });
 
   QUnit.test('should be able to modify childViews many times during an run loop', function () {
-
     container = _emberViewsViewsContainer_view.default.create();
 
     _emberMetalRun_loop.default(function () {
@@ -49573,14 +49435,11 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
   });
 
   QUnit.test('if a containerView appends a child in its didInsertElement event, the didInsertElement event of the child view should be fired once', function (assert) {
-
     var counter = 0;
     var root = _emberViewsViewsContainer_view.default.create({});
 
     container = _emberViewsViewsContainer_view.default.create({
-
       didInsertElement: function () {
-
         var view = _emberViewsViewsContainer_view.default.create({
           didInsertElement: function () {
             counter++;
@@ -49589,7 +49448,6 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
         this.pushObject(view);
       }
-
     });
 
     _emberMetalRun_loop.default(function () {
@@ -50377,7 +50235,6 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'e
   });
 
   QUnit.test('select with group whose content is undefined doesn\'t breaks', function () {
-
     var content;
     _emberMetalRun_loop.default(function () {
       select.set('content', content);
@@ -50812,7 +50669,6 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
 
   ['cut', 'paste', 'input'].forEach(function (eventName) {
     QUnit.test('should update the value on ' + eventName + ' events', function () {
-
       _emberMetalRun_loop.default(function () {
         textArea.append();
       });
@@ -51080,7 +50936,6 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   });
 
   QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
-
     _emberMetalRun_loop.default(function () {
       textField.destroy(); // destroy existing textField
       textField = _emberViewsViewsText_field.default.create({
@@ -51253,7 +51108,6 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
   var dispatcher, StubController;
   QUnit.module('Ember.TextField - Action events', {
     setup: function () {
-
       dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
       dispatcher.setup();
 
@@ -52458,7 +52312,6 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
   });
 
   QUnit.test('should not duplicate childViews when rerendering', function () {
-
     var InnerView = _emberViewsViewsView.default.extend();
     var InnerView2 = _emberViewsViewsView.default.extend();
 
@@ -54664,8 +54517,6 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-me
   });
 
   QUnit.module('views/view/view_lifecycle_test - in render', {
-    setup: function () {},
-
     teardown: function () {
       if (view) {
         _emberMetalRun_loop.default(function () {
@@ -55284,7 +55135,6 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   QUnit.test('Late-registered components can be rendered with custom `template` property (DEPRECATED)', function () {
-
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>there goes {{my-hero}}</div>');
 
     expectDeprecation(/Do not specify template on a Component/);
@@ -55301,7 +55151,6 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   QUnit.test('Late-registered components can be rendered with template registered on the container', function () {
-
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>hello world {{sally-rutherford}}-{{#sally-rutherford}}!!!{{/sally-rutherford}}</div>');
 
     boot(function () {
@@ -55314,7 +55163,6 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   QUnit.test('Late-registered components can be rendered with ONLY the template registered on the container', function () {
-
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>hello world {{borf-snorlax}}-{{#borf-snorlax}}!!!{{/borf-snorlax}}</div>');
 
     boot(function () {
@@ -55326,7 +55174,6 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   QUnit.test('Component-like invocations are treated as bound paths if neither template nor component are registered on the container', function () {
-
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{user-name}} hello {{api-key}} world</div>');
 
     boot(function () {
@@ -55983,7 +55830,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
   QUnit.module('The {{link-to}} helper', {
     setup: function () {
       _emberMetalCore.default.run(function () {
-
         sharedSetup();
 
         _emberMetalCore.default.TEMPLATES.app = compile('{{outlet}}');
@@ -56069,7 +55915,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
   });
 
   QUnit.test('The {{link-to}} helper supports URL replacement', function () {
-
     _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=true}}About{{/link-to}}');
 
     Router.map(function () {
@@ -56668,7 +56513,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
   });
 
   QUnit.test('link-to with null/undefined dynamic parameters are put in a loading state', function () {
-
     expect(19);
 
     var oldWarn = _emberMetalCore.default.Logger.warn;
@@ -58616,7 +58460,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
   });
 
   if (_emberMetalFeatures.default('ember-routing-route-configured-query-params')) {
-
     QUnit.test('Single query params can be set on the route', function () {
       Router.map(function () {
         this.route('home', { path: '/' });
@@ -59035,7 +58878,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Subresource naming style is supported when configuration is all on the route', function () {
-
       Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -59999,7 +59841,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Subresource naming style is supported when configured on the route', function () {
-
       Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -61196,7 +61037,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     });
 
     QUnit.test('Subresource naming style is supported', function () {
-
       Router.map(function () {
         this.route('abc.def', { path: '/abcdef' }, function () {
           this.route('zoo');
@@ -62286,7 +62126,6 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
   });
 
   QUnit.test('query params have \'model\' stickiness by default (url changes)', function () {
-
     this.boot();
 
     this.expectedSiteModelHookParams = { site_id: 's-1', country: 'au' };
@@ -62786,7 +62625,6 @@ enifed('ember/tests/routing/query_params_test/overlapping_query_params_test', ['
     });
 
     QUnit.test('Support shared but overridable mixin pattern', function () {
-
       var HasPage = _emberMetalCore.default.Mixin.create({
         queryParams: 'page',
         page: 1
@@ -63053,7 +62891,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   }
 
   function bootApplication(startingURL) {
-
     for (var name in templates) {
       _emberMetalCore.default.TEMPLATES[name] = compile(templates[name]);
     }
@@ -63116,7 +62953,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Slow promise from a child route of application enters nested loading state', function () {
-
     var broModel = {};
     var broDeferred = _emberMetalCore.default.RSVP.defer();
 
@@ -63147,7 +62983,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Slow promises waterfall on startup', function () {
-
     expect(7);
 
     var grandmaDeferred = _emberMetalCore.default.RSVP.defer();
@@ -63202,7 +63037,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('ApplicationRoute#currentPath reflects loading state path', function () {
-
     expect(4);
 
     var momDeferred = _emberMetalCore.default.RSVP.defer();
@@ -63236,7 +63070,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model don\'t enter LoadingRoute', function () {
-
     expect(2);
 
     var appDeferred = _emberMetalCore.default.RSVP.defer();
@@ -63262,7 +63095,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Don\'t enter loading route unless either route or template defined', function () {
-
     delete templates.loading;
 
     expect(2);
@@ -63287,7 +63119,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Enter loading route if only LoadingRoute defined', function () {
-
     delete templates.loading;
 
     expect(4);
@@ -63317,7 +63148,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Enter child loading state of pivot route', function () {
-
     expect(4);
 
     var deferred = _emberMetalCore.default.RSVP.defer();
@@ -63361,7 +63191,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Loading actions bubble to root, but don\'t enter substates above pivot', function () {
-
     expect(6);
 
     delete templates.loading;
@@ -63417,7 +63246,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Default error event moves into nested route', function () {
-
     expect(5);
 
     templates['grandma'] = 'GRANDMA {{outlet}}';
@@ -63460,7 +63288,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {
-
     expect(2);
 
     var appDeferred = _emberMetalCore.default.RSVP.defer();
@@ -63487,7 +63314,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model enter application_loading if template present', function () {
-
     expect(3);
 
     templates['application_loading'] = 'TOPLEVEL LOADING';
@@ -63521,7 +63347,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Default error event moves into nested route, prioritizing more specifically named error route', function () {
-
     expect(5);
 
     templates['grandma'] = 'GRANDMA {{outlet}}';
@@ -63565,7 +63390,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Prioritized substate entry works with preserved-namespace nested routes', function () {
-
     expect(2);
 
     templates['foo/bar_loading'] = 'FOOBAR LOADING';
@@ -63596,7 +63420,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Prioritized loading substate entry works with preserved-namespace nested routes', function () {
-
     expect(2);
 
     templates['foo/bar_loading'] = 'FOOBAR LOADING';
@@ -63627,7 +63450,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Prioritized error substate entry works with preserved-namespace nested routes', function () {
-
     expect(1);
 
     templates['foo/bar_error'] = 'FOOBAR ERROR: {{model.msg}}';
@@ -63655,7 +63477,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Prioritized loading substate entry works with auto-generated index routes', function () {
-
     expect(2);
 
     templates['foo/index_loading'] = 'FOO LOADING';
@@ -63692,7 +63513,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Prioritized error substate entry works with auto-generated index routes', function () {
-
     expect(1);
 
     templates['foo/index_error'] = 'FOO ERROR: {{model.msg}}';
@@ -63726,7 +63546,6 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
   });
 
   QUnit.test('Rejected promises returned from ApplicationRoute transition into top-level application_error', function () {
-
     expect(2);
 
     templates['application_error'] = '<p id="toplevel-error">TOPLEVEL ERROR: {{model.msg}}</p>';
