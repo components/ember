@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+663aff3f
+ * @version   2.0.0-canary+9adc59d0
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+663aff3f
+    @version 2.0.0-canary+9adc59d0
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+663aff3f'
+    @default '2.0.0-canary+9adc59d0'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+663aff3f';
+  Ember.VERSION = '2.0.0-canary+9adc59d0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15210,7 +15210,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} [value] optional value to test against.
       @deprecated Use `isEvery` instead
       @return {Boolean}
-      @private
+      @public
     */
     everyBy: _emberMetalMixin.aliasMethod('isEvery'),
 
