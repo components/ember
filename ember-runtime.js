@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4ff7ae35
+ * @version   2.0.0-canary+283f5df0
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4ff7ae35
+    @version 2.0.0-canary+283f5df0
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4ff7ae35'
+    @default '2.0.0-canary+283f5df0'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4ff7ae35';
+  Ember.VERSION = '2.0.0-canary+283f5df0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14815,7 +14815,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       ```
        @property lastObject
       @return {Object} the last object or undefined
-      @public
+      @private
     */
     lastObject: _emberMetalComputed.computed('[]', function () {
       var len = _emberMetalProperty_get.get(this, 'length');
