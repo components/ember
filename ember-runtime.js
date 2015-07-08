@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+283f5df0
+ * @version   2.0.0-canary+de0dc73c
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+283f5df0
+    @version 2.0.0-canary+de0dc73c
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+283f5df0'
+    @default '2.0.0-canary+de0dc73c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+283f5df0';
+  Ember.VERSION = '2.0.0-canary+de0dc73c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14912,7 +14912,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method getEach
       @param {String} key name of the property
       @return {Array} The mapped array.
-      @public
+      @private
     */
     getEach: _emberMetalMixin.aliasMethod('mapBy'),
 
