@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e748d68c
+ * @version   2.0.0-canary+8c5fd2ff
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e748d68c
+    @version 2.0.0-canary+8c5fd2ff
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e748d68c'
+    @default '2.0.0-canary+8c5fd2ff'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e748d68c';
+  Ember.VERSION = '2.0.0-canary+8c5fd2ff';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14952,7 +14952,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Array} The mapped array.
-      @private
+      @public
     */
     map: function (callback, target) {
       var ret = _emberMetalCore.default.A();
