@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c3f15cf4
+ * @version   2.0.0-canary+6b1068a2
  */
 
 (function() {
@@ -6216,7 +6216,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     }
   });
 });
-enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersBindAttrClass, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
 
   _emberHtmlbarsHelpers.registerHelper('if', _emberHtmlbarsHelpersIf_unless.ifHelper);
   _emberHtmlbarsHelpers.registerHelper('unless', _emberHtmlbarsHelpersIf_unless.unlessHelper);
@@ -6227,7 +6227,6 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
 
   _emberHtmlbarsHelpers.registerHelper('each-in', _emberHtmlbarsHelpersEachIn.default);
 
-  _emberHtmlbarsHelpers.registerHelper('-bind-attr-class', _emberHtmlbarsHelpersBindAttrClass.default);
   _emberHtmlbarsHelpers.registerHelper('-normalize-class', _emberHtmlbarsHelpersNormalizeClass.default);
   _emberHtmlbarsHelpers.registerHelper('concat', _emberHtmlbarsHelpersConcat.default);
   _emberHtmlbarsHelpers.registerHelper('-join-classes', _emberHtmlbarsHelpersJoinClasses.default);
@@ -6777,29 +6776,6 @@ enifed("ember-htmlbars/helpers", ["exports"], function (exports) {
 
   exports.default = helpers;
 });
-enifed('ember-htmlbars/helpers/-bind-attr-class', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  exports.default = bindAttrClassHelper;
-
-  function bindAttrClassHelper(params) {
-    var value = params[0];
-
-    if (Array.isArray(value)) {
-      value = _emberMetalProperty_get.get(value, 'length') !== 0;
-    }
-
-    if (value === true) {
-      return params[1];
-    }if (value === false || value === undefined || value === null) {
-      return '';
-    } else {
-      return value;
-    }
-  }
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   exports.default = concat;
   /**
@@ -6999,149 +6975,6 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
     }
   }
 });
-enifed("ember-htmlbars/helpers/bind-attr", ["exports"], function (exports) {});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-
-/**
-  `bind-attr` allows you to create a binding between DOM element attributes and
-  Ember objects. For example:
-
-  ```handlebars
-  <img {{bind-attr src=imageUrl alt=imageTitle}}>
-  ```
-
-  The above handlebars template will fill the `<img>`'s `src` attribute with
-  the value of the property referenced with `imageUrl` and its `alt`
-  attribute with the value of the property referenced with `imageTitle`.
-
-  If the rendering context of this template is the following object:
-
-  ```javascript
-  {
-    imageUrl: 'http://lolcats.info/haz-a-funny',
-    imageTitle: 'A humorous image of a cat'
-  }
-  ```
-
-  The resulting HTML output will be:
-
-  ```html
-  <img src="http://lolcats.info/haz-a-funny" alt="A humorous image of a cat">
-  ```
-
-  `bind-attr` cannot redeclare existing DOM element attributes. The use of `src`
-  in the following `bind-attr` example will be ignored and the hard coded value
-  of `src="/failwhale.gif"` will take precedence:
-
-  ```handlebars
-  <img src="/failwhale.gif" {{bind-attr src=imageUrl alt=imageTitle}}>
-  ```
-
-  ### `bind-attr` and the `class` attribute
-
-  `bind-attr` supports a special syntax for handling a number of cases unique
-  to the `class` DOM element attribute. The `class` attribute combines
-  multiple discrete values into a single attribute as a space-delimited
-  list of strings. Each string can be:
-
-  * a string return value of an object's property.
-  * a boolean return value of an object's property
-  * a hard-coded value
-
-  A string return value works identically to other uses of `bind-attr`. The
-  return value of the property will become the value of the attribute. For
-  example, the following view and template:
-
-  ```javascript
-    AView = View.extend({
-      someProperty: function() {
-        return "aValue";
-      }.property()
-    })
-  ```
-
-  ```handlebars
-  <img {{bind-attr class=view.someProperty}}>
-  ```
-
-  Result in the following rendered output:
-
-  ```html
-  <img class="aValue">
-  ```
-
-  A boolean return value will insert a specified class name if the property
-  returns `true` and remove the class name if the property returns `false`.
-
-  A class name is provided via the syntax
-  `somePropertyName:class-name-if-true`.
-
-  ```javascript
-  AView = View.extend({
-    someBool: true
-  })
-  ```
-
-  ```handlebars
-  <img {{bind-attr class="view.someBool:class-name-if-true"}}>
-  ```
-
-  Result in the following rendered output:
-
-  ```html
-  <img class="class-name-if-true">
-  ```
-
-  An additional section of the binding can be provided if you want to
-  replace the existing class instead of removing it when the boolean
-  value changes:
-
-  ```handlebars
-  <img {{bind-attr class="view.someBool:class-name-if-true:class-name-if-false"}}>
-  ```
-
-  A hard-coded value can be used by prepending `:` to the desired
-  class name: `:class-name-to-always-apply`.
-
-  ```handlebars
-  <img {{bind-attr class=":class-name-to-always-apply"}}>
-  ```
-
-  Results in the following rendered output:
-
-  ```html
-  <img class="class-name-to-always-apply">
-  ```
-
-  All three strategies - string return value, boolean return value, and
-  hard-coded value – can be combined in a single declaration:
-
-  ```handlebars
-  <img {{bind-attr class=":class-name-to-always-apply view.someBool:class-name-if-true view.someProperty"}}>
-  ```
-
-  @method bind-attr
-  @for Ember.Handlebars.helpers
-  @deprecated
-  @param {Object} options
-  @return {String} HTML string
-  @public
-*/
-
-/**
-  See `bind-attr`
-
-  @method bindAttr
-  @for Ember.Handlebars.helpers
-  @deprecated
-  @param {Function} context
-  @param {Object} options
-  @return {String} HTML string
-  @public
-*/
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'ember-views/streams/should_display'], function (exports, _emberMetalFeatures, _emberViewsStreamsShould_display) {
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
@@ -8856,7 +8689,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+c3f15cf4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+6b1068a2';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14402,7 +14235,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c3f15cf4
+    @version 2.0.0-canary+6b1068a2
     @public
   */
 
@@ -14434,11 +14267,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c3f15cf4'
+    @default '2.0.0-canary+6b1068a2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c3f15cf4';
+  Ember.VERSION = '2.0.0-canary+6b1068a2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20581,8 +20414,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   /**
     Generates a universally unique identifier. This method
     is used internally by Ember for assisting with
-    the generation of GUID's and other unique identifiers
-    such as `bind-attr` data attributes.
+    the generation of GUID's and other unique identifiers.
   
     @public
     @return {Number} [description]
@@ -22519,7 +22351,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+c3f15cf4';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+6b1068a2';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23031,7 +22863,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+c3f15cf4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+6b1068a2';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36713,11 +36545,10 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformBindAttrToAttributes, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformWithAsToHash.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachInToBlockParams.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformBindAttrToAttributes.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformSingleArgEach.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -36943,7 +36774,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+  TransformAngleBracketComponents.prototype.transform = function TransformAngleBracketComponents_transform(ast) {
     var walker = new this.syntax.Walker();
 
     walker.visit(ast, function (node) {
@@ -36963,188 +36794,6 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
 
   exports.default = TransformAngleBracketComponents;
 });
-enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemString, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-    {{bind-attr}} helpers with the equivalent HTMLBars-style bound
-    attributes. For example
-  
-    ```handlebars
-    <div {{bind-attr class=":foo some.path:bar"}}></div>
-    ```
-  
-    becomes
-  
-    ```handlebars
-    <div class="foo {{if some.path "bar" ""}}></div>
-    ```
-  
-    @class TransformBindAttrToAttributes
-    @private
-  */
-  function TransformBindAttrToAttributes(options) {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-    this.options = options || {};
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformBindAttrToAttributes.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
-    var plugin = this;
-    var moduleName = this.options.moduleName;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (node.type === 'ElementNode') {
-        for (var i = 0; i < node.modifiers.length; i++) {
-          var modifier = node.modifiers[i];
-
-          if (isBindAttrModifier(modifier, moduleName)) {
-            node.modifiers.splice(i--, 1);
-            plugin.assignAttrs(node, modifier.hash);
-          }
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  TransformBindAttrToAttributes.prototype.assignAttrs = function assignAttrs(element, hash) {
-    var pairs = hash.pairs;
-
-    for (var i = 0; i < pairs.length; i++) {
-      var name = pairs[i].key;
-      var value = pairs[i].value;
-
-      assertAttrNameIsUnused(element, name);
-
-      var attr = this.syntax.builders.attr(name, this.transformValue(name, value));
-      element.attributes.push(attr);
-    }
-  };
-
-  TransformBindAttrToAttributes.prototype.transformValue = function transformValue(name, value) {
-    var b = this.syntax.builders;
-
-    if (name === 'class') {
-      switch (value.type) {
-        case 'StringLiteral':
-          return this.parseClasses(value.value);
-        case 'PathExpression':
-          return this.parseClasses(value.original);
-        case 'SubExpression':
-          return b.mustache(value.path, value.params, value.hash);
-        default:
-          _emberMetalCore.default.assert('Unsupported attribute value type: ' + value.type);
-      }
-    } else {
-      switch (value.type) {
-        case 'StringLiteral':
-          return b.mustache(b.path(value.value));
-        case 'PathExpression':
-          return b.mustache(value);
-        case 'SubExpression':
-          return b.mustache(value.path, value.params, value.hash);
-        default:
-          _emberMetalCore.default.assert('Unsupported attribute value type: ' + value.type);
-      }
-    }
-  };
-
-  TransformBindAttrToAttributes.prototype.parseClasses = function parseClasses(value) {
-    var b = this.syntax.builders;
-
-    var concat = b.concat();
-    var classes = value.split(' ');
-
-    for (var i = 0; i < classes.length; i++) {
-      if (i > 0) {
-        concat.parts.push(b.string(' '));
-      }
-
-      var concatPart = this.parseClass(classes[i]);
-      concat.parts.push(concatPart);
-    }
-
-    return concat;
-  };
-
-  TransformBindAttrToAttributes.prototype.parseClass = function parseClass(value) {
-    var b = this.syntax.builders;
-
-    var parts = value.split(':');
-
-    switch (parts.length) {
-      case 1:
-        // Before: {{bind-attr class="view.fooBar ..."}}
-        // After: class="{{-bind-attr-class view.fooBar "foo-bar"}} ..."
-        return b.sexpr(b.path('-bind-attr-class'), [b.path(parts[0]), b.string(dasherizeLastKey(parts[0]))]);
-      case 2:
-        if (parts[0] === '') {
-          // Before: {{bind-attr class=":foo ..."}}
-          // After: class="foo ..."
-          return b.string(parts[1]);
-        } else {
-          // Before: {{bind-attr class="some.path:foo ..."}}
-          // After: class="{{if some.path "foo" ""}} ..."
-          return b.sexpr(b.path('if'), [b.path(parts[0]), b.string(parts[1]), b.string('')]);
-        }
-        break;
-      case 3:
-        // Before: {{bind-attr class="some.path:foo:bar ..."}}
-        // After: class="{{if some.path "foo" "bar"}} ..."
-        return b.sexpr(b.path('if'), [b.path(parts[0]), b.string(parts[1]), b.string(parts[2])]);
-      default:
-        _emberMetalCore.default.assert('Unsupported bind-attr class syntax: `' + value + '`');
-    }
-  };
-
-  function isBindAttrModifier(modifier, moduleName) {
-    var name = modifier.path.original;
-
-    var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, modifier.path.loc);
-
-    if (name === 'bind-attr' || name === 'bindAttr') {
-      _emberMetalCore.default.deprecate('The `' + name + '` helper ' + moduleInfo + 'is deprecated in favor of ' + 'HTMLBars-style bound attributes.');
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  function assertAttrNameIsUnused(element, name) {
-    for (var i = 0; i < element.attributes.length; i++) {
-      var attr = element.attributes[i];
-
-      if (attr.name === name) {
-        if (name === 'class') {
-          _emberMetalCore.default.assert('You cannot set `class` manually and via `{{bind-attr}}` helper ' + 'on the same element. Please use `{{bind-attr}}`\'s `:static-class` ' + 'syntax instead.');
-        } else {
-          _emberMetalCore.default.assert('You cannot set `' + name + '` manually and via `{{bind-attr}}` ' + 'helper on the same element.');
-        }
-      }
-    }
-  }
-
-  function dasherizeLastKey(path) {
-    var parts = path.split('.');
-    return _emberTemplateCompilerSystemString.dasherize(parts[parts.length - 1]);
-  }
-
-  exports.default = TransformBindAttrToAttributes;
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-
-// Ember.assert
 enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
   function TransformComponentAttrsIntoMut() {
     // set later within HTMLBars to the syntax package
@@ -37156,7 +36805,7 @@ enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['e
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  TransformComponentAttrsIntoMut.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
 
@@ -38058,7 +37707,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+c3f15cf4',
+        revision: 'Ember@2.0.0-canary+6b1068a2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38148,27 +37797,6 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/cor
 @module ember
 @submodule ember-template-compiler
 */
-enifed('ember-template-compiler/system/string', ['exports'], function (exports) {
-  exports.decamelize = decamelize;
-  exports.dasherize = dasherize;
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-
-  // This module is duplicated from ember-runtime to support bind-attr.
-
-  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
-  var STRING_DASHERIZE_REGEXP = /[ _]/g;
-
-  function decamelize(str) {
-    return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
-  }
-
-  function dasherize(str) {
-    return decamelize(str).replace(STRING_DASHERIZE_REGEXP, '-');
-  }
-});
 enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks) {
 
   /**
@@ -43309,7 +42937,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+c3f15cf4';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+6b1068a2';
 
   /**
   @module ember

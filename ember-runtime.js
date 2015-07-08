@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c3f15cf4
+ * @version   2.0.0-canary+6b1068a2
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c3f15cf4
+    @version 2.0.0-canary+6b1068a2
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c3f15cf4'
+    @default '2.0.0-canary+6b1068a2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c3f15cf4';
+  Ember.VERSION = '2.0.0-canary+6b1068a2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10960,8 +10960,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   /**
     Generates a universally unique identifier. This method
     is used internally by Ember for assisting with
-    the generation of GUID's and other unique identifiers
-    such as `bind-attr` data attributes.
+    the generation of GUID's and other unique identifiers.
   
     @public
     @return {Number} [description]

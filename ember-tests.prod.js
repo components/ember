@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c3f15cf4
+ * @version   2.0.0-canary+6b1068a2
  */
 
 (function() {
@@ -6257,20 +6257,24 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
       return _emberRuntimeSystemString.dasherize(value);
     });
 
+    helper('reverse', function (value) {
+      return value.split('').reverse().join('');
+    });
+
     ignoreDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         controller: { prop: 'isThing' },
-        template: compile('<div {{bind-attr data-foo=(dasherize prop)}}>{{prop}}</div>')
+        template: compile('<div data-foo="{{reverse (dasherize prop)}}">{{prop}}</div>')
       });
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    equal(view.$('div[data-foo="is-thing"]').text(), 'isThing', 'helper output is correct');
+    equal(view.$('div[data-foo="gniht-si"]').text(), 'isThing', 'helper output is correct');
 
     _emberMetalRun_loop.default(view, 'set', 'controller.prop', 'notThing');
 
-    equal(view.$('div[data-foo="not-thing"]').text(), 'notThing', 'helper output is correct');
+    equal(view.$('div[data-foo="gniht-ton"]').text(), 'notThing', 'helper output is correct');
   });
 
   QUnit.test('should allow for computed properties with dependencies', function () {
@@ -6906,673 +6910,6 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
   }
 });
 /* globals EmberDev */
-enifed('ember-htmlbars/tests/helpers/bind_attr_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-views/views/view', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-htmlbars/utils/string', 'ember-htmlbars/morphs/attr-morph', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberViewsViewsView, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalComputed, _emberMetalObserver, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberHtmlbarsUtilsString, _emberHtmlbarsMorphsAttrMorph, _emberTemplateCompilerSystemCompile) {
-  var view;
-
-  var originalLookup = _emberMetalCore.default.lookup;
-  var TemplateTests, registry, container, lookup, warnings, originalWarn;
-
-  /*
-    This module specifically tests integration with Handlebars and Ember-specific
-    Handlebars extensions.
-  
-    If you add additional template support to View, you should create a new
-    file in which to test.
-  */
-  QUnit.module('ember-htmlbars: {{bind-attr}} [DEPRECATED]', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = {};
-      lookup.TemplateTests = TemplateTests = _emberRuntimeSystemNamespace.default.create();
-      registry = new _emberRuntimeSystemContainer.Registry();
-      container = registry.container();
-      registry.optionsForType('template', { instantiate: false });
-      registry.register('view:toplevel', _emberViewsViewsView.default.extend());
-
-      warnings = [];
-      originalWarn = _emberMetalCore.default.warn;
-      _emberMetalCore.default.warn = function (message, test) {
-        if (!test) {
-          warnings.push(message);
-        }
-      };
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      registry = container = view = null;
-
-      _emberMetalCore.default.lookup = lookup = originalLookup;
-      _emberMetalCore.default.warn = originalWarn;
-      TemplateTests = null;
-    }
-  });
-
-  QUnit.test('should be able to bind element attributes using {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr src=view.content.url alt=view.content.title}}>'),
-        content: _emberRuntimeSystemObject.default.create({
-          url: 'http://www.emberjs.com/assets/images/logo.png',
-          title: 'The SproutCore Logo'
-        })
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('src'), 'http://www.emberjs.com/assets/images/logo.png', 'sets src attribute');
-    equal(view.$('img').attr('alt'), 'The SproutCore Logo', 'sets alt attribute');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content.title', 'El logo de Eember');
-    });
-
-    equal(view.$('img').attr('alt'), 'El logo de Eember', 'updates alt attribute when content\'s title attribute changes');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', _emberRuntimeSystemObject.default.create({
-        url: 'http://www.thegooglez.com/theydonnothing',
-        title: 'I CAN HAZ SEARCH'
-      }));
-    });
-
-    equal(view.$('img').attr('alt'), 'I CAN HAZ SEARCH', 'updates alt attribute when content object changes');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', {
-        url: 'http://www.emberjs.com/assets/images/logo.png',
-        title: 'The SproutCore Logo'
-      });
-    });
-
-    equal(view.$('img').attr('alt'), 'The SproutCore Logo', 'updates alt attribute when content object is a hash');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', _emberRuntimeSystemObject.default.extend({
-        title: _emberMetalComputed.computed(function () {
-          return 'Nanananana Ember!';
-        })
-      }).create({
-        url: 'http://www.emberjs.com/assets/images/logo.png'
-      }));
-    });
-
-    equal(view.$('img').attr('alt'), 'Nanananana Ember!', 'updates alt attribute when title property is computed');
-  });
-
-  QUnit.test('should be able to bind to view attributes with {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        value: 'Test',
-        template: _emberTemplateCompilerSystemCompile.default('<img src="test.jpg" {{bind-attr alt=view.value}}>')
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('alt'), 'Test', 'renders initial value');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('value', 'Updated');
-    });
-
-    equal(view.$('img').attr('alt'), 'Updated', 'updates value');
-  });
-
-  QUnit.test('should be able to bind to globals with {{bind-attr}}', function () {
-    TemplateTests.set('value', 'Test');
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img src="test.jpg" {{bind-attr alt=TemplateTests.value}}>')
-      });
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Global lookup of TemplateTests from a Handlebars template is deprecated/);
-
-    equal(view.$('img').attr('alt'), 'Test', 'renders initial value');
-  });
-
-  QUnit.test('should not allow XSS injection via {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img src="test.jpg" {{bind-attr alt=view.content.value}}>'),
-        content: {
-          value: 'Trololol" onmouseover="alert(\'HAX!\');'
-        }
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('onmouseover'), undefined);
-    // If the whole string is here, then it means we got properly escaped
-    equal(view.$('img').attr('alt'), 'Trololol" onmouseover="alert(\'HAX!\');');
-  });
-
-  QUnit.test('should be able to bind use {{bind-attr}} more than once on an element', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr src=view.content.url}} {{bind-attr alt=view.content.title}}>'),
-        content: _emberRuntimeSystemObject.default.create({
-          url: 'http://www.emberjs.com/assets/images/logo.png',
-          title: 'The SproutCore Logo'
-        })
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('src'), 'http://www.emberjs.com/assets/images/logo.png', 'sets src attribute');
-    equal(view.$('img').attr('alt'), 'The SproutCore Logo', 'sets alt attribute');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content.title', 'El logo de Eember');
-    });
-
-    equal(view.$('img').attr('alt'), 'El logo de Eember', 'updates alt attribute when content\'s title attribute changes');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', _emberRuntimeSystemObject.default.create({
-        url: 'http://www.thegooglez.com/theydonnothing',
-        title: 'I CAN HAZ SEARCH'
-      }));
-    });
-
-    equal(view.$('img').attr('alt'), 'I CAN HAZ SEARCH', 'updates alt attribute when content object changes');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', {
-        url: 'http://www.emberjs.com/assets/images/logo.png',
-        title: 'The SproutCore Logo'
-      });
-    });
-
-    equal(view.$('img').attr('alt'), 'The SproutCore Logo', 'updates alt attribute when content object is a hash');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', _emberRuntimeSystemObject.default.extend({
-        title: _emberMetalComputed.computed(function () {
-          return 'Nanananana Ember!';
-        })
-      }).create({
-        url: 'http://www.emberjs.com/assets/images/logo.png'
-      }));
-    });
-
-    equal(view.$('img').attr('alt'), 'Nanananana Ember!', 'updates alt attribute when title property is computed');
-  });
-
-  QUnit.test('{{bindAttr}} can be used to bind attributes', function () {
-    expect(2);
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        value: 'Test',
-        template: _emberTemplateCompilerSystemCompile.default('<img src="test.jpg" {{bindAttr alt=view.value}}>')
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('alt'), 'Test', 'renders initial value');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('value', 'Updated');
-    });
-
-    equal(view.$('img').attr('alt'), 'Updated', 'updates value');
-  });
-
-  QUnit.test('should be able to bind element attributes using {{bind-attr}} inside a block', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with view.content as image}}<img {{bind-attr src=image.url alt=image.title}}>{{/with}}'),
-        content: _emberRuntimeSystemObject.default.create({
-          url: 'http://www.emberjs.com/assets/images/logo.png',
-          title: 'The SproutCore Logo'
-        })
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('src'), 'http://www.emberjs.com/assets/images/logo.png', 'sets src attribute');
-    equal(view.$('img').attr('alt'), 'The SproutCore Logo', 'sets alt attribute');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content.title', 'El logo de Eember');
-    });
-
-    equal(view.$('img').attr('alt'), 'El logo de Eember', 'updates alt attribute when content\'s title attribute changes');
-  });
-
-  QUnit.test('should be able to bind class attribute with {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class="view.foo"}}>'),
-        foo: 'bar'
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.className, 'bar', 'renders class');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'foo', 'baz');
-    });
-
-    equal(view.element.firstChild.className, 'baz', 'updates rendered class');
-  });
-
-  QUnit.test('should be able to bind unquoted class attribute with {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class=view.foo}}>'),
-        foo: 'bar'
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('class'), 'bar', 'renders class');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'foo', 'baz');
-    });
-
-    equal(view.$('img').attr('class'), 'baz', 'updates class');
-  });
-
-  QUnit.test('should be able to bind class attribute via a truthy property with {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class="view.isNumber:is-truthy"}}>'),
-        isNumber: 5
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.className, 'is-truthy', 'renders class');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'isNumber', 0);
-    });
-
-    ok(view.element.firstChild.className !== 'is-truthy', 'removes class');
-  });
-
-  QUnit.test('should be able to bind class to view attribute with {{bind-attr}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class="view.foo"}}>'),
-        foo: 'bar'
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('class'), 'bar', 'renders class');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'foo', 'baz');
-    });
-
-    equal(view.$('img').attr('class'), 'baz', 'updates class');
-  });
-
-  QUnit.test('should not allow XSS injection via {{bind-attr}} with class', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class="view.foo"}}>'),
-        foo: '" onmouseover="alert(\'I am in your classes hacking your app\');'
-      });
-    });
-
-    try {
-      _emberRuntimeTestsUtils.runAppend(view);
-    } catch (e) {}
-
-    equal(view.$('img').attr('onmouseover'), undefined);
-  });
-
-  QUnit.test('should be able to bind class attribute using ternary operator in {{bind-attr}}', function () {
-    var content = _emberRuntimeSystemObject.default.create({
-      isDisabled: true
-    });
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr class="view.content.isDisabled:disabled:enabled"}} />'),
-        content: content
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$('img').hasClass('disabled'), 'disabled class is rendered');
-    ok(!view.$('img').hasClass('enabled'), 'enabled class is not rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(content, 'isDisabled', false);
-    });
-
-    ok(!view.$('img').hasClass('disabled'), 'disabled class is not rendered');
-    ok(view.$('img').hasClass('enabled'), 'enabled class is rendered');
-  });
-
-  QUnit.test('should be able to add multiple classes using {{bind-attr class}}', function () {
-    var content = _emberRuntimeSystemObject.default.create({
-      isAwesomeSauce: true,
-      isAlsoCool: true,
-      isAmazing: true,
-      isEnabled: true
-    });
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<div {{bind-attr class="view.content.isAwesomeSauce view.content.isAlsoCool view.content.isAmazing:amazing :is-super-duper view.content.isEnabled:enabled:disabled"}}></div>'),
-        content: content
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(view.$('div').hasClass('is-awesome-sauce'), 'dasherizes first property and sets classname');
-    ok(view.$('div').hasClass('is-also-cool'), 'dasherizes second property and sets classname');
-    ok(view.$('div').hasClass('amazing'), 'uses alias for third property and sets classname');
-    ok(view.$('div').hasClass('is-super-duper'), 'static class is present');
-    ok(view.$('div').hasClass('enabled'), 'truthy class in ternary classname definition is rendered');
-    ok(!view.$('div').hasClass('disabled'), 'falsy class in ternary classname definition is not rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(content, 'isAwesomeSauce', false);
-      _emberMetalProperty_set.set(content, 'isAmazing', false);
-      _emberMetalProperty_set.set(content, 'isEnabled', false);
-    });
-
-    ok(!view.$('div').hasClass('is-awesome-sauce'), 'removes dasherized class when property is set to false');
-    ok(!view.$('div').hasClass('amazing'), 'removes aliased class when property is set to false');
-    ok(view.$('div').hasClass('is-super-duper'), 'static class is still present');
-    ok(!view.$('div').hasClass('enabled'), 'truthy class in ternary classname definition is not rendered');
-    ok(view.$('div').hasClass('disabled'), 'falsy class in ternary classname definition is rendered');
-  });
-
-  QUnit.test('should be able to bind classes to globals with {{bind-attr class}}', function () {
-    TemplateTests.set('isOpen', true);
-
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img src="test.jpg" {{bind-attr class="TemplateTests.isOpen"}}>')
-      });
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Global lookup of TemplateTests from a Handlebars template is deprecated/);
-
-    ok(view.$('img').hasClass('is-open'), 'sets classname to the dasherized value of the global property');
-  });
-
-  QUnit.test('should be able to bind-attr to \'this\' in an {{#each}} block', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each view.images}}<img {{bind-attr src=this}}>{{/each}}'),
-        images: _emberRuntimeSystemNative_array.A(['one.png', 'two.jpg', 'three.gif'])
-      });
-    });
-
-    ignoreDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    var images = view.$('img');
-    ok(/one\.png$/.test(images[0].src));
-    ok(/two\.jpg$/.test(images[1].src));
-    ok(/three\.gif$/.test(images[2].src));
-  });
-
-  QUnit.test('should be able to bind classes to \'this\' in an {{#each}} block with {{bind-attr class}}', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each view.items}}<li {{bind-attr class="this"}}>Item</li>{{/each}}'),
-        items: _emberRuntimeSystemNative_array.A(['a', 'b', 'c'])
-      });
-    });
-
-    ignoreDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    ok(view.$('li').eq(0).hasClass('a'), 'sets classname to the value of the first item');
-    ok(view.$('li').eq(1).hasClass('b'), 'sets classname to the value of the second item');
-    ok(view.$('li').eq(2).hasClass('c'), 'sets classname to the value of the third item');
-  });
-
-  QUnit.test('should be able to bind-attr to var in {{#each var in list}} block', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each image in view.images}}<img {{bind-attr src=image}}>{{/each}}'),
-        images: _emberRuntimeSystemNative_array.A(['one.png', 'two.jpg', 'three.gif'])
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var images = view.$('img');
-    ok(/one\.png$/.test(images[0].src));
-    ok(/two\.jpg$/.test(images[1].src));
-    ok(/three\.gif$/.test(images[2].src));
-
-    _emberMetalRun_loop.default(function () {
-      var imagesArray = view.get('images');
-      imagesArray.removeAt(0);
-    });
-
-    images = view.$('img');
-    ok(images.length === 2, '');
-    ok(/two\.jpg$/.test(images[0].src));
-    ok(/three\.gif$/.test(images[1].src));
-  });
-
-  QUnit.test('should teardown observers from bind-attr on rerender', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<span {{bind-attr class="view.foo" name=view.foo}}>wat</span>'),
-        foo: 'bar'
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(_emberMetalObserver.observersFor(view, 'foo').length, 1);
-
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    equal(_emberMetalObserver.observersFor(view, 'foo').length, 1);
-  });
-
-  QUnit.test('should keep class in the order it appears in', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<span {{bind-attr class=":foo :baz"}}></span>')
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.className, 'foo baz', 'classes are in expected order');
-  });
-
-  QUnit.test('should allow either quoted or unquoted values', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        value: 'Test',
-        source: 'test.jpg',
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr alt="view.value" src=view.source}}>')
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('img').attr('alt'), 'Test', 'renders initial value');
-    equal(view.$('img').attr('src'), 'test.jpg', 'renders initial value');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('value', 'Updated');
-      view.set('source', 'test2.jpg');
-    });
-
-    equal(view.$('img').attr('alt'), 'Updated', 'updates value');
-    equal(view.$('img').attr('src'), 'test2.jpg', 'updates value');
-  });
-
-  QUnit.test('property before didInsertElement', function () {
-    var matchingElement;
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        name: 'bob',
-        template: _emberTemplateCompilerSystemCompile.default('<div {{bind-attr alt=view.name}}></div>'),
-        didInsertElement: function () {
-          matchingElement = this.$('div[alt=bob]');
-        }
-      });
-    });
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(matchingElement.length, 1, 'element is in the DOM when didInsertElement');
-  });
-
-  QUnit.test('asserts for <div class=\'foo\' {{bind-attr class=\'bar\'}}></div>', function () {
-    ignoreDeprecation(function () {
-      expectAssertion(function () {
-        _emberTemplateCompilerSystemCompile.default('<div class="foo" {{bind-attr class=view.foo}}></div>');
-      }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
-    });
-  });
-
-  QUnit.test('asserts for <div data-bar=\'foo\' {{bind-attr data-bar=\'blah\'}}></div>', function () {
-    ignoreDeprecation(function () {
-      expectAssertion(function () {
-        _emberTemplateCompilerSystemCompile.default('<div data-bar="foo" {{bind-attr data-bar=view.blah}}></div>');
-      }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
-    });
-  });
-
-  QUnit.test('src attribute bound to undefined is empty', function () {
-    var template;
-    ignoreDeprecation(function () {
-      template = _emberTemplateCompilerSystemCompile.default('<img {{bind-attr src=view.undefinedValue}}>');
-    });
-
-    view = _emberViewsViewsView.default.create({
-      template: template,
-      undefinedValue: undefined
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(!view.element.firstChild.hasAttribute('src'), 'src attribute is empty');
-  });
-
-  QUnit.test('src attribute bound to null is not present', function () {
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('<img {{bind-attr src=view.nullValue}}>'),
-        nullValue: null
-      });
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.getAttribute('src'), null, 'src attribute is empty');
-  });
-
-  QUnit.test('src attribute will be cleared when the value is set to null or undefined', function () {
-    var template;
-    ignoreDeprecation(function () {
-      template = _emberTemplateCompilerSystemCompile.default('<img {{bind-attr src=view.value}}>');
-    });
-
-    view = _emberViewsViewsView.default.create({
-      template: template,
-      value: 'one'
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.element.firstChild.getAttribute('src'), 'one', 'src attribute is present');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'value', 'two');
-    });
-
-    equal(view.element.firstChild.getAttribute('src'), 'two', 'src attribute is present');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'value', null);
-    });
-
-    equal(view.element.firstChild.getAttribute('src'), '', 'src attribute is empty');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'value', 'three');
-    });
-
-    equal(view.element.firstChild.getAttribute('src'), 'three', 'src attribute is present');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'value', undefined);
-    });
-
-    equal(view.element.firstChild.getAttribute('src'), '', 'src attribute is empty');
-  });
-
-  if (!EmberDev.runningProdBuild) {
-
-    QUnit.test('specifying `<div {{bind-attr style=userValue}}></div>` triggers a warning', function () {
-      var template;
-      ignoreDeprecation(function () {
-        template = _emberTemplateCompilerSystemCompile.default('<div {{bind-attr style=view.userValue}}></div>');
-      });
-
-      view = _emberViewsViewsView.default.create({
-        template: template,
-        userValue: '42'
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      deepEqual(warnings, [_emberHtmlbarsMorphsAttrMorph.styleWarning]);
-    });
-  }
-
-  QUnit.test('specifying `<div {{bind-attr style=userValue}}></div>` works properly with a SafeString', function () {
-    var template;
-    ignoreDeprecation(function () {
-      template = _emberTemplateCompilerSystemCompile.default('<div {{bind-attr style=view.userValue}}></div>');
-    });
-
-    view = _emberViewsViewsView.default.create({
-      template: template,
-      userValue: new _emberHtmlbarsUtilsString.SafeString('42')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    deepEqual(warnings, []);
-  });
-});
-/*globals EmberDev */
-/*jshint newcap:false*/
-
-// Ember.lookup
 enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile) {
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -9376,7 +8713,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
   QUnit.test('it does not mark each option tag as selected', function () {
     var selectView = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<select id="people-select"><option value="">Please select a name</option>{{#each view.people}}<option {{bind-attr value=name}}>{{name}}</option>{{/each}}</select>'),
+      template: _emberTemplateCompilerSystemCompile.default('<select id="people-select"><option value="">Please select a name</option>{{#each view.people}}<option value={{name}}>{{name}}</option>{{/each}}</select>'),
       people: people
     });
 
@@ -19170,21 +18507,25 @@ enifed('ember-htmlbars/tests/system/make_bound_helper_test', ['exports', 'ember-
       return _emberRuntimeSystemString.dasherize(params[0]);
     }));
 
+    registry.register('helper:x-reverse', _emberHtmlbarsSystemMake_bound_helper.default(function (params, hash, options, env) {
+      return params[0].split('').reverse().join('');
+    }));
+
     ignoreDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         container: container,
         controller: { prop: 'isThing' },
-        template: _emberTemplateCompilerSystemCompile.default('<div {{bind-attr data-foo=(x-dasherize prop)}}>{{prop}}</div>')
+        template: _emberTemplateCompilerSystemCompile.default('<div data-foo="{{x-reverse (x-dasherize prop)}}">{{prop}}</div>')
       });
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    equal(view.$('div[data-foo="is-thing"]').text(), 'isThing', 'helper output is correct');
+    equal(view.$('div[data-foo="gniht-si"]').text(), 'isThing', 'helper output is correct');
 
     _emberMetalRun_loop.default(view, 'set', 'controller.prop', 'notThing');
 
-    equal(view.$('div[data-foo="not-thing"]').text(), 'notThing', 'helper output is correct');
+    equal(view.$('div[data-foo="gniht-ton"]').text(), 'notThing', 'helper output is correct');
   });
 
   QUnit.test('should update bound helpers when properties change', function () {
@@ -29092,7 +28433,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
 
     ignoreDeprecation(function () {
       view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions}}<a {{bind-attr id=\'name\'}} {{action name}}>{{title}}</a>{{/each}}')
+        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions}}<a id="{{name}}" {{action name}}>{{title}}</a>{{/each}}')
       });
     });
 
@@ -29143,7 +28484,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
 
     ignoreDeprecation(function () {
       view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each item in allactions}}<a {{bind-attr id=\'item.name\'}} {{action item.name}}>{{item.title}}</a>{{/each}}')
+        template: _emberTemplateCompilerSystemCompile.default('{{#each item in allactions}}<a id="{{item.name}}" {{action item.name}}>{{item.title}}</a>{{/each}}')
       });
     });
 
@@ -45302,48 +44643,6 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
   exports.runDestroy = runDestroy;
 });
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {});
-enifed('ember-template-compiler/tests/plugins/transform-bind-attr-to-attributes-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
-
-  QUnit.module('ember-template-compiler: transform-bind-attr-to-attributes');
-
-  QUnit.test('Using the `bind-attr` helper throws a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      _emberTemplateCompiler.compile('<div {{bind-attr class=view.foo}}></div>', {
-        moduleName: 'foo/bar/baz'
-      });
-    }, 'The `bind-attr` helper (\'foo/bar/baz\' @ L1:C7) is deprecated in favor of HTMLBars-style bound attributes.');
-  });
-
-  QUnit.test('Using the `bindAttr` helper throws a deprecation', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      _emberTemplateCompiler.compile('<div {{bindAttr class=view.foo}}></div>');
-    }, 'The `bindAttr` helper (L1:C7) is deprecated in favor of HTMLBars-style bound attributes.');
-  });
-
-  QUnit.test('asserts for <div class=\'foo\' {{bind-attr class=\'bar\'}}></div>', function () {
-    expect(1);
-
-    expectAssertion(function () {
-      ignoreDeprecation(function () {
-        _emberTemplateCompiler.compile('<div class="foo" {{bind-attr class=view.foo}}></div>');
-      });
-    }, /You cannot set `class` manually and via `{{bind-attr}}` helper on the same element/);
-  });
-
-  QUnit.test('asserts for <div data-bar=\'foo\' {{bind-attr data-bar=\'blah\'}}></div>', function () {
-    expect(1);
-
-    expectAssertion(function () {
-      ignoreDeprecation(function () {
-        _emberTemplateCompiler.compile('<div data-bar="foo" {{bind-attr data-bar=view.blah}}></div>');
-      });
-    }, /You cannot set `data-bar` manually and via `{{bind-attr}}` helper on the same element/);
-  });
-});
 enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
 
   QUnit.module('ember-template-compiler: transform-each-in-to-block-params');
@@ -45577,7 +44876,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+c3f15cf4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+6b1068a2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -52144,7 +51443,7 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
       view.trigger('keyUp', {});
     });
 
-    equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the bind-attr observers');
+    equal(caretPosition(view.$()), 5, 'The keyUp event should not result in the cursor being reset due to the attribute bindings');
   });
 
   QUnit.test('an unsupported type defaults to `text`', function () {
