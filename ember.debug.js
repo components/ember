@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b587c480
+ * @version   2.0.0-canary+dc0938c8
  */
 
 (function() {
@@ -7601,7 +7601,6 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-metal/streams/proxy-
     }
 
     if (self && self.isView) {
-      scope.view = self;
       newStream(scope.locals, 'view', self, null);
       newStream(scope.locals, 'controller', scope.locals.view.getKey('controller'));
       newStream(scope, 'self', scope.locals.view.getKey('context'), null, true);
@@ -7781,13 +7780,59 @@ enifed('ember-htmlbars/hooks/concat', ['exports', 'ember-metal/streams/utils'], 
 */
 enifed("ember-htmlbars/hooks/create-fresh-scope", ["exports"], function (exports) {
   exports.default = createFreshScope;
+  /*
+    Ember's implementation of HTMLBars creates an enriched scope.
+  
+    * self: same as HTMLBars, this field represents the dynamic lookup
+      of root keys that are not special keywords or block arguments.
+    * blocks: same as HTMLBars, a bundle of named blocks the layout
+      can yield to.
+    * component: indicates that the scope is the layout of a component,
+      which is used to trigger lifecycle hooks for the component when
+      one of the streams in its layout fires.
+    * attrs: a map of key-value attributes sent in by the invoker of
+      a template, and available in the component's layout.
+    * locals: a map of locals, produced by block params (`as |a b|`)
+    * localPresent: a map of available locals to avoid expensive
+      `hasOwnProperty` checks.
+  
+    The `self` field has two special meanings:
+  
+    * If `self` is a view (`isView`), the actual HTMLBars `self` becomes
+      the view's `context`. This is legacy semantics; components always
+      use the component itself as the `this`.
+    * If `self` is a view, two special locals are created: `view` and
+      `controller`. These locals are legacy semantics.
+    * If self has a `hasBoundController` property, it is coming from
+      a legacy form of #with or #each
+      (`{{#with something controller=someController}}`). This has
+      the special effect of giving the child scope the supplied
+      `controller` keyword, with an unrelated `self`. This is
+      legacy functionality, as both the `view` and `controller`
+      keywords have been deprecated.
+  
+    **IMPORTANT**: There are two places in Ember where the ambient
+    controller is looked up. Both of those places use the presence
+    of `scope.locals.view` to indicate that the controller lookup
+    should be dynamic off of the ambient view. If `scope.locals.view`
+    does not exist, the code assumes that it is inside of a top-level
+    template (without a view) and uses the `self` itself as the
+    controller. This means that if you remove `scope.locals.view`
+    (perhaps because we are finally ready to shed the view keyword),
+    there may be unexpected consequences on controller semantics.
+    If this happens to you, I hope you find this comment. - YK & TD
+  
+    In practice, this means that with the exceptions of top-level
+    view-less templates and the legacy `controller=foo` semantics,
+    the controller hierarchy is managed dynamically by looking at
+    the current view's `controller`.
+  */
 
   function createFreshScope() {
     return {
       self: null,
       blocks: {},
       component: null,
-      view: null,
       attrs: null,
       locals: {},
       localPresent: {}
@@ -7818,10 +7863,9 @@ enifed("ember-htmlbars/hooks/did-cleanup-tree", ["exports"], function (exports) 
   exports.default = didCleanupTree;
 
   function didCleanupTree(env) {
-    var view;
-    if (view = env.view) {
-      view.ownerView.isDestroyingSubtree = false;
-    }
+    // Once we have finsihed cleaning up the render node and sub-nodes, reset
+    // state tracking which view those render nodes belonged to.
+    env.view.ownerView._destroyingSubtreeForView = null;
   }
 });
 enifed("ember-htmlbars/hooks/did-render-node", ["exports"], function (exports) {
@@ -8058,7 +8102,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
         case 'each':
           params[0] = eachParam(params[0]);break;
         default:
-          helper = _emberHtmlbarsSystemLookupHelper.findHelper(path, scope.view, env);
+          helper = _emberHtmlbarsSystemLookupHelper.findHelper(path, env.view, env);
 
           if (helper && helper.isHandlebarsCompat && params[0]) {
             params[0] = processHandlebarsCompatDepKeys(params[0], helper._dependentKeys);
@@ -8241,7 +8285,6 @@ enifed('ember-htmlbars/hooks/update-self', ['exports', 'ember-metal/core', 'embe
     _emberMetalCore.default.assert('BUG: scope.attrs and self.isView should not both be true', !(scope.attrs && self.isView));
 
     if (self && self.isView) {
-      scope.view = self;
       _emberHtmlbarsUtilsUpdateScope.default(scope.locals, 'view', self, null);
       _emberHtmlbarsUtilsUpdateScope.default(scope, 'self', _emberMetalProperty_get.get(self, 'context'), null, true);
       return;
@@ -8257,15 +8300,37 @@ enifed('ember-htmlbars/hooks/update-self', ['exports', 'ember-metal/core', 'embe
 enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports) {
   exports.default = willCleanupTree;
 
-  function willCleanupTree(env, morph, destroySelf) {
-    var view = morph.emberView;
-    if (destroySelf && view && view.parentView) {
-      view.parentView.removeChild(view);
-    }
+  function willCleanupTree(env) {
+    var view = env.view;
 
-    if (view = env.view) {
-      view.ownerView.isDestroyingSubtree = true;
-    }
+    // When we go to clean up the render node and all of its children, we may
+    // encounter views/components associated with those nodes along the way. In
+    // those cases, we need to make sure we need to sever the link between the
+    // existing view hierarchy and those views.
+    //
+    // However, we do *not* need to remove the child views of child views, since
+    // severing the connection to their parent effectively severs them from the
+    // view graph.
+    //
+    // For example, imagine the following view graph:
+    //
+    //    A
+    //   / \
+    //  B  C
+    //    / \
+    //   D  E
+    //
+    // If we are cleaning up the node for view C, we need to remove that view
+    // from A's child views. However, we do not need to remove D and E from C's
+    // child views, since removing C transitively removes D and E as well.
+    //
+    // To accomplish this, we track the nearest view to this render node on the
+    // owner view, the root-most view in the graph (A in the example above). If
+    // we detect a view that is a direct child of that view, we remove it from
+    // the `childViews` array. Other parent/child view relationships are
+    // untouched.  This view is then cleared once cleanup is complete in
+    // `didCleanupTree`.
+    view.ownerView._destroyingSubtreeForView = view;
   }
 });
 enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exports, _htmlbarsRuntime) {
@@ -8306,7 +8371,7 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
       var read = env.hooks.getValue;
 
       return _emberMetalMerge.assign({}, state, {
-        parentView: read(scope.locals.view),
+        parentView: env.view,
         viewClassOrInstance: getView(read(params[0]), env.container)
       });
     },
@@ -8791,7 +8856,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b587c480';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+dc0938c8';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8985,11 +9050,11 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
 
       // if parentView exists, use its controller (the default
       // behavior), otherwise use `scope.self` as the controller
-      var controller = scope.view ? null : read(scope.self);
+      var controller = scope.locals.view ? null : read(scope.self);
 
       return {
         manager: state.manager,
-        parentView: scope.view,
+        parentView: env.view,
         controller: controller,
         targetObject: targetObject,
         viewClassOrInstance: viewClassOrInstance
@@ -9081,7 +9146,7 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
 @module ember
 @submodule ember-htmlbars
 */
-enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'htmlbars-runtime'], function (exports, _emberMetalCore, _emberMetalProperty_get, _htmlbarsRuntime) {
+enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'htmlbars-runtime', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalProperty_get, _htmlbarsRuntime, _emberMetalStreamsUtils) {
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
       var controller = hash.controller;
@@ -9090,7 +9155,13 @@ enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/core', 'ember-me
         if (!state.controller) {
           var context = params[0];
           var controllerFactory = env.container.lookupFactory('controller:' + controller);
-          var parentController = scope.view ? _emberMetalProperty_get.get(scope.view, 'context') : null;
+          var parentController = null;
+
+          if (scope.locals.controller) {
+            parentController = _emberMetalStreamsUtils.read(scope.locals.controller);
+          } else if (scope.locals.view) {
+            parentController = _emberMetalProperty_get.get(_emberMetalStreamsUtils.read(scope.locals.view), 'context');
+          }
 
           var controllerInstance = controllerFactory.create({
             model: env.hooks.getValue(context),
@@ -9209,14 +9280,13 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper'], function (expor
   };
 
   proto.cleanup = function () {
-    var view;
+    var view = this.emberView;
 
-    if (view = this.emberView) {
-      if (!view.ownerView.isDestroyingSubtree) {
-        view.ownerView.isDestroyingSubtree = true;
-        if (view.parentView) {
-          view.parentView.removeChild(view);
-        }
+    if (view) {
+      var parentView = view.parentView;
+
+      if (parentView && view.ownerView._destroyingSubtreeForView === parentView) {
+        parentView.removeChild(view);
       }
     }
 
@@ -9772,6 +9842,10 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     var props = _emberMetalMerge.default({}, options);
     var defaultController = _emberViewsViewsView.default.proto().controller;
     var hasSuppliedController = 'controller' in attrs || 'controller' in props;
+
+    if (!props.ownerView && options.parentView) {
+      props.ownerView = options.parentView.ownerView;
+    }
 
     props.attrs = snapshot;
     if (component.create) {
@@ -14328,7 +14402,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b587c480
+    @version 2.0.0-canary+dc0938c8
     @public
   */
 
@@ -14360,11 +14434,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b587c480'
+    @default '2.0.0-canary+dc0938c8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b587c480';
+  Ember.VERSION = '2.0.0-canary+dc0938c8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22230,7 +22304,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
       _emberMetalCore.default.assert('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', typeof name === 'string');
 
       return {
-        parentView: scope.view,
+        parentView: env.view,
         manager: prevState.manager,
         controller: prevState.controller,
         childOutletState: childOutletState(name, env)
@@ -22445,7 +22519,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b587c480';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+dc0938c8';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22957,7 +23031,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b587c480';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+dc0938c8';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37974,7 +38048,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+b587c480',
+        revision: 'Ember@2.0.0-canary+dc0938c8',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40989,7 +41063,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       // setup child views. be sure to clone the child views array first
       // 2.0TODO: Remove Ember.A() here
       this.childViews = _emberMetalCore.default.A(this.childViews.slice());
-      this.ownerView = this;
+      this.ownerView = this.ownerView || this;
     },
 
     appendChild: function (view) {
@@ -43225,7 +43299,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b587c480';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+dc0938c8';
 
   /**
   @module ember
@@ -43577,7 +43651,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-met
         this.renderer = renderer;
       }
 
-      this.isDestroyingSubtree = false;
+      this._destroyingSubtreeForView = null;
       this._dispatching = null;
     },
 
@@ -43627,24 +43701,21 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-met
     },
 
     destroy: function () {
-      var parent = this.parentView;
-
       if (!this._super.apply(this, arguments)) {
         return;
       }
 
       this.currentState.cleanup(this);
 
-      if (!this.ownerView.isDestroyingSubtree) {
-        this.ownerView.isDestroyingSubtree = true;
-        if (parent) {
-          parent.removeChild(this);
-        }
-        if (this._renderNode) {
-          _emberMetalCore.default.assert('BUG: Render node exists without concomitant env.', this.ownerView.env);
-          _htmlbarsRuntime.internal.clearMorph(this._renderNode, this.ownerView.env, true);
-        }
-        this.ownerView.isDestroyingSubtree = false;
+      // If the destroyingSubtreeForView property is not set but we have an
+      // associated render node, it means this view is being destroyed from user
+      // code and not via a change in the templating layer (like an {{if}}
+      // becoming falsy, for example).  In this case, it is our responsibility to
+      // make sure that any render nodes created as part of the rendering process
+      // are cleaned up.
+      if (!this.ownerView._destroyingSubtreeForView && this._renderNode) {
+        _emberMetalCore.default.assert('BUG: Render node exists without concomitant env.', this.ownerView.env);
+        _htmlbarsRuntime.internal.clearMorph(this._renderNode, this.ownerView.env, true);
       }
 
       return this;
