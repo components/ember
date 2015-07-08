@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8767515d
+ * @version   2.0.0-canary+a6e119dd
  */
 
 (function() {
@@ -8856,7 +8856,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8767515d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a6e119dd';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14402,7 +14402,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8767515d
+    @version 2.0.0-canary+a6e119dd
     @public
   */
 
@@ -14434,11 +14434,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8767515d'
+    @default '2.0.0-canary+a6e119dd'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8767515d';
+  Ember.VERSION = '2.0.0-canary+a6e119dd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22519,7 +22519,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8767515d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+a6e119dd';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23031,7 +23031,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8767515d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a6e119dd';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -31411,11 +31411,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     everyProperty: _emberMetalMixin.aliasMethod('isEvery'),
 
     /**
-      Returns `true` if the passed property resolves to `true` for all items in
-      the enumerable. This method is often simpler/faster than using a callback.
+      Returns `true` if the passed property resolves to the value of the second
+      argument for all items in the enumerable. This method is often simpler/faster
+      than using a callback.
        @method isEvery
       @param {String} key the property to test
-      @param {String} [value] optional value to test against.
+      @param {String} [value] optional value to test against. Defaults to `true`
       @return {Boolean}
       @since 1.3.0
       @public
@@ -31506,11 +31507,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     some: _emberMetalMixin.aliasMethod('any'),
 
     /**
-      Returns `true` if the passed property resolves to `true` for any item in
-      the enumerable. This method is often simpler/faster than using a callback.
+      Returns `true` if the passed property resolves to the value of the second
+      argument for any item in the enumerable. This method is often simpler/faster
+      than using a callback.
        @method isAny
       @param {String} key the property to test
-      @param {String} [value] optional value to test against.
+      @param {String} [value] optional value to test against. Defaults to `true`
       @return {Boolean}
       @since 1.3.0
       @private
@@ -38048,7 +38050,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8767515d',
+        revision: 'Ember@2.0.0-canary+a6e119dd',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43299,7 +43301,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8767515d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+a6e119dd';
 
   /**
   @module ember
