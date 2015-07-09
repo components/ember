@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.3+1ad89cf7
+ * @version   1.13.3+bebbf269
  */
 
 (function() {
@@ -47490,7 +47490,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.3+1ad89cf7", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.3+bebbf269", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -54979,18 +54979,18 @@ enifed("ember-views/tests/views/view/attribute_bindings_test", ["exports", "embe
     ok(!view.element.hasAttribute("role"), "role attribute is not present");
   });
 });
-enifed("ember-views/tests/views/view/child_views_test", ["exports", "ember-metal/run_loop", "ember-views/views/view", "ember-template-compiler"], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler) {
+enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal/run_loop', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler'], function (exports, _emberMetalRun_loop, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompiler) {
 
   var parentView, childView;
 
-  QUnit.module("tests/views/view/child_views_tests.js", {
+  QUnit.module('tests/views/view/child_views_tests.js', {
     setup: function () {
       childView = _emberViewsViewsView["default"].create({
-        template: _emberTemplateCompiler.compile("ber")
+        template: _emberTemplateCompiler.compile('ber')
       });
 
       parentView = _emberViewsViewsView["default"].create({
-        template: _emberTemplateCompiler.compile("Em{{view view.childView}}"),
+        template: _emberTemplateCompiler.compile('Em{{view view.childView}}'),
         childView: childView
       });
     },
@@ -55007,15 +55007,15 @@ enifed("ember-views/tests/views/view/child_views_test", ["exports", "ember-metal
   // parent element
 
   // no parent element, no buffer, no element
-  QUnit.test("should render an inserted child view when the child is inserted before a DOM element is created", function () {
+  QUnit.test('should render an inserted child view when the child is inserted before a DOM element is created', function () {
     _emberMetalRun_loop["default"](function () {
       parentView.append();
     });
 
-    equal(parentView.$().text(), "Ember", "renders the child view after the parent view");
+    equal(parentView.$().text(), 'Ember', 'renders the child view after the parent view');
   });
 
-  QUnit.test("should not duplicate childViews when rerendering", function () {
+  QUnit.test('should not duplicate childViews when rerendering', function () {
 
     var InnerView = _emberViewsViewsView["default"].extend();
     var InnerView2 = _emberViewsViewsView["default"].extend();
@@ -55023,29 +55023,98 @@ enifed("ember-views/tests/views/view/child_views_test", ["exports", "ember-metal
     var MiddleView = _emberViewsViewsView["default"].extend({
       innerViewClass: InnerView,
       innerView2Class: InnerView2,
-      template: _emberTemplateCompiler.compile("{{view view.innerViewClass}}{{view view.innerView2Class}}")
+      template: _emberTemplateCompiler.compile('{{view view.innerViewClass}}{{view view.innerView2Class}}')
     });
 
     var outerView = _emberViewsViewsView["default"].create({
       middleViewClass: MiddleView,
-      template: _emberTemplateCompiler.compile("{{view view.middleViewClass viewName=\"middle\"}}")
+      template: _emberTemplateCompiler.compile('{{view view.middleViewClass viewName="middle"}}')
     });
 
     _emberMetalRun_loop["default"](function () {
       outerView.append();
     });
 
-    equal(outerView.get("middle.childViews.length"), 2, "precond middle has 2 child views rendered to buffer");
+    equal(outerView.get('middle.childViews.length'), 2, 'precond middle has 2 child views rendered to buffer');
 
     _emberMetalRun_loop["default"](function () {
       outerView.middle.rerender();
     });
 
-    equal(outerView.get("middle.childViews.length"), 2, "middle has 2 child views rendered to buffer");
+    equal(outerView.get('middle.childViews.length'), 2, 'middle has 2 child views rendered to buffer');
 
     _emberMetalRun_loop["default"](function () {
       outerView.destroy();
     });
+  });
+
+  QUnit.test('should remove childViews inside {{if}} on destroy', function () {
+    var outerView = _emberViewsViewsView["default"].extend({
+      component: 'my-thing',
+      value: false,
+      container: {
+        lookup: function () {
+          return {
+            componentFor: function () {
+              return _emberViewsViewsComponent["default"].extend();
+            },
+
+            layoutFor: function () {
+              return null;
+            }
+          };
+        }
+      },
+      template: _emberTemplateCompiler.compile('\n      {{#if view.value}}\n        {{component view.component value=view.value}}\n      {{/if}}\n    ')
+    }).create();
+
+    _emberMetalRun_loop["default"](outerView, 'append');
+    _emberMetalRun_loop["default"](outerView, 'set', 'value', true);
+
+    equal(outerView.get('childViews.length'), 1);
+
+    _emberMetalRun_loop["default"](outerView, 'set', 'value', false);
+
+    equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
+  });
+
+  QUnit.test('should remove childViews inside {{each}} on destroy', function () {
+    var outerView = _emberViewsViewsView["default"].extend({
+      component: 'my-thing',
+      init: function () {
+        this._super.apply(this, arguments);
+        this.value = false;
+      },
+      container: {
+        lookup: function () {
+          return {
+            componentFor: function () {
+              return _emberViewsViewsComponent["default"].extend();
+            },
+
+            layoutFor: function () {
+              return null;
+            }
+          };
+        }
+      },
+      template: _emberTemplateCompiler.compile('\n      {{#if view.value}}\n        {{#each view.data as |item|}}\n          {{component view.component value=item.value}}\n        {{/each}}\n      {{/if}}\n    ')
+    }).create();
+
+    _emberMetalRun_loop["default"](outerView, 'append');
+
+    equal(outerView.get('childViews.length'), 0);
+
+    _emberMetalRun_loop["default"](outerView, 'set', 'data', _emberMetalCore["default"].A([{ id: 1, value: new Date() }, { id: 2, value: new Date() }]));
+
+    equal(outerView.get('childViews.length'), 0);
+
+    _emberMetalRun_loop["default"](outerView, 'set', 'value', true);
+    equal(outerView.get('childViews.length'), 2);
+
+    _emberMetalRun_loop["default"](outerView, 'set', 'value', false);
+
+    equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
   });
 });
 enifed("ember-views/tests/views/view/class_name_bindings_test", ["exports", "ember-metal/property_set", "ember-metal/run_loop", "ember-metal/property_events", "ember-metal/watching", "ember-runtime/system/object", "ember-views/views/view"], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalProperty_events, _emberMetalWatching, _emberRuntimeSystemObject, _emberViewsViewsView) {
