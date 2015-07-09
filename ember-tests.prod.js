@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4b9145c2
+ * @version   2.0.0-canary+04dd84c4
  */
 
 (function() {
@@ -39156,14 +39156,6 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
     equal(obj.findBy('bar', undefined), ary[1], 'findBy(\'bar\', undefined)');
   });
 
-  suite.test('should be aliased to findProperty', function () {
-    var obj;
-
-    obj = this.newObject([]);
-
-    equal(obj.findProperty, obj.findBy);
-  });
-
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/enumerable/firstObject', ['exports', 'ember-runtime/tests/suites/suite', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesSuite, _emberMetalProperty_get) {
@@ -44737,7 +44729,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+4b9145c2', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+04dd84c4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -61777,7 +61769,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedModelHookParams = null;
           }
-          return articles.findProperty('id', params.id);
+          return articles.findBy('id', params.id);
         }
       });
 
@@ -61868,7 +61860,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedModelHookParams = null;
           }
-          return site_articles.findProperty('id', params.id);
+          return site_articles.findBy('id', params.id);
         }
       });
 
@@ -61972,7 +61964,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedSiteModelHookParams, 'the SiteRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedSiteModelHookParams = null;
           }
-          return sites.findProperty('id', params.site_id);
+          return sites.findBy('id', params.site_id);
         }
       });
       App.SiteArticleRoute = _emberMetalCore.default.Route.extend({
@@ -61981,7 +61973,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedArticleModelHookParams, 'the SiteArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedArticleModelHookParams = null;
           }
-          return site_articles.findProperty('id', params.article_id);
+          return site_articles.findBy('id', params.article_id);
         }
       });
 

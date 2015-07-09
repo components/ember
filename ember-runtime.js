@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4b9145c2
+ * @version   2.0.0-canary+04dd84c4
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4b9145c2
+    @version 2.0.0-canary+04dd84c4
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4b9145c2'
+    @default '2.0.0-canary+04dd84c4'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4b9145c2';
+  Ember.VERSION = '2.0.0-canary+04dd84c4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15161,20 +15161,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     findBy: function (key, value) {
       return this.find(iter.apply(this, arguments));
     },
-
-    /**
-      Returns the first item with a property matching the passed value. You
-      can pass an optional second argument with the target value. Otherwise
-      this will match any property that evaluates to `true`.
-       This method works much like the more generic `find()` method.
-       @method findProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Object} found item or `undefined`
-      @deprecated Use `findBy` instead
-      @private
-    */
-    findProperty: _emberMetalMixin.aliasMethod('findBy'),
 
     /**
       Returns `true` if the passed function returns true for every item in the
