@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cbeb12e6
+ * @version   2.0.0-canary+b97a80d2
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+cbeb12e6
+    @version 2.0.0-canary+b97a80d2
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+cbeb12e6'
+    @default '2.0.0-canary+b97a80d2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+cbeb12e6';
+  Ember.VERSION = '2.0.0-canary+b97a80d2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15082,6 +15082,19 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
       return this.reject(use);
     },
+
+    /**
+      Returns an array with the items that do not have truthy values for
+      key.  You can pass an optional second argument with the target value.  Otherwise
+      this will match any property that evaluates to false.
+       @method rejectProperty
+      @param {String} key the property to test
+      @param {String} [value] optional value to test against.
+      @return {Array} rejected array
+      @deprecated Use `rejectBy` instead
+      @private
+    */
+    rejectProperty: _emberMetalMixin.aliasMethod('rejectBy'),
 
     /**
       Returns the first item in the array for which the callback returns true.
