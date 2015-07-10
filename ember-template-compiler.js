@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+cbeb12e6
+ * @version   2.0.0-canary+7a8a46be
  */
 
 (function() {
@@ -66,7 +66,7 @@ var mainContext = this;
       var reified = [];
       var length = deps.length;
 
-      for (var i=0; i<length; i++) {
+      for (var i = 0; i < length; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
@@ -86,7 +86,7 @@ var mainContext = this;
       var parts = child.split('/');
       var parentBase = name.split('/').slice(0, -1);
 
-      for (var i=0, l=parts.length; i<l; i++) {
+      for (var i = 0, l = parts.length; i < l; i++) {
         var part = parts[i];
 
         if (part === '..') {
@@ -3984,7 +3984,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+cbeb12e6
+    @version 2.0.0-canary+7a8a46be
     @public
   */
 
@@ -4016,11 +4016,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+cbeb12e6'
+    @default '2.0.0-canary+7a8a46be'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+cbeb12e6';
+  Ember.VERSION = '2.0.0-canary+7a8a46be';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12254,7 +12254,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+cbeb12e6',
+        revision: 'Ember@2.0.0-canary+7a8a46be',
         loc: program.loc,
         moduleName: options.moduleName
       };
