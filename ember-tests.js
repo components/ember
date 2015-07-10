@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f6e58fcb
+ * @version   2.0.0-canary+b97a80d2
  */
 
 (function() {
@@ -39064,11 +39064,6 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
     equal(obj.isEvery('bar', null), false, 'isEvery(\'bar\', null)');
   });
 
-  suite.test('everyBy should be aliased to isEvery', function () {
-    var obj = this.newObject();
-    equal(obj.isEvery, obj.everyBy);
-  });
-
   suite.test('everyProperty should be aliased to isEvery', function () {
     var obj = this.newObject();
     equal(obj.isEvery, obj.everyProperty);
@@ -44891,7 +44886,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+f6e58fcb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+b97a80d2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
