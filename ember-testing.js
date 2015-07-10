@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+04dd84c4
+ * @version   2.0.0-canary+f4f78a9e
  */
 
 (function() {
@@ -739,7 +739,9 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     $el = app.testHelpers.findWithAssert(selector, context);
     focus($el);
     _emberMetalRun_loop.default(function () {
-      $el.val(text).change();
+      $el.val(text);
+      $el.trigger('input');
+      $el.change();
     });
     return app.testHelpers.wait();
   }

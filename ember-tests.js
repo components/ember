@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+04dd84c4
+ * @version   2.0.0-canary+f4f78a9e
  */
 
 (function() {
@@ -15302,7 +15302,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   }
 
   function appendViewFor(template) {
-    var hash = arguments[1] === undefined ? {} : arguments[1];
+    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var view = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default(template),
@@ -18774,7 +18774,7 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
   }
 
   function appendViewFor(template) {
-    var hash = arguments[1] === undefined ? {} : arguments[1];
+    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var view = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default(template),
@@ -44891,7 +44891,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+04dd84c4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+f4f78a9e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -46077,6 +46077,39 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     fillIn('#first', 'current value');
     andThen(function () {
       equal(find('#first').val(), 'current value');
+    });
+  });
+
+  QUnit.test('`fillIn` fires `input` and `change` events in the proper order', function () {
+    expect(1);
+
+    var fillIn, visit, andThen;
+    var events = [];
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      actions: {
+        oninputHandler: function (e) {
+          events.push(e.type);
+        },
+        onchangeHanlders: function (e) {
+          events.push(e.type);
+        }
+      }
+    });
+
+    App.IndexView = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('<input type="text" id="first" oninput={{action "oninputHandler"}} onchange={{action "onchangeHanlders"}}>')
+    });
+
+    _emberMetalRun_loop.default(App, App.advanceReadiness);
+
+    fillIn = App.testHelpers.fillIn;
+    visit = App.testHelpers.visit;
+    andThen = App.testHelpers.andThen;
+
+    visit('/');
+    fillIn('#first', 'current value');
+    andThen(function () {
+      deepEqual(events, ['input', 'change'], '`input` and `change` events are fired in the proper order');
     });
   });
 
@@ -55243,7 +55276,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   function boot(callback) {
-    var startURL = arguments[1] === undefined ? '/' : arguments[1];
+    var startURL = arguments.length <= 1 || arguments[1] === undefined ? '/' : arguments[1];
 
     _emberMetalCore.default.run(function () {
       App = _emberMetalCore.default.Application.create({

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+04dd84c4
+ * @version   2.0.0-canary+f4f78a9e
  */
 
 (function() {
@@ -8303,7 +8303,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+04dd84c4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f4f78a9e';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9006,7 +9006,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   };
 
   function createComponent(_component, isAngleBracket, _props, renderNode, env) {
-    var attrs = arguments[5] === undefined ? {} : arguments[5];
+    var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
 
     var props = _emberMetalMerge.assign({}, _props);
 
@@ -9249,7 +9249,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
   }
 
   function createOrUpdateComponent(component, options, createOptions, renderNode, env) {
-    var attrs = arguments[5] === undefined ? {} : arguments[5];
+    var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
 
     var snapshot = takeSnapshot(attrs);
     var props = _emberMetalMerge.default({}, options);
@@ -9916,7 +9916,7 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
   };
 
   RenderEnv.prototype.childWithOutletState = function (outletState) {
-    var hasParentOutlet = arguments[1] === undefined ? this.hasParentOutlet : arguments[1];
+    var hasParentOutlet = arguments.length <= 1 || arguments[1] === undefined ? this.hasParentOutlet : arguments[1];
 
     return new RenderEnv({
       view: this.view,
@@ -13801,7 +13801,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+04dd84c4
+    @version 2.0.0-canary+f4f78a9e
     @public
   */
 
@@ -13833,11 +13833,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+04dd84c4'
+    @default '2.0.0-canary+f4f78a9e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+04dd84c4';
+  Ember.VERSION = '2.0.0-canary+f4f78a9e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21803,7 +21803,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+04dd84c4';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+f4f78a9e';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22310,7 +22310,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+04dd84c4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f4f78a9e';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37019,7 +37019,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+04dd84c4',
+        revision: 'Ember@2.0.0-canary+f4f78a9e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40979,7 +40979,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+04dd84c4';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+f4f78a9e';
 
   /**
   @module ember
@@ -41210,7 +41210,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
     replace: function (idx, removedCount) {
       var _this2 = this;
 
-      var addedViews = arguments[2] === undefined ? [] : arguments[2];
+      var addedViews = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
 
       var addedCount = _emberMetalProperty_get.get(addedViews, 'length');
       var childViews = _emberMetalProperty_get.get(this, 'childViews');
@@ -41990,7 +41990,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
     },
 
     _selectedIndex: function (value) {
-      var defaultIndex = arguments[1] === undefined ? 0 : arguments[1];
+      var defaultIndex = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
       var content = _emberMetalProperty_get.get(this, 'contentValues');
 
@@ -44830,7 +44830,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   */
 
   function bindBlock(env, scope, block) {
-    var name = arguments[3] === undefined ? "default" : arguments[3];
+    var name = arguments.length <= 3 || arguments[3] === undefined ? "default" : arguments[3];
 
     scope.blocks[name] = block;
   }
