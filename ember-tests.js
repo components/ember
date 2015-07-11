@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+98522dd4
+ * @version   2.0.0-canary+fb49fa04
  */
 
 (function() {
@@ -44515,7 +44515,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+98522dd4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+fb49fa04', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -52595,7 +52595,7 @@ enifed('ember-views/tests/views/view/controller_test', ['exports', 'ember-metal/
     });
   });
 });
-enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/events', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalEvents, _emberMetalMixin) {
 
   var view, myViewClass, newView, container;
 
@@ -52630,7 +52630,28 @@ enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember
     equal(newView.container, container, 'expects to share container with parent');
     ok(_emberMetalProperty_get.get(newView, 'isMyView'), 'newView is instance of myView');
     equal(_emberMetalProperty_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
-    ok(!attrs.parentView, 'the original attributes hash was not mutated');
+  });
+
+  QUnit.test('creating a childView, (via createChildView) should make parentView initial state and not emit change events nore helper actions', function () {
+    expect(2);
+
+    newView = view.createChildView(_emberViewsViewsView.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        ok(true, 'did init');
+      },
+      parentViewDidReallyChange: _emberMetalEvents.on('parentViewDidChange', function () {
+        ok(false, 'expected to NOT emit parentViewDidChange');
+      }),
+      controllerDidChange: _emberMetalMixin.observer('controller', function () {
+        ok(false, 'expected to NOT expect controller to change');
+      }),
+      parentViewDidChange: _emberMetalMixin.observer('parentView', function () {
+        ok(false, 'expected to NOT expect  parentViewto change');
+      })
+    }));
+
+    equal(newView.get('parentView'), view, 'expected the correct parentView');
   });
 
   QUnit.test('should set newView.parentView to receiver', function () {
