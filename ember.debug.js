@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7a8a46be
+ * @version   2.0.0-canary+ab9d96ff
  */
 
 (function() {
@@ -3475,12 +3475,12 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
       ```
        Given that you have a nested controller (nested routes):
        ```javascript
-      App.CommentsNewController = Ember.ObjectController.extend({
+      App.CommentsNewController = Ember.Controller.extend({
       });
       ```
        When you define a controller that requires access to a nested one:
        ```javascript
-      App.IndexController = Ember.ObjectController.extend({
+      App.IndexController = Ember.Controller.extend({
         needs: ['commentsNew']
       });
       ```
@@ -3755,7 +3755,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 @submodule ember-application
 @private
 */
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberMetalEnvironment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberMetalEnvironment) {
 
   function props(obj) {
     var properties = [];
@@ -4628,7 +4628,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.register('application:main', namespace, { instantiate: false });
 
       registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-      registry.register('controller:object', _emberRuntimeControllersObject_controller.default, { instantiate: false });
       registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
       registry.register('renderer:-dom', { create: function () {
@@ -8716,7 +8715,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7a8a46be';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ab9d96ff';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14263,7 +14262,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+7a8a46be
+    @version 2.0.0-canary+ab9d96ff
     @public
   */
 
@@ -14295,11 +14294,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+7a8a46be'
+    @default '2.0.0-canary+ab9d96ff'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+7a8a46be';
+  Ember.VERSION = '2.0.0-canary+ab9d96ff';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22379,7 +22378,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+7a8a46be';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ab9d96ff';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22890,7 +22889,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7a8a46be';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ab9d96ff';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -24489,11 +24488,9 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
   
     The type of the generated controller factory is derived
     from the context. If the context is an array an array controller
-    is generated, if an object, an object controller otherwise, a basic
-    controller is generated.
+    is generated, otherwise, a basic controller is generated.
   
-    You can customize your generated controllers by defining
-    `App.ObjectController` or `App.ArrayController`.
+    You can customize your generated controllers by defining `App.ArrayController`.
   
     @for Ember
     @method generateControllerFactory
@@ -24505,8 +24502,6 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
 
     if (context && _emberRuntimeUtils.isArray(context)) {
       controllerType = 'array';
-    } else if (context) {
-      controllerType = 'object';
     } else {
       controllerType = 'basic';
     }
@@ -26037,15 +26032,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         }
       });
       ```
-       This means that your template will get a proxy for the model as its
-      context, and you can act as though the model itself was the context.
        The provided controller will be one resolved based on the name
       of this route.
        If no explicit controller is defined, Ember will automatically create
       an appropriate controller for the model.
        * if the model is an `Ember.Array` (including record arrays from Ember
         Data), the controller is an `Ember.ArrayController`.
-      * otherwise, the controller is an `Ember.ObjectController`.
+      * otherwise, the controller is basic `Ember.Controller`.
        As an example, consider the router:
        ```javascript
       App.Router.map(function() {
@@ -26053,7 +26046,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       });
       ```
        For the `post` route, a controller named `App.PostController` would
-      be used if it is defined. If it is not defined, an `Ember.ObjectController`
+      be used if it is defined. If it is not defined, a basic `Ember.Controller`
       instance would be used.
        Example
        ```javascript
@@ -27952,7 +27945,7 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
     }
   }
 });
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   // END IMPORTS
 
   // BEGIN EXPORTS
@@ -28020,7 +28013,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
 
   _emberMetal.default.ArrayController = _emberRuntimeControllersArray_controller.default;
-  _emberMetal.default.ObjectController = _emberRuntimeControllersObject_controller.default;
   _emberMetal.default.Controller = _emberRuntimeControllersController.default;
   _emberMetal.default.ControllerMixin = _emberRuntimeMixinsController.default;
 
@@ -28852,7 +28844,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     Sometimes you want to display computed properties within the body of an
     `#each` helper that depend on the underlying items in `model`, but are not
     present on those items.   To do this, set `itemController` to the name of a
-    controller (probably an `ObjectController`) that will wrap each individual item.
+    controller that will wrap each individual item.
   
     For example:
   
@@ -28867,7 +28859,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
       itemController: 'post'
     });
   
-    App.PostController = Ember.ObjectController.extend({
+    App.PostController = Ember.Controller.extend({
       // the `title` property will be proxied to the underlying post.
       titleLength: function() {
         return this.get('title').length;
@@ -29145,37 +29137,6 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
   exports.default = Controller;
 });
 // Ember.assert
-enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/core', 'ember-runtime/mixins/controller', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalCore, _emberRuntimeMixinsController, _emberRuntimeSystemObject_proxy) {
-  var objectControllerDeprecation = 'Ember.ObjectController is deprecated, ' + 'please use Ember.Controller and use `model.propertyName`.';
-
-  exports.objectControllerDeprecation = objectControllerDeprecation;
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  /**
-    `Ember.ObjectController` is part of Ember's Controller layer. It is intended
-    to wrap a single object, proxying unhandled attempts to `get` and `set` to the underlying
-    model object, and to forward unhandled action attempts to its `target`.
-  
-    `Ember.ObjectController` derives this functionality from its superclass
-    `Ember.ObjectProxy` and the `Ember.ControllerMixin` mixin.
-  
-    @class ObjectController
-    @namespace Ember
-    @extends Ember.ObjectProxy
-    @uses Ember.ControllerMixin
-    @deprecated
-    @public
-  **/
-  exports.default = _emberRuntimeSystemObject_proxy.default.extend(_emberRuntimeMixinsController.default, {
-    init: function () {
-      this._super();
-      _emberMetalCore.default.deprecate(objectControllerDeprecation, this.isGenerated);
-    }
-  });
-});
 enifed('ember-runtime/copy', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
   exports.default = copy;
 
@@ -29854,8 +29815,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     to the object's mergedProperties list.
   
     `Ember.ActionHandler` is available on some familiar classes including
-    `Ember.Route`, `Ember.View`, `Ember.Component`, and controllers such as
-    `Ember.Controller` and `Ember.ObjectController`.
+    `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
     and `Ember.Route` and available to the above classes through
     inheritance.)
@@ -30579,8 +30539,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
 
   /**
     `Ember.ControllerMixin` provides a standard interface for all classes that
-    compose Ember's controller layer: `Ember.Controller`,
-    `Ember.ArrayController`, and `Ember.ObjectController`.
+    compose Ember's controller layer: `Ember.Controller` and `Ember.ArrayController`.
   
     @class ControllerMixin
     @namespace Ember
@@ -32920,44 +32879,44 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy, ObjectController or ArrayControllers promise-aware.
+    A low level mixin making ObjectProxy or ArrayControllers promise-aware.
   
     ```javascript
-    var ObjectPromiseController = Ember.ObjectController.extend(Ember.PromiseProxyMixin);
+    var ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
   
-    var controller = ObjectPromiseController.create({
+    var proxy = ObjectPromiseProxy.create({
       promise: $.getJSON('/some/remote/data.json')
     });
   
-    controller.then(function(json){
+    proxy.then(function(json){
        // the json
     }, function(reason) {
        // the reason why you have no json
     });
     ```
   
-    the controller has bindable attributes which
+    the proxy has bindable attributes which
     track the promises life cycle
   
     ```javascript
-    controller.get('isPending')   //=> true
-    controller.get('isSettled')  //=> false
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> false
+    proxy.get('isPending')   //=> true
+    proxy.get('isSettled')  //=> false
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> false
     ```
   
     When the the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
   
     ```javascript
-    controller.get('isPending')   //=> false
-    controller.get('isSettled')   //=> true
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> true
+    proxy.get('isPending')   //=> false
+    proxy.get('isSettled')   //=> true
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> true
     ```
   
-    As the controller is an ObjectController, and the json now its content,
-    all the json properties will be available directly from the controller.
+    As the proxy is an ObjectProxy, and the json now its content,
+    all the json properties will be available directly from the proxy.
   
     ```javascript
     // Assuming the following json:
@@ -32966,22 +32925,11 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       lastName: 'Penner'
     }
   
-    // both properties will accessible on the controller
-    controller.get('firstName') //=> 'Stefan'
-    controller.get('lastName')  //=> 'Penner'
+    // both properties will accessible on the proxy
+    proxy.get('firstName') //=> 'Stefan'
+    proxy.get('lastName')  //=> 'Penner'
     ```
   
-    If the controller is backing a template, the attributes are
-    bindable from within that template
-  
-    ```handlebars
-    {{#if isPending}}
-      loading...
-    {{else}}
-      firstName: {{firstName}}
-      lastName: {{lastName}}
-    {{/if}}
-    ```
     @class Ember.PromiseProxyMixin
     @public
   */
@@ -33033,7 +32981,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       changed once created.
        Example:
        ```javascript
-      Ember.ObjectController.extend(Ember.PromiseProxyMixin).create({
+      Ember.ObjectProxy.extend(Ember.PromiseProxyMixin).create({
         promise: <thenable>
       });
       ```
@@ -37679,7 +37627,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+7a8a46be',
+        revision: 'Ember@2.0.0-canary+ab9d96ff',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42909,7 +42857,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+7a8a46be';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ab9d96ff';
 
   /**
   @module ember

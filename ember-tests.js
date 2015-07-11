@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7a8a46be
+ * @version   2.0.0-canary+ab9d96ff
  */
 
 (function() {
@@ -8476,7 +8476,7 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/fea
     assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
-enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberMetalComputed, _emberRuntimeControllersArray_controller, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeSystemContainer, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
+enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberMetalComputed, _emberRuntimeControllersArray_controller, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
 
   var people, view, registry, container;
   var template, templateMyView, MyView, MyEmptyView, templateMyEmptyView;
@@ -8857,95 +8857,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$('#a').html(), view.$('#b').html());
-  });
-
-  QUnit.test('itemController specified in template gets a parentController property', function () {
-    // using an ObjectController for this test to verify that parentController does accidentally get set
-    // on the proxied model.
-    var Controller = _emberRuntimeControllersObject_controller.default.extend({
-      controllerName: _emberMetalComputed.computed(function () {
-        return 'controller:' + _emberMetalProperty_get.get(this, 'model.name') + ' of ' + _emberMetalProperty_get.get(this, 'parentController.company');
-      })
-    });
-    var parentController = {
-      container: container,
-      company: 'Yapp'
-    };
-
-    registry.register('controller:array', _emberRuntimeControllersArray_controller.default.extend());
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
-      people: people,
-      controller: parentController
-    });
-
-    registry.register('controller:person', Controller);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller:Steve Holt of Yappcontroller:Annabelle of Yapp');
-  });
-
-  QUnit.test('itemController specified in ArrayController gets a parentController property', function () {
-    var PersonController = _emberRuntimeControllersObject_controller.default.extend({
-      controllerName: _emberMetalComputed.computed(function () {
-        return 'controller:' + _emberMetalProperty_get.get(this, 'model.name') + ' of ' + _emberMetalProperty_get.get(this, 'parentController.company');
-      })
-    });
-    var PeopleController = _emberRuntimeControllersArray_controller.default.extend({
-      model: people,
-      itemController: 'person',
-      company: 'Yapp'
-    });
-
-    registry.register('controller:people', PeopleController);
-    registry.register('controller:person', PersonController);
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#each}}{{controllerName}}{{/each}}'),
-      controller: container.lookup('controller:people')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller:Steve Holt of Yappcontroller:Annabelle of Yapp');
-  });
-
-  QUnit.test('itemController\'s parentController property, when the ArrayController has a parentController', function () {
-    var PersonController = _emberRuntimeControllersObject_controller.default.extend({
-      controllerName: _emberMetalComputed.computed(function () {
-        return 'controller:' + _emberMetalProperty_get.get(this, 'model.name') + ' of ' + _emberMetalProperty_get.get(this, 'parentController.company');
-      })
-    });
-    var PeopleController = _emberRuntimeControllersArray_controller.default.extend({
-      model: people,
-      itemController: 'person',
-      parentController: _emberMetalComputed.computed(function () {
-        return this.container.lookup('controller:company');
-      }),
-      company: 'Yapp'
-    });
-    var CompanyController = _emberRuntimeControllersController.default.extend();
-
-    registry.register('controller:company', CompanyController);
-    registry.register('controller:people', PeopleController);
-    registry.register('controller:person', PersonController);
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#each}}{{controllerName}}{{/each}}'),
-      controller: container.lookup('controller:people')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller:Steve Holt of Yappcontroller:Annabelle of Yapp');
   });
 
   QUnit.test('it supports {{itemView=}}', function () {
@@ -13739,7 +13650,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
   });
 });
 /*globals EmberDev */
-enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalProperty_set, _emberMetalProperty_get, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
 
   var view, lookup;
   var originalLookup = _emberMetalCore.default.lookup;
@@ -13951,160 +13862,6 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.module('Handlebars {{#with foo}} with defined controller');
-
-  QUnit.test('it should wrap context with object controller [DEPRECATED]', function () {
-    var childController;
-
-    var Controller = _emberRuntimeControllersObject_controller.default.extend({
-      init: function () {
-        if (childController) {
-          throw new Error('Did not expect controller.init to be invoked twice');
-        }
-        childController = this;
-        this._super();
-      },
-      controllerName: _emberMetalComputed.computed(function () {
-        return 'controller:' + this.get('model.name') + ' and ' + this.get('parentController.name');
-      }).property('model.name', 'parentController.name')
-    });
-
-    var person = _emberRuntimeSystemObject.default.create({ name: 'Steve Holt' });
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    var parentController = _emberRuntimeSystemObject.default.create({
-      container: container,
-      name: 'Bob Loblaw'
-    });
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.person controller="person"}}{{controllerName}}{{/with}}'),
-      person: person,
-      controller: parentController
-    });
-
-    registry.register('controller:person', Controller);
-
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-    expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'controller:Steve Holt and Bob Loblaw');
-
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'controller:Steve Holt and Bob Loblaw');
-
-    _emberMetalRun_loop.default(function () {
-      parentController.set('name', 'Carl Weathers');
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'controller:Steve Holt and Carl Weathers');
-
-    _emberMetalRun_loop.default(function () {
-      person.set('name', 'Gob');
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'controller:Gob and Carl Weathers');
-
-    strictEqual(childController.get('target'), parentController, 'the target property of the child controllers are set correctly');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
-
-  /* requires each
-  QUnit.test("it should still have access to original parentController within an {{#each}}", function() {
-    var Controller = ObjectController.extend({
-      controllerName: computed(function() {
-        return "controller:"+this.get('model.name') + ' and ' + this.get('parentController.name');
-      })
-    });
-  
-    var people = A([{ name: "Steve Holt" }, { name: "Carl Weathers" }]);
-    var registry = new Registry();
-    var container = registry.container();
-  
-    var parentController = EmberObject.create({
-      container: container,
-      name: 'Bob Loblaw',
-      people: people
-    });
-  
-    view = EmberView.create({
-      container: container,
-      template: compile('{{#each person in people}}{{#with person controller="person"}}{{controllerName}}{{/with}}{{/each}}'),
-      controller: parentController
-    });
-  
-    registry.register('controller:person', Controller);
-  
-    runAppend(view);
-  
-    equal(view.$().text(), "controller:Steve Holt and Bob Loblawcontroller:Carl Weathers and Bob Loblaw");
-  
-    runDestroy(view);
-  });
-  */
-
-  QUnit.test('it should wrap keyword with object controller [DEPRECATED]', function () {
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    var PersonController = _emberRuntimeControllersObject_controller.default.extend({
-      name: _emberMetalComputed.computed('model.name', function () {
-        return _emberMetalProperty_get.get(this, 'model.name').toUpperCase();
-      })
-    });
-
-    var person = _emberRuntimeSystemObject.default.create({ name: 'Steve Holt' });
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    var parentController = _emberRuntimeSystemObject.default.create({
-      container: container,
-      person: person,
-      name: 'Bob Loblaw'
-    });
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#with person controller="person" as |steve|}}{{name}} - {{steve.name}}{{/with}}'),
-      controller: parentController
-    });
-
-    registry.register('controller:person', PersonController);
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$().text(), 'Bob Loblaw - STEVE HOLT');
-
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'Bob Loblaw - STEVE HOLT');
-
-    _emberMetalRun_loop.default(function () {
-      parentController.set('name', 'Carl Weathers');
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'Carl Weathers - STEVE HOLT');
-
-    _emberMetalRun_loop.default(function () {
-      person.set('name', 'Gob');
-      view.rerender();
-    });
-
-    equal(view.$().text(), 'Carl Weathers - GOB');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-  });
 
   QUnit.test('destroys the controller generated with {{with foo controller=\'blah\'}} [DEPRECATED]', function () {
     var destroyed = false;
@@ -29792,7 +29549,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 });
 // TEMPLATES
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
+enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
 
   function resolverFor(namespace) {
     return function (fullName) {
@@ -29829,7 +29586,6 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'em
     registry.register('location:hash', _emberRoutingLocationHash_location.default);
 
     registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-    registry.register('controller:object', _emberRuntimeControllersObject_controller.default, { instantiate: false });
     registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
     registry.register('view:toplevel', _emberViewsViewsView.default.extend());
@@ -30667,7 +30423,7 @@ enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/merge'
   });
   // jscs:enable
 });
-enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _containerRegistry, _emberRuntimeSystemNamespace, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller) {
+enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _containerRegistry, _emberRuntimeSystemNamespace, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller) {
 
   var buildContainer = function (namespace) {
     var registry = new _containerRegistry.default();
@@ -30680,7 +30436,6 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     registry.register('application:main', namespace, { instantiate: false });
 
     registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-    registry.register('controller:object', _emberRuntimeControllersObject_controller.default, { instantiate: false });
     registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
     return container;
@@ -30751,13 +30506,6 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     ok(controller instanceof _emberRuntimeControllersController.default, 'should create controller');
   });
 
-  QUnit.test('generateController should create Ember.ObjectController [DEPRECATED]', function () {
-    var context = {};
-    var controller = _emberRoutingSystemGenerate_controller.default(container, 'home', context);
-
-    ok(controller instanceof _emberRuntimeControllersObject_controller.default, 'should create controller');
-  });
-
   QUnit.test('generateController should create Ember.ArrayController', function () {
     var context = _emberMetalCore.default.A();
     var controller = _emberRoutingSystemGenerate_controller.default(container, 'home', context);
@@ -30772,16 +30520,6 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     controller = _emberRoutingSystemGenerate_controller.default(container, 'home');
 
     ok(controller instanceof namespace.Controller, 'should create controller');
-  });
-
-  QUnit.test('generateController should create App.ObjectController if provided', function () {
-    var context = {};
-    var controller;
-    namespace.ObjectController = _emberRuntimeControllersObject_controller.default.extend();
-
-    controller = _emberRoutingSystemGenerate_controller.default(container, 'home', context);
-
-    ok(controller instanceof namespace.ObjectController, 'should create controller');
   });
 
   QUnit.test('generateController should create App.ArrayController if provided', function () {
@@ -33113,7 +32851,7 @@ enifed('ember-runtime/tests/controllers/array_controller_test', ['exports', 'emb
     equal(_emberMetalProperty_get.get(controller, 'model'), false, 'can set model to `undefined`');
   });
 });
-enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberMetalMixin, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/array_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberRuntimeControllersArray_controller, _emberMetalMixin, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get) {
 
   QUnit.module('Controller event handling');
 
@@ -33158,23 +32896,6 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
     var controller = TestController.create({});
     controller.send('poke');
     equal('foo', controller.get('actions')[0], 'actions property is not untouched');
-  });
-
-  QUnit.test('Actions object doesn\'t shadow a proxied object\'s \'actions\' property', function () {
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    var TestController = _emberRuntimeControllersObject_controller.default.extend({
-      model: {
-        actions: 'foo'
-      },
-      actions: {
-        poke: function () {
-          console.log('ouch');
-        }
-      }
-    });
-    var controller = TestController.create({});
-    equal(controller.get('actions'), 'foo', 'doesn\'t shadow the content\'s actions property');
   });
 
   QUnit.test('A handled action can be bubbled to the target for continued processing', function () {
@@ -33320,25 +33041,6 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
 
     var postController = container.lookup('controller:post');
     var postsController = container.lookup('controller:posts');
-
-    equal(postsController, postController.get('postsController'), 'controller.posts is injected');
-  });
-
-  QUnit.test('controllers can be injected into ObjectControllers', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:post', _emberRuntimeControllersController.default.extend({
-      postsController: _emberRuntimeInject.default.controller('posts')
-    }));
-
-    registry.register('controller:posts', _emberRuntimeControllersObject_controller.default.extend());
-
-    var postController = container.lookup('controller:post');
-    var postsController;
-    expectDeprecation(function () {
-      postsController = container.lookup('controller:posts');
-    }, _emberRuntimeControllersObject_controller.objectControllerDeprecation);
 
     equal(postsController, postController.get('postsController'), 'controller.posts is injected');
   });
@@ -33746,73 +33448,6 @@ enifed('ember-runtime/tests/controllers/item_controller_class_test', ['exports',
     var sortedNames = arrayController.get('sorted').mapBy('model.name');
 
     deepEqual(sortedNames, ['Jaime', 'Cersei'], 'ArrayController items can be sorted on itemController properties');
-  });
-});
-enifed('ember-runtime/tests/controllers/object_controller_test', ['exports', 'ember-runtime/controllers/object_controller', 'ember-metal/mixin'], function (exports, _emberRuntimeControllersObject_controller, _emberMetalMixin) {
-
-  QUnit.module('Ember.ObjectController');
-
-  QUnit.test('should be able to set the target property of an ObjectController', function () {
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    var controller = _emberRuntimeControllersObject_controller.default.create();
-    var target = {};
-
-    controller.set('target', target);
-    equal(controller.get('target'), target, 'able to set the target property');
-  });
-
-  // See https://github.com/emberjs/ember.js/issues/5112
-  QUnit.test('can observe a path on an ObjectController', function () {
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    var controller = _emberRuntimeControllersObject_controller.default.extend({
-      baz: _emberMetalMixin.observer('foo.bar', function () {})
-    }).create();
-    controller.set('model', {});
-    ok(true, 'should not fail');
-  });
-
-  QUnit.test('accessing model properties via proxy behavior results in a deprecation [DEPRECATED]', function () {
-    var controller;
-
-    expectDeprecation(function () {
-      controller = _emberRuntimeControllersObject_controller.default.extend({
-        model: {
-          foo: 'bar',
-          baz: 'qux'
-        }
-      }).create();
-    }, _emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    expectDeprecation(function () {
-      controller.get('bar');
-    }, /object proxying is deprecated\. Please use `model\.bar` instead\./);
-  });
-
-  QUnit.test('setting model properties via proxy behavior results in a deprecation [DEPRECATED]', function () {
-    var controller;
-
-    expectDeprecation(function () {
-      controller = _emberRuntimeControllersObject_controller.default.extend({
-        model: {
-          foo: 'bar',
-          baz: 'qux'
-        }
-      }).create();
-    }, _emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    expectDeprecation(function () {
-      controller.set('bar', 'derp');
-    }, /object proxying is deprecated\. Please use `model\.bar` instead\./);
-  });
-
-  QUnit.test('auto-generated controllers are not deprecated', function () {
-    expectNoDeprecation(function () {
-      _emberRuntimeControllersObject_controller.default.extend({
-        isGenerated: true
-      }).create();
-    });
   });
 });
 enifed('ember-runtime/tests/core/compare_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemObject, _emberRuntimeCompare, _emberRuntimeMixinsComparable) {
@@ -44880,7 +44515,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7a8a46be', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+ab9d96ff', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55936,7 +55571,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
 // Note: the reason we're not allowing undashed helpers is to avoid
 // a possible perf hit in hot code paths, i.e. _triageMustache.
 // We only presently perform container lookups if prop.indexOf('-') >= 0
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-runtime/controllers/object_controller', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberRuntimeControllersObject_controller, _emberHtmlbarsCompat, _emberViewsViewsView) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberHtmlbarsCompat, _emberViewsViewsView) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
 
@@ -56814,36 +56449,6 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     });
 
     equal(_emberMetalCore.default.$('#post', '#qunit-fixture').attr('href'), '#', 'href attr becomes # when one of the arguments in nullified');
-  });
-
-  QUnit.test('The {{link-to}} helper\'s bound parameter functionality works as expected in conjunction with an ObjectProxy/Controller', function () {
-    expectDeprecation(_emberRuntimeControllersObject_controller.objectControllerDeprecation);
-
-    Router.map(function () {
-      this.route('post', { path: '/posts/:post_id' });
-    });
-
-    var post = _emberMetalCore.default.Object.create({ id: '1' });
-    var secondPost = _emberMetalCore.default.Object.create({ id: '2' });
-
-    _emberMetalCore.default.TEMPLATES = {
-      index: compile(' '),
-      post: compile('{{#link-to "post" this id="self-link"}}selflink{{/link-to}}')
-    };
-
-    App.PostController = _emberMetalCore.default.ObjectController.extend();
-    var postController = container.lookup('controller:post');
-
-    bootApplication();
-
-    _emberMetalCore.default.run(router, 'transitionTo', 'post', post);
-
-    var $link = _emberMetalCore.default.$('#self-link', '#qunit-fixture');
-    equal(normalizeUrl($link.attr('href')), '/posts/1', 'self link renders post 1');
-
-    _emberMetalCore.default.run(postController, 'set', 'model', secondPost);
-
-    equal(normalizeUrl($link.attr('href')), '/posts/2', 'self link updated to post 2');
   });
 
   QUnit.test('The {{link-to}} helper is active when a route is active', function () {
@@ -60466,30 +60071,6 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       equal(get(controller, 'foo'), '456');
     });
   } else {
-    QUnit.test('Single query params can be set on ObjectController [DEPRECATED]', function () {
-      expectDeprecation('Ember.ObjectController is deprecated, please use Ember.Controller and use `model.propertyName`.');
-
-      Router.map(function () {
-        this.route('home', { path: '/' });
-      });
-
-      App.HomeController = _emberMetalCore.default.ObjectController.extend({
-        queryParams: ['foo'],
-        foo: '123'
-      });
-
-      bootApplication();
-
-      var controller = container.lookup('controller:home');
-
-      setAndFlush(controller, 'foo', '456');
-
-      equal(router.get('location.path'), '/?foo=456');
-
-      setAndFlush(controller, 'foo', '987');
-      equal(router.get('location.path'), '/?foo=987');
-    });
-
     QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
       Router.map(function () {
         this.route('home', { path: '/' });

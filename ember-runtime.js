@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7a8a46be
+ * @version   2.0.0-canary+ab9d96ff
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+7a8a46be
+    @version 2.0.0-canary+ab9d96ff
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+7a8a46be'
+    @default '2.0.0-canary+ab9d96ff'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+7a8a46be';
+  Ember.VERSION = '2.0.0-canary+ab9d96ff';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11905,7 +11905,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
 /**
 @module ember-metal
 */
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   // END IMPORTS
 
   // BEGIN EXPORTS
@@ -11973,7 +11973,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
 
   _emberMetal.default.ArrayController = _emberRuntimeControllersArray_controller.default;
-  _emberMetal.default.ObjectController = _emberRuntimeControllersObject_controller.default;
   _emberMetal.default.Controller = _emberRuntimeControllersController.default;
   _emberMetal.default.ControllerMixin = _emberRuntimeMixinsController.default;
 
@@ -12805,7 +12804,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     Sometimes you want to display computed properties within the body of an
     `#each` helper that depend on the underlying items in `model`, but are not
     present on those items.   To do this, set `itemController` to the name of a
-    controller (probably an `ObjectController`) that will wrap each individual item.
+    controller that will wrap each individual item.
   
     For example:
   
@@ -12820,7 +12819,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
       itemController: 'post'
     });
   
-    App.PostController = Ember.ObjectController.extend({
+    App.PostController = Ember.Controller.extend({
       // the `title` property will be proxied to the underlying post.
       titleLength: function() {
         return this.get('title').length;
@@ -13098,37 +13097,6 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
   exports.default = Controller;
 });
 // Ember.assert
-enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/core', 'ember-runtime/mixins/controller', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalCore, _emberRuntimeMixinsController, _emberRuntimeSystemObject_proxy) {
-  var objectControllerDeprecation = 'Ember.ObjectController is deprecated, ' + 'please use Ember.Controller and use `model.propertyName`.';
-
-  exports.objectControllerDeprecation = objectControllerDeprecation;
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  /**
-    `Ember.ObjectController` is part of Ember's Controller layer. It is intended
-    to wrap a single object, proxying unhandled attempts to `get` and `set` to the underlying
-    model object, and to forward unhandled action attempts to its `target`.
-  
-    `Ember.ObjectController` derives this functionality from its superclass
-    `Ember.ObjectProxy` and the `Ember.ControllerMixin` mixin.
-  
-    @class ObjectController
-    @namespace Ember
-    @extends Ember.ObjectProxy
-    @uses Ember.ControllerMixin
-    @deprecated
-    @public
-  **/
-  exports.default = _emberRuntimeSystemObject_proxy.default.extend(_emberRuntimeMixinsController.default, {
-    init: function () {
-      this._super();
-      _emberMetalCore.default.deprecate(objectControllerDeprecation, this.isGenerated);
-    }
-  });
-});
 enifed('ember-runtime/copy', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
   exports.default = copy;
 
@@ -13807,8 +13775,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     to the object's mergedProperties list.
   
     `Ember.ActionHandler` is available on some familiar classes including
-    `Ember.Route`, `Ember.View`, `Ember.Component`, and controllers such as
-    `Ember.Controller` and `Ember.ObjectController`.
+    `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
     and `Ember.Route` and available to the above classes through
     inheritance.)
@@ -14532,8 +14499,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
 
   /**
     `Ember.ControllerMixin` provides a standard interface for all classes that
-    compose Ember's controller layer: `Ember.Controller`,
-    `Ember.ArrayController`, and `Ember.ObjectController`.
+    compose Ember's controller layer: `Ember.Controller` and `Ember.ArrayController`.
   
     @class ControllerMixin
     @namespace Ember
@@ -16873,44 +16839,44 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy, ObjectController or ArrayControllers promise-aware.
+    A low level mixin making ObjectProxy or ArrayControllers promise-aware.
   
     ```javascript
-    var ObjectPromiseController = Ember.ObjectController.extend(Ember.PromiseProxyMixin);
+    var ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
   
-    var controller = ObjectPromiseController.create({
+    var proxy = ObjectPromiseProxy.create({
       promise: $.getJSON('/some/remote/data.json')
     });
   
-    controller.then(function(json){
+    proxy.then(function(json){
        // the json
     }, function(reason) {
        // the reason why you have no json
     });
     ```
   
-    the controller has bindable attributes which
+    the proxy has bindable attributes which
     track the promises life cycle
   
     ```javascript
-    controller.get('isPending')   //=> true
-    controller.get('isSettled')  //=> false
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> false
+    proxy.get('isPending')   //=> true
+    proxy.get('isSettled')  //=> false
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> false
     ```
   
     When the the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
   
     ```javascript
-    controller.get('isPending')   //=> false
-    controller.get('isSettled')   //=> true
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> true
+    proxy.get('isPending')   //=> false
+    proxy.get('isSettled')   //=> true
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> true
     ```
   
-    As the controller is an ObjectController, and the json now its content,
-    all the json properties will be available directly from the controller.
+    As the proxy is an ObjectProxy, and the json now its content,
+    all the json properties will be available directly from the proxy.
   
     ```javascript
     // Assuming the following json:
@@ -16919,22 +16885,11 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       lastName: 'Penner'
     }
   
-    // both properties will accessible on the controller
-    controller.get('firstName') //=> 'Stefan'
-    controller.get('lastName')  //=> 'Penner'
+    // both properties will accessible on the proxy
+    proxy.get('firstName') //=> 'Stefan'
+    proxy.get('lastName')  //=> 'Penner'
     ```
   
-    If the controller is backing a template, the attributes are
-    bindable from within that template
-  
-    ```handlebars
-    {{#if isPending}}
-      loading...
-    {{else}}
-      firstName: {{firstName}}
-      lastName: {{lastName}}
-    {{/if}}
-    ```
     @class Ember.PromiseProxyMixin
     @public
   */
@@ -16986,7 +16941,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       changed once created.
        Example:
        ```javascript
-      Ember.ObjectController.extend(Ember.PromiseProxyMixin).create({
+      Ember.ObjectProxy.extend(Ember.PromiseProxyMixin).create({
         promise: <thenable>
       });
       ```
