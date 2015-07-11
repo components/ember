@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ab9d96ff
+ * @version   2.0.0-canary+74c8128b
  */
 
 (function() {
@@ -344,10 +344,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     `Ember.runInDebug()` when doing a production build.
   
     ```javascript
-    Ember.runInDebug(function() {
-      Ember.Handlebars.EachView.reopen({
-        didInsertElement: function() {
-          console.log('I\'m happy');
+    Ember.runInDebug(() => {
+      Ember.Component.reopen({
+        didInsertElement() {
+          console.log("I'm happy");
         }
       });
     });

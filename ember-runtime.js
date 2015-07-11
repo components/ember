@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ab9d96ff
+ * @version   2.0.0-canary+74c8128b
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ab9d96ff
+    @version 2.0.0-canary+74c8128b
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ab9d96ff'
+    @default '2.0.0-canary+74c8128b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ab9d96ff';
+  Ember.VERSION = '2.0.0-canary+74c8128b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18869,14 +18869,14 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   var loaded = {};
 
   /**
-    Detects when a specific package of Ember (e.g. 'Ember.Handlebars')
+    Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
   
     The provided `callback` will be called with the `name` passed
     resolved from a string into the object:
   
     ``` javascript
-    Ember.onLoad('Ember.Handlebars' function(hbars) {
+    Ember.onLoad('Ember.Application' function(hbars) {
       hbars.registerHelper(...);
     });
     ```
@@ -18900,7 +18900,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   }
 
   /**
-    Called when an Ember.js package (e.g Ember.Handlebars) has finished
+    Called when an Ember.js package (e.g Ember.Application) has finished
     loading. Triggers any callbacks registered for this event.
   
     @method runLoadHooks

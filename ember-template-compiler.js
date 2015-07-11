@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ab9d96ff
+ * @version   2.0.0-canary+74c8128b
  */
 
 (function() {
@@ -1311,10 +1311,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     `Ember.runInDebug()` when doing a production build.
   
     ```javascript
-    Ember.runInDebug(function() {
-      Ember.Handlebars.EachView.reopen({
-        didInsertElement: function() {
-          console.log('I\'m happy');
+    Ember.runInDebug(() => {
+      Ember.Component.reopen({
+        didInsertElement() {
+          console.log("I'm happy");
         }
       });
     });
@@ -3984,7 +3984,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ab9d96ff
+    @version 2.0.0-canary+74c8128b
     @public
   */
 
@@ -4016,11 +4016,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ab9d96ff'
+    @default '2.0.0-canary+74c8128b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ab9d96ff';
+  Ember.VERSION = '2.0.0-canary+74c8128b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12254,7 +12254,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ab9d96ff',
+        revision: 'Ember@2.0.0-canary+74c8128b',
         loc: program.loc,
         moduleName: options.moduleName
       };
