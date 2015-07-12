@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.3+00c22c65
+ * @version   1.13.3+4a55440a
  */
 
 (function() {
@@ -5041,7 +5041,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.3+00c22c65
+    @version 1.13.3+4a55440a
     @public
   */
 
@@ -5073,11 +5073,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.3+00c22c65'
+    @default '1.13.3+4a55440a'
     @static
     @public
   */
-  Ember.VERSION = '1.13.3+00c22c65';
+  Ember.VERSION = '1.13.3+4a55440a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13428,7 +13428,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
         observerContexts[index] = observerContext;
 
         _emberMetalEnumerable_utils.forEach(itemPropertyKeys, function (propertyKey) {
-          _emberMetalObserver.addBeforeObserver(item, propertyKey, this, observerContext.beforeObserver);
+          _emberMetalObserver._addBeforeObserver(item, propertyKey, this, observerContext.beforeObserver);
           _emberMetalObserver.addObserver(item, propertyKey, this, observerContext.observer);
         }, this);
       }, this);
@@ -13455,7 +13455,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
           item = observerContext.item;
 
           _emberMetalEnumerable_utils.forEach(itemPropertyKeys, function (propertyKey) {
-            _emberMetalObserver.removeBeforeObserver(item, propertyKey, dependentArrayObserver, beforeObserver);
+            _emberMetalObserver._removeBeforeObserver(item, propertyKey, dependentArrayObserver, beforeObserver);
             _emberMetalObserver.removeObserver(item, propertyKey, dependentArrayObserver, observer);
           });
         });
@@ -13545,7 +13545,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
 
       function removeObservers(propertyKey) {
         observerContexts[sliceIndex].destroyed = true;
-        _emberMetalObserver.removeBeforeObserver(item, propertyKey, this, observerContexts[sliceIndex].beforeObserver);
+        _emberMetalObserver._removeBeforeObserver(item, propertyKey, this, observerContexts[sliceIndex].beforeObserver);
         _emberMetalObserver.removeObserver(item, propertyKey, this, observerContexts[sliceIndex].observer);
       }
 
@@ -13586,7 +13586,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
           observerContexts[sliceIndex] = observerContext;
 
           _emberMetalEnumerable_utils.forEach(itemPropertyKeys, function (propertyKey) {
-            _emberMetalObserver.addBeforeObserver(item, propertyKey, this, observerContext.beforeObserver);
+            _emberMetalObserver._addBeforeObserver(item, propertyKey, this, observerContext.beforeObserver);
             _emberMetalObserver.addObserver(item, propertyKey, this, observerContext.observer);
           }, this);
         }
