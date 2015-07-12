@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+51464270
+ * @version   2.0.0-canary+5574f194
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+51464270
+    @version 2.0.0-canary+5574f194
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+51464270'
+    @default '2.0.0-canary+5574f194'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+51464270';
+  Ember.VERSION = '2.0.0-canary+5574f194';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11905,7 +11905,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
 /**
 @module ember-metal
 */
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   // END IMPORTS
 
   // BEGIN EXPORTS
@@ -11919,8 +11919,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
 
   _emberMetal.default.Comparable = _emberRuntimeMixinsComparable.default;
   _emberMetal.default.Copyable = _emberRuntimeMixinsCopyable.default;
-
-  _emberMetal.default.SortableMixin = _emberRuntimeMixinsSortable.default;
 
   _emberMetal.default.Freezable = _emberRuntimeMixinsFreezable.Freezable;
   _emberMetal.default.FROZEN_ERROR = _emberRuntimeMixinsFreezable.FROZEN_ERROR;
@@ -11972,7 +11970,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.onLoad = _emberRuntimeSystemLazy_load.onLoad;
   _emberMetal.default.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
 
-  _emberMetal.default.ArrayController = _emberRuntimeControllersArray_controller.default;
   _emberMetal.default.Controller = _emberRuntimeControllersController.default;
   _emberMetal.default.ControllerMixin = _emberRuntimeMixinsController.default;
 
@@ -12765,282 +12762,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 */
 
 // Ember.assert
-enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/mixins/controller', 'ember-metal/computed', 'ember-metal/error', 'ember-runtime/mixins/array', 'ember-metal/replace'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeMixinsController, _emberMetalComputed, _emberMetalError, _emberRuntimeMixinsArray, _emberMetalReplace) {
-  var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
-
-  exports.arrayControllerDeprecation = arrayControllerDeprecation;
-  /**
-    `Ember.ArrayController` provides a way for you to publish a collection of
-    objects so that you can easily bind to the collection from a Handlebars
-    `#each` helper, an `Ember.CollectionView`, or other controllers.
-  
-    The advantage of using an `ArrayController` is that you only have to set up
-    your view bindings once; to change what's displayed, simply swap out the
-    `model` property on the controller.
-  
-    For example, imagine you wanted to display a list of items fetched via an XHR
-    request. Create an `Ember.ArrayController` and set its `model` property:
-  
-    ```javascript
-    MyApp.listController = Ember.ArrayController.create();
-  
-    $.get('people.json', function(data) {
-      MyApp.listController.set('model', data);
-    });
-    ```
-  
-    Then, create a view that binds to your new controller:
-  
-    ```handlebars
-    {{#each MyApp.listController as |person|}}
-      {{person.firstName}} {{person.lastName}}
-    {{/each}}
-    ```
-  
-    Although you are binding to the controller, the behavior of this controller
-    is to pass through any methods or properties to the underlying array. This
-    capability comes from `Ember.ArrayProxy`, which this class inherits from.
-  
-    Sometimes you want to display computed properties within the body of an
-    `#each` helper that depend on the underlying items in `model`, but are not
-    present on those items.   To do this, set `itemController` to the name of a
-    controller that will wrap each individual item.
-  
-    For example:
-  
-    ```handlebars
-    {{#each controller as |post|}}
-      <li>{{post.title}} ({{post.titleLength}} characters)</li>
-    {{/each}}
-    ```
-  
-    ```javascript
-    App.PostsController = Ember.ArrayController.extend({
-      itemController: 'post'
-    });
-  
-    App.PostController = Ember.Controller.extend({
-      // the `title` property will be proxied to the underlying post.
-      titleLength: function() {
-        return this.get('title').length;
-      }.property('title')
-    });
-    ```
-  
-    In some cases it is helpful to return a different `itemController` depending
-    on the particular item.  Subclasses can do this by overriding
-    `lookupItemController`.
-  
-    For example:
-  
-    ```javascript
-    App.MyArrayController = Ember.ArrayController.extend({
-      lookupItemController: function( object ) {
-        if (object.get('isSpecial')) {
-          return "special"; // use App.SpecialController
-        } else {
-          return "regular"; // use App.RegularController
-        }
-      }
-    });
-    ```
-  
-    The itemController instances will have a `parentController` property set to
-    the `ArrayController` instance.
-  
-    @class ArrayController
-    @namespace Ember
-    @extends Ember.ArrayProxy
-    @uses Ember.SortableMixin
-    @uses Ember.ControllerMixin
-    @deprecated
-    @public
-  */
-
-  exports.default = _emberRuntimeSystemArray_proxy.default.extend(_emberRuntimeMixinsController.default, _emberRuntimeMixinsSortable.default, {
-
-    /**
-      A string containing the controller name used to wrap items.
-       For example:
-       ```javascript
-      App.MyArrayController = Ember.ArrayController.extend({
-        itemController: 'myItem' // use App.MyItemController
-      });
-      ```
-       @property itemController
-      @type String
-      @default null
-      @private
-    */
-    itemController: null,
-
-    /**
-      Return the name of the controller to wrap items, or `null` if items should
-      be returned directly.  The default implementation simply returns the
-      `itemController` property, but subclasses can override this method to return
-      different controllers for different objects.
-       For example:
-       ```javascript
-      App.MyArrayController = Ember.ArrayController.extend({
-        lookupItemController: function( object ) {
-          if (object.get('isSpecial')) {
-            return "special"; // use App.SpecialController
-          } else {
-            return "regular"; // use App.RegularController
-          }
-        }
-      });
-      ```
-       @method lookupItemController
-      @param {Object} object
-      @return {String}
-      @private
-    */
-    lookupItemController: function (object) {
-      return _emberMetalProperty_get.get(this, 'itemController');
-    },
-
-    objectAtContent: function (idx) {
-      var length = _emberMetalProperty_get.get(this, 'length');
-      var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-      var object = arrangedContent && arrangedContent.objectAt(idx);
-      var controllerClass;
-
-      if (idx >= 0 && idx < length) {
-        controllerClass = this.lookupItemController(object);
-
-        if (controllerClass) {
-          return this.controllerAt(idx, object, controllerClass);
-        }
-      }
-
-      // When `controllerClass` is falsy, we have not opted in to using item
-      // controllers, so return the object directly.
-
-      // When the index is out of range, we want to return the "out of range"
-      // value, whatever that might be.  Rather than make assumptions
-      // (e.g. guessing `null` or `undefined`) we defer this to `arrangedContent`.
-      return object;
-    },
-
-    arrangedContentDidChange: function () {
-      this._super.apply(this, arguments);
-      this._resetSubControllers();
-    },
-
-    arrayContentDidChange: function (idx, removedCnt, addedCnt) {
-      var subControllers = this._subControllers;
-
-      if (subControllers.length) {
-        var subControllersToRemove = subControllers.slice(idx, idx + removedCnt);
-
-        subControllersToRemove.forEach(function (subController) {
-          if (subController) {
-            subController.destroy();
-          }
-        });
-
-        _emberMetalReplace.default(subControllers, idx, removedCnt, new Array(addedCnt));
-      }
-
-      // The shadow array of subcontrollers must be updated before we trigger
-      // observers, otherwise observers will get the wrong subcontainer when
-      // calling `objectAt`
-      this._super(idx, removedCnt, addedCnt);
-    },
-
-    init: function () {
-      _emberMetalCore.default.deprecate(arrayControllerDeprecation, this.isGenerated);
-
-      this._super.apply(this, arguments);
-      this._subControllers = [];
-    },
-
-    model: _emberMetalComputed.computed({
-      get: function (key) {
-        return _emberMetalCore.default.A();
-      },
-      set: function (key, value) {
-        _emberMetalCore.default.assert('ArrayController expects `model` to implement the Ember.Array mixin. ' + 'This can often be fixed by wrapping your model with `Ember.A()`.', _emberRuntimeMixinsArray.default.detect(value) || !value);
-
-        return value;
-      }
-    }),
-
-    /**
-      Flag to mark as being "virtual". Used to keep this instance
-      from participating in the parentController hierarchy.
-       @private
-      @property _isVirtual
-      @type Boolean
-    */
-    _isVirtual: false,
-
-    controllerAt: function (idx, object, controllerClass) {
-      var container = _emberMetalProperty_get.get(this, 'container');
-      var subControllers = this._subControllers;
-      var fullName, subController, parentController;
-
-      if (subControllers.length > idx) {
-        subController = subControllers[idx];
-
-        if (subController) {
-          return subController;
-        }
-      }
-
-      if (this._isVirtual) {
-        parentController = _emberMetalProperty_get.get(this, 'parentController');
-      } else {
-        parentController = this;
-      }
-
-      fullName = 'controller:' + controllerClass;
-
-      if (!container._registry.has(fullName)) {
-        throw new _emberMetalError.default('Could not resolve itemController: "' + controllerClass + '"');
-      }
-
-      subController = container.lookupFactory(fullName).create({
-        target: parentController,
-        parentController: parentController,
-        model: object
-      });
-
-      subControllers[idx] = subController;
-
-      return subController;
-    },
-
-    _subControllers: null,
-
-    _resetSubControllers: function () {
-      var controller;
-      var subControllers = this._subControllers;
-
-      if (subControllers.length) {
-        for (var i = 0, length = subControllers.length; length > i; i++) {
-          controller = subControllers[i];
-
-          if (controller) {
-            controller.destroy();
-          }
-        }
-
-        subControllers.length = 0;
-      }
-    },
-
-    willDestroy: function () {
-      this._resetSubControllers();
-      this._super.apply(this, arguments);
-    }
-  });
-});
-/**
-@module ember
-@submodule ember-runtime
-*/
 enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject) {
 
   /**
@@ -13998,7 +13719,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     concrete implementation, but it can be used up by other classes that want
     to appear like arrays.
   
-    For example, ArrayProxy and ArrayController are both concrete classes that can
+    For example, ArrayProxy is a concrete classes that can
     be instantiated to implement array-like behavior. Both of these classes use
     the Array Mixin by way of the MutableArray mixin, which allows observable
     changes to be made to the underlying array.
@@ -14498,9 +14219,6 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
 enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'ember-metal/alias', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetalMixin, _emberMetalAlias, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsController_content_model_alias_deprecation) {
 
   /**
-    `Ember.ControllerMixin` provides a standard interface for all classes that
-    compose Ember's controller layer: `Ember.Controller` and `Ember.ArrayController`.
-  
     @class ControllerMixin
     @namespace Ember
     @uses Ember.ActionHandler
@@ -15923,7 +15641,7 @@ enifed('ember-runtime/mixins/mutable_array', ['exports', 'ember-metal/property_g
     This mixin defines the API for modifying array-like objects. These methods
     can be applied only to a collection that keeps its items in an ordered set.
     It builds upon the Array mixin and adds methods to modify the array.
-    Concrete implementations of this class include ArrayProxy and ArrayController.
+    One concrete implementations of this class include ArrayProxy.
   
     It is important to use the methods in this class to modify arrays so that
     changes are observable. This allows the binding system in Ember to function
@@ -16839,7 +16557,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy or ArrayControllers promise-aware.
+    A low level mixin making ObjectProxy promise-aware.
   
     ```javascript
     var ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
@@ -16998,309 +16716,6 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     };
   }
 });
-enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/compare', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeCompare, _emberMetalObserver, _emberMetalComputed, _emberMetalComputed_macros, _emberMetalMixin) {
-  //ES6TODO: should we access these directly from their package or from how their exposed in ember-metal?
-
-  /**
-    `Ember.SortableMixin` provides a standard interface for array proxies
-    to specify a sort order and maintain this sorting when objects are added,
-    removed, or updated without changing the implicit order of their underlying
-    model array:
-  
-    ```javascript
-    songs = [
-      {trackNumber: 4, title: 'Ob-La-Di, Ob-La-Da'},
-      {trackNumber: 2, title: 'Back in the U.S.S.R.'},
-      {trackNumber: 3, title: 'Glass Onion'},
-    ];
-  
-    songsController = Ember.ArrayController.create({
-      model: songs,
-      sortProperties: ['trackNumber'],
-      sortAscending: true
-    });
-  
-    songsController.get('firstObject');  // {trackNumber: 2, title: 'Back in the U.S.S.R.'}
-  
-    songsController.addObject({trackNumber: 1, title: 'Dear Prudence'});
-    songsController.get('firstObject');  // {trackNumber: 1, title: 'Dear Prudence'}
-    ```
-  
-    If you add or remove the properties to sort by or change the sort direction the model
-    sort order will be automatically updated.
-  
-    ```javascript
-    songsController.set('sortProperties', ['title']);
-    songsController.get('firstObject'); // {trackNumber: 2, title: 'Back in the U.S.S.R.'}
-  
-    songsController.toggleProperty('sortAscending');
-    songsController.get('firstObject'); // {trackNumber: 4, title: 'Ob-La-Di, Ob-La-Da'}
-    ```
-  
-    `SortableMixin` works by sorting the `arrangedContent` array, which is the array that
-    `ArrayProxy` displays. Due to the fact that the underlying 'content' array is not changed, that
-    array will not display the sorted list:
-  
-     ```javascript
-    songsController.get('content').get('firstObject'); // Returns the unsorted original content
-    songsController.get('firstObject'); // Returns the sorted content.
-    ```
-  
-    Although the sorted content can also be accessed through the `arrangedContent` property,
-    it is preferable to use the proxied class and not the `arrangedContent` array directly.
-  
-    @class SortableMixin
-    @namespace Ember
-    @uses Ember.MutableEnumerable
-    @private
-  */
-  exports.default = _emberMetalMixin.Mixin.create(_emberRuntimeMixinsMutable_enumerable.default, {
-
-    /**
-      Specifies which properties dictate the `arrangedContent`'s sort order.
-       When specifying multiple properties the sorting will use properties
-      from the `sortProperties` array prioritized from first to last.
-       @property {Array} sortProperties
-      @private
-    */
-    sortProperties: null,
-
-    /**
-      Specifies the `arrangedContent`'s sort direction.
-      Sorts the content in ascending order by default. Set to `false` to
-      use descending order.
-       @property {Boolean} sortAscending
-      @default true
-      @private
-    */
-    sortAscending: true,
-
-    /**
-      The function used to compare two values. You can override this if you
-      want to do custom comparisons. Functions must be of the type expected by
-      Array#sort, i.e.,
-       *  return 0 if the two parameters are equal,
-      *  return a negative value if the first parameter is smaller than the second or
-      *  return a positive value otherwise:
-       ```javascript
-      function(x, y) { // These are assumed to be integers
-        if (x === y)
-          return 0;
-        return x < y ? -1 : 1;
-      }
-      ```
-       @property sortFunction
-      @type {Function}
-      @default Ember.compare
-      @private
-    */
-    sortFunction: _emberRuntimeCompare.default,
-
-    orderBy: function (item1, item2) {
-      var _this = this;
-
-      var result = 0;
-      var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-      var sortAscending = _emberMetalProperty_get.get(this, 'sortAscending');
-      var sortFunction = _emberMetalProperty_get.get(this, 'sortFunction');
-
-      _emberMetalCore.default.assert('you need to define `sortProperties`', !!sortProperties);
-
-      sortProperties.forEach(function (propertyName) {
-        if (result === 0) {
-          result = sortFunction.call(_this, _emberMetalProperty_get.get(item1, propertyName), _emberMetalProperty_get.get(item2, propertyName));
-          if (result !== 0 && !sortAscending) {
-            result = -1 * result;
-          }
-        }
-      });
-
-      return result;
-    },
-
-    destroy: function () {
-      var _this2 = this;
-
-      var content = _emberMetalProperty_get.get(this, 'content');
-      var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-
-      if (content && sortProperties) {
-        content.forEach(function (item) {
-          sortProperties.forEach(function (sortProperty) {
-            _emberMetalObserver.removeObserver(item, sortProperty, _this2, 'contentItemSortPropertyDidChange');
-          });
-        });
-      }
-
-      return this._super.apply(this, arguments);
-    },
-
-    isSorted: _emberMetalComputed_macros.notEmpty('sortProperties'),
-
-    /**
-      Overrides the default `arrangedContent` from `ArrayProxy` in order to sort by `sortFunction`.
-      Also sets up observers for each `sortProperty` on each item in the content Array.
-       @property arrangedContent
-      @private
-    */
-    arrangedContent: _emberMetalComputed.computed('content', 'sortProperties.@each', {
-      get: function (key) {
-        var _this3 = this;
-
-        var content = _emberMetalProperty_get.get(this, 'content');
-        var isSorted = _emberMetalProperty_get.get(this, 'isSorted');
-        var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-
-        if (content && isSorted) {
-          content = content.slice();
-          content.sort(function (item1, item2) {
-            return _this3.orderBy(item1, item2);
-          });
-
-          content.forEach(function (item) {
-            sortProperties.forEach(function (sortProperty) {
-              _emberMetalObserver.addObserver(item, sortProperty, _this3, 'contentItemSortPropertyDidChange');
-            });
-          });
-
-          return _emberMetalCore.default.A(content);
-        }
-
-        return content;
-      }
-    }),
-
-    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
-      var _this4 = this;
-
-      var content = _emberMetalProperty_get.get(this, 'content');
-      var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-
-      if (content && sortProperties) {
-        content.forEach(function (item) {
-          sortProperties.forEach(function (sortProperty) {
-            _emberMetalObserver.removeObserver(item, sortProperty, _this4, 'contentItemSortPropertyDidChange');
-          });
-        });
-      }
-
-      this._super.apply(this, arguments);
-    }),
-
-    sortPropertiesWillChange: _emberMetalMixin._beforeObserver('sortProperties', function () {
-      this._lastSortAscending = undefined;
-    }),
-
-    sortPropertiesDidChange: _emberMetalMixin.observer('sortProperties', function () {
-      this._lastSortAscending = undefined;
-    }),
-
-    sortAscendingWillChange: _emberMetalMixin._beforeObserver('sortAscending', function () {
-      this._lastSortAscending = _emberMetalProperty_get.get(this, 'sortAscending');
-    }),
-
-    sortAscendingDidChange: _emberMetalMixin.observer('sortAscending', function () {
-      if (this._lastSortAscending !== undefined && _emberMetalProperty_get.get(this, 'sortAscending') !== this._lastSortAscending) {
-        var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-        arrangedContent.reverseObjects();
-      }
-    }),
-
-    contentArrayWillChange: function (array, idx, removedCount, addedCount) {
-      var _this5 = this;
-
-      var isSorted = _emberMetalProperty_get.get(this, 'isSorted');
-
-      if (isSorted) {
-        var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-        var removedObjects = array.slice(idx, idx + removedCount);
-        var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-
-        removedObjects.forEach(function (item) {
-          arrangedContent.removeObject(item);
-
-          sortProperties.forEach(function (sortProperty) {
-            _emberMetalObserver.removeObserver(item, sortProperty, _this5, 'contentItemSortPropertyDidChange');
-          }, _this5);
-        }, this);
-      }
-
-      return this._super(array, idx, removedCount, addedCount);
-    },
-
-    contentArrayDidChange: function (array, idx, removedCount, addedCount) {
-      var _this6 = this;
-
-      var isSorted = _emberMetalProperty_get.get(this, 'isSorted');
-      var sortProperties = _emberMetalProperty_get.get(this, 'sortProperties');
-
-      if (isSorted) {
-        var addedObjects = array.slice(idx, idx + addedCount);
-
-        addedObjects.forEach(function (item) {
-          _this6.insertItemSorted(item);
-
-          sortProperties.forEach(function (sortProperty) {
-            _emberMetalObserver.addObserver(item, sortProperty, _this6, 'contentItemSortPropertyDidChange');
-          });
-        });
-      }
-
-      return this._super(array, idx, removedCount, addedCount);
-    },
-
-    insertItemSorted: function (item) {
-      var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-      var length = _emberMetalProperty_get.get(arrangedContent, 'length');
-
-      var idx = this._binarySearch(item, 0, length);
-      arrangedContent.insertAt(idx, item);
-    },
-
-    contentItemSortPropertyDidChange: function (item) {
-      var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-      var oldIndex = arrangedContent.indexOf(item);
-      var leftItem = arrangedContent.objectAt(oldIndex - 1);
-      var rightItem = arrangedContent.objectAt(oldIndex + 1);
-      var leftResult = leftItem && this.orderBy(item, leftItem);
-      var rightResult = rightItem && this.orderBy(item, rightItem);
-
-      if (leftResult < 0 || rightResult > 0) {
-        arrangedContent.removeObject(item);
-        this.insertItemSorted(item);
-      }
-    },
-
-    _binarySearch: function (item, low, high) {
-      var mid, midItem, res, arrangedContent;
-
-      if (low === high) {
-        return low;
-      }
-
-      arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-
-      mid = low + Math.floor((high - low) / 2);
-      midItem = arrangedContent.objectAt(mid);
-
-      res = this.orderBy(midItem, item);
-
-      if (res < 0) {
-        return this._binarySearch(item, mid + 1, high);
-      } else if (res > 0) {
-        return this._binarySearch(item, low, mid);
-      }
-
-      return mid;
-    }
-  });
-});
-/**
-@module ember
-@submodule ember-runtime
-*/
-
-// Ember.assert, Ember.A
 enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin, _emberMetalComputed) {
 
   /**
@@ -18030,8 +17445,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       });
        // alerts 'Name is Steve'.
       ```
-       NOTE: If you do override `init` for a framework class like `Ember.View` or
-      `Ember.ArrayController`, be sure to call `this._super.apply(this, arguments)` in your
+       NOTE: If you do override `init` for a framework class like `Ember.View`,
+      be sure to call `this._super.apply(this, arguments)` in your
       `init` declaration! If you don't, Ember may not have an opportunity to
       do important setup work, and you'll see strange behavior in your
       application.
