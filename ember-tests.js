@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.3+bebbf269
+ * @version   1.13.3+00c22c65
  */
 
 (function() {
@@ -15376,7 +15376,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
   }
 
   function appendViewFor(template) {
-    var hash = arguments[1] === undefined ? {} : arguments[1];
+    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var view = _emberViewsViewsView["default"].extend({
       template: _emberTemplateCompilerSystemCompile["default"](template),
@@ -18457,7 +18457,7 @@ enifed("ember-htmlbars/tests/system/render_env_test", ["exports", "ember-views/v
   }
 
   function appendViewFor(template) {
-    var hash = arguments[1] === undefined ? {} : arguments[1];
+    var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var view = _emberViewsViewsView["default"].extend({
       template: _emberTemplateCompilerSystemCompile["default"](template),
@@ -20716,19 +20716,19 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     var firstNameDidChange = 0;
     var lastNameWillChange = 0;
     var lastNameDidChange = 0;
-    _emberMetalObserver.addBeforeObserver(obj, 'fullName', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'fullName', function () {
       fullNameWillChange++;
     });
     _emberMetalObserver.addObserver(obj, 'fullName', function () {
       fullNameDidChange++;
     });
-    _emberMetalObserver.addBeforeObserver(obj, 'firstName', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'firstName', function () {
       firstNameWillChange++;
     });
     _emberMetalObserver.addObserver(obj, 'firstName', function () {
       firstNameDidChange++;
     });
-    _emberMetalObserver.addBeforeObserver(obj, 'lastName', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'lastName', function () {
       lastNameWillChange++;
     });
     _emberMetalObserver.addObserver(obj, 'lastName', function () {
@@ -20768,7 +20768,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     }).property('foo'));
     var plusOneWillChange = 0;
     var plusOneDidChange = 0;
-    _emberMetalObserver.addBeforeObserver(obj, 'plusOne', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'plusOne', function () {
       plusOneWillChange++;
     });
     _emberMetalObserver.addObserver(obj, 'plusOne', function () {
@@ -23966,18 +23966,18 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     }
     function observer3() {
       count3++;
-      _emberMetalObserver.removeBeforeObserver(obj1, 'foo.bar', observer1);
-      _emberMetalObserver.removeBeforeObserver(obj2, 'foo.bar', observer2);
-      _emberMetalObserver.removeBeforeObserver(obj4, 'foo.bar', observer4);
+      _emberMetalObserver._removeBeforeObserver(obj1, 'foo.bar', observer1);
+      _emberMetalObserver._removeBeforeObserver(obj2, 'foo.bar', observer2);
+      _emberMetalObserver._removeBeforeObserver(obj4, 'foo.bar', observer4);
     }
     function observer4() {
       count4++;
     }
 
-    _emberMetalObserver.addBeforeObserver(obj1, 'foo.bar', observer1);
-    _emberMetalObserver.addBeforeObserver(obj2, 'foo.bar', observer2);
-    _emberMetalObserver.addBeforeObserver(obj3, 'foo.bar', observer3);
-    _emberMetalObserver.addBeforeObserver(obj4, 'foo.bar', observer4);
+    _emberMetalObserver._addBeforeObserver(obj1, 'foo.bar', observer1);
+    _emberMetalObserver._addBeforeObserver(obj2, 'foo.bar', observer2);
+    _emberMetalObserver._addBeforeObserver(obj3, 'foo.bar', observer3);
+    _emberMetalObserver._addBeforeObserver(obj4, 'foo.bar', observer4);
 
     set(foo, 'bar', 'baz');
 
@@ -24203,7 +24203,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     var obj = { foo: 'foo' };
     var fooCount = 0;
 
-    _emberMetalObserver.addBeforeObserver(obj, 'foo', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'foo', function () {
       fooCount++;
     });
 
@@ -24418,14 +24418,14 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   // BEFORE OBSERVER
   //
 
-  QUnit.module('addBeforeObserver');
+  QUnit.module('_addBeforeObserver');
 
   _emberMetalTestsProps_helper.testBoth('observer should fire before a property is modified', function (get, set) {
 
     var obj = { foo: 'foo' };
     var count = 0;
 
-    _emberMetalObserver.addBeforeObserver(obj, 'foo', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'foo', function () {
       equal(get(obj, 'foo'), 'foo', 'should invoke before value changed');
       count++;
     });
@@ -24443,7 +24443,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     get(obj, 'foo');
 
     var count = 0;
-    _emberMetalObserver.addBeforeObserver(obj, 'foo', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'foo', function () {
       equal(get(obj, 'foo'), 'BAR', 'should have invoked after prop change');
       count++;
     });
@@ -24506,7 +24506,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     var count = 0;
 
     _emberMetalMixin.mixin(obj, {
-      fooAndBarWatcher: _emberMetalMixin.beforeObserver('{foo,bar}', function () {
+      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
         count++;
       })
     });
@@ -24534,7 +24534,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     }).property('baz'));
 
     _emberMetalMixin.mixin(obj, {
-      fooAndBarWatcher: _emberMetalMixin.beforeObserver('{foo,bar}', function () {
+      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
         count++;
       })
     });
@@ -24548,11 +24548,11 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 2, 'observer not fired on unspecified property');
   });
 
-  _emberMetalTestsProps_helper.testBoth('addBeforeObserver should propagate through prototype', function (get, set) {
+  _emberMetalTestsProps_helper.testBoth('_addBeforeObserver should propagate through prototype', function (get, set) {
     var obj = { foo: 'foo', count: 0 };
     var obj2;
 
-    _emberMetalObserver.addBeforeObserver(obj, 'foo', function () {
+    _emberMetalObserver._addBeforeObserver(obj, 'foo', function () {
       this.count++;
     });
     obj2 = _emberMetalPlatformCreate["default"](obj);
@@ -24567,7 +24567,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(obj2.count, 0, 'should not have invoked observer on inherited');
   });
 
-  _emberMetalTestsProps_helper.testBoth('addBeforeObserver should respect targets with methods', function (get, set) {
+  _emberMetalTestsProps_helper.testBoth('_addBeforeObserver should respect targets with methods', function (get, set) {
     var observed = { foo: 'foo' };
 
     var target1 = {
@@ -24596,8 +24596,8 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
       }
     };
 
-    _emberMetalObserver.addBeforeObserver(observed, 'foo', target1, 'willChange');
-    _emberMetalObserver.addBeforeObserver(observed, 'foo', target2, target2.willChange);
+    _emberMetalObserver._addBeforeObserver(observed, 'foo', target1, 'willChange');
+    _emberMetalObserver._addBeforeObserver(observed, 'foo', target2, target2.willChange);
 
     set(observed, 'foo', 'BAZ');
     equal(target1.count, 1, 'target1 observer should have fired');
@@ -24738,7 +24738,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 6, 'should be not have invoked observer');
   });
 
-  QUnit.module('removeBeforeObserver');
+  QUnit.module('_removeBeforeObserver');
 
   // ..........................................................
   // SETTING IDENTICAL VALUES
@@ -24812,7 +24812,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     // trigger deferred behavior
     _emberMetalRun_loop["default"](function () {
       mixin = _emberMetalMixin.Mixin.create({
-        fooDidChange: _emberMetalMixin.immediateObserver('foo', function () {
+        fooDidChange: _emberMetalMixin._immediateObserver('foo', function () {
           observerCalled++;
           equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
         })
@@ -24847,12 +24847,14 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
       // explicitly create a run loop so we do not inadvertently
       // trigger deferred behavior
       _emberMetalRun_loop["default"](function () {
-        mixin = _emberMetalMixin.Mixin.create({
-          fooDidChange: (function () {
-            observerCalled++;
-            equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
-          }).observesImmediately('{foo,bar}')
-        });
+        expectDeprecation(function () {
+          mixin = _emberMetalMixin.Mixin.create({
+            fooDidChange: (function () {
+              observerCalled++;
+              equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
+            }).observesImmediately('{foo,bar}')
+          });
+        }, /Function#observesImmediately is deprecated. Use Function#observes instead/);
 
         mixin.apply(obj);
 
@@ -24885,7 +24887,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     // trigger deferred behavior
     _emberMetalRun_loop["default"](function () {
       mixin = _emberMetalMixin.Mixin.create({
-        fooDidChange: _emberMetalMixin.immediateObserver('{foo,bar}', function () {
+        fooDidChange: _emberMetalMixin._immediateObserver('{foo,bar}', function () {
           observerCalled++;
           equal(get(this, 'foo'), 'barbaz', 'newly set value is immediately available');
         })
@@ -24914,7 +24916,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
   _emberMetalTestsProps_helper.testBoth('immediate observers are for internal properties only', function (get, set) {
     expectDeprecation(/Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead./);
     expectAssertion(function () {
-      _emberMetalMixin.immediateObserver('foo.bar', function () {
+      _emberMetalMixin._immediateObserver('foo.bar', function () {
         return this;
       });
     }, 'Immediate observers must observe internal properties only, not properties on other objects.');
@@ -24932,11 +24934,11 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     }
     Observer.prototype = {
       add: function () {
-        _emberMetalObserver.addBeforeObserver(obj, 'foo', this, 'willChange');
+        _emberMetalObserver._addBeforeObserver(obj, 'foo', this, 'willChange');
         _emberMetalObserver.addObserver(obj, 'foo', this, 'didChange');
       },
       remove: function () {
-        _emberMetalObserver.removeBeforeObserver(obj, 'foo', this, 'willChange');
+        _emberMetalObserver._removeBeforeObserver(obj, 'foo', this, 'willChange');
         _emberMetalObserver.removeObserver(obj, 'foo', this, 'didChange');
       },
       willChange: function () {
@@ -24961,7 +24963,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
 
       set(obj, 'foo', 1);
 
-      equal(addedBeforeFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called before the first change invoked immediately');
+      equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change invoked immediately');
       equal(addedBeforeFirstChangeObserver.didChangeCount, 0, 'addObserver called before the first change is deferred');
 
       addedAfterFirstChangeObserver.add();
@@ -24969,24 +24971,24 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
 
       set(obj, 'foo', 2);
 
-      equal(addedAfterFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called after the first change invoked immediately');
+      equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change invoked immediately');
       equal(addedAfterFirstChangeObserver.didChangeCount, 0, 'addObserver called after the first change is deferred');
 
       addedAfterLastChangeObserver.add();
       removedAfterLastChangeObserver.remove();
     });
 
-    equal(removedBeforeFirstChangeObserver.willChangeCount, 0, 'removeBeforeObserver called before the first change sees none');
+    equal(removedBeforeFirstChangeObserver.willChangeCount, 0, '_removeBeforeObserver called before the first change sees none');
     equal(removedBeforeFirstChangeObserver.didChangeCount, 0, 'removeObserver called before the first change sees none');
-    equal(addedBeforeFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called before the first change sees only 1');
+    equal(addedBeforeFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called before the first change sees only 1');
     equal(addedBeforeFirstChangeObserver.didChangeCount, 1, 'addObserver called before the first change sees only 1');
-    equal(addedAfterFirstChangeObserver.willChangeCount, 1, 'addBeforeObserver called after the first change sees 1');
+    equal(addedAfterFirstChangeObserver.willChangeCount, 1, '_addBeforeObserver called after the first change sees 1');
     equal(addedAfterFirstChangeObserver.didChangeCount, 1, 'addObserver called after the first change sees 1');
-    equal(addedAfterLastChangeObserver.willChangeCount, 0, 'addBeforeObserver called after the last change sees none');
+    equal(addedAfterLastChangeObserver.willChangeCount, 0, '_addBeforeObserver called after the last change sees none');
     equal(addedAfterLastChangeObserver.didChangeCount, 0, 'addObserver called after the last change sees none');
-    equal(removedBeforeLastChangeObserver.willChangeCount, 1, 'removeBeforeObserver called before the last change still sees 1');
+    equal(removedBeforeLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called before the last change still sees 1');
     equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
-    equal(removedAfterLastChangeObserver.willChangeCount, 1, 'removeBeforeObserver called after the last change still sees 1');
+    equal(removedAfterLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called after the last change still sees 1');
     equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
   });
 });
@@ -40981,7 +40983,7 @@ enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runt
 
   exports["default"] = suite;
 });
-enifed("ember-runtime/tests/suites/enumerable", ["exports", "ember-runtime/tests/suites/suite", "ember-runtime/system/object", "ember-metal/utils", "ember-metal/computed", "ember-metal/property_get", "ember-metal/observer", "ember-runtime/tests/suites/enumerable/any", "ember-runtime/tests/suites/enumerable/is_any", "ember-runtime/tests/suites/enumerable/compact", "ember-runtime/tests/suites/enumerable/contains", "ember-runtime/tests/suites/enumerable/every", "ember-runtime/tests/suites/enumerable/filter", "ember-runtime/tests/suites/enumerable/find", "ember-runtime/tests/suites/enumerable/firstObject", "ember-runtime/tests/suites/enumerable/forEach", "ember-runtime/tests/suites/enumerable/mapBy", "ember-runtime/tests/suites/enumerable/invoke", "ember-runtime/tests/suites/enumerable/lastObject", "ember-runtime/tests/suites/enumerable/map", "ember-runtime/tests/suites/enumerable/reduce", "ember-runtime/tests/suites/enumerable/reject", "ember-runtime/tests/suites/enumerable/sortBy", "ember-runtime/tests/suites/enumerable/toArray", "ember-runtime/tests/suites/enumerable/uniq", "ember-runtime/tests/suites/enumerable/without"], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalComputed, _emberMetalProperty_get, _emberMetalObserver, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableWithout) {
+enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/observer', 'ember-runtime/tests/suites/enumerable/any', 'ember-runtime/tests/suites/enumerable/is_any', 'ember-runtime/tests/suites/enumerable/compact', 'ember-runtime/tests/suites/enumerable/contains', 'ember-runtime/tests/suites/enumerable/every', 'ember-runtime/tests/suites/enumerable/filter', 'ember-runtime/tests/suites/enumerable/find', 'ember-runtime/tests/suites/enumerable/firstObject', 'ember-runtime/tests/suites/enumerable/forEach', 'ember-runtime/tests/suites/enumerable/mapBy', 'ember-runtime/tests/suites/enumerable/invoke', 'ember-runtime/tests/suites/enumerable/lastObject', 'ember-runtime/tests/suites/enumerable/map', 'ember-runtime/tests/suites/enumerable/reduce', 'ember-runtime/tests/suites/enumerable/reject', 'ember-runtime/tests/suites/enumerable/sortBy', 'ember-runtime/tests/suites/enumerable/toArray', 'ember-runtime/tests/suites/enumerable/uniq', 'ember-runtime/tests/suites/enumerable/without'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalComputed, _emberMetalProperty_get, _emberMetalObserver, _emberRuntimeTestsSuitesEnumerableAny, _emberRuntimeTestsSuitesEnumerableIs_any, _emberRuntimeTestsSuitesEnumerableCompact, _emberRuntimeTestsSuitesEnumerableContains, _emberRuntimeTestsSuitesEnumerableEvery, _emberRuntimeTestsSuitesEnumerableFilter, _emberRuntimeTestsSuitesEnumerableFind, _emberRuntimeTestsSuitesEnumerableFirstObject, _emberRuntimeTestsSuitesEnumerableForEach, _emberRuntimeTestsSuitesEnumerableMapBy, _emberRuntimeTestsSuitesEnumerableInvoke, _emberRuntimeTestsSuitesEnumerableLastObject, _emberRuntimeTestsSuitesEnumerableMap, _emberRuntimeTestsSuitesEnumerableReduce, _emberRuntimeTestsSuitesEnumerableReject, _emberRuntimeTestsSuitesEnumerableSortBy, _emberRuntimeTestsSuitesEnumerableToArray, _emberRuntimeTestsSuitesEnumerableUniq, _emberRuntimeTestsSuitesEnumerableWithout) {
 
   var ObserverClass = _emberRuntimeSystemObject["default"].extend({
 
@@ -41034,7 +41036,7 @@ enifed("ember-runtime/tests/suites/enumerable", ["exports", "ember-runtime/tests
       var keys = Array.prototype.slice.call(arguments, 1);
       var loc = keys.length;
       while (--loc >= 0) {
-        _emberMetalObserver.addBeforeObserver(obj, keys[loc], this, "propertyWillChange");
+        _emberMetalObserver._addBeforeObserver(obj, keys[loc], this, 'propertyWillChange');
       }
 
       return this;
@@ -41053,7 +41055,7 @@ enifed("ember-runtime/tests/suites/enumerable", ["exports", "ember-runtime/tests
         var loc = keys.length;
 
         while (--loc >= 0) {
-          obj.addObserver(keys[loc], this, "propertyDidChange");
+          obj.addObserver(keys[loc], this, 'propertyDidChange');
         }
       } else {
         this.isEnabled = false;
@@ -41118,12 +41120,12 @@ enifed("ember-runtime/tests/suites/enumerable", ["exports", "ember-runtime/tests
     },
 
     enumerableWillChange: function () {
-      equal(this._before, null, "should only call once");
+      equal(this._before, null, 'should only call once');
       this._before = Array.prototype.slice.call(arguments);
     },
 
     enumerableDidChange: function () {
-      equal(this._after, null, "should only call once");
+      equal(this._after, null, 'should only call once');
       this._after = Array.prototype.slice.call(arguments);
     }
 
@@ -41221,7 +41223,7 @@ enifed("ember-runtime/tests/suites/enumerable", ["exports", "ember-runtime/tests
       validate the results.
     */
     newObserver: function (obj) {
-      var ret = _emberMetalProperty_get.get(this, "observerClass").create();
+      var ret = _emberMetalProperty_get.get(this, 'observerClass').create();
       if (arguments.length > 0) {
         ret.observeBefore.apply(ret, arguments);
       }
@@ -47618,7 +47620,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.3+bebbf269", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.3+00c22c65", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -55617,11 +55619,11 @@ enifed("ember-views/tests/views/view/controller_test", ["exports", "ember-metal/
     });
   });
 });
-enifed("ember-views/tests/views/view/create_child_view_test", ["exports", "ember-metal/property_get", "ember-metal/run_loop", "ember-views/views/view"], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember-views/tests/views/view/create_child_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/events', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalEvents, _emberMetalMixin) {
 
   var view, myViewClass, newView, container;
 
-  QUnit.module("EmberView#createChildView", {
+  QUnit.module('EmberView#createChildView', {
     setup: function () {
       container = {};
 
@@ -55629,7 +55631,7 @@ enifed("ember-views/tests/views/view/create_child_view_test", ["exports", "ember
         container: container
       });
 
-      myViewClass = _emberViewsViewsView["default"].extend({ isMyView: true, foo: "bar" });
+      myViewClass = _emberViewsViewsView["default"].extend({ isMyView: true, foo: 'bar' });
     },
 
     teardown: function () {
@@ -55642,55 +55644,76 @@ enifed("ember-views/tests/views/view/create_child_view_test", ["exports", "ember
     }
   });
 
-  QUnit.test("should create view from class with any passed attributes", function () {
+  QUnit.test('should create view from class with any passed attributes', function () {
     var attrs = {
-      foo: "baz"
+      foo: 'baz'
     };
 
     newView = view.createChildView(myViewClass, attrs);
 
-    equal(newView.container, container, "expects to share container with parent");
-    ok(_emberMetalProperty_get.get(newView, "isMyView"), "newView is instance of myView");
-    equal(_emberMetalProperty_get.get(newView, "foo"), "baz", "view did get custom attributes");
-    ok(!attrs.parentView, "the original attributes hash was not mutated");
+    equal(newView.container, container, 'expects to share container with parent');
+    ok(_emberMetalProperty_get.get(newView, 'isMyView'), 'newView is instance of myView');
+    equal(_emberMetalProperty_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
   });
 
-  QUnit.test("should set newView.parentView to receiver", function () {
+  QUnit.test('creating a childView, (via createChildView) should make parentView initial state and not emit change events nore helper actions', function () {
+    expect(2);
+
+    newView = view.createChildView(_emberViewsViewsView["default"].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        ok(true, 'did init');
+      },
+      parentViewDidReallyChange: _emberMetalEvents.on('parentViewDidChange', function () {
+        ok(false, 'expected to NOT emit parentViewDidChange');
+      }),
+      controllerDidChange: _emberMetalMixin.observer('controller', function () {
+        ok(false, 'expected to NOT expect controller to change');
+      }),
+      parentViewDidChange: _emberMetalMixin.observer('parentView', function () {
+        ok(false, 'expected to NOT expect  parentViewto change');
+      })
+    }));
+
+    equal(newView.get('parentView'), view, 'expected the correct parentView');
+  });
+
+  QUnit.test('should set newView.parentView to receiver', function () {
     newView = view.createChildView(myViewClass);
 
-    equal(newView.container, container, "expects to share container with parent");
-    equal(_emberMetalProperty_get.get(newView, "parentView"), view, "newView.parentView == view");
+    equal(newView.container, container, 'expects to share container with parent');
+    equal(_emberMetalProperty_get.get(newView, 'parentView'), view, 'newView.parentView == view');
   });
 
-  QUnit.test("should create property on parentView to a childView instance if provided a viewName", function () {
+  QUnit.test('should create property on parentView to a childView instance if provided a viewName', function () {
     var attrs = {
-      viewName: "someChildView"
+      viewName: 'someChildView'
     };
 
     newView = view.createChildView(myViewClass, attrs);
-    equal(newView.container, container, "expects to share container with parent");
+    equal(newView.container, container, 'expects to share container with parent');
 
-    equal(_emberMetalProperty_get.get(view, "someChildView"), newView);
+    equal(_emberMetalProperty_get.get(view, 'someChildView'), newView);
   });
 
-  QUnit.test("should update a view instances attributes, including the parentView and container properties", function () {
+  QUnit.test('should update a view instances attributes, including the parentView and container properties', function () {
     var attrs = {
-      foo: "baz"
+      foo: 'baz'
     };
 
     var myView = myViewClass.create();
     newView = view.createChildView(myView, attrs);
 
-    equal(newView.container, container, "expects to share container with parent");
-    equal(newView.parentView, view, "expects to have the correct parent");
-    equal(_emberMetalProperty_get.get(newView, "foo"), "baz", "view did get custom attributes");
+    equal(newView.container, container, 'expects to share container with parent');
+    equal(newView.parentView, view, 'expects to have the correct parent');
+    equal(_emberMetalProperty_get.get(newView, 'foo'), 'baz', 'view did get custom attributes');
 
     deepEqual(newView, myView);
   });
 
-  QUnit.test("should create from string via container lookup", function () {
+  QUnit.test('should create from string via container lookup', function () {
     var ChildViewClass = _emberViewsViewsView["default"].extend();
-    var fullName = "view:bro";
+    var fullName = 'view:bro';
 
     view.container.lookupFactory = function (viewName) {
       equal(fullName, viewName);
@@ -55700,17 +55723,17 @@ enifed("ember-views/tests/views/view/create_child_view_test", ["exports", "ember
       });
     };
 
-    newView = view.createChildView("bro");
+    newView = view.createChildView('bro');
 
-    equal(newView.container, container, "expects to share container with parent");
-    equal(newView.parentView, view, "expects to have the correct parent");
+    equal(newView.container, container, 'expects to share container with parent');
+    equal(newView.parentView, view, 'expects to have the correct parent');
   });
 
-  QUnit.test("should assert when trying to create childView from string, but no such view is registered", function () {
+  QUnit.test('should assert when trying to create childView from string, but no such view is registered', function () {
     view.container.lookupFactory = function () {};
 
     expectAssertion(function () {
-      view.createChildView("bro");
+      view.createChildView('bro');
     });
   });
 });
@@ -57965,7 +57988,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
   });
 
   function boot(callback) {
-    var startURL = arguments[1] === undefined ? '/' : arguments[1];
+    var startURL = arguments.length <= 1 || arguments[1] === undefined ? '/' : arguments[1];
 
     _emberMetalCore["default"].run(function () {
       App = _emberMetalCore["default"].Application.create({
@@ -60263,7 +60286,7 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/com
     equal(router.get("location.path"), "/parent");
   });
 
-  QUnit.test("{{link-to}} with only query-params updates when route changes", function () {
+  QUnit.test("{{link-to}} with only query-params and a block updates when route changes", function () {
     Router.map(function () {
       this.route("about");
     });
@@ -60430,6 +60453,29 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/com
       equal(router.get("location.path"), "", "url was not updated");
     });
   }
+
+  QUnit.test("Block-less {{link-to}} with only query-params updates when route changes", function () {
+    Router.map(function () {
+      this.route("about");
+    });
+
+    
+      App.ApplicationController = Ember.Controller.extend({
+        queryParams: ["foo", "bar"],
+        foo: "123",
+        bar: "yes"
+      });
+    
+
+    Ember.TEMPLATES.application = compile("{{link-to \"Index\" (query-params foo='456' bar='NAW') id='the-link'}}");
+    bootApplication();
+    equal(Ember.$("#the-link").attr("href"), "/?bar=NAW&foo=456", "link has right href");
+
+    Ember.run(function () {
+      router.handleURL("/about");
+    });
+    equal(Ember.$("#the-link").attr("href"), "/about?bar=NAW&foo=456", "link has right href");
+  });
 
   
 
