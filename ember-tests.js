@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5574f194
+ * @version   2.0.0-canary+51464270
  */
 
 (function() {
@@ -1436,7 +1436,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
   });
 });
 /*globals EmberDev */
-enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-application/ext/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-metal/computed'], function (exports, _emberRuntimeControllersController, _emberApplicationExtController, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberMetalComputed) {
+enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-application/ext/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/controllers/array_controller', 'ember-metal/computed'], function (exports, _emberRuntimeControllersController, _emberApplicationExtController, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberRuntimeControllersArray_controller, _emberMetalComputed) {
 
   QUnit.module('Controller dependencies');
 
@@ -1488,24 +1488,26 @@ enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runt
   });
 
   QUnit.test('Mixin sets up controllers if there is needs before calling super', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var registry = new _emberRuntimeSystemContainer.Registry();
     var container = registry.container();
 
-    registry.register('controller:other', _emberRuntimeControllersController.default.extend({
+    registry.register('controller:other', _emberRuntimeControllersArray_controller.default.extend({
       needs: 'posts',
       model: _emberMetalComputed.computed.alias('controllers.posts')
     }));
 
-    registry.register('controller:another', _emberRuntimeControllersController.default.extend({
+    registry.register('controller:another', _emberRuntimeControllersArray_controller.default.extend({
       needs: 'posts',
       modelBinding: 'controllers.posts'
     }));
 
-    registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
+    registry.register('controller:posts', _emberRuntimeControllersArray_controller.default.extend());
 
     container.lookup('controller:posts').set('model', _emberRuntimeSystemNative_array.A(['a', 'b', 'c']));
-    deepEqual(['a', 'b', 'c'], container.lookup('controller:other').get('model.model').toArray());
-    deepEqual(['a', 'b', 'c'], container.lookup('controller:another').get('model.model').toArray());
+
+    deepEqual(['a', 'b', 'c'], container.lookup('controller:other').toArray());
+    deepEqual(['a', 'b', 'c'], container.lookup('controller:another').toArray());
   });
 
   QUnit.test('raises if trying to get a controller that was not pre-defined in `needs`', function () {
@@ -8474,7 +8476,7 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/fea
     assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
-enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
+enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-metal/computed', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberMetalComputed, _emberRuntimeControllersArray_controller, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
 
   var people, view, registry, container;
   var template, templateMyView, MyView, MyEmptyView, templateMyEmptyView;
@@ -8786,6 +8788,77 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runDestroy(tableView);
   });
 
+  QUnit.test('it supports itemController', function () {
+    var Controller = _emberRuntimeControllersController.default.extend({
+      controllerName: _emberMetalComputed.computed(function () {
+        return 'controller:' + this.get('model.name');
+      })
+    });
+
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    var parentController = {
+      container: container
+    };
+
+    registry.register('controller:array', _emberRuntimeControllersArray_controller.default.extend());
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.people itemController="person"}}{{controllerName}}{{/each}}'),
+      people: people,
+      controller: parentController
+    });
+
+    registry.register('controller:person', Controller);
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'controller:Steve Holtcontroller:Annabelle');
+
+    _emberMetalRun_loop.default(function () {
+      view.rerender();
+    });
+
+    assertText(view, 'controller:Steve Holtcontroller:Annabelle');
+
+    _emberMetalRun_loop.default(function () {
+      people.pushObject({ name: 'Yehuda Katz' });
+    });
+
+    assertText(view, 'controller:Steve Holtcontroller:Annabellecontroller:Yehuda Katz');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'people', _emberRuntimeSystemNative_array.A([{ name: 'Trek Glowacki' }, { name: 'Geoffrey Grosenbach' }]));
+    });
+
+    assertText(view, 'controller:Trek Glowackicontroller:Geoffrey Grosenbach');
+
+    strictEqual(view.childViews[0].get('_arrayController.target'), parentController, 'the target property of the child controllers are set correctly');
+  });
+
+  QUnit.test('itemController should not affect the DOM structure', function () {
+    var Controller = _emberRuntimeControllersController.default.extend({
+      name: _emberMetalComputed.computed.alias('model.name')
+    });
+
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    registry.register('controller:array', _emberRuntimeControllersArray_controller.default.extend());
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('<div id="a">{{#each view.people itemController="person" as |person|}}{{person.name}}{{/each}}</div>' + '<div id="b">{{#each view.people as |person|}}{{person.name}}{{/each}}</div>'),
+      people: people
+    });
+
+    registry.register('controller:person', Controller);
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#a').html(), view.$('#b').html());
+  });
+
   QUnit.test('it supports {{itemView=}}', function () {
     var itemView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('itemView:{{name}}')
@@ -9089,6 +9162,25 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     assertHTML(view, 'Nothing');
   });
 
+  QUnit.test('it works with the controller keyword', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    var controller = _emberRuntimeControllersArray_controller.default.create({
+      model: _emberRuntimeSystemNative_array.A(['foo', 'bar', 'baz'])
+    });
+
+    _emberRuntimeTestsUtils.runDestroy(view);
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('{{#view}}{{#each controller}}{{this}}{{/each}}{{/view}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'foobarbaz');
+  });
+
   QUnit.test('views inside #each preserve the new context [DEPRECATED]', function () {
     _emberRuntimeTestsUtils.runDestroy(view);
 
@@ -9228,6 +9320,23 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       });
     }
 
+    QUnit.test('controller is assignable inside an #each', function () {
+      expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+      var controller = _emberRuntimeControllersArray_controller.default.create({
+        model: _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }])
+      });
+
+      view = _emberViewsViewsView.default.create({
+        container: container,
+        controller: controller,
+        template: templateFor('{{#EACH|this|personController}}{{#view controller=personController}}{{name}}{{/view}}{{/each}}', useBlockParams)
+      });
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      equal(view.$().text(), 'AdamSteve');
+    });
+
     QUnit.test('it doesn\'t assert when the morph tags have the same parent', function () {
       view = _emberViewsViewsView.default.create({
         controller: _emberRuntimeSystemNative_array.A(['Cyril', 'David']),
@@ -9237,6 +9346,92 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       _emberRuntimeTestsUtils.runAppend(view);
 
       ok(true, 'No assertion from valid template');
+    });
+
+    QUnit.test('itemController specified in template with name binding does not change context [DEPRECATED]', function () {
+      var Controller = _emberRuntimeControllersController.default.extend({
+        controllerName: _emberMetalComputed.computed(function () {
+          return 'controller:' + this.get('model.name');
+        })
+      });
+
+      registry = new _emberRuntimeSystemContainer.Registry();
+      registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
+      container = registry.container();
+
+      people = _emberRuntimeSystemNative_array.A([{ name: 'Steve Holt' }, { name: 'Annabelle' }]);
+
+      var parentController = {
+        container: container,
+        people: people,
+        controllerName: 'controller:parentController'
+      };
+
+      registry.register('controller:array', _emberRuntimeControllersArray_controller.default.extend());
+
+      var template;
+      expectDeprecation(function () {
+        template = templateFor('{{#EACH|people|person|itemController="person"}}{{controllerName}} - {{person.controllerName}} - {{/each}}', useBlockParams);
+      }, /Using 'itemController' with '{{each}}'/);
+
+      view = _emberViewsViewsView.default.create({
+        template: template,
+        container: container,
+        controller: parentController
+      });
+
+      registry.register('controller:person', Controller);
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      equal(view.$().text(), 'controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - ');
+
+      _emberMetalRun_loop.default(function () {
+        people.pushObject({ name: 'Yehuda Katz' });
+      });
+
+      assertText(view, 'controller:parentController - controller:Steve Holt - controller:parentController - controller:Annabelle - controller:parentController - controller:Yehuda Katz - ');
+
+      _emberMetalRun_loop.default(function () {
+        _emberMetalProperty_set.set(parentController, 'people', _emberRuntimeSystemNative_array.A([{ name: 'Trek Glowacki' }, { name: 'Geoffrey Grosenbach' }]));
+      });
+
+      assertText(view, 'controller:parentController - controller:Trek Glowacki - controller:parentController - controller:Geoffrey Grosenbach - ');
+
+      strictEqual(view.childViews[0].get('_arrayController.target'), parentController, 'the target property of the child controllers are set correctly');
+    });
+
+    QUnit.test('itemController specified in ArrayController with name binding does not change context', function () {
+      expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+      people = _emberRuntimeSystemNative_array.A([{ name: 'Steve Holt' }, { name: 'Annabelle' }]);
+
+      var PersonController = _emberRuntimeControllersController.default.extend({
+        controllerName: _emberMetalComputed.computed(function () {
+          return 'controller:' + _emberMetalProperty_get.get(this, 'model.name') + ' of ' + _emberMetalProperty_get.get(this, 'parentController.company');
+        })
+      });
+      var PeopleController = _emberRuntimeControllersArray_controller.default.extend({
+        model: people,
+        itemController: 'person',
+        company: 'Yapp',
+        controllerName: 'controller:people'
+      });
+      registry = new _emberRuntimeSystemContainer.Registry();
+      registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
+      container = registry.container();
+
+      registry.register('controller:people', PeopleController);
+      registry.register('controller:person', PersonController);
+
+      view = _emberViewsViewsView.default.create({
+        container: container,
+        template: templateFor('{{#EACH|this|person}}{{controllerName}} - {{person.controllerName}} - {{/each}}', useBlockParams),
+        controller: container.lookup('controller:people')
+      });
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      equal(view.$().text(), 'controller:people - controller:Steve Holt of Yapp - controller:people - controller:Annabelle of Yapp - ');
     });
 
     QUnit.test('locals in stable loops update when the list is updated', function () {
@@ -16993,7 +17188,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 });
 
 //import jQuery from "ember-views/system/jquery";
-enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/controllers/controller', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberMetalComputed, _emberRuntimeSystemNamespace, _emberRuntimeSystemArray_proxy, _emberViewsViewsSelect, _emberTemplateCompilerSystemCompile, _emberRuntimeControllersController, _emberRuntimeTestsUtils, _emberMetalEnvironment) {
+enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-metal/computed', 'ember-runtime/system/namespace', 'ember-runtime/controllers/array_controller', 'ember-runtime/system/array_proxy', 'ember-views/views/select', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberMetalComputed, _emberRuntimeSystemNamespace, _emberRuntimeControllersArray_controller, _emberRuntimeSystemArray_proxy, _emberViewsViewsSelect, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalEnvironment) {
 
   var dispatcher, view;
 
@@ -17010,6 +17205,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
   });
 
   QUnit.test('works from a template with bindings [DEPRECATED]', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var Person = _emberRuntimeSystemObject.default.extend({
       id: null,
       firstName: null,
@@ -17024,7 +17220,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
     var application = _emberRuntimeSystemNamespace.default.create();
 
-    application.peopleController = _emberRuntimeControllersController.default.create({
+    application.peopleController = _emberRuntimeControllersArray_controller.default.create({
       content: _emberMetalCore.default.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
     });
 
@@ -17035,7 +17231,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     view = _emberViewsViewsView.default.create({
       app: application,
       selectView: _emberViewsViewsSelect.default,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.selectView viewName="select"' + '    content=view.app.peopleController.content' + '    optionLabelPath="content.fullName"' + '    optionValuePath="content.id"' + '    prompt="Pick a person:"' + '    selection=view.app.selectedPersonController.person}}')
+      template: _emberTemplateCompilerSystemCompile.default('{{view view.selectView viewName="select"' + '    content=view.app.peopleController' + '    optionLabelPath="content.fullName"' + '    optionValuePath="content.id"' + '    prompt="Pick a person:"' + '    selection=view.app.selectedPersonController.person}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
@@ -17052,7 +17248,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
     equal(select.get('selection'), erik, 'Selection was updated through binding');
     _emberMetalRun_loop.default(function () {
-      application.peopleController.get('content').pushObject(Person.create({ id: 5, firstName: 'James', lastName: 'Rosen' }));
+      application.peopleController.pushObject(Person.create({ id: 5, firstName: 'James', lastName: 'Rosen' }));
     });
 
     equal(select.$('option').length, 6, 'New option was added');
@@ -17060,6 +17256,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
   });
 
   QUnit.test('works from a template', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var Person = _emberRuntimeSystemObject.default.extend({
       id: null,
       firstName: null,
@@ -17074,7 +17271,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
     var application = _emberRuntimeSystemNamespace.default.create();
 
-    application.peopleController = _emberRuntimeControllersController.default.create({
+    application.peopleController = _emberRuntimeControllersArray_controller.default.create({
       content: _emberMetalCore.default.A([Person.create({ id: 1, firstName: 'Yehuda', lastName: 'Katz' }), Person.create({ id: 2, firstName: 'Tom', lastName: 'Dale' }), Person.create({ id: 3, firstName: 'Peter', lastName: 'Wagenet' }), erik])
     });
 
@@ -17085,7 +17282,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     view = _emberViewsViewsView.default.create({
       app: application,
       selectView: _emberViewsViewsSelect.default,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.selectView viewName="select"' + '    content=view.app.peopleController.content' + '    optionLabelPath="content.fullName"' + '    optionValuePath="content.id"' + '    prompt="Pick a person:"' + '    selection=view.app.selectedPersonController.person}}')
+      template: _emberTemplateCompilerSystemCompile.default('{{view view.selectView viewName="select"' + '    content=view.app.peopleController' + '    optionLabelPath="content.fullName"' + '    optionValuePath="content.id"' + '    prompt="Pick a person:"' + '    selection=view.app.selectedPersonController.person}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
@@ -17102,7 +17299,7 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
 
     equal(select.get('selection'), erik, 'Selection was updated through binding');
     _emberMetalRun_loop.default(function () {
-      application.peopleController.get('content').pushObject(Person.create({ id: 5, firstName: 'James', lastName: 'Rosen' }));
+      application.peopleController.pushObject(Person.create({ id: 5, firstName: 'James', lastName: 'Rosen' }));
     });
 
     equal(select.$('option').length, 6, 'New option was added');
@@ -26647,7 +26844,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     equal(arr.length, 10, 'property should be accessible on arr');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils) {
 
   var innerComponent, outerComponent;
 
@@ -27075,7 +27272,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberMetalCore.default.Component.extend({
       middleComponent: middleComponent,
 
       fireAction: function () {
@@ -27116,7 +27313,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 // this is present to ensure `actions` hash is present
 // a different error is triggered if `actions` is missing
 // completely
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsHelpersEach, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsHelpersEach, _emberRuntimeTestsUtils) {
 
   var dispatcher, view;
   var originalRegisterAction = _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
@@ -27232,11 +27429,46 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     equal(watted, true, 'The action was called on the right context');
   });
 
-  QUnit.test('should target the with-controller inside an {{#with controller=\'person\'}} [DEPRECATED]', function () {
+  QUnit.test('should target the current controller inside an {{each}} loop [DEPRECATED]', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var registeredTarget;
 
     _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref4) {
       var node = _ref4.node;
+
+      registeredTarget = node.state.target;
+    };
+
+    var itemController = _emberRuntimeControllersController.default.create();
+
+    var ArrayController = _emberRuntimeControllersArray_controller.default.extend({
+      itemController: 'stub',
+      controllerAt: function (idx, object) {
+        return itemController;
+      }
+    });
+
+    var controller = ArrayController.create({
+      model: _emberMetalCore.default.A([1])
+    });
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('{{#each controller}}<button {{action "editTodo"}}>Edit</button>{{/each}}')
+    });
+
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, _emberHtmlbarsHelpersEach.deprecation);
+
+    equal(registeredTarget, itemController, 'the item controller is the target of action');
+  });
+
+  QUnit.test('should target the with-controller inside an {{#with controller=\'person\'}} [DEPRECATED]', function () {
+    var registeredTarget;
+
+    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref5) {
+      var node = _ref5.node;
 
       registeredTarget = node.state.target;
     };
@@ -27264,11 +27496,51 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     ok(registeredTarget instanceof PersonController, 'the with-controller is the target of action');
   });
 
+  QUnit.skip('should target the with-controller inside an {{each}} in a {{#with controller=\'person\'}} [DEPRECATED]', function () {
+    expectDeprecation(_emberHtmlbarsHelpersEach.deprecation);
+    expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+
+    var eventsCalled = [];
+
+    var PeopleController = _emberRuntimeControllersArray_controller.default.extend({
+      actions: {
+        robert: function () {
+          eventsCalled.push('robert');
+        },
+        brian: function () {
+          eventsCalled.push('brian');
+        }
+      }
+    });
+
+    var registry = new _emberRuntimeSystemContainer.Registry();
+    var container = registry.container();
+    var parentController = _emberRuntimeSystemObject.default.create({
+      container: container,
+      people: _emberMetalCore.default.A([{ name: 'robert' }, { name: 'brian' }])
+    });
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{#with people controller="people"}}{{#each}}<a href="#" {{action name}}>{{name}}</a>{{/each}}{{/with}}'),
+      controller: parentController
+    });
+
+    registry.register('controller:people', PeopleController);
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('a').trigger('click');
+
+    deepEqual(eventsCalled, ['robert', 'brian'], 'the events are fired properly');
+  });
+
   QUnit.test('should allow a target to be specified', function () {
     var registeredTarget;
 
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref5) {
-      var node = _ref5.node;
+    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref6) {
+      var node = _ref6.node;
 
       registeredTarget = node.state.target;
     };
@@ -28658,7 +28930,7 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-me
     };
   }
 });
-enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberRoutingHtmlbarsTestsUtils, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-routing-htmlbars/tests/utils', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberRoutingHtmlbarsTestsUtils, _emberRuntimeTestsUtils) {
 
   function runSet(object, key, value) {
     _emberMetalRun_loop.default(function () {
@@ -28839,7 +29111,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   QUnit.test('{{render}} helper should raise an error when a given controller name does not resolve to a controller', function () {
     var template = '<h1>HI</h1>{{render "home" controller="postss"}}';
     var controller = _emberRuntimeControllersController.default.extend({ container: container });
-    container._registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
+    container._registry.register('controller:posts', _emberRuntimeControllersArray_controller.default.extend());
     view = _emberViewsViewsView.default.create({
       container: container,
       controller: controller.create(),
@@ -28854,10 +29126,11 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should render with given controller', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var template = '{{render "home" controller="posts"}}';
     var controller = _emberRuntimeControllersController.default.extend({ container: container });
     var id = 0;
-    container._registry.register('controller:posts', _emberRuntimeControllersController.default.extend({
+    container._registry.register('controller:posts', _emberRuntimeControllersArray_controller.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         this.uniqueId = id++;
@@ -29062,6 +29335,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 
   QUnit.test('{{render}} helper should link child controllers to the parent controller', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     var parentTriggered = 0;
 
     var template = '<h1>HI</h1>{{render "posts"}}';
@@ -29075,7 +29349,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
       role: 'Mom'
     });
 
-    container._registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
+    container._registry.register('controller:posts', _emberRuntimeControllersArray_controller.default.extend());
 
     view = _emberViewsViewsView.default.create({
       container: container,
@@ -29275,7 +29549,7 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
   });
 });
 // TEMPLATES
-enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
+enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'container/registry', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-views/views/view', 'ember-routing/system/router', 'ember-routing-views/views/outlet', 'ember-routing/location/hash_location'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _containerRegistry, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberViewsViewsView, _emberRoutingSystemRouter, _emberRoutingViewsViewsOutlet, _emberRoutingLocationHash_location) {
 
   function resolverFor(namespace) {
     return function (fullName) {
@@ -29312,6 +29586,7 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'em
     registry.register('location:hash', _emberRoutingLocationHash_location.default);
 
     registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+    registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
     registry.register('view:toplevel', _emberViewsViewsView.default.extend());
     registry.register('view:-outlet', _emberRoutingViewsViewsOutlet.OutletView);
@@ -30148,7 +30423,7 @@ enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/merge'
   });
   // jscs:enable
 });
-enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _containerRegistry, _emberRuntimeSystemNamespace, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller) {
+enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/system/namespace', 'ember-runtime/system/string', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-routing/system/controller_for', 'ember-routing/system/generate_controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _containerRegistry, _emberRuntimeSystemNamespace, _emberRuntimeSystemString, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberRoutingSystemController_for, _emberRoutingSystemGenerate_controller) {
 
   var buildContainer = function (namespace) {
     var registry = new _containerRegistry.default();
@@ -30161,6 +30436,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     registry.register('application:main', namespace, { instantiate: false });
 
     registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+    registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
     return container;
   };
@@ -30230,6 +30506,13 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     ok(controller instanceof _emberRuntimeControllersController.default, 'should create controller');
   });
 
+  QUnit.test('generateController should create Ember.ArrayController', function () {
+    var context = _emberMetalCore.default.A();
+    var controller = _emberRoutingSystemGenerate_controller.default(container, 'home', context);
+
+    ok(controller instanceof _emberRuntimeControllersArray_controller.default, 'should create controller');
+  });
+
   QUnit.test('generateController should create App.Controller if provided', function () {
     var controller;
     namespace.Controller = _emberRuntimeControllersController.default.extend();
@@ -30237,6 +30520,16 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
     controller = _emberRoutingSystemGenerate_controller.default(container, 'home');
 
     ok(controller instanceof namespace.Controller, 'should create controller');
+  });
+
+  QUnit.test('generateController should create App.ArrayController if provided', function () {
+    var context = _emberMetalCore.default.A();
+    var controller;
+    namespace.ArrayController = _emberRuntimeControllersArray_controller.default.extend();
+
+    controller = _emberRoutingSystemGenerate_controller.default(container, 'home', context);
+
+    ok(controller instanceof namespace.ArrayController, 'should create controller');
   });
 });
 // A
@@ -32479,7 +32772,86 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     equal(obj.get('total'), 6, 'recomputes when elements are removed');
   });
 });
-enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberMetalMixin, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/controllers/array_controller_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/controllers/array_controller', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeControllersArray_controller, _emberMetalProperty_set, _emberMetalProperty_get) {
+
+  QUnit.module('ember-runtime/controllers/array_controller_test');
+
+  _emberRuntimeTestsSuitesMutable_array.default.extend({
+    name: 'Ember.ArrayController',
+
+    newObject: function (ary) {
+      var ret = ary ? ary.slice() : this.newFixture(3);
+      expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+      return _emberRuntimeControllersArray_controller.default.create({
+        model: _emberMetalCore.default.A(ret)
+      });
+    },
+
+    mutate: function (obj) {
+      obj.pushObject(_emberMetalCore.default.get(obj, 'length') + 1);
+    },
+
+    toArray: function (obj) {
+      return obj.toArray ? obj.toArray() : obj.slice();
+    }
+  }).run();
+
+  QUnit.module('ember-runtime: array_controller');
+
+  QUnit.test('defaults its `model` to an empty array', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var Controller = _emberRuntimeControllersArray_controller.default.extend();
+    deepEqual(Controller.create().get('model'), [], '`ArrayController` defaults its model to an empty array');
+    equal(Controller.create().get('firstObject'), undefined, 'can fetch firstObject');
+    equal(Controller.create().get('lastObject'), undefined, 'can fetch lastObject');
+  });
+
+  QUnit.test('Ember.ArrayController length property works even if model was not set initially', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var controller = _emberRuntimeControllersArray_controller.default.create();
+    controller.pushObject('item');
+    equal(controller.get('length'), 1);
+  });
+
+  QUnit.test('works properly when model is set to an Ember.A()', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var controller = _emberRuntimeControllersArray_controller.default.create();
+
+    _emberMetalProperty_set.set(controller, 'model', _emberMetalCore.default.A(['red', 'green']));
+
+    deepEqual(_emberMetalProperty_get.get(controller, 'model'), ['red', 'green'], 'can set model as an Ember.Array');
+  });
+
+  QUnit.test('works properly when model is set to a plain array', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var controller = _emberRuntimeControllersArray_controller.default.create();
+
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      _emberMetalProperty_set.set(controller, 'model', ['red', 'green']);
+
+      deepEqual(_emberMetalProperty_get.get(controller, 'model'), ['red', 'green'], 'can set model as a plain array');
+    } else {
+      expectAssertion(function () {
+        _emberMetalProperty_set.set(controller, 'model', ['red', 'green']);
+      }, /ArrayController expects `model` to implement the Ember.Array mixin. This can often be fixed by wrapping your model with `Ember\.A\(\)`./);
+    }
+  });
+
+  QUnit.test('works properly when model is set to `null`', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var controller = _emberRuntimeControllersArray_controller.default.create();
+
+    _emberMetalProperty_set.set(controller, 'model', null);
+    equal(_emberMetalProperty_get.get(controller, 'model'), null, 'can set model to `null`');
+
+    _emberMetalProperty_set.set(controller, 'model', undefined);
+    equal(_emberMetalProperty_get.get(controller, 'model'), undefined, 'can set model to `undefined`');
+
+    _emberMetalProperty_set.set(controller, 'model', false);
+    equal(_emberMetalProperty_get.get(controller, 'model'), false, 'can set model to `undefined`');
+  });
+});
+enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-runtime/system/service', 'ember-runtime/controllers/array_controller', 'ember-metal/mixin', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get'], function (exports, _emberRuntimeControllersController, _emberRuntimeSystemService, _emberRuntimeControllersArray_controller, _emberMetalMixin, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get) {
 
   QUnit.module('Controller event handling');
 
@@ -32673,6 +33045,23 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
     equal(postsController, postController.get('postsController'), 'controller.posts is injected');
   });
 
+  QUnit.test('controllers can be injected into ArrayControllers', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var registry = new _emberRuntimeSystemContainer.Registry();
+    var container = registry.container();
+
+    registry.register('controller:post', _emberRuntimeControllersController.default.extend({
+      postsController: _emberRuntimeInject.default.controller('posts')
+    }));
+
+    registry.register('controller:posts', _emberRuntimeControllersArray_controller.default.extend());
+
+    var postController = container.lookup('controller:post');
+    var postsController = container.lookup('controller:posts');
+
+    equal(postsController, postController.get('postsController'), 'controller.posts is injected');
+  });
+
   QUnit.test('services can be injected into controllers', function () {
     var registry = new _emberRuntimeSystemContainer.Registry();
     var container = registry.container();
@@ -32690,6 +33079,377 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
   });
 });
 /* global EmberDev */
+enifed('ember-runtime/tests/controllers/item_controller_class_test', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/computed', 'ember-runtime/compare', 'ember-runtime/system/object', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/controller', 'ember-runtime/computed/reduce_computed_macros', 'container/registry'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalComputed, _emberRuntimeCompare, _emberRuntimeSystemObject, _emberRuntimeControllersArray_controller, _emberRuntimeControllersController, _emberRuntimeComputedReduce_computed_macros, _containerRegistry) {
+
+  var lannisters, arrayController, controllerClass, otherControllerClass, registry, container, itemControllerCount, tywin, jaime, cersei, tyrion;
+
+  QUnit.module('Ember.ArrayController - itemController', {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      container = registry.container();
+
+      tywin = _emberRuntimeSystemObject.default.create({ name: 'Tywin' });
+      jaime = _emberRuntimeSystemObject.default.create({ name: 'Jaime' });
+      cersei = _emberRuntimeSystemObject.default.create({ name: 'Cersei' });
+      tyrion = _emberRuntimeSystemObject.default.create({ name: 'Tyrion' });
+      lannisters = _emberMetalCore.default.A([tywin, jaime, cersei]);
+
+      itemControllerCount = 0;
+      controllerClass = _emberRuntimeControllersController.default.extend({
+        init: function () {
+          ++itemControllerCount;
+          this._super.apply(this, arguments);
+        },
+
+        toString: function () {
+          return 'itemController for ' + this.get('name');
+        }
+      });
+
+      otherControllerClass = _emberRuntimeControllersController.default.extend({
+        toString: function () {
+          return 'otherItemController for ' + this.get('name');
+        }
+      });
+
+      registry.register('controller:Item', controllerClass);
+      registry.register('controller:OtherItem', otherControllerClass);
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        container.destroy();
+      });
+      registry = container = null;
+    }
+  });
+
+  function createUnwrappedArrayController() {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    arrayController = _emberRuntimeControllersArray_controller.default.create({
+      container: container,
+      model: lannisters
+    });
+  }
+
+  function createArrayController() {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    arrayController = _emberRuntimeControllersArray_controller.default.create({
+      container: container,
+      itemController: 'Item',
+      model: lannisters
+    });
+  }
+
+  function createDynamicArrayController() {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    arrayController = _emberRuntimeControllersArray_controller.default.create({
+      container: container,
+      lookupItemController: function (object) {
+        if ('Tywin' === object.get('name')) {
+          return 'Item';
+        } else {
+          return 'OtherItem';
+        }
+      },
+      model: lannisters
+    });
+  }
+
+  QUnit.test('when no `itemController` is set, `objectAtContent` returns objects directly', function () {
+    createUnwrappedArrayController();
+
+    strictEqual(arrayController.objectAtContent(1), jaime, 'No controller is returned when itemController is not set');
+  });
+
+  QUnit.test('when `itemController` is set, `objectAtContent` returns an instance of the controller', function () {
+    createArrayController();
+
+    var jaimeController = arrayController.objectAtContent(1);
+
+    ok(controllerClass.detectInstance(jaimeController), 'A controller is returned when itemController is set');
+  });
+
+  QUnit.test('when `idx` is out of range, `objectAtContent` does not create a controller', function () {
+    controllerClass.reopen({
+      init: function () {
+        ok(false, 'Controllers should not be created when `idx` is out of range');
+      }
+    });
+
+    createArrayController();
+    strictEqual(arrayController.objectAtContent(50), undefined, 'no controllers are created for out of range indexes');
+  });
+
+  QUnit.test('when the underlying object is null, a controller is still returned', function () {
+    createArrayController();
+    arrayController.unshiftObject(null);
+    var firstController = arrayController.objectAtContent(0);
+    ok(controllerClass.detectInstance(firstController), 'A controller is still created for null objects');
+  });
+
+  QUnit.test('the target of item controllers is the parent controller', function () {
+    createArrayController();
+
+    var jaimeController = arrayController.objectAtContent(1);
+
+    equal(jaimeController.get('target'), arrayController, 'Item controllers\' targets are their parent controller');
+  });
+
+  QUnit.test('the parentController property of item controllers is set to the parent controller', function () {
+    createArrayController();
+
+    var jaimeController = arrayController.objectAtContent(1);
+
+    equal(jaimeController.get('parentController'), arrayController, 'Item controllers\' targets are their parent controller');
+  });
+
+  QUnit.test('when the underlying object has not changed, `objectAtContent` always returns the same instance', function () {
+    createArrayController();
+
+    strictEqual(arrayController.objectAtContent(1), arrayController.objectAtContent(1), 'Controller instances are reused');
+  });
+
+  QUnit.test('when the index changes, `objectAtContent` still returns the same instance', function () {
+    createArrayController();
+    var jaimeController = arrayController.objectAtContent(1);
+    arrayController.unshiftObject(tyrion);
+
+    strictEqual(arrayController.objectAtContent(2), jaimeController, 'Controller instances are reused');
+  });
+
+  QUnit.test('when the underlying array changes, old subcontainers are destroyed', function () {
+    createArrayController();
+    // cause some controllers to be instantiated
+    arrayController.objectAtContent(1);
+    arrayController.objectAtContent(2);
+
+    // Not a public API; just checking for cleanup
+    var subControllers = _emberMetalProperty_get.get(arrayController, '_subControllers');
+    var jaimeController = subControllers[1];
+    var cerseiController = subControllers[2];
+
+    equal(!!jaimeController.isDestroying, false, 'precond - nobody is destroyed yet');
+    equal(!!cerseiController.isDestroying, false, 'precond - nobody is destroyed yet');
+
+    _emberMetalRun_loop.default(function () {
+      arrayController.set('model', _emberMetalCore.default.A());
+    });
+
+    equal(!!jaimeController.isDestroying, true, 'old subcontainers are destroyed');
+    equal(!!cerseiController.isDestroying, true, 'old subcontainers are destroyed');
+  });
+
+  QUnit.test('item controllers are created lazily', function () {
+    createArrayController();
+
+    equal(itemControllerCount, 0, 'precond - no item controllers yet');
+
+    arrayController.objectAtContent(1);
+
+    equal(itemControllerCount, 1, 'item controllers are created lazily');
+  });
+
+  QUnit.test('when items are removed from the arrayController, their respective subcontainers are destroyed', function () {
+    createArrayController();
+    var jaimeController = arrayController.objectAtContent(1);
+    var cerseiController = arrayController.objectAtContent(2);
+    _emberMetalProperty_get.get(arrayController, '_subControllers');
+
+    equal(!!jaimeController.isDestroyed, false, 'precond - nobody is destroyed yet');
+    equal(!!cerseiController.isDestroyed, false, 'precond - nobody is destroyed yet');
+
+    _emberMetalRun_loop.default(function () {
+      arrayController.removeObject(cerseiController);
+    });
+
+    equal(!!cerseiController.isDestroying, true, 'Removed objects\' containers are cleaned up');
+    equal(!!jaimeController.isDestroying, false, 'Retained objects\' containers are not cleaned up');
+  });
+
+  QUnit.test('one cannot remove wrapped model directly when specifying `itemController`', function () {
+    createArrayController();
+    var cerseiController = arrayController.objectAtContent(2);
+
+    equal(arrayController.get('length'), 3, 'precondition - array is in initial state');
+    arrayController.removeObject(cersei);
+
+    equal(arrayController.get('length'), 3, 'cannot remove wrapped objects directly');
+
+    _emberMetalRun_loop.default(function () {
+      arrayController.removeObject(cerseiController);
+    });
+    equal(arrayController.get('length'), 2, 'can remove wrapper objects');
+  });
+
+  QUnit.test('when items are removed from the underlying array, their respective subcontainers are destroyed', function () {
+    createArrayController();
+    var jaimeController = arrayController.objectAtContent(1);
+    var cerseiController = arrayController.objectAtContent(2);
+    _emberMetalProperty_get.get(arrayController, 'subContainers');
+
+    equal(!!jaimeController.isDestroying, false, 'precond - nobody is destroyed yet');
+    equal(!!cerseiController.isDestroying, false, 'precond - nobody is destroyed yet');
+
+    _emberMetalRun_loop.default(function () {
+      lannisters.removeObject(cersei); // if only it were that easy
+    });
+
+    equal(!!jaimeController.isDestroyed, false, 'Retained objects\' containers are not cleaned up');
+    equal(!!cerseiController.isDestroyed, true, 'Removed objects\' containers are cleaned up');
+  });
+
+  QUnit.test('`itemController` can be dynamic by overwriting `lookupItemController`', function () {
+    createDynamicArrayController();
+
+    var tywinController = arrayController.objectAtContent(0);
+    var jaimeController = arrayController.objectAtContent(1);
+
+    ok(controllerClass.detectInstance(tywinController), 'lookupItemController can return different classes for different objects');
+    ok(otherControllerClass.detectInstance(jaimeController), 'lookupItemController can return different classes for different objects');
+  });
+
+  QUnit.test('when `idx` is out of range, `lookupItemController` is not called', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    arrayController = _emberRuntimeControllersArray_controller.default.create({
+      container: container,
+      lookupItemController: function (object) {
+        ok(false, '`lookupItemController` should not be called when `idx` is out of range');
+      },
+      model: lannisters
+    });
+
+    strictEqual(arrayController.objectAtContent(50), undefined, 'no controllers are created for indexes that are superior to the length');
+    strictEqual(arrayController.objectAtContent(-1), undefined, 'no controllers are created for indexes less than zero');
+  });
+
+  QUnit.test('if `lookupItemController` returns a string, it must be resolvable by the container', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    arrayController = _emberRuntimeControllersArray_controller.default.create({
+      container: container,
+      lookupItemController: function (object) {
+        return 'NonExistent';
+      },
+      model: lannisters
+    });
+
+    throws(function () {
+      arrayController.objectAtContent(1);
+    }, /NonExistent/, '`lookupItemController` must return either null or a valid controller name');
+  });
+
+  QUnit.test('target and parentController are set to the concrete parentController', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var parent = _emberRuntimeControllersArray_controller.default.create({});
+
+    // typically controller created for {{each itemController="foo"}}
+    var virtual = _emberRuntimeControllersArray_controller.default.create({
+      itemController: 'Item',
+      container: container,
+      target: parent,
+      parentController: parent,
+      _isVirtual: true,
+      model: _emberMetalCore.default.A([{ name: 'kris seldenator' }])
+    });
+
+    var itemController = virtual.objectAtContent(0);
+
+    equal(itemController.get('parentController'), parent);
+    equal(itemController.get('target'), parent);
+
+    _emberMetalRun_loop.default(function () {
+      parent.destroy();
+      virtual.destroy();
+    });
+  });
+
+  QUnit.test('array observers can invoke `objectAt` without overwriting existing item controllers', function () {
+    createArrayController();
+
+    var tywinController = arrayController.objectAtContent(0);
+    var arrayObserverCalled = false;
+
+    arrayController.reopen({
+      lannistersWillChange: function () {
+        return this;
+      },
+      lannistersDidChange: function (_, idx, removedAmt, addedAmt) {
+        arrayObserverCalled = true;
+        equal(this.objectAt(idx).get('model.name'), 'Tyrion', 'Array observers get the right object via `objectAt`');
+      }
+    });
+    arrayController.addArrayObserver(arrayController, {
+      willChange: 'lannistersWillChange',
+      didChange: 'lannistersDidChange'
+    });
+
+    _emberMetalRun_loop.default(function () {
+      lannisters.unshiftObject(tyrion);
+    });
+
+    equal(arrayObserverCalled, true, 'Array observers are called normally');
+    equal(tywinController.get('model.name'), 'Tywin', 'Array observers calling `objectAt` does not overwrite existing controllers\' model');
+  });
+
+  QUnit.test('`itemController`\'s life cycle should be entangled with its parent controller', function () {
+    createDynamicArrayController();
+
+    var tywinController = arrayController.objectAtContent(0);
+    var jaimeController = arrayController.objectAtContent(1);
+
+    _emberMetalRun_loop.default(arrayController, 'destroy');
+
+    equal(tywinController.get('isDestroyed'), true);
+    equal(jaimeController.get('isDestroyed'), true);
+  });
+
+  QUnit.module('Ember.ArrayController - itemController with arrayComputed', {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      container = registry.container();
+
+      cersei = _emberRuntimeSystemObject.default.create({ name: 'Cersei' });
+      jaime = _emberRuntimeSystemObject.default.create({ name: 'Jaime' });
+      lannisters = _emberMetalCore.default.A([jaime, cersei]);
+
+      controllerClass = _emberRuntimeControllersController.default.extend({
+        title: _emberMetalComputed.computed(function () {
+          switch (_emberMetalProperty_get.get(this, 'name')) {
+            case 'Jaime':
+              return 'Kingsguard';
+            case 'Cersei':
+              return 'Queen';
+          }
+        }).property('name'),
+
+        toString: function () {
+          return 'itemController for ' + this.get('name');
+        }
+      });
+
+      registry.register('controller:Item', controllerClass);
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        container.destroy();
+      });
+    }
+  });
+
+  QUnit.test('item controllers can be used to provide properties for array computed macros', function () {
+    createArrayController();
+
+    ok(_emberRuntimeCompare.default(_emberMetalUtils.guidFor(cersei), _emberMetalUtils.guidFor(jaime)) < 0, 'precond - guid tiebreaker would fail test');
+
+    arrayController.reopen({
+      sortProperties: _emberMetalCore.default.A(['title']),
+      sorted: _emberRuntimeComputedReduce_computed_macros.sort('@this', 'sortProperties')
+    });
+
+    var sortedNames = arrayController.get('sorted').mapBy('model.name');
+
+    deepEqual(sortedNames, ['Jaime', 'Cersei'], 'ArrayController items can be sorted on itemController properties');
+  });
+});
 enifed('ember-runtime/tests/core/compare_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/object', 'ember-runtime/compare', 'ember-runtime/mixins/comparable'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemObject, _emberRuntimeCompare, _emberRuntimeMixinsComparable) {
 
   var data = [];
@@ -36657,6 +37417,380 @@ enifed('ember-runtime/tests/mixins/promise_proxy_test', ['exports', 'ember-metal
     }
   });
 });
+enifed('ember-runtime/tests/mixins/sortable_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/events', 'ember-runtime/system/array_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/system/object', 'ember-runtime/controllers/array_controller'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberMetalEvents, _emberRuntimeSystemArray_proxy, _emberRuntimeMixinsSortable, _emberRuntimeSystemObject, _emberRuntimeControllersArray_controller) {
+
+  var unsortedArray, sortedArrayController;
+
+  QUnit.module('Ember.Sortable');
+
+  QUnit.module('Ember.Sortable with content', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        var array = [{ id: 1, name: 'Scumbag Dale' }, { id: 2, name: 'Scumbag Katz' }, { id: 3, name: 'Scumbag Bryn' }];
+
+        unsortedArray = _emberMetalCore.default.A(_emberMetalCore.default.A(array).copy());
+
+        sortedArrayController = _emberRuntimeSystemArray_proxy.default.extend(_emberRuntimeMixinsSortable.default).create({
+          content: unsortedArray
+        });
+      });
+    },
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        sortedArrayController.set('content', null);
+        sortedArrayController.destroy();
+      });
+    }
+  });
+
+  QUnit.test('if you do not specify `sortProperties` sortable have no effect', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Dale', 'array is in it natural order');
+
+    unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
+
+    equal(sortedArrayController.get('length'), 4, 'array has 4 items');
+    equal(sortedArrayController.objectAt(3).name, 'Scumbag Chavard', 'a new object was inserted in the natural order');
+
+    sortedArrayController.set('sortProperties', []);
+    unsortedArray.pushObject({ id: 5, name: 'Scumbag Jackson' });
+
+    equal(sortedArrayController.get('length'), 5, 'array has 5 items');
+    equal(sortedArrayController.objectAt(4).name, 'Scumbag Jackson', 'a new object was inserted in the natural order with empty array as sortProperties');
+  });
+
+  QUnit.test('you can change sorted properties', function () {
+    sortedArrayController.set('sortProperties', ['id']);
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Dale', 'array is sorted by id');
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    sortedArrayController.set('sortAscending', false);
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by id in DESC order');
+    equal(sortedArrayController.objectAt(2).name, 'Scumbag Dale', 'array is sorted by id in DESC order');
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    sortedArrayController.set('sortProperties', ['name']);
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Katz', 'array is sorted by name in DESC order');
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+  });
+
+  QUnit.test('changing sort order triggers observers', function () {
+    var observer;
+    var changeCount = 0;
+    observer = _emberRuntimeSystemObject.default.extend({
+      arrangedDidChange: _emberMetalMixin.observer('array.[]', function () {
+        changeCount++;
+      })
+    }).create({
+      array: sortedArrayController
+    });
+
+    equal(changeCount, 0, 'precond - changeCount starts at 0');
+
+    sortedArrayController.set('sortProperties', ['id']);
+
+    equal(changeCount, 1, 'setting sortProperties increments changeCount');
+
+    sortedArrayController.set('sortAscending', false);
+
+    equal(changeCount, 2, 'changing sortAscending increments changeCount');
+
+    sortedArrayController.set('sortAscending', true);
+
+    equal(changeCount, 3, 'changing sortAscending again increments changeCount');
+
+    _emberMetalRun_loop.default(function () {
+      observer.destroy();
+    });
+  });
+
+  QUnit.test('changing sortProperties and sortAscending with setProperties, sortProperties appearing first', function () {
+    sortedArrayController.set('sortProperties', ['name']);
+    sortedArrayController.set('sortAscending', false);
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Katz', 'array is sorted by name in DESC order');
+    equal(sortedArrayController.objectAt(2).name, 'Scumbag Bryn', 'array is sorted by name in DESC order');
+
+    sortedArrayController.setProperties({ sortProperties: ['id'], sortAscending: true });
+
+    equal(sortedArrayController.objectAt(0).id, 1, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 3, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortProperties: ['name'], sortAscending: false });
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Katz', 'array is sorted by name in DESC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).name, 'Scumbag Bryn', 'array is sorted by name in DESC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortProperties: ['id'], sortAscending: false });
+
+    equal(sortedArrayController.objectAt(0).id, 3, 'array is sorted by id in DESC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 1, 'array is sorted by id in DESC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortProperties: ['id'], sortAscending: true });
+
+    equal(sortedArrayController.objectAt(0).id, 1, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 3, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+  });
+
+  QUnit.test('changing sortProperties and sortAscending with setProperties, sortAscending appearing first', function () {
+    sortedArrayController.set('sortProperties', ['name']);
+    sortedArrayController.set('sortAscending', false);
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Katz', 'array is sorted by name in DESC order');
+    equal(sortedArrayController.objectAt(2).name, 'Scumbag Bryn', 'array is sorted by name in DESC order');
+
+    sortedArrayController.setProperties({ sortAscending: true, sortProperties: ['id'] });
+
+    equal(sortedArrayController.objectAt(0).id, 1, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 3, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortAscending: false, sortProperties: ['name'] });
+
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Katz', 'array is sorted by name in DESC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).name, 'Scumbag Bryn', 'array is sorted by name in DESC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortAscending: false, sortProperties: ['id'] });
+
+    equal(sortedArrayController.objectAt(0).id, 3, 'array is sorted by id in DESC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 1, 'array is sorted by id in DESC order after setting sortAscending and sortProperties');
+
+    sortedArrayController.setProperties({ sortAscending: true, sortProperties: ['id'] });
+
+    equal(sortedArrayController.objectAt(0).id, 1, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+    equal(sortedArrayController.objectAt(2).id, 3, 'array is sorted by id in ASC order after setting sortAscending and sortProperties');
+  });
+
+  QUnit.module('Ember.Sortable with content and sortProperties', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        var array = [{ id: 1, name: 'Scumbag Dale' }, { id: 2, name: 'Scumbag Katz' }, { id: 3, name: 'Scumbag Bryn' }];
+
+        unsortedArray = _emberMetalCore.default.A(_emberMetalCore.default.A(array).copy());
+
+        expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+        sortedArrayController = _emberRuntimeControllersArray_controller.default.create({
+          content: unsortedArray,
+          sortProperties: ['name']
+        });
+      });
+    },
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        sortedArrayController.destroy();
+      });
+    }
+  });
+
+  QUnit.test('sortable object will expose associated content in the right order', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by name');
+  });
+
+  QUnit.test('you can add objects in sorted order', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
+
+    equal(sortedArrayController.get('length'), 4, 'array has 4 items');
+    equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
+
+    sortedArrayController.addObject({ id: 5, name: 'Scumbag Fucs' });
+
+    equal(sortedArrayController.get('length'), 5, 'array has 5 items');
+    equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
+  });
+
+  QUnit.test('you can push objects in sorted order', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    unsortedArray.pushObject({ id: 4, name: 'Scumbag Chavard' });
+
+    equal(sortedArrayController.get('length'), 4, 'array has 4 items');
+    equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
+
+    sortedArrayController.pushObject({ id: 5, name: 'Scumbag Fucs' });
+
+    equal(sortedArrayController.get('length'), 5, 'array has 5 items');
+    equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
+  });
+
+  QUnit.test('you can unshift objects in sorted order', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    unsortedArray.unshiftObject({ id: 4, name: 'Scumbag Chavard' });
+
+    equal(sortedArrayController.get('length'), 4, 'array has 4 items');
+    equal(sortedArrayController.objectAt(1).name, 'Scumbag Chavard', 'a new object added to content was inserted according to given constraint');
+
+    sortedArrayController.addObject({ id: 5, name: 'Scumbag Fucs' });
+
+    equal(sortedArrayController.get('length'), 5, 'array has 5 items');
+    equal(sortedArrayController.objectAt(3).name, 'Scumbag Fucs', 'a new object added to controller was inserted according to given constraint');
+  });
+
+  QUnit.test('addObject does not insert duplicates', function () {
+    var sortedArrayProxy;
+    var obj = {};
+    sortedArrayProxy = _emberRuntimeSystemArray_proxy.default.extend(_emberRuntimeMixinsSortable.default).create({
+      content: _emberMetalCore.default.A([obj])
+    });
+
+    equal(sortedArrayProxy.get('length'), 1, 'array has 1 item');
+
+    sortedArrayProxy.addObject(obj);
+
+    equal(sortedArrayProxy.get('length'), 1, 'array still has 1 item');
+  });
+
+  QUnit.test('you can change a sort property and the content will rearrange', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'bryn is first');
+
+    _emberMetalProperty_set.set(sortedArrayController.objectAt(0), 'name', 'Scumbag Fucs');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Dale', 'dale is first now');
+    equal(sortedArrayController.objectAt(1).name, 'Scumbag Fucs', 'foucs is second');
+  });
+
+  QUnit.test('you can change the position of the middle item', function () {
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+
+    equal(sortedArrayController.objectAt(1).name, 'Scumbag Dale', 'Dale is second');
+    _emberMetalProperty_set.set(sortedArrayController.objectAt(1), 'name', 'Alice'); // Change Dale to Alice
+
+    equal(sortedArrayController.objectAt(0).name, 'Alice', 'Alice (previously Dale) is first now');
+  });
+
+  QUnit.test('don\'t remove and insert if position didn\'t change', function () {
+    var insertItemSortedCalled = false;
+
+    sortedArrayController.reopen({
+      insertItemSorted: function (item) {
+        insertItemSortedCalled = true;
+        this._super(item);
+      }
+    });
+
+    sortedArrayController.set('sortProperties', ['name']);
+
+    _emberMetalProperty_set.set(sortedArrayController.objectAt(0), 'name', 'Scumbag Brynjolfsson');
+
+    ok(!insertItemSortedCalled, 'insertItemSorted should not have been called');
+  });
+
+  QUnit.test('sortProperties observers removed on content removal', function () {
+    var removedObject = unsortedArray.objectAt(2);
+    equal(_emberMetalEvents.listenersFor(removedObject, 'name:change').length, 1, 'Before removal, there should be one listener for sortProperty change.');
+    unsortedArray.replace(2, 1, []);
+    equal(_emberMetalEvents.listenersFor(removedObject, 'name:change').length, 0, 'After removal, there should be no listeners for sortProperty change.');
+  });
+
+  QUnit.module('Ember.Sortable with sortProperties', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+        sortedArrayController = _emberRuntimeControllersArray_controller.default.create({
+          sortProperties: ['name']
+        });
+        var array = [{ id: 1, name: 'Scumbag Dale' }, { id: 2, name: 'Scumbag Katz' }, { id: 3, name: 'Scumbag Bryn' }];
+        unsortedArray = _emberMetalCore.default.A(_emberMetalCore.default.A(array).copy());
+      });
+    },
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        sortedArrayController.destroy();
+      });
+    }
+  });
+
+  QUnit.test('you can set content later and it will be sorted', function () {
+    equal(sortedArrayController.get('length'), 0, 'array has 0 items');
+
+    _emberMetalRun_loop.default(function () {
+      sortedArrayController.set('content', unsortedArray);
+    });
+
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by name');
+  });
+
+  QUnit.module('Ember.Sortable with sortFunction and sortProperties', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+        sortedArrayController = _emberRuntimeControllersArray_controller.default.create({
+          sortProperties: ['name'],
+          sortFunction: function (v, w) {
+            var lowerV = v.toLowerCase();
+            var lowerW = w.toLowerCase();
+
+            if (lowerV < lowerW) {
+              return -1;
+            }
+            if (lowerV > lowerW) {
+              return 1;
+            }
+            return 0;
+          }
+        });
+        var array = [{ id: 1, name: 'Scumbag Dale' }, { id: 2, name: 'Scumbag Katz' }, { id: 3, name: 'Scumbag bryn' }];
+        unsortedArray = _emberMetalCore.default.A(_emberMetalCore.default.A(array).copy());
+      });
+    },
+
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        sortedArrayController.destroy();
+      });
+    }
+  });
+
+  QUnit.test('you can sort with custom sorting function', function () {
+    equal(sortedArrayController.get('length'), 0, 'array has 0 items');
+
+    _emberMetalRun_loop.default(function () {
+      sortedArrayController.set('content', unsortedArray);
+    });
+
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag bryn', 'array is sorted by custom sort');
+  });
+
+  QUnit.test('Ember.Sortable with sortFunction on ArrayProxy should work like ArrayController', function () {
+    _emberMetalRun_loop.default(function () {
+      sortedArrayController = _emberRuntimeSystemArray_proxy.default.extend(_emberRuntimeMixinsSortable.default).create({
+        sortProperties: ['name'],
+        sortFunction: function (v, w) {
+          var lowerV = v.toLowerCase();
+          var lowerW = w.toLowerCase();
+
+          if (lowerV < lowerW) {
+            return -1;
+          }
+          if (lowerV > lowerW) {
+            return 1;
+          }
+          return 0;
+        }
+      });
+      var array = [{ id: 1, name: 'Scumbag Dale' }, { id: 2, name: 'Scumbag Katz' }, { id: 3, name: 'Scumbag Bryn' }];
+      unsortedArray = _emberMetalCore.default.A(_emberMetalCore.default.A(array).copy());
+    });
+    equal(sortedArrayController.get('length'), 0, 'array has 0 items');
+
+    _emberMetalRun_loop.default(function () {
+      sortedArrayController.set('content', unsortedArray);
+    });
+
+    equal(sortedArrayController.get('length'), 3, 'array has 3 items');
+    equal(sortedArrayController.objectAt(0).name, 'Scumbag Bryn', 'array is sorted by name');
+  });
+});
 enifed('ember-runtime/tests/mixins/target_action_support_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/target_action_support'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsTarget_action_support) {
 
   var originalLookup;
@@ -40291,7 +41425,7 @@ enifed('ember-runtime/tests/system/array_proxy/arranged_content_test', ['exports
     equal(array.get('firstObject'), '5', 'returns first arranged object');
   });
 });
-enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemArray_proxy) {
+enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemArray_proxy, _emberRuntimeControllersArray_controller) {
 
   QUnit.module('ArrayProxy - content change');
 
@@ -40358,14 +41492,15 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
   });
 
   QUnit.test('The ArrayProxy doesn\'t explode when assigned a destroyed object', function () {
-    var proxy1 = _emberRuntimeSystemArray_proxy.default.create();
-    var proxy2 = _emberRuntimeSystemArray_proxy.default.create();
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var arrayController = _emberRuntimeControllersArray_controller.default.create();
+    var proxy = _emberRuntimeSystemArray_proxy.default.create();
 
     _emberMetalRun_loop.default(function () {
-      proxy1.destroy();
+      arrayController.destroy();
     });
 
-    _emberMetalProperty_set.set(proxy2, 'content', proxy1);
+    _emberMetalProperty_set.set(proxy, 'content', arrayController);
 
     ok(true, 'No exception was raised');
   });
@@ -43380,7 +44515,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5574f194', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+51464270', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44993,7 +46128,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
 });
 // ensure that the helpers are loaded
 // ensure the initializer is setup
-enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-testing/test', 'ember-routing/system/route', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-runtime/controllers/controller', 'ember-application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsViewsView, _emberTestingTest, _emberRoutingSystemRoute, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberRuntimeControllersController, _emberApplication) {
+enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-testing/test', 'ember-routing/system/route', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeControllersArray_controller, _emberViewsSystemJquery, _emberViewsViewsView, _emberTestingTest, _emberRoutingSystemRoute, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberApplication) {
 
   var App, find, visit;
   var originalAdapter = _emberTestingTest.default.adapter;
@@ -45020,7 +46155,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/core', '
           defaultTemplate: _emberTemplateCompilerSystemCompile.default('{{#each model as |person|}}<div class="name">{{person.firstName}}</div>{{/each}}')
         });
 
-        App.PeopleController = _emberRuntimeControllersController.default.extend({});
+        App.PeopleController = _emberRuntimeControllersArray_controller.default.extend({});
 
         App.Person = _emberRuntimeSystemObject.default.extend({
           firstName: ''
@@ -45070,6 +46205,7 @@ enifed('ember-testing/tests/integration_test', ['exports', 'ember-metal/core', '
   });
 
   QUnit.test('template is bound to array of 2 people', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
     App.Person.find = function () {
       var people = _emberMetalCore.default.A();
       var first = App.Person.create({ firstName: 'x' });
@@ -46478,7 +47614,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemString, _emberViewsSystemJquery, _emberViewsViewsCollection_view, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle) {
+enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-runtime/system/array_proxy', 'ember-runtime/controllers/array_controller', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemString, _emberRuntimeSystemArray_proxy, _emberRuntimeControllersArray_controller, _emberViewsSystemJquery, _emberViewsViewsCollection_view, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle) {
 
   var trim = _emberViewsSystemJquery.default.trim;
   var registry;
@@ -46982,6 +48118,37 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
     equal(view.$('div').length, 1);
     equal(view.$().find('kbd:contains("OY SORRY GUVNAH")').length, 0);
+  });
+
+  QUnit.test('a array_proxy that backs an sorted array_controller that backs a collection view functions properly', function () {
+    expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);
+    var array = _emberMetalCore.default.A([{ name: 'Other Katz' }]);
+    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: array });
+
+    var sortedController = _emberRuntimeControllersArray_controller.default.create({
+      content: arrayProxy,
+      sortProperties: ['name']
+    });
+
+    var container = _emberViewsViewsCollection_view.default.create({
+      content: sortedController
+    });
+
+    _emberMetalRun_loop.default(function () {
+      container.appendTo('#qunit-fixture');
+    });
+
+    _emberMetalRun_loop.default(function () {
+      arrayProxy.addObjects([{ name: 'Scumbag Demon' }, { name: 'Lord British' }]);
+    });
+
+    equal(container.get('content.length'), 3, 'ArrayController should have 3 entries');
+    equal(container.get('content.content.length'), 3, 'RecordArray should have 3 entries');
+    equal(container.get('childViews.length'), 3, 'CollectionView should have 3 entries');
+
+    _emberMetalRun_loop.default(function () {
+      container.destroy();
+    });
   });
 
   QUnit.test('when a collection view is emptied, deeply nested views elements are not removed from the DOM and then destroyed again', function () {
@@ -54198,6 +55365,30 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', '
     assert.equal($fixture.find('p').length, 3, 'the {{#each}} rendered without raising an exception');
   });
 
+  QUnit.test('actions within a context shifting {{each}} with `itemController` [DEPRECATED]', function (assert) {
+    expectDeprecation(function () {
+      templates.index = compile('\n      {{#each model itemController=\'thing\'}}\n        {{controller}}\n        <p><a {{action \'checkController\' controller}}>Click me</a></p>\n      {{/each}}\n    ');
+    });
+
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        return _emberMetalCore.default.A([{ name: 'red' }, { name: 'yellow' }, { name: 'blue' }]);
+      }
+    });
+
+    App.ThingController = _emberMetalCore.default.Controller.extend({
+      actions: {
+        checkController: function (controller) {
+          assert.ok(controller === this, 'correct controller was passed as action context');
+        }
+      }
+    });
+
+    bootApp();
+
+    $fixture.find('a').first().click();
+  });
+
   function bootApp() {
     _emberMetalCore.default.run(App, 'advanceReadiness');
   }
@@ -55433,7 +56624,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
       }
     });
 
-    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3><ul>{{#each model as |person|}}<li>{{link-to person.name \'item\' person}}</li>{{/each}}</ul>');
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3><ul>{{#each controller as |person|}}<li>{{link-to person.name \'item\' person}}</li>{{/each}}</ul>');
     _emberMetalCore.default.TEMPLATES.item = compile('<h3>Item</h3><p>{{model.name}}</p>{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}');
 
     bootApplication();
@@ -56962,7 +58153,7 @@ enifed('ember/tests/integration/view_test', ['exports', 'ember-metal/core', 'emb
     assert.strictEqual(controllerInMyFoo, indexController, 'controller is provided to `{{view}}`');
   });
 });
-enifed('ember/tests/routing/basic_test',['exports','ember','ember-metal/core','ember-metal/features','ember-metal/property_get','ember-metal/property_set','ember-views/system/action_manager','ember-views/views/view','ember-htmlbars/compat'],function(exports,_ember,_emberMetalCore,_emberMetalFeatures,_emberMetalProperty_get,_emberMetalProperty_set,_emberViewsSystemAction_manager,_emberViewsViewsView,_emberHtmlbarsCompat){var compile=_emberHtmlbarsCompat.default.compile;var trim=_emberMetalCore.default.$.trim;var Router,App,router,registry,container,originalLoggerError;function bootApplication(){router = container.lookup('router:main');_emberMetalCore.default.run(App,'advanceReadiness');}function handleURL(path){return _emberMetalCore.default.run(function(){return router.handleURL(path).then(function(value){ok(true,'url: `' + path + '` was handled');return value;},function(reason){ok(false,'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false,'url: `' + path + '` was NOT to be handled');},function(reason){ok(reason && reason.message === 'TransitionAborted','url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path,expectedReason){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false,'expected handleURLing: `' + path + '` to fail');},function(reason){equal(expectedReason,reason);});});}QUnit.module('Basic Routing',{setup:function(){_emberMetalCore.default.run(function(){App = _emberMetalCore.default.Application.create({name:'App',rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = _emberMetalCore.default.Route.extend({});registry = App.registry;container = App.__container__;_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');_emberMetalCore.default.TEMPLATES.homepage = compile('<h3>Megatroll</h3><p>{{model.home}}</p>');_emberMetalCore.default.TEMPLATES.camelot = compile('<section><h3>Is a silly place</h3></section>');originalLoggerError = _emberMetalCore.default.Logger.error;});},teardown:function(){_emberMetalCore.default.run(function(){App.destroy();App = null;_emberMetalCore.default.TEMPLATES = {};_emberMetalCore.default.Logger.error = originalLoggerError;});}});QUnit.test('warn on URLs not included in the route set',function(){Router.map(function(){this.route('home',{path:'/'});});bootApplication();expectAssertion(function(){_emberMetalCore.default.run(function(){router.handleURL('/what-is-this-i-dont-even');});},'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});QUnit.test('The Homepage',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'home');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});QUnit.test('The Home page and the Camelot page with multiple Router.map calls',function(){Router.map(function(){this.route('home',{path:'/'});});Router.map(function(){this.route('camelot',{path:'/camelot'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.CamelotRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});App.CamelotController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath,'camelot');equal(_emberMetalCore.default.$('h3:contains(silly)','#qunit-fixture').length,1,'The camelot template was rendered');handleURL('/');equal(currentPath,'home');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});QUnit.test('The Homepage with explicit template name in renderTemplate',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller instead of controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'foo',renderTemplate:function(){this.render('homepage');}});App.FooController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from Foo'}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('The template will pull in an alternate controller via key/value',function(){Router.map(function(){this.route('homepage',{path:'/'});});App.HomepageRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from home.'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from home.)','#qunit-fixture').length,1,'The homepage template was rendered from data from the HomeController');});QUnit.test('The Homepage with explicit template name in renderTemplate and controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(YES I AM HOME)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('Model passed via renderTemplate model is set as controller\'s model',function(){_emberMetalCore.default.TEMPLATES['bio'] = compile('<p>{{model.name}}</p>');App.BioController = _emberMetalCore.default.Controller.extend();Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('bio',{model:{name:'emberjs'}});}});bootApplication();equal(_emberMetalCore.default.$('p:contains(emberjs)','#qunit-fixture').length,1,'Passed model was set as controllers model');});QUnit.test('Renders correct view with slash notation',function(){_emberMetalCore.default.TEMPLATES['home/page'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('Renders the view given in the view option',function(){_emberMetalCore.default.TEMPLATES['home'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage view was rendered');});QUnit.test('render does not replace templateName if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('render does not replace template if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();_emberMetalCore.default.run(function(){router.handleURL('/');});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('render uses templateName from route',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template'});bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('defining templateName allows other templates to be rendered',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.alert = compile('<div class=\'alert-box\'>Invader!</div>');_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template',actions:{showAlert:function(){this.render('alert',{into:'home',outlet:'alert'});}}});bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');_emberMetalCore.default.run(function(){router.send('showAlert');});equal(_emberMetalCore.default.$('.alert-box','#qunit-fixture').text(),'Invader!','Template for alert was render into outlet');});QUnit.test('Specifying a name to render should have precedence over everything else',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'home',controllerName:'home',viewName:'home',renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:compile('<span>Outer</span>{{yield}}<span>troll</span>'),templateName:'homepage'});bootApplication();equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Megatroll','The homepage template was rendered');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'Tinytroll','The homepage controller was used');equal(_emberMetalCore.default.$('span','#qunit-fixture').text(),'Outertroll','The homepage view was used');});QUnit.test('The Homepage with a `setupController` hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){_emberMetalProperty_set.set(controller,'hours',_emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The route controller is still set when overriding the setupController hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){}});registry.register('controller:home',_emberMetalCore.default.Controller.extend());bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:home'),'route controller is the home controller');});QUnit.test('The route controller can be specified via controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>{{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'foo','The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.alternative_home = compile('<p>alternative home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController',renderTemplate:function(){this.render('alternative_home');}});registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'alternative home: foo','The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:home',_emberMetalCore.default.Controller.extend({myValue:'home'}));registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'myController'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'home: myController','The homepage template was rendered with data from the custom controller');});QUnit.test('The Homepage with a `setupController` hook modifying other controllers',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){_emberMetalProperty_set.set(this.controllerFor('home'),'hours',_emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The Homepage with a computed context that does not get overridden',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend({model:_emberMetalCore.default.computed(function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);})});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the context intact');});QUnit.test('The Homepage getting its controller context via model',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);},setupController:function(controller,model){equal(this.controllerFor('home'),controller);_emberMetalProperty_set.set(this.controllerFor('home'),'hours',model);}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The Specials Page getting its controller context by deserializing the params hash',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.SpecialRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({menuItemId:params.menu_item_id});},setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.menuItemId}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The model was used to render the template');});QUnit.test('The Specials Page defaults to looking models up via `find`',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The model was used to render the template');});QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'LOADING!','The app is in the loading state');_emberMetalCore.default.run(function(){resolve(menuItem);});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The app is now in the specials state');});QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false,'LoadingRoute shouldn\'t have been entered.');}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The app is now in the specials state');});QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,promise,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';},actions:{error:function(reason){equal(reason,'Setup error','SpecialRoute#error received the error thrown from setup');}}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason,'Setup error','error was correctly passed to custom ApplicationRoute handler');}};App.ApplicationRoute = _emberMetalCore.default.Route.extend(attrs);App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden',function(){testOverridableErrorHandler('actions');});QUnit.test('ApplicationRoute\'s default error handler can be overridden (with DEPRECATED `events`)',function(){ignoreDeprecation(function(){testOverridableErrorHandler('events');});});asyncTest('Moving from one page to another triggers the correct callbacks',function(){expect(3);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.home = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());var transition=handleURL('/');_emberMetalCore.default.run(function(){transition.then(function(){equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(promiseContext);},1);return router.transitionTo('special',promiseContext);}).then(function(result){deepEqual(router.location.path,'/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('special',{path:'/specials/:menu_item_id',resetNamespace:true});});});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});var menuItem;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.RootRoute = _emberMetalCore.default.Route.extend({model:function(){rootModel++;return this._super.apply(this,arguments);},serialize:function(){rootSerialize++;return this._super.apply(this,arguments);},setupController:function(){rootSetup++;},renderTemplate:function(){rootRender++;}});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');equal(rootSetup,1,'The root setup was triggered');equal(rootRender,1,'The root render was triggered');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called');router = container.lookup('router:main');_emberMetalCore.default.run(function(){var menuItem=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(menuItem);},1);router.transitionTo('special',menuItem).then(function(result){equal(rootSetup,1,'The root setup was not triggered again');equal(rootRender,1,'The root render was not triggered again');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called again');deepEqual(router.location.path,'/specials/1');equal(currentPath,'root.special');QUnit.start();});});});QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(obj){stateIsNotCalled = false;}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});registry.register('controller:home',controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId2=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId2[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId3=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId3[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `events` object (DEPRECATED)',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},events:{showStuff:function(obj){ok(this instanceof App.HomeRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId4=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId4[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId5=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId5[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('Events can be handled by inherited event handlers',function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled,'an event on the state is not triggered');}});registry.register('controller:home',controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId6=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId6[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('actions can be triggered with multiple arguments',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model1={name:'Tilde'};var model2={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj1,obj2){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj1,true),{name:'Tilde'},'the first context is correct');deepEqual(_emberMetalCore.default.copy(obj2,true),{name:'Tom Dale'},'the second context is correct');QUnit.start();}}});App.RootIndexController = _emberMetalCore.default.Controller.extend({model1:model1,model2:model2});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId7=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId7[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('transitioning multiple times in a single run loop only sets the URL once',function(){Router.map(function(){this.route('root',{path:'/'});this.route('foo');this.route('bar');});bootApplication();var urlSetCount=0;router.get('location').setURL = function(path){urlSetCount++;_emberMetalProperty_set.set(this,'path',path);};equal(urlSetCount,0);_emberMetalCore.default.run(function(){router.transitionTo('foo');router.transitionTo('bar');});equal(urlSetCount,1);equal(router.get('location').getURL(),'/bar');});QUnit.test('navigating away triggers a url property change',function(){expect(3);Router.map(function(){this.route('root',{path:'/'});this.route('foo',{path:'/foo'});this.route('bar',{path:'/bar'});});bootApplication();_emberMetalCore.default.run(function(){_emberMetalCore.default.addObserver(router,'url',function(){ok(true,'url change event was fired');});});['foo','bar','/foo'].forEach(function(destination){_emberMetalCore.default.run(router,'transitionTo',destination);});});QUnit.test('using replaceWith calls location.replaceURL if available',function(){var setCount=0;var replaceCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.create({setURL:function(path){setCount++;_emberMetalProperty_set.set(this,'path',path);},replaceURL:function(path){replaceCount++;_emberMetalProperty_set.set(this,'path',path);}})});Router.map(function(){this.route('root',{path:'/'});this.route('foo');});bootApplication();equal(setCount,0);equal(replaceCount,0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount,0,'should not call setURL');equal(replaceCount,1,'should call replaceURL once');equal(router.get('location').getURL(),'/foo');});QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined',function(){var setCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.create({setURL:function(path){setCount++;_emberMetalProperty_set.set(this,'path',path);}})});Router.map(function(){this.route('root',{path:'/'});this.route('foo');});bootApplication();equal(setCount,0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount,1,'should call setURL once');equal(router.get('location').getURL(),'/foo');});QUnit.test('Route inherits model from parent route',function(){expect(9);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments');this.route('shares',{path:'/shares/:share_id',resetNamespace:true},function(){this.route('share');});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1,2:post2,3:post3};var shares={1:share1,2:share2,3:share3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post,transition){var parent_model=this.modelFor('thePost');equal(post,parent_model);}});App.SharesRoute = _emberMetalCore.default.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = _emberMetalCore.default.Route.extend({afterModel:function(share,transition){var parent_model=this.modelFor('shares');equal(share,parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');handleURL('/posts/1/shares/1');currentPost = post2;handleURL('/posts/2/comments');handleURL('/posts/2/shares/2');currentPost = post3;handleURL('/posts/3/comments');handleURL('/posts/3/shares/3');});QUnit.test('Routes with { resetNamespace: true } inherits model from parent route',function(){expect(6);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments',{resetNamespace:true},function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1,2:post2,3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post,transition){var parent_model=this.modelFor('thePost');equal(post,parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('It is possible to get the model from a parent route',function(){expect(9);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments',{resetNamespace:true});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1,2:post2,3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({model:function(){equal(this.modelFor('thePost'),currentPost);equal(this.modelFor('the_post'),currentPost);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('A redirection hook is provided',function(){Router.map(function(){this.route('choose',{path:'/'});this.route('home');});var chooseFollowed=0;var destination;App.ChooseRoute = _emberMetalCore.default.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}},setupController:function(){chooseFollowed++;}});destination = 'home';bootApplication();equal(chooseFollowed,0,'The choose route wasn\'t entered since a transition occurred');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');equal(router.container.lookup('controller:application').get('currentPath'),'home');});QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes',function(){expect(3);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});});});App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('home');},setupController:function(){ok(false,'Should transition before setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false,'Should abort transition getting to next route');}});bootApplication();handleURLAborts('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'),'home');equal(router.get('location').getURL(),'/home');});QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing',function(){expect(5);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});});});var successCount=0;App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('bar.baz').then(function(){successCount++;});},setupController:function(){ok(true,'Should still invoke bar\'s setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'Should still invoke bar.baz\'s setupController');}});bootApplication();handleURL('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'),'foo.bar.baz');equal(successCount,1,'transitionTo success handler was called once');});QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes',function(){expect(4);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{path:'bar/:id',resetNamespace:true},function(){this.route('baz');});});});var model={id:2};var count=0;App.BarRoute = _emberMetalCore.default.Route.extend({afterModel:function(context){if(count++ > 10){ok(false,'infinite loop');}else {this.transitionTo('bar.baz',model);}},serialize:function(params){return params;}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'Should still invoke setupController');}});bootApplication();handleURLAborts('/foo/bar/1/baz');equal(router.container.lookup('controller:application').get('currentPath'),'foo.bar.baz');equal(router.get('location').getURL(),'/foo/bar/2/baz');});QUnit.test('Transitioning from a parent event does not prevent currentPath from being set',function(){Router.map(function(){this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});this.route('qux');});});App.FooRoute = _emberMetalCore.default.Route.extend({actions:{goToQux:function(){this.transitionTo('foo.qux');}}});bootApplication();var applicationController=router.container.lookup('controller:application');handleURL('/foo/bar/baz');equal(applicationController.get('currentPath'),'foo.bar.baz');_emberMetalCore.default.run(function(){router.send('goToQux');});equal(applicationController.get('currentPath'),'foo.qux');equal(router.get('location').getURL(),'/foo/qux');});QUnit.test('Generated names can be customized when providing routes with dot notation',function(){expect(4);_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.foo = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['bar/baz'] = compile('<p>{{name}}Bottom!</p>');Router.map(function(){this.route('foo',{path:'/top'},function(){this.route('bar',{path:'/middle',resetNamespace:true},function(){this.route('baz',{path:'/bottom'});});});});App.FooRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true,'FooBarRoute was called');return this._super.apply(this,arguments);}});App.BarBazRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true,'BarBazRoute was called');return this._super.apply(this,arguments);}});App.BarController = _emberMetalCore.default.Controller.extend({name:'Bar'});App.BarBazController = _emberMetalCore.default.Controller.extend({name:'BarBaz'});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').text(),'BarBazBottom!','The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into their parent route\'s template by default',function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.route('top',function(){this.route('middle',{resetNamespace:true},function(){this.route('bottom');});});});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').text(),'Bottom!','The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into specified template',function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.route('top',function(){this.route('middle',{resetNamespace:true},function(){this.route('bottom');});});});App.MiddleBottomRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('middle/bottom',{into:'top'});}});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').length,0,'should not render into the middle template');equal(_emberMetalCore.default.$('.main .middle > p','#qunit-fixture').text(),'Bottom!','The template was rendered into the top template');});QUnit.test('Rendering into specified template with slash notation',function(){_emberMetalCore.default.TEMPLATES['person/profile'] = compile('profile {{outlet}}');_emberMetalCore.default.TEMPLATES['person/details'] = compile('details!');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('person/profile');this.render('person/details',{into:'person/profile'});}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture:contains(profile details!)').length,1,'The templates were rendered');});QUnit.test('Parent route context change',function(){var editCount=0;var editedPostIds=_emberMetalCore.default.A();_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.post = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['post/index'] = compile('showing');_emberMetalCore.default.TEMPLATES['post/edit'] = compile('editing');Router.map(function(){this.route('posts',function(){this.route('post',{path:'/:postId',resetNamespace:true},function(){this.route('edit');});});});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showPost:function(context){this.transitionTo('post',context);}}});App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return {id:params.postId};},actions:{editPost:function(context){this.transitionTo('post.edit');}}});App.PostEditRoute = _emberMetalCore.default.Route.extend({model:function(params){var postId=this.modelFor('post').id;editedPostIds.push(postId);return null;},setup:function(){this._super.apply(this,arguments);editCount++;}});bootApplication();handleURL('/posts/1');_emberMetalCore.default.run(function(){router.send('editPost');});_emberMetalCore.default.run(function(){router.send('showPost',{id:'2'});});_emberMetalCore.default.run(function(){router.send('editPost');});equal(editCount,2,'set up the edit route twice without failure');deepEqual(editedPostIds,['1','2'],'modelFor posts.post returns the right context');});QUnit.test('Router accounts for rootURL on page load when using history location',function(){var rootURL=window.location.pathname + '/app';var postsTemplateRendered=false;var setHistory,HistoryTestLocation;setHistory = function(obj,path){obj.set('history',{state:{path:path}});};HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({initState:function(){var path=rootURL + '/posts';setHistory(this,path);this.set('location',{pathname:path,href:'http://localhost/' + path});},replaceState:function(path){setHistory(this,path);},pushState:function(path){setHistory(this,path);}});registry.register('location:historyTest',HistoryTestLocation);Router.reopen({location:'historyTest',rootURL:rootURL});Router.map(function(){this.route('posts',{path:'/posts'});});App.PostsRoute = _emberMetalCore.default.Route.extend({model:function(){},renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered,'Posts route successfully stripped from rootURL');});QUnit.test('The rootURL is passed properly to the location implementation',function(){expect(1);var rootURL='/blahzorz';var HistoryTestLocation;HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({rootURL:'this is not the URL you are looking for',initState:function(){equal(this.get('rootURL'),rootURL);}});registry.register('location:history-test',HistoryTestLocation);Router.reopen({location:'history-test',rootURL:rootURL,_doURLTransition:function(){}});bootApplication();});QUnit.test('Only use route rendered into main outlet for default into property on child',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');Router.map(function(){this.route('posts',function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/menu',classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p',classNames:['posts-index']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('postsMenu',{into:'application',outlet:'menu'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,1,'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');});QUnit.test('Generating a URL should not affect currentModel',function(){Router.map(function(){this.route('post',{path:'/posts/:post_id'});});var posts={1:{id:1},2:{id:2}};App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL('/posts/1');var route=container.lookup('route:post');equal(route.modelFor('post'),posts[1]);var url=router.generate('post',posts[2]);equal(url,'/posts/2');equal(route.modelFor('post'),posts[1]);});QUnit.test('Generated route should be an instance of App.Route if provided',function(){var generatedRoute;Router.map(function(){this.route('posts');});App.Route = _emberMetalCore.default.Route.extend();bootApplication();handleURL('/posts');generatedRoute = container.lookup('route:posts');ok(generatedRoute instanceof App.Route,'should extend the correct route');});QUnit.test('Nested index route is not overriden by parent\'s implicit index route',function(){Router.map(function(){this.route('posts',function(){this.route('index',{path:':category'});});});App.Route = _emberMetalCore.default.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();_emberMetalCore.default.run(function(){router.transitionTo('posts',{category:'emberjs'});});deepEqual(router.location.path,'/posts/emberjs');});QUnit.test('Application template does not duplicate when re-rendered',function(){_emberMetalCore.default.TEMPLATES.application = compile('<h3>I Render Once</h3>{{outlet}}');Router.map(function(){this.route('posts');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A();}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('h3:contains(I Render Once)').size(),1);});QUnit.test('Child routes should render inside the application template if the application template causes a redirect',function(){_emberMetalCore.default.TEMPLATES.application = compile('<h3>App</h3> {{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('posts');Router.map(function(){this.route('posts');this.route('photos');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({afterModel:function(){this.transitionTo('posts');}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture > div').text(),'App posts');});QUnit.test('The template is not re-rendered when the route\'s context changes',function(){Router.map(function(){this.route('page',{path:'/page/:name'});});App.PageRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({name:params.name});}});var insertionCount=0;App.PageView = _emberViewsViewsView.default.extend({didInsertElement:function(){insertionCount += 1;}});_emberMetalCore.default.TEMPLATES.page = compile('<p>{{model.name}}</p>');bootApplication();handleURL('/page/first');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'first');equal(insertionCount,1);handleURL('/page/second');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'second');equal(insertionCount,1,'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('page',_emberMetalCore.default.Object.create({name:'third'}));});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'third');equal(insertionCount,1,'view should still have inserted only once');});QUnit.test('The template is not re-rendered when two routes present the exact same template, view, & controller',function(){Router.map(function(){this.route('first');this.route('second');this.route('third');this.route('fourth');});App.SharedRoute = _emberMetalCore.default.Route.extend({viewName:'shared',setupController:function(controller){this.controllerFor('shared').set('message','This is the ' + this.routeName + ' message');},renderTemplate:function(controller,context){this.render({controller:'shared'});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:'fourth'});App.SharedController = _emberMetalCore.default.Controller.extend();var insertionCount=0;App.SharedView = _emberViewsViewsView.default.extend({templateName:'shared',didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();_emberMetalCore.default.TEMPLATES.shared = compile('<p>{{message}}</p>');bootApplication();handleURL('/first');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the first message');equal(insertionCount,1,'expected one assertion');handleURL('/second');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the second message');equal(insertionCount,1,'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('third').then(function(value){ok(true,'expected transition');},function(reason){ok(false,'unexpected transition failure: ',QUnit.jsDump.parse(reason));});});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the third message');equal(insertionCount,1,'view should still have inserted only once');handleURL('/fourth');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the fourth message');equal(insertionCount,2,'view should have inserted a second time');});QUnit.test('ApplicationRoute with model does not proxy the currentPath',function(){var model={};var currentPath;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'index','currentPath is index');equal('currentPath' in model,false,'should have defined currentPath on controller');});QUnit.test('Promises encountered on app load put app into loading state until resolved',function(){expect(2);var deferred=_emberMetalCore.default.RSVP.defer();App.IndexRoute = _emberMetalCore.default.Route.extend({model:function(){return deferred.promise;}});_emberMetalCore.default.TEMPLATES.index = compile('<p>INDEX</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING</p>');bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'LOADING','The loading state is displaying.');_emberMetalCore.default.run(deferred.resolve);equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'INDEX','The index route is display.');});QUnit.test('Route should tear down multiple outlets',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');_emberMetalCore.default.TEMPLATES['posts/footer'] = compile('postsFooter');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/menu',classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p',classNames:['posts-index']});App.PostsFooterView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/footer',classNames:['posts-footer']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('postsMenu',{into:'application',outlet:'menu'});this.render();this.render('postsFooter',{into:'application',outlet:'footer'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,1,'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)','#qunit-fixture').length,1,'The posts/footer template was rendered');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,0,'The posts/menu template was removed');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)','#qunit-fixture').length,0,'The posts/footer template was removed');});QUnit.test('Route will assert if you try to explicitly render {into: ...} a missing template',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'nonexistent'});}});expectAssertion(function(){bootApplication();},'You attempted to render into \'nonexistent\' but it was not found');});QUnit.test('Route supports clearing outlet explicitly',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');_emberMetalCore.default.TEMPLATES['posts/extra'] = compile('postsExtra');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal',classNames:['posts-modal']});App.PostsExtraView = _emberViewsViewsView.default.extend({templateName:'posts/extra',classNames:['posts-extra']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal',{into:'application',outlet:'modal'});},hideModal:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});App.PostsIndexRoute = _emberMetalCore.default.Route.extend({actions:{showExtra:function(){this.render('postsExtra',{into:'posts/index'});},hideExtra:function(){this.disconnectOutlet({parentView:'posts/index'});}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,1,'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('showExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,1,'The posts/extra template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');_emberMetalCore.default.run(function(){router.send('hideExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,0,'The posts/extra template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,0,'The posts/extra template was removed');});QUnit.test('Route supports clearing outlet using string parameter',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal',classNames:['posts-modal']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal',{into:'application',outlet:'modal'});},hideModal:function(){this.disconnectOutlet('modal');}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,1,'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');});QUnit.test('Route silently fails when cleaning an outlet from an inactive view',function(){expect(1);_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.modal = compile('A Yo.');Router.map(function(){this.route('posts');});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:'main',parentView:'application'});},showModal:function(){this.render('modal',{into:'posts',outlet:'modal'});},hideModal:function(){this.disconnectOutlet({outlet:'modal',parentView:'posts'});}}});bootApplication();handleURL('/posts');_emberMetalCore.default.run(function(){router.send('showModal');});_emberMetalCore.default.run(function(){router.send('hideSelf');});_emberMetalCore.default.run(function(){router.send('hideModal');});});QUnit.test('Router `willTransition` hook passes in cancellable transition',function(){expect(3);Router.map(function(){this.route('nork');this.route('about');});Router.reopen({init:function(){this._super();this.on('willTransition',this.testWillTransitionHook);},testWillTransitionHook:function(transition,url){ok(true,'willTransition was called ' + url);transition.abort();}});App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'LoadingRoute was not entered');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'NorkRoute was not entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'AboutRoute was not entered');}});bootApplication();_emberMetalCore.default.run(router,'handleURL','/nork');_emberMetalCore.default.run(router,'handleURL','/about');});QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered',function(){expect(8);Router.map(function(){this.route('nork');this.route('about');});var redirect=false;App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willTransition:function(transition){ok(true,'willTransition was called');if(redirect){this.transitionTo('about');}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(deferred,'LoadingRoute should be entered at this time');},deactivate:function(){ok(true,'LoadingRoute was exited');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true,'NorkRoute was entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true,'AboutRoute was entered');},model:function(){if(deferred){return deferred.promise;}}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'handleURL','/nork');redirect = true;_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'transitionTo','index');deferred = _emberMetalCore.default.RSVP.defer();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(deferred.resolve);});QUnit.test('`didTransition` event fires on the router',function(){expect(3);Router.map(function(){this.route('nork');});router = container.lookup('router:main');router.one('didTransition',function(){ok(true,'didTransition fired on initial routing');});bootApplication();router.one('didTransition',function(){ok(true,'didTransition fired on the router');equal(router.get('url'),'/nork','The url property is updated by the time didTransition fires');});_emberMetalCore.default.run(router,'transitionTo','nork');});QUnit.test('`didTransition` can be reopened',function(){expect(1);Router.map(function(){this.route('nork');});Router.reopen({didTransition:function(){this._super.apply(this,arguments);ok(true,'reopened didTransition was called');}});bootApplication();});QUnit.test('`activate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this,arguments);this.on('activate',function(){equal(++eventFired,1,'activate event is fired once');});},activate:function(){ok(true,'activate hook is called');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');});QUnit.test('`deactivate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');this.route('dork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this,arguments);this.on('deactivate',function(){equal(++eventFired,1,'deactivate event is fired once');});},deactivate:function(){ok(true,'deactivate hook is called');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'transitionTo','dork');});QUnit.test('Actions can be handled by inherited action handlers',function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo',function(){expect(24);Router.map(function(){this.route('be',function(){this.route('excellent',{resetNamespace:true},function(){this.route('to',{resetNamespace:true},function(){this.route('each',{resetNamespace:true},function(){this.route('other');});});});});});bootApplication();var appController=router.container.lookup('controller:application');function transitionAndCheck(path,expectedPath,expectedRouteName){if(path){_emberMetalCore.default.run(router,'transitionTo',path);}equal(appController.get('currentPath'),expectedPath);equal(appController.get('currentRouteName'),expectedRouteName);}transitionAndCheck(null,'index','index');transitionAndCheck('/be','be.index','be.index');transitionAndCheck('/be/excellent','be.excellent.index','excellent.index');transitionAndCheck('/be/excellent/to','be.excellent.to.index','to.index');transitionAndCheck('/be/excellent/to/each','be.excellent.to.each.index','each.index');transitionAndCheck('/be/excellent/to/each/other','be.excellent.to.each.other','each.other');transitionAndCheck('index','index','index');transitionAndCheck('be','be.index','be.index');transitionAndCheck('excellent','be.excellent.index','excellent.index');transitionAndCheck('to.index','be.excellent.to.index','to.index');transitionAndCheck('each','be.excellent.to.each.index','each.index');transitionAndCheck('each.other','be.excellent.to.each.other','each.other');});QUnit.test('Route model hook finds the same model as a manual find',function(){var Post;App.Post = _emberMetalCore.default.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route('post',{path:'/post/:post_id'});});bootApplication();handleURL('/post/1');equal(App.Post,Post);});QUnit.test('Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)',function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);_emberMetalCore.default.Location.registerImplementation('test',TestLocation);Router.reopen({location:'test'});bootApplication();equal(router.get('location.implementation'),'test','custom location implementation can be registered with registerImplementation');});QUnit.test('Ember.Location.registerImplementation is deprecated',function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(function(){_emberMetalCore.default.Location.registerImplementation('test',TestLocation);},'Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.');});QUnit.test('Routes can refresh themselves causing their model hooks to be re-run',function(){Router.map(function(){this.route('parent',{path:'/parent/:parent_id'},function(){this.route('child');});});var appcount=0;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = _emberMetalCore.default.Route.extend({model:function(params){equal(params.parent_id,'123');++parentcount;},actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = _emberMetalCore.default.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount,1);equal(parentcount,0);equal(childcount,0);_emberMetalCore.default.run(router,'transitionTo','parent.child','123');equal(appcount,1);equal(parentcount,1);equal(childcount,1);_emberMetalCore.default.run(router,'send','refreshParent');equal(appcount,1);equal(parentcount,2);equal(childcount,2);});QUnit.test('Specifying non-existent controller name in route#render throws',function(){expect(1);Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){try{this.render('homepage',{controller:'stefanpenneristhemanforme'});}catch(e) {equal(e.message,'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');}}});bootApplication();});QUnit.test('Redirecting with null model doesn\'t error out',function(){Router.map(function(){this.route('home',{path:'/'});this.route('about',{path:'/about/:hurhurhur'});});App.HomeRoute = _emberMetalCore.default.Route.extend({beforeModel:function(){this.transitionTo('about',null);}});App.AboutRoute = _emberMetalCore.default.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:'TreeklesMcGeekles'};}}});bootApplication();equal(router.get('location.path'),'/about/TreeklesMcGeekles');});QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property',function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({message:rejectedMessage,stack:rejectedStack});}});bootApplication();});QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property',function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({errorThrown:{message:rejectedMessage,stack:rejectedStack}});}});bootApplication();});QUnit.test('rejecting the model hooks promise with no reason still logs error',function(){Router.map(function(){this.route('wowzers',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage){equal(initialMessage,'Error while processing route: wowzers','a message with the current route name is printed');};App.WowzersRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject();}});bootApplication();});QUnit.test('rejecting the model hooks promise with a string shows a good error',function(){var originalLoggerError=_emberMetalCore.default.Logger.error;var rejectedMessage='Supercalifragilisticexpialidocious';Router.map(function(){this.route('yondo',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage){equal(initialMessage,'Error while processing route: yondo','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');};App.YondoRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject(rejectedMessage);}});bootApplication();_emberMetalCore.default.Logger.error = originalLoggerError;});QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled',function(){expect(1);App.Router.map(function(){this.route('about');});function shouldNotFire(){ok(false,'this action shouldn\'t have been received');}App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willChangeModel:shouldNotFire,willChangeContext:shouldNotFire,willLeave:shouldNotFire}});App.AboutRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'about route was entered');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','about');});QUnit.test('Errors in transitionTo within redirect hook are logged',function(){expect(3);var actual=[];Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});_emberMetalCore.default.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length,1,'the error is only logged once');equal(actual[0][0],'Error while processing route: yondo','source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/),'the error is printed');});QUnit.test('Errors in transition show error template if available',function(){_emberMetalCore.default.TEMPLATES.error = compile('<div id=\'error\'>Error!</div>');Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});bootApplication();equal(_emberMetalCore.default.$('#error').length,1,'Error template was rendered.');});QUnit.test('Route#resetController gets fired when changing models and exiting routes',function(){expect(4);Router.map(function(){this.route('a',function(){this.route('b',{path:'/b/:id',resetNamespace:true},function(){});this.route('c',{path:'/c/:id',resetNamespace:true},function(){});});this.route('out');});var calls=[];var SpyRoute=_emberMetalCore.default.Route.extend({setupController:function(controller,model,transition){calls.push(['setup',this.routeName]);},resetController:function(controller){calls.push(['reset',this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls,[]);_emberMetalCore.default.run(router,'transitionTo','b','b-1');deepEqual(calls,[['setup','a'],['setup','b']]);calls.length = 0;_emberMetalCore.default.run(router,'transitionTo','c','c-1');deepEqual(calls,[['reset','b'],['setup','c']]);calls.length = 0;_emberMetalCore.default.run(router,'transitionTo','out');deepEqual(calls,[['reset','c'],['reset','a'],['setup','out']]);});QUnit.test('Exception during initialization of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router,'transitionTo','boom');},/\bboom\b/);});QUnit.test('Exception during load of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router,'transitionTo','boom');});});QUnit.test('Exception during initialization of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});QUnit.test('Exception during load of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});QUnit.test('{{outlet}} works when created after initial render',function(){_emberMetalCore.default.TEMPLATES.sample = compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye');_emberMetalCore.default.TEMPLATES['sample/inner'] = compile('Yay');_emberMetalCore.default.TEMPLATES['sample/inner2'] = compile('Boo');Router.map(function(){this.route('sample',{path:'/'},function(){this.route('inner',{path:'/'});this.route('inner2',{path:'/2'});});});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiBye','initial render');_emberMetalCore.default.run(function(){container.lookup('controller:sample').set('showTheThing',true);});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiYayBye','second render');handleURL('/2');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiBooBye','third render');});QUnit.test('Can rerender application view multiple times when it contains an outlet',function(){_emberMetalCore.default.TEMPLATES.application = compile('App{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('Hello world');registry.register('view:application',_emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','initial render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','second render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','third render');});QUnit.test('Can render into a named outlet at the top level',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');});QUnit.test('Can disconnect a named outlet at the top level',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});},actions:{banish:function(){this.disconnectOutlet({parentView:'application',outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');_emberMetalCore.default.run(router,'send','banish');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B--C','second render');});QUnit.test('Can render into a named outlet at the top level, with empty main outlet',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');Router.map(function(){this.route('hasNoTemplate',{path:'/'});});registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A--B-Hello world-C','initial render');});QUnit.test('Can render into a named outlet at the top level, later',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({actions:{launch:function(){this.render('modal',{into:'application',outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B--C','initial render');_emberMetalCore.default.run(router,'send','launch');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','second render');});QUnit.test('Can render routes with no \'main\' outlet and their children',function(){_emberMetalCore.default.TEMPLATES.application = compile('<div id="application">{{outlet "app"}}</div>');_emberMetalCore.default.TEMPLATES.app = compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>');_emberMetalCore.default.TEMPLATES.common = compile('<div id="common"></div>');_emberMetalCore.default.TEMPLATES.sub = compile('<div id="sub"></div>');Router.map(function(){this.route('app',{path:'/app'},function(){this.route('sub',{path:'/sub',resetNamespace:true});});});App.AppRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('app',{outlet:'app',into:'application'});this.render('common',{outlet:'common',into:'app'});}});App.SubRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('sub',{outlet:'sub',into:'app'});}});bootApplication();handleURL('/app');equal(_emberMetalCore.default.$('#app-common #common').length,1,'Finds common while viewing /app');handleURL('/app/sub');equal(_emberMetalCore.default.$('#app-common #common').length,1,'Finds common while viewing /app/sub');equal(_emberMetalCore.default.$('#app-sub #sub').length,1,'Finds sub while viewing /app/sub');});QUnit.test('Tolerates stacked renders',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});},close:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');});QUnit.test('Renders child into parent with non-default template name',function(){_emberMetalCore.default.TEMPLATES.application = compile('<div class="a">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/root'] = compile('<div class="b">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/index'] = compile('<div class="c"></div>');Router.map(function(){this.route('root',function(){});});App.RootRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(_emberMetalCore.default.$('#qunit-fixture .a .b .c').length,1);});QUnit.test('Allows any route to disconnectOutlet another route\'s templates',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});}}});App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application',outlet:'modal'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');});QUnit.test('Can this.render({into:...}) the render helper',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});this.render('bar',{into:'foo'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'other');_emberMetalCore.default.run(router,'send','changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'bar');});QUnit.test('Can disconnect from the render helper',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'');});QUnit.test('Can this.render({into:...}) the render helper\'s children',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});this.render('bar',{into:'index'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'other');_emberMetalCore.default.run(router,'send','changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'bar');});QUnit.test('Can disconnect from the render helper\'s children',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'');});QUnit.test('Can this.render({into:...}) nested render helpers',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.baz = compile('baz');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});this.render('baz',{into:'bar'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'other');_emberMetalCore.default.run(router,'send','changeToBaz');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'baz');});QUnit.test('Can disconnect from nested render helpers',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'');});QUnit.test('Can render with layout',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('index-template');_emberMetalCore.default.TEMPLATES['my-layout'] = compile('my-layout [{{yield}}]');App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'my-layout [index-template]');});QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed',function(assert){_emberMetalCore.default.TEMPLATES.index = compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}');var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = _emberMetalCore.default.Controller.extend({showFirst:true});App.IndexRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter,1,'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter,0,'didInsertElement not invoked on displayed component');_emberMetalCore.default.run(function(){indexController.set('showFirst',false);});assert.strictEqual(myComponentCounter,1,'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter,1,'didInsertElement invoked on displayed component');});});
+enifed('ember/tests/routing/basic_test',['exports','ember','ember-metal/core','ember-metal/features','ember-metal/property_get','ember-metal/property_set','ember-views/system/action_manager','ember-views/views/view','ember-runtime/controllers/array_controller','ember-htmlbars/compat'],function(exports,_ember,_emberMetalCore,_emberMetalFeatures,_emberMetalProperty_get,_emberMetalProperty_set,_emberViewsSystemAction_manager,_emberViewsViewsView,_emberRuntimeControllersArray_controller,_emberHtmlbarsCompat){var compile=_emberHtmlbarsCompat.default.compile;var trim=_emberMetalCore.default.$.trim;var Router,App,router,registry,container,originalLoggerError;function bootApplication(){router = container.lookup('router:main');_emberMetalCore.default.run(App,'advanceReadiness');}function handleURL(path){return _emberMetalCore.default.run(function(){return router.handleURL(path).then(function(value){ok(true,'url: `' + path + '` was handled');return value;},function(reason){ok(false,'failed to visit:`' + path + '` reason: `' + QUnit.jsDump.parse(reason));throw reason;});});}function handleURLAborts(path){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false,'url: `' + path + '` was NOT to be handled');},function(reason){ok(reason && reason.message === 'TransitionAborted','url: `' + path + '` was to be aborted');});});}function handleURLRejectsWith(path,expectedReason){_emberMetalCore.default.run(function(){router.handleURL(path).then(function(value){ok(false,'expected handleURLing: `' + path + '` to fail');},function(reason){equal(expectedReason,reason);});});}QUnit.module('Basic Routing',{setup:function(){_emberMetalCore.default.run(function(){App = _emberMetalCore.default.Application.create({name:'App',rootElement:'#qunit-fixture'});App.deferReadiness();App.Router.reopen({location:'none'});Router = App.Router;App.LoadingRoute = _emberMetalCore.default.Route.extend({});registry = App.registry;container = App.__container__;_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.home = compile('<h3>Hours</h3>');_emberMetalCore.default.TEMPLATES.homepage = compile('<h3>Megatroll</h3><p>{{model.home}}</p>');_emberMetalCore.default.TEMPLATES.camelot = compile('<section><h3>Is a silly place</h3></section>');originalLoggerError = _emberMetalCore.default.Logger.error;});},teardown:function(){_emberMetalCore.default.run(function(){App.destroy();App = null;_emberMetalCore.default.TEMPLATES = {};_emberMetalCore.default.Logger.error = originalLoggerError;});}});QUnit.test('warn on URLs not included in the route set',function(){Router.map(function(){this.route('home',{path:'/'});});bootApplication();expectAssertion(function(){_emberMetalCore.default.run(function(){router.handleURL('/what-is-this-i-dont-even');});},'The URL \'/what-is-this-i-dont-even\' did not match any routes in your application');});QUnit.test('The Homepage',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'home');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});QUnit.test('The Home page and the Camelot page with multiple Router.map calls',function(){Router.map(function(){this.route('home',{path:'/'});});Router.map(function(){this.route('camelot',{path:'/camelot'});});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.CamelotRoute = _emberMetalCore.default.Route.extend({});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});App.CamelotController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();handleURL('/camelot');equal(currentPath,'camelot');equal(_emberMetalCore.default.$('h3:contains(silly)','#qunit-fixture').length,1,'The camelot template was rendered');handleURL('/');equal(currentPath,'home');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');});QUnit.test('The Homepage with explicit template name in renderTemplate',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('An alternate template will pull in an alternate controller instead of controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'foo',renderTemplate:function(){this.render('homepage');}});App.FooController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from Foo'}});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from homepage'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from homepage)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('The template will pull in an alternate controller via key/value',function(){Router.map(function(){this.route('homepage',{path:'/'});});App.HomepageRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({controller:'home'});}});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'Comes from home.'}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(Comes from home.)','#qunit-fixture').length,1,'The homepage template was rendered from data from the HomeController');});QUnit.test('The Homepage with explicit template name in renderTemplate and controller',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend({model:{home:'YES I AM HOME'}});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('homepage');}});bootApplication();equal(_emberMetalCore.default.$('h3:contains(Megatroll) + p:contains(YES I AM HOME)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('Model passed via renderTemplate model is set as controller\'s model',function(){_emberMetalCore.default.TEMPLATES['bio'] = compile('<p>{{model.name}}</p>');App.BioController = _emberMetalCore.default.Controller.extend();Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('bio',{model:{name:'emberjs'}});}});bootApplication();equal(_emberMetalCore.default.$('p:contains(emberjs)','#qunit-fixture').length,1,'Passed model was set as controllers model');});QUnit.test('Renders correct view with slash notation',function(){_emberMetalCore.default.TEMPLATES['home/page'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('home/page');}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage template was rendered');});QUnit.test('Renders the view given in the view option',function(){_emberMetalCore.default.TEMPLATES['home'] = compile('<p>{{view.name}}</p>');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({view:'homePage'});}});App.HomePageView = _emberViewsViewsView.default.extend({name:'Home/Page'});bootApplication();equal(_emberMetalCore.default.$('p:contains(Home/Page)','#qunit-fixture').length,1,'The homepage view was rendered');});QUnit.test('render does not replace templateName if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeView = _emberViewsViewsView.default.extend({templateName:'the_real_home_template'});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('render does not replace template if user provided',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<p>THIS IS THE REAL HOME</p>')});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend();bootApplication();_emberMetalCore.default.run(function(){router.handleURL('/');});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('render uses templateName from route',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template'});bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');});QUnit.test('defining templateName allows other templates to be rendered',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.alert = compile('<div class=\'alert-box\'>Invader!</div>');_emberMetalCore.default.TEMPLATES.the_real_home_template = compile('<p>THIS IS THE REAL HOME</p>{{outlet \'alert\'}}');App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'the_real_home_template',actions:{showAlert:function(){this.render('alert',{into:'home',outlet:'alert'});}}});bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'THIS IS THE REAL HOME','The homepage template was rendered');_emberMetalCore.default.run(function(){router.send('showAlert');});equal(_emberMetalCore.default.$('.alert-box','#qunit-fixture').text(),'Invader!','Template for alert was render into outlet');});QUnit.test('Specifying a name to render should have precedence over everything else',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.Controller.extend();App.HomeRoute = _emberMetalCore.default.Route.extend({templateName:'home',controllerName:'home',viewName:'home',renderTemplate:function(){this.render('homepage');}});App.HomeView = _emberViewsViewsView.default.extend({template:compile('<h3>This should not be rendered</h3><p>{{model.home}}</p>')});App.HomepageController = _emberMetalCore.default.Controller.extend({model:{home:'Tinytroll'}});App.HomepageView = _emberViewsViewsView.default.extend({layout:compile('<span>Outer</span>{{yield}}<span>troll</span>'),templateName:'homepage'});bootApplication();equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Megatroll','The homepage template was rendered');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'Tinytroll','The homepage controller was used');equal(_emberMetalCore.default.$('span','#qunit-fixture').text(),'Outertroll','The homepage view was used');});QUnit.test('The Homepage with a `setupController` hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){_emberMetalProperty_set.set(controller,'hours',_emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The route controller is still set when overriding the setupController hook',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){}});registry.register('controller:home',_emberMetalCore.default.Controller.extend());bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:home'),'route controller is the home controller');});QUnit.test('The route controller can be specified via controllerName',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>{{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'foo','The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.alternative_home = compile('<p>alternative home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController',renderTemplate:function(){this.render('alternative_home');}});registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'foo'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'alternative home: foo','The homepage template was rendered with data from the custom controller');});QUnit.test('The route controller specified via controllerName is used in render even when a controller with the routeName is available',function(){Router.map(function(){this.route('home',{path:'/'});});_emberMetalCore.default.TEMPLATES.home = compile('<p>home: {{myValue}}</p>');App.HomeRoute = _emberMetalCore.default.Route.extend({controllerName:'myController'});registry.register('controller:home',_emberMetalCore.default.Controller.extend({myValue:'home'}));registry.register('controller:myController',_emberMetalCore.default.Controller.extend({myValue:'myController'}));bootApplication();deepEqual(container.lookup('route:home').controller,container.lookup('controller:myController'),'route controller is set by controllerName');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'home: myController','The homepage template was rendered with data from the custom controller');});QUnit.test('The Homepage with a `setupController` hook modifying other controllers',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){_emberMetalProperty_set.set(this.controllerFor('home'),'hours',_emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']));}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The Homepage with a computed context that does not get overridden',function(){expectDeprecation(_emberRuntimeControllersArray_controller.arrayControllerDeprecation);Router.map(function(){this.route('home',{path:'/'});});App.HomeController = _emberMetalCore.default.ArrayController.extend({model:_emberMetalCore.default.computed(function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);})});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each model as |passage|}}<li>{{passage}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the context intact');});QUnit.test('The Homepage getting its controller context via model',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A(['Monday through Friday: 9am to 5pm','Saturday: Noon to Midnight','Sunday: Noon to 6pm']);},setupController:function(controller,model){equal(this.controllerFor('home'),controller);_emberMetalProperty_set.set(this.controllerFor('home'),'hours',model);}});_emberMetalCore.default.TEMPLATES.home = compile('<ul>{{#each hours as |entry|}}<li>{{entry}}</li>{{/each}}</ul>');bootApplication();equal(_emberMetalCore.default.$('ul li','#qunit-fixture').eq(2).text(),'Sunday: Noon to 6pm','The template was rendered with the hours context');});QUnit.test('The Specials Page getting its controller context by deserializing the params hash',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.SpecialRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({menuItemId:params.menu_item_id});},setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.menuItemId}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The model was used to render the template');});QUnit.test('The Specials Page defaults to looking models up via `find`',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return App.MenuItem.create({id:id});}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The model was used to render the template');});QUnit.test('The Special Page returning a promise puts the app into a loading state until the promise is resolved',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'LOADING!','The app is in the loading state');_emberMetalCore.default.run(function(){resolve(menuItem);});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The app is now in the specials state');});QUnit.test('The loading state doesn\'t get entered for promises that resolve on the same run loop',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){return {id:id};}});App.LoadingRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false,'LoadingRoute shouldn\'t have been entered.');}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());handleURL('/specials/1');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'1','The app is now in the specials state');});QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,promise,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';},actions:{error:function(reason){equal(reason,'Setup error','SpecialRoute#error received the error thrown from setup');}}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberMetalCore.default.RSVP.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason,'Setup error','error was correctly passed to custom ApplicationRoute handler');}};App.ApplicationRoute = _emberMetalCore.default.Route.extend(attrs);App.SpecialRoute = _emberMetalCore.default.Route.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalCore.default.run(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden',function(){testOverridableErrorHandler('actions');});QUnit.test('ApplicationRoute\'s default error handler can be overridden (with DEPRECATED `events`)',function(){ignoreDeprecation(function(){testOverridableErrorHandler('events');});});asyncTest('Moving from one page to another triggers the correct callbacks',function(){expect(3);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberMetalCore.default.Object.extend();App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.home = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());var transition=handleURL('/');_emberMetalCore.default.run(function(){transition.then(function(){equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(promiseContext);},1);return router.transitionTo('special',promiseContext);}).then(function(result){deepEqual(router.location.path,'/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('special',{path:'/specials/:menu_item_id',resetNamespace:true});});});var currentPath;App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});var menuItem;App.MenuItem = _emberMetalCore.default.Object.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = _emberMetalCore.default.Route.extend({});App.RootRoute = _emberMetalCore.default.Route.extend({model:function(){rootModel++;return this._super.apply(this,arguments);},serialize:function(){rootSerialize++;return this._super.apply(this,arguments);},setupController:function(){rootSetup++;},renderTemplate:function(){rootRender++;}});App.HomeRoute = _emberMetalCore.default.Route.extend({});App.SpecialRoute = _emberMetalCore.default.Route.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special',_emberMetalCore.default.Controller.extend());equal(_emberMetalCore.default.$('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');equal(rootSetup,1,'The root setup was triggered');equal(rootRender,1,'The root render was triggered');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called');router = container.lookup('router:main');_emberMetalCore.default.run(function(){var menuItem=App.MenuItem.create({id:1});_emberMetalCore.default.run.later(function(){_emberMetalCore.default.RSVP.resolve(menuItem);},1);router.transitionTo('special',menuItem).then(function(result){equal(rootSetup,1,'The root setup was not triggered again');equal(rootRender,1,'The root render was not triggered again');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called again');deepEqual(router.location.path,'/specials/1');equal(currentPath,'root.special');QUnit.start();});});});QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(obj){stateIsNotCalled = false;}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});registry.register('controller:home',controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId2=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId2[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId3=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId3[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `events` object (DEPRECATED)',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},events:{showStuff:function(obj){ok(this instanceof App.HomeRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId4=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId4[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `events` object are triggered on the current state when routes are nested (DEPRECATED)',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({events:{showStuff:function(obj){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');expectDeprecation(/Action handlers contained in an `events` object are deprecated/);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId5=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId5[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('Events can be handled by inherited event handlers',function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberMetalCore.default.Route.extend({model:function(){return model;},actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberMetalCore.default.Controller.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled,'an event on the state is not triggered');}});registry.register('controller:home',controller);bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId6=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId6[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.asyncTest('actions can be triggered with multiple arguments',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model1={name:'Tilde'};var model2={name:'Tom Dale'};App.RootRoute = _emberMetalCore.default.Route.extend({actions:{showStuff:function(obj1,obj2){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute');deepEqual(_emberMetalCore.default.copy(obj1,true),{name:'Tilde'},'the first context is correct');deepEqual(_emberMetalCore.default.copy(obj2,true),{name:'Tom Dale'},'the second context is correct');QUnit.start();}}});App.RootIndexController = _emberMetalCore.default.Controller.extend({model1:model1,model2:model2});_emberMetalCore.default.TEMPLATES['root/index'] = compile('<a {{action \'showStuff\' model1 model2}}>{{model1.name}}</a>');bootApplication();var actionId=_emberMetalCore.default.$('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId7=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId7[0];var event=new _emberMetalCore.default.$.Event('click');action.handler(event);});QUnit.test('transitioning multiple times in a single run loop only sets the URL once',function(){Router.map(function(){this.route('root',{path:'/'});this.route('foo');this.route('bar');});bootApplication();var urlSetCount=0;router.get('location').setURL = function(path){urlSetCount++;_emberMetalProperty_set.set(this,'path',path);};equal(urlSetCount,0);_emberMetalCore.default.run(function(){router.transitionTo('foo');router.transitionTo('bar');});equal(urlSetCount,1);equal(router.get('location').getURL(),'/bar');});QUnit.test('navigating away triggers a url property change',function(){expect(3);Router.map(function(){this.route('root',{path:'/'});this.route('foo',{path:'/foo'});this.route('bar',{path:'/bar'});});bootApplication();_emberMetalCore.default.run(function(){_emberMetalCore.default.addObserver(router,'url',function(){ok(true,'url change event was fired');});});['foo','bar','/foo'].forEach(function(destination){_emberMetalCore.default.run(router,'transitionTo',destination);});});QUnit.test('using replaceWith calls location.replaceURL if available',function(){var setCount=0;var replaceCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.create({setURL:function(path){setCount++;_emberMetalProperty_set.set(this,'path',path);},replaceURL:function(path){replaceCount++;_emberMetalProperty_set.set(this,'path',path);}})});Router.map(function(){this.route('root',{path:'/'});this.route('foo');});bootApplication();equal(setCount,0);equal(replaceCount,0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount,0,'should not call setURL');equal(replaceCount,1,'should call replaceURL once');equal(router.get('location').getURL(),'/foo');});QUnit.test('using replaceWith calls setURL if location.replaceURL is not defined',function(){var setCount=0;Router.reopen({location:_emberMetalCore.default.NoneLocation.create({setURL:function(path){setCount++;_emberMetalProperty_set.set(this,'path',path);}})});Router.map(function(){this.route('root',{path:'/'});this.route('foo');});bootApplication();equal(setCount,0);_emberMetalCore.default.run(function(){router.replaceWith('foo');});equal(setCount,1,'should call setURL once');equal(router.get('location').getURL(),'/foo');});QUnit.test('Route inherits model from parent route',function(){expect(9);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments');this.route('shares',{path:'/shares/:share_id',resetNamespace:true},function(){this.route('share');});});});var post1={};var post2={};var post3={};var currentPost;var share1={};var share2={};var share3={};var posts={1:post1,2:post2,3:post3};var shares={1:share1,2:share2,3:share3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.ThePostCommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post,transition){var parent_model=this.modelFor('thePost');equal(post,parent_model);}});App.SharesRoute = _emberMetalCore.default.Route.extend({model:function(params){return shares[params.share_id];}});App.SharesShareRoute = _emberMetalCore.default.Route.extend({afterModel:function(share,transition){var parent_model=this.modelFor('shares');equal(share,parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');handleURL('/posts/1/shares/1');currentPost = post2;handleURL('/posts/2/comments');handleURL('/posts/2/shares/2');currentPost = post3;handleURL('/posts/3/comments');handleURL('/posts/3/shares/3');});QUnit.test('Routes with { resetNamespace: true } inherits model from parent route',function(){expect(6);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments',{resetNamespace:true},function(){});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1,2:post2,3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({afterModel:function(post,transition){var parent_model=this.modelFor('thePost');equal(post,parent_model);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('It is possible to get the model from a parent route',function(){expect(9);Router.map(function(){this.route('the_post',{path:'/posts/:post_id'},function(){this.route('comments',{resetNamespace:true});});});var post1={};var post2={};var post3={};var currentPost;var posts={1:post1,2:post2,3:post3};App.ThePostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});App.CommentsRoute = _emberMetalCore.default.Route.extend({model:function(){equal(this.modelFor('thePost'),currentPost);equal(this.modelFor('the_post'),currentPost);}});bootApplication();currentPost = post1;handleURL('/posts/1/comments');currentPost = post2;handleURL('/posts/2/comments');currentPost = post3;handleURL('/posts/3/comments');});QUnit.test('A redirection hook is provided',function(){Router.map(function(){this.route('choose',{path:'/'});this.route('home');});var chooseFollowed=0;var destination;App.ChooseRoute = _emberMetalCore.default.Route.extend({redirect:function(){if(destination){this.transitionTo(destination);}},setupController:function(){chooseFollowed++;}});destination = 'home';bootApplication();equal(chooseFollowed,0,'The choose route wasn\'t entered since a transition occurred');equal(_emberMetalCore.default.$('h3:contains(Hours)','#qunit-fixture').length,1,'The home template was rendered');equal(router.container.lookup('controller:application').get('currentPath'),'home');});QUnit.test('Redirecting from the middle of a route aborts the remainder of the routes',function(){expect(3);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});});});App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('home');},setupController:function(){ok(false,'Should transition before setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({enter:function(){ok(false,'Should abort transition getting to next route');}});bootApplication();handleURLAborts('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'),'home');equal(router.get('location').getURL(),'/home');});QUnit.test('Redirecting to the current target in the middle of a route does not abort initial routing',function(){expect(5);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});});});var successCount=0;App.BarRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('bar.baz').then(function(){successCount++;});},setupController:function(){ok(true,'Should still invoke bar\'s setupController');}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'Should still invoke bar.baz\'s setupController');}});bootApplication();handleURL('/foo/bar/baz');equal(router.container.lookup('controller:application').get('currentPath'),'foo.bar.baz');equal(successCount,1,'transitionTo success handler was called once');});QUnit.test('Redirecting to the current target with a different context aborts the remainder of the routes',function(){expect(4);Router.map(function(){this.route('home');this.route('foo',function(){this.route('bar',{path:'bar/:id',resetNamespace:true},function(){this.route('baz');});});});var model={id:2};var count=0;App.BarRoute = _emberMetalCore.default.Route.extend({afterModel:function(context){if(count++ > 10){ok(false,'infinite loop');}else {this.transitionTo('bar.baz',model);}},serialize:function(params){return params;}});App.BarBazRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'Should still invoke setupController');}});bootApplication();handleURLAborts('/foo/bar/1/baz');equal(router.container.lookup('controller:application').get('currentPath'),'foo.bar.baz');equal(router.get('location').getURL(),'/foo/bar/2/baz');});QUnit.test('Transitioning from a parent event does not prevent currentPath from being set',function(){Router.map(function(){this.route('foo',function(){this.route('bar',{resetNamespace:true},function(){this.route('baz');});this.route('qux');});});App.FooRoute = _emberMetalCore.default.Route.extend({actions:{goToQux:function(){this.transitionTo('foo.qux');}}});bootApplication();var applicationController=router.container.lookup('controller:application');handleURL('/foo/bar/baz');equal(applicationController.get('currentPath'),'foo.bar.baz');_emberMetalCore.default.run(function(){router.send('goToQux');});equal(applicationController.get('currentPath'),'foo.qux');equal(router.get('location').getURL(),'/foo/qux');});QUnit.test('Generated names can be customized when providing routes with dot notation',function(){expect(4);_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.foo = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['bar/baz'] = compile('<p>{{name}}Bottom!</p>');Router.map(function(){this.route('foo',{path:'/top'},function(){this.route('bar',{path:'/middle',resetNamespace:true},function(){this.route('baz',{path:'/bottom'});});});});App.FooRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true,'FooBarRoute was called');return this._super.apply(this,arguments);}});App.BarBazRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){ok(true,'BarBazRoute was called');return this._super.apply(this,arguments);}});App.BarController = _emberMetalCore.default.Controller.extend({name:'Bar'});App.BarBazController = _emberMetalCore.default.Controller.extend({name:'BarBaz'});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').text(),'BarBazBottom!','The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into their parent route\'s template by default',function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.route('top',function(){this.route('middle',{resetNamespace:true},function(){this.route('bottom');});});});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').text(),'Bottom!','The templates were rendered into their appropriate parents');});QUnit.test('Child routes render into specified template',function(){_emberMetalCore.default.TEMPLATES.index = compile('<div>Index</div>');_emberMetalCore.default.TEMPLATES.application = compile('<h1>Home</h1><div class=\'main\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.top = compile('<div class=\'middle\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.middle = compile('<div class=\'bottom\'>{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['middle/bottom'] = compile('<p>Bottom!</p>');Router.map(function(){this.route('top',function(){this.route('middle',{resetNamespace:true},function(){this.route('bottom');});});});App.MiddleBottomRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('middle/bottom',{into:'top'});}});bootApplication();handleURL('/top/middle/bottom');equal(_emberMetalCore.default.$('.main .middle .bottom p','#qunit-fixture').length,0,'should not render into the middle template');equal(_emberMetalCore.default.$('.main .middle > p','#qunit-fixture').text(),'Bottom!','The template was rendered into the top template');});QUnit.test('Rendering into specified template with slash notation',function(){_emberMetalCore.default.TEMPLATES['person/profile'] = compile('profile {{outlet}}');_emberMetalCore.default.TEMPLATES['person/details'] = compile('details!');Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('person/profile');this.render('person/details',{into:'person/profile'});}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture:contains(profile details!)').length,1,'The templates were rendered');});QUnit.test('Parent route context change',function(){var editCount=0;var editedPostIds=_emberMetalCore.default.A();_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.post = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['post/index'] = compile('showing');_emberMetalCore.default.TEMPLATES['post/edit'] = compile('editing');Router.map(function(){this.route('posts',function(){this.route('post',{path:'/:postId',resetNamespace:true},function(){this.route('edit');});});});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showPost:function(context){this.transitionTo('post',context);}}});App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return {id:params.postId};},actions:{editPost:function(context){this.transitionTo('post.edit');}}});App.PostEditRoute = _emberMetalCore.default.Route.extend({model:function(params){var postId=this.modelFor('post').id;editedPostIds.push(postId);return null;},setup:function(){this._super.apply(this,arguments);editCount++;}});bootApplication();handleURL('/posts/1');_emberMetalCore.default.run(function(){router.send('editPost');});_emberMetalCore.default.run(function(){router.send('showPost',{id:'2'});});_emberMetalCore.default.run(function(){router.send('editPost');});equal(editCount,2,'set up the edit route twice without failure');deepEqual(editedPostIds,['1','2'],'modelFor posts.post returns the right context');});QUnit.test('Router accounts for rootURL on page load when using history location',function(){var rootURL=window.location.pathname + '/app';var postsTemplateRendered=false;var setHistory,HistoryTestLocation;setHistory = function(obj,path){obj.set('history',{state:{path:path}});};HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({initState:function(){var path=rootURL + '/posts';setHistory(this,path);this.set('location',{pathname:path,href:'http://localhost/' + path});},replaceState:function(path){setHistory(this,path);},pushState:function(path){setHistory(this,path);}});registry.register('location:historyTest',HistoryTestLocation);Router.reopen({location:'historyTest',rootURL:rootURL});Router.map(function(){this.route('posts',{path:'/posts'});});App.PostsRoute = _emberMetalCore.default.Route.extend({model:function(){},renderTemplate:function(){postsTemplateRendered = true;}});bootApplication();ok(postsTemplateRendered,'Posts route successfully stripped from rootURL');});QUnit.test('The rootURL is passed properly to the location implementation',function(){expect(1);var rootURL='/blahzorz';var HistoryTestLocation;HistoryTestLocation = _emberMetalCore.default.HistoryLocation.extend({rootURL:'this is not the URL you are looking for',initState:function(){equal(this.get('rootURL'),rootURL);}});registry.register('location:history-test',HistoryTestLocation);Router.reopen({location:'history-test',rootURL:rootURL,_doURLTransition:function(){}});bootApplication();});QUnit.test('Only use route rendered into main outlet for default into property on child',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');Router.map(function(){this.route('posts',function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/menu',classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p',classNames:['posts-index']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('postsMenu',{into:'application',outlet:'menu'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,1,'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');});QUnit.test('Generating a URL should not affect currentModel',function(){Router.map(function(){this.route('post',{path:'/posts/:post_id'});});var posts={1:{id:1},2:{id:2}};App.PostRoute = _emberMetalCore.default.Route.extend({model:function(params){return posts[params.post_id];}});bootApplication();handleURL('/posts/1');var route=container.lookup('route:post');equal(route.modelFor('post'),posts[1]);var url=router.generate('post',posts[2]);equal(url,'/posts/2');equal(route.modelFor('post'),posts[1]);});QUnit.test('Generated route should be an instance of App.Route if provided',function(){var generatedRoute;Router.map(function(){this.route('posts');});App.Route = _emberMetalCore.default.Route.extend();bootApplication();handleURL('/posts');generatedRoute = container.lookup('route:posts');ok(generatedRoute instanceof App.Route,'should extend the correct route');});QUnit.test('Nested index route is not overriden by parent\'s implicit index route',function(){Router.map(function(){this.route('posts',function(){this.route('index',{path:':category'});});});App.Route = _emberMetalCore.default.Route.extend({serialize:function(model){return {category:model.category};}});bootApplication();_emberMetalCore.default.run(function(){router.transitionTo('posts',{category:'emberjs'});});deepEqual(router.location.path,'/posts/emberjs');});QUnit.test('Application template does not duplicate when re-rendered',function(){_emberMetalCore.default.TEMPLATES.application = compile('<h3>I Render Once</h3>{{outlet}}');Router.map(function(){this.route('posts');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.A();}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('h3:contains(I Render Once)').size(),1);});QUnit.test('Child routes should render inside the application template if the application template causes a redirect',function(){_emberMetalCore.default.TEMPLATES.application = compile('<h3>App</h3> {{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('posts');Router.map(function(){this.route('posts');this.route('photos');});App.ApplicationRoute = _emberMetalCore.default.Route.extend({afterModel:function(){this.transitionTo('posts');}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture > div').text(),'App posts');});QUnit.test('The template is not re-rendered when the route\'s context changes',function(){Router.map(function(){this.route('page',{path:'/page/:name'});});App.PageRoute = _emberMetalCore.default.Route.extend({model:function(params){return _emberMetalCore.default.Object.create({name:params.name});}});var insertionCount=0;App.PageView = _emberViewsViewsView.default.extend({didInsertElement:function(){insertionCount += 1;}});_emberMetalCore.default.TEMPLATES.page = compile('<p>{{model.name}}</p>');bootApplication();handleURL('/page/first');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'first');equal(insertionCount,1);handleURL('/page/second');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'second');equal(insertionCount,1,'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('page',_emberMetalCore.default.Object.create({name:'third'}));});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'third');equal(insertionCount,1,'view should still have inserted only once');});QUnit.test('The template is not re-rendered when two routes present the exact same template, view, & controller',function(){Router.map(function(){this.route('first');this.route('second');this.route('third');this.route('fourth');});App.SharedRoute = _emberMetalCore.default.Route.extend({viewName:'shared',setupController:function(controller){this.controllerFor('shared').set('message','This is the ' + this.routeName + ' message');},renderTemplate:function(controller,context){this.render({controller:'shared'});}});App.FirstRoute = App.SharedRoute.extend();App.SecondRoute = App.SharedRoute.extend();App.ThirdRoute = App.SharedRoute.extend();App.FourthRoute = App.SharedRoute.extend({viewName:'fourth'});App.SharedController = _emberMetalCore.default.Controller.extend();var insertionCount=0;App.SharedView = _emberViewsViewsView.default.extend({templateName:'shared',didInsertElement:function(){insertionCount += 1;}});App.FourthView = App.SharedView.extend();_emberMetalCore.default.TEMPLATES.shared = compile('<p>{{message}}</p>');bootApplication();handleURL('/first');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the first message');equal(insertionCount,1,'expected one assertion');handleURL('/second');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the second message');equal(insertionCount,1,'view should have inserted only once');_emberMetalCore.default.run(function(){router.transitionTo('third').then(function(value){ok(true,'expected transition');},function(reason){ok(false,'unexpected transition failure: ',QUnit.jsDump.parse(reason));});});equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the third message');equal(insertionCount,1,'view should still have inserted only once');handleURL('/fourth');equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'This is the fourth message');equal(insertionCount,2,'view should have inserted a second time');});QUnit.test('ApplicationRoute with model does not proxy the currentPath',function(){var model={};var currentPath;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){return model;}});App.ApplicationController = _emberMetalCore.default.Controller.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});bootApplication();equal(currentPath,'index','currentPath is index');equal('currentPath' in model,false,'should have defined currentPath on controller');});QUnit.test('Promises encountered on app load put app into loading state until resolved',function(){expect(2);var deferred=_emberMetalCore.default.RSVP.defer();App.IndexRoute = _emberMetalCore.default.Route.extend({model:function(){return deferred.promise;}});_emberMetalCore.default.TEMPLATES.index = compile('<p>INDEX</p>');_emberMetalCore.default.TEMPLATES.loading = compile('<p>LOADING</p>');bootApplication();equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'LOADING','The loading state is displaying.');_emberMetalCore.default.run(deferred.resolve);equal(_emberMetalCore.default.$('p','#qunit-fixture').text(),'INDEX','The index route is display.');});QUnit.test('Route should tear down multiple outlets',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet \'menu\'}}{{outlet}}{{outlet \'footer\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex');_emberMetalCore.default.TEMPLATES['posts/menu'] = compile('postsMenu');_emberMetalCore.default.TEMPLATES['posts/footer'] = compile('postsFooter');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsMenuView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/menu',classNames:['posts-menu']});App.PostsIndexView = _emberViewsViewsView.default.extend({tagName:'p',classNames:['posts-index']});App.PostsFooterView = _emberViewsViewsView.default.extend({tagName:'div',templateName:'posts/footer',classNames:['posts-footer']});App.PostsRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('postsMenu',{into:'application',outlet:'menu'});this.render();this.render('postsFooter',{into:'application',outlet:'footer'});}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,1,'The posts/menu template was rendered');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)','#qunit-fixture').length,1,'The posts/footer template was rendered');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-menu:contains(postsMenu)','#qunit-fixture').length,0,'The posts/menu template was removed');equal(_emberMetalCore.default.$('p.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-footer:contains(postsFooter)','#qunit-fixture').length,0,'The posts/footer template was removed');});QUnit.test('Route will assert if you try to explicitly render {into: ...} a missing template',function(){Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'nonexistent'});}});expectAssertion(function(){bootApplication();},'You attempted to render into \'nonexistent\' but it was not found');});QUnit.test('Route supports clearing outlet explicitly',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');_emberMetalCore.default.TEMPLATES['posts/extra'] = compile('postsExtra');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal',classNames:['posts-modal']});App.PostsExtraView = _emberViewsViewsView.default.extend({templateName:'posts/extra',classNames:['posts-extra']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal',{into:'application',outlet:'modal'});},hideModal:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});App.PostsIndexRoute = _emberMetalCore.default.Route.extend({actions:{showExtra:function(){this.render('postsExtra',{into:'posts/index'});},hideExtra:function(){this.disconnectOutlet({parentView:'posts/index'});}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,1,'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('showExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,1,'The posts/extra template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');_emberMetalCore.default.run(function(){router.send('hideExtra');});equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,0,'The posts/extra template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');equal(_emberMetalCore.default.$('div.posts-extra:contains(postsExtra)','#qunit-fixture').length,0,'The posts/extra template was removed');});QUnit.test('Route supports clearing outlet using string parameter',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.users = compile('users');_emberMetalCore.default.TEMPLATES['posts/index'] = compile('postsIndex {{outlet}}');_emberMetalCore.default.TEMPLATES['posts/modal'] = compile('postsModal');Router.map(function(){this.route('posts',function(){});this.route('users',function(){});});App.PostsIndexView = _emberViewsViewsView.default.extend({classNames:['posts-index']});App.PostsModalView = _emberViewsViewsView.default.extend({templateName:'posts/modal',classNames:['posts-modal']});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{showModal:function(){this.render('postsModal',{into:'application',outlet:'modal'});},hideModal:function(){this.disconnectOutlet('modal');}}});bootApplication();handleURL('/posts');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,1,'The posts/index template was rendered');_emberMetalCore.default.run(function(){router.send('showModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,1,'The posts/modal template was rendered');_emberMetalCore.default.run(function(){router.send('hideModal');});equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');handleURL('/users');equal(_emberMetalCore.default.$('div.posts-index:contains(postsIndex)','#qunit-fixture').length,0,'The posts/index template was removed');equal(_emberMetalCore.default.$('div.posts-modal:contains(postsModal)','#qunit-fixture').length,0,'The posts/modal template was removed');});QUnit.test('Route silently fails when cleaning an outlet from an inactive view',function(){expect(1);_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.posts = compile('{{outlet \'modal\'}}');_emberMetalCore.default.TEMPLATES.modal = compile('A Yo.');Router.map(function(){this.route('posts');});App.PostsRoute = _emberMetalCore.default.Route.extend({actions:{hideSelf:function(){this.disconnectOutlet({outlet:'main',parentView:'application'});},showModal:function(){this.render('modal',{into:'posts',outlet:'modal'});},hideModal:function(){this.disconnectOutlet({outlet:'modal',parentView:'posts'});}}});bootApplication();handleURL('/posts');_emberMetalCore.default.run(function(){router.send('showModal');});_emberMetalCore.default.run(function(){router.send('hideSelf');});_emberMetalCore.default.run(function(){router.send('hideModal');});});QUnit.test('Router `willTransition` hook passes in cancellable transition',function(){expect(3);Router.map(function(){this.route('nork');this.route('about');});Router.reopen({init:function(){this._super();this.on('willTransition',this.testWillTransitionHook);},testWillTransitionHook:function(transition,url){ok(true,'willTransition was called ' + url);transition.abort();}});App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'LoadingRoute was not entered');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'NorkRoute was not entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(false,'AboutRoute was not entered');}});bootApplication();_emberMetalCore.default.run(router,'handleURL','/nork');_emberMetalCore.default.run(router,'handleURL','/about');});QUnit.test('Aborting/redirecting the transition in `willTransition` prevents LoadingRoute from being entered',function(){expect(8);Router.map(function(){this.route('nork');this.route('about');});var redirect=false;App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willTransition:function(transition){ok(true,'willTransition was called');if(redirect){this.transitionTo('about');}else {transition.abort();}}}});var deferred=null;App.LoadingRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(deferred,'LoadingRoute should be entered at this time');},deactivate:function(){ok(true,'LoadingRoute was exited');}});App.NorkRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true,'NorkRoute was entered');}});App.AboutRoute = _emberMetalCore.default.Route.extend({activate:function(){ok(true,'AboutRoute was entered');},model:function(){if(deferred){return deferred.promise;}}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'handleURL','/nork');redirect = true;_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'transitionTo','index');deferred = _emberMetalCore.default.RSVP.defer();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(deferred.resolve);});QUnit.test('`didTransition` event fires on the router',function(){expect(3);Router.map(function(){this.route('nork');});router = container.lookup('router:main');router.one('didTransition',function(){ok(true,'didTransition fired on initial routing');});bootApplication();router.one('didTransition',function(){ok(true,'didTransition fired on the router');equal(router.get('url'),'/nork','The url property is updated by the time didTransition fires');});_emberMetalCore.default.run(router,'transitionTo','nork');});QUnit.test('`didTransition` can be reopened',function(){expect(1);Router.map(function(){this.route('nork');});Router.reopen({didTransition:function(){this._super.apply(this,arguments);ok(true,'reopened didTransition was called');}});bootApplication();});QUnit.test('`activate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this,arguments);this.on('activate',function(){equal(++eventFired,1,'activate event is fired once');});},activate:function(){ok(true,'activate hook is called');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');});QUnit.test('`deactivate` event fires on the route',function(){expect(2);var eventFired=0;Router.map(function(){this.route('nork');this.route('dork');});App.NorkRoute = _emberMetalCore.default.Route.extend({init:function(){this._super.apply(this,arguments);this.on('deactivate',function(){equal(++eventFired,1,'deactivate event is fired once');});},deactivate:function(){ok(true,'deactivate hook is called');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','nork');_emberMetalCore.default.run(router,'transitionTo','dork');});QUnit.test('Actions can be handled by inherited action handlers',function(){expect(4);App.SuperRoute = _emberMetalCore.default.Route.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});QUnit.test('currentRouteName is a property installed on ApplicationController that can be used in transitionTo',function(){expect(24);Router.map(function(){this.route('be',function(){this.route('excellent',{resetNamespace:true},function(){this.route('to',{resetNamespace:true},function(){this.route('each',{resetNamespace:true},function(){this.route('other');});});});});});bootApplication();var appController=router.container.lookup('controller:application');function transitionAndCheck(path,expectedPath,expectedRouteName){if(path){_emberMetalCore.default.run(router,'transitionTo',path);}equal(appController.get('currentPath'),expectedPath);equal(appController.get('currentRouteName'),expectedRouteName);}transitionAndCheck(null,'index','index');transitionAndCheck('/be','be.index','be.index');transitionAndCheck('/be/excellent','be.excellent.index','excellent.index');transitionAndCheck('/be/excellent/to','be.excellent.to.index','to.index');transitionAndCheck('/be/excellent/to/each','be.excellent.to.each.index','each.index');transitionAndCheck('/be/excellent/to/each/other','be.excellent.to.each.other','each.other');transitionAndCheck('index','index','index');transitionAndCheck('be','be.index','be.index');transitionAndCheck('excellent','be.excellent.index','excellent.index');transitionAndCheck('to.index','be.excellent.to.index','to.index');transitionAndCheck('each','be.excellent.to.each.index','each.index');transitionAndCheck('each.other','be.excellent.to.each.other','each.other');});QUnit.test('Route model hook finds the same model as a manual find',function(){var Post;App.Post = _emberMetalCore.default.Object.extend();App.Post.reopenClass({find:function(){Post = this;return {};}});Router.map(function(){this.route('post',{path:'/post/:post_id'});});bootApplication();handleURL('/post/1');equal(App.Post,Post);});QUnit.test('Can register an implementation via Ember.Location.registerImplementation (DEPRECATED)',function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(/Using the Ember.Location.registerImplementation is no longer supported/);_emberMetalCore.default.Location.registerImplementation('test',TestLocation);Router.reopen({location:'test'});bootApplication();equal(router.get('location.implementation'),'test','custom location implementation can be registered with registerImplementation');});QUnit.test('Ember.Location.registerImplementation is deprecated',function(){var TestLocation=_emberMetalCore.default.NoneLocation.extend({implementation:'test'});expectDeprecation(function(){_emberMetalCore.default.Location.registerImplementation('test',TestLocation);},'Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.');});QUnit.test('Routes can refresh themselves causing their model hooks to be re-run',function(){Router.map(function(){this.route('parent',{path:'/parent/:parent_id'},function(){this.route('child');});});var appcount=0;App.ApplicationRoute = _emberMetalCore.default.Route.extend({model:function(){++appcount;}});var parentcount=0;App.ParentRoute = _emberMetalCore.default.Route.extend({model:function(params){equal(params.parent_id,'123');++parentcount;},actions:{refreshParent:function(){this.refresh();}}});var childcount=0;App.ParentChildRoute = _emberMetalCore.default.Route.extend({model:function(){++childcount;}});bootApplication();equal(appcount,1);equal(parentcount,0);equal(childcount,0);_emberMetalCore.default.run(router,'transitionTo','parent.child','123');equal(appcount,1);equal(parentcount,1);equal(childcount,1);_emberMetalCore.default.run(router,'send','refreshParent');equal(appcount,1);equal(parentcount,2);equal(childcount,2);});QUnit.test('Specifying non-existent controller name in route#render throws',function(){expect(1);Router.map(function(){this.route('home',{path:'/'});});App.HomeRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){try{this.render('homepage',{controller:'stefanpenneristhemanforme'});}catch(e) {equal(e.message,'You passed `controller: \'stefanpenneristhemanforme\'` into the `render` method, but no such controller could be found.');}}});bootApplication();});QUnit.test('Redirecting with null model doesn\'t error out',function(){Router.map(function(){this.route('home',{path:'/'});this.route('about',{path:'/about/:hurhurhur'});});App.HomeRoute = _emberMetalCore.default.Route.extend({beforeModel:function(){this.transitionTo('about',null);}});App.AboutRoute = _emberMetalCore.default.Route.extend({serialize:function(model){if(model === null){return {hurhurhur:'TreeklesMcGeekles'};}}});bootApplication();equal(router.get('location.path'),'/about/TreeklesMcGeekles');});QUnit.test('rejecting the model hooks promise with a non-error prints the `message` property',function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({message:rejectedMessage,stack:rejectedStack});}});bootApplication();});QUnit.test('rejecting the model hooks promise with an error with `errorThrown` property prints `errorThrown.message` property',function(){var rejectedMessage='OMG!! SOOOOOO BAD!!!!';var rejectedStack='Yeah, buddy: stack gets printed too.';Router.map(function(){this.route('yippie',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage,errorStack){equal(initialMessage,'Error while processing route: yippie','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');equal(errorStack,rejectedStack,'the rejected reason\'s stack property is logged');};App.YippieRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject({errorThrown:{message:rejectedMessage,stack:rejectedStack}});}});bootApplication();});QUnit.test('rejecting the model hooks promise with no reason still logs error',function(){Router.map(function(){this.route('wowzers',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage){equal(initialMessage,'Error while processing route: wowzers','a message with the current route name is printed');};App.WowzersRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject();}});bootApplication();});QUnit.test('rejecting the model hooks promise with a string shows a good error',function(){var originalLoggerError=_emberMetalCore.default.Logger.error;var rejectedMessage='Supercalifragilisticexpialidocious';Router.map(function(){this.route('yondo',{path:'/'});});_emberMetalCore.default.Logger.error = function(initialMessage,errorMessage){equal(initialMessage,'Error while processing route: yondo','a message with the current route name is printed');equal(errorMessage,rejectedMessage,'the rejected reason\'s message property is logged');};App.YondoRoute = _emberMetalCore.default.Route.extend({model:function(){return _emberMetalCore.default.RSVP.reject(rejectedMessage);}});bootApplication();_emberMetalCore.default.Logger.error = originalLoggerError;});QUnit.test('willLeave, willChangeContext, willChangeModel actions don\'t fire unless feature flag enabled',function(){expect(1);App.Router.map(function(){this.route('about');});function shouldNotFire(){ok(false,'this action shouldn\'t have been received');}App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{willChangeModel:shouldNotFire,willChangeContext:shouldNotFire,willLeave:shouldNotFire}});App.AboutRoute = _emberMetalCore.default.Route.extend({setupController:function(){ok(true,'about route was entered');}});bootApplication();_emberMetalCore.default.run(router,'transitionTo','about');});QUnit.test('Errors in transitionTo within redirect hook are logged',function(){expect(3);var actual=[];Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});_emberMetalCore.default.Logger.error = function(){actual.push(arguments);};bootApplication();equal(actual.length,1,'the error is only logged once');equal(actual[0][0],'Error while processing route: yondo','source route is printed');ok(actual[0][1].match(/More context objects were passed than there are dynamic segments for the route: stink-bomb/),'the error is printed');});QUnit.test('Errors in transition show error template if available',function(){_emberMetalCore.default.TEMPLATES.error = compile('<div id=\'error\'>Error!</div>');Router.map(function(){this.route('yondo',{path:'/'});this.route('stink-bomb');});App.YondoRoute = _emberMetalCore.default.Route.extend({redirect:function(){this.transitionTo('stink-bomb',{something:'goes boom'});}});bootApplication();equal(_emberMetalCore.default.$('#error').length,1,'Error template was rendered.');});QUnit.test('Route#resetController gets fired when changing models and exiting routes',function(){expect(4);Router.map(function(){this.route('a',function(){this.route('b',{path:'/b/:id',resetNamespace:true},function(){});this.route('c',{path:'/c/:id',resetNamespace:true},function(){});});this.route('out');});var calls=[];var SpyRoute=_emberMetalCore.default.Route.extend({setupController:function(controller,model,transition){calls.push(['setup',this.routeName]);},resetController:function(controller){calls.push(['reset',this.routeName]);}});App.ARoute = SpyRoute.extend();App.BRoute = SpyRoute.extend();App.CRoute = SpyRoute.extend();App.OutRoute = SpyRoute.extend();bootApplication();deepEqual(calls,[]);_emberMetalCore.default.run(router,'transitionTo','b','b-1');deepEqual(calls,[['setup','a'],['setup','b']]);calls.length = 0;_emberMetalCore.default.run(router,'transitionTo','c','c-1');deepEqual(calls,[['reset','b'],['setup','c']]);calls.length = 0;_emberMetalCore.default.run(router,'transitionTo','out');deepEqual(calls,[['reset','c'],['reset','a'],['setup','out']]);});QUnit.test('Exception during initialization of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router,'transitionTo','boom');},/\bboom\b/);});QUnit.test('Exception during load of non-initial route is not swallowed',function(){Router.map(function(){this.route('boom');});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});bootApplication();throws(function(){_emberMetalCore.default.run(router,'transitionTo','boom');});});QUnit.test('Exception during initialization of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});QUnit.test('Exception during load of initial route is not swallowed',function(){Router.map(function(){this.route('boom',{path:'/'});});var lookup=container.lookup;container.lookup = function(){if(arguments[0] === 'route:boom'){throw new Error('boom!');}return lookup.apply(this,arguments);};App.BoomRoute = _emberMetalCore.default.Route.extend({init:function(){throw new Error('boom!');}});throws(function(){bootApplication();},/\bboom\b/);});QUnit.test('{{outlet}} works when created after initial render',function(){_emberMetalCore.default.TEMPLATES.sample = compile('Hi{{#if showTheThing}}{{outlet}}{{/if}}Bye');_emberMetalCore.default.TEMPLATES['sample/inner'] = compile('Yay');_emberMetalCore.default.TEMPLATES['sample/inner2'] = compile('Boo');Router.map(function(){this.route('sample',{path:'/'},function(){this.route('inner',{path:'/'});this.route('inner2',{path:'/2'});});});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiBye','initial render');_emberMetalCore.default.run(function(){container.lookup('controller:sample').set('showTheThing',true);});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiYayBye','second render');handleURL('/2');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'HiBooBye','third render');});QUnit.test('Can rerender application view multiple times when it contains an outlet',function(){_emberMetalCore.default.TEMPLATES.application = compile('App{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('Hello world');registry.register('view:application',_emberViewsViewsView.default.extend({elementId:'im-special'}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','initial render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','second render');_emberMetalCore.default.run(function(){_emberViewsViewsView.default.views['im-special'].rerender();});equal(_emberMetalCore.default.$('#qunit-fixture').text(),'AppHello world','third render');});QUnit.test('Can render into a named outlet at the top level',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');});QUnit.test('Can disconnect a named outlet at the top level',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});},actions:{banish:function(){this.disconnectOutlet({parentView:'application',outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','initial render');_emberMetalCore.default.run(router,'send','banish');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B--C','second render');});QUnit.test('Can render into a named outlet at the top level, with empty main outlet',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');Router.map(function(){this.route('hasNoTemplate',{path:'/'});});registry.register('route:application',_emberMetalCore.default.Route.extend({renderTemplate:function(){this.render();this.render('modal',{into:'application',outlet:'other'});}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A--B-Hello world-C','initial render');});QUnit.test('Can render into a named outlet at the top level, later',function(){_emberMetalCore.default.TEMPLATES.application = compile('A-{{outlet}}-B-{{outlet "other"}}-C');_emberMetalCore.default.TEMPLATES.modal = compile('Hello world');_emberMetalCore.default.TEMPLATES.index = compile('The index');registry.register('route:application',_emberMetalCore.default.Route.extend({actions:{launch:function(){this.render('modal',{into:'application',outlet:'other'});}}}));bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B--C','initial render');_emberMetalCore.default.run(router,'send','launch');equal(_emberMetalCore.default.$('#qunit-fixture').text(),'A-The index-B-Hello world-C','second render');});QUnit.test('Can render routes with no \'main\' outlet and their children',function(){_emberMetalCore.default.TEMPLATES.application = compile('<div id="application">{{outlet "app"}}</div>');_emberMetalCore.default.TEMPLATES.app = compile('<div id="app-common">{{outlet "common"}}</div><div id="app-sub">{{outlet "sub"}}</div>');_emberMetalCore.default.TEMPLATES.common = compile('<div id="common"></div>');_emberMetalCore.default.TEMPLATES.sub = compile('<div id="sub"></div>');Router.map(function(){this.route('app',{path:'/app'},function(){this.route('sub',{path:'/sub',resetNamespace:true});});});App.AppRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('app',{outlet:'app',into:'application'});this.render('common',{outlet:'common',into:'app'});}});App.SubRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('sub',{outlet:'sub',into:'app'});}});bootApplication();handleURL('/app');equal(_emberMetalCore.default.$('#app-common #common').length,1,'Finds common while viewing /app');handleURL('/app/sub');equal(_emberMetalCore.default.$('#app-common #common').length,1,'Finds common while viewing /app/sub');equal(_emberMetalCore.default.$('#app-sub #sub').length,1,'Finds sub while viewing /app/sub');});QUnit.test('Tolerates stacked renders',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});},close:function(){this.disconnectOutlet({outlet:'modal',parentView:'application'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');});QUnit.test('Renders child into parent with non-default template name',function(){_emberMetalCore.default.TEMPLATES.application = compile('<div class="a">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/root'] = compile('<div class="b">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES['exports/index'] = compile('<div class="c"></div>');Router.map(function(){this.route('root',function(){});});App.RootRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/root');}});App.RootIndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render('exports/index');}});bootApplication();handleURL('/root');equal(_emberMetalCore.default.$('#qunit-fixture .a .b .c').length,1);});QUnit.test('Allows any route to disconnectOutlet another route\'s templates',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}{{outlet "modal"}}');_emberMetalCore.default.TEMPLATES.index = compile('hi');_emberMetalCore.default.TEMPLATES.layer = compile('layer');App.ApplicationRoute = _emberMetalCore.default.Route.extend({actions:{openLayer:function(){this.render('layer',{into:'application',outlet:'modal'});}}});App.IndexRoute = _emberMetalCore.default.Route.extend({actions:{close:function(){this.disconnectOutlet({parentView:'application',outlet:'modal'});}}});bootApplication();equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');_emberMetalCore.default.run(router,'send','openLayer');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hilayer');_emberMetalCore.default.run(router,'send','close');equal(trim(_emberMetalCore.default.$('#qunit-fixture').text()),'hi');});QUnit.test('Can this.render({into:...}) the render helper',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});this.render('bar',{into:'foo'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'other');_emberMetalCore.default.run(router,'send','changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'bar');});QUnit.test('Can disconnect from the render helper',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'foo',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo').text(),'');});QUnit.test('Can this.render({into:...}) the render helper\'s children',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');_emberMetalCore.default.TEMPLATES.bar = compile('bar');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{changeToBar:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});this.render('bar',{into:'index'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'other');_emberMetalCore.default.run(router,'send','changeToBar');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'bar');});QUnit.test('Can disconnect from the render helper\'s children',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('<div class="index">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.other = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'foo'});this.render('other',{into:'index'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'index',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .foo .index').text(),'');});QUnit.test('Can this.render({into:...}) nested render helpers',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');_emberMetalCore.default.TEMPLATES.baz = compile('baz');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{changeToBaz:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});this.render('baz',{into:'bar'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'other');_emberMetalCore.default.run(router,'send','changeToBaz');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'baz');});QUnit.test('Can disconnect from nested render helpers',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{render "foo"}}');_emberMetalCore.default.TEMPLATES.foo = compile('<div class="foo">{{render "bar"}}</div>');_emberMetalCore.default.TEMPLATES.bar = compile('<div class="bar">{{outlet}}</div>');_emberMetalCore.default.TEMPLATES.index = compile('other');App.IndexRoute = _emberMetalCore.default.Route.extend({renderTemplate:function(){this.render({into:'bar'});},actions:{disconnect:function(){this.disconnectOutlet({parentView:'bar',outlet:'main'});}}});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'other');_emberMetalCore.default.run(router,'send','disconnect');equal(_emberMetalCore.default.$('#qunit-fixture .bar').text(),'');});QUnit.test('Can render with layout',function(){_emberMetalCore.default.TEMPLATES.application = compile('{{outlet}}');_emberMetalCore.default.TEMPLATES.index = compile('index-template');_emberMetalCore.default.TEMPLATES['my-layout'] = compile('my-layout [{{yield}}]');App.IndexView = _emberViewsViewsView.default.extend({layoutName:'my-layout'});bootApplication();equal(_emberMetalCore.default.$('#qunit-fixture').text(),'my-layout [index-template]');});QUnit.test('Components inside an outlet have their didInsertElement hook invoked when the route is displayed',function(assert){_emberMetalCore.default.TEMPLATES.index = compile('{{#if showFirst}}{{my-component}}{{else}}{{other-component}}{{/if}}');var myComponentCounter=0;var otherComponentCounter=0;var indexController;App.IndexController = _emberMetalCore.default.Controller.extend({showFirst:true});App.IndexRoute = _emberMetalCore.default.Route.extend({setupController:function(controller){indexController = controller;}});App.MyComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){myComponentCounter++;}});App.OtherComponentComponent = _emberMetalCore.default.Component.extend({didInsertElement:function(){otherComponentCounter++;}});bootApplication();assert.strictEqual(myComponentCounter,1,'didInsertElement invoked on displayed component');assert.strictEqual(otherComponentCounter,0,'didInsertElement not invoked on displayed component');_emberMetalCore.default.run(function(){indexController.set('showFirst',false);});assert.strictEqual(myComponentCounter,1,'didInsertElement not invoked on displayed component');assert.strictEqual(otherComponentCounter,1,'didInsertElement invoked on displayed component');});});
 enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberHtmlbarsCompat) {
 
   var compile = _emberHtmlbarsCompat.default.compile;
