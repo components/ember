@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5b8e9251
+ * @version   2.0.0-canary+51464270
  */
 
 (function() {
@@ -4765,7 +4765,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+5b8e9251
+    @version 2.0.0-canary+51464270
     @public
   */
 
@@ -4797,11 +4797,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+5b8e9251'
+    @default '2.0.0-canary+51464270'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+5b8e9251';
+  Ember.VERSION = '2.0.0-canary+51464270';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5803,9 +5803,9 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/core', 'ember-m
   }
 
   function injectedPropertyGet(keyName) {
-    var possibleDesc = this[keyName];
-    var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+    var desc = this[keyName];
 
+    _emberMetalCore.default.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
     _emberMetalCore.default.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', this.container);
 
     return this.container.lookup(desc.type + ':' + (desc.name || keyName));
