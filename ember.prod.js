@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+e8da5f07
+ * @version   2.0.0-beta.1+c56e7553
  */
 
 (function() {
@@ -3458,12 +3458,12 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
       ```
        Given that you have a nested controller (nested routes):
        ```javascript
-      App.CommentsNewController = Ember.ObjectController.extend({
+      App.CommentsNewController = Ember.Controller.extend({
       });
       ```
        When you define a controller that requires access to a nested one:
        ```javascript
-      App.IndexController = Ember.ObjectController.extend({
+      App.IndexController = Ember.Controller.extend({
         needs: ['commentsNew']
       });
       ```
@@ -3736,7 +3736,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 @submodule ember-application
 @private
 */
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberRuntimeControllersObject_controller, _emberRuntimeControllersArray_controller, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberMetalEnvironment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-runtime/controllers/array_controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberRuntimeControllersArray_controller, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberMetalEnvironment) {
 
   function props(obj) {
     var properties = [];
@@ -4555,7 +4555,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.register('application:main', namespace, { instantiate: false });
 
       registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-      registry.register('controller:object', _emberRuntimeControllersObject_controller.default, { instantiate: false });
       registry.register('controller:array', _emberRuntimeControllersArray_controller.default, { instantiate: false });
 
       registry.register('renderer:-dom', { create: function () {
@@ -5826,7 +5825,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     }
   });
 });
-enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-bind-attr-class', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersBindAttrClass, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-get', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersGet, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
 
   _emberHtmlbarsHelpers.registerHelper('if', _emberHtmlbarsHelpersIf_unless.ifHelper);
   _emberHtmlbarsHelpers.registerHelper('unless', _emberHtmlbarsHelpersIf_unless.unlessHelper);
@@ -5837,7 +5836,6 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
 
   _emberHtmlbarsHelpers.registerHelper('each-in', _emberHtmlbarsHelpersEachIn.default);
 
-  _emberHtmlbarsHelpers.registerHelper('-bind-attr-class', _emberHtmlbarsHelpersBindAttrClass.default);
   _emberHtmlbarsHelpers.registerHelper('-normalize-class', _emberHtmlbarsHelpersNormalizeClass.default);
   _emberHtmlbarsHelpers.registerHelper('concat', _emberHtmlbarsHelpersConcat.default);
   _emberHtmlbarsHelpers.registerHelper('-join-classes', _emberHtmlbarsHelpersJoinClasses.default);
@@ -5862,6 +5860,28 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   _emberHtmlbarsHelper.default.helper = _emberHtmlbarsHelper.helper;
   _emberMetalCore.default.Helper = _emberHtmlbarsHelper.default;
 });
+/**
+
+  &nbsp;
+
+@module ember
+@submodule ember-templates
+@main ember-templates
+*/
+
+/**
+
+  [HTMLBars](https://github.com/tildeio/htmlbars) is a [Handlebars](http://handlebarsjs.com/)
+  compatible templating engine used by Ember.js. The classes and namespaces
+  covered by this documentation attempt to focus on APIs for interacting
+  with HTMLBars itself. For more general guidance on Ember.js templates and
+  helpers, please see the [ember-templates](/api/modules/ember-templates.html)
+  package.
+
+@module ember
+@submodule ember-htmlbars
+@main ember-htmlbars
+*/
 
 // importing adds template bootstrapping
 // initializer to enable embedded templates
@@ -6071,8 +6091,6 @@ enifed('ember-htmlbars/compat/make-bound-helper', ['exports', 'ember-metal/core'
   @module ember
   @submodule ember-htmlbars
   */
-
-  //import Helper from "ember-htmlbars/system/helper";
 
   /**
     A helper function used by `registerBoundHelper`. Takes the
@@ -6326,19 +6344,104 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal/features', 'ember-metal/en
 enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
   exports.helper = helper;
 
-  // Ember.Helper.extend({ compute(params, hash) {} });
+  /**
+    Ember Helpers are functions that can compute values, and are used in templates.
+    For example, this code calls a helper named `format-currency`:
+  
+    ```handlebars
+    <div>{{format-currency cents currency="$"}}</div>
+    ```
+  
+    Additionally a helper can be called as a nested helper (sometimes called a
+    subexpression). In this example, the computed value of a helper is passed
+    to a component named `show-money`:
+  
+    ```handlebars
+    {{show-money amount=(format-currency cents currency="$")}}
+    ```
+  
+    Helpers defined using a class must provide a `compute` function. For example:
+  
+    ```js
+    export default Ember.Helper.extend({
+      compute(params, hash) {
+        let cents = params[0];
+        let currency = hash.currency;
+        return `${currency}${cents * 0.01}`;
+      }
+    });
+    ```
+  
+    Each time the input to a helper changes, the `compute` function will be
+    called again.
+  
+    As instances, these helpers also have access to the container an will accept
+    injected dependencies.
+  
+    Additionally, class helpers can call `recompute` to force a new computation.
+  
+    @class Ember.Helper
+    @public
+  */
   var Helper = _emberRuntimeSystemObject.default.extend({
     isHelper: true,
+
+    /**
+      On a class-based helper, it may be useful to force a recomputation of that
+      helpers value. This is akin to `rerender` on a component.
+       For example, this component will rerender when the `currentUser` on a
+      session service changes:
+       ```js
+      // app/helpers/current-user-email.js
+      export default Ember.Helper.extend({
+        session: Ember.inject.service(),
+        onNewUser: Ember.observer('session.currentUser', function() {
+          this.recompute();
+        }),
+        compute() {
+          return this.get('session.currentUser.email');
+        }
+      });
+      ```
+       @method recompute
+      @public
+    */
     recompute: function () {
       this._stream.notify();
     }
+
+    /**
+      Override this function when writing a class-based helper.
+       @method compute
+      @param {Array} params The positional arguments to the helper
+      @param {Object} hash The named arguments to the helper
+      @public
+    */
   });
 
   Helper.reopenClass({
     isHelperFactory: true
   });
 
-  // Ember.Helper.helper(function(params, hash) {});
+  /**
+    In many cases, the ceremony of a full `Ember.Helper` class is not required.
+    The `helper` method create pure-function helpers without instances. For
+    example:
+  
+    ```js
+    // app/helpers/format-currency.js
+    export default Ember.Helper.helper(function(params, hash) {
+      let cents = params[0];
+      let currency = hash.currency;
+      return `${currency}${cents * 0.01}`;
+    });
+    ```
+  
+    @static
+    @param {Function} helper The helper function
+    @method helper
+    @public
+  */
 
   function helper(helperFn) {
     return {
@@ -6349,6 +6452,10 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 
   exports.default = Helper;
 });
+/**
+@module ember
+@submodule ember-templates
+*/
 enifed("ember-htmlbars/helpers", ["exports"], function (exports) {
   exports.registerHelper = registerHelper;
   /**
@@ -6381,29 +6488,6 @@ enifed("ember-htmlbars/helpers", ["exports"], function (exports) {
 
   exports.default = helpers;
 });
-enifed('ember-htmlbars/helpers/-bind-attr-class', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  exports.default = bindAttrClassHelper;
-
-  function bindAttrClassHelper(params) {
-    var value = params[0];
-
-    if (Array.isArray(value)) {
-      value = _emberMetalProperty_get.get(value, 'length') !== 0;
-    }
-
-    if (value === true) {
-      return params[1];
-    }if (value === false || value === undefined || value === null) {
-      return '';
-    } else {
-      return value;
-    }
-  }
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   exports.default = concat;
   /**
@@ -6602,149 +6686,6 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
     }
   }
 });
-enifed("ember-htmlbars/helpers/bind-attr", ["exports"], function (exports) {});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-
-/**
-  `bind-attr` allows you to create a binding between DOM element attributes and
-  Ember objects. For example:
-
-  ```handlebars
-  <img {{bind-attr src=imageUrl alt=imageTitle}}>
-  ```
-
-  The above handlebars template will fill the `<img>`'s `src` attribute with
-  the value of the property referenced with `imageUrl` and its `alt`
-  attribute with the value of the property referenced with `imageTitle`.
-
-  If the rendering context of this template is the following object:
-
-  ```javascript
-  {
-    imageUrl: 'http://lolcats.info/haz-a-funny',
-    imageTitle: 'A humorous image of a cat'
-  }
-  ```
-
-  The resulting HTML output will be:
-
-  ```html
-  <img src="http://lolcats.info/haz-a-funny" alt="A humorous image of a cat">
-  ```
-
-  `bind-attr` cannot redeclare existing DOM element attributes. The use of `src`
-  in the following `bind-attr` example will be ignored and the hard coded value
-  of `src="/failwhale.gif"` will take precedence:
-
-  ```handlebars
-  <img src="/failwhale.gif" {{bind-attr src=imageUrl alt=imageTitle}}>
-  ```
-
-  ### `bind-attr` and the `class` attribute
-
-  `bind-attr` supports a special syntax for handling a number of cases unique
-  to the `class` DOM element attribute. The `class` attribute combines
-  multiple discrete values into a single attribute as a space-delimited
-  list of strings. Each string can be:
-
-  * a string return value of an object's property.
-  * a boolean return value of an object's property
-  * a hard-coded value
-
-  A string return value works identically to other uses of `bind-attr`. The
-  return value of the property will become the value of the attribute. For
-  example, the following view and template:
-
-  ```javascript
-    AView = View.extend({
-      someProperty: function() {
-        return "aValue";
-      }.property()
-    })
-  ```
-
-  ```handlebars
-  <img {{bind-attr class=view.someProperty}}>
-  ```
-
-  Result in the following rendered output:
-
-  ```html
-  <img class="aValue">
-  ```
-
-  A boolean return value will insert a specified class name if the property
-  returns `true` and remove the class name if the property returns `false`.
-
-  A class name is provided via the syntax
-  `somePropertyName:class-name-if-true`.
-
-  ```javascript
-  AView = View.extend({
-    someBool: true
-  })
-  ```
-
-  ```handlebars
-  <img {{bind-attr class="view.someBool:class-name-if-true"}}>
-  ```
-
-  Result in the following rendered output:
-
-  ```html
-  <img class="class-name-if-true">
-  ```
-
-  An additional section of the binding can be provided if you want to
-  replace the existing class instead of removing it when the boolean
-  value changes:
-
-  ```handlebars
-  <img {{bind-attr class="view.someBool:class-name-if-true:class-name-if-false"}}>
-  ```
-
-  A hard-coded value can be used by prepending `:` to the desired
-  class name: `:class-name-to-always-apply`.
-
-  ```handlebars
-  <img {{bind-attr class=":class-name-to-always-apply"}}>
-  ```
-
-  Results in the following rendered output:
-
-  ```html
-  <img class="class-name-to-always-apply">
-  ```
-
-  All three strategies - string return value, boolean return value, and
-  hard-coded value – can be combined in a single declaration:
-
-  ```handlebars
-  <img {{bind-attr class=":class-name-to-always-apply view.someBool:class-name-if-true view.someProperty"}}>
-  ```
-
-  @method bind-attr
-  @for Ember.Handlebars.helpers
-  @deprecated
-  @param {Object} options
-  @return {String} HTML string
-  @public
-*/
-
-/**
-  See `bind-attr`
-
-  @method bindAttr
-  @for Ember.Handlebars.helpers
-  @deprecated
-  @param {Function} context
-  @param {Object} options
-  @return {String} HTML string
-  @public
-*/
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'ember-views/streams/should_display'], function (exports, _emberMetalFeatures, _emberViewsStreamsShould_display) {
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
@@ -6829,7 +6770,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
     ```
   
     @method each
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @public
   */
 
@@ -6925,7 +6866,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'embe
     ```
   
     @method if
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @public
   */
   function ifHelper(params, hash, options) {
@@ -6938,7 +6879,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'embe
     helper can also be used with `unless`.
   
     @method unless
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @public
   */
   function unlessHelper(params, hash, options) {
@@ -6968,7 +6909,7 @@ enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'embe
 });
 /**
 @module ember
-@submodule ember-htmlbars
+@submodule ember-templates
 */
 
 // Ember.assert
@@ -6977,32 +6918,37 @@ enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-runtime/system/string'],
 
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
   /**
     Calls [Ember.String.loc](/api/classes/Ember.String.html#method_loc) with the
-    provided string.
-    This is a convenient way to localize text within a template:
+    provided string. This is a convenient way to localize text within a template.
+    For example:
+  
     ```javascript
     Ember.STRINGS = {
       '_welcome_': 'Bonjour'
     };
     ```
+  
     ```handlebars
     <div class='message'>
       {{loc '_welcome_'}}
     </div>
     ```
+  
     ```html
     <div class='message'>
       Bonjour
     </div>
     ```
+  
     See [Ember.String.loc](/api/classes/Ember.String.html#method_loc) for how to
     set up localized string references.
+  
     @method loc
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @param {String} str The string to format
     @see {Ember.String#loc}
     @public
@@ -7018,11 +6964,13 @@ enifed('ember-htmlbars/helpers/log', ['exports', 'ember-metal/logger'], function
   /**
     `log` allows you to output the value of variables in the current rendering
     context. `log` also accepts primitive types such as strings or numbers.
+  
     ```handlebars
     {{log "myVariable:" myVariable }}
     ```
+  
     @method log
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @param {*} values
     @public
   */
@@ -7033,7 +6981,7 @@ enifed('ember-htmlbars/helpers/log', ['exports', 'ember-metal/logger'], function
 });
 /**
 @module ember
-@submodule ember-htmlbars
+@submodule ember-templates
 */
 enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display'], function (exports, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display) {
   exports.default = withHelper;
@@ -7065,7 +7013,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/utils/normaliz
     the first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.
   
     @method with
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @param {Object} options
     @return {String} HTML string
     @public
@@ -7100,7 +7048,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-htmlbars/utils/normaliz
 });
 /**
 @module ember
-@submodule ember-htmlbars
+@submodule ember-templates
 */
 enifed('ember-htmlbars/hooks/bind-local', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/proxy-stream'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsProxyStream) {
   exports.default = bindLocal;
@@ -8048,7 +7996,7 @@ enifed('ember-htmlbars/keywords/debugger', ['exports', 'ember-metal/logger'], fu
     ```
   
     @method debugger
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @public
   */
 
@@ -8365,7 +8313,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.1+e8da5f07';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.1+c56e7553';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9068,7 +9016,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   };
 
   function createComponent(_component, isAngleBracket, _props, renderNode, env) {
-    var attrs = arguments[5] === undefined ? {} : arguments[5];
+    var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
 
     var props = _emberMetalMerge.assign({}, _props);
 
@@ -9312,7 +9260,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
   }
 
   function createOrUpdateComponent(component, options, createOptions, renderNode, env) {
-    var attrs = arguments[5] === undefined ? {} : arguments[5];
+    var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
 
     var snapshot = takeSnapshot(attrs);
     var props = _emberMetalMerge.default({}, options);
@@ -9575,7 +9523,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
 
   /**
   @module ember
-  @submodule ember-handlebars
+  @submodule ember-htmlbars
   */
 
   /**
@@ -9584,13 +9532,13 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
     as as jQuery DOM-ready callback.
   
     Script tags with `text/x-handlebars` will be compiled
-    with Ember's Handlebars and are suitable for use as a view's template.
+    with Ember's template compiler and are suitable for use as a view's template.
     Those with type `text/x-raw-handlebars` will be compiled with regular
     Handlebars and are suitable for use in views' computed properties.
   
     @private
     @method bootstrap
-    @for Ember.Handlebars
+    @for Ember.HTMLBars
     @static
     @param ctx
   */
@@ -9707,14 +9655,9 @@ enifed('ember-htmlbars/system/dom-helper', ['exports', 'dom-helper', 'ember-html
 enifed("ember-htmlbars/system/helper", ["exports"], function (exports) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
-  /**
-    @class Helper
-    @namespace Ember.HTMLBars
-    @private
-  */
   function Helper(helper) {
     this.helperFunction = helper;
 
@@ -9817,7 +9760,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
     @private
     @method resolveHelper
     @param {String} name the name of the helper to lookup
-    @return {Handlebars Helper}
+    @return {Helper}
   */
 
   function findHelper(name, view, env) {
@@ -9979,7 +9922,7 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
   };
 
   RenderEnv.prototype.childWithOutletState = function (outletState) {
-    var hasParentOutlet = arguments[1] === undefined ? this.hasParentOutlet : arguments[1];
+    var hasParentOutlet = arguments.length <= 1 || arguments[1] === undefined ? this.hasParentOutlet : arguments[1];
 
     return new RenderEnv({
       view: this.view,
@@ -10971,9 +10914,9 @@ enifed("ember-htmlbars/utils/normalize-self", ["exports"], function (exports) {
 enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/core', 'ember-runtime/system/string', 'htmlbars-util'], function (exports, _emberMetalCore, _emberRuntimeSystemString, _htmlbarsUtil) {
 
   /**
-    Mark a string as safe for unescaped output with Handlebars. If you
-    return HTML from a Handlebars helper, use this function to
-    ensure Handlebars does not escape the HTML.
+    Mark a string as safe for unescaped output with Ember templates. If you
+    return HTML from a helper, use this function to
+    ensure Ember's rendering layer does not escape the HTML.
   
     ```javascript
     Ember.String.htmlSafe('<div>someString</div>')
@@ -10998,18 +10941,6 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/core', 'ember-run
 
   _emberRuntimeSystemString.default.htmlSafe = htmlSafe;
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.String) {
-
-    /**
-      Mark a string as being safe for unescaped output with Handlebars.
-       ```javascript
-      '<div>someString</div>'.htmlSafe()
-      ```
-       See [Ember.String.htmlSafe](/api/classes/Ember.String.html#method_htmlSafe).
-       @method htmlSafe
-      @for String
-      @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
-      @public
-    */
     String.prototype.htmlSafe = function () {
       return htmlSafe(this);
     };
@@ -11450,20 +11381,20 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
   _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
   _emberMetalCore.default.removeObserver = _emberMetalObserver.removeObserver;
-  _emberMetalCore.default.addBeforeObserver = _emberMetalObserver.addBeforeObserver;
+  _emberMetalCore.default.addBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.addBeforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._addBeforeObserver);
   _emberMetalCore.default._suspendBeforeObserver = _emberMetalObserver._suspendBeforeObserver;
   _emberMetalCore.default._suspendBeforeObservers = _emberMetalObserver._suspendBeforeObservers;
   _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
   _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
-  _emberMetalCore.default.beforeObserversFor = _emberMetalObserver.beforeObserversFor;
-  _emberMetalCore.default.removeBeforeObserver = _emberMetalObserver.removeBeforeObserver;
+  _emberMetalCore.default.beforeObserversFor = _emberMetalCore.default.deprecateFunc('Ember.beforeObserversFor is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._beforeObserversFor);
+  _emberMetalCore.default.removeBeforeObserver = _emberMetalCore.default.deprecateFunc('Ember.removeBeforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalObserver._removeBeforeObserver);
 
   _emberMetalCore.default.IS_BINDING = _emberMetalMixin.IS_BINDING;
   _emberMetalCore.default.required = _emberMetalMixin.required;
   _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
   _emberMetalCore.default.observer = _emberMetalMixin.observer;
-  _emberMetalCore.default.immediateObserver = _emberMetalMixin.immediateObserver;
-  _emberMetalCore.default.beforeObserver = _emberMetalMixin.beforeObserver;
+  _emberMetalCore.default.immediateObserver = _emberMetalMixin._immediateObserver;
+  _emberMetalCore.default.beforeObserver = _emberMetalCore.default.deprecateFunc('Ember.beforeObserver is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, _emberMetalMixin._beforeObserver);
   _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
   _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
 
@@ -13866,7 +13797,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.1+e8da5f07
+    @version 2.0.0-beta.1+c56e7553
     @public
   */
 
@@ -13898,11 +13829,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.1+e8da5f07'
+    @default '2.0.0-beta.1+c56e7553'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.1+e8da5f07';
+  Ember.VERSION = '2.0.0-beta.1+c56e7553';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16181,8 +16112,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
-  exports.immediateObserver = immediateObserver;
-  exports.beforeObserver = beforeObserver;
+  exports._immediateObserver = _immediateObserver;
+  exports._beforeObserver = _beforeObserver;
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
   //
@@ -16572,13 +16503,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var prev = obj[key];
 
     if ('function' === typeof prev) {
-      updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', _emberMetalObserver.removeBeforeObserver);
+      updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', _emberMetalObserver._removeBeforeObserver);
       updateObserversAndListeners(obj, key, prev, '__ember_observes__', _emberMetalObserver.removeObserver);
       updateObserversAndListeners(obj, key, prev, '__ember_listens__', _emberMetalEvents.removeListener);
     }
 
     if ('function' === typeof observerOrListener) {
-      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', _emberMetalObserver.addBeforeObserver);
+      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', _emberMetalObserver._addBeforeObserver);
       updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', _emberMetalObserver.addObserver);
       updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', _emberMetalEvents.addListener);
     }
@@ -17052,7 +16983,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     Also available as `Function.prototype.observesImmediately` if prototype extensions are
     enabled.
   
-    @method immediateObserver
+    @method _immediateObserver
     @for Ember
     @param {String} propertyNames*
     @param {Function} func
@@ -17061,7 +16992,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @private
   */
 
-  function immediateObserver() {
+  function _immediateObserver() {
     
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
@@ -17076,9 +17007,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     Note, `@each.property` observer is called per each add or replace of an element
     and it's not called with a specific enumeration item.
   
-    A `beforeObserver` fires before a property changes.
+    A `_beforeObserver` fires before a property changes.
   
-    A `beforeObserver` is an alternative form of `.observesBefore()`.
+    A `_beforeObserver` is an alternative form of `.observesBefore()`.
   
     ```javascript
     App.PersonView = Ember.View.extend({
@@ -17111,10 +17042,11 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @param {String} propertyNames*
     @param {Function} func
     @return func
+    @deprecated
     @private
   */
 
-  function beforeObserver() {
+  function _beforeObserver() {
     for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
       args[_key5] = arguments[_key5];
     }
@@ -17164,13 +17096,13 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
   exports.addObserver = addObserver;
   exports.observersFor = observersFor;
   exports.removeObserver = removeObserver;
-  exports.addBeforeObserver = addBeforeObserver;
+  exports._addBeforeObserver = _addBeforeObserver;
   exports._suspendBeforeObserver = _suspendBeforeObserver;
   exports._suspendObserver = _suspendObserver;
   exports._suspendBeforeObservers = _suspendBeforeObservers;
   exports._suspendObservers = _suspendObservers;
-  exports.beforeObserversFor = beforeObserversFor;
-  exports.removeBeforeObserver = removeBeforeObserver;
+  exports._beforeObserversFor = _beforeObserversFor;
+  exports._removeBeforeObserver = _removeBeforeObserver;
 
   /**
   @module ember-metal
@@ -17226,16 +17158,17 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
   }
 
   /**
-    @method addBeforeObserver
+    @method _addBeforeObserver
     @for Ember
     @param obj
     @param {String} path
     @param {Object|Function} target
     @param {Function|String} [method]
+    @deprecated
     @private
   */
 
-  function addBeforeObserver(obj, path, target, method) {
+  function _addBeforeObserver(obj, path, target, method) {
     _emberMetalEvents.addListener(obj, beforeEvent(path), target, method);
     _emberMetalWatching.watch(obj, path);
 
@@ -17265,7 +17198,7 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     return _emberMetalEvents.suspendListeners(obj, events, target, method, callback);
   }
 
-  function beforeObserversFor(obj, path) {
+  function _beforeObserversFor(obj, path) {
     return _emberMetalEvents.listenersFor(obj, beforeEvent(path));
   }
 
@@ -17276,10 +17209,11 @@ enifed('ember-metal/observer', ['exports', 'ember-metal/watching', 'ember-metal/
     @param {String} path
     @param {Object|Function} target
     @param {Function|String} [method]
+    @deprecated
     @private
   */
 
-  function removeBeforeObserver(obj, path, target, method) {
+  function _removeBeforeObserver(obj, path, target, method) {
     _emberMetalWatching.unwatch(obj, path);
     _emberMetalEvents.removeListener(obj, beforeEvent(path), target, method);
 
@@ -19981,8 +19915,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   /**
     Generates a universally unique identifier. This method
     is used internally by Ember for assisting with
-    the generation of GUID's and other unique identifiers
-    such as `bind-attr` data attributes.
+    the generation of GUID's and other unique identifiers.
   
     @public
     @return {Number} [description]
@@ -20887,17 +20820,19 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
   exports.queryParamsHelper = queryParamsHelper;
 
   /**
-    This is a sub-expression to be used in conjunction with the link-to helper.
+    This is a helper to be used in conjunction with the link-to helper.
     It will supply url query parameters to the target route.
   
     Example
   
+    ```handlebars
     {{#link-to 'posts' (query-params direction="asc")}}Sort{{/link-to}}
+    ```
   
     @method query-params
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @param {Object} hash takes a hash of query parameters
-    @return {String} HTML string
+    @return {Object} A `QueryParams` object for `{{link-to}}`
     @public
   */
 
@@ -20999,7 +20934,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'ember-metal/featur
     supply an `on` option to the helper to specify a different DOM event name:
   
     ```handlebars
-    <div {{action "anActionName" on="doubleClick"}}>
+    <div {{action "anActionName" on="double-click"}}>
       click me
     </div>
     ```
@@ -21074,7 +21009,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'ember-metal/featur
     with the value of `person` as a parameter.
   
     @method action
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @public
   */
 
@@ -21089,7 +21024,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'ember-metal/featur
 });
 /**
 @module ember
-@submodule ember-htmlbars
+@submodule ember-templates
 */
 enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-metal/property_get', 'ember-metal/error'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberMetalProperty_get, _emberMetalError) {
   exports.default = closureAction;
@@ -21599,7 +21534,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
     ```
   
     @method link-to
-    @for Ember.Handlebars.helpers
+    @for Ember.Templates.helpers
     @param {String} routeName
     @param {Object} [context]*
     @param [options] {Object} Handlebars key/value pairs of options, you can override any property of Ember.LinkComponent
@@ -21859,7 +21794,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.1+e8da5f07';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.1+c56e7553';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22208,7 +22143,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = params.length === 0;
+      var onlyQueryParamsSupplied = this.attrs.hasBlock ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         var appController = this.container.lookup('controller:application');
         if (appController) {
@@ -22367,7 +22302,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.1+e8da5f07';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.1+c56e7553';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -23949,11 +23884,9 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
   
     The type of the generated controller factory is derived
     from the context. If the context is an array an array controller
-    is generated, if an object, an object controller otherwise, a basic
-    controller is generated.
+    is generated, otherwise, a basic controller is generated.
   
-    You can customize your generated controllers by defining
-    `App.ObjectController` or `App.ArrayController`.
+    You can customize your generated controllers by defining `App.ArrayController`.
   
     @for Ember
     @method generateControllerFactory
@@ -23965,8 +23898,6 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
 
     if (context && _emberRuntimeUtils.isArray(context)) {
       controllerType = 'array';
-    } else if (context) {
-      controllerType = 'object';
     } else {
       controllerType = 'basic';
     }
@@ -25290,6 +25221,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       this.transitionTo('post', thePost);
        // integer passed in, model hook is called
       this.transitionTo('post', 1);
+       // model id passed in, model hook is called
+      // useful for forcing the hook to execute
+      thePost = store.find('post', 1);
+      this.transitionTo('post', thePost.id);
       ```
         This hook follows the asynchronous/promise semantics
       described in the documentation for `beforeModel`. In particular,
@@ -25474,15 +25409,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         }
       });
       ```
-       This means that your template will get a proxy for the model as its
-      context, and you can act as though the model itself was the context.
        The provided controller will be one resolved based on the name
       of this route.
        If no explicit controller is defined, Ember will automatically create
       an appropriate controller for the model.
        * if the model is an `Ember.Array` (including record arrays from Ember
         Data), the controller is an `Ember.ArrayController`.
-      * otherwise, the controller is an `Ember.ObjectController`.
+      * otherwise, the controller is basic `Ember.Controller`.
        As an example, consider the router:
        ```javascript
       App.Router.map(function() {
@@ -25490,7 +25423,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       });
       ```
        For the `post` route, a controller named `App.PostController` would
-      be used if it is defined. If it is not defined, an `Ember.ObjectController`
+      be used if it is defined. If it is not defined, a basic `Ember.Controller`
       instance would be used.
        Example
        ```javascript
@@ -27380,7 +27313,7 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
     }
   }
 });
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/object_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersObject_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/mixins/sortable', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/array_controller', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeMixinsSortable, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersArray_controller, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   // END IMPORTS
 
   // BEGIN EXPORTS
@@ -27448,7 +27381,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.runLoadHooks = _emberRuntimeSystemLazy_load.runLoadHooks;
 
   _emberMetal.default.ArrayController = _emberRuntimeControllersArray_controller.default;
-  _emberMetal.default.ObjectController = _emberRuntimeControllersObject_controller.default;
   _emberMetal.default.Controller = _emberRuntimeControllersController.default;
   _emberMetal.default.ControllerMixin = _emberRuntimeMixinsController.default;
 
@@ -28279,7 +28211,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     Sometimes you want to display computed properties within the body of an
     `#each` helper that depend on the underlying items in `model`, but are not
     present on those items.   To do this, set `itemController` to the name of a
-    controller (probably an `ObjectController`) that will wrap each individual item.
+    controller that will wrap each individual item.
   
     For example:
   
@@ -28294,7 +28226,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
       itemController: 'post'
     });
   
-    App.PostController = Ember.ObjectController.extend({
+    App.PostController = Ember.Controller.extend({
       // the `title` property will be proxied to the underlying post.
       titleLength: function() {
         return this.get('title').length;
@@ -28569,36 +28501,6 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
   exports.default = Controller;
 });
 // Ember.assert
-enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/core', 'ember-runtime/mixins/controller', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalCore, _emberRuntimeMixinsController, _emberRuntimeSystemObject_proxy) {
-  var objectControllerDeprecation = 'Ember.ObjectController is deprecated, ' + 'please use Ember.Controller and use `model.propertyName`.';
-
-  exports.objectControllerDeprecation = objectControllerDeprecation;
-  /**
-  @module ember
-  @submodule ember-runtime
-  */
-
-  /**
-    `Ember.ObjectController` is part of Ember's Controller layer. It is intended
-    to wrap a single object, proxying unhandled attempts to `get` and `set` to the underlying
-    model object, and to forward unhandled action attempts to its `target`.
-  
-    `Ember.ObjectController` derives this functionality from its superclass
-    `Ember.ObjectProxy` and the `Ember.ControllerMixin` mixin.
-  
-    @class ObjectController
-    @namespace Ember
-    @extends Ember.ObjectProxy
-    @uses Ember.ControllerMixin
-    @deprecated
-    @public
-  **/
-  exports.default = _emberRuntimeSystemObject_proxy.default.extend(_emberRuntimeMixinsController.default, {
-    init: function () {
-      this._super();
-          }
-  });
-});
 enifed('ember-runtime/copy', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/copyable'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsCopyable) {
   exports.default = copy;
 
@@ -28802,8 +28704,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
         }.observes('value')
       });
       ```
-       In the future this method may become asynchronous. If you want to ensure
-      synchronous behavior, use `observesImmediately`.
+       In the future this method may become asynchronous.
        See `Ember.observer`.
        @method observes
       @for Function
@@ -28818,6 +28719,11 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
       return _emberMetalMixin.observer.apply(this, args);
     };
 
+    FunctionPrototype._observesImmediately = function () {
+      
+      // observes handles property expansion
+      return this.observes.apply(this, arguments);
+    };
     /**
       The `observesImmediately` extension of Javascript's Function prototype is
       available when `Ember.EXTEND_PROTOTYPES` or
@@ -28837,13 +28743,10 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
        See `Ember.immediateObserver`.
        @method observesImmediately
       @for Function
+      @deprecated
       @private
     */
-    FunctionPrototype.observesImmediately = function () {
-      
-      // observes handles property expansion
-      return this.observes.apply(this, arguments);
-    };
+    FunctionPrototype.observesImmediately = _emberMetalCore.default.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', FunctionPrototype._observesImmediately);
 
     /**
       The `observesBefore` extension of Javascript's Function prototype is
@@ -28997,7 +28900,11 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
       @private
     */
     StringPrototype.fmt = function () {
-      return _emberRuntimeSystemString.fmt(this, arguments);
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return _emberRuntimeSystemString.fmt(this, args);
     };
 
     /**
@@ -29017,7 +28924,11 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
       @private
     */
     StringPrototype.loc = function () {
-      return _emberRuntimeSystemString.loc(this, arguments);
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      return _emberRuntimeSystemString.loc(this, args);
     };
 
     /**
@@ -29209,13 +29120,13 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
 
     willWatchProperty: function (key) {
       var contentKey = 'content.' + key;
-      _emberMetalObserver.addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+      _emberMetalObserver._addBeforeObserver(this, contentKey, null, contentPropertyWillChange);
       _emberMetalObserver.addObserver(this, contentKey, null, contentPropertyDidChange);
     },
 
     didUnwatchProperty: function (key) {
       var contentKey = 'content.' + key;
-      _emberMetalObserver.removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
+      _emberMetalObserver._removeBeforeObserver(this, contentKey, null, contentPropertyWillChange);
       _emberMetalObserver.removeObserver(this, contentKey, null, contentPropertyDidChange);
     },
 
@@ -29256,8 +29167,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     to the object's mergedProperties list.
   
     `Ember.ActionHandler` is available on some familiar classes including
-    `Ember.Route`, `Ember.View`, `Ember.Component`, and controllers such as
-    `Ember.Controller` and `Ember.ObjectController`.
+    `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
     and `Ember.Route` and available to the above classes through
     inheritance.)
@@ -29978,8 +29888,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
 
   /**
     `Ember.ControllerMixin` provides a standard interface for all classes that
-    compose Ember's controller layer: `Ember.Controller`,
-    `Ember.ArrayController`, and `Ember.ObjectController`.
+    compose Ember's controller layer: `Ember.Controller` and `Ember.ArrayController`.
   
     @class ControllerMixin
     @namespace Ember
@@ -30237,7 +30146,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       ```
        @property firstObject
       @return {Object} the object or undefined
-      @private
+      @public
     */
     firstObject: _emberMetalComputed.computed('[]', function () {
       if (_emberMetalProperty_get.get(this, 'length') === 0) {
@@ -30265,7 +30174,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       ```
        @property lastObject
       @return {Object} the last object or undefined
-      @private
+      @public
     */
     lastObject: _emberMetalComputed.computed('[]', function () {
       var len = _emberMetalProperty_get.get(this, 'length');
@@ -30301,7 +30210,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method contains
       @param {Object} obj The object to search for.
       @return {Boolean} `true` if object is found in enumerable.
-      @private
+      @public
     */
     contains: function (obj) {
       var found = this.find(function (item) {
@@ -30362,7 +30271,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method getEach
       @param {String} key name of the property
       @return {Array} The mapped array.
-      @private
+      @public
     */
     getEach: _emberMetalMixin.aliasMethod('mapBy'),
 
@@ -30375,7 +30284,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} key The key to set
       @param {Object} value The object to set
       @return {Object} receiver
-      @private
+      @public
     */
     setEach: function (key, value) {
       return this.forEach(function (item) {
@@ -30402,7 +30311,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Array} The mapped array.
-      @private
+      @public
     */
     map: function (callback, target) {
       var ret = _emberMetalCore.default.A();
@@ -30420,7 +30329,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method mapBy
       @param {String} key name of the property
       @return {Array} The mapped array.
-      @private
+      @public
     */
     mapBy: function (key) {
       return this.map(function (next) {
@@ -30449,7 +30358,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Array} A filtered array.
-      @private
+      @public
     */
     filter: function (callback, target) {
       var ret = _emberMetalCore.default.A();
@@ -30482,7 +30391,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Array} A rejected array.
-       @private
+      @public
     */
     reject: function (callback, target) {
       return this.filter(function () {
@@ -30498,7 +30407,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} key the property to test
       @param {*} [value] optional value to test against.
       @return {Array} filtered array
-      @private
+      @public
     */
     filterBy: function (key, value) {
       return this.filter(iter.apply(this, arguments));
@@ -30512,7 +30421,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} key the property to test
       @param {String} [value] optional value to test against.
       @return {Array} rejected array
-      @private
+      @public
     */
     rejectBy: function (key, value) {
       var exactValue = function (item) {
@@ -30527,19 +30436,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
 
       return this.reject(use);
     },
-
-    /**
-      Returns an array with the items that do not have truthy values for
-      key.  You can pass an optional second argument with the target value.  Otherwise
-      this will match any property that evaluates to false.
-       @method rejectProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Array} rejected array
-      @deprecated Use `rejectBy` instead
-      @private
-    */
-    rejectProperty: _emberMetalMixin.aliasMethod('rejectBy'),
 
     /**
       Returns the first item in the array for which the callback returns true.
@@ -30562,7 +30458,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Object} Found item or `undefined`.
-      @private
+      @public
     */
     find: function (callback, target) {
       var len = _emberMetalProperty_get.get(this, 'length');
@@ -30601,25 +30497,11 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} key the property to test
       @param {String} [value] optional value to test against.
       @return {Object} found item or `undefined`
-      @private
+      @public
     */
     findBy: function (key, value) {
       return this.find(iter.apply(this, arguments));
     },
-
-    /**
-      Returns the first item with a property matching the passed value. You
-      can pass an optional second argument with the target value. Otherwise
-      this will match any property that evaluates to `true`.
-       This method works much like the more generic `find()` method.
-       @method findProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Object} found item or `undefined`
-      @deprecated Use `findBy` instead
-      @private
-    */
-    findProperty: _emberMetalMixin.aliasMethod('findBy'),
 
     /**
       Returns `true` if the passed function returns true for every item in the
@@ -30655,16 +30537,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     },
 
     /**
-      @method everyBy
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @deprecated Use `isEvery` instead
-      @return {Boolean}
-      @private
-    */
-    everyBy: _emberMetalMixin.aliasMethod('isEvery'),
-
-    /**
       @method everyProperty
       @param {String} key the property to test
       @param {String} [value] optional value to test against.
@@ -30675,11 +30547,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     everyProperty: _emberMetalMixin.aliasMethod('isEvery'),
 
     /**
-      Returns `true` if the passed property resolves to `true` for all items in
-      the enumerable. This method is often simpler/faster than using a callback.
+      Returns `true` if the passed property resolves to the value of the second
+      argument for all items in the enumerable. This method is often simpler/faster
+      than using a callback.
        @method isEvery
       @param {String} key the property to test
-      @param {String} [value] optional value to test against.
+      @param {String} [value] optional value to test against. Defaults to `true`
       @return {Boolean}
       @since 1.3.0
       @public
@@ -30770,11 +30643,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     some: _emberMetalMixin.aliasMethod('any'),
 
     /**
-      Returns `true` if the passed property resolves to `true` for any item in
-      the enumerable. This method is often simpler/faster than using a callback.
+      Returns `true` if the passed property resolves to the value of the second
+      argument for any item in the enumerable. This method is often simpler/faster
+      than using a callback.
        @method isAny
       @param {String} key the property to test
-      @param {String} [value] optional value to test against.
+      @param {String} [value] optional value to test against. Defaults to `true`
       @return {Boolean}
       @since 1.3.0
       @private
@@ -32152,8 +32026,8 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
       return this;
     },
 
-    addBeforeObserver: function (key, target, method) {
-            _emberMetalObserver.addBeforeObserver(this, key, target, method);
+    _addBeforeObserver: function (key, target, method) {
+            _emberMetalObserver._addBeforeObserver(this, key, target, method);
     },
 
     /**
@@ -32351,44 +32225,44 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 
   /**
-    A low level mixin making ObjectProxy, ObjectController or ArrayControllers promise-aware.
+    A low level mixin making ObjectProxy or ArrayControllers promise-aware.
   
     ```javascript
-    var ObjectPromiseController = Ember.ObjectController.extend(Ember.PromiseProxyMixin);
+    var ObjectPromiseProxy = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
   
-    var controller = ObjectPromiseController.create({
+    var proxy = ObjectPromiseProxy.create({
       promise: $.getJSON('/some/remote/data.json')
     });
   
-    controller.then(function(json){
+    proxy.then(function(json){
        // the json
     }, function(reason) {
        // the reason why you have no json
     });
     ```
   
-    the controller has bindable attributes which
+    the proxy has bindable attributes which
     track the promises life cycle
   
     ```javascript
-    controller.get('isPending')   //=> true
-    controller.get('isSettled')  //=> false
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> false
+    proxy.get('isPending')   //=> true
+    proxy.get('isSettled')  //=> false
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> false
     ```
   
     When the the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
   
     ```javascript
-    controller.get('isPending')   //=> false
-    controller.get('isSettled')   //=> true
-    controller.get('isRejected')  //=> false
-    controller.get('isFulfilled') //=> true
+    proxy.get('isPending')   //=> false
+    proxy.get('isSettled')   //=> true
+    proxy.get('isRejected')  //=> false
+    proxy.get('isFulfilled') //=> true
     ```
   
-    As the controller is an ObjectController, and the json now its content,
-    all the json properties will be available directly from the controller.
+    As the proxy is an ObjectProxy, and the json now its content,
+    all the json properties will be available directly from the proxy.
   
     ```javascript
     // Assuming the following json:
@@ -32397,22 +32271,11 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       lastName: 'Penner'
     }
   
-    // both properties will accessible on the controller
-    controller.get('firstName') //=> 'Stefan'
-    controller.get('lastName')  //=> 'Penner'
+    // both properties will accessible on the proxy
+    proxy.get('firstName') //=> 'Stefan'
+    proxy.get('lastName')  //=> 'Penner'
     ```
   
-    If the controller is backing a template, the attributes are
-    bindable from within that template
-  
-    ```handlebars
-    {{#if isPending}}
-      loading...
-    {{else}}
-      firstName: {{firstName}}
-      lastName: {{lastName}}
-    {{/if}}
-    ```
     @class Ember.PromiseProxyMixin
     @public
   */
@@ -32464,7 +32327,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
       changed once created.
        Example:
        ```javascript
-      Ember.ObjectController.extend(Ember.PromiseProxyMixin).create({
+      Ember.ObjectProxy.extend(Ember.PromiseProxyMixin).create({
         promise: <thenable>
       });
       ```
@@ -32692,7 +32555,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
       }
     }),
 
-    _contentWillChange: _emberMetalMixin.beforeObserver('content', function () {
+    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
       var _this4 = this;
 
       var content = _emberMetalProperty_get.get(this, 'content');
@@ -32709,7 +32572,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
       this._super.apply(this, arguments);
     }),
 
-    sortPropertiesWillChange: _emberMetalMixin.beforeObserver('sortProperties', function () {
+    sortPropertiesWillChange: _emberMetalMixin._beforeObserver('sortProperties', function () {
       this._lastSortAscending = undefined;
     }),
 
@@ -32717,7 +32580,7 @@ enifed('ember-runtime/mixins/sortable', ['exports', 'ember-metal/core', 'ember-m
       this._lastSortAscending = undefined;
     }),
 
-    sortAscendingWillChange: _emberMetalMixin.beforeObserver('sortAscending', function () {
+    sortAscendingWillChange: _emberMetalMixin._beforeObserver('sortAscending', function () {
       this._lastSortAscending = _emberMetalProperty_get.get(this, 'sortAscending');
     }),
 
@@ -33084,7 +32947,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
        @private
       @method _contentWillChange
     */
-    _contentWillChange: _emberMetalMixin.beforeObserver('content', function () {
+    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
       this._teardownContent();
     }),
 
@@ -33145,7 +33008,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
       }
     },
 
-    _arrangedContentWillChange: _emberMetalMixin.beforeObserver('arrangedContent', function () {
+    _arrangedContentWillChange: _emberMetalMixin._beforeObserver('arrangedContent', function () {
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
       var len = arrangedContent ? _emberMetalProperty_get.get(arrangedContent, 'length') : 0;
 
@@ -34164,7 +34027,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     while (--loc >= idx) {
       var item = content.objectAt(loc);
       if (item) {
-                _emberMetalObserver.addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+                _emberMetalObserver._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
         _emberMetalObserver.addObserver(item, keyName, proxy, 'contentKeyDidChange');
 
         // keep track of the index each item was found at so we can map
@@ -34190,7 +34053,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     while (--loc >= idx) {
       var item = content.objectAt(loc);
       if (item) {
-        _emberMetalObserver.removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+        _emberMetalObserver._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
         _emberMetalObserver.removeObserver(item, keyName, proxy, 'contentKeyDidChange');
 
         guid = _emberMetalUtils.guidFor(item);
@@ -34368,14 +34231,14 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   var loaded = {};
 
   /**
-    Detects when a specific package of Ember (e.g. 'Ember.Handlebars')
+    Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
   
     The provided `callback` will be called with the `name` passed
     resolved from a string into the object:
   
     ``` javascript
-    Ember.onLoad('Ember.Handlebars' function(hbars) {
+    Ember.onLoad('Ember.Application' function(hbars) {
       hbars.registerHelper(...);
     });
     ```
@@ -34399,7 +34262,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   }
 
   /**
-    Called when an Ember.js package (e.g Ember.Handlebars) has finished
+    Called when an Ember.js package (e.g Ember.Application) has finished
     loading. Triggers any callbacks registered for this event.
   
     @method runLoadHooks
@@ -35933,11 +35796,10 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-bind-attr-to-attributes', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformBindAttrToAttributes, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-in-to-block-params', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-single-arg-each', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachInToBlockParams, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformSingleArgEach, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformWithAsToHash.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachInToBlockParams.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformBindAttrToAttributes.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformSingleArgEach.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -36148,7 +36010,7 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  TransformAngleBracketComponents.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+  TransformAngleBracketComponents.prototype.transform = function TransformAngleBracketComponents_transform(ast) {
     var walker = new this.syntax.Walker();
 
     walker.visit(ast, function (node) {
@@ -36168,185 +36030,6 @@ enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['e
 
   exports.default = TransformAngleBracketComponents;
 });
-enifed('ember-template-compiler/plugins/transform-bind-attr-to-attributes', ['exports', 'ember-metal/core', 'ember-template-compiler/system/string', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemString, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-    {{bind-attr}} helpers with the equivalent HTMLBars-style bound
-    attributes. For example
-  
-    ```handlebars
-    <div {{bind-attr class=":foo some.path:bar"}}></div>
-    ```
-  
-    becomes
-  
-    ```handlebars
-    <div class="foo {{if some.path "bar" ""}}></div>
-    ```
-  
-    @class TransformBindAttrToAttributes
-    @private
-  */
-  function TransformBindAttrToAttributes(options) {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-    this.options = options || {};
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformBindAttrToAttributes.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
-    var plugin = this;
-    var moduleName = this.options.moduleName;
-    var walker = new this.syntax.Walker();
-
-    walker.visit(ast, function (node) {
-      if (node.type === 'ElementNode') {
-        for (var i = 0; i < node.modifiers.length; i++) {
-          var modifier = node.modifiers[i];
-
-          if (isBindAttrModifier(modifier, moduleName)) {
-            node.modifiers.splice(i--, 1);
-            plugin.assignAttrs(node, modifier.hash);
-          }
-        }
-      }
-    });
-
-    return ast;
-  };
-
-  TransformBindAttrToAttributes.prototype.assignAttrs = function assignAttrs(element, hash) {
-    var pairs = hash.pairs;
-
-    for (var i = 0; i < pairs.length; i++) {
-      var name = pairs[i].key;
-      var value = pairs[i].value;
-
-      assertAttrNameIsUnused(element, name);
-
-      var attr = this.syntax.builders.attr(name, this.transformValue(name, value));
-      element.attributes.push(attr);
-    }
-  };
-
-  TransformBindAttrToAttributes.prototype.transformValue = function transformValue(name, value) {
-    var b = this.syntax.builders;
-
-    if (name === 'class') {
-      switch (value.type) {
-        case 'StringLiteral':
-          return this.parseClasses(value.value);
-        case 'PathExpression':
-          return this.parseClasses(value.original);
-        case 'SubExpression':
-          return b.mustache(value.path, value.params, value.hash);
-        default:
-          _emberMetalCore.default.assert('Unsupported attribute value type: ' + value.type);
-      }
-    } else {
-      switch (value.type) {
-        case 'StringLiteral':
-          return b.mustache(b.path(value.value));
-        case 'PathExpression':
-          return b.mustache(value);
-        case 'SubExpression':
-          return b.mustache(value.path, value.params, value.hash);
-        default:
-          _emberMetalCore.default.assert('Unsupported attribute value type: ' + value.type);
-      }
-    }
-  };
-
-  TransformBindAttrToAttributes.prototype.parseClasses = function parseClasses(value) {
-    var b = this.syntax.builders;
-
-    var concat = b.concat();
-    var classes = value.split(' ');
-
-    for (var i = 0; i < classes.length; i++) {
-      if (i > 0) {
-        concat.parts.push(b.string(' '));
-      }
-
-      var concatPart = this.parseClass(classes[i]);
-      concat.parts.push(concatPart);
-    }
-
-    return concat;
-  };
-
-  TransformBindAttrToAttributes.prototype.parseClass = function parseClass(value) {
-    var b = this.syntax.builders;
-
-    var parts = value.split(':');
-
-    switch (parts.length) {
-      case 1:
-        // Before: {{bind-attr class="view.fooBar ..."}}
-        // After: class="{{-bind-attr-class view.fooBar "foo-bar"}} ..."
-        return b.sexpr(b.path('-bind-attr-class'), [b.path(parts[0]), b.string(dasherizeLastKey(parts[0]))]);
-      case 2:
-        if (parts[0] === '') {
-          // Before: {{bind-attr class=":foo ..."}}
-          // After: class="foo ..."
-          return b.string(parts[1]);
-        } else {
-          // Before: {{bind-attr class="some.path:foo ..."}}
-          // After: class="{{if some.path "foo" ""}} ..."
-          return b.sexpr(b.path('if'), [b.path(parts[0]), b.string(parts[1]), b.string('')]);
-        }
-        break;
-      case 3:
-        // Before: {{bind-attr class="some.path:foo:bar ..."}}
-        // After: class="{{if some.path "foo" "bar"}} ..."
-        return b.sexpr(b.path('if'), [b.path(parts[0]), b.string(parts[1]), b.string(parts[2])]);
-      default:
-        _emberMetalCore.default.assert('Unsupported bind-attr class syntax: `' + value + '`');
-    }
-  };
-
-  function isBindAttrModifier(modifier, moduleName) {
-    var name = modifier.path.original;
-
-    var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, modifier.path.loc);
-
-    if (name === 'bind-attr' || name === 'bindAttr') {
-            return true;
-    } else {
-      return false;
-    }
-  }
-
-  function assertAttrNameIsUnused(element, name) {
-    for (var i = 0; i < element.attributes.length; i++) {
-      var attr = element.attributes[i];
-
-      if (attr.name === name) {
-        if (name === 'class') {
-                  } else {
-                  }
-      }
-    }
-  }
-
-  function dasherizeLastKey(path) {
-    var parts = path.split('.');
-    return _emberTemplateCompilerSystemString.dasherize(parts[parts.length - 1]);
-  }
-
-  exports.default = TransformBindAttrToAttributes;
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-
-// Ember.assert
 enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['exports'], function (exports) {
   function TransformComponentAttrsIntoMut() {
     // set later within HTMLBars to the syntax package
@@ -36358,7 +36041,7 @@ enifed('ember-template-compiler/plugins/transform-component-attrs-into-mut', ['e
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  TransformComponentAttrsIntoMut.prototype.transform = function TransformBindAttrToAttributes_transform(ast) {
+  TransformComponentAttrsIntoMut.prototype.transform = function TransformComponentAttrsIntoMut_transform(ast) {
     var b = this.syntax.builders;
     var walker = new this.syntax.Walker();
 
@@ -37194,7 +36877,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.1+e8da5f07',
+        revision: 'Ember@2.0.0-beta.1+c56e7553',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37238,27 +36921,6 @@ enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/cor
 @module ember
 @submodule ember-template-compiler
 */
-enifed('ember-template-compiler/system/string', ['exports'], function (exports) {
-  exports.decamelize = decamelize;
-  exports.dasherize = dasherize;
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-
-  // This module is duplicated from ember-runtime to support bind-attr.
-
-  var STRING_DECAMELIZE_REGEXP = /([a-z\d])([A-Z])/g;
-  var STRING_DASHERIZE_REGEXP = /[ _]/g;
-
-  function decamelize(str) {
-    return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
-  }
-
-  function dasherize(str) {
-    return decamelize(str).replace(STRING_DASHERIZE_REGEXP, '-');
-  }
-});
 enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks) {
 
   /**
@@ -37402,7 +37064,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
       }
 
       var attrsKey = 'attrs.' + key;
-      _emberMetalObserver.addBeforeObserver(this, attrsKey, null, attrsWillChange);
+      _emberMetalObserver._addBeforeObserver(this, attrsKey, null, attrsWillChange);
       _emberMetalObserver.addObserver(this, attrsKey, null, attrsDidChange);
     },
 
@@ -37412,7 +37074,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
       }
 
       var attrsKey = 'attrs.' + key;
-      _emberMetalObserver.removeBeforeObserver(this, attrsKey, null, attrsWillChange);
+      _emberMetalObserver._removeBeforeObserver(this, attrsKey, null, attrsWillChange);
       _emberMetalObserver.removeObserver(this, attrsKey, null, attrsDidChange);
     },
 
@@ -38910,7 +38572,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
 
   var EMPTY_ARRAY = [];
 
-  var ViewChildViewsSupport = _emberMetalMixin.Mixin.create({
+  exports.default = _emberMetalMixin.Mixin.create({
     /**
       Array of child views. You should never edit this array directly.
       Instead, use `appendChild` and `removeFromParent`.
@@ -38991,6 +38653,8 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
 
       var attrs = _attrs || {};
       var view;
+
+      attrs.parentView = this;
       attrs.renderer = this.renderer;
       attrs._viewRegistry = this._viewRegistry;
 
@@ -39022,8 +38686,11 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
 
     linkChild: function (instance) {
       instance.container = this.container;
-      _emberMetalProperty_set.set(instance, 'parentView', this);
-      instance.trigger('parentViewDidChange');
+      if (_emberMetalProperty_get.get(instance, 'parentView') !== this) {
+        // linkChild should be idempotentj
+        _emberMetalProperty_set.set(instance, 'parentView', this);
+        instance.trigger('parentViewDidChange');
+      }
       instance.ownerView = this.ownerView;
     },
 
@@ -39032,8 +38699,6 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
       instance.trigger('parentViewDidChange');
     }
   });
-
-  exports.default = ViewChildViewsSupport;
 });
 /**
 @module ember
@@ -40245,7 +39910,7 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
     The internal class used to create text inputs when the `{{input}}`
     helper is used with `type` of `checkbox`.
   
-    See [handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
   
     ## Direct manipulation of `checked`
   
@@ -40332,7 +39997,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       classNames: ['a-collection'],
       content: ['A','B','C'],
       itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile("the letter: {{view.content}}")
+        template: Ember.HTMLBars.compile("the letter: {{view.content}}")
       })
     });
     ```
@@ -40367,7 +40032,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       tagName: 'ul',
       content: ['A','B','C'],
       itemViewClass: Ember.View.extend({
-        template: Ember.Handlebars.compile("the letter: {{view.content}}")
+        template: Ember.HTMLBars.compile("the letter: {{view.content}}")
       })
     });
     ```
@@ -40427,7 +40092,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       classNames: ['nothing'],
       content: null,
       emptyView: Ember.View.extend({
-        template: Ember.Handlebars.compile("The collection is empty")
+        template: Ember.HTMLBars.compile("The collection is empty")
       })
     });
     ```
@@ -40498,7 +40163,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
        @private
       @method _contentWillChange
     */
-    _contentWillChange: _emberMetalMixin.beforeObserver('content', function () {
+    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
       var content = this.get('content');
 
       if (content) {
@@ -41111,7 +40776,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.1+e8da5f07';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.1+c56e7553';
 
   /**
   @module ember
@@ -41171,10 +40836,10 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       classNames: ['the-container'],
       childViews: ['aView', 'bView'],
       aView: Ember.View.create({
-        template: Ember.Handlebars.compile("A")
+        template: Ember.HTMLBars.compile("A")
       }),
       bView: Ember.View.create({
-        template: Ember.Handlebars.compile("B")
+        template: Ember.HTMLBars.compile("B")
       })
     });
   
@@ -41216,10 +40881,10 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       classNames: ['the-container'],
       childViews: ['aView', 'bView'],
       aView: Ember.View.create({
-        template: Ember.Handlebars.compile("A")
+        template: Ember.HTMLBars.compile("A")
       }),
       bView: Ember.View.create({
-        template: Ember.Handlebars.compile("B")
+        template: Ember.HTMLBars.compile("B")
       })
     });
   
@@ -41239,7 +40904,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
   
     ```javascript
     AnotherViewClass = Ember.View.extend({
-      template: Ember.Handlebars.compile("Another view")
+      template: Ember.HTMLBars.compile("Another view")
     });
   
     aContainer.toArray();  // [aContainer.aView, aContainer.bView]
@@ -41323,7 +40988,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       }
     },
 
-    _currentViewWillChange: _emberMetalMixin.beforeObserver('currentView', function () {
+    _currentViewWillChange: _emberMetalMixin._beforeObserver('currentView', function () {
       var currentView = _emberMetalProperty_get.get(this, 'currentView');
       if (currentView) {
         currentView.destroy();
@@ -41342,7 +41007,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
     replace: function (idx, removedCount) {
       var _this2 = this;
 
-      var addedViews = arguments[2] === undefined ? [] : arguments[2];
+      var addedViews = arguments.length <= 2 || arguments[2] === undefined ? [] : arguments[2];
 
       var addedCount = _emberMetalProperty_get.get(addedViews, 'length');
       var childViews = _emberMetalProperty_get.get(this, 'childViews');
@@ -42122,7 +41787,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
     },
 
     _selectedIndex: function (value) {
-      var defaultIndex = arguments[1] === undefined ? 0 : arguments[1];
+      var defaultIndex = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
       var content = _emberMetalProperty_get.get(this, 'contentValues');
 
@@ -42512,7 +42177,7 @@ enifed('ember-views/views/text_area', ['exports', 'ember-views/views/component',
     The internal class used to create textarea element when the `{{textarea}}`
     helper is used.
   
-    See [handlebars.helpers.textarea](/api/classes/Ember.Handlebars.helpers.html#method_textarea)  for usage details.
+    See [Ember.Templates.helpers.textarea](/api/classes/Ember.Templates.helpers.html#method_textarea)  for usage details.
   
     ## Layout and LayoutName properties
   
@@ -42574,7 +42239,7 @@ enifed('ember-views/views/text_field', ['exports', 'ember-metal/computed', 'embe
     The internal class used to create text inputs when the `{{input}}`
     helper is used with `type` of `text`.
   
-    See [Handlebars.helpers.input](/api/classes/Ember.Handlebars.helpers.html#method_input)  for usage details.
+    See [Ember.Templates.helpers.input](/api/classes/Ember.Templates.helpers.html#method_input)  for usage details.
   
     ## Layout and LayoutName properties
   
@@ -42983,11 +42648,11 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     template. Templates can be any function that accepts an optional context
     parameter and returns a string of HTML that will be inserted within the
     view's tag. Most typically in Ember this function will be a compiled
-    `Ember.Handlebars` template.
+    template.
   
     ```javascript
     AView = Ember.View.extend({
-      template: Ember.Handlebars.compile('I am the template')
+      template: Ember.HTMLBars.compile('I am the template')
     });
     ```
   
@@ -43030,18 +42695,18 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     });
     ```
   
-    Using a value for `templateName` that does not have a Handlebars template
+    Using a value for `templateName` that does not have a template
     with a matching `data-template-name` attribute will throw an error.
   
     For views classes that may have a template later defined (e.g. as the block
-    portion of a `{{view}}` Handlebars helper call in another template or in
+    portion of a `{{view}}` helper call in another template or in
     a subclass), you can provide a `defaultTemplate` property set to compiled
     template function. If a template is not later provided for the view instance
     the `defaultTemplate` value will be used:
   
     ```javascript
     AView = Ember.View.extend({
-      defaultTemplate: Ember.Handlebars.compile('I was the default'),
+      defaultTemplate: Ember.HTMLBars.compile('I was the default'),
       template: null,
       templateName: null
     });
@@ -43058,11 +42723,11 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   
     ```javascript
     AView = Ember.View.extend({
-      defaultTemplate: Ember.Handlebars.compile('I was the default')
+      defaultTemplate: Ember.HTMLBars.compile('I was the default')
     });
   
     aView = AView.create({
-      template: Ember.Handlebars.compile('I was the template, not default')
+      template: Ember.HTMLBars.compile('I was the template, not default')
     });
     ```
   
@@ -43078,7 +42743,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   
     ```javascript
     AView = Ember.View.extend({
-      template: Ember.Handlebars.compile('Hello {{excitedGreeting}}')
+      template: Ember.HTMLBars.compile('Hello {{excitedGreeting}}')
     });
   
     aController = Ember.Object.create({
@@ -43111,20 +42776,19 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     view's tag. Views whose HTML element is self closing (e.g. `<input />`)
     cannot have a layout and this property will be ignored.
   
-    Most typically in Ember a layout will be a compiled `Ember.Handlebars`
-    template.
+    Most typically in Ember a layout will be a compiled template.
   
     A view's layout can be set directly with the `layout` property or reference
-    an existing Handlebars template by name with the `layoutName` property.
+    an existing template by name with the `layoutName` property.
   
-    A template used as a layout must contain a single use of the Handlebars
+    A template used as a layout must contain a single use of the
     `{{yield}}` helper. The HTML contents of a view's rendered `template` will be
     inserted at this location:
   
     ```javascript
     AViewWithLayout = Ember.View.extend({
-      layout: Ember.Handlebars.compile("<div class='my-decorative-class'>{{yield}}</div>"),
-      template: Ember.Handlebars.compile("I got wrapped")
+      layout: Ember.HTMLBars.compile("<div class='my-decorative-class'>{{yield}}</div>"),
+      template: Ember.HTMLBars.compile("I got wrapped")
     });
     ```
   
@@ -43138,7 +42802,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     </div>
     ```
   
-    See [Ember.Handlebars.helpers.yield](/api/classes/Ember.Handlebars.helpers.html#method_yield)
+    See [Ember.Templates.helpers.yield](/api/classes/Ember.Templates.helpers.html#method_yield)
     for more information.
   
     ## Responding to Browser Events
@@ -43212,7 +42876,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     ```javascript
     var App = Ember.Application.create();
     App.OuterView = Ember.View.extend({
-      template: Ember.Handlebars.compile("outer {{#view 'inner'}}inner{{/view}} outer"),
+      template: Ember.HTMLBars.compile("outer {{#view 'inner'}}inner{{/view}} outer"),
       eventManager: Ember.Object.create({
         mouseEnter: function(event, view) {
           // view might be instance of either
@@ -43235,9 +42899,9 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     });
     ```
   
-    ### Handlebars `{{action}}` Helper
+    ### `{{action}}` Helper
   
-    See [Handlebars.helpers.action](/api/classes/Ember.Handlebars.helpers.html#method_action).
+    See [Ember.Templates.helpers.action](/api/classes/Ember.Templates.helpers.html#method_action).
   
     ### Event Names
   
@@ -43290,10 +42954,10 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     * `dragEnd`
     * `drop`
   
-    ## Handlebars `{{view}}` Helper
+    ## `{{view}}` Helper
   
     Other `Ember.View` instances can be included as part of a view's template by
-    using the `{{view}}` Handlebars helper. See [Ember.Handlebars.helpers.view](/api/classes/Ember.Handlebars.helpers.html#method_view)
+    using the `{{view}}` helper. See [Ember.Templates.helpers.view](/api/classes/Ember.Templates.helpers.html#method_view)
     for additional information.
   
     @class View
@@ -44962,7 +44626,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   */
 
   function bindBlock(env, scope, block) {
-    var name = arguments[3] === undefined ? "default" : arguments[3];
+    var name = arguments.length <= 3 || arguments[3] === undefined ? "default" : arguments[3];
 
     scope.blocks[name] = block;
   }

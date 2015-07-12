@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.1+e8da5f07
+ * @version   2.0.0-beta.1+c56e7553
  */
 
 (function() {
@@ -297,15 +297,46 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   
     @method deprecateFunc
     @param {String} message A description of the deprecation.
+    @param {Object} [options] The options object for Ember.deprecate.
     @param {Function} func The new function called to replace its deprecated counterpart.
     @return {Function} a new function that wrapped the original function with a deprecation warning
     @private
   */
-  _emberMetalCore.default.deprecateFunc = function (message, func) {
-    return function () {
-      _emberMetalCore.default.deprecate(message);
-      return func.apply(this, arguments);
-    };
+  _emberMetalCore.default.deprecateFunc = function () {
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    if (args.length === 3) {
+      var _ret = (function () {
+        var message = args[0];
+        var options = args[1];
+        var func = args[2];
+
+        return {
+          v: function () {
+            _emberMetalCore.default.deprecate(message, false, options);
+            return func.apply(this, arguments);
+          }
+        };
+      })();
+
+      if (typeof _ret === 'object') return _ret.v;
+    } else {
+      var _ret2 = (function () {
+        var message = args[0];
+        var func = args[1];
+
+        return {
+          v: function () {
+            _emberMetalCore.default.deprecate(message);
+            return func.apply(this, arguments);
+          }
+        };
+      })();
+
+      if (typeof _ret2 === 'object') return _ret2.v;
+    }
   };
 
   /**
@@ -313,10 +344,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     `Ember.runInDebug()` when doing a production build.
   
     ```javascript
-    Ember.runInDebug(function() {
-      Ember.Handlebars.EachView.reopen({
-        didInsertElement: function() {
-          console.log('I\'m happy');
+    Ember.runInDebug(() => {
+      Ember.Component.reopen({
+        didInsertElement() {
+          console.log("I'm happy");
         }
       });
     });
@@ -704,7 +735,9 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     $el = app.testHelpers.findWithAssert(selector, context);
     focus($el);
     _emberMetalRun_loop.default(function () {
-      $el.val(text).change();
+      $el.val(text);
+      $el.trigger('input');
+      $el.change();
     });
     return app.testHelpers.wait();
   }
