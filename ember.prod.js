@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3f012943
+ * @version   2.0.0-canary+a32ee08f
  */
 
 (function() {
@@ -5891,9 +5891,10 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
 
   &nbsp;
 
-@module ember
-@submodule ember-templates
-@main ember-templates
+  @module ember
+  @submodule ember-templates
+  @main ember-templates
+  @public
 */
 
 /**
@@ -5905,9 +5906,10 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   helpers, please see the [ember-templates](/api/modules/ember-templates.html)
   package.
 
-@module ember
-@submodule ember-htmlbars
-@main ember-htmlbars
+  @module ember
+  @submodule ember-htmlbars
+  @main ember-htmlbars
+  @public
 */
 
 // importing adds template bootstrapping
@@ -7999,6 +8001,54 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
 @submodule ember-htmlbars
 */
 enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], function (exports, _emberMetalMerge) {
+
+  /**
+    The `{{component}}` helper lets you add instances of `Ember.Component` to a
+    template. See [Ember.Component](/api/classes/Ember.Component.html) for
+    additional information on how a `Component` functions.
+    `{{component}}`'s primary use is for cases where you want to dynamically
+    change which type of component is rendered as the state of your application
+    changes. The provided block will be applied as the template for the component.
+    Given an empty `<body>` the following template:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{component infographicComponentName}}
+    ```
+  
+    And the following application code:
+  
+    ```javascript
+    export default Ember.Controller.extend({
+      infographicComponentName: computed('isMarketOpen', {
+        get() {
+          if (this.get('isMarketOpen')) {
+            return 'live-updating-chart';
+          } else {
+            return 'market-close-summary';
+          }
+        }
+      })
+    });
+    ```
+  
+    The `live-updating-chart` component will be appended when `isMarketOpen` is
+    `true`, and the `market-close-summary` component will be appended when
+    `isMarketOpen` is `false`. If the value changes while the app is running,
+    the component will be automatically swapped out accordingly.
+    Note: You should not use this helper when you are consistently rendering the same
+    component. In that case, use standard component syntax, for example:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{live-updating-chart}}
+    ```
+  
+    @method component
+    @since 1.11.0
+    @for Ember.Templates.helpers
+    @public
+  */
   exports.default = {
     setupState: function (lastState, env, scope, params, hash) {
       var componentPath = env.hooks.getValue(params[0]);
@@ -8037,6 +8087,11 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], fu
     env.hooks.component(morph, env, scope, componentPath, params, hash, { default: template, inverse: inverse }, visitor);
   }
 });
+/**
+  @module ember
+  @submodule ember-templates
+  @public
+*/
 enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-metal/core', 'ember-htmlbars/node-managers/view-node-manager', 'ember-views/streams/utils', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberHtmlbarsNodeManagersViewNodeManager, _emberViewsStreamsUtils, _emberMetalStreamsUtils) {
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
@@ -8420,7 +8475,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+3f012943';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a32ee08f';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13905,7 +13960,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+3f012943
+    @version 2.0.0-canary+a32ee08f
     @public
   */
 
@@ -13937,11 +13992,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+3f012943'
+    @default '2.0.0-canary+a32ee08f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+3f012943';
+  Ember.VERSION = '2.0.0-canary+a32ee08f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21978,7 +22033,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+3f012943';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+a32ee08f';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22485,7 +22540,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+3f012943';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a32ee08f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36525,7 +36580,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+3f012943',
+        revision: 'Ember@2.0.0-canary+a32ee08f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40489,7 +40544,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+3f012943';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+a32ee08f';
 
   /**
   @module ember
