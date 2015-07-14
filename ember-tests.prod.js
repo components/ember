@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a32ee08f
+ * @version   2.0.0-canary+9df93dcd
  */
 
 (function() {
@@ -31175,6 +31175,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     deepEqual(obj.get('mapped'), ['A', 'B'], 'properties unshifted in sequence are mapped correctly');
   });
 
+  QUnit.test('it has the correct `this`', function () {
+    obj = _emberRuntimeSystemObject.default.extend({
+      mapped: _emberRuntimeComputedReduce_computed_macros.map('array', function (item) {
+        equal(this, obj, 'should have correct context');
+        return this.upperCase(item);
+      }),
+      upperCase: function (string) {
+        return string.toUpperCase();
+      }
+    }).create({
+      array: ['a', 'b', 'c']
+    });
+
+    deepEqual(obj.get('mapped'), ['A', 'B', 'C'], 'properties unshifted in sequence are mapped correctly');
+  });
+
   QUnit.test('it passes the index to the callback', function () {
     var array = ['a', 'b', 'c'];
 
@@ -31304,6 +31320,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
       filtered: _emberRuntimeComputedReduce_computed_macros.filter('array', function (item, index) {
         return index === 1;
       })
+    }).create({
+      array: ['a', 'b', 'c']
+    });
+
+    deepEqual(_emberMetalProperty_get.get(obj, 'filtered'), ['b'], 'index is passed to callback correctly');
+  });
+
+  QUnit.test('it has the correct `this`', function () {
+    obj = _emberRuntimeSystemObject.default.extend({
+      filtered: _emberRuntimeComputedReduce_computed_macros.filter('array', function (item, index) {
+        equal(this, obj);
+        return this.isOne(index);
+      }),
+      isOne: function (value) {
+        return value === 1;
+      }
     }).create({
       array: ['a', 'b', 'c']
     });
@@ -32011,6 +32043,22 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     teardown: function () {
       _emberMetalCore.default.run(obj, 'destroy');
     }
+  });
+
+  QUnit.test('sort has correct `this`', function () {
+    var obj = _emberRuntimeSystemObject.default.extend({
+      sortedItems: _emberRuntimeComputedReduce_computed_macros.sort('items.@each.fname', function (a, b) {
+        equal(this, obj, 'expected the object to be `this`');
+        return this.sortByLastName(a, b);
+      }),
+      sortByLastName: function (a, b) {
+        return sortByFnameAsc(a, b);
+      }
+    }).create({
+      items: _emberMetalCore.default.A([{ fname: 'Jaime', lname: 'Lannister', age: 34 }, { fname: 'Cersei', lname: 'Lannister', age: 34 }, { fname: 'Robb', lname: 'Stark', age: 16 }, { fname: 'Bran', lname: 'Stark', age: 8 }])
+    });
+
+    obj.get('sortedItems');
   });
 
   QUnit.test('sort (with function) is readOnly', function () {
@@ -43218,7 +43266,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a32ee08f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+9df93dcd', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
