@@ -1493,9 +1493,9 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
   var instanceInitializersFeatureEnabled;
-  if (_emberMetalCore["default"].FEATURES.isEnabled('ember-application-instance-initializers')) {
+  
     instanceInitializersFeatureEnabled = true;
-  }
+  
 
   /**
    A registry used to store factory and option information keyed
@@ -2396,23 +2396,7 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   _emberMetalCore["default"].merge = _emberMetalMerge["default"];
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-metal-stream")) {
-    _emberMetalCore["default"].stream = {
-      Stream: _emberMetalStreamsStream["default"],
-
-      isStream: _emberMetalStreamsUtils.isStream,
-      subscribe: _emberMetalStreamsUtils.subscribe,
-      unsubscribe: _emberMetalStreamsUtils.unsubscribe,
-      read: _emberMetalStreamsUtils.read,
-      readHash: _emberMetalStreamsUtils.readHash,
-      readArray: _emberMetalStreamsUtils.readArray,
-      scanArray: _emberMetalStreamsUtils.scanArray,
-      scanHash: _emberMetalStreamsUtils.scanHash,
-      concat: _emberMetalStreamsUtils.concat,
-      chain: _emberMetalStreamsUtils.chain
-    };
-  }
-
+  
   /**
     A function may be assigned to `Ember.onerror` to be called when Ember
     internals encounter an error. This is useful for specialized error handling
@@ -6925,12 +6909,7 @@ enifed("ember-metal/libraries", ["exports", "ember-metal/core", "ember-metal/enu
     }
   };
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-libraries-isregistered")) {
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-  }
-
+  
   exports["default"] = Libraries;
 });
 enifed("ember-metal/logger", ["exports", "ember-metal/core", "ember-metal/error"], function (exports, _emberMetalCore, _emberMetalError) {
@@ -9306,7 +9285,7 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
     if (desc instanceof Descriptor) {
       value = desc;
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
           _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
             configurable: true,
@@ -9317,17 +9296,14 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
         } else {
           obj[keyName] = value;
         }
-      } else {
-        obj[keyName] = value;
-      }
-      if (desc.setup) {
+            if (desc.setup) {
         desc.setup(obj, keyName);
       }
     } else {
       if (desc == null) {
         value = data;
 
-        if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+        
           if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
             meta.values[keyName] = data;
             _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
@@ -9339,10 +9315,7 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
           } else {
             obj[keyName] = data;
           }
-        } else {
-          obj[keyName] = data;
-        }
-      } else {
+              } else {
         value = desc;
 
         // compatibility with ES5
@@ -9763,16 +9736,13 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     if (desc) {
       return desc.get(obj, keyName);
     } else {
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
           ret = meta.values[keyName];
         } else {
           ret = obj[keyName];
         }
-      } else {
-        ret = obj[keyName];
-      }
-
+      
       if (ret === undefined && "object" === typeof obj && !(keyName in obj) && "function" === typeof obj.unknownProperty) {
         return obj.unknownProperty(keyName);
       }
@@ -9947,20 +9917,17 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
         obj.setUnknownProperty(keyName, value);
       } else if (meta && meta.watching[keyName] > 0) {
         if (meta.proto !== obj) {
-          if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+          
             if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
               currentValue = meta.values[keyName];
             } else {
               currentValue = obj[keyName];
             }
-          } else {
-            currentValue = obj[keyName];
-          }
-        }
+                  }
         // only trigger a change if the value has changed
         if (value !== currentValue) {
           _emberMetalProperty_events.propertyWillChange(obj, keyName);
-          if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+          
             if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
               if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
                 _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
@@ -9970,10 +9937,7 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
             } else {
               obj[keyName] = value;
             }
-          } else {
-            obj[keyName] = value;
-          }
-          _emberMetalProperty_events.propertyDidChange(obj, keyName);
+                    _emberMetalProperty_events.propertyDidChange(obj, keyName);
         }
       } else {
         obj[keyName] = value;
@@ -12050,11 +12014,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+  
     if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
       EMPTY_META.values = {};
     }
-  }
+  
 
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
@@ -12091,11 +12055,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
 
       ret = new Meta(obj);
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           ret.values = {};
         }
-      }
+      
 
       obj.__ember_meta__ = ret;
     } else if (ret.source !== obj) {
@@ -12111,11 +12075,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
       ret.cacheMeta = undefined;
       ret.source = obj;
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           ret.values = _emberMetalPlatformCreate["default"](ret.values);
         }
-      }
+      
 
       obj["__ember_meta__"] = ret;
     }
@@ -12668,17 +12632,17 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         obj.willWatchProperty(keyName);
       }
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           handleMandatorySetter(m, obj, keyName);
         }
-      }
+      
     } else {
       watching[keyName] = (watching[keyName] || 0) + 1;
     }
   }
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+  
     var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
       var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
       var configurable = descriptor ? descriptor.configurable : true;
@@ -12702,7 +12666,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         });
       }
     };
-  }
+  
 
   // This is super annoying, but required until
   // https://github.com/babel/babel/issues/906 is resolved
@@ -12725,7 +12689,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         obj.didUnwatchProperty(keyName);
       }
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (!desc && _emberMetalPlatformDefine_property.hasPropertyAccessors && keyName in obj) {
           _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
             configurable: true,
@@ -12743,7 +12707,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
             get: _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName)
           });
         }
-      }
+      
     } else if (watching[keyName] > 1) {
       watching[keyName]--;
     }
@@ -20404,16 +20368,13 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
               if (typeof this.setUnknownProperty === "function" && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (_emberMetal["default"].FEATURES.isEnabled("mandatory-setter")) {
+                
                   if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
                     _emberMetalProperties.defineProperty(this, keyName, null, value); // setup mandatory setter
                   } else {
                     this[keyName] = value;
                   }
-                } else {
-                  this[keyName] = value;
-                }
-              }
+                              }
             }
           }
         }

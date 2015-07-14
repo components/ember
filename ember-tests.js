@@ -5339,7 +5339,7 @@ enifed("ember-htmlbars/tests/attr_nodes/style_test", ["exports", "ember-metal/co
   });
 
   // jscs:disable validateIndentation
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-htmlbars-attribute-syntax")) {
+  
 
     if (!EmberDev.runningProdBuild) {
       QUnit.test("specifying `<div style={{userValue}}></div>` generates a warning", function () {
@@ -5386,7 +5386,7 @@ enifed("ember-htmlbars/tests/attr_nodes/style_test", ["exports", "ember-metal/co
 
       deepEqual(warnings, []);
     });
-  }
+  
   // jscs:enable validateIndentation
 });
 /* globals EmberDev */
@@ -16733,7 +16733,7 @@ enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember
     }
   });
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-htmlbars-dashless-helpers")) {
+  
     QUnit.test("non-dashed helpers are found", function () {
       expect(1);
 
@@ -16753,7 +16753,7 @@ enifed("ember-htmlbars/tests/integration/helper-lookup-test", ["exports", "ember
 
       equal(component.$().text(), "Robert Jackson");
     });
-  }
+  
 });
 enifed("ember-htmlbars/tests/integration/mutable_binding_test", ["exports", "ember-views/views/view", "container/registry", "ember-template-compiler/system/compile", "ember-views/component_lookup", "ember-views/views/component", "ember-runtime/tests/utils", "ember-metal/run_loop", "ember-metal/computed"], function (exports, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed) {
 
@@ -17995,7 +17995,7 @@ enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "e
     deepEqual(result, {}, "no helpers were known");
   });
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-htmlbars-dashless-helpers")) {
+  
     QUnit.test("includes helpers in the registry", function () {
       registry.register("helper:t", _emberHtmlbarsHelper["default"]);
       var result = _emberHtmlbarsSystemDiscoverKnownHelpers["default"](container);
@@ -18017,17 +18017,7 @@ enifed("ember-htmlbars/tests/system/discover-known-helpers-test", ["exports", "e
 
       deepEqual(helpers, ["t", "f"], "helpers from the registry were known");
     });
-  } else {
-    QUnit.test("returns empty object when disabled", function () {
-      registry.register("helper:t", _emberHtmlbarsHelper["default"]);
-
-      var result = _emberHtmlbarsSystemDiscoverKnownHelpers["default"](container);
-      var helpers = _emberMetalKeys["default"](result);
-
-      deepEqual(helpers, [], "helpers from the registry were known");
-    });
-  }
-});
+  });
 enifed("ember-htmlbars/tests/system/lookup-helper_test", ["exports", "ember-htmlbars/system/lookup-helper", "ember-views/component_lookup", "container/registry", "ember-htmlbars/helper", "ember-htmlbars/compat/helper"], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberHtmlbarsHelper, _emberHtmlbarsCompatHelper) {
 
   function generateEnv(helpers, container) {
@@ -28785,7 +28775,7 @@ enifed("ember-routing-htmlbars/tests/helpers/element_action_test", ["exports", "
     deepEqual(actionOrder, ["whompWhomp", "sloopyDookie", "biggityBoom"], "action name was looked up properly");
   });
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+  
 
     QUnit.test("a quoteless function parameter should be called, including arguments", function () {
       expect(2);
@@ -28812,7 +28802,7 @@ enifed("ember-routing-htmlbars/tests/helpers/element_action_test", ["exports", "
         view.$("a").click();
       });
     });
-  }
+  
 
   QUnit.test("a quoteless parameter that does not resolve to a value asserts", function () {
 
@@ -44930,7 +44920,7 @@ enifed("ember-runtime/tests/system/object/create_test", ["exports", "ember-metal
     equal(o.get("foo"), "bar");
   });
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+  
     QUnit.test("sets up mandatory setters for watched simple properties", function () {
 
       var MyClass = _emberRuntimeSystemObject["default"].extend({
@@ -44955,7 +44945,7 @@ enifed("ember-runtime/tests/system/object/create_test", ["exports", "ember-metal
       descriptor = Object.getOwnPropertyDescriptor(o, "bar");
       ok(!descriptor.set, "Mandatory setter was not setup");
     });
-  }
+  
 
   QUnit.test("allows bindings to be defined", function () {
     var obj = _emberRuntimeSystemObject["default"].create({
@@ -48292,11 +48282,7 @@ enifed("ember-testing/tests/helpers_test", ["exports", "ember-metal/core", "embe
     checkHelperPresent("wait", expected);
     checkHelperPresent("triggerEvent", expected);
 
-    if (_emberMetalCore["default"].FEATURES.isEnabled("ember-testing-checkbox-helpers")) {
-      checkHelperPresent("check", expected);
-      checkHelperPresent("uncheck", expected);
-    }
-  }
+      }
 
   function assertNoHelpers(application, helperContainer) {
     assertHelpers(application, helperContainer, false);
@@ -48809,94 +48795,7 @@ enifed("ember-testing/tests/helpers_test", ["exports", "ember-metal/core", "embe
     });
   });
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-testing-checkbox-helpers")) {
-    QUnit.test("`check` ensures checkboxes are `checked` state for checkboxes", function () {
-      expect(2);
-      var check, find, visit, andThen;
-
-      App.IndexView = _emberViewsViewsView["default"].extend({
-        template: _emberTemplateCompilerSystemCompile["default"]("<input type=\"checkbox\" id=\"unchecked\"><input type=\"checkbox\" id=\"checked\" checked>")
-      });
-
-      _emberMetalRun_loop["default"](App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-
-      visit("/");
-      check("#unchecked");
-      check("#checked");
-      andThen(function () {
-        equal(find("#unchecked").is(":checked"), true, "can check an unchecked checkbox");
-        equal(find("#checked").is(":checked"), true, "can check a checked checkbox");
-      });
-    });
-
-    QUnit.test("`uncheck` ensures checkboxes are not `checked`", function () {
-      expect(2);
-      var uncheck, find, visit, andThen;
-
-      App.IndexView = _emberViewsViewsView["default"].extend({
-        template: _emberTemplateCompilerSystemCompile["default"]("<input type=\"checkbox\" id=\"unchecked\"><input type=\"checkbox\" id=\"checked\" checked>")
-      });
-
-      _emberMetalRun_loop["default"](App, App.advanceReadiness);
-
-      uncheck = App.testHelpers.uncheck;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-
-      visit("/");
-      uncheck("#unchecked");
-      uncheck("#checked");
-      andThen(function () {
-        equal(find("#unchecked").is(":checked"), false, "can uncheck an unchecked checkbox");
-        equal(find("#checked").is(":checked"), false, "can uncheck a checked checkbox");
-      });
-    });
-
-    QUnit.test("`check` asserts the selected inputs are checkboxes", function () {
-      var check, visit;
-
-      App.IndexView = _emberViewsViewsView["default"].extend({
-        template: _emberTemplateCompilerSystemCompile["default"]("<input type=\"text\" id=\"text\">")
-      });
-
-      _emberMetalRun_loop["default"](App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      visit = App.testHelpers.visit;
-
-      visit("/").then(function () {
-        check("#text")["catch"](function (error) {
-          ok(/must be a checkbox/.test(error.message));
-        });
-      });
-    });
-
-    QUnit.test("`uncheck` asserts the selected inputs are checkboxes", function () {
-      var visit, uncheck;
-
-      App.IndexView = _emberViewsViewsView["default"].extend({
-        template: _emberTemplateCompilerSystemCompile["default"]("<input type=\"text\" id=\"text\">")
-      });
-
-      _emberMetalRun_loop["default"](App, App.advanceReadiness);
-
-      visit = App.testHelpers.visit;
-      uncheck = App.testHelpers.uncheck;
-
-      visit("/").then(function () {
-        uncheck("#text")["catch"](function (error) {
-          ok(/must be a checkbox/.test(error.message));
-        });
-      });
-    });
-  }
-
+  
   QUnit.test("`triggerEvent accepts an optional options hash and context", function () {
     expect(3);
 

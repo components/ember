@@ -1493,9 +1493,9 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
 
   var instanceInitializersFeatureEnabled;
-  if (_emberMetalCore["default"].FEATURES.isEnabled('ember-application-instance-initializers')) {
+  
     instanceInitializersFeatureEnabled = true;
-  }
+  
 
   /**
    A registry used to store factory and option information keyed
@@ -3996,21 +3996,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       // decremented by the Application's own `initialize` method.
       this._readinessDeferrals = 1;
 
-      if (_emberMetal["default"].FEATURES.isEnabled('ember-application-visit')) {
-        if (this.autoboot) {
-          // Create subclass of Ember.Router for this Application instance.
-          // This is to ensure that someone reopening `App.Router` does not
-          // tamper with the default `Ember.Router`.
-          // 2.0TODO: Can we move this into a globals-mode-only library?
-          this.Router = (this.Router || _emberRoutingSystemRouter["default"]).extend();
-          this.buildDefaultInstance();
-          this.waitForDOMReady();
-        }
-      } else {
+      
         this.Router = (this.Router || _emberRoutingSystemRouter["default"]).extend();
         this.buildDefaultInstance();
         this.waitForDOMReady();
-      }
+      
     },
 
     /**
@@ -4339,13 +4329,9 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       this._runInitializer('initializers', function (name, initializer) {
         _emberMetal["default"].assert('No application initializer named \'' + name + '\'', !!initializer);
 
-        if (_emberMetal["default"].FEATURES.isEnabled('ember-application-initializer-context')) {
+        
           initializer.initialize(registry, App);
-        } else {
-          var ref = initializer.initialize;
-          ref(registry, App);
-        }
-      });
+              });
     },
 
     runInstanceInitializers: function (instance) {
@@ -4447,7 +4433,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     }
   });
 
-  if (_emberMetal["default"].FEATURES.isEnabled('ember-application-instance-initializers')) {
+  
     Application.reopen({
       instanceInitializer: function (options) {
         this.constructor.instanceInitializer(options);
@@ -4457,43 +4443,9 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     Application.reopenClass({
       instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer')
     });
-  }
+  
 
-  if (_emberMetal["default"].FEATURES.isEnabled('ember-application-visit')) {
-    Application.reopen({
-      /**
-        Creates a new instance of the application and instructs it to route to the
-        specified initial URL. This method returns a promise that will be resolved
-        once rendering is complete. That promise is resolved with the instance.
-         ```js
-        App.visit('/users').then(function(instance) {
-          var view = instance.view;
-          view.appendTo('#qunit-test-fixtures');
-        });
-       ```
-         @method visit
-        @private
-      */
-      visit: function (url) {
-        var instance = this.buildInstance();
-        this.runInstanceInitializers(instance);
-
-        var renderPromise = new _emberMetal["default"].RSVP.Promise(function (res, rej) {
-          instance.didCreateRootView = function (view) {
-            instance.view = view;
-            res(instance);
-          };
-        });
-
-        instance.overrideRouterLocation({ location: 'none' });
-
-        return instance.handleURL(url).then(function () {
-          return renderPromise;
-        });
-      }
-    });
-  }
-
+  
   Application.reopenClass({
     initializers: _emberMetalPlatformCreate["default"](null),
     instanceInitializers: _emberMetalPlatformCreate["default"](null),
@@ -5567,10 +5519,7 @@ enifed("ember-debug", ["exports", "ember-metal/core", "ember-metal/error", "embe
     _emberMetalCore["default"].FEATURES["features-stripped-test"] = true;
     var featuresWereStripped = true;
 
-    if (_emberMetalCore["default"].FEATURES.isEnabled("features-stripped-test")) {
-      featuresWereStripped = false;
-    }
-
+    
     delete _emberMetalCore["default"].FEATURES["features-stripped-test"];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore["default"].ENV.FEATURES, featuresWereStripped);
 
@@ -6280,10 +6229,10 @@ enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compile
     DOMHelper: _emberHtmlbarsSystemDomHelper["default"]
   };
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-htmlbars-helper")) {
+  
     _emberHtmlbarsHelper["default"].helper = _emberHtmlbarsHelper.helper;
     _emberMetalCore["default"].Helper = _emberHtmlbarsHelper["default"];
-  }
+  
 });
 /**
 
@@ -10222,7 +10171,7 @@ enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/
     var registry = container && container._registry;
     var helpers = _emberMetalDictionary["default"](null);
 
-    if (_emberMetalCore["default"].FEATURES.isEnabled('ember-htmlbars-dashless-helpers')) {
+    
       if (!registry) {
         return helpers;
       }
@@ -10236,7 +10185,7 @@ enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/
 
         helpers[_name] = true;
       }
-    }
+    
 
     return helpers;
   }
@@ -12043,23 +11992,7 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   _emberMetalCore["default"].merge = _emberMetalMerge["default"];
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-metal-stream")) {
-    _emberMetalCore["default"].stream = {
-      Stream: _emberMetalStreamsStream["default"],
-
-      isStream: _emberMetalStreamsUtils.isStream,
-      subscribe: _emberMetalStreamsUtils.subscribe,
-      unsubscribe: _emberMetalStreamsUtils.unsubscribe,
-      read: _emberMetalStreamsUtils.read,
-      readHash: _emberMetalStreamsUtils.readHash,
-      readArray: _emberMetalStreamsUtils.readArray,
-      scanArray: _emberMetalStreamsUtils.scanArray,
-      scanHash: _emberMetalStreamsUtils.scanHash,
-      concat: _emberMetalStreamsUtils.concat,
-      chain: _emberMetalStreamsUtils.chain
-    };
-  }
-
+  
   /**
     A function may be assigned to `Ember.onerror` to be called when Ember
     internals encounter an error. This is useful for specialized error handling
@@ -16572,12 +16505,7 @@ enifed("ember-metal/libraries", ["exports", "ember-metal/core", "ember-metal/enu
     }
   };
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-libraries-isregistered")) {
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-  }
-
+  
   exports["default"] = Libraries;
 });
 enifed("ember-metal/logger", ["exports", "ember-metal/core", "ember-metal/error"], function (exports, _emberMetalCore, _emberMetalError) {
@@ -18953,7 +18881,7 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
     if (desc instanceof Descriptor) {
       value = desc;
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
           _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
             configurable: true,
@@ -18964,17 +18892,14 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
         } else {
           obj[keyName] = value;
         }
-      } else {
-        obj[keyName] = value;
-      }
-      if (desc.setup) {
+            if (desc.setup) {
         desc.setup(obj, keyName);
       }
     } else {
       if (desc == null) {
         value = data;
 
-        if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+        
           if (watching && _emberMetalPlatformDefine_property.hasPropertyAccessors) {
             meta.values[keyName] = data;
             _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
@@ -18986,10 +18911,7 @@ enifed("ember-metal/properties", ["exports", "ember-metal/core", "ember-metal/ut
           } else {
             obj[keyName] = data;
           }
-        } else {
-          obj[keyName] = data;
-        }
-      } else {
+              } else {
         value = desc;
 
         // compatibility with ES5
@@ -19410,16 +19332,13 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     if (desc) {
       return desc.get(obj, keyName);
     } else {
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors && meta && meta.watching[keyName] > 0) {
           ret = meta.values[keyName];
         } else {
           ret = obj[keyName];
         }
-      } else {
-        ret = obj[keyName];
-      }
-
+      
       if (ret === undefined && "object" === typeof obj && !(keyName in obj) && "function" === typeof obj.unknownProperty) {
         return obj.unknownProperty(keyName);
       }
@@ -19594,20 +19513,17 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
         obj.setUnknownProperty(keyName, value);
       } else if (meta && meta.watching[keyName] > 0) {
         if (meta.proto !== obj) {
-          if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+          
             if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
               currentValue = meta.values[keyName];
             } else {
               currentValue = obj[keyName];
             }
-          } else {
-            currentValue = obj[keyName];
-          }
-        }
+                  }
         // only trigger a change if the value has changed
         if (value !== currentValue) {
           _emberMetalProperty_events.propertyWillChange(obj, keyName);
-          if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+          
             if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
               if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
                 _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
@@ -19617,10 +19533,7 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
             } else {
               obj[keyName] = value;
             }
-          } else {
-            obj[keyName] = value;
-          }
-          _emberMetalProperty_events.propertyDidChange(obj, keyName);
+                    _emberMetalProperty_events.propertyDidChange(obj, keyName);
         }
       } else {
         obj[keyName] = value;
@@ -21697,11 +21610,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+  
     if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
       EMPTY_META.values = {};
     }
-  }
+  
 
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
@@ -21738,11 +21651,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
 
       ret = new Meta(obj);
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           ret.values = {};
         }
-      }
+      
 
       obj.__ember_meta__ = ret;
     } else if (ret.source !== obj) {
@@ -21758,11 +21671,11 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
       ret.cacheMeta = undefined;
       ret.source = obj;
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           ret.values = _emberMetalPlatformCreate["default"](ret.values);
         }
-      }
+      
 
       obj["__ember_meta__"] = ret;
     }
@@ -22315,17 +22228,17 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         obj.willWatchProperty(keyName);
       }
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
           handleMandatorySetter(m, obj, keyName);
         }
-      }
+      
     } else {
       watching[keyName] = (watching[keyName] || 0) + 1;
     }
   }
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+  
     var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
       var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
       var configurable = descriptor ? descriptor.configurable : true;
@@ -22349,7 +22262,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         });
       }
     };
-  }
+  
 
   // This is super annoying, but required until
   // https://github.com/babel/babel/issues/906 is resolved
@@ -22372,7 +22285,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
         obj.didUnwatchProperty(keyName);
       }
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("mandatory-setter")) {
+      
         if (!desc && _emberMetalPlatformDefine_property.hasPropertyAccessors && keyName in obj) {
           _emberMetalPlatformDefine_property.defineProperty(obj, keyName, {
             configurable: true,
@@ -22390,7 +22303,7 @@ enifed("ember-metal/watch_key", ["exports", "ember-metal/core", "ember-metal/uti
             get: _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName)
           });
         }
-      }
+      
     } else if (watching[keyName] > 1) {
       watching[keyName]--;
     }
@@ -22961,12 +22874,9 @@ enifed("ember-routing-htmlbars/keywords/element-action", ["exports", "ember-meta
 
       var actionName = read(params[0]);
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+      
         assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string" || typeof actionName === "function");
-      } else {
-        assert("You specified a quoteless path to the {{action}} helper " + "which did not resolve to an action name (a string). " + "Perhaps you meant to use a quoted actionName? (e.g. {{action 'save'}}).", typeof actionName === "string");
-      }
-
+      
       var actionArgs = [];
       for (var i = 1, l = params.length; i < l; i++) {
         actionArgs.push(_emberViewsStreamsUtils.readUnwrappedModel(params[i]));
@@ -23052,12 +22962,12 @@ enifed("ember-routing-htmlbars/keywords/element-action", ["exports", "ember-meta
         var actionArgs = _node$state.actionArgs;
 
         _emberMetalRun_loop["default"](function runRegisteredAction() {
-          if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-htmlbars-improved-actions")) {
+          
             if (typeof actionName === "function") {
               actionName.apply(target, actionArgs);
               return;
             }
-          }
+          
           if (target.send) {
             target.send.apply(target, [actionName].concat(actionArgs));
           } else {
@@ -23641,10 +23551,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
   _emberMetalCore["default"].LinkView = _emberRoutingViewsViewsLink.DeprecatedLinkView;
   _emberMetalCore["default"].LinkComponent = _emberRoutingViewsViewsLink["default"];
   _emberMetalCore["default"].OutletView = _emberRoutingViewsViewsOutlet.OutletView;
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-core-outlet")) {
-    _emberMetalCore["default"].CoreOutletView = _emberRoutingViewsViewsOutlet.CoreOutletView;
-  }
-
+  
   exports["default"] = _emberMetalCore["default"];
 });
 /**
@@ -23655,9 +23562,9 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
   _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.4";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-transitioning-classes")) {
+  
     linkComponentClassNameBindings = ["active", "loading", "disabled", "transitioningIn", "transitioningOut"];
-  }
+  
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -25860,12 +25767,12 @@ enifed("ember-routing/system/dsl", ["exports", "ember-metal/core", "ember-metal/
         return _emberMetalArray.indexOf.call(["array", "basic", "object", "application"], name) === -1;
       })());
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-named-substates")) {
+      
         if (this.enableLoadingSubstates) {
           createRoute(this, name + "_loading", { resetNamespace: options.resetNamespace });
           createRoute(this, name + "_error", { path: dummyErrorRoute });
         }
-      }
+      
 
       if (callback) {
         var fullName = getFullName(this, name, options.resetNamespace);
@@ -28404,11 +28311,11 @@ enifed("ember-routing/system/router", ["exports", "ember-metal/core", "ember-met
         emberRouter.didTransition(infos);
       };
 
-      if (_emberMetalCore["default"].FEATURES.isEnabled("ember-router-willtransition")) {
+      
         router.willTransition = function (oldInfos, newInfos, transition) {
           emberRouter.willTransition(oldInfos, newInfos, transition);
         };
-      }
+      
     },
 
     _serializeQueryParams: function (targetRouteName, queryParams) {
@@ -28719,13 +28626,13 @@ enifed("ember-routing/system/router", ["exports", "ember-metal/core", "ember-met
     var targetChildRouteName = originatingChildRoute.routeName.split(".").pop();
     var namespace = parentRoute.routeName === "application" ? "" : parentRoute.routeName + ".";
 
-    if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-named-substates")) {
+    
       // First, try a named loading state, e.g. 'foo_loading'
       childName = namespace + targetChildRouteName + "_" + name;
       if (routeHasBeenDefined(router, childName)) {
         return childName;
       }
-    }
+    
 
     // Second, try general loading state, e.g. 'loading'
     childName = namespace + name;
@@ -36624,16 +36531,13 @@ enifed("ember-runtime/system/core_object", ["exports", "ember-metal", "ember-met
               if (typeof this.setUnknownProperty === "function" && !(keyName in this)) {
                 this.setUnknownProperty(keyName, value);
               } else {
-                if (_emberMetal["default"].FEATURES.isEnabled("mandatory-setter")) {
+                
                   if (_emberMetalPlatformDefine_property.hasPropertyAccessors) {
                     _emberMetalProperties.defineProperty(this, keyName, null, value); // setup mandatory setter
                   } else {
                     this[keyName] = value;
                   }
-                } else {
-                  this[keyName] = value;
-                }
-              }
+                              }
             }
           }
         }
@@ -40889,10 +40793,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
   exports["default"] = function (_options) {
     var disableComponentGeneration = true;
-    if (_emberMetalCore["default"].FEATURES.isEnabled("ember-htmlbars-component-generation")) {
-      disableComponentGeneration = false;
-    }
-
+    
     var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
     // had a special meaning (long since lost), this just gaurds against
@@ -41380,40 +41281,7 @@ enifed("ember-testing/helpers", ["exports", "ember-metal/core", "ember-metal/pro
   */
   asyncHelper("click", click);
 
-  if (_emberMetalCore["default"].FEATURES.isEnabled("ember-testing-checkbox-helpers")) {
     /**
-      Checks a checkbox. Ensures the presence of the `checked` attribute
-       Example:
-       ```javascript
-      check('#remember-me').then(function() {
-        // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to check
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper("check", check);
-
-    /**
-      Unchecks a checkbox. Ensures the absence of the `checked` attribute
-       Example:
-       ```javascript
-      uncheck('#remember-me').then(function() {
-       // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to uncheck
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper("uncheck", uncheck);
-  }
-  /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   
     Example:
