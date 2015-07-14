@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.3+4a55440a
+ * @version   1.13.3+cf5d845a
  */
 
 (function() {
@@ -6289,9 +6289,10 @@ enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compile
 
   &nbsp;
 
-@module ember
-@submodule ember-templates
-@main ember-templates
+  @module ember
+  @submodule ember-templates
+  @main ember-templates
+  @public
 */
 
 /**
@@ -6303,9 +6304,10 @@ enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compile
   helpers, please see the [ember-templates](/api/modules/ember-templates.html)
   package.
 
-@module ember
-@submodule ember-htmlbars
-@main ember-htmlbars
+  @module ember
+  @submodule ember-htmlbars
+  @main ember-htmlbars
+  @public
 */
 
 // importing adds template bootstrapping
@@ -8458,7 +8460,55 @@ enifed("ember-htmlbars/keywords/collection", ["exports", "ember-views/streams/ut
 @module ember
 @submodule ember-htmlbars
 */
-enifed("ember-htmlbars/keywords/component", ["exports", "ember-metal/merge"], function (exports, _emberMetalMerge) {
+enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], function (exports, _emberMetalMerge) {
+
+  /**
+    The `{{component}}` helper lets you add instances of `Ember.Component` to a
+    template. See [Ember.Component](/api/classes/Ember.Component.html) for
+    additional information on how a `Component` functions.
+    `{{component}}`'s primary use is for cases where you want to dynamically
+    change which type of component is rendered as the state of your application
+    changes. The provided block will be applied as the template for the component.
+    Given an empty `<body>` the following template:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{component infographicComponentName}}
+    ```
+  
+    And the following application code:
+  
+    ```javascript
+    export default Ember.Controller.extend({
+      infographicComponentName: computed('isMarketOpen', {
+        get() {
+          if (this.get('isMarketOpen')) {
+            return 'live-updating-chart';
+          } else {
+            return 'market-close-summary';
+          }
+        }
+      })
+    });
+    ```
+  
+    The `live-updating-chart` component will be appended when `isMarketOpen` is
+    `true`, and the `market-close-summary` component will be appended when
+    `isMarketOpen` is `false`. If the value changes while the app is running,
+    the component will be automatically swapped out accordingly.
+    Note: You should not use this helper when you are consistently rendering the same
+    component. In that case, use standard component syntax, for example:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{live-updating-chart}}
+    ```
+  
+    @method component
+    @since 1.11.0
+    @for Ember.Templates.helpers
+    @public
+  */
   exports["default"] = {
     setupState: function (lastState, env, scope, params, hash) {
       var componentPath = env.hooks.getValue(params[0]);
@@ -8497,6 +8547,11 @@ enifed("ember-htmlbars/keywords/component", ["exports", "ember-metal/merge"], fu
     env.hooks.component(morph, env, scope, componentPath, params, hash, { "default": template, inverse: inverse }, visitor);
   }
 });
+/**
+  @module ember
+  @submodule ember-templates
+  @public
+*/
 enifed("ember-htmlbars/keywords/customized_outlet", ["exports", "ember-htmlbars/node-managers/view-node-manager", "ember-views/streams/utils", "ember-metal/streams/utils"], function (exports, _emberHtmlbarsNodeManagersViewNodeManager, _emberViewsStreamsUtils, _emberMetalStreamsUtils) {
   exports["default"] = {
     setupState: function (state, env, scope, params, hash) {
@@ -8819,7 +8874,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.3+4a55440a";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.3+cf5d845a";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -14633,7 +14688,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.3+4a55440a
+    @version 1.13.3+cf5d845a
     @public
   */
 
@@ -14665,11 +14720,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.3+4a55440a'
+    @default '1.13.3+cf5d845a'
     @static
     @public
   */
-  Ember.VERSION = '1.13.3+4a55440a';
+  Ember.VERSION = '1.13.3+cf5d845a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22554,59 +22609,150 @@ enifed("ember-routing-htmlbars/helpers/query-params", ["exports", "ember-metal/c
 enifed("ember-routing-htmlbars/keywords/action", ["exports", "htmlbars-runtime/hooks", "ember-routing-htmlbars/keywords/closure-action"], function (exports, _htmlbarsRuntimeHooks, _emberRoutingHtmlbarsKeywordsClosureAction) {
 
   /**
-    The `{{action}}` helper provides a useful shortcut for registering an HTML
-    element within a template for a single DOM event and forwarding that
-    interaction to the template's controller or specified `target` option.
+    The `{{action}}` helper provides a way to pass triggers for behavior (usually
+    just a function) between components, and into components from controllers.
   
-    If the controller does not implement the specified action, the event is sent
-    to the current route, and it bubbles up the route hierarchy from there.
+    ### Passing functions with the action helper
   
-    For more advanced event handling see [Ember.Component](/api/classes/Ember.Component.html)
-  
-  
-    ### Use
-    Given the following application Handlebars template on the page
+    There are three contexts an action helper can be used in. The first two
+    contexts to discuss are attribute context, and Handlebars value context.
   
     ```handlebars
-    <div {{action 'anActionName'}}>
-      click me
-    </div>
+    {{! An example of attribute context }}
+    <div onclick={{action "save"}}></div>
+    {{! Examples of Handlebars value context }}
+    {{input on-input=(action "save")}}
+    {{yield (action "refreshData") andAnotherParam}}
     ```
   
-    And application code
+    In these contexts,
+    the helper is called a "closure action" helper. It's behavior is simple:
+    If passed a function name, read that function off the `actions` property
+    of the current context. Once that function is read (or if a function was
+    passed), create a closure over that function and any arguments.
   
-    ```javascript
-    App.ApplicationController = Ember.Controller.extend({
+    The resulting value of an action helper used this way is simply a function.
+    For example with this attribute context example:
+  
+    ```handlebars
+    {{! An example of attribute context }}
+    <div onclick={{action "save"}}></div>
+    ```
+  
+    The resulting template render logic would be:
+  
+    ```js
+    var div = document.createElement('div');
+    var actionFunction = (function(context){
+      return function() {
+        return context.actions.save.apply(context, arguments);
+      };
+    })(context);
+    div.onclick = actionFunction;
+    ```
+  
+    Thus when the div is clicked, the action on that context is called.
+    Because the `actionFunction` is just a function, closure actions can be
+    passed between components the still execute in the correct context.
+  
+    Here is an example action handler on a component:
+  
+    ```js
+    export default Ember.Component.extend({
       actions: {
-        anActionName: function() {
+        save(/* event *\/) {
+          this.get('model').save();
         }
       }
     });
     ```
   
-    Will result in the following rendered HTML
+    Actions are always looked up on the `actions` property of the current context.
+    This avoids collisions in the naming of common actions, such as `destroy`.
   
-    ```html
-    <div class="ember-view">
-      <div data-ember-action="1">
-        click me
-      </div>
-    </div>
+    Two options can be passed to the `action` helper when it is used in this way.
+  
+    * `target=someProperty` will look to `someProperty` instead of the current
+      context for the `actions` hash. This can be useful when targetting a
+      service for actions.
+    * `value="target.value"` will read the path `target.value` off the first
+      argument to the action when it is called and rewrite the first argument
+      to be that value. This is useful when attaching actions to event listeners.
+  
+    ### Invoking an action
+  
+    Closure actions curry both their scope and any arguments. When invoked, any
+    additional arguments are added to the already curried list.
+  
+    Actions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)
+    method. The first argument to `sendAction` is the action to be called, and
+    additional arguments are passed to the action function. This has interesting
+    properties combined with currying of arguments. For example:
+  
+    ```js
+    export default Ember.Component.extend({
+      actions: {
+        // Usage {{input on-input=(action (action 'setName' model) value="target.value")}}
+        setName(model, name) {
+          model.set('name', name);
+        }
+      }
+    });
     ```
   
-    Clicking "click me" will trigger the `anActionName` action of the
-    `App.ApplicationController`. In this case, no additional parameters will be passed.
+    The first argument (`model`) was curried over, and the run-time argument (`event`)
+    becomes a second argument. Action calls be nested this way because each simply
+    returns a function. Any function can be passed to the `{{action` helper, including
+    other actions.
   
-    If you provide additional parameters to the helper:
+    Actions invoked with `sendAction` have the same currying behavior as demonstrated
+    with `on-input` above. For example:
+  
+    ```js
+    export default Ember.Component.extend({
+      actions: {
+        setName(model, name) {
+          model.set('name', name);
+        }
+      }
+    });
+    ```
   
     ```handlebars
-    <button {{action 'edit' post}}>Edit</button>
+    {{my-input submit=(action 'setName' model)}}
     ```
   
-    Those parameters will be passed along as arguments to the JavaScript
-    function implementing the action.
+    ```js
+    // app/components/my-component.js
+    export default Ember.Component.extend({
+      click() {
+        // Note that model is not passed, it was curried in the template
+        this.sendAction('submit', 'bob');
+      }
+    });
+    ```
+  
+    ### Attaching actions to DOM
+  
+    The third context the `{{action` helper can be used in we call "element space".
+    For example:
+  
+    ```handlebars
+    {{! An example of element space }}
+    <div {{action "save"}}></div>
+    ```
+  
+    Used this way, the `{{action}}` helper provides a useful shortcut for
+    registering an HTML element within a template for a single DOM event and
+    forwarding that interaction to the template's context (controller or component).
+  
+    If the context of a template is a controller, actions used this way will
+    bubble to routes when the controller does not implement the specified action.
+    Once an action hits a route, it will bubble through the route hierarchy.
   
     ### Event Propagation
+  
+    `{{action` helpers called in element space can control event bubbling.
   
     Events triggered through the action helper will automatically have
     `.preventDefault()` called on them. You do not need to do so in your event
@@ -22632,6 +22778,8 @@ enifed("ember-routing-htmlbars/keywords/action", ["exports", "htmlbars-runtime/h
   
     ### Specifying DOM event type
   
+    `{{action` helpers called in element space can specify an event type.
+  
     By default the `{{action}}` helper registers for DOM `click` events. You can
     supply an `on` option to the helper to specify a different DOM event name:
   
@@ -22641,10 +22789,12 @@ enifed("ember-routing-htmlbars/keywords/action", ["exports", "htmlbars-runtime/h
     </div>
     ```
   
-    See `Ember.View` 'Responding to Browser Events' for a list of
+    See [Event Names](/api/classes/Ember.View.html#toc_event-names) for a list of
     acceptable DOM event names.
   
     ### Specifying whitelisted modifier keys
+  
+    `{{action` helpers called in element space can specify modifier keys.
   
     By default the `{{action}}` helper will ignore click event with pressed modifier
     keys. You can supply an `allowedKeys` option to specify which keys should not be ignored.
@@ -22667,48 +22817,23 @@ enifed("ember-routing-htmlbars/keywords/action", ["exports", "htmlbars-runtime/h
   
     ### Specifying a Target
   
-    There are several possible target objects for `{{action}}` helpers:
-  
-    In a typical Ember application, where templates are managed through use of the
-    `{{outlet}}` helper, actions will bubble to the current controller, then
-    to the current route, and then up the route hierarchy.
-  
-    Alternatively, a `target` option can be provided to the helper to change
+    A `target` option can be provided to the helper to change
     which object will receive the method call. This option must be a path
     to an object, accessible in the current context:
   
     ```handlebars
-    {{! the application template }}
-    <div {{action "anActionName" target=view}}>
+    {{! app/templates/application.hbs }}
+    <div {{action "anActionName" target=someService}}>
       click me
     </div>
     ```
   
     ```javascript
-    App.ApplicationView = Ember.View.extend({
-      actions: {
-        anActionName: function() {}
-      }
+    // app/controllers/application.js
+    export default Ember.Controller.extend({
+      someService: Ember.inject.service()
     });
-  
     ```
-  
-    ### Additional Parameters
-  
-    You may specify additional parameters to the `{{action}}` helper. These
-    parameters are passed along as the arguments to the JavaScript function
-    implementing the action.
-  
-    ```handlebars
-    {{#each people as |person|}}
-      <div {{action "edit" person}}>
-        click me
-      </div>
-    {{/each}}
-    ```
-  
-    Clicking "click me" will trigger the `edit` method on the current controller
-    with the value of `person` as a parameter.
   
     @method action
     @for Ember.Templates.helpers
@@ -23527,7 +23652,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.3+4a55440a";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.3+cf5d845a";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   if (_emberMetalCore["default"].FEATURES.isEnabled("ember-routing-transitioning-classes")) {
@@ -24058,7 +24183,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.3+4a55440a";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.3+cf5d845a";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -40791,7 +40916,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.3+4a55440a",
+        revision: "Ember@1.13.3+cf5d845a",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45784,14 +45909,14 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
     }),
 
     /**
-      Triggers a named action on the controller context where the component is used if
-      this controller has registered for notifications of the action.
+      Calls a action passed to a component.
        For example a component for playing or pausing music may translate click events
       into action notifications of "play" or "stop" depending on some internal state
       of the component:
-        ```javascript
-      App.PlayButtonComponent = Ember.Component.extend({
-        click: function() {
+       ```javascript
+      // app/components/play-button.js
+      export default Ember.Component.extend({
+        click() {
           if (this.get('isPlaying')) {
             this.sendAction('play');
           } else {
@@ -45800,55 +45925,56 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
         }
       });
       ```
-       When used inside a template these component actions are configured to
-      trigger actions in the outer application context:
+       The actions "play" and "stop" must be passed to this `play-button` component:
        ```handlebars
-      {{! application.hbs }}
-      {{play-button play="musicStarted" stop="musicStopped"}}
+      {{! app/templates/application.hbs }}
+      {{play-button play=(action "musicStarted") stop=(action "musicStopped")}}
       ```
        When the component receives a browser `click` event it translate this
       interaction into application-specific semantics ("play" or "stop") and
-      triggers the specified action name on the controller for the template
-      where the component is used:
-        ```javascript
-      App.ApplicationController = Ember.Controller.extend({
+      calls the specified action.
+       ```javascript
+      // app/controller/application.js
+      export default Ember.Controller.extend({
         actions: {
-          musicStarted: function() {
+          musicStarted() {
             // called when the play button is clicked
             // and the music started playing
           },
-          musicStopped: function() {
+          musicStopped() {
             // called when the play button is clicked
             // and the music stopped playing
           }
         }
       });
       ```
-       If no action name is passed to `sendAction` a default name of "action"
+       If no action is passed to `sendAction` a default name of "action"
       is assumed.
        ```javascript
-      App.NextButtonComponent = Ember.Component.extend({
-        click: function() {
+      // app/components/next-button.js
+      export default Ember.Component.extend({
+        click() {
           this.sendAction();
         }
       });
       ```
        ```handlebars
-      {{! application.hbs }}
-      {{next-button action="playNextSongInAlbum"}}
+      {{! app/templates/application.hbs }}
+      {{next-button action=(action "playNextSongInAlbum")}}
       ```
        ```javascript
+      // app/controllers/application.js
       App.ApplicationController = Ember.Controller.extend({
         actions: {
-          playNextSongInAlbum: function() {
+          playNextSongInAlbum() {
             ...
           }
         }
       });
       ```
        @method sendAction
-      @param [action] {String} the action to trigger
-      @param [context] {*} a context to send with the action
+      @param [action] {String} the action to call
+      @param [params] {*} arguments for the action
       @public
     */
     sendAction: function (action) {
@@ -45974,7 +46100,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.3+4a55440a";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.3+cf5d845a";
 
   /**
   @module ember
