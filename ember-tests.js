@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.3+cf5d845a
+ * @version   1.13.3+737d2d76
  */
 
 (function() {
@@ -47620,7 +47620,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.3+cf5d845a", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.3+737d2d76", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -60309,6 +60309,29 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/com
     equal(Ember.$("#the-link").attr("href"), "/about?norf=NAW&quux=456", "link has right href");
   });
 
+  QUnit.test("Block-less {{link-to}} with only query-params updates when route changes", function () {
+    Router.map(function () {
+      this.route("about");
+    });
+
+    
+      App.ApplicationController = Ember.Controller.extend({
+        queryParams: ["quux", "norf"],
+        quux: "123",
+        norf: "yes"
+      });
+    
+
+    Ember.TEMPLATES.application = compile("{{link-to \"Index\" (query-params quux='456' norf='NAW') id='the-link'}}");
+    bootApplication();
+    equal(Ember.$("#the-link").attr("href"), "/?norf=NAW&quux=456", "link has right href");
+
+    Ember.run(function () {
+      router.handleURL("/about");
+    });
+    equal(Ember.$("#the-link").attr("href"), "/about?norf=NAW&quux=456", "link has right href");
+  });
+
   function basicEagerURLUpdateTest(setTagName) {
     expect(6);
 
@@ -60453,29 +60476,6 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/com
       equal(router.get("location.path"), "", "url was not updated");
     });
   }
-
-  QUnit.test("Block-less {{link-to}} with only query-params updates when route changes", function () {
-    Router.map(function () {
-      this.route("about");
-    });
-
-    
-      App.ApplicationController = Ember.Controller.extend({
-        queryParams: ["foo", "bar"],
-        foo: "123",
-        bar: "yes"
-      });
-    
-
-    Ember.TEMPLATES.application = compile("{{link-to \"Index\" (query-params foo='456' bar='NAW') id='the-link'}}");
-    bootApplication();
-    equal(Ember.$("#the-link").attr("href"), "/?bar=NAW&foo=456", "link has right href");
-
-    Ember.run(function () {
-      router.handleURL("/about");
-    });
-    equal(Ember.$("#the-link").attr("href"), "/about?bar=NAW&foo=456", "link has right href");
-  });
 
   
 
