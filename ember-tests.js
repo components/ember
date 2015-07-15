@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c2196e21
+ * @version   2.0.0-canary+5d18fcf4
  */
 
 (function() {
@@ -43428,7 +43428,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+c2196e21', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+5d18fcf4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -47084,32 +47084,6 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
       container: registry.container(),
 
       emptyView: 'custom-empty'
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.append();
-    });
-
-    ok(view.$().find('kbd:contains("THIS IS AN EMPTY VIEW")').length, 'displays empty view');
-  });
-
-  QUnit.test('should render the emptyView if content array is empty and emptyView is given as global string [DEPRECATED]', function () {
-    expectDeprecation(/Resolved the view "App.EmptyView" on the global context/);
-
-    _emberMetalCore.default.lookup = {
-      App: {
-        EmptyView: _emberViewsViewsView.default.extend({
-          tagName: 'kbd',
-          template: _emberTemplateCompilerSystemCompile.default('THIS IS AN EMPTY VIEW')
-        })
-      }
-    };
-
-    view = _emberViewsViewsCollection_view.default.create({
-      tagName: 'del',
-      content: _emberMetalCore.default.A(),
-
-      emptyView: 'App.EmptyView'
     });
 
     _emberMetalRun_loop.default(function () {
