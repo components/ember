@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5d18fcf4
+ * @version   2.0.0-canary+6413ad8a
  */
 
 (function() {
@@ -18466,27 +18466,10 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
           nar: 'foo'
         }
       };
-
-      window.Foo = {
-        bar: {
-          baz: { biff: 'FooBiff' }
-        }
-      };
-
-      window.aProp = 'aPropy';
-
-      window.$foo = {
-        bar: {
-          baz: { biff: '$FOOBIFF' }
-        }
-      };
     },
 
     teardown: function () {
       obj = undefined;
-      window.Foo = undefined;
-      window.aProp = undefined;
-      window.$foo = undefined;
     }
   };
 
@@ -18506,18 +18489,6 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
 
   QUnit.test('[obj, foothis.bar] -> obj.foothis.bar', function () {
     deepEqual(_emberMetalProperty_get.get(obj, 'foothis.bar'), obj.foothis.bar);
-  });
-
-  QUnit.test('[obj, this.foo] -> obj.foo', function () {
-    deepEqual(_emberMetalProperty_get.get(obj, 'this.foo'), obj.foo);
-  });
-
-  QUnit.test('[obj, this.foo.bar] -> obj.foo.bar', function () {
-    deepEqual(_emberMetalProperty_get.get(obj, 'this.foo.bar'), obj.foo.bar);
-  });
-
-  QUnit.test('[obj, this.Foo.bar] -> (undefined)', function () {
-    equal(_emberMetalProperty_get.get(obj, 'this.Foo.bar'), undefined);
   });
 
   QUnit.test('[obj, falseValue.notDefined] -> (undefined)', function () {
@@ -18547,44 +18518,7 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   QUnit.test('[obj, Foo.bar] -> (undefined)', function () {
     equal(_emberMetalProperty_get.get(obj, 'Foo.bar'), undefined);
   });
-
-  // ..........................................................
-  // NULL TARGET
-  //
-
-  QUnit.test('[null, Foo] -> Foo', function () {
-    equal(_emberMetalProperty_get.get(null, 'Foo'), Foo);
-  });
-
-  QUnit.test('[null, Foo.bar] -> Foo.bar', function () {
-    deepEqual(_emberMetalProperty_get.get(null, 'Foo.bar'), Foo.bar);
-  });
-
-  QUnit.test('[null, $foo] -> $foo', function () {
-    equal(_emberMetalProperty_get.get(null, '$foo'), window.$foo);
-  });
-
-  QUnit.test('[null, aProp] -> null', function () {
-    equal(_emberMetalProperty_get.get(null, 'aProp'), null);
-  });
-
-  // ..........................................................
-  // NO TARGET
-  //
-
-  QUnit.test('[Foo] -> Foo', function () {
-    deepEqual(_emberMetalProperty_get.get('Foo'), Foo);
-  });
-
-  QUnit.test('[aProp] -> aProp', function () {
-    deepEqual(_emberMetalProperty_get.get('aProp'), window.aProp);
-  });
-
-  QUnit.test('[Foo.bar] -> Foo.bar', function () {
-    deepEqual(_emberMetalProperty_get.get('Foo.bar'), Foo.bar);
-  });
 });
-/*globals Foo:true $foo:true */
 enifed('ember-metal/tests/accessors/get_properties_test', ['exports', 'ember-metal/get_properties'], function (exports, _emberMetalGet_properties) {
 
   QUnit.module('Ember.getProperties');
@@ -18691,6 +18625,24 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     equal(get(obj, 'foo'), 'FOO', 'should return value from unknown');
   });
 
+  QUnit.test('warn on attemps to call get with no arguments', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_get.get('aProperty');
+    }, /Get must be called with two arguments;/i);
+  });
+
+  QUnit.test('warn on attemps to call get with only one argument', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_get.get('aProperty');
+    }, /Get must be called with two arguments;/i);
+  });
+
+  QUnit.test('warn on attemps to call get with more then two arguments', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_get.get({}, 'aProperty', true);
+    }, /Get must be called with two arguments;/i);
+  });
+
   QUnit.test('warn on attempts to get a property of undefined', function () {
     expectAssertion(function () {
       _emberMetalProperty_get.get(undefined, 'aProperty');
@@ -18703,28 +18655,35 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
   });
 
-  QUnit.test('returns null when fetching a complex local path on a null context', function () {
-    equal(_emberMetalProperty_get.get(null, 'aProperty.on.aPath'), null);
+  QUnit.test('warn on attempts to get a property of null', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_get.get(null, 'aProperty');
+    }, /Cannot call get with 'aProperty' on an undefined object/);
   });
 
-  QUnit.test('returns null when fetching a simple local path on a null context', function () {
-    equal(_emberMetalProperty_get.get(null, 'aProperty'), null);
+  QUnit.test('warn on attempts to get a property path of null', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_get.get(null, 'aProperty.on.aPath');
+    }, /Cannot call get with 'aProperty.on.aPath' on an undefined object/);
   });
 
-  QUnit.test('warn on attempts to get a falsy property', function () {
+  QUnit.test('warn on attempts to use get with an unsupported property path', function () {
     var obj = {};
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, null);
-    }, /Cannot call get with null key/);
+    }, /The key provided to get must be a string, you passed null/);
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, NaN);
-    }, /Cannot call get with NaN key/);
+    }, /The key provided to get must be a string, you passed NaN/);
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, undefined);
-    }, /Cannot call get with undefined key/);
+    }, /The key provided to get must be a string, you passed undefined/);
     expectAssertion(function () {
       _emberMetalProperty_get.get(obj, false);
-    }, /Cannot call get with false key/);
+    }, /The key provided to get must be a string, you passed false/);
+    expectAssertion(function () {
+      _emberMetalProperty_get.get(obj, 42);
+    }, /The key provided to get must be a string, you passed 42/);
   });
 
   // ..........................................................
@@ -19708,8 +19667,7 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
 });
 enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalObserver) {
 
-  var originalLookup = _emberMetalCore.default.lookup;
-  var obj, count, Global, lookup;
+  var obj, count;
 
   QUnit.module('computed');
 
@@ -20136,9 +20094,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   var func;
   var moduleOpts = {
     setup: function () {
-      originalLookup = _emberMetalCore.default.lookup;
-      lookup = _emberMetalCore.default.lookup = {};
-
       obj = {
         foo: {
           bar: {
@@ -20149,18 +20104,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
         }
       };
 
-      Global = {
-        foo: {
-          bar: {
-            baz: {
-              biff: 'BIFF'
-            }
-          }
-        }
-      };
-
-      lookup['Global'] = Global;
-
       count = 0;
       func = function () {
         count++;
@@ -20169,8 +20112,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     },
 
     teardown: function () {
-      obj = count = func = Global = null;
-      _emberMetalCore.default.lookup = originalLookup;
+      obj = count = func = null;
     }
   };
 
@@ -20215,52 +20157,6 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(get(obj, 'prop'), 'NONE');
 
     set(obj, 'foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(get(obj, 'prop'), 'NONE'); // should do nothing
-    equal(count, 8, 'should be not have invoked computed again');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('depending on Global chain', function (get, set) {
-    // assign computed property
-    _emberMetalProperties.defineProperty(obj, 'prop', _emberMetalComputed.computed(function () {
-      count++;
-      return get('Global.foo.bar.baz.biff') + ' ' + count;
-    }).property('Global.foo.bar.baz.biff'));
-
-    equal(get(obj, 'prop'), 'BIFF 1');
-
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 2');
-    equal(get(obj, 'prop'), 'BUZZ 2');
-
-    set(get(Global, 'foo.bar'), 'baz', { biff: 'BLOB' });
-    equal(get(obj, 'prop'), 'BLOB 3');
-    equal(get(obj, 'prop'), 'BLOB 3');
-
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 4');
-    equal(get(obj, 'prop'), 'BUZZ 4');
-
-    set(get(Global, 'foo'), 'bar', { baz: { biff: 'BOOM' } });
-    equal(get(obj, 'prop'), 'BOOM 5');
-    equal(get(obj, 'prop'), 'BOOM 5');
-
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 6');
-    equal(get(obj, 'prop'), 'BUZZ 6');
-
-    set(Global, 'foo', { bar: { baz: { biff: 'BLARG' } } });
-    equal(get(obj, 'prop'), 'BLARG 7');
-    equal(get(obj, 'prop'), 'BLARG 7');
-
-    set(get(Global, 'foo.bar.baz'), 'biff', 'BUZZ');
-    equal(get(obj, 'prop'), 'BUZZ 8');
-    equal(get(obj, 'prop'), 'BUZZ 8');
-
-    _emberMetalProperties.defineProperty(obj, 'prop');
-    set(obj, 'prop', 'NONE');
-    equal(get(obj, 'prop'), 'NONE');
-
-    set(Global, 'foo', { bar: { baz: { biff: 'BLARG' } } });
     equal(get(obj, 'prop'), 'NONE'); // should do nothing
     equal(count, 8, 'should be not have invoked computed again');
   });
@@ -33419,31 +33315,10 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should work when object is Ember (used in Ember.get)', function () {
-    equal(_emberMetalProperty_get.get('Ember.RunLoop'), _emberMetalCore.default.RunLoop, 'Ember.get');
     equal(_emberMetalProperty_get.get(_emberMetalCore.default, 'RunLoop'), _emberMetalCore.default.RunLoop, 'Ember.get(Ember, RunLoop)');
   });
 
-  QUnit.module('Ember.get() with paths', {
-    setup: function () {
-      lookup = _emberMetalCore.default.lookup = {};
-    },
-
-    teardown: function () {
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should return a property at a given path relative to the lookup', function () {
-    lookup.Foo = ObservableObject.extend({
-      Bar: ObservableObject.extend({
-        Baz: _emberMetalComputed.computed(function () {
-          return 'blargh';
-        }).volatile()
-      }).create()
-    }).create();
-
-    equal(_emberMetalProperty_get.get('Foo.Bar.Baz'), 'blargh');
-  });
+  QUnit.module('Ember.get() with paths');
 
   QUnit.test('should return a property at a given path relative to the passed object', function () {
     var foo = ObservableObject.create({
@@ -33455,16 +33330,6 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
     });
 
     equal(_emberMetalProperty_get.get(foo, 'bar.baz'), 'blargh');
-  });
-
-  QUnit.test('should return a property at a given path relative to the lookup - JavaScript hash', function () {
-    lookup.Foo = {
-      Bar: {
-        Baz: 'blargh'
-      }
-    };
-
-    equal(_emberMetalProperty_get.get('Foo.Bar.Baz'), 'blargh');
   });
 
   QUnit.test('should return a property at a given path relative to the passed object - JavaScript hash', function () {
@@ -43266,7 +43131,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5d18fcf4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+6413ad8a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

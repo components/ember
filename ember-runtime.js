@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5d18fcf4
+ * @version   2.0.0-canary+6413ad8a
  */
 
 (function() {
@@ -4767,7 +4767,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+5d18fcf4
+    @version 2.0.0-canary+6413ad8a
     @public
   */
 
@@ -4799,11 +4799,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+5d18fcf4'
+    @default '2.0.0-canary+6413ad8a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+5d18fcf4';
+  Ember.VERSION = '2.0.0-canary+6413ad8a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8838,7 +8838,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   exports.endPropertyChanges = endPropertyChanges;
   exports.changeProperties = changeProperties;
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/utils', 'ember-metal/is_none'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils, _emberMetalIs_none) {
+enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils) {
   exports.get = get;
   exports.normalizeTuple = normalizeTuple;
   exports._getPath = _getPath;
@@ -8885,24 +8885,17 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
   */
 
   function get(obj, keyName) {
+    _emberMetalCore.default.assert('Get must be called with two arguments; an object and a property key', arguments.length === 2);
+    _emberMetalCore.default.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
+    _emberMetalCore.default.assert('The key provided to get must be a string, you passed ' + keyName, typeof keyName === 'string');
+    _emberMetalCore.default.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
+
     // Helpers that operate with 'this' within an #each
     if (keyName === '') {
       return obj;
     }
 
-    if (!keyName && 'string' === typeof obj) {
-      keyName = obj;
-      obj = _emberMetalCore.default.lookup;
-    }
-
-    _emberMetalCore.default.assert('Cannot call get with ' + keyName + ' key.', !!keyName);
-    _emberMetalCore.default.assert('Cannot call get with \'' + keyName + '\' on an undefined object.', obj !== undefined);
-
-    if (_emberMetalIs_none.default(obj)) {
-      return _getPath(obj, keyName);
-    }
-
-    if (obj && typeof obj[INTERCEPT_GET] === 'function') {
+    if (typeof obj[INTERCEPT_GET] === 'function') {
       var result = obj[INTERCEPT_GET](obj, keyName);
       if (result !== UNHANDLED_GET) {
         return result;
@@ -9004,7 +8997,7 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     parts = path.split('.');
     len = parts.length;
     for (idx = 0; root != null && idx < len; idx++) {
-      root = get(root, parts[idx], true);
+      root = get(root, parts[idx]);
       if (root && root.isDestroyed) {
         return undefined;
       }
