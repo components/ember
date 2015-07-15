@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8cd526c8
+ * @version   2.0.0-canary+0df6ea0b
  */
 
 (function() {
@@ -18930,8 +18930,6 @@ enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-me
 /*globals Foo:true, $foo:true */
 enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get) {
 
-  var originalLookup = _emberMetalCore.default.lookup;
-
   var obj;
   function commonSetup() {
     obj = {
@@ -18941,25 +18939,10 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/cor
         }
       }
     };
-
-    _emberMetalCore.default.lookup = {
-      Foo: {
-        bar: {
-          baz: { biff: 'FooBiff' }
-        }
-      },
-
-      $foo: {
-        bar: {
-          baz: { biff: '$FOOBIFF' }
-        }
-      }
-    };
   }
 
   function commonTeardown() {
     obj = null;
-    _emberMetalCore.default.lookup = originalLookup;
   }
 
   QUnit.module('set with path', {
@@ -18990,25 +18973,6 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/cor
     equal(_emberMetalProperty_get.get(obj, 'foo.bar'), 'BAM');
   });
 
-  QUnit.test('[obj, this.foo] -> obj.foo', function () {
-    _emberMetalProperty_set.set(obj, 'this.foo', 'BAM');
-    equal(_emberMetalProperty_get.get(obj, 'foo'), 'BAM');
-  });
-
-  QUnit.test('[obj, this.foo.bar] -> obj.foo.bar', function () {
-    _emberMetalProperty_set.set(obj, 'this.foo.bar', 'BAM');
-    equal(_emberMetalProperty_get.get(obj, 'foo.bar'), 'BAM');
-  });
-
-  // ..........................................................
-  // NO TARGET
-  //
-
-  QUnit.test('[null, Foo.bar] -> Foo.bar', function () {
-    _emberMetalProperty_set.set(null, 'Foo.bar', 'BAM');
-    equal(_emberMetalProperty_get.get(_emberMetalCore.default.lookup.Foo, 'bar'), 'BAM');
-  });
-
   // ..........................................................
   // DEPRECATED
   //
@@ -19016,12 +18980,6 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/cor
   QUnit.module('set with path - deprecated', {
     setup: commonSetup,
     teardown: commonTeardown
-  });
-
-  QUnit.test('[null, bla] gives a proper exception message', function () {
-    expectAssertion(function () {
-      _emberMetalProperty_set.set(null, 'bla', 'BAM');
-    }, /You need to provide an object and key to `set`/);
   });
 
   QUnit.test('[obj, bla.bla] gives a proper exception message', function () {
@@ -19198,6 +19156,37 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
 
     equal(_emberMetalProperty_set.set(obj, 'foo', 'BAR'), 'BAR', 'should return set value');
     equal(obj.count, 1, 'should have invoked');
+  });
+
+  QUnit.test('warn on attempts to call set with undefined as object', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(undefined, 'aProperty', 'BAM');
+    }, /Cannot call set with 'aProperty' on an undefined object./);
+  });
+
+  QUnit.test('warn on attempts to call set with null as object', function () {
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(null, 'aProperty', 'BAM');
+    }, /Cannot call set with 'aProperty' on an undefined object./);
+  });
+
+  QUnit.test('warn on attempts to use set with an unsupported property path', function () {
+    var obj = {};
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(obj, null, 42);
+    }, /The key provided to set must be a string, you passed null/);
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(obj, NaN, 42);
+    }, /The key provided to set must be a string, you passed NaN/);
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(obj, undefined, 42);
+    }, /The key provided to set must be a string, you passed undefined/);
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(obj, false, 42);
+    }, /The key provided to set must be a string, you passed false/);
+    expectAssertion(function () {
+      _emberMetalProperty_set.set(obj, 42, 42);
+    }, /The key provided to set must be a string, you passed 42/);
   });
 });
 enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalAlias, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalWatching, _emberMetalObserver) {
@@ -43131,7 +43120,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8cd526c8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+0df6ea0b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

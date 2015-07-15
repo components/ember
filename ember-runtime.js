@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8cd526c8
+ * @version   2.0.0-canary+0df6ea0b
  */
 
 (function() {
@@ -4767,7 +4767,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8cd526c8
+    @version 2.0.0-canary+0df6ea0b
     @public
   */
 
@@ -4799,11 +4799,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8cd526c8'
+    @default '2.0.0-canary+0df6ea0b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8cd526c8';
+  Ember.VERSION = '2.0.0-canary+0df6ea0b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9043,18 +9043,10 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
   */
 
   function set(obj, keyName, value, tolerant) {
-    if (typeof obj === 'string') {
-      _emberMetalCore.default.assert('Path \'' + obj + '\' must be global if no obj is given.', _emberMetalPath_cache.isGlobalPath(obj));
-      value = keyName;
-      keyName = obj;
-      obj = _emberMetalCore.default.lookup;
-    }
-
-    _emberMetalCore.default.assert('Cannot call set with \'' + keyName + '\' key.', !!keyName);
-
-    if (obj === _emberMetalCore.default.lookup) {
-      return setPath(obj, keyName, value, tolerant);
-    }
+    _emberMetalCore.default.assert('Set must be called with tree or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
+    _emberMetalCore.default.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
+    _emberMetalCore.default.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
+    _emberMetalCore.default.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
 
     // This path exists purely to implement backwards-compatible
     // effects (specifically, setting a property on a view may
@@ -9074,17 +9066,16 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
     }
 
     var isUnknown, currentValue;
-    if ((!obj || desc === undefined) && _emberMetalPath_cache.isPath(keyName)) {
+    if (desc === undefined && _emberMetalPath_cache.isPath(keyName)) {
       return setPath(obj, keyName, value, tolerant);
     }
 
-    _emberMetalCore.default.assert('You need to provide an object and key to `set`.', !!obj && keyName !== undefined);
     _emberMetalCore.default.assert('calling set on destroyed object', !obj.isDestroyed);
 
     if (desc) {
       desc.set(obj, keyName, value);
     } else {
-      if (obj !== null && value !== undefined && typeof obj === 'object' && obj[keyName] === value) {
+      if (value !== undefined && typeof obj === 'object' && obj[keyName] === value) {
         return value;
       }
 
