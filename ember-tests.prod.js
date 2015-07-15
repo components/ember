@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8547be03
+ * @version   2.0.0-canary+acb03f88
  */
 
 (function() {
@@ -31994,7 +31994,7 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
 
     deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'precond - array is initially sorted');
 
-    _emberMetalProperty_get.get(cersei, 'status', 3);
+    _emberMetalProperty_set.set(cersei, 'status', 3);
 
     deepEqual(obj.get('sortedPeople'), [jaime, cersei, sansa], 'array is sorted correctly');
 
@@ -43266,7 +43266,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8547be03', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+acb03f88', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
