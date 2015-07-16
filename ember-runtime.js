@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+008bcd9d
+ * @version   2.0.0-canary+a4cd7be4
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+008bcd9d
+    @version 2.0.0-canary+a4cd7be4
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+008bcd9d'
+    @default '2.0.0-canary+a4cd7be4'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+008bcd9d';
+  Ember.VERSION = '2.0.0-canary+a4cd7be4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7940,7 +7940,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
 
     if (typeof func !== 'function') {
       // revert to old, soft-deprecated argument ordering
-      _emberMetalCore.default.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.');
 
       func = args[0];
       _paths = args.slice(1);
