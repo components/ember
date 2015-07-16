@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a4cd7be4
+ * @version   2.0.0-canary+52268494
  */
 
 (function() {
@@ -9247,15 +9247,16 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 });
 /*jshint newcap:false*/
 // Ember.lookup;
-enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-views/views/text_field'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponent_lookup, _emberViewsViewsText_field) {
 
   var view, registry, container;
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: {{get}} helper', {
     setup: function () {
       registry = new _emberRuntimeSystemContainer.Registry();
+      registry.register('component:-text-field', _emberViewsViewsText_field.default);
+      registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
       container = registry.container();
       registry.optionsForType('template', { instantiate: false });
     },
@@ -9288,6 +9289,12 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     });
 
     equal(view.$().text(), '[green] [green]', 'should return \'green\' for {{get colors \'apple\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple', 'red');
+    });
+
+    equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple\'}}');
   });
 
   QUnit.test('should be able to get an object value with a bound/dynamic key', function () {
@@ -9322,6 +9329,12 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     });
 
     equal(view.$().text(), '[green] [green]', 'should return \'green\' for {{get colors key}} (key = \'apple\')');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple', 'red');
+    });
+
+    equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors key}}  (key = \'apple\')');
   });
 
   QUnit.test('should be able to get an object value with a GetStream key', function () {
@@ -9357,6 +9370,12 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     });
 
     equal(view.$().text(), '[green] [green]', 'should return \'green\'');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple', 'red');
+    });
+
+    equal(view.$().text(), '[red] [red]', 'should return \'red\'');
   });
 
   QUnit.test('should be able to get an object value with a GetStream value and bound/dynamic key', function () {
@@ -9533,9 +9552,73 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
 
     equal(view.$().text(), '[] []', 'should return \'\' for {{get colors key}}  (colors=null, key = null)');
   });
-});
 
-// jscs:enable validateIndentation
+  QUnit.test('get helper value should be updatable using {{input}} and (mut) - dynamic key', function () {
+    var context = {
+      source: _emberMetalCore.default.Object.create({
+        banana: 'banana'
+      }),
+      key: 'banana'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#get-input').val(), 'banana');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.source.banana', 'yellow');
+    });
+
+    equal(view.$('#get-input').val(), 'yellow');
+
+    _emberMetalRun_loop.default(function () {
+      view.$('#get-input').val('some value');
+      view.childViews[0]._elementValueDidChange();
+    });
+
+    equal(view.$('#get-input').val(), 'some value');
+    equal(view.get('context.source.banana'), 'some value');
+  });
+
+  QUnit.test('get helper value should be updatable using {{input}} and (mut) - static key', function () {
+    var context = {
+      source: _emberMetalCore.default.Object.create({
+        banana: 'banana'
+      }),
+      key: 'banana'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source \'banana\')) id=\'get-input\'}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#get-input').val(), 'banana');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.source.banana', 'yellow');
+    });
+
+    equal(view.$('#get-input').val(), 'yellow');
+
+    _emberMetalRun_loop.default(function () {
+      view.$('#get-input').val('some value');
+      view.childViews[0]._elementValueDidChange();
+    });
+
+    equal(view.$('#get-input').val(), 'some value');
+    equal(view.get('context.source.banana'), 'some value');
+  });
+});
 enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeSystemString, _emberRuntimeUtils, _emberRuntimeTestsUtils) {
 
   var originalLookup = _emberMetalCore.default.lookup;
@@ -23032,6 +23115,17 @@ enifed('ember-metal/tests/mixin/observer_test', ['exports', 'ember-metal/tests/p
 
     set(obj3, 'baz', 'BEAR');
     equal(get(obj, 'count'), 1, 'should invoke observer after change');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('providing the arguments in reverse order is deprecated', function (get, set) {
+    expectDeprecation(/Passing the dependentKeys after the callback function in Ember\.observer is deprecated. Ensure the callback function is the last argument/);
+
+    _emberMetalMixin.Mixin.create({
+      count: 0,
+      foo: _emberMetalMixin.observer(function () {
+        set(this, 'count', get(this, 'count') + 1);
+      }, 'bar.baz')
+    });
   });
 });
 enifed('ember-metal/tests/mixin/reopen_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalMixin) {
@@ -43049,7 +43143,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a4cd7be4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+52268494', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
