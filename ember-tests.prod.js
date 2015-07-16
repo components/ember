@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+69f42a0e
+ * @version   2.0.0-canary+a4cd7be4
  */
 
 (function() {
@@ -8943,37 +8943,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     equal(view.$().text(), 'AdamSteve');
   });
 
-  QUnit.test('single-arg each defaults to current context [DEPRECATED]', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      context: _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]),
-      template: _emberTemplateCompilerSystemCompile.default('{{#each}}{{name}}{{/each}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, _emberHtmlbarsHelpersEach.deprecation);
-
-    equal(view.$().text(), 'AdamSteve');
-  });
-
-  QUnit.test('single-arg each will iterate over controller if present [DEPRECATED]', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      controller: _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]),
-      template: _emberTemplateCompilerSystemCompile.default('{{#each}}{{name}}{{/each}}'),
-      container: container
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, _emberHtmlbarsHelpersEach.deprecation);
-
-    equal(view.$().text(), 'AdamSteve');
-  });
-
   function testEachWithItem(moduleName, useBlockParams) {
     QUnit.module(moduleName, {
       setup: function () {
@@ -9101,38 +9070,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
       equal(view.$().text(), 'BobSteve');
     });
-
-    if (!useBlockParams) {
-      QUnit.test('{{each}} without arguments [DEPRECATED]', function () {
-        expect(2);
-
-        view = _emberViewsViewsView.default.create({
-          controller: _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]),
-          template: _emberTemplateCompilerSystemCompile.default('{{#each}}{{name}}{{/each}}')
-        });
-
-        expectDeprecation(function () {
-          _emberRuntimeTestsUtils.runAppend(view);
-        }, _emberHtmlbarsHelpersEach.deprecation);
-
-        equal(view.$().text(), 'AdamSteve');
-      });
-
-      QUnit.test('{{each this}} without keyword [DEPRECATED]', function () {
-        expect(2);
-
-        view = _emberViewsViewsView.default.create({
-          controller: _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]),
-          template: _emberTemplateCompilerSystemCompile.default('{{#each this}}{{name}}{{/each}}')
-        });
-
-        expectDeprecation(function () {
-          _emberRuntimeTestsUtils.runAppend(view);
-        }, _emberHtmlbarsHelpersEach.deprecation);
-
-        equal(view.$().text(), 'AdamSteve');
-      });
-    }
 
     if (useBlockParams) {
       QUnit.test('the index is passed as the second parameter to #each blocks', function () {
@@ -42950,7 +42887,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+69f42a0e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a4cd7be4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
