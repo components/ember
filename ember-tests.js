@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+68e7fee5
+ * @version   2.0.0-canary+871cbd6c
  */
 
 (function() {
@@ -1436,171 +1436,6 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
   });
 });
 /*globals EmberDev */
-enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-application/ext/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-metal/computed'], function (exports, _emberRuntimeControllersController, _emberApplicationExtController, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberMetalComputed) {
-
-  QUnit.module('Controller dependencies [DEPRECATED]');
-
-  QUnit.test('If a controller specifies a dependency, but does not have a container it should error', function () {
-    var AController = _emberRuntimeControllersController.default.extend({
-      needs: 'posts'
-    });
-
-    expectAssertion(function () {
-      AController.create();
-    }, /specifies `needs`, but does not have a container. Please ensure this controller was instantiated with a container./);
-  });
-
-  QUnit.test('If a controller specifies a dependency, it is accessible', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:post', _emberRuntimeControllersController.default.extend({
-      needs: 'posts'
-    }));
-
-    registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
-
-    var postController;
-    expectDeprecation(function () {
-      postController = container.lookup('controller:post');
-    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
-
-    var postsController = container.lookup('controller:posts');
-
-    equal(postsController, postController.get('controllers.posts'), 'controller.posts must be auto synthesized');
-  });
-
-  QUnit.test('If a controller specifies an unavailable dependency, it raises', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:post', _emberRuntimeControllersController.default.extend({
-      needs: ['comments']
-    }));
-
-    throws(function () {
-      container.lookup('controller:post');
-    }, /controller:comments/);
-
-    registry.register('controller:blog', _emberRuntimeControllersController.default.extend({
-      needs: ['posts', 'comments']
-    }));
-
-    throws(function () {
-      container.lookup('controller:blog');
-    }, /controller:posts, controller:comments/);
-  });
-
-  QUnit.test('Mixin sets up controllers if there is needs before calling super', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:other', _emberRuntimeControllersController.default.extend({
-      needs: 'posts',
-      model: _emberMetalComputed.computed.alias('controllers.posts')
-    }));
-
-    registry.register('controller:another', _emberRuntimeControllersController.default.extend({
-      needs: 'posts',
-      modelBinding: 'controllers.posts'
-    }));
-
-    registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
-
-    container.lookup('controller:posts').set('model', _emberRuntimeSystemNative_array.A(['a', 'b', 'c']));
-
-    expectDeprecation(function () {
-      deepEqual(['a', 'b', 'c'], container.lookup('controller:other').get('model.model').toArray());
-    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
-
-    expectDeprecation(function () {
-      deepEqual(['a', 'b', 'c'], container.lookup('controller:another').get('model.model').toArray());
-    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
-  });
-
-  QUnit.test('raises if trying to get a controller that was not pre-defined in `needs`', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:foo', _emberRuntimeControllersController.default.extend());
-    registry.register('controller:bar', _emberRuntimeControllersController.default.extend({
-      needs: 'foo'
-    }));
-
-    var fooController = container.lookup('controller:foo');
-    var barController;
-    expectDeprecation(function () {
-      barController = container.lookup('controller:bar');
-    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
-
-    throws(function () {
-      fooController.get('controllers.bar');
-    }, /#needs does not include `bar`/, 'throws if controllers is accesed but needs not defined');
-
-    equal(barController.get('controllers.foo'), fooController, 'correctly needed controllers should continue to work');
-
-    throws(function () {
-      barController.get('controllers.baz');
-    }, /#needs does not include `baz`/, 'should throw if no such controller was needed');
-  });
-
-  QUnit.test('setting the value of a controller dependency should not be possible', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:post', _emberRuntimeControllersController.default.extend({
-      needs: 'posts'
-    }));
-
-    registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
-
-    var postController;
-    expectDeprecation(function () {
-      postController = container.lookup('controller:post');
-    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
-
-    container.lookup('controller:posts');
-
-    throws(function () {
-      postController.set('controllers.posts', 'epic-self-troll');
-    }, /You cannot overwrite the value of `controllers.posts` of .+/, 'should raise when attempting to set the value of a controller dependency property');
-
-    postController.set('controllers.posts.title', 'A Troll\'s Life');
-    equal(postController.get('controllers.posts.title'), 'A Troll\'s Life', 'can set the value of controllers.posts.title');
-  });
-
-  QUnit.test('raises if a dependency with a period is requested', function () {
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    registry.register('controller:big.bird', _emberRuntimeControllersController.default.extend());
-    registry.register('controller:foo', _emberRuntimeControllersController.default.extend({
-      needs: 'big.bird'
-    }));
-
-    expectAssertion(function () {
-      container.lookup('controller:foo');
-    }, /needs must not specify dependencies with periods in their names \(big\.bird\)/, 'throws if periods used');
-  });
-
-  QUnit.test('can unit test controllers with `needs` dependencies by stubbing their `controllers` properties', function () {
-    expect(1);
-
-    var BrotherController = _emberRuntimeControllersController.default.extend({
-      needs: 'sister',
-      foo: _emberMetalComputed.computed.alias('controllers.sister.foo')
-    });
-
-    var broController = BrotherController.create({
-      controllers: {
-        sister: { foo: 5 }
-      }
-    });
-
-    equal(broController.get('foo'), 5, '`needs` dependencies can be stubbed');
-  });
-});
-/*jshint newcap:false */
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerSystemCompile) {
 
   var application;
@@ -43299,7 +43134,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+68e7fee5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+871cbd6c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

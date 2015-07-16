@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+68e7fee5
+ * @version   2.0.0-canary+871cbd6c
  */
 
 (function() {
@@ -3382,56 +3382,7 @@ enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/syste
 @module ember
 @submodule ember-application
 */
-enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/utils', 'ember-metal/computed', 'ember-runtime/mixins/controller', 'ember-routing/system/controller_for'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalError, _emberMetalUtils, _emberMetalComputed, _emberRuntimeMixinsController, _emberRoutingSystemController_for) {
-
-  function verifyNeedsDependencies(controller, container, needs) {
-    var dependency, i, l;
-    var missing = [];
-
-    for (i = 0, l = needs.length; i < l; i++) {
-      dependency = needs[i];
-
-      
-      if (dependency.indexOf(':') === -1) {
-        dependency = 'controller:' + dependency;
-      }
-
-      // Structure assert to still do verification but not string concat in production
-      if (!container._registry.has(dependency)) {
-        missing.push(dependency);
-      }
-    }
-    if (missing.length) {
-      throw new _emberMetalError.default(_emberMetalUtils.inspect(controller) + ' needs [ ' + missing.join(', ') + ' ] but ' + (missing.length > 1 ? 'they' : 'it') + ' could not be found');
-    }
-  }
-
-  var defaultControllersComputedProperty = _emberMetalComputed.computed(function () {
-    var controller = this;
-
-    
-    return {
-      needs: _emberMetalProperty_get.get(controller, 'needs'),
-      container: _emberMetalProperty_get.get(controller, 'container'),
-      unknownProperty: function (controllerName) {
-        var needs = this.needs;
-        var dependency, i, l;
-
-        for (i = 0, l = needs.length; i < l; i++) {
-          dependency = needs[i];
-          if (dependency === controllerName) {
-            return this.container.lookup('controller:' + controllerName);
-          }
-        }
-
-        var errorMessage = _emberMetalUtils.inspect(controller) + '#needs does not include `' + controllerName + '`. To access the ' + controllerName + ' controller from ' + _emberMetalUtils.inspect(controller) + ', ' + _emberMetalUtils.inspect(controller) + ' should have a `needs` property that is an array of the controllers it has access to.';
-        throw new ReferenceError(errorMessage);
-      },
-      setUnknownProperty: function (key, value) {
-        throw new Error('You cannot overwrite the value of `controllers.' + key + '` of ' + _emberMetalUtils.inspect(controller));
-      }
-    };
-  });
+enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/mixins/controller', 'ember-routing/system/controller_for'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeMixinsController, _emberRoutingSystemController_for) {
 
   /**
     @class ControllerMixin
@@ -3439,64 +3390,6 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
     @public
   */
   _emberRuntimeMixinsController.default.reopen({
-    concatenatedProperties: ['needs'],
-
-    /**
-      An array of other controller objects available inside
-      instances of this controller via the `controllers`
-      property:
-       For example, when you define a controller:
-       ```javascript
-      App.CommentsController = Ember.Controller.extend({
-        needs: ['post']
-      });
-      ```
-       The application's single instance of these other
-      controllers are accessible by name through the
-      `controllers` property:
-       ```javascript
-      this.get('controllers.post'); // instance of App.PostController
-      ```
-       Given that you have a nested controller (nested routes):
-       ```javascript
-      App.CommentsNewController = Ember.Controller.extend({
-      });
-      ```
-       When you define a controller that requires access to a nested one:
-       ```javascript
-      App.IndexController = Ember.Controller.extend({
-        needs: ['commentsNew']
-      });
-      ```
-       You will be able to get access to it:
-       ```javascript
-      this.get('controllers.commentsNew'); // instance of App.CommentsNewController
-      ```
-       This is only available for singleton controllers.
-       @deprecated Use `Ember.inject.controller()` instead.
-      @property {Array} needs
-      @default []
-      @public
-    */
-    needs: [],
-
-    init: function () {
-      var needs = _emberMetalProperty_get.get(this, 'needs');
-      var length = _emberMetalProperty_get.get(needs, 'length');
-
-      if (length > 0) {
-        
-        if (this.container) {
-          verifyNeedsDependencies(this, this.container, needs);
-        }
-
-        // if needs then initialize controllers proxy
-        _emberMetalProperty_get.get(this, 'controllers');
-      }
-
-      this._super.apply(this, arguments);
-    },
-
     /**
       @method controllerFor
       @see {Ember.Route#controllerFor}
@@ -3505,28 +3398,7 @@ enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'embe
     */
     controllerFor: function (controllerName) {
             return _emberRoutingSystemController_for.default(_emberMetalProperty_get.get(this, 'container'), controllerName);
-    },
-
-    /**
-      Stores the instances of other controllers available from within
-      this controller. Any controller listed by name in the `needs`
-      property will be accessible by name through this property.
-       ```javascript
-      App.CommentsController = Ember.Controller.extend({
-        needs: ['post'],
-        postTitle: function() {
-          var currentPost = this.get('controllers.post'); // instance of App.PostController
-          return currentPost.get('title');
-        }.property('controllers.post.title')
-      });
-      ```
-       @see {Ember.ControllerMixin#needs}
-      @deprecated Use `Ember.inject.controller()` instead.
-      @property {Object} controllers
-      @default null
-      @public
-    */
-    controllers: defaultControllersComputedProperty
+    }
   });
 
   exports.default = _emberRuntimeMixinsController.default;
@@ -8477,7 +8349,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68e7fee5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13965,7 +13837,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+68e7fee5
+    @version 2.0.0-canary+871cbd6c
     @public
   */
 
@@ -13997,11 +13869,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+68e7fee5'
+    @default '2.0.0-canary+871cbd6c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+68e7fee5';
+  Ember.VERSION = '2.0.0-canary+871cbd6c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22023,7 +21895,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+68e7fee5';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22530,7 +22402,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68e7fee5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36575,7 +36447,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+68e7fee5',
+        revision: 'Ember@2.0.0-canary+871cbd6c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40535,7 +40407,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+68e7fee5';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
 
   /**
   @module ember
