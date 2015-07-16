@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5c704b64
+ * @version   2.0.0-canary+b19eb2c4
  */
 
 (function() {
@@ -1438,7 +1438,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
 /*globals EmberDev */
 enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runtime/controllers/controller', 'ember-application/ext/controller', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-metal/computed'], function (exports, _emberRuntimeControllersController, _emberApplicationExtController, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberMetalComputed) {
 
-  QUnit.module('Controller dependencies');
+  QUnit.module('Controller dependencies [DEPRECATED]');
 
   QUnit.test('If a controller specifies a dependency, but does not have a container it should error', function () {
     var AController = _emberRuntimeControllersController.default.extend({
@@ -1460,7 +1460,11 @@ enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runt
 
     registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    var postController = container.lookup('controller:post');
+    var postController;
+    expectDeprecation(function () {
+      postController = container.lookup('controller:post');
+    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
+
     var postsController = container.lookup('controller:posts');
 
     equal(postsController, postController.get('controllers.posts'), 'controller.posts must be auto synthesized');
@@ -1504,8 +1508,14 @@ enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runt
     registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
     container.lookup('controller:posts').set('model', _emberRuntimeSystemNative_array.A(['a', 'b', 'c']));
-    deepEqual(['a', 'b', 'c'], container.lookup('controller:other').get('model.model').toArray());
-    deepEqual(['a', 'b', 'c'], container.lookup('controller:another').get('model.model').toArray());
+
+    expectDeprecation(function () {
+      deepEqual(['a', 'b', 'c'], container.lookup('controller:other').get('model.model').toArray());
+    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
+
+    expectDeprecation(function () {
+      deepEqual(['a', 'b', 'c'], container.lookup('controller:another').get('model.model').toArray());
+    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
   });
 
   QUnit.test('raises if trying to get a controller that was not pre-defined in `needs`', function () {
@@ -1518,7 +1528,10 @@ enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runt
     }));
 
     var fooController = container.lookup('controller:foo');
-    var barController = container.lookup('controller:bar');
+    var barController;
+    expectDeprecation(function () {
+      barController = container.lookup('controller:bar');
+    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
 
     throws(function () {
       fooController.get('controllers.bar');
@@ -1541,7 +1554,11 @@ enifed('ember-application/tests/system/controller_test', ['exports', 'ember-runt
 
     registry.register('controller:posts', _emberRuntimeControllersController.default.extend());
 
-    var postController = container.lookup('controller:post');
+    var postController;
+    expectDeprecation(function () {
+      postController = container.lookup('controller:post');
+    }, /Controller#needs is deprecated, please use Ember.inject.controller\(\) instead/);
+
     container.lookup('controller:posts');
 
     throws(function () {
@@ -43120,7 +43137,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5c704b64', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+b19eb2c4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55266,8 +55283,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     _emberMetalCore.default.TEMPLATES.application = compile('{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'post\' defaultPost id=\'default-post-link\'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to \'post\' id=\'post-link\'}}Post{{/link-to}}{{/if}}');
 
     App.ApplicationController = _emberMetalCore.default.Controller.extend({
-      needs: ['post'],
-      currentPost: _emberMetalCore.default.computed.alias('controllers.post.model')
+      postController: _emberMetalCore.default.inject.controller('post'),
+      currentPost: _emberMetalCore.default.computed.alias('postController.model')
     });
 
     App.PostController = _emberMetalCore.default.Controller.extend({
