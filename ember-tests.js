@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7d15fbc0
+ * @version   2.0.0-canary+96e08c3f
  */
 
 (function() {
@@ -8752,22 +8752,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     equal(view.$().text(), 'No records!');
   });
 
-  QUnit.test('it supports non-context switching with {{itemViewClass=}} (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-    registry.register('view:foo-view', _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{person.name}}')
-    }));
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each person in view.people itemViewClass="foo-view"}}'),
-      people: people,
-      container: container
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'Steve HoltAnnabelle');
-  });
-
   QUnit.test('it supports {{emptyView=}}', function () {
     var emptyView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('emptyView:sad panda')
@@ -9322,7 +9306,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
   });
 
-  testEachWithItem('{{#each foo in bar}}', false);
   testEachWithItem('{{#each bar as |foo|}}', true);
 });
 /*jshint newcap:false*/
@@ -27759,10 +27742,8 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     var lastAction;
     var actionOrder = [];
 
-    ignoreDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each item in allactions}}<a id="{{item.name}}" {{action item.name}}>{{item.title}}</a>{{/each}}')
-      });
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |item|}}<a id="{{item.name}}" {{action item.name}}>{{item.title}}</a>{{/each}}')
     });
 
     var controller = _emberRuntimeControllersController.default.extend({
@@ -42926,34 +42907,6 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
   exports.runDestroy = runDestroy;
 });
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {});
-enifed('ember-template-compiler/tests/plugins/transform-each-in-to-block-params-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
-
-  QUnit.module('ember-template-compiler: transform-each-in-to-block-params');
-
-  QUnit.test('cannot use block params and keyword syntax together', function () {
-    expect(1);
-
-    throws(function () {
-      _emberTemplateCompiler.compile('{{#each thing in controller as |other-thing|}}{{thing}}-{{other-thing}}{{/each}}', true);
-    }, /You cannot use keyword \(`{{#each foo in bar}}`\) and block params \(`{{#each bar as \|foo\|}}`\) at the same time\ ./);
-  });
-
-  QUnit.test('using {{#each in}} syntax is deprecated for blocks', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      _emberTemplateCompiler.compile('\n\n   {{#each foo in model}}{{/each}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
-  });
-
-  QUnit.test('using {{#each in}} syntax is deprecated for non-block statemens', function () {
-    expect(1);
-
-    expectDeprecation(function () {
-      _emberTemplateCompiler.compile('\n\n   {{each foo in model}}', { moduleName: 'foo/bar/baz' });
-    }, 'Using the \'{{#each item in model}}\' form of the {{#each}} helper (\'foo/bar/baz\' @ L3:C3) is deprecated. Please use the block param form instead (\'{{#each model as |item|}}\').');
-  });
-});
 enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
 
   QUnit.module('ember-template-compiler: transform-each-into-collection');
@@ -43159,7 +43112,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7d15fbc0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+96e08c3f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
