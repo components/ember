@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+871cbd6c
+ * @version   2.0.0-canary+7d15fbc0
  */
 
 (function() {
@@ -8759,7 +8759,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7d15fbc0';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14293,7 +14293,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+871cbd6c
+    @version 2.0.0-canary+7d15fbc0
     @public
   */
 
@@ -14325,11 +14325,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+871cbd6c'
+    @default '2.0.0-canary+7d15fbc0'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+871cbd6c';
+  Ember.VERSION = '2.0.0-canary+7d15fbc0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22469,7 +22469,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+7d15fbc0';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22980,7 +22980,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7d15fbc0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -30430,7 +30430,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
   });
 });
 // Ember.deprecate
-enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/mixins/freezable', 'ember-runtime/system/string', 'ember-metal/error'], function (exports, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberRuntimeSystemString, _emberMetalError) {
+enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/mixins/freezable', 'ember-runtime/system/string', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberRuntimeSystemString, _emberMetalError) {
 
   /**
     Implements some standard methods for copying an object. Add this mixin to
@@ -30470,9 +30470,11 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/property_get', 
       consuming more memory.
        @method frozenCopy
       @return {Object} copy of receiver or receiver
+      @deprecated Use `Object.freeze` instead.
       @private
     */
     frozenCopy: function () {
+      _emberMetalCore.default.deprecate('`frozenCopy` is deprecated, use `Object.freeze` instead.');
       if (_emberRuntimeMixinsFreezable.Freezable && _emberRuntimeMixinsFreezable.Freezable.detect(this)) {
         return _emberMetalProperty_get.get(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
@@ -31645,7 +31647,7 @@ enifed('ember-runtime/mixins/evented', ['exports', 'ember-metal/mixin', 'ember-m
     }
   });
 });
-enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set) {
 
   /**
     The `Ember.Freezable` mixin implements some basic methods for marking an
@@ -31702,9 +31704,15 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/mixin', 'ember
     @class Freezable
     @namespace Ember
     @since Ember 0.9
+    @deprecated Use `Object.freeze` instead.
     @private
   */
   var Freezable = _emberMetalMixin.Mixin.create({
+
+    init: function () {
+      _emberMetalCore.default.deprecate('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
+      this._super.apply(this, arguments);
+    },
 
     /**
       Set to `true` when the object is frozen. Use this property to detect
@@ -37122,7 +37130,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+871cbd6c',
+        revision: 'Ember@2.0.0-canary+7d15fbc0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42351,7 +42359,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+871cbd6c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+7d15fbc0';
 
   /**
   @module ember

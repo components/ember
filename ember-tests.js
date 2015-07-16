@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+871cbd6c
+ * @version   2.0.0-canary+7d15fbc0
  */
 
 (function() {
@@ -35533,7 +35533,21 @@ enifed('ember-runtime/tests/mixins/comparable_test', ['exports', 'ember-metal/pr
     equal(_emberRuntimeCompare.default(r2, r1), 1);
   });
 });
-enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalProperty_set, _emberMetalProperty_get) {
+enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalProperty_set, _emberMetalProperty_get) {
+
+  QUnit.module('Ember.Copyable.frozenCopy');
+
+  QUnit.test('should be deprecated', function () {
+    expectDeprecation('`frozenCopy` is deprecated, use `Object.freeze` instead.');
+
+    var Obj = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsFreezable.Freezable, _emberRuntimeMixinsCopyable.default, {
+      copy: function () {
+        return Obj.create();
+      }
+    });
+
+    Obj.create().frozenCopy();
+  });
 
   var CopyableObject = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsCopyable.default, {
 
@@ -35915,6 +35929,15 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-metal/co
   });
 });
 // for Ember.A
+enifed('ember-runtime/tests/mixins/freezable_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/mixins/freezable'], function (exports, _emberRuntimeSystemObject, _emberRuntimeMixinsFreezable) {
+
+  QUnit.module('Ember.Freezable');
+
+  QUnit.test('should be deprecated', function () {
+    expectDeprecation('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
+    _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsFreezable.Freezable).create();
+  });
+});
 enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-runtime/tests/suites/mutable_array', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalComputed, _emberRuntimeTestsSuitesMutable_array, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemObject) {
 
   /*
@@ -36813,6 +36836,8 @@ enifed('ember-runtime/tests/suites/copyable/frozenCopy', ['exports', 'ember-runt
 
     obj = this.newObject();
     if (_emberMetalProperty_get.get(this, 'shouldBeFreezable')) {
+      expectDeprecation('`frozenCopy` is deprecated, use Object.freeze instead.');
+
       ok(!_emberRuntimeMixinsFreezable.Freezable || _emberRuntimeMixinsFreezable.Freezable.detect(obj), 'object should be freezable');
 
       copy = obj.frozenCopy();
@@ -43134,7 +43159,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+871cbd6c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+7d15fbc0', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
