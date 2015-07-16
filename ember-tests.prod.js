@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+c4149d96
+ * @version   1.13.4+cc99723b
  */
 
 (function() {
@@ -33446,9 +33446,9 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test", ["exports", "
       todos = _emberMetalProperty_get.get(obj, "todos");
     });
 
-    deepEqual(todos.mapProperty("name"), ["E", "D", "C", "B", "A"], "precond - todos initially correct");
-    deepEqual(sorted.mapProperty("name"), ["A", "B", "C", "D", "E"], "precond - sorted initially correct");
-    deepEqual(filtered.mapProperty("name"), ["A", "C", "E"], "precond - filtered initially correct");
+    deepEqual(todos.mapBy("name"), ["E", "D", "C", "B", "A"], "precond - todos initially correct");
+    deepEqual(sorted.mapBy("name"), ["A", "B", "C", "D", "E"], "precond - sorted initially correct");
+    deepEqual(filtered.mapBy("name"), ["A", "C", "E"], "precond - filtered initially correct");
 
     _emberMetalRun_loop["default"](function () {
       _emberMetalProperty_events.beginPropertyChanges();
@@ -33464,9 +33464,9 @@ enifed("ember-runtime/tests/computed/reduce_computed_macros_test", ["exports", "
       _emberMetalProperty_events.endPropertyChanges();
     });
 
-    deepEqual(todos.mapProperty("name"), ["E", "D", "C", "B", "A"], "precond - todos remain correct");
-    deepEqual(sorted.mapProperty("name"), ["A", "B", "C", "E", "D"], "precond - sorted updated correctly");
-    deepEqual(filtered.mapProperty("name"), ["A", "C", "E", "D"], "filtered updated correctly");
+    deepEqual(todos.mapBy("name"), ["E", "D", "C", "B", "A"], "precond - todos remain correct");
+    deepEqual(sorted.mapBy("name"), ["A", "B", "C", "E", "D"], "precond - sorted updated correctly");
+    deepEqual(filtered.mapBy("name"), ["A", "C", "E", "D"], "filtered updated correctly");
   });
 
   QUnit.module("Chaining array and reduced CPs", {
@@ -41216,40 +41216,42 @@ enifed('ember-runtime/tests/suites/enumerable/any', ['exports', 'ember-metal/cor
     equal(result, true, 'return value of obj.any');
   });
 
-  suite.test('any should be aliased to some', function () {
+  /*
+  suite.test('any should be aliased to some', function() {
     var obj = this.newObject();
     var ary = this.toArray(obj);
     var anyFound = [];
     var someFound = [];
     var cnt = ary.length - 2;
     var anyResult, someResult;
-
-    anyResult = obj.any(function (i) {
+  
+    anyResult = obj.any(function(i) {
       anyFound.push(i);
       return false;
     });
-    someResult = obj.some(function (i) {
+    someResult = obj.some(function(i) {
       someFound.push(i);
       return false;
     });
     equal(someResult, anyResult);
-
+  
     anyFound = [];
     someFound = [];
-
+  
     cnt = ary.length - 2;
-    anyResult = obj.any(function (i) {
+    anyResult = obj.any(function(i) {
       anyFound.push(i);
       return --cnt <= 0;
     });
     cnt = ary.length - 2;
-    someResult = obj.some(function (i) {
+    someResult = obj.some(function(i) {
       someFound.push(i);
       return --cnt <= 0;
     });
-
+  
     equal(someResult, anyResult);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -41356,15 +41358,17 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
     equal(obj.isEvery('bar', null), false, 'isEvery(\'bar\', null)');
   });
 
-  suite.test('everyBy should be aliased to isEvery', function () {
+  /*
+  suite.test('everyBy should be aliased to isEvery', function() {
     var obj = this.newObject();
     equal(obj.isEvery, obj.everyBy);
   });
-
-  suite.test('everyProperty should be aliased to isEvery', function () {
+  
+  suite.test('everyProperty should be aliased to isEvery', function() {
     var obj = this.newObject();
     equal(obj.isEvery, obj.everyProperty);
   });
+  */
 
   suite.test('should return true if every property is undefined', function () {
     var obj = this.newObject([{ foo: undefined, bar: 'BAZ' }, _emberRuntimeSystemObject["default"].create({ bar: undefined })]);
@@ -41480,11 +41484,13 @@ enifed('ember-runtime/tests/suites/enumerable/filter', ['exports', 'ember-runtim
     deepEqual(obj.filterBy('foo'), ary.slice(0, 2), 'filterBy(\'foo\', 3)\')');
   });
 
-  suite.test('should be aliased to filterProperty', function () {
+  /*
+  suite.test('should be aliased to filterProperty', function() {
     var ary = [];
-
+  
     equal(ary.filterProperty, ary.filterBy);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -41579,13 +41585,15 @@ enifed('ember-runtime/tests/suites/enumerable/find', ['exports', 'ember-runtime/
     equal(obj.findBy('bar', undefined), ary[1], 'findBy(\'bar\', undefined)');
   });
 
-  suite.test('should be aliased to findProperty', function () {
+  /*
+  suite.test('should be aliased to findProperty', function() {
     var obj;
-
+  
     obj = this.newObject([]);
-
+  
     equal(obj.findProperty, obj.findBy);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -41757,15 +41765,17 @@ enifed('ember-runtime/tests/suites/enumerable/is_any', ['exports', 'ember-runtim
     equal(obj.isAny('foo'), false, 'isAny(\'foo\', undefined)');
   });
 
-  suite.test('anyBy should be aliased to isAny', function () {
+  /*
+  suite.test('anyBy should be aliased to isAny', function() {
     var obj = this.newObject();
     equal(obj.isAny, obj.anyBy);
   });
-
-  suite.test('isAny should be aliased to someProperty', function () {
+  
+  suite.test('isAny should be aliased to someProperty', function() {
     var obj = this.newObject();
     equal(obj.someProperty, obj.isAny);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -41876,10 +41886,12 @@ enifed('ember-runtime/tests/suites/enumerable/mapBy', ['exports', 'ember-runtime
     equal(obj.getEach('a').join(''), '12');
   });
 
-  suite.test('should be aliased to mapProperty', function () {
+  /*
+  suite.test('should be aliased to mapProperty', function() {
     var obj = this.newObject([]);
     equal(obj.mapProperty, obj.mapBy);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -42027,11 +42039,13 @@ enifed('ember-runtime/tests/suites/enumerable/reject', ['exports', 'ember-runtim
     deepEqual(obj.rejectBy('foo'), ary.slice(2), 'rejectBy(\'foo\')\')');
   });
 
-  suite.test('should be aliased to rejectProperty', function () {
-    var ary = [];
-
+  /*
+  suite.test('should be aliased to rejectProperty', function() {
+    var ary =[];
+  
     equal(ary.rejectProperty, ary.rejectBy);
   });
+  */
 
   exports["default"] = suite;
 });
@@ -47456,7 +47470,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.4+c4149d96", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.4+cc99723b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -62277,7 +62291,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedModelHookParams = null;
           }
-          return articles.findProperty('id', params.id);
+          return articles.findBy('id', params.id);
         }
       });
 
@@ -62353,7 +62367,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedModelHookParams, 'the ArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedModelHookParams = null;
           }
-          return site_articles.findProperty('id', params.id);
+          return site_articles.findBy('id', params.id);
         }
       });
 
@@ -62443,7 +62457,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedSiteModelHookParams, 'the SiteRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedSiteModelHookParams = null;
           }
-          return sites.findProperty('id', params.site_id);
+          return sites.findBy('id', params.site_id);
         }
       });
       App.SiteArticleRoute = _emberMetalCore["default"].Route.extend({
@@ -62452,7 +62466,7 @@ enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_p
             deepEqual(params, self.expectedArticleModelHookParams, 'the SiteArticleRoute model hook received the expected merged dynamic segment + query params hash');
             self.expectedArticleModelHookParams = null;
           }
-          return site_articles.findProperty('id', params.article_id);
+          return site_articles.findBy('id', params.article_id);
         }
       });
 

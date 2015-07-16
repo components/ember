@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+c4149d96
+ * @version   1.13.4+cc99723b
  */
 
 (function() {
@@ -8416,7 +8416,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+c4149d96";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+cc99723b";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -14159,7 +14159,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4+c4149d96
+    @version 1.13.4+cc99723b
     @public
   */
 
@@ -14191,11 +14191,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4+c4149d96'
+    @default '1.13.4+cc99723b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4+c4149d96';
+  Ember.VERSION = '1.13.4+cc99723b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22958,7 +22958,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.4+c4149d96";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.4+cc99723b";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   
@@ -23482,7 +23482,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+c4149d96";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+cc99723b";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -32525,6 +32525,12 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     return i;
   }
 
+  function deprecatingAliasMethod(oldName, newName) {
+    return function () {
+            return this[newName].apply(this, arguments);
+    };
+  }
+
   /**
     This mixin defines the common interface implemented by enumerable objects
     in Ember. Most of these methods follow the standard Array iteration
@@ -32812,8 +32818,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `mapBy` instead
       @private
     */
-
-    mapProperty: _emberMetalMixin.aliasMethod('mapBy'),
+    mapProperty: deprecatingAliasMethod('mapProperty', 'mapBy'),
 
     /**
       Returns an array with all of the items in the enumeration that the passed
@@ -32902,7 +32907,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `filterBy` instead
       @private
     */
-    filterProperty: _emberMetalMixin.aliasMethod('filterBy'),
+    filterProperty: deprecatingAliasMethod('filterProperty', 'filterBy'),
 
     /**
       Returns an array with the items that do not have truthy values for
@@ -32939,7 +32944,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `rejectBy` instead
       @private
     */
-    rejectProperty: _emberMetalMixin.aliasMethod('rejectBy'),
+    rejectProperty: deprecatingAliasMethod('rejectProperty', 'rejectBy'),
 
     /**
       Returns the first item in the array for which the callback returns true.
@@ -33019,7 +33024,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `findBy` instead
       @private
     */
-    findProperty: _emberMetalMixin.aliasMethod('findBy'),
+    findProperty: deprecatingAliasMethod('findProperty', 'findBy'),
 
     /**
       Returns `true` if the passed function returns true for every item in the
@@ -33062,7 +33067,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @return {Boolean}
       @public
     */
-    everyBy: _emberMetalMixin.aliasMethod('isEvery'),
+    everyBy: deprecatingAliasMethod('everyBy', 'isEvery'),
 
     /**
       @method everyProperty
@@ -33072,7 +33077,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @return {Boolean}
       @private
     */
-    everyProperty: _emberMetalMixin.aliasMethod('isEvery'),
+    everyProperty: deprecatingAliasMethod('everyProperty', 'isEvery'),
 
     /**
       Returns `true` if the passed property resolves to the value of the second
@@ -33168,7 +33173,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `any` instead
       @private
     */
-    some: _emberMetalMixin.aliasMethod('any'),
+    some: deprecatingAliasMethod('some', 'any'),
 
     /**
       Returns `true` if the passed property resolves to the value of the second
@@ -33193,7 +33198,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `isAny` instead
       @private
     */
-    anyBy: _emberMetalMixin.aliasMethod('isAny'),
+    anyBy: deprecatingAliasMethod('anyBy', 'isAny'),
 
     /**
       @method someProperty
@@ -33203,7 +33208,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `isAny` instead
       @private
     */
-    someProperty: _emberMetalMixin.aliasMethod('isAny'),
+    someProperty: deprecatingAliasMethod('someProperty', 'isAny'),
 
     /**
       This will combine the values of the enumerator into a single value. It
@@ -40095,7 +40100,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.4+c4149d96",
+        revision: "Ember@1.13.4+cc99723b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44011,7 +44016,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.4+c4149d96";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.4+cc99723b";
 
   /**
   @module ember

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+c4149d96
+ * @version   1.13.4+cc99723b
  */
 
 (function() {
@@ -5027,7 +5027,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4+c4149d96
+    @version 1.13.4+cc99723b
     @public
   */
 
@@ -5059,11 +5059,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4+c4149d96'
+    @default '1.13.4+cc99723b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4+c4149d96';
+  Ember.VERSION = '1.13.4+cc99723b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17031,6 +17031,13 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     return i;
   }
 
+  function deprecatingAliasMethod(oldName, newName) {
+    return function () {
+      _emberMetalCore["default"].deprecate('Ember.Enumerable.' + oldName + ' is deprecated. Use ' + newName + ' instead.');
+      return this[newName].apply(this, arguments);
+    };
+  }
+
   /**
     This mixin defines the common interface implemented by enumerable objects
     in Ember. Most of these methods follow the standard Array iteration
@@ -17318,8 +17325,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `mapBy` instead
       @private
     */
-
-    mapProperty: _emberMetalMixin.aliasMethod('mapBy'),
+    mapProperty: deprecatingAliasMethod('mapProperty', 'mapBy'),
 
     /**
       Returns an array with all of the items in the enumeration that the passed
@@ -17408,7 +17414,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `filterBy` instead
       @private
     */
-    filterProperty: _emberMetalMixin.aliasMethod('filterBy'),
+    filterProperty: deprecatingAliasMethod('filterProperty', 'filterBy'),
 
     /**
       Returns an array with the items that do not have truthy values for
@@ -17445,7 +17451,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `rejectBy` instead
       @private
     */
-    rejectProperty: _emberMetalMixin.aliasMethod('rejectBy'),
+    rejectProperty: deprecatingAliasMethod('rejectProperty', 'rejectBy'),
 
     /**
       Returns the first item in the array for which the callback returns true.
@@ -17525,7 +17531,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `findBy` instead
       @private
     */
-    findProperty: _emberMetalMixin.aliasMethod('findBy'),
+    findProperty: deprecatingAliasMethod('findProperty', 'findBy'),
 
     /**
       Returns `true` if the passed function returns true for every item in the
@@ -17568,7 +17574,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @return {Boolean}
       @public
     */
-    everyBy: _emberMetalMixin.aliasMethod('isEvery'),
+    everyBy: deprecatingAliasMethod('everyBy', 'isEvery'),
 
     /**
       @method everyProperty
@@ -17578,7 +17584,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @return {Boolean}
       @private
     */
-    everyProperty: _emberMetalMixin.aliasMethod('isEvery'),
+    everyProperty: deprecatingAliasMethod('everyProperty', 'isEvery'),
 
     /**
       Returns `true` if the passed property resolves to the value of the second
@@ -17674,7 +17680,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `any` instead
       @private
     */
-    some: _emberMetalMixin.aliasMethod('any'),
+    some: deprecatingAliasMethod('some', 'any'),
 
     /**
       Returns `true` if the passed property resolves to the value of the second
@@ -17699,7 +17705,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `isAny` instead
       @private
     */
-    anyBy: _emberMetalMixin.aliasMethod('isAny'),
+    anyBy: deprecatingAliasMethod('anyBy', 'isAny'),
 
     /**
       @method someProperty
@@ -17709,7 +17715,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @deprecated Use `isAny` instead
       @private
     */
-    someProperty: _emberMetalMixin.aliasMethod('isAny'),
+    someProperty: deprecatingAliasMethod('someProperty', 'isAny'),
 
     /**
       This will combine the values of the enumerator into a single value. It
