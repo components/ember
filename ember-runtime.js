@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0df6ea0b
+ * @version   2.0.0-canary+0637a9af
  */
 
 (function() {
@@ -4767,7 +4767,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+0df6ea0b
+    @version 2.0.0-canary+0637a9af
     @public
   */
 
@@ -4799,11 +4799,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+0df6ea0b'
+    @default '2.0.0-canary+0637a9af'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+0df6ea0b';
+  Ember.VERSION = '2.0.0-canary+0637a9af';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13180,6 +13180,11 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
       error = e;
     }
 
+    if (error && error.name === 'UnrecognizedURLError') {
+      _emberMetalCore.default.assert('The URL \'' + error.message + '\' did not match any routes in your application', false);
+      return;
+    }
+
     if (error && error.name !== 'TransitionAborted') {
       if (_emberMetalCore.default.testing) {
         // ES6TODO: remove when possible
@@ -13191,7 +13196,9 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
           Test.adapter.exception(error);
           _emberMetalLogger.default.error(error.stack);
         } else {
-          throw error;
+          _emberMetalCore.default.run.schedule(_emberMetalCore.default.run.queues[_emberMetalCore.default.run.queues.length - 1], function () {
+            throw error;
+          });
         }
       } else if (_emberMetalCore.default.onerror) {
         _emberMetalCore.default.onerror(error);
