@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a0045eca
+ * @version   2.0.0-canary+8701af49
  */
 
 (function() {
@@ -40451,7 +40451,7 @@ enifed('ember-runtime/tests/system/native_array/suite_test', ['exports', 'ember-
 
   }).run();
 });
-enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalComputed, _emberMetalProperty_get, _emberMetalMixin, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-metal/alias', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalAlias, _emberMetalComputed, _emberMetalProperty_get, _emberMetalMixin, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
 
   function K() {
     return this;
@@ -40607,7 +40607,9 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
 
       fooDidChange: _emberMetalMixin.observer('foo', function () {}),
 
-      bar: _emberMetalComputed.computed(function () {})
+      bar: _emberMetalComputed.computed(function () {}),
+
+      qux: _emberMetalAlias.default('foo')
     });
 
     var SubClass = MyClass.extend({
@@ -40624,7 +40626,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
       list.push(name);
     });
 
-    deepEqual(list.sort(), ['bar', 'foo'], 'watched and unwatched computed properties are iterated');
+    deepEqual(list.sort(), ['bar', 'foo', 'qux'], 'watched and unwatched computed properties are iterated');
 
     list = [];
 
@@ -40638,7 +40640,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
       }
     });
 
-    deepEqual(list.sort(), ['bar', 'bat', 'baz', 'foo'], 'all inherited properties are included');
+    deepEqual(list.sort(), ['bar', 'bat', 'baz', 'foo', 'qux'], 'all inherited properties are included');
   });
 
   QUnit.test('list of properties updates when an additional property is added (such cache busting)', function () {
@@ -43132,7 +43134,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a0045eca', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+8701af49', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
