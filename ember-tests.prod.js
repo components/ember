@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+513494fd
+ * @version   2.0.0-canary+080cb36b
  */
 
 (function() {
@@ -28810,7 +28810,9 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
 
     _emberMetalCore.default.TEMPLATES['blog.post'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, /Using a slash for namespacing/);
 
     var singletonController = container.lookup('controller:blog.post');
     equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
@@ -42972,7 +42974,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+513494fd', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+080cb36b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
