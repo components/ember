@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+693a8e97
+ * @version   2.0.0-canary+3ad211d9
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+693a8e97
+    @version 2.0.0-canary+3ad211d9
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+693a8e97'
+    @default '2.0.0-canary+3ad211d9'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+693a8e97';
+  Ember.VERSION = '2.0.0-canary+3ad211d9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13061,6 +13061,20 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
     */
     FunctionPrototype.observesImmediately = _emberMetalCore.default.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', FunctionPrototype._observesImmediately);
 
+    FunctionPrototype._observesBefore = function () {
+      var watched = [];
+      var addWatchedProperty = function (obs) {
+        watched.push(obs);
+      };
+
+      for (var i = 0, l = arguments.length; i < l; ++i) {
+        _emberMetalExpand_properties.default(arguments[i], addWatchedProperty);
+      }
+
+      this.__ember_observesBefore__ = watched;
+
+      return this;
+    };
     /**
       The `observesBefore` extension of Javascript's Function prototype is
       available when `Ember.EXTEND_PROTOTYPES` or
@@ -13080,20 +13094,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
       @for Function
       @private
     */
-    FunctionPrototype.observesBefore = function () {
-      var watched = [];
-      var addWatchedProperty = function (obs) {
-        watched.push(obs);
-      };
-
-      for (var i = 0, l = arguments.length; i < l; ++i) {
-        _emberMetalExpand_properties.default(arguments[i], addWatchedProperty);
-      }
-
-      this.__ember_observesBefore__ = watched;
-
-      return this;
-    };
+    FunctionPrototype.observesBefore = _emberMetalCore.default.deprecateFunc('Function#observesBefore is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, FunctionPrototype._observesBefore);
 
     /**
       The `on` extension of Javascript's Function prototype is available

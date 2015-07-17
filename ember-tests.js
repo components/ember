@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+693a8e97
+ * @version   2.0.0-canary+3ad211d9
  */
 
 (function() {
@@ -23824,6 +23824,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
 
   if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
     _emberMetalTestsProps_helper.testBoth('before observer added declaratively via brace expansion should fire when property changes', function (get, set) {
+      expectDeprecation(/Function#observesBefore is deprecated and will be removed in the near future/);
       var obj = {};
       var count = 0;
 
@@ -23844,6 +23845,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     });
 
     _emberMetalTestsProps_helper.testBoth('before observer specified declaratively via brace expansion should fire when dependent property changes', function (get, set) {
+      expectDeprecation(/Function#observesBefore is deprecated and will be removed in the near future/);
       var obj = { baz: 'Initial' };
       var count = 0;
 
@@ -42911,7 +42913,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+693a8e97', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+3ad211d9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
