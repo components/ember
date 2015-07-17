@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ec150433
+ * @version   2.0.0-canary+c2737092
  */
 
 (function() {
@@ -6059,17 +6059,16 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
 
   QUnit.test('primitives should work correctly [DEPRECATED]', function () {
     expectDeprecation(_emberHtmlbarsHelpersEach.deprecation);
-    expectDeprecation('Using the context switching form of `{{with}}` is deprecated. Please use the keyword form (`{{with foo as bar}}`) instead.');
 
     view = _emberViewsViewsView.default.create({
       prims: _emberMetalCore.default.A(['string', 12]),
 
-      template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{#with this}}inside-with{{/with}}{{/each}}')
+      template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{/each}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    equal(view.$().text(), 'inside-ifinside-withinside-ifinside-with');
+    equal(view.$().text(), 'inside-ifinside-if');
   });
 
   QUnit.test('should update bound helpers when properties change', function () {
@@ -9643,20 +9642,6 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
       _emberMetalCore.default.lookup = lookup = originalLookup;
       TemplateTests = null;
     }
-  });
-
-  QUnit.test('unless should keep the current context (#784) [DEPRECATED]', function () {
-    view = _emberViewsViewsView.default.create({
-      o: _emberRuntimeSystemObject.default.create({ foo: '42' }),
-
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.o}}{{#view}}{{#unless view.doesNotExist}}foo: {{foo}}{{/unless}}{{/view}}{{/with}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    equal(view.$().text(), 'foo: 42');
   });
 
   QUnit.test('The `if` helper tests for `isTruthy` if available', function () {
@@ -13521,43 +13506,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 
-  QUnit.module('Handlebars {{#with foo}} with defined controller');
-
-  QUnit.test('destroys the controller generated with {{with foo controller=\'blah\'}} [DEPRECATED]', function () {
-    var destroyed = false;
-    var Controller = _emberRuntimeControllersController.default.extend({
-      willDestroy: function () {
-        this._super.apply(this, arguments);
-        destroyed = true;
-      }
-    });
-
-    var person = _emberRuntimeSystemObject.default.create({ name: 'Steve Holt' });
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-
-    var parentController = _emberRuntimeSystemObject.default.create({
-      container: container,
-      person: person,
-      name: 'Bob Loblaw'
-    });
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#with person controller="person"}}{{controllerName}}{{/with}}'),
-      controller: parentController
-    });
-
-    registry.register('controller:person', Controller);
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    ok(destroyed, 'controller was destroyed properly');
-  });
+  QUnit.module('Handlebars {{#with foo as bar}} with defined controller');
 
   QUnit.test('destroys the controller generated with {{with foo as bar controller=\'blah\'}}', function () {
     var destroyed = false;
@@ -13860,26 +13809,6 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
     _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$('div p:contains(inner) + p:contains(outer)').length, 1, 'Yield points at the right context');
-  });
-
-  QUnit.test('yield inside a conditional uses the outer context [DEPRECATED]', function () {
-    var component = _emberViewsViewsComponent.default.extend({
-      boundText: 'inner',
-      truthy: true,
-      obj: {},
-      layout: _emberTemplateCompilerSystemCompile.default('<p>{{boundText}}</p><p>{{#if truthy}}{{#with obj}}{{yield}}{{/with}}{{/if}}</p>')
-    });
-
-    view = _emberViewsViewsView.default.create({
-      controller: { boundText: 'outer', truthy: true, obj: { component: component, truthy: true, boundText: 'insideWith' } },
-      template: _emberTemplateCompilerSystemCompile.default('{{#with obj}}{{#if truthy}}{{#view component}}{{#if truthy}}{{boundText}}{{/if}}{{/view}}{{/if}}{{/with}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    equal(view.$('div p:contains(inner) + p:contains(insideWith)').length, 1, 'Yield points at the right context');
   });
 
   QUnit.test('outer keyword doesn\'t mask inner component property', function () {
@@ -17283,10 +17212,9 @@ enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['expo
     });
   });
 });
-enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
+enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set) {
 
   var view, registry, container;
-  var trim = _emberViewsSystemJquery.default.trim;
 
   QUnit.module('ember-htmlbars: {{#with}} and {{#view}} integration', {
     setup: function () {
@@ -17301,79 +17229,6 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-met
       _emberRuntimeTestsUtils.runDestroy(view);
       registry = container = view = null;
     }
-  });
-
-  QUnit.test('View should update when the property used with the #with helper changes [DEPRECATED]', function () {
-    registry.register('template:foo', _emberTemplateCompilerSystemCompile.default('<h1 id="first">{{#with view.content}}{{wham}}{{/with}}</h1>'));
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      templateName: 'foo',
-
-      content: _emberRuntimeSystemObject.default.create({
-        wham: 'bam',
-        thankYou: 'ma\'am'
-      })
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    equal(view.$('#first').text(), 'bam', 'precond - view renders Handlebars template');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'content', _emberRuntimeSystemObject.default.create({
-        wham: 'bazam'
-      }));
-    });
-
-    equal(view.$('#first').text(), 'bazam', 'view updates when a bound property changes');
-  });
-
-  QUnit.test('should expose a view keyword [DEPRECATED]', function () {
-    var templateString = '{{#with view.differentContent}}{{view.foo}}{{#view baz="bang"}}{{view.baz}}{{/view}}{{/with}}';
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      differentContent: {
-        view: {
-          foo: 'WRONG',
-          baz: 'WRONG'
-        }
-      },
-
-      foo: 'bar',
-
-      template: _emberTemplateCompilerSystemCompile.default(templateString)
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    equal(view.$().text(), 'barbang', 'renders values from view and child view');
-  });
-
-  QUnit.test('bindings can be `this`, in which case they *are* the current context [DEPRECATED]', function () {
-    view = _emberViewsViewsView.default.create({
-      museumOpen: true,
-
-      museumDetails: _emberRuntimeSystemObject.default.create({
-        name: 'SFMoMA',
-        price: 20,
-        museumView: _emberViewsViewsView.default.extend({
-          template: _emberTemplateCompilerSystemCompile.default('Name: {{view.museum.name}} Price: ${{view.museum.price}}')
-        })
-      }),
-
-      template: _emberTemplateCompilerSystemCompile.default('{{#if view.museumOpen}} {{#with view.museumDetails}}{{view museumView museum=this}} {{/with}}{{/if}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    equal(trim(view.$().text()), 'Name: SFMoMA Price: $20', 'should print baz twice');
   });
 
   QUnit.test('child views can be inserted inside a bind block', function () {
@@ -26731,7 +26586,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 // this is present to ensure `actions` hash is present
 // a different error is triggered if `actions` is missing
 // completely
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/container', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemContainer, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsHelpersEach, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsHelpersEach, _emberRuntimeTestsUtils) {
 
   var dispatcher, view;
   var originalRegisterAction = _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
@@ -26847,43 +26702,11 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     equal(watted, true, 'The action was called on the right context');
   });
 
-  QUnit.test('should target the with-controller inside an {{#with controller=\'person\'}} [DEPRECATED]', function () {
+  QUnit.test('should allow a target to be specified', function () {
     var registeredTarget;
 
     _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref4) {
       var node = _ref4.node;
-
-      registeredTarget = node.state.target;
-    };
-
-    var PersonController = _emberRuntimeControllersController.default.extend();
-    var registry = new _emberRuntimeSystemContainer.Registry();
-    var container = registry.container();
-    var parentController = _emberRuntimeSystemObject.default.create({
-      container: container
-    });
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.person controller="person"}}<div {{action "editTodo"}}></div>{{/with}}'),
-      person: _emberRuntimeSystemObject.default.create(),
-      controller: parentController
-    });
-
-    registry.register('controller:person', PersonController);
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
-
-    ok(registeredTarget instanceof PersonController, 'the with-controller is the target of action');
-  });
-
-  QUnit.test('should allow a target to be specified', function () {
-    var registeredTarget;
-
-    _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref5) {
-      var node = _ref5.node;
 
       registeredTarget = node.state.target;
     };
@@ -27143,30 +26966,6 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
-
-    view.$('a').trigger('click');
-
-    ok(eventHandlerWasCalled, 'The event handler was called');
-  });
-
-  QUnit.test('should work properly in a #with block [DEPRECATED]', function () {
-    var eventHandlerWasCalled = false;
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: { edit: function () {
-          eventHandlerWasCalled = true;
-        } }
-    }).create();
-
-    view = _emberViewsViewsView.default.create({
-      controller: controller,
-      something: { ohai: 'there' },
-      template: _emberTemplateCompilerSystemCompile.default('{{#with view.something}}<a href="#" {{action "edit"}}>click me</a>{{/with}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of `{{with}}` is deprecated. Please use the block param form (`{{#with bar as |foo|}}`) instead.');
 
     view.$('a').trigger('click');
 
@@ -42974,7 +42773,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+ec150433', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+c2737092', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
