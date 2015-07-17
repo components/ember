@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1a16131d
+ * @version   2.0.0-canary+693a8e97
  */
 
 (function() {
@@ -5442,16 +5442,22 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
 });
 
 // jscs:enable validateIndentation
-enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths) {
 
   var component = undefined;
 
   QUnit.module('ember-htmlbars: compat - controller keyword (use as a path)', {
     setup: function () {
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
+
       component = null;
     },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(component);
+
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
     }
   });
 
@@ -6590,7 +6596,7 @@ enifed('ember-htmlbars/tests/compat/precompile_test', ['exports', 'ember-htmlbar
     equal(typeof result, 'string');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/views/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry'], function (exports, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry) {
+enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/views/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/deprecate-view-helper'], function (exports, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsDeprecateViewHelper) {
 
   var component = undefined,
       registry = undefined,
@@ -6598,12 +6604,15 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/
 
   QUnit.module('ember-htmlbars: compat - view helper', {
     setup: function () {
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewHelper.default);
+
       registry = new _containerRegistry.default();
       container = registry.container();
     },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(component);
       _emberRuntimeTestsUtils.runDestroy(container);
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewHelper.default);
       registry = container = component = null;
     }
   });
@@ -6659,16 +6668,18 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/
     assert.ok(!!component.$('select').length, 'still renders select');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths) {
 
   var component = undefined;
 
   QUnit.module('ember-htmlbars: compat - view keyword (use as a path)', {
     setup: function () {
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
       component = null;
     },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(component);
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
     }
   });
 
@@ -8311,7 +8322,7 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/fea
     assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
-enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach) {
+enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
 
   var people, view, registry, container;
   var template, templateMyView, MyView, MyEmptyView, templateMyEmptyView;
@@ -8383,6 +8394,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     setup: function () {
       _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+
       template = _emberTemplateCompilerSystemCompile.default('{{#each view.people}}{{name}}{{/each}}');
       people = _emberRuntimeSystemNative_array.A([{ name: 'Steve Holt' }, { name: 'Annabelle' }]);
 
@@ -8421,6 +8434,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       registry = container = view = null;
 
       _emberMetalCore.default.lookup = originalLookup;
+
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
     }
   });
 
@@ -18119,6 +18134,20 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
     ok(extractEnv(components.block) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{#block-component}} environment should be an instance of RenderEnv');
     ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{child-component}} environment should be an instance of RenderEnv');
   });
+});
+enifed('ember-htmlbars/tests/utils', ['exports', 'ember-template-compiler/plugins'], function (exports, _emberTemplateCompilerPlugins) {
+
+  function registerAstPlugin(plugin) {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', plugin);
+  }
+
+  function removeAstPlugin(plugin) {
+    var index = _emberTemplateCompilerPlugins.default['ast'].indexOf(plugin);
+    _emberTemplateCompilerPlugins.default['ast'].splice(index, 1);
+  }
+
+  exports.registerAstPlugin = registerAstPlugin;
+  exports.removeAstPlugin = removeAstPlugin;
 });
 enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString) {
 
@@ -42520,9 +42549,16 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
   exports.runDestroy = runDestroy;
 });
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {});
-enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
+enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
 
-  QUnit.module('ember-template-compiler: transform-each-into-collection');
+  QUnit.module('ember-template-compiler: transform-each-into-collection', {
+    setup: function () {
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+    },
+    teardown: function () {
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+    }
+  });
 
   var deprecatedAttrs = ['itemController', 'itemView', 'itemViewClass', 'tagName', 'emptyView', 'emptyViewClass'];
 
@@ -42713,7 +42749,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+1a16131d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+693a8e97', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -53346,7 +53382,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
     assert.ok(ownerView._outlets, 'owner view has an internal array of outlets');
   });
 });
-enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsCompat, _emberViewsViewsView) {
+enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/compat', 'ember-views/views/view', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsCompat, _emberViewsViewsView, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
 
   /*
    In Ember 1.x, controllers subtly affect things like template scope
@@ -53359,8 +53395,13 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', '
   var compile = _emberHtmlbarsCompat.default.compile;
   var App, $fixture, templates;
 
+  var originalAstPlugins = undefined;
+
   QUnit.module('Template scoping examples', {
     setup: function () {
+      originalAstPlugins = _emberTemplateCompilerPlugins.default['ast'].slice(0);
+      _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+
       _emberMetalCore.default.run(function () {
         templates = _emberMetalCore.default.TEMPLATES;
         App = _emberMetalCore.default.Application.create({
@@ -53387,6 +53428,8 @@ enifed('ember/tests/controller_test', ['exports', 'ember', 'ember-metal/core', '
       App = null;
 
       _emberMetalCore.default.TEMPLATES = {};
+
+      _emberTemplateCompilerPlugins.default['ast'] = originalAstPlugins;
     }
   });
 
