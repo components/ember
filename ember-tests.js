@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a49526b9
+ * @version   2.0.0-canary+8e03e3ab
  */
 
 (function() {
@@ -42903,7 +42903,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a49526b9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+8e03e3ab', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -47738,39 +47738,6 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     equal(view.element.childNodes[2].tagName, 'TR', 'inner view is tr');
   });
 });
-enifed('ember-views/tests/views/exports_test', ['exports', 'ember-views'], function (exports, _emberViews) {
-
-  var originalSupport = undefined;
-
-  QUnit.module('ember-view exports', {
-    setup: function () {
-      originalSupport = _emberViews.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
-    },
-    teardown: function () {
-      _emberViews.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = originalSupport;
-    }
-  });
-
-  QUnit.test('should export a deprecated CoreView', function () {
-    expectDeprecation(function () {
-      _emberViews.default.CoreView.create();
-    }, 'Ember.CoreView is deprecated. Please use Ember.View.');
-  });
-
-  QUnit.test('should export a deprecated View', function () {
-    expectDeprecation(function () {
-      _emberViews.default.View.create();
-    }, /Ember.View is deprecated/);
-  });
-
-  QUnit.test('when legacy view support is enabled, Ember.View does not have deprecation', function () {
-    _emberViews.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
-
-    expectNoDeprecation(function () {
-      _emberViews.default.View.create();
-    });
-  });
-});
 enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView) {
 
   var view, beforeCalls, afterCalls;
@@ -47855,12 +47822,6 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'e
   function selectedOptions() {
     return select.get('childViews').mapBy('selected');
   }
-
-  QUnit.test('using the Ember.Select global is deprecated', function (assert) {
-    expectDeprecation(function () {
-      _emberMetalCore.default.Select.create();
-    }, /Ember.Select is deprecated./);
-  });
 
   QUnit.test('has \'ember-view\' and \'ember-select\' CSS classes', function () {
     deepEqual(select.get('classNames'), ['ember-view', 'ember-select']);
