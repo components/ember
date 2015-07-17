@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8e03e3ab
+ * @version   2.0.0-canary+ddd139c1
  */
 
 (function() {
@@ -13364,9 +13364,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     });
   }
 
-  testWithAs('ember-htmlbars: {{#with}} helper', '{{#with person as tom}}{{title}}: {{tom.name}}{{/with}}', true);
-
-  QUnit.module('Multiple Handlebars {{with foo as bar}} helpers', {
+  QUnit.module('Multiple Handlebars {{with foo as |bar|}} helpers', {
     setup: function () {
       _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
     },
@@ -13434,7 +13432,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     }
   });
 
-  QUnit.test('it should support #with Foo.bar as qux [DEPRECATED]', function () {
+  QUnit.test('it should support #with Foo.bar as |qux| [DEPRECATED]', function () {
     expectDeprecation(function () {
       _emberRuntimeTestsUtils.runAppend(view);
     }, /Global lookup of Foo from a Handlebars template is deprecated/);
@@ -13450,7 +13448,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
 
   QUnit.module('Handlebars {{#with keyword as |foo|}}');
 
-  QUnit.test('it should support #with view as foo', function () {
+  QUnit.test('it should support #with view as |foo|', function () {
     var view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#with view as |myView|}}{{myView.name}}{{/with}}'),
       name: 'Sonics'
@@ -13468,7 +13466,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 
-  QUnit.test('it should support #with name as foo, then #with foo as bar', function () {
+  QUnit.test('it should support #with name as |foo|, then #with foo as |bar|', function () {
     var view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#with name as |foo|}}{{#with foo as |bar|}}{{bar}}{{/with}}{{/with}}'),
       context: { name: 'caterpillar' }
@@ -13488,7 +13486,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
 
   QUnit.module('Handlebars {{#with this as |foo|}}');
 
-  QUnit.test('it should support #with this as qux', function () {
+  QUnit.test('it should support #with this as |qux|', function () {
     var view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#with this as |person|}}{{person.name}}{{/with}}'),
       controller: _emberRuntimeSystemObject.default.create({ name: 'Los Pivots' })
@@ -13506,9 +13504,9 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 
-  QUnit.module('Handlebars {{#with foo as bar}} with defined controller');
+  QUnit.module('Handlebars {{#with foo as |bar|}} with defined controller');
 
-  QUnit.test('destroys the controller generated with {{with foo as bar controller=\'blah\'}}', function () {
+  QUnit.test('destroys the controller generated with {{with foo as |bar| controller=\'blah\'}}', function () {
     var destroyed = false;
     var Controller = _emberRuntimeControllersController.default.extend({
       willDestroy: function () {
@@ -42779,18 +42777,6 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
   });
 });
-enifed('ember-template-compiler/tests/plugins/transform-with-as-to-hash-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
-
-  QUnit.module('ember-template-compiler: transform-with-as-to-hash');
-
-  QUnit.test('cannot use block params and keyword syntax together', function () {
-    expect(1);
-
-    throws(function () {
-      _emberTemplateCompiler.compile('{{#with foo as thing as |other-thing|}}{{thing}}-{{other-thing}}{{/with}}');
-    }, /You cannot use keyword/);
-  });
-});
 enifed('ember-template-compiler/tests/plugins_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile) {
 
   var originalASTPlugins;
@@ -42903,7 +42889,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8e03e3ab', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+ddd139c1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -42913,16 +42899,6 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
     var expected = _htmlbarsCompilerCompiler.compile(templateString);
 
     ok(actual.meta.revision !== expected.meta.revision, 'revision differs from default');
-  });
-
-  QUnit.test('{{with}} template deprecation includes moduleName if provided', function () {
-    var templateString = '{{#with foo as bar}} {{bar}} {{/with}}';
-
-    expectDeprecation(function () {
-      _emberTemplateCompilerSystemCompile.default(templateString, {
-        moduleName: 'foo/bar/baz'
-      });
-    }, /foo\/bar\/baz/);
   });
 });
 enifed('ember-template-compiler/tests/system/template_test', ['exports', 'ember-template-compiler/system/template'], function (exports, _emberTemplateCompilerSystemTemplate) {

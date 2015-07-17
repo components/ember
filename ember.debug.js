@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8e03e3ab
+ * @version   2.0.0-canary+ddd139c1
  */
 
 (function() {
@@ -8771,7 +8771,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8e03e3ab';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ddd139c1';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9108,7 +9108,7 @@ enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/core', 'ember-me
         hash.controller = morph.state.controller;
       }
 
-      _emberMetalCore.default.assert('{{#with foo}} must be called with a single argument or the use the ' + '{{#with foo as bar}} syntax', params.length === 1);
+      _emberMetalCore.default.assert('{{#with foo}} must be called with a single argument or the use the ' + '{{#with foo as |bar|}} syntax', params.length === 1);
 
       _emberMetalCore.default.assert('The {{#with}} helper must be called with a block', !!template);
 
@@ -14301,7 +14301,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8e03e3ab
+    @version 2.0.0-canary+ddd139c1
     @public
   */
 
@@ -14333,11 +14333,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8e03e3ab'
+    @default '2.0.0-canary+ddd139c1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8e03e3ab';
+  Ember.VERSION = '2.0.0-canary+ddd139c1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22462,7 +22462,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8e03e3ab';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ddd139c1';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22973,7 +22973,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8e03e3ab';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ddd139c1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35956,9 +35956,8 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-with-as-to-hash', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformWithAsToHash, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
 
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformWithAsToHash.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default);
@@ -36847,71 +36846,6 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
   exports.default = TransformTopLevelComponents;
 });
-enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
-
-  /**
-    An HTMLBars AST transformation that replaces all instances of
-  
-    ```handlebars
-    {{#with foo.bar as bar}}
-    {{/with}}
-    ```
-  
-    with
-  
-    ```handlebars
-    {{#with foo.bar as |bar|}}
-    {{/with}}
-    ```
-  
-    @private
-    @class TransformWithAsToHash
-  */
-  function TransformWithAsToHash(options) {
-    // set later within HTMLBars to the syntax package
-    this.syntax = null;
-    this.options = options || {};
-  }
-
-  /**
-    @private
-    @method transform
-    @param {AST} ast The AST to be transformed.
-  */
-  TransformWithAsToHash.prototype.transform = function TransformWithAsToHash_transform(ast) {
-    var pluginContext = this;
-    var walker = new pluginContext.syntax.Walker();
-    var moduleName = this.options.moduleName;
-
-    walker.visit(ast, function (node) {
-      if (pluginContext.validate(node)) {
-        if (node.program && node.program.blockParams.length) {
-          throw new Error('You cannot use keyword (`{{with foo as bar}}`) and block params (`{{with foo as |bar|}}`) at the same time.');
-        }
-
-        var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.program.loc);
-
-        _emberMetalCore.default.deprecate('Using {{with}} without block syntax ' + moduleInfo + 'is deprecated. ' + 'Please use standard block form (`{{#with foo as |bar|}}`) ' + 'instead.', false, { url: 'http://emberjs.com/deprecations/v1.x/#toc_code-as-code-sytnax-for-code-with-code' });
-
-        var removedParams = node.params.splice(1, 2);
-        var keyword = removedParams[1].original;
-        node.program.blockParams = [keyword];
-      }
-    });
-
-    return ast;
-  };
-
-  TransformWithAsToHash.prototype.validate = function TransformWithAsToHash_validate(node) {
-    return node.type === 'BlockStatement' && node.path.original === 'with' && node.params.length === 3 && node.params[1].type === 'PathExpression' && node.params[1].original === 'as';
-  };
-
-  exports.default = TransformWithAsToHash;
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
 enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
   exports.default = calculateLocationDisplay;
 
@@ -37013,7 +36947,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8e03e3ab',
+        revision: 'Ember@2.0.0-canary+ddd139c1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42252,7 +42186,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8e03e3ab';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ddd139c1';
 
   /**
   @module ember
