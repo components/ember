@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c2737092
+ * @version   2.0.0-canary+a49526b9
  */
 
 (function() {
@@ -28585,38 +28585,6 @@ enifed('ember-routing-htmlbars/tests/helpers/render_test', ['exports', 'ember-me
     equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
   });
 
-  QUnit.test('{{render}} works with slash notation', function () {
-    var template = '{{render "blog/post"}}';
-
-    var ContextController = _emberRuntimeControllersController.default.extend({ container: container });
-
-    var controller;
-    var id = 0;
-    var BlogPostController = _emberRuntimeControllersController.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        controller = this;
-        this.uniqueId = id++;
-      }
-    });
-    container._registry.register('controller:blog.post', BlogPostController);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: ContextController.create(),
-      template: _emberTemplateCompilerSystemCompile.default(template)
-    });
-
-    _emberMetalCore.default.TEMPLATES['blog.post'] = _emberTemplateCompilerSystemCompile.default('{{uniqueId}}');
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Using a slash for namespacing/);
-
-    var singletonController = container.lookup('controller:blog.post');
-    equal(singletonController.uniqueId, view.$().html(), 'rendered with correct singleton controller');
-  });
-
   QUnit.test('throws an assertion if {{render}} is called with an unquoted template name', function () {
     var template = '<h1>HI</h1>{{render home}}';
     var controller = _emberRuntimeControllersController.default.extend({ container: container });
@@ -42773,7 +42741,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+c2737092', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a49526b9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
