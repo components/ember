@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1a16131d
+ * @version   2.0.0-canary+ddd139c1
  */
 
 (function() {
@@ -1409,6 +1409,20 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     });
 
     ok(app.__container__.lookup('router:main') instanceof CustomRouter, 'application resolved the correct router');
+  });
+
+  QUnit.test('throws helpful error if `app.then` is used', function () {
+    _emberMetalRun_loop.default(function () {
+      app = _emberApplicationSystemApplication.default.create({
+        rootElement: '#qunit-fixture'
+      });
+    });
+
+    expectDeprecation(function () {
+      _emberMetalRun_loop.default(app, 'then', function () {
+        return this;
+      });
+    }, /Do not use `.then` on an instance of Ember.Application.  Please use the `.ready` hook instead./);
   });
 
   QUnit.test('registers controls onto to container', function () {
@@ -42875,7 +42889,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+1a16131d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+ddd139c1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
