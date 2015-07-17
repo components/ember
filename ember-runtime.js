@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8701af49
+ * @version   2.0.0-canary+513494fd
  */
 
 (function() {
@@ -4768,7 +4768,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8701af49
+    @version 2.0.0-canary+513494fd
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8701af49'
+    @default '2.0.0-canary+513494fd'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8701af49';
+  Ember.VERSION = '2.0.0-canary+513494fd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13612,23 +13612,14 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
       @method willMergeMixin
     */
     willMergeMixin: function (props) {
-      var hashName;
-
       if (!props._actions) {
         _emberMetalCore.default.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
 
         if (!!props.actions && typeof props.actions === 'object') {
-          hashName = 'actions';
-        } else if (!!props.events && typeof props.events === 'object') {
-          _emberMetalCore.default.deprecate('Action handlers contained in an `events` object are deprecated in favor' + ' of putting them in an `actions` object', false);
-          hashName = 'events';
-        }
-
-        if (hashName) {
+          var hashName = 'actions';
           props._actions = _emberMetalMerge.default(props._actions || {}, props[hashName]);
+          delete props[hashName];
         }
-
-        delete props[hashName];
       }
     },
 
