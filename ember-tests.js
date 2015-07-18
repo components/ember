@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+896c9cd5
+ * @version   2.0.0-canary+8560990f
  */
 
 (function() {
@@ -14476,16 +14476,11 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
   });
 
   QUnit.test('should accept bindings as a string or an Ember.Binding', function () {
-    var ViewWithBindings;
-
-    expectDeprecation(function () {
-      ViewWithBindings = _emberViewsViewsView.default.extend({
-        oneWayBindingTestBinding: _emberMetalBinding.Binding.oneWay('context.direction'),
-        twoWayBindingTestBinding: _emberMetalBinding.Binding.from('context.direction'),
-        stringBindingTestBinding: 'context.direction',
-        template: _emberTemplateCompilerSystemCompile.default('one way: {{view.oneWayBindingTest}}, ' + 'two way: {{view.twoWayBindingTest}}, ' + 'string: {{view.stringBindingTest}}')
-      });
-    }, 'Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.');
+    var ViewWithBindings = _emberViewsViewsView.default.extend({
+      twoWayBindingTestBinding: _emberMetalBinding.Binding.from('context.direction'),
+      stringBindingTestBinding: 'context.direction',
+      template: _emberTemplateCompilerSystemCompile.default('two way: {{view.twoWayBindingTest}}, ' + 'string: {{view.stringBindingTest}}')
+    });
 
     view = _emberViewsViewsView.default.create({
       viewWithBindingsClass: ViewWithBindings,
@@ -14497,7 +14492,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    equal(trim(view.$().text()), 'one way: down, two way: down, string: down');
+    equal(trim(view.$().text()), 'two way: down, string: down');
   });
 });
 enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils) {
@@ -42862,7 +42857,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+896c9cd5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+8560990f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

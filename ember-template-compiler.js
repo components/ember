@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+896c9cd5
+ * @version   2.0.0-canary+8560990f
  */
 
 (function() {
@@ -2098,30 +2098,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/prope
     to: function (to) {
       var C = this;
       return new C(to, undefined);
-    },
-
-    /**
-      Creates a new Binding instance and makes it apply in a single direction.
-      A one-way binding will relay changes on the `from` side object (supplied
-      as the `from` argument) the `to` side, but not the other way around.
-      This means that if you change the "to" side directly, the "from" side may have
-      a different value.
-       See `Binding.oneWay`.
-       @method oneWay
-      @param {String} from from path.
-      @param {Boolean} [flag] (Optional) passing nothing here will make the
-        binding `oneWay`. You can instead pass `false` to disable `oneWay`, making the
-        binding two way again.
-      @return {Ember.Binding} `this`
-      @deprecated
-      @public
-    */
-    oneWay: function (from, flag) {
-      _emberMetalCore.default.deprecate('Ember.oneWay has been deprecated. Please use Ember.computed.oneWay instead.', false);
-      var C = this;
-      return new C(undefined, from).oneWay(flag);
     }
-
   });
   /**
     An `Ember.Binding` connects the properties of two objects so that whenever
@@ -4046,7 +4023,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+896c9cd5
+    @version 2.0.0-canary+8560990f
     @public
   */
 
@@ -4078,11 +4055,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+896c9cd5'
+    @default '2.0.0-canary+8560990f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+896c9cd5';
+  Ember.VERSION = '2.0.0-canary+8560990f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12082,7 +12059,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+896c9cd5',
+        revision: 'Ember@2.0.0-canary+8560990f',
         loc: program.loc,
         moduleName: options.moduleName
       };
