@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+408047d3
+ * @version   2.0.0-canary+f247f6eb
  */
 
 (function() {
@@ -4761,7 +4761,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+408047d3
+    @version 2.0.0-canary+f247f6eb
     @public
   */
 
@@ -4793,11 +4793,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+408047d3'
+    @default '2.0.0-canary+f247f6eb'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+408047d3';
+  Ember.VERSION = '2.0.0-canary+f247f6eb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17664,28 +17664,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
     },
 
     /**
-      Equivalent to doing `extend(arguments).create()`.
-      If possible use the normal `create` method instead.
-       @method createWithMixins
-      @static
-      @param [arguments]*
-      @private
-      @deprecated
-    */
-    createWithMixins: _emberMetal.default.deprecateFunc('.createWithMixins is deprecated, please use .create or .extend accordingly', function () {
-      var C = this;
-
-      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
-      }
-
-      if (args.length > 0) {
-        this._initMixins(args);
-      }
-      return new C();
-    }),
-
-    /**
       Creates an instance of a class. Accepts either no arguments, or an object
       containing values to initialize the newly instantiated object with.
        ```javascript
@@ -17718,8 +17696,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
     create: function () {
       var C = this;
 
-      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        args[_key3] = arguments[_key3];
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
       if (args.length > 0) {

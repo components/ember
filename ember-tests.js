@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+408047d3
+ * @version   2.0.0-canary+f247f6eb
  */
 
 (function() {
@@ -40478,7 +40478,7 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
     deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
   });
 });
-enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/events', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalComputed, _emberMetalMixin, _emberMetalEvents, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemObject) {
 
   var moduleOptions, originalLookup;
 
@@ -40626,76 +40626,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
   QUnit.test('EmberObject.create can take null as a parameter', function () {
     var o = _emberRuntimeSystemObject.default.create(null);
     deepEqual(_emberRuntimeSystemObject.default.create(), o);
-  });
-
-  QUnit.module('EmberObject.createWithMixins', moduleOptions);
-
-  QUnit.test('Creates a new object that contains passed properties', function () {
-    var called = false;
-    var obj = _emberRuntimeSystemObject.default.extend({
-      method: function () {
-        called = true;
-      }
-    }).create({
-      prop: 'FOO'
-    });
-
-    equal(_emberMetalProperty_get.get(obj, 'prop'), 'FOO', 'obj.prop');
-    obj.method();
-    ok(called, 'method executed');
-  });
-
-  // ..........................................................
-  // WORKING WITH MIXINS
-  //
-
-  QUnit.test('Creates a new object that includes mixins and properties', function () {
-    var MixinA = _emberMetalMixin.Mixin.create({ mixinA: 'A' });
-
-    expectDeprecation(function () {
-      _emberRuntimeSystemObject.default.createWithMixins(MixinA, { prop: 'FOO' });
-    }, '.createWithMixins is deprecated, please use .create or .extend accordingly');
-  });
-
-  // ..........................................................
-  // LIFECYCLE
-  //
-
-  QUnit.test('Configures _super() on methods with override', function () {
-    var MixinA = _emberMetalMixin.Mixin.create({ method: function () {} });
-    expectDeprecation(function () {
-      _emberRuntimeSystemObject.default.createWithMixins(MixinA, {
-        method: function () {
-          this._super.apply(this, arguments);
-        }
-      });
-    }, '.createWithMixins is deprecated, please use .create or .extend accordingly');
-  });
-
-  QUnit.test('Calls all mixin inits if defined', function () {
-    var Mixin1 = _emberMetalMixin.Mixin.create({
-      init: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    var Mixin2 = _emberMetalMixin.Mixin.create({
-      init: function () {
-        this._super.apply(this, arguments);
-      }
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeSystemObject.default.createWithMixins(Mixin1, Mixin2);
-    }, '.createWithMixins is deprecated, please use .create or .extend accordingly');
-  });
-
-  QUnit.test('Triggers init', function () {
-    expectDeprecation(function () {
-      _emberRuntimeSystemObject.default.createWithMixins({
-        markAsCompleted: _emberMetalEvents.on('init', function () {})
-      });
-    }, '.createWithMixins is deprecated, please use .create or .extend accordingly');
   });
 });
 enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
@@ -42932,7 +42862,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+408047d3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+f247f6eb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
