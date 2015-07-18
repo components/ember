@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8560990f
+ * @version   2.0.0-canary+757fcb91
  */
 
 (function() {
@@ -4023,7 +4023,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8560990f
+    @version 2.0.0-canary+757fcb91
     @public
   */
 
@@ -4055,11 +4055,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8560990f'
+    @default '2.0.0-canary+757fcb91'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8560990f';
+  Ember.VERSION = '2.0.0-canary+757fcb91';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5832,20 +5832,6 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     },
 
     /**
-      @deprecated
-       @method remove
-      @param obj
-      @param _guid (optional and for internal use only)
-      @return {Boolean}
-      @private
-    */
-    remove: function (obj, _guid) {
-      _emberMetalCore.default.deprecate('Calling `OrderedSet.prototype.remove` has been deprecated, please use `OrderedSet.prototype.delete` instead.', this._silenceRemoveDeprecation);
-
-      return this.delete(obj, _guid);
-    },
-
-    /**
       @since 1.8.0
       @method delete
       @param obj
@@ -6054,20 +6040,6 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
       this.size = keys.size;
 
       return this;
-    },
-
-    /**
-      @deprecated see delete
-      Removes a value from the map for an associated key.
-       @method remove
-      @param {*} key
-      @return {Boolean} true if an item was removed, false otherwise
-      @private
-    */
-    remove: function (key) {
-      _emberMetalCore.default.deprecate('Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
-
-      return this.delete(key);
     },
 
     /**
@@ -12059,7 +12031,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8560990f',
+        revision: 'Ember@2.0.0-canary+757fcb91',
         loc: program.loc,
         moduleName: options.moduleName
       };

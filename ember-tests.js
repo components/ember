@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8560990f
+ * @version   2.0.0-canary+757fcb91
  */
 
 (function() {
@@ -21544,23 +21544,6 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
       equal(map.forEach.length, 1, 'expected arity for map.forEach is 1');
     });
 
-    QUnit.test('remove', function () {
-      map.set(object, 'winning');
-      map.set(number, 'winning');
-      map.set(string, 'winning');
-
-      expectDeprecation(function () {
-        map.remove(object);
-        map.remove(number);
-        map.remove(string);
-
-        // doesn't explode
-        map.remove({});
-      }, 'Calling `Map.prototype.remove` has been deprecated, please use `Map.prototype.delete` instead.');
-
-      mapHasEntries([]);
-    });
-
     QUnit.test('has empty collection', function () {
       equal(map.has('foo'), false);
       equal(map.has(), false);
@@ -42857,7 +42840,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8560990f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+757fcb91', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
