@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+757fcb91
+ * @version   2.0.0-canary+8fa3ffba
  */
 
 (function() {
@@ -5509,121 +5509,6 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
     }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
   });
 });
-enifed('ember-htmlbars/tests/compat/handlebars_get_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-htmlbars/compat/handlebars-get', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-htmlbars/compat/helper', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberHtmlbarsCompatHandlebarsGet, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberHtmlbarsCompatHelper, _emberHtmlbarsCompat) {
-
-  var compile = _emberHtmlbarsCompat.default.compile;
-
-  var originalLookup = _emberMetalCore.default.lookup;
-  var TemplateTests, registry, container, lookup, view;
-
-  QUnit.module('ember-htmlbars: compat - Ember.Handlebars.get', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = {};
-      registry = new _emberRuntimeSystemContainer.Registry();
-      container = registry.container();
-      registry.optionsForType('template', { instantiate: false });
-      registry.register('view:toplevel', _emberViewsViewsView.default.extend());
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      registry = container = view = null;
-
-      _emberMetalCore.default.lookup = lookup = originalLookup;
-      TemplateTests = null;
-    }
-  });
-
-  QUnit.test('it can lookup a path from the current context', function () {
-    expect(1);
-
-    registry.register('helper:handlebars-get', new _emberHtmlbarsCompatHelper.default(function (path, options) {
-      var context = options.contexts && options.contexts[0] || this;
-
-      ignoreDeprecation(function () {
-        equal(_emberHtmlbarsCompatHandlebarsGet.default(context, path, options), 'bar');
-      });
-    }));
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: {
-        foo: 'bar'
-      },
-      template: compile('{{handlebars-get "foo"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-  });
-
-  QUnit.test('it can lookup a path from the current keywords', function () {
-    expect(1);
-
-    registry.register('helper:handlebars-get', new _emberHtmlbarsCompatHelper.default(function (path, options) {
-      var context = options.contexts && options.contexts[0] || this;
-
-      ignoreDeprecation(function () {
-        equal(_emberHtmlbarsCompatHandlebarsGet.default(context, path, options), 'bar');
-      });
-    }));
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: {
-        foo: 'bar'
-      },
-      template: compile('{{#with foo as |bar|}}{{handlebars-get "bar"}}{{/with}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-  });
-
-  QUnit.test('it can lookup a path from globals', function () {
-    expect(1);
-
-    lookup.Blammo = { foo: 'blah' };
-
-    registry.register('helper:handlebars-get', new _emberHtmlbarsCompatHelper.default(function (path, options) {
-      var context = options.contexts && options.contexts[0] || this;
-
-      ignoreDeprecation(function () {
-        equal(_emberHtmlbarsCompatHandlebarsGet.default(context, path, options), lookup.Blammo.foo);
-      });
-    }));
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: {},
-      template: compile('{{handlebars-get "Blammo.foo"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-  });
-
-  QUnit.test('it raises a deprecation warning on use', function () {
-    expect(1);
-
-    registry.register('helper:handlebars-get', new _emberHtmlbarsCompatHelper.default(function (path, options) {
-      var context = options.contexts && options.contexts[0] || this;
-
-      expectDeprecation(function () {
-        _emberHtmlbarsCompatHandlebarsGet.default(context, path, options);
-      }, 'Usage of Ember.Handlebars.get is deprecated, use a Component or Ember.Handlebars.makeBoundHelper instead.');
-    }));
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: {
-        foo: 'bar'
-      },
-      template: compile('{{handlebars-get "foo"}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-  });
-});
-// Ember.lookup
 enifed('ember-htmlbars/tests/compat/helper_test', ['exports', 'ember-htmlbars/compat/helper', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/helpers', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-views/component_lookup', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberHtmlbarsCompatHelper, _emberViewsViewsView, _emberViewsViewsComponent, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsHelpers, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberViewsComponent_lookup, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
 
   var view, registry, container, originalViewKeyword;
@@ -42840,7 +42725,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+757fcb91', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+8fa3ffba', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
