@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f247f6eb
+ * @version   2.0.0-canary+5a02548c
  */
 
 (function() {
@@ -114,7 +114,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalAssert, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -152,7 +152,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
       its return value will be used as condition.
     @public
   */
-  _emberMetalCore.default.assert = function (desc, test) {
+  function assert(desc, test) {
     var throwAssertion;
 
     if (isPlainFunction(test)) {
@@ -164,7 +164,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     if (throwAssertion) {
       throw new _emberMetalError.default('Assertion Failed: ' + desc);
     }
-  };
+  }
 
   /**
     Display a warning with the provided message. Ember build tools will
@@ -176,14 +176,14 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
       will be displayed.
     @public
   */
-  _emberMetalCore.default.warn = function (message, test) {
+  function warn(message, test) {
     if (!test) {
       _emberMetalLogger.default.warn('WARNING: ' + message);
       if ('trace' in _emberMetalLogger.default) {
         _emberMetalLogger.default.trace();
       }
     }
-  };
+  }
 
   /**
     Display a debug notice. Ember build tools will remove any calls to
@@ -197,9 +197,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @param {String} message A debug message to display.
     @public
   */
-  _emberMetalCore.default.debug = function (message) {
+  function debug(message) {
     _emberMetalLogger.default.debug('DEBUG: ' + message);
-  };
+  }
 
   /**
     Display a deprecation warning with the provided message and a stack trace
@@ -218,7 +218,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
       The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
-  _emberMetalCore.default.deprecate = function (message, test, options) {
+  function deprecate(message, test, options) {
     if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
       _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
     }
@@ -280,7 +280,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     }
 
     _emberMetalLogger.default.warn('DEPRECATION: ' + message);
-  };
+  }
 
   /**
     Alias an old, deprecated method with its new counterpart.
@@ -302,7 +302,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @return {Function} a new function that wrapped the original function with a deprecation warning
     @private
   */
-  _emberMetalCore.default.deprecateFunc = function () {
+  function deprecateFunc() {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -337,7 +337,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
       if (typeof _ret2 === 'object') return _ret2.v;
     }
-  };
+  }
 
   /**
     Run a function meant for debugging. Ember build tools will remove any calls to
@@ -358,9 +358,16 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @since 1.5.0
     @public
   */
-  _emberMetalCore.default.runInDebug = function (func) {
+  function runInDebug(func) {
     func();
-  };
+  }
+
+  _emberMetalAssert.registerDebugFunction('assert', assert);
+  _emberMetalAssert.registerDebugFunction('warn', warn);
+  _emberMetalAssert.registerDebugFunction('debug', debug);
+  _emberMetalAssert.registerDebugFunction('deprecate', deprecate);
+  _emberMetalAssert.registerDebugFunction('deprecateFunc', deprecateFunc);
+  _emberMetalAssert.registerDebugFunction('runInDebug', runInDebug);
 
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
