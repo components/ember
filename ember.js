@@ -5431,7 +5431,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     so that if `ember.js` (which must be output for backwards compat reasons) is
     used a nice helpful warning message will be printed out.
   */
-  var runningNonEmberDebugJS = false;
+  var runningNonEmberDebugJS = true;
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
   if (runningNonEmberDebugJS) {
     _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
@@ -53027,6 +53027,4 @@ enifed('rsvp/utils', ['exports'], function (exports) {
 });
 requireModule("ember");
 
-})();
-;module.exports = Ember;
-//# sourceMappingURL=ember.debug.cjs.map
+})();//# sourceMappingURL=ember.map

@@ -17952,131 +17952,6 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
 
     return property in meta.values;
   }
-
-  QUnit.test('does not assert if property is not being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    obj.someProp = 'blastix';
-    equal(_emberMetalProperty_get.get(obj, 'someProp'), 'blastix');
-  });
-
-  QUnit.test('should not setup mandatory-setter if property is not writable', function () {
-    expect(6);
-
-    var obj = {};
-
-    Object.defineProperty(obj, 'a', { value: true });
-    Object.defineProperty(obj, 'b', { value: false });
-    Object.defineProperty(obj, 'c', { value: undefined });
-    Object.defineProperty(obj, 'd', { value: undefined, writable: false });
-    Object.defineProperty(obj, 'e', { value: undefined, configurable: false });
-    Object.defineProperty(obj, 'f', { value: undefined, configurable: true });
-
-    _emberMetalWatching.watch(obj, 'a');
-    _emberMetalWatching.watch(obj, 'b');
-    _emberMetalWatching.watch(obj, 'c');
-    _emberMetalWatching.watch(obj, 'd');
-    _emberMetalWatching.watch(obj, 'e');
-    _emberMetalWatching.watch(obj, 'f');
-
-    ok(!hasMandatorySetter(obj, 'a'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'b'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'c'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'd'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'e'), 'mandatory-setter should not be installed');
-    ok(!hasMandatorySetter(obj, 'f'), 'mandatory-setter should not be installed');
-  });
-
-  QUnit.test('should not setup mandatory-setter if setter is already setup on property', function () {
-    expect(2);
-
-    var obj = { someProp: null };
-
-    Object.defineProperty(obj, 'someProp', {
-      set: function (value) {
-        equal(value, 'foo-bar', 'custom setter was called');
-      }
-    });
-
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
-
-    obj.someProp = 'foo-bar';
-  });
-
-  QUnit.test('should assert if set without Ember.set when property is being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    _emberMetalWatching.watch(obj, 'someProp');
-
-    expectAssertion(function () {
-      obj.someProp = 'foo-bar';
-    }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-  });
-
-  QUnit.test('should not assert if set with Ember.set when property is being watched', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-
-    _emberMetalWatching.watch(obj, 'someProp');
-    _emberMetalProperty_set.set(obj, 'someProp', 'foo-bar');
-
-    equal(_emberMetalProperty_get.get(obj, 'someProp'), 'foo-bar');
-  });
-
-  QUnit.test('does not setup mandatory-setter if non-configurable', function () {
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-    var meta = _emberMetalUtils.meta(obj);
-
-    Object.defineProperty(obj, 'someProp', {
-      configurable: false,
-      enumerable: true,
-      value: 'blastix'
-    });
-
-    _emberMetalWatching.watch(obj, 'someProp');
-    ok(!('someProp' in meta.values), 'blastix');
-  });
-
-  QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
-    expect(2);
-
-    var obj = {
-      someProp: null,
-      toString: function () {
-        return 'custom-object';
-      }
-    };
-    var obj2 = Object.create(obj);
-
-    _emberMetalWatching.watch(obj2, 'someProp');
-    var meta = _emberMetalUtils.meta(obj2);
-
-    ok('someProp' in meta.values, 'mandatory setter has been setup');
-
-    expectAssertion(function () {
-      obj2.someProp = 'foo-bar';
-    }, 'You must use Ember.set() to set the `someProp` property (of custom-object) to `foo-bar`.');
-  });
 });
 enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
 
@@ -39885,31 +39760,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     equal(o.get('foo'), 'bar');
   });
 
-  QUnit.test('sets up mandatory setters for watched simple properties', function () {
-
-    var MyClass = _emberRuntimeSystemObject.default.extend({
-      foo: null,
-      bar: null,
-      fooDidChange: _emberMetalMixin.observer('foo', function () {})
-    });
-
-    var o = MyClass.create({ foo: 'bar', bar: 'baz' });
-    equal(o.get('foo'), 'bar');
-
-    // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-    try {
-      Object.getOwnPropertyDescriptor({}, 'foo');
-    } catch (e) {
-      return;
-    }
-
-    var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
-    ok(descriptor.set, 'Mandatory setter was setup');
-
-    descriptor = Object.getOwnPropertyDescriptor(o, 'bar');
-    ok(!descriptor.set, 'Mandatory setter was not setup');
-  });
-
   QUnit.test('allows bindings to be defined', function () {
     var obj = _emberRuntimeSystemObject.default.create({
       foo: 'foo',
@@ -39998,6 +39848,8 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     deepEqual(_emberRuntimeSystemObject.default.create(), o);
   });
 });
+
+// Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
 enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
 
   QUnit.module('ember-runtime/system/object/destroy_test');
@@ -40017,25 +39869,6 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     meta = obj['__ember_meta__'];
     ok(!meta, 'meta is destroyed after run loop finishes');
     ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
-  });
-
-  // MANDATORY_SETTER moves value to meta.values
-  // a destroyed object removes meta but leaves the accessor
-  // that looks it up
-  QUnit.test('should raise an exception when modifying watched properties on a destroyed object', function () {
-    var obj = _emberRuntimeSystemObject.default.extend({
-      fooDidChange: _emberMetalMixin.observer('foo', function () {})
-    }).create({
-      foo: 'bar'
-    });
-
-    _emberMetalRun_loop.default(function () {
-      obj.destroy();
-    });
-
-    throws(function () {
-      _emberMetalProperty_set.set(obj, 'foo', 'baz');
-    }, Error, 'raises an exception');
   });
 
   QUnit.test('observers should not fire after an object has been destroyed', function () {
@@ -40160,6 +39993,10 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
     ok(foo.get('value'), 'foo is synced when the binding is updated in the willDestroy hook');
   });
 });
+
+// MANDATORY_SETTER moves value to meta.values
+// a destroyed object removes meta but leaves the accessor
+// that looks it up
 enifed('ember-runtime/tests/system/object/detectInstance_test', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
 
   QUnit.module('system/object/detectInstance');
@@ -58776,130 +58613,5 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 
     assert.ok(called, 'instrumentation called on transition to non-view backed route');
     _emberMetalInstrumentation.unsubscribe(subscriber);
   });
-});
-enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
-  exports.equalInnerHTML = equalInnerHTML;
-  exports.equalHTML = equalHTML;
-  exports.equalTokens = equalTokens;
-  exports.normalizeInnerHTML = normalizeInnerHTML;
-  exports.isCheckedInputHTML = isCheckedInputHTML;
-  exports.getTextContent = getTextContent;
-
-  function equalInnerHTML(fragment, html) {
-    var actualHTML = normalizeInnerHTML(fragment.innerHTML);
-    QUnit.push(actualHTML === html, actualHTML, html);
-  }
-
-  function equalHTML(node, html) {
-    var fragment;
-    if (!node.nodeType && node.length) {
-      fragment = document.createDocumentFragment();
-      while (node[0]) {
-        fragment.appendChild(node[0]);
-      }
-    } else {
-      fragment = node;
-    }
-
-    var div = document.createElement("div");
-    div.appendChild(fragment.cloneNode(true));
-
-    equalInnerHTML(div, html);
-  }
-
-  function generateTokens(fragmentOrHtml) {
-    var div = document.createElement("div");
-    if (typeof fragmentOrHtml === "string") {
-      div.innerHTML = fragmentOrHtml;
-    } else {
-      div.appendChild(fragmentOrHtml.cloneNode(true));
-    }
-
-    return { tokens: _simpleHtmlTokenizer.tokenize(div.innerHTML), html: div.innerHTML };
-  }
-
-  function equalTokens(fragment, html, message) {
-    if (fragment.fragment) {
-      fragment = fragment.fragment;
-    }
-    if (html.fragment) {
-      html = html.fragment;
-    }
-
-    var fragTokens = generateTokens(fragment);
-    var htmlTokens = generateTokens(html);
-
-    function normalizeTokens(token) {
-      if (token.type === "StartTag") {
-        token.attributes = token.attributes.sort(function (a, b) {
-          if (a[0] > b[0]) {
-            return 1;
-          }
-          if (a[0] < b[0]) {
-            return -1;
-          }
-          return 0;
-        });
-      }
-    }
-
-    _htmlbarsUtilArrayUtils.forEach(fragTokens.tokens, normalizeTokens);
-    _htmlbarsUtilArrayUtils.forEach(htmlTokens.tokens, normalizeTokens);
-
-    var msg = "Expected: " + html + "; Actual: " + fragTokens.html;
-
-    if (message) {
-      msg += " (" + message + ")";
-    }
-
-    deepEqual(fragTokens.tokens, htmlTokens.tokens, msg);
-  }
-
-  // detect side-effects of cloning svg elements in IE9-11
-  var ieSVGInnerHTML = (function () {
-    if (!document.createElementNS) {
-      return false;
-    }
-    var div = document.createElement("div");
-    var node = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    div.appendChild(node);
-    var clone = div.cloneNode(true);
-    return clone.innerHTML === "<svg xmlns=\"http://www.w3.org/2000/svg\" />";
-  })();
-
-  function normalizeInnerHTML(actualHTML) {
-    if (ieSVGInnerHTML) {
-      // Replace `<svg xmlns="http://www.w3.org/2000/svg" height="50%" />` with `<svg height="50%"></svg>`, etc.
-      // drop namespace attribute
-      actualHTML = actualHTML.replace(/ xmlns="[^"]+"/, "");
-      // replace self-closing elements
-      actualHTML = actualHTML.replace(/<([^ >]+) [^\/>]*\/>/gi, function (tag, tagName) {
-        return tag.slice(0, tag.length - 3) + "></" + tagName + ">";
-      });
-    }
-
-    return actualHTML;
-  }
-
-  // detect weird IE8 checked element string
-  var checkedInput = document.createElement("input");
-  checkedInput.setAttribute("checked", "checked");
-  var checkedInputString = checkedInput.outerHTML;
-
-  function isCheckedInputHTML(element) {
-    equal(element.outerHTML, checkedInputString);
-  }
-
-  // check which property has the node's text content
-  var textProperty = document.createElement("div").textContent === undefined ? "innerText" : "textContent";
-
-  function getTextContent(el) {
-    // textNode
-    if (el.nodeType === 3) {
-      return el.nodeValue;
-    } else {
-      return el[textProperty];
-    }
-  }
 });
 })();
