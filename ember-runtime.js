@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+6a6aa8d0
+ * @version   1.13.4+cb437b52
  */
 
 (function() {
@@ -2959,6 +2959,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
         binding `oneWay`. You can instead pass `false` to disable `oneWay`, making the
         binding two way again.
       @return {Ember.Binding} `this`
+      @deprecated
       @public
     */
     oneWay: function (from, flag) {
@@ -5027,7 +5028,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4+6a6aa8d0
+    @version 1.13.4+cb437b52
     @public
   */
 
@@ -5059,11 +5060,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4+6a6aa8d0'
+    @default '1.13.4+cb437b52'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4+6a6aa8d0';
+  Ember.VERSION = '1.13.4+cb437b52';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5246,8 +5247,12 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     Ember.deprecate = K;
   }
   if ('undefined' === typeof Ember.deprecateFunc) {
-    Ember.deprecateFunc = function (_, func) {
-      return func;
+    Ember.deprecateFunc = function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return args[args.length - 1];
     };
   }
 
@@ -6333,7 +6338,7 @@ enifed("ember-metal/get_properties", ["exports", "ember-metal/property_get", "em
     @param {Object} obj
     @param {String...|Array} list of keys to get
     @return {Object}
-    @private
+    @public
   */
 
   function getProperties(obj) {
@@ -8495,6 +8500,7 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
 
     if (typeof func !== "function") {
       // revert to old, soft-deprecated argument ordering
+      _emberMetalCore["default"].deprecate("Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.");
 
       func = args[0];
       _paths = args.slice(1);
@@ -15649,6 +15655,20 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
     */
     FunctionPrototype.observesImmediately = _emberMetalCore["default"].deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', FunctionPrototype._observesImmediately);
 
+    FunctionPrototype._observesBefore = function () {
+      var watched = [];
+      var addWatchedProperty = function (obs) {
+        watched.push(obs);
+      };
+
+      for (var i = 0, l = arguments.length; i < l; ++i) {
+        _emberMetalExpand_properties["default"](arguments[i], addWatchedProperty);
+      }
+
+      this.__ember_observesBefore__ = watched;
+
+      return this;
+    };
     /**
       The `observesBefore` extension of Javascript's Function prototype is
       available when `Ember.EXTEND_PROTOTYPES` or
@@ -15668,20 +15688,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
       @for Function
       @private
     */
-    FunctionPrototype.observesBefore = function () {
-      var watched = [];
-      var addWatchedProperty = function (obs) {
-        watched.push(obs);
-      };
-
-      for (var i = 0, l = arguments.length; i < l; ++i) {
-        _emberMetalExpand_properties["default"](arguments[i], addWatchedProperty);
-      }
-
-      this.__ember_observesBefore__ = watched;
-
-      return this;
-    };
+    FunctionPrototype.observesBefore = _emberMetalCore["default"].deprecateFunc('Function#observesBefore is deprecated and will be removed in the near future.', { url: 'http://emberjs.com/deprecations/v1.x/#toc_beforeobserver' }, FunctionPrototype._observesBefore);
 
     /**
       The `on` extension of Javascript's Function prototype is available
@@ -16889,7 +16896,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
   });
 });
 // Ember.deprecate
-enifed("ember-runtime/mixins/copyable", ["exports", "ember-metal/property_get", "ember-metal/mixin", "ember-runtime/mixins/freezable", "ember-runtime/system/string", "ember-metal/error"], function (exports, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberRuntimeSystemString, _emberMetalError) {
+enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/mixins/freezable', 'ember-runtime/system/string', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberRuntimeSystemString, _emberMetalError) {
 
   /**
     Implements some standard methods for copying an object. Add this mixin to
@@ -16929,13 +16936,15 @@ enifed("ember-runtime/mixins/copyable", ["exports", "ember-metal/property_get", 
       consuming more memory.
        @method frozenCopy
       @return {Object} copy of receiver or receiver
+      @deprecated Use `Object.freeze` instead.
       @private
     */
     frozenCopy: function () {
+      _emberMetalCore["default"].deprecate('`frozenCopy` is deprecated, use Object.freeze instead.');
       if (_emberRuntimeMixinsFreezable.Freezable && _emberRuntimeMixinsFreezable.Freezable.detect(this)) {
-        return _emberMetalProperty_get.get(this, "isFrozen") ? this : this.copy().freeze();
+        return _emberMetalProperty_get.get(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
-        throw new _emberMetalError["default"](_emberRuntimeSystemString.fmt("%@ does not support freezing", [this]));
+        throw new _emberMetalError["default"](_emberRuntimeSystemString.fmt('%@ does not support freezing', [this]));
       }
     }
   });
@@ -18255,7 +18264,7 @@ enifed("ember-runtime/mixins/evented", ["exports", "ember-metal/mixin", "ember-m
     }
   });
 });
-enifed("ember-runtime/mixins/freezable", ["exports", "ember-metal/mixin", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set) {
+enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set) {
 
   /**
     The `Ember.Freezable` mixin implements some basic methods for marking an
@@ -18312,9 +18321,15 @@ enifed("ember-runtime/mixins/freezable", ["exports", "ember-metal/mixin", "ember
     @class Freezable
     @namespace Ember
     @since Ember 0.9
+    @deprecated Use `Object.freeze` instead.
     @private
   */
   var Freezable = _emberMetalMixin.Mixin.create({
+
+    init: function () {
+      _emberMetalCore["default"].deprecate('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
+      this._super.apply(this, arguments);
+    },
 
     /**
       Set to `true` when the object is frozen. Use this property to detect
@@ -18333,18 +18348,18 @@ enifed("ember-runtime/mixins/freezable", ["exports", "ember-metal/mixin", "ember
       @private
     */
     freeze: function () {
-      if (_emberMetalProperty_get.get(this, "isFrozen")) {
+      if (_emberMetalProperty_get.get(this, 'isFrozen')) {
         return this;
       }
 
-      _emberMetalProperty_set.set(this, "isFrozen", true);
+      _emberMetalProperty_set.set(this, 'isFrozen', true);
       return this;
     }
 
   });
 
   exports.Freezable = Freezable;
-  var FROZEN_ERROR = "Frozen object cannot be modified.";
+  var FROZEN_ERROR = 'Frozen object cannot be modified.';
   exports.FROZEN_ERROR = FROZEN_ERROR;
 });
 /**
@@ -21727,8 +21742,7 @@ enifed("ember-runtime/system/native_array", ["exports", "ember-metal/core", "emb
     }
   });
 
-  exports.NativeArray // TODO: only use default export
-   = NativeArray = NativeArray.without.apply(NativeArray, ignore);
+  exports.NativeArray = NativeArray = NativeArray.without.apply(NativeArray, ignore);
 
   /**
     Creates an `Ember.NativeArray` from an Array like object.
@@ -21800,7 +21814,8 @@ enifed("ember-runtime/system/native_array", ["exports", "ember-metal/core", "emb
 
   _emberMetalCore["default"].A = A; // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
   exports.A = A;
-  exports.NativeArray = NativeArray;
+  exports.NativeArray = NativeArray // TODO: only use default export
+  ;
   exports["default"] = NativeArray;
 });
 /**

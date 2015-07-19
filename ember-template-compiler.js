@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+6a6aa8d0
+ * @version   1.13.4+cb437b52
  */
 
 (function() {
@@ -1209,6 +1209,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
         binding `oneWay`. You can instead pass `false` to disable `oneWay`, making the
         binding two way again.
       @return {Ember.Binding} `this`
+      @deprecated
       @public
     */
     oneWay: function (from, flag) {
@@ -3277,7 +3278,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4+6a6aa8d0
+    @version 1.13.4+cb437b52
     @public
   */
 
@@ -3309,11 +3310,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4+6a6aa8d0'
+    @default '1.13.4+cb437b52'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4+6a6aa8d0';
+  Ember.VERSION = '1.13.4+cb437b52';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3496,8 +3497,12 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     Ember.deprecate = K;
   }
   if ('undefined' === typeof Ember.deprecateFunc) {
-    Ember.deprecateFunc = function (_, func) {
-      return func;
+    Ember.deprecateFunc = function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return args[args.length - 1];
     };
   }
 
@@ -4583,7 +4588,7 @@ enifed("ember-metal/get_properties", ["exports", "ember-metal/property_get", "em
     @param {Object} obj
     @param {String...|Array} list of keys to get
     @return {Object}
-    @private
+    @public
   */
 
   function getProperties(obj) {
@@ -6745,6 +6750,7 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
 
     if (typeof func !== "function") {
       // revert to old, soft-deprecated argument ordering
+      _emberMetalCore["default"].deprecate("Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.");
 
       func = args[0];
       _paths = args.slice(1);
@@ -12412,7 +12418,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.4+6a6aa8d0",
+        revision: "Ember@1.13.4+cb437b52",
         loc: program.loc,
         moduleName: options.moduleName
       };
