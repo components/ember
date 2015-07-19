@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.2
+ * @version   2.0.0-beta.3
  */
 
 (function() {
@@ -910,7 +910,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     the DOM
     @return {Object} jQuery object representing the results of the query
     @throws {Error} throws error if jQuery object returned has a length of 0
-    @private
+    @public
   */
   helper('findWithAssert', findWithAssert);
 
