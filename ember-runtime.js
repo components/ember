@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8fa3ffba
+ * @version   2.0.0-canary+896d667c
  */
 
 (function() {
@@ -4797,7 +4797,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8fa3ffba
+    @version 2.0.0-canary+896d667c
     @public
   */
 
@@ -4829,11 +4829,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8fa3ffba'
+    @default '2.0.0-canary+896d667c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8fa3ffba';
+  Ember.VERSION = '2.0.0-canary+896d667c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14775,16 +14775,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     },
 
     /**
-      @method everyProperty
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @deprecated Use `isEvery` instead
-      @return {Boolean}
-      @private
-    */
-    everyProperty: _emberMetalMixin.aliasMethod('isEvery'),
-
-    /**
       Returns `true` if the passed property resolves to the value of the second
       argument for all items in the enumerable. This method is often simpler/faster
       than using a callback.
@@ -14850,37 +14840,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     },
 
     /**
-      Returns `true` if the passed function returns true for any item in the
-      enumeration. This corresponds with the `some()` method in JavaScript 1.6.
-       The callback method you provide should have the following signature (all
-      parameters are optional):
-       ```javascript
-      function(item, index, enumerable);
-      ```
-       - `item` is the current item in the iteration.
-      - `index` is the current index in the iteration.
-      - `enumerable` is the enumerable object itself.
-       It should return the `true` to include the item in the results, `false`
-      otherwise.
-       Note that in addition to a callback, you can also pass an optional target
-      object that will be set as `this` on the context. This is a good way
-      to give your iterator function access to the current object.
-       Usage Example:
-       ```javascript
-      if (people.some(isManager)) {
-        Paychecks.addBiggerBonus();
-      }
-      ```
-       @method some
-      @param {Function} callback The callback to execute
-      @param {Object} [target] The target object to use
-      @return {Boolean} `true` if the passed function returns `true` for any item
-      @deprecated Use `any` instead
-      @private
-    */
-    some: _emberMetalMixin.aliasMethod('any'),
-
-    /**
       Returns `true` if the passed property resolves to the value of the second
       argument for any item in the enumerable. This method is often simpler/faster
       than using a callback.
@@ -14894,16 +14853,6 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
     isAny: function (key, value) {
       return this.any(iter.apply(this, arguments));
     },
-
-    /**
-      @method anyBy
-      @param {String} key the property to test
-      @param {String} [value] optional value to test against.
-      @return {Boolean}
-      @deprecated Use `isAny` instead
-      @private
-    */
-    anyBy: _emberMetalMixin.aliasMethod('isAny'),
 
     /**
       This will combine the values of the enumerator into a single value. It

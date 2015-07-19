@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8fa3ffba
+ * @version   2.0.0-canary+896d667c
  */
 
 (function() {
@@ -36871,41 +36871,6 @@ enifed('ember-runtime/tests/suites/enumerable/any', ['exports', 'ember-metal/cor
     equal(result, true, 'return value of obj.any');
   });
 
-  suite.test('any should be aliased to some', function () {
-    var obj = this.newObject();
-    var ary = this.toArray(obj);
-    var anyFound = [];
-    var someFound = [];
-    var cnt = ary.length - 2;
-    var anyResult, someResult;
-
-    anyResult = obj.any(function (i) {
-      anyFound.push(i);
-      return false;
-    });
-    someResult = obj.some(function (i) {
-      someFound.push(i);
-      return false;
-    });
-    equal(someResult, anyResult);
-
-    anyFound = [];
-    someFound = [];
-
-    cnt = ary.length - 2;
-    anyResult = obj.any(function (i) {
-      anyFound.push(i);
-      return --cnt <= 0;
-    });
-    cnt = ary.length - 2;
-    someResult = obj.some(function (i) {
-      someFound.push(i);
-      return --cnt <= 0;
-    });
-
-    equal(someResult, anyResult);
-  });
-
   exports.default = suite;
 });
 enifed('ember-runtime/tests/suites/enumerable/compact', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
@@ -37009,11 +36974,6 @@ enifed('ember-runtime/tests/suites/enumerable/every', ['exports', 'ember-runtime
 
     equal(obj.isEvery('foo', null), true, 'isEvery(\'foo\', null)');
     equal(obj.isEvery('bar', null), false, 'isEvery(\'bar\', null)');
-  });
-
-  suite.test('everyProperty should be aliased to isEvery', function () {
-    var obj = this.newObject();
-    equal(obj.isEvery, obj.everyProperty);
   });
 
   suite.test('should return true if every property is undefined', function () {
@@ -37391,11 +37351,6 @@ enifed('ember-runtime/tests/suites/enumerable/is_any', ['exports', 'ember-runtim
     var obj = this.newObject([{ foo: undefined }, _emberRuntimeSystemObject.default.create({})]);
 
     equal(obj.isAny('foo'), false, 'isAny(\'foo\', undefined)');
-  });
-
-  suite.test('anyBy should be aliased to isAny', function () {
-    var obj = this.newObject();
-    equal(obj.isAny, obj.anyBy);
   });
 
   exports.default = suite;
@@ -42725,7 +42680,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8fa3ffba', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+896d667c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
