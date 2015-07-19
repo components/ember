@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+cc99723b
+ * @version   1.13.4+6a6aa8d0
  */
 
 (function() {
@@ -8823,7 +8823,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+cc99723b";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+6a6aa8d0";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -14623,7 +14623,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4+cc99723b
+    @version 1.13.4+6a6aa8d0
     @public
   */
 
@@ -14655,11 +14655,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4+cc99723b'
+    @default '1.13.4+6a6aa8d0'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4+cc99723b';
+  Ember.VERSION = '1.13.4+6a6aa8d0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19298,12 +19298,14 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
   */
 
   function get(obj, keyName) {
+    _emberMetalCore["default"].deprecate("Get must be called with two arguments; an object and a property key", arguments.length === 2);
     // Helpers that operate with 'this' within an #each
     if (keyName === "") {
       return obj;
     }
 
     if (!keyName && "string" === typeof obj) {
+      _emberMetalCore["default"].deprecate("Calling Ember.get with only a property key has been deprecated, please also specify a target object.");
       keyName = obj;
       obj = _emberMetalCore["default"].lookup;
     }
@@ -19312,6 +19314,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     _emberMetalCore["default"].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
     if (_emberMetalIs_none["default"](obj)) {
+      _emberMetalCore["default"].deprecate("Calling Ember.get without a target object has been deprecated, please specify a target object.");
       return _getPath(obj, keyName);
     }
 
@@ -19404,6 +19407,8 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     // detect complicated paths and normalize them
     hasThis = _emberMetalPath_cache.hasThis(path);
 
+    _emberMetalCore["default"].deprecate("Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'.", !hasThis);
+
     if (!root || hasThis) {
       tuple = normalizeTuple(root, path);
       root = tuple[0];
@@ -19414,7 +19419,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     parts = path.split(".");
     len = parts.length;
     for (idx = 0; root != null && idx < len; idx++) {
-      root = get(root, parts[idx], true);
+      root = get(root, parts[idx]);
       if (root && root.isDestroyed) {
         return undefined;
       }
@@ -19462,11 +19467,13 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
   function set(obj, keyName, value, tolerant) {
     if (typeof obj === "string") {
       _emberMetalCore["default"].assert("Path '" + obj + "' must be global if no obj is given.", _emberMetalPath_cache.isGlobalPath(obj));
+      _emberMetalCore["default"].deprecate("Calling Ember.set with only a property key and a value has been deprecated, please also specify a target object.");
       value = keyName;
       keyName = obj;
       obj = _emberMetalCore["default"].lookup;
     }
 
+    _emberMetalCore["default"].deprecate("Set must be called with tree or four arguments; an object, a property key, a value and tolerant true/false", arguments.length === 3 || arguments.length === 4);
     _emberMetalCore["default"].assert("Cannot call set with '" + keyName + "' key.", !!keyName);
 
     if (obj === _emberMetalCore["default"].lookup) {
@@ -19492,6 +19499,7 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
 
     var isUnknown, currentValue;
     if ((!obj || desc === undefined) && _emberMetalPath_cache.isPath(keyName)) {
+      _emberMetalCore["default"].deprecate("Calling Ember.set without a target object has been deprecated, please specify a target object.", !!obj);
       return setPath(obj, keyName, value, tolerant);
     }
 
@@ -19560,6 +19568,8 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
     // get the root
     if (path !== "this") {
       root = _emberMetalProperty_get._getPath(root, path);
+    } else {
+      _emberMetalCore["default"].deprecate("Ember.set with 'this' in the path has been deprecated. Please use the same path without 'this'.");
     }
 
     if (!keyName || keyName.length === 0) {
@@ -23561,7 +23571,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.4+cc99723b";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.4+6a6aa8d0";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   
@@ -24092,7 +24102,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+cc99723b";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.4+6a6aa8d0";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -40825,7 +40835,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.4+cc99723b",
+        revision: "Ember@1.13.4+6a6aa8d0",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -45976,7 +45986,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.4+cc99723b";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.4+6a6aa8d0";
 
   /**
   @module ember

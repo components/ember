@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4+cc99723b
+ * @version   1.13.4+6a6aa8d0
  */
 
 (function() {
@@ -18622,14 +18622,17 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, this.foo] -> obj.foo', function () {
+    expectDeprecation(/Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'./);
     deepEqual(_emberMetalProperty_get.get(obj, 'this.foo'), obj.foo);
   });
 
   QUnit.test('[obj, this.foo.bar] -> obj.foo.bar', function () {
+    expectDeprecation(/Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'./);
     deepEqual(_emberMetalProperty_get.get(obj, 'this.foo.bar'), obj.foo.bar);
   });
 
   QUnit.test('[obj, this.Foo.bar] -> (undefined)', function () {
+    expectDeprecation(/Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'./);
     equal(_emberMetalProperty_get.get(obj, 'this.Foo.bar'), undefined);
   });
 
@@ -18666,18 +18669,22 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   //
 
   QUnit.test('[null, Foo] -> Foo', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     equal(_emberMetalProperty_get.get(null, 'Foo'), Foo);
   });
 
   QUnit.test('[null, Foo.bar] -> Foo.bar', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     deepEqual(_emberMetalProperty_get.get(null, 'Foo.bar'), Foo.bar);
   });
 
   QUnit.test('[null, $foo] -> $foo', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     equal(_emberMetalProperty_get.get(null, '$foo'), window.$foo);
   });
 
   QUnit.test('[null, aProp] -> null', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     equal(_emberMetalProperty_get.get(null, 'aProp'), null);
   });
 
@@ -18686,14 +18693,17 @@ enifed('ember-metal/tests/accessors/get_path_test', ['exports', 'ember-metal/pro
   //
 
   QUnit.test('[Foo] -> Foo', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     deepEqual(_emberMetalProperty_get.get('Foo'), Foo);
   });
 
   QUnit.test('[aProp] -> aProp', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     deepEqual(_emberMetalProperty_get.get('aProp'), window.aProp);
   });
 
   QUnit.test('[Foo.bar] -> Foo.bar', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     deepEqual(_emberMetalProperty_get.get('Foo.bar'), Foo.bar);
   });
 });
@@ -18817,10 +18827,12 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
   });
 
   QUnit.test('returns null when fetching a complex local path on a null context', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     equal(_emberMetalProperty_get.get(null, 'aProperty.on.aPath'), null);
   });
 
   QUnit.test('returns null when fetching a simple local path on a null context', function () {
+    expectDeprecation(/Calling Ember.get without a target object has been deprecated, please specify a target object./);
     equal(_emberMetalProperty_get.get(null, 'aProperty'), null);
   });
 
@@ -19277,11 +19289,13 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
   });
 
   QUnit.test('[obj, this.foo] -> obj.foo', function () {
+    expectDeprecation(/Ember.set with 'this' in the path has been deprecated. Please use the same path without 'this'./);
     _emberMetalProperty_set.set(obj, 'this.foo', 'BAM');
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'BAM');
   });
 
   QUnit.test('[obj, this.foo.bar] -> obj.foo.bar', function () {
+    expectDeprecation(/Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'./);
     _emberMetalProperty_set.set(obj, 'this.foo.bar', 'BAM');
     equal(_emberMetalProperty_get.get(obj, 'foo.bar'), 'BAM');
   });
@@ -19291,7 +19305,14 @@ enifed('ember-metal/tests/accessors/set_path_test', ['exports', 'ember-metal/pro
   //
 
   QUnit.test('[null, Foo.bar] -> Foo.bar', function () {
+    expectDeprecation(/Calling Ember.set without a target object has been deprecated, please specify a target object./);
     _emberMetalProperty_set.set(null, 'Foo.bar', 'BAM');
+    equal(_emberMetalProperty_get.get(Ember.lookup.Foo, 'bar'), 'BAM');
+  });
+
+  QUnit.test('[Foo.bar] -> Foo.bar', function () {
+    expectDeprecation(/Calling Ember.set with only a property key and a value has been deprecated, please also specify a target object./);
+    _emberMetalProperty_set.set('Foo.bar', 'BAM');
     equal(_emberMetalProperty_get.get(Ember.lookup.Foo, 'bar'), 'BAM');
   });
 
@@ -20515,6 +20536,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
   });
 
   _emberMetalTestsProps_helper.testBoth('depending on Global chain', function (get, set) {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
 
     // assign computed property
     _emberMetalProperties.defineProperty(obj, 'prop', _emberMetalComputed.computed(function () {
@@ -36314,6 +36336,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should work when object is Ember (used in Ember.get)', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     equal(_emberMetalProperty_get.get('Ember.RunLoop'), Ember.RunLoop, 'Ember.get');
     equal(_emberMetalProperty_get.get(Ember, 'RunLoop'), Ember.RunLoop, 'Ember.get(Ember, RunLoop)');
   });
@@ -36329,6 +36352,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should return a property at a given path relative to the lookup', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     lookup.Foo = ObservableObject.extend({
       Bar: ObservableObject.extend({
         Baz: _emberMetalComputed.computed(function () {
@@ -36353,6 +36377,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   });
 
   QUnit.test('should return a property at a given path relative to the lookup - JavaScript hash', function () {
+    expectDeprecation(/Calling Ember.get with only a property key has been deprecated, please also specify a target object/);
     lookup.Foo = {
       Bar: {
         Baz: 'blargh'
@@ -39320,7 +39345,9 @@ enifed('ember-runtime/tests/mixins/deferred_test', ['exports', 'ember-metal/core
       var obj = {};
 
       _emberMetalCore["default"].deprecate = function (message) {
-        deprecationMade = message;
+        if (message === 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.') {
+          deprecationMade = true;
+        }
       };
 
       deferred = _emberRuntimeSystemObject["default"].extend(_emberRuntimeMixinsDeferred["default"]).create();
@@ -39329,7 +39356,7 @@ enifed('ember-runtime/tests/mixins/deferred_test', ['exports', 'ember-metal/core
       deferred.then(function (value) {
         equal(value, obj, 'successfully resolved to given value');
       });
-      equal(deprecationMade, 'Usage of Ember.DeferredMixin or Ember.Deferred is deprecated.');
+      equal(deprecationMade, true, 'the deprecation was made');
 
       _emberMetalRun_loop["default"](deferred, 'resolve', obj);
     });
@@ -47624,7 +47651,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.4+cc99723b", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.4+6a6aa8d0", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
