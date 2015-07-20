@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5
+ * @version   1.13.5+cf51de27
  */
 
 (function() {
@@ -5028,7 +5028,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.5
+    @version 1.13.5+cf51de27
     @public
   */
 
@@ -5060,11 +5060,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.5'
+    @default '1.13.5+cf51de27'
     @static
     @public
   */
-  Ember.VERSION = '1.13.5';
+  Ember.VERSION = '1.13.5+cf51de27';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15221,7 +15221,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated);
+      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated, { url: 'http://emberjs.com/guides/deprecations#toc_arraycontroller' });
 
       this._super.apply(this, arguments);
       this._subControllers = [];
