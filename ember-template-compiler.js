@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.4
+ * @version   1.13.5
  */
 
 (function() {
@@ -602,20 +602,16 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
   _emberMetalCore["default"].addObserver = _emberMetalObserver.addObserver;
   _emberMetalCore["default"].observersFor = _emberMetalObserver.observersFor;
   _emberMetalCore["default"].removeObserver = _emberMetalObserver.removeObserver;
-  _emberMetalCore["default"].addBeforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.addBeforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._addBeforeObserver);
   _emberMetalCore["default"]._suspendBeforeObserver = _emberMetalObserver._suspendBeforeObserver;
   _emberMetalCore["default"]._suspendBeforeObservers = _emberMetalObserver._suspendBeforeObservers;
   _emberMetalCore["default"]._suspendObserver = _emberMetalObserver._suspendObserver;
   _emberMetalCore["default"]._suspendObservers = _emberMetalObserver._suspendObservers;
-  _emberMetalCore["default"].beforeObserversFor = _emberMetalCore["default"].deprecateFunc("Ember.beforeObserversFor is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._beforeObserversFor);
-  _emberMetalCore["default"].removeBeforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.removeBeforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._removeBeforeObserver);
 
   _emberMetalCore["default"].IS_BINDING = _emberMetalMixin.IS_BINDING;
   _emberMetalCore["default"].required = _emberMetalMixin.required;
   _emberMetalCore["default"].aliasMethod = _emberMetalMixin.aliasMethod;
   _emberMetalCore["default"].observer = _emberMetalMixin.observer;
   _emberMetalCore["default"].immediateObserver = _emberMetalMixin._immediateObserver;
-  _emberMetalCore["default"].beforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.beforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalMixin._beforeObserver);
   _emberMetalCore["default"].mixin = _emberMetalMixin.mixin;
   _emberMetalCore["default"].Mixin = _emberMetalMixin.Mixin;
 
@@ -673,12 +669,18 @@ enifed("ember-metal", ["exports", "ember-metal/core", "ember-metal/merge", "embe
 
   // do this for side-effects of updating Ember.assert, warn, etc when
   // ember-debug is present
+  // This needs to be called before any deprecateFunc
   if (_emberMetalCore["default"].__loader.registry["ember-debug"]) {
     requireModule("ember-debug");
   }
 
   _emberMetalCore["default"].create = _emberMetalCore["default"].deprecateFunc("Ember.create is deprecated in favor of Object.create", _emberMetalPlatformCreate["default"]);
   _emberMetalCore["default"].keys = _emberMetalCore["default"].deprecateFunc("Ember.keys is deprecated in favor of Object.keys", _emberMetalKeys["default"]);
+
+  _emberMetalCore["default"].addBeforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.addBeforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._addBeforeObserver);
+  _emberMetalCore["default"].removeBeforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.removeBeforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._removeBeforeObserver);
+  _emberMetalCore["default"].beforeObserversFor = _emberMetalCore["default"].deprecateFunc("Ember.beforeObserversFor is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalObserver._beforeObserversFor);
+  _emberMetalCore["default"].beforeObserver = _emberMetalCore["default"].deprecateFunc("Ember.beforeObserver is deprecated and will be removed in the near future.", { url: "http://emberjs.com/deprecations/v1.x/#toc_beforeobserver" }, _emberMetalMixin._beforeObserver);
 
   exports["default"] = _emberMetalCore["default"];
 });
@@ -1207,6 +1209,7 @@ enifed("ember-metal/binding", ["exports", "ember-metal/core", "ember-metal/prope
         binding `oneWay`. You can instead pass `false` to disable `oneWay`, making the
         binding two way again.
       @return {Ember.Binding} `this`
+      @deprecated
       @public
     */
     oneWay: function (from, flag) {
@@ -3275,7 +3278,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.4
+    @version 1.13.5
     @public
   */
 
@@ -3307,11 +3310,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.4'
+    @default '1.13.5'
     @static
     @public
   */
-  Ember.VERSION = '1.13.4';
+  Ember.VERSION = '1.13.5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3494,8 +3497,12 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     Ember.deprecate = K;
   }
   if ('undefined' === typeof Ember.deprecateFunc) {
-    Ember.deprecateFunc = function (_, func) {
-      return func;
+    Ember.deprecateFunc = function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return args[args.length - 1];
     };
   }
 
@@ -4581,7 +4588,7 @@ enifed("ember-metal/get_properties", ["exports", "ember-metal/property_get", "em
     @param {Object} obj
     @param {String...|Array} list of keys to get
     @return {Object}
-    @private
+    @public
   */
 
   function getProperties(obj) {
@@ -6743,6 +6750,7 @@ enifed("ember-metal/mixin", ["exports", "ember-metal/core", "ember-metal/merge",
 
     if (typeof func !== "function") {
       // revert to old, soft-deprecated argument ordering
+      _emberMetalCore["default"].deprecate("Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.");
 
       func = args[0];
       _paths = args.slice(1);
@@ -7950,12 +7958,14 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
   */
 
   function get(obj, keyName) {
+    _emberMetalCore["default"].deprecate("Get must be called with two arguments; an object and a property key", arguments.length === 2);
     // Helpers that operate with 'this' within an #each
     if (keyName === "") {
       return obj;
     }
 
     if (!keyName && "string" === typeof obj) {
+      _emberMetalCore["default"].deprecate("Calling Ember.get with only a property key has been deprecated, please also specify a target object.");
       keyName = obj;
       obj = _emberMetalCore["default"].lookup;
     }
@@ -7964,6 +7974,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     _emberMetalCore["default"].assert("Cannot call get with '" + keyName + "' on an undefined object.", obj !== undefined);
 
     if (_emberMetalIs_none["default"](obj)) {
+      _emberMetalCore["default"].deprecate("Calling Ember.get without a target object has been deprecated, please specify a target object.");
       return _getPath(obj, keyName);
     }
 
@@ -8056,6 +8067,8 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     // detect complicated paths and normalize them
     hasThis = _emberMetalPath_cache.hasThis(path);
 
+    _emberMetalCore["default"].deprecate("Ember.get with 'this' in the path has been deprecated. Please use the same path without 'this'.", !hasThis);
+
     if (!root || hasThis) {
       tuple = normalizeTuple(root, path);
       root = tuple[0];
@@ -8066,7 +8079,7 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     parts = path.split(".");
     len = parts.length;
     for (idx = 0; root != null && idx < len; idx++) {
-      root = get(root, parts[idx], true);
+      root = get(root, parts[idx]);
       if (root && root.isDestroyed) {
         return undefined;
       }
@@ -8114,11 +8127,13 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
   function set(obj, keyName, value, tolerant) {
     if (typeof obj === "string") {
       _emberMetalCore["default"].assert("Path '" + obj + "' must be global if no obj is given.", _emberMetalPath_cache.isGlobalPath(obj));
+      _emberMetalCore["default"].deprecate("Calling Ember.set with only a property key and a value has been deprecated, please also specify a target object.");
       value = keyName;
       keyName = obj;
       obj = _emberMetalCore["default"].lookup;
     }
 
+    _emberMetalCore["default"].deprecate("Set must be called with tree or four arguments; an object, a property key, a value and tolerant true/false", arguments.length === 3 || arguments.length === 4);
     _emberMetalCore["default"].assert("Cannot call set with '" + keyName + "' key.", !!keyName);
 
     if (obj === _emberMetalCore["default"].lookup) {
@@ -8144,6 +8159,7 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
 
     var isUnknown, currentValue;
     if ((!obj || desc === undefined) && _emberMetalPath_cache.isPath(keyName)) {
+      _emberMetalCore["default"].deprecate("Calling Ember.set without a target object has been deprecated, please specify a target object.", !!obj);
       return setPath(obj, keyName, value, tolerant);
     }
 
@@ -8212,6 +8228,8 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
     // get the root
     if (path !== "this") {
       root = _emberMetalProperty_get._getPath(root, path);
+    } else {
+      _emberMetalCore["default"].deprecate("Ember.set with 'this' in the path has been deprecated. Please use the same path without 'this'.");
     }
 
     if (!keyName || keyName.length === 0) {
@@ -12400,7 +12418,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.4",
+        revision: "Ember@1.13.5",
         loc: program.loc,
         moduleName: options.moduleName
       };
