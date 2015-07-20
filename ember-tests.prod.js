@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3f449a1b
+ * @version   2.0.0-canary+96e2de01
  */
 
 (function() {
@@ -22768,6 +22768,17 @@ enifed('ember-metal/tests/mixin/observer_test', ['exports', 'ember-metal/tests/p
     set(obj3, 'baz', 'BEAR');
     equal(get(obj, 'count'), 1, 'should invoke observer after change');
   });
+
+  _emberMetalTestsProps_helper.testBoth('providing the arguments in reverse order is deprecated', function (get, set) {
+    expectDeprecation(/Passing the dependentKeys after the callback function in Ember\.observer is deprecated. Ensure the callback function is the last argument/);
+
+    _emberMetalMixin.Mixin.create({
+      count: 0,
+      foo: _emberMetalMixin.observer(function () {
+        set(this, 'count', get(this, 'count') + 1);
+      }, 'bar.baz')
+    });
+  });
 });
 enifed('ember-metal/tests/mixin/reopen_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalMixin) {
 
@@ -42446,7 +42457,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+3f449a1b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+96e2de01', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

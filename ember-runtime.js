@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+3f449a1b
+ * @version   2.0.0-canary+96e2de01
  */
 
 (function() {
@@ -4794,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+3f449a1b
+    @version 2.0.0-canary+96e2de01
     @public
   */
 
@@ -4826,11 +4826,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+3f449a1b'
+    @default '2.0.0-canary+96e2de01'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+3f449a1b';
+  Ember.VERSION = '2.0.0-canary+96e2de01';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7892,25 +7892,37 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function observer() {
-    for (var _len4 = arguments.length, paths = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      paths[_key4] = arguments[_key4];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
-    var func = paths.pop();
-    var expandedPaths = [];
-    var addWatchedProperty = function (path) {
-      expandedPaths.push(path);
-    };
+    var func = args.slice(-1)[0];
+    var paths;
 
-    for (var i = 0; i < paths.length; ++i) {
-      _emberMetalExpand_properties.default(paths[i], addWatchedProperty);
+    var addWatchedProperty = function (path) {
+      paths.push(path);
+    };
+    var _paths = args.slice(0, -1);
+
+    if (typeof func !== 'function') {
+      // revert to old, soft-deprecated argument ordering
+      _emberMetalCore.default.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.');
+
+      func = args[0];
+      _paths = args.slice(1);
+    }
+
+    paths = [];
+
+    for (var i = 0; i < _paths.length; ++i) {
+      _emberMetalExpand_properties.default(_paths[i], addWatchedProperty);
     }
 
     if (typeof func !== 'function') {
       throw new _emberMetalCore.default.Error('Ember.observer called without a function');
     }
 
-    func.__ember_observes__ = expandedPaths;
+    func.__ember_observes__ = paths;
     return func;
   }
 
