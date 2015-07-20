@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ed526d0a
+ * @version   2.0.0-canary+e12bb2fa
  */
 
 (function() {
@@ -3146,8 +3146,8 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     var m = _emberMetalUtils.meta(obj);
     var nodes = m.chainWatchers;
 
-    if (!m.hasOwnProperty('chainWatchers')) {
-      // FIXME?!
+    // TODO remove hasOwnProperty check
+    if (nodes === undefined || !m.hasOwnProperty('chainWatchers')) {
       nodes = m.chainWatchers = new Chains();
     }
 
@@ -4794,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ed526d0a
+    @version 2.0.0-canary+e12bb2fa
     @public
   */
 
@@ -4826,11 +4826,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ed526d0a'
+    @default '2.0.0-canary+e12bb2fa'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ed526d0a';
+  Ember.VERSION = '2.0.0-canary+e12bb2fa';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8656,11 +8656,13 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   }
 
   function chainsWillChange(obj, keyName, m) {
-    if (!(m.hasOwnProperty('chainWatchers') && m.chainWatchers[keyName])) {
+    if (m.chainWatchers === undefined || !m.hasOwnProperty('chainWatchers')) {
       return;
     }
-
     var nodes = m.chainWatchers[keyName];
+    if (nodes === undefined) {
+      return;
+    }
     var events = [];
     var i, l;
 
@@ -8674,11 +8676,13 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   }
 
   function chainsDidChange(obj, keyName, m, suppressEvents) {
-    if (!(m && m.hasOwnProperty('chainWatchers') && m.chainWatchers[keyName])) {
+    if (m.chainWatchers === undefined || !m.hasOwnProperty('chainWatchers')) {
       return;
     }
-
     var nodes = m.chainWatchers[keyName];
+    if (nodes === undefined) {
+      return;
+    }
     var events = suppressEvents ? null : [];
     var i, l;
 
@@ -11160,20 +11164,16 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
   function Meta(obj) {
     this.watching = {};
     this.cache = undefined;
-    this.cacheMeta = undefined;
     this.source = obj;
     this.deps = undefined;
     this.listeners = undefined;
     this.mixins = undefined;
     this.bindings = undefined;
     this.chains = undefined;
+    this.chainWatchers = undefined;
     this.values = undefined;
     this.proto = undefined;
   }
-
-  Meta.prototype = {
-    chainWatchers: null // FIXME
-  };
 
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
@@ -11230,7 +11230,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
       ret = Object.create(ret);
       ret.watching = Object.create(ret.watching);
       ret.cache = undefined;
-      ret.cacheMeta = undefined;
       ret.source = obj;
 
       if (_emberMetalFeatures.default('mandatory-setter')) {
