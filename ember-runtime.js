@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c4ff3da5
+ * @version   2.0.0-canary+3f449a1b
  */
 
 (function() {
@@ -4794,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c4ff3da5
+    @version 2.0.0-canary+3f449a1b
     @public
   */
 
@@ -4826,11 +4826,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c4ff3da5'
+    @default '2.0.0-canary+3f449a1b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c4ff3da5';
+  Ember.VERSION = '2.0.0-canary+3f449a1b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5488,11 +5488,6 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   */
 
   function sendEvent(obj, eventName, params, actions) {
-    // first give object a chance to handle it
-    if (obj !== _emberMetalCore.default && 'function' === typeof obj.sendEvent) {
-      obj.sendEvent(eventName, params);
-    }
-
     if (!actions) {
       var meta = obj['__ember_meta__'];
       actions = meta && meta.listeners && meta.listeners[eventName];

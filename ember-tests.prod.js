@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c4ff3da5
+ * @version   2.0.0-canary+3f449a1b
  */
 
 (function() {
@@ -20301,25 +20301,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     deepEqual(params, ['foo', 'bar'], 'params should be saved');
   });
 
-  QUnit.test('implementing sendEvent on object should invoke', function () {
-    var obj = {
-      sendEvent: function (eventName, params) {
-        equal(eventName, 'event!', 'eventName');
-        deepEqual(params, ['foo', 'bar']);
-        this.count++;
-      },
-
-      count: 0
-    };
-
-    _emberMetalEvents.addListener(obj, 'event!', obj, function () {
-      this.count++;
-    });
-
-    _emberMetalEvents.sendEvent(obj, 'event!', ['foo', 'bar']);
-    equal(obj.count, 2, 'should have invoked method & listener');
-  });
-
   QUnit.test('hasListeners tells you if there are listeners for a given event', function () {
     var obj = {};
     var F = function () {};
@@ -23389,34 +23370,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     _emberMetalProperty_events.endPropertyChanges(obj);
 
     equal(fooCount, 1, 'should not fire before observer twice');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('implementing sendEvent on object should invoke when deferring property change notifications ends', function (get, set) {
-    var count = 0;
-    var events = [];
-    var obj = {
-      sendEvent: function (eventName) {
-        events.push(eventName);
-      },
-      foo: 'baz'
-    };
-
-    _emberMetalObserver.addObserver(obj, 'foo', function () {
-      count++;
-    });
-
-    _emberMetalProperty_events.beginPropertyChanges(obj);
-    set(obj, 'foo', 'BAZ');
-
-    equal(count, 0, 'should have not invoked observer');
-    equal(events.length, 1, 'should have invoked sendEvent for before');
-
-    _emberMetalProperty_events.endPropertyChanges(obj);
-
-    equal(count, 1, 'should have invoked observer');
-    equal(events.length, 2, 'should have invoked sendEvent');
-    equal(events[0], 'foo:before');
-    equal(events[1], 'foo:change');
   });
 
   _emberMetalTestsProps_helper.testBoth('addObserver should propagate through prototype', function (get, set) {
@@ -42493,7 +42446,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+c4ff3da5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+3f449a1b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
