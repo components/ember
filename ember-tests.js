@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ada79f24
+ * @version   2.0.0-canary+5a2ec778
  */
 
 (function() {
@@ -967,7 +967,7 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     deepEqual(resolveWasCalled, ['foo:post']);
   });
 
-  QUnit.test('registry.container creates an associated container', function () {
+  QUnit.test('registry.container creates a container', function () {
     var registry = new _container.Registry();
     var PostController = _containerTestsContainer_helper.factory();
     registry.register('controller:post', PostController);
@@ -976,7 +976,6 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var postController = container.lookup('controller:post');
 
     ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
-    strictEqual(registry._defaultContainer, container, '_defaultContainer is set to the first created container and used for Ember 1.x Container compatibility');
   });
 
   QUnit.test('`resolve` can be handled by a fallback registry', function () {
@@ -1942,7 +1941,7 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
     ok(application.Email.detectInstance(user.get('communication')));
   });
 });
-enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry) {
+enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry) {
 
   var app;
 
@@ -2277,10 +2276,10 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     var MyApplication = _emberApplicationSystemApplication.default.extend();
 
     MyApplication.initializer({
-      name: 'coolBabeInitializer',
-      myProperty: 'coolBabe',
+      name: 'coolInitializer',
+      myProperty: 'cool',
       initialize: function (registry, application) {
-        equal(this.myProperty, 'coolBabe', 'should have access to its own context');
+        equal(this.myProperty, 'cool', 'should have access to its own context');
       }
     });
 
@@ -2291,56 +2290,10 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
       });
     });
   });
-
-  QUnit.test('initializers should throw a deprecation warning when performing a lookup on the registry', function () {
-    expect(1);
-
-    var MyApplication = _emberApplicationSystemApplication.default.extend();
-
-    MyApplication.initializer({
-      name: 'initializer',
-      initialize: function (registry, application) {
-        registry.lookup('router:main');
-      }
-    });
-
-    expectDeprecation(function () {
-      _emberMetalRun_loop.default(function () {
-        app = MyApplication.create({
-          router: false,
-          rootElement: '#qunit-fixture'
-        });
-      });
-    }, /`lookup` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
-  });
-
-  QUnit.test('initializers should throw a deprecation warning when performing a factory lookup on the registry', function () {
-    expect(1);
-
-    var MyApplication = _emberApplicationSystemApplication.default.extend();
-
-    MyApplication.initializer({
-      name: 'initializer',
-      initialize: function (registry, application) {
-        registry.lookupFactory('application:controller');
-      }
-    });
-
-    expectDeprecation(function () {
-      _emberMetalRun_loop.default(function () {
-        app = MyApplication.create({
-          router: false,
-          rootElement: '#qunit-fixture'
-        });
-      });
-    }, /`lookupFactory` was called on a Registry\. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container\./);
-  });
 });
-enifed('ember-application/tests/system/instance_initializers_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/instance_initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
 
-  var app, initializeContextFeatureEnabled;
-
-  initializeContextFeatureEnabled = true;
+  var app;
 
   QUnit.module('Ember.Application instance initializers', {
     setup: function () {},
@@ -2696,28 +2649,26 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     });
   });
 
-  if (initializeContextFeatureEnabled) {
-    QUnit.test('initializers should be executed in their own context', function () {
-      expect(1);
+  QUnit.test('initializers should be executed in their own context', function () {
+    expect(1);
 
-      var MyApplication = _emberApplicationSystemApplication.default.extend();
+    var MyApplication = _emberApplicationSystemApplication.default.extend();
 
-      MyApplication.instanceInitializer({
-        name: 'coolBabeInitializer',
-        myProperty: 'coolBabe',
-        initialize: function (registry, application) {
-          equal(this.myProperty, 'coolBabe', 'should have access to its own context');
-        }
-      });
+    MyApplication.instanceInitializer({
+      name: 'coolInitializer',
+      myProperty: 'cool',
+      initialize: function (registry, application) {
+        equal(this.myProperty, 'cool', 'should have access to its own context');
+      }
+    });
 
-      _emberMetalRun_loop.default(function () {
-        app = MyApplication.create({
-          router: false,
-          rootElement: '#qunit-fixture'
-        });
+    _emberMetalRun_loop.default(function () {
+      app = MyApplication.create({
+        router: false,
+        rootElement: '#qunit-fixture'
       });
     });
-  }
+  });
 
   QUnit.test('Initializers get an instance on app reset', function () {
     expect(2);
@@ -42528,7 +42479,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+ada79f24', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+5a2ec778', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

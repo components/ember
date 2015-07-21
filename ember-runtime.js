@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ada79f24
+ * @version   2.0.0-canary+5a2ec778
  */
 
 (function() {
@@ -1144,10 +1144,6 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
 });
 enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDictionary) {
 
-  // TODO - Temporary workaround for v0.4.0 of the ES6 transpiler, which lacks support for circular dependencies.
-  // See the below usage of requireModule. Instead, it should be possible to simply `import Registry from './registry';`
-  var Registry;
-
   /**
    A container used to instantiate and cache objects.
   
@@ -1162,17 +1158,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
    @class Container
    */
   function Container(registry, options) {
-    this._registry = registry || (function () {
-      _emberMetalCore.default.deprecate('A container should only be created for an already instantiated registry. For backward compatibility, an isolated registry will be instantiated just for this container.', false, { id: 'container.instantiate-without-registry', until: '3.0.0' });
-
-      // TODO - See note above about transpiler import workaround.
-      if (!Registry) {
-        Registry = requireModule('container/registry')['default'];
-      }
-
-      return new Registry();
-    })();
-
+    this._registry = registry;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
@@ -1181,7 +1167,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   Container.prototype = {
     /**
      @private
-      @property _registry
+     @property _registry
      @type Registry
      @since 1.11.0
      */
@@ -1189,7 +1175,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
 
     /**
      @private
-      @property cache
+     @property cache
      @type InheritingDict
      */
     cache: null,
@@ -1286,21 +1272,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       }
     }
   };
-
-  (function exposeRegistryMethods() {
-    var methods = ['register', 'unregister', 'resolve', 'normalize', 'typeInjection', 'injection', 'factoryInjection', 'factoryTypeInjection', 'has', 'options', 'optionsForType'];
-
-    function exposeRegistryMethod(method) {
-      Container.prototype[method] = function () {
-        _emberMetalCore.default.deprecate(method + ' should be called on the registry instead of the container', false, { id: 'container.deprecated-registry-method-on-container', until: '3.0.0' });
-        return this._registry[method].apply(this._registry, arguments);
-      };
-    }
-
-    for (var i = 0, l = methods.length; i < l; i++) {
-      exposeRegistryMethod(methods[i]);
-    }
-  })();
 
   function lookup(container, fullName, options) {
     options = options || {};
@@ -1489,14 +1460,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _emberMetalMerge, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
-
-  var instanceInitializersFeatureEnabled;
-  if (_emberMetalFeatures.default('ember-application-instance-initializers')) {
-    instanceInitializersFeatureEnabled = true;
-  }
 
   /**
    A registry used to store factory and option information keyed
@@ -1612,16 +1578,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
     _typeOptions: null,
 
     /**
-     The first container created for this registry.
-      This allows deprecated access to `lookup` and `lookupFactory` to avoid
-     breaking compatibility for Ember 1.x initializers.
-      @private
-     @property _defaultContainer
-     @type Container
-     */
-    _defaultContainer: null,
-
-    /**
      Creates a container based on this registry.
       @private
      @method container
@@ -1629,50 +1585,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
      @return {Container} created container
      */
     container: function (options) {
-      var container = new _container.default(this, options);
-
-      // 2.0TODO - remove `registerContainer`
-      this.registerContainer(container);
-
-      return container;
-    },
-
-    /**
-     Register the first container created for a registery to allow deprecated
-     access to its `lookup` and `lookupFactory` methods to avoid breaking
-     compatibility for Ember 1.x initializers.
-      2.0TODO: Remove this method. The bookkeeping is only needed to support
-              deprecated behavior.
-      @private
-     @param {Container} newly created container
-     */
-    registerContainer: function (container) {
-      if (!this._defaultContainer) {
-        this._defaultContainer = container;
-      }
-      if (this.fallback) {
-        this.fallback.registerContainer(container);
-      }
-    },
-
-    lookup: function (fullName, options) {
-      _emberMetalCore.default.assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
-
-      if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore.default.deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.deprecate-lookup-access-to-instances-in-initializers', until: '3.0.0', url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
-      }
-
-      return this._defaultContainer.lookup(fullName, options);
-    },
-
-    lookupFactory: function (fullName) {
-      _emberMetalCore.default.assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
-
-      if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore.default.deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.deprecate-lookupfactory-access-to-instances-in-initializers', until: '3.0.0', url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
-      }
-
-      return this._defaultContainer.lookupFactory(fullName);
+      return new _container.default(this, options);
     },
 
     /**
@@ -1897,11 +1810,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
       } else if (this.fallback) {
         return this.fallback.getOption(fullName, optionName);
       }
-    },
-
-    option: function (fullName, optionName) {
-      _emberMetalCore.default.deprecate('`Registry.option()` has been deprecated. Call `Registry.getOption()` instead.', false, { id: 'container.deprecated-registry-option', until: '3.0.0' });
-      return this.getOption(fullName, optionName);
     },
 
     /**
@@ -4801,7 +4709,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ada79f24
+    @version 2.0.0-canary+5a2ec778
     @public
   */
 
@@ -4833,11 +4741,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ada79f24'
+    @default '2.0.0-canary+5a2ec778'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ada79f24';
+  Ember.VERSION = '2.0.0-canary+5a2ec778';
 
   /**
     The hash of environment variables used to control various configuration

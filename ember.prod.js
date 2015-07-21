@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ada79f24
+ * @version   2.0.0-canary+5a2ec778
  */
 
 (function() {
@@ -1144,10 +1144,6 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
 });
 enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDictionary) {
 
-  // TODO - Temporary workaround for v0.4.0 of the ES6 transpiler, which lacks support for circular dependencies.
-  // See the below usage of requireModule. Instead, it should be possible to simply `import Registry from './registry';`
-  var Registry;
-
   /**
    A container used to instantiate and cache objects.
   
@@ -1162,16 +1158,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
    @class Container
    */
   function Container(registry, options) {
-    this._registry = registry || (function () {
-      
-      // TODO - See note above about transpiler import workaround.
-      if (!Registry) {
-        Registry = requireModule('container/registry')['default'];
-      }
-
-      return new Registry();
-    })();
-
+    this._registry = registry;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
@@ -1180,7 +1167,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   Container.prototype = {
     /**
      @private
-      @property _registry
+     @property _registry
      @type Registry
      @since 1.11.0
      */
@@ -1188,7 +1175,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
 
     /**
      @private
-      @property cache
+     @property cache
      @type InheritingDict
      */
     cache: null,
@@ -1283,20 +1270,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       }
     }
   };
-
-  (function exposeRegistryMethods() {
-    var methods = ['register', 'unregister', 'resolve', 'normalize', 'typeInjection', 'injection', 'factoryInjection', 'factoryTypeInjection', 'has', 'options', 'optionsForType'];
-
-    function exposeRegistryMethod(method) {
-      Container.prototype[method] = function () {
-                return this._registry[method].apply(this._registry, arguments);
-      };
-    }
-
-    for (var i = 0, l = methods.length; i < l; i++) {
-      exposeRegistryMethod(methods[i]);
-    }
-  })();
 
   function lookup(container, fullName, options) {
     options = options || {};
@@ -1485,13 +1458,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _emberMetalMerge, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
-
-  var instanceInitializersFeatureEnabled;
-
-  instanceInitializersFeatureEnabled = true;
 
   /**
    A registry used to store factory and option information keyed
@@ -1607,16 +1576,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
     _typeOptions: null,
 
     /**
-     The first container created for this registry.
-      This allows deprecated access to `lookup` and `lookupFactory` to avoid
-     breaking compatibility for Ember 1.x initializers.
-      @private
-     @property _defaultContainer
-     @type Container
-     */
-    _defaultContainer: null,
-
-    /**
      Creates a container based on this registry.
       @private
      @method container
@@ -1624,46 +1583,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
      @return {Container} created container
      */
     container: function (options) {
-      var container = new _container.default(this, options);
-
-      // 2.0TODO - remove `registerContainer`
-      this.registerContainer(container);
-
-      return container;
-    },
-
-    /**
-     Register the first container created for a registery to allow deprecated
-     access to its `lookup` and `lookupFactory` methods to avoid breaking
-     compatibility for Ember 1.x initializers.
-      2.0TODO: Remove this method. The bookkeeping is only needed to support
-              deprecated behavior.
-      @private
-     @param {Container} newly created container
-     */
-    registerContainer: function (container) {
-      if (!this._defaultContainer) {
-        this._defaultContainer = container;
-      }
-      if (this.fallback) {
-        this.fallback.registerContainer(container);
-      }
-    },
-
-    lookup: function (fullName, options) {
-      
-      if (instanceInitializersFeatureEnabled) {
-              }
-
-      return this._defaultContainer.lookup(fullName, options);
-    },
-
-    lookupFactory: function (fullName) {
-      
-      if (instanceInitializersFeatureEnabled) {
-              }
-
-      return this._defaultContainer.lookupFactory(fullName);
+      return new _container.default(this, options);
     },
 
     /**
@@ -1884,10 +1804,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
       } else if (this.fallback) {
         return this.fallback.getOption(fullName, optionName);
       }
-    },
-
-    option: function (fullName, optionName) {
-            return this.getOption(fullName, optionName);
     },
 
     /**
@@ -4143,13 +4059,20 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     /**
       @private
+      @method instanceInitializer
+    */
+    instanceInitializer: function (options) {
+      this.constructor.instanceInitializer(options);
+    },
+
+    /**
+      @private
       @method runInitializers
     */
     runInitializers: function (registry) {
       var App = this;
       this._runInitializer('initializers', function (name, initializer) {
-        
-        initializer.initialize(registry, App);
+                initializer.initialize(registry, App);
       });
     },
 
@@ -4242,12 +4165,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     initializer: function (options) {
       this.constructor.initializer(options);
-    }
-  });
-
-  Application.reopen({
-    instanceInitializer: function (options) {
-      this.constructor.instanceInitializer(options);
     }
   });
 
@@ -8155,7 +8072,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+5a2ec778';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13715,7 +13632,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ada79f24
+    @version 2.0.0-canary+5a2ec778
     @public
   */
 
@@ -13747,11 +13664,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ada79f24'
+    @default '2.0.0-canary+5a2ec778'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ada79f24';
+  Ember.VERSION = '2.0.0-canary+5a2ec778';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21615,7 +21532,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+5a2ec778';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22111,7 +22028,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+5a2ec778';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35873,7 +35790,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ada79f24',
+        revision: 'Ember@2.0.0-canary+5a2ec778',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39843,7 +39760,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+5a2ec778';
 
   /**
   @module ember
