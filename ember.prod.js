@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+31dff064
+ * @version   2.0.0-canary+b07a809e
  */
 
 (function() {
@@ -8166,7 +8166,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+31dff064';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b07a809e';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -11367,8 +11367,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     requireModule('ember-debug');
   }
 
-  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', Object.keys);
 
   exports.default = _emberMetalCore.default;
 });
@@ -13684,7 +13684,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     @public
   */
 
-  function deprecatingAlias(dependentKey, options) {
+  function deprecatingAlias(dependentKey) {
     return _emberMetalComputed.computed(dependentKey, {
       get: function (key) {
                 return _emberMetalProperty_get.get(this, dependentKey);
@@ -13719,7 +13719,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+31dff064
+    @version 2.0.0-canary+b07a809e
     @public
   */
 
@@ -13751,11 +13751,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+31dff064'
+    @default '2.0.0-canary+b07a809e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+31dff064';
+  Ember.VERSION = '2.0.0-canary+b07a809e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13971,7 +13971,7 @@ enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/core', 'ember-
     @since 1.7.0
   */
 
-  function deprecateProperty(object, deprecatedKey, newKey, options) {
+  function deprecateProperty(object, deprecatedKey, newKey) {
     function deprecate() {
           }
 
@@ -15623,7 +15623,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     }
   };
 
-  _emberMetalDeprecate_property.deprecateProperty(OrderedSet.prototype, 'length', 'size', { id: 'ember-metal.ordered-set-length', until: '3.0.0' });
+  _emberMetalDeprecate_property.deprecateProperty(OrderedSet.prototype, 'length', 'size');
 
   /**
     A Map stores values indexed by keys. Unlike JavaScript's
@@ -15821,7 +15821,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     }
   };
 
-  _emberMetalDeprecate_property.deprecateProperty(Map.prototype, 'length', 'size', { id: 'ember-metal.map-length', until: '3.0.0' });
+  _emberMetalDeprecate_property.deprecateProperty(Map.prototype, 'length', 'size');
 
   /**
     @class MapWithDefault
@@ -21619,7 +21619,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+31dff064';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b07a809e';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -21650,7 +21650,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       @property currentWhen
       @private
     */
-    currentWhen: _emberMetalComputed_macros.deprecatingAlias('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
+    currentWhen: _emberMetalComputed_macros.deprecatingAlias('current-when'),
 
     /**
       Used to determine when this LinkComponent is active.
@@ -22115,7 +22115,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+31dff064';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b07a809e';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35877,7 +35877,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+31dff064',
+        revision: 'Ember@2.0.0-canary+b07a809e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39847,7 +39847,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+31dff064';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b07a809e';
 
   /**
   @module ember

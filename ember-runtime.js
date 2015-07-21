@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+31dff064
+ * @version   2.0.0-canary+b07a809e
  */
 
 (function() {
@@ -2435,8 +2435,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     requireModule('ember-debug');
   }
 
-  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', Object.keys);
 
   exports.default = _emberMetalCore.default;
 });
@@ -3135,7 +3135,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       return q[0].add(q[1]);
     });
 
-    _emberMetalCore.default.warn('Watching an undefined global, Ember expects watched globals to be ' + 'setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0, { id: 'ember-metal.chains-flush-pending-chains' });
+    _emberMetalCore.default.warn('Watching an undefined global, Ember expects watched globals to be ' + 'setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
   }
 
   function addChainWatcher(obj, keyName, node) {
@@ -4757,14 +4757,14 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     @public
   */
 
-  function deprecatingAlias(dependentKey, options) {
+  function deprecatingAlias(dependentKey) {
     return _emberMetalComputed.computed(dependentKey, {
       get: function (key) {
-        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
+        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.');
         return _emberMetalProperty_get.get(this, dependentKey);
       },
       set: function (key, value) {
-        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
+        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.');
         _emberMetalProperty_set.set(this, dependentKey, value);
         return value;
       }
@@ -4794,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+31dff064
+    @version 2.0.0-canary+b07a809e
     @public
   */
 
@@ -4826,11 +4826,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+31dff064'
+    @default '2.0.0-canary+b07a809e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+31dff064';
+  Ember.VERSION = '2.0.0-canary+b07a809e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5047,9 +5047,9 @@ enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/core', 'ember-
     @since 1.7.0
   */
 
-  function deprecateProperty(object, deprecatedKey, newKey, options) {
+  function deprecateProperty(object, deprecatedKey, newKey) {
     function deprecate() {
-      _emberMetalCore.default.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
+      _emberMetalCore.default.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.');
     }
 
     Object.defineProperty(object, deprecatedKey, {
@@ -6321,7 +6321,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/core', 'ember-metal/fea
         }
         this._registry.splice(index, 0, { name: name, version: version });
       } else {
-        _emberMetalCore.default.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
+        _emberMetalCore.default.warn('Library "' + name + '" is already registered with Ember.');
       }
     },
 
@@ -6340,7 +6340,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/core', 'ember-metal/fea
     },
 
     each: function (callback) {
-      _emberMetalCore.default.deprecate('Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.', false, { id: 'ember-metal.libraries-each', until: '3.0.0' });
+      _emberMetalCore.default.deprecate('Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.');
       this._registry.forEach(function (lib) {
         callback(lib.name, lib.version);
       });
@@ -6706,7 +6706,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     }
   };
 
-  _emberMetalDeprecate_property.deprecateProperty(OrderedSet.prototype, 'length', 'size', { id: 'ember-metal.ordered-set-length', until: '3.0.0' });
+  _emberMetalDeprecate_property.deprecateProperty(OrderedSet.prototype, 'length', 'size');
 
   /**
     A Map stores values indexed by keys. Unlike JavaScript's
@@ -6904,7 +6904,7 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     }
   };
 
-  _emberMetalDeprecate_property.deprecateProperty(Map.prototype, 'length', 'size', { id: 'ember-metal.map-length', until: '3.0.0' });
+  _emberMetalDeprecate_property.deprecateProperty(Map.prototype, 'length', 'size');
 
   /**
     @class MapWithDefault
@@ -7827,7 +7827,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function required() {
-    _emberMetalCore.default.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
+    _emberMetalCore.default.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false);
     return REQUIRED;
   }
 
@@ -7906,7 +7906,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
 
     if (typeof func !== 'function') {
       // revert to old, soft-deprecated argument ordering
-      _emberMetalCore.default.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
+      _emberMetalCore.default.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.');
 
       func = args[0];
       _paths = args.slice(1);
@@ -7953,7 +7953,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function _immediateObserver() {
-    _emberMetalCore.default.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
+    _emberMetalCore.default.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.');
 
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
