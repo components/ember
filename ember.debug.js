@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8f7efd61
+ * @version   2.0.0-canary+90b22251
  */
 
 (function() {
@@ -8612,7 +8612,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8f7efd61';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14217,7 +14217,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8f7efd61
+    @version 2.0.0-canary+90b22251
     @public
   */
 
@@ -14249,11 +14249,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8f7efd61'
+    @default '2.0.0-canary+90b22251'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8f7efd61';
+  Ember.VERSION = '2.0.0-canary+90b22251';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22233,7 +22233,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8f7efd61';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22731,7 +22731,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8f7efd61';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36586,7 +36586,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8f7efd61',
+        revision: 'Ember@2.0.0-canary+90b22251',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38094,7 +38094,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
       if (attrs && key in attrs) {
         // do not deprecate accessing `this[key]` at this time.
         // add this back when we have a proper migration path
-        // Ember.deprecate(deprecation(key));
+        // Ember.deprecate(deprecation(key), { id: 'ember-views.', until: '3.0.0' });
         var possibleCell = _emberMetalProperty_get.get(attrs, key);
 
         if (possibleCell && possibleCell[MUTABLE_CELL]) {
@@ -38145,9 +38145,9 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
 
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' + ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName);
+      _emberMetalCore.default.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' + ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName, { id: 'ember-views.metamorph-tag-name', until: '2.4.0' });
 
-      _emberMetalCore.default.deprecate('Using ' + this.__metamorphType + ' is deprecated.');
+      _emberMetalCore.default.deprecate('Using ' + this.__metamorphType + ' is deprecated.', false, { id: 'ember-views.metamorph', until: '2.4.0' });
     }
   });
 
@@ -38296,7 +38296,7 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
   */
 
   function RenderBuffer(domHelper) {
-    _emberMetalCore.default.deprecate('`Ember.RenderBuffer` is deprecated.');
+    _emberMetalCore.default.deprecate('`Ember.RenderBuffer` is deprecated.', false, { id: 'ember-views.render-buffer', until: '3.0.0' });
     this.buffer = null;
     this.childViews = [];
     this.attrNodes = [];
@@ -38735,7 +38735,7 @@ enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquer
 
     outerContextualElement: function () {
       if (this._outerContextualElement === undefined) {
-        _emberMetalCore.default.deprecate('The render buffer expects an outer contextualElement to exist.' + ' This ensures DOM that requires context is correctly generated (tr, SVG tags).' + ' Defaulting to document.body, but this will be removed in the future');
+        _emberMetalCore.default.deprecate('The render buffer expects an outer contextualElement to exist.' + ' This ensures DOM that requires context is correctly generated (tr, SVG tags).' + ' Defaulting to document.body, but this will be removed in the future', false, { id: 'ember-views.render-buffer-contextual-element', until: '3.0.0' });
         this.outerContextualElement = document.body;
       }
       return this._outerContextualElement;
@@ -38976,7 +38976,7 @@ enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-m
         delete props['template'];
       }
 
-      _emberMetalCore.default.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty);
+      _emberMetalCore.default.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty, { id: 'ember-views.component-deprecated-template-layout-properties', until: '3.0.0' });
     }
   });
 });
@@ -39136,7 +39136,7 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/core',
       @private
     */
     nearestChildOf: function (klass) {
-      _emberMetalCore.default.deprecate('nearestChildOf has been deprecated.');
+      _emberMetalCore.default.deprecate('nearestChildOf has been deprecated.', false, { id: 'ember-views.nearest-child-of', until: '3.0.0' });
 
       var view = _emberMetalProperty_get.get(this, 'parentView');
 
@@ -39158,7 +39158,7 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/core',
       @private
     */
     nearestInstanceOf: function (klass) {
-      _emberMetalCore.default.deprecate('nearestInstanceOf is deprecated and will be removed from future releases. Use nearestOfType.');
+      _emberMetalCore.default.deprecate('nearestInstanceOf is deprecated and will be removed from future releases. Use nearestOfType.', false, { id: 'ember-views.nearest-instance-of', until: '3.0.0' });
       var view = _emberMetalProperty_get.get(this, 'parentView');
 
       while (view) {
@@ -39808,7 +39808,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/core', 
 
   var ViewStateSupport = _emberMetalMixin.Mixin.create({
     transitionTo: function (state) {
-      _emberMetalCore.default.deprecate('Ember.View#transitionTo has been deprecated, it is for internal use only');
+      _emberMetalCore.default.deprecate('Ember.View#transitionTo has been deprecated, it is for internal use only', false, { id: 'ember-views.view-transition-to', until: '2.4.0' });
       this._transitionTo(state);
     },
 
@@ -40388,7 +40388,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/c
 
     if (tagName !== null && typeof tagName === 'object' && tagName.isDescriptor) {
       tagName = _emberMetalProperty_get.get(view, 'tagName');
-      _emberMetalCore.default.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName);
+      _emberMetalCore.default.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName, { id: 'ember-views.computed-tag-name', until: '2.0.0' });
     }
 
     if (tagName === null || tagName === undefined) {
@@ -41580,7 +41580,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     */
     template: _emberMetalComputed.computed('_template', {
       get: function () {
-        _emberMetalCore.default.deprecate('Accessing \'template\' in ' + this + ' is deprecated. To determine if a block was specified to ' + this + ' please use \'{{#if hasBlock}}\' in the components layout.');
+        _emberMetalCore.default.deprecate('Accessing \'template\' in ' + this + ' is deprecated. To determine if a block was specified to ' + this + ' please use \'{{#if hasBlock}}\' in the components layout.', false, { id: 'ember-views.component-template-get', until: '3.0.0' });
 
         return _emberMetalProperty_get.get(this, '_template');
       },
@@ -41826,7 +41826,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8f7efd61';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
 
   /**
   @module ember
@@ -41987,7 +41987,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
   */
   var ContainerView = _emberViewsViewsView.default.extend(_emberRuntimeMixinsMutable_array.default, {
     willWatchProperty: function (prop) {
-      _emberMetalCore.default.deprecate('ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.', !prop.match(/\[]/) && prop.indexOf('@') !== 0);
+      _emberMetalCore.default.deprecate('ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.', !prop.match(/\[]/) && prop.indexOf('@') !== 0, { id: 'ember-views.container-views-array-observed', until: '2.4.0' });
     },
 
     init: function () {
@@ -41996,7 +41996,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       this._super.apply(this, arguments);
 
       var userChildViews = _emberMetalProperty_get.get(this, 'childViews');
-      _emberMetalCore.default.deprecate('Setting `childViews` on a Container is deprecated.', _emberMetalCore.default.isEmpty(userChildViews));
+      _emberMetalCore.default.deprecate('Setting `childViews` on a Container is deprecated.', _emberMetalCore.default.isEmpty(userChildViews), { id: 'ember-views.container-child-views', until: '2.4.0' });
 
       // redefine view's childViews property that was obliterated
       // 2.0TODO: Don't Ember.A() this so users disabling prototype extensions
@@ -42131,7 +42131,11 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
 
   var DeprecatedContainerView = ContainerView.extend({
     init: function () {
-      _emberMetalCore.default.deprecate('Ember.ContainerView is deprecated.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-containerview' });
+      _emberMetalCore.default.deprecate('Ember.ContainerView is deprecated.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+        url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-containerview',
+        id: 'ember-views.container-view',
+        until: '2.4.0'
+      });
       this._super.apply(this, arguments);
     }
   });
@@ -42268,7 +42272,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-met
 
   var DeprecatedCoreView = CoreView.extend({
     init: function () {
-      _emberMetalCore.default.deprecate('Ember.CoreView is deprecated. Please use Ember.View.', false);
+      _emberMetalCore.default.deprecate('Ember.CoreView is deprecated. Please use Ember.View.', false, { id: 'ember-views.core-view', until: '2.4.0' });
       this._super.apply(this, arguments);
     }
   });
@@ -42951,7 +42955,11 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
   var DeprecatedSelect = Select.extend({
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Ember.Select is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-select' });
+      _emberMetalCore.default.deprecate('Ember.Select is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+        url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-select',
+        id: 'ember-views.select-deprecated',
+        until: '2.4.0'
+      });
     }
   });
 
@@ -43405,7 +43413,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   @submodule ember-views
   */
 
-  _emberMetalCore.default.warn('The VIEW_PRESERVES_CONTEXT flag has been removed and the functionality can no longer be disabled.', _emberMetalCore.default.ENV.VIEW_PRESERVES_CONTEXT !== false);
+  _emberMetalCore.default.warn('The VIEW_PRESERVES_CONTEXT flag has been removed and the functionality can no longer be disabled.', _emberMetalCore.default.ENV.VIEW_PRESERVES_CONTEXT !== false, { id: 'ember-views.view-preserves-context-flag', until: '2.0.0' });
 
   /**
     Global hash of shared templates. This will automatically be populated
@@ -44639,15 +44647,15 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     scheduleRevalidate: function (node, label, manualRerender) {
       if (node && !this._dispatching && node.guid in this.env.renderedNodes) {
         if (manualRerender) {
-          _emberMetalCore.default.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0');
+          _emberMetalCore.default.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
         } else {
-          _emberMetalCore.default.deprecate('You modified ' + label + ' twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0');
+          _emberMetalCore.default.deprecate('You modified ' + label + ' twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
         }
         _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
         return;
       }
 
-      _emberMetalCore.default.deprecate('A property of ' + this + ' was modified inside the ' + this._dispatching + ' hook. You should never change properties on components, services or models during ' + this._dispatching + ' because it causes significant performance degradation.', !this._dispatching);
+      _emberMetalCore.default.deprecate('A property of ' + this + ' was modified inside the ' + this._dispatching + ' hook. You should never change properties on components, services or models during ' + this._dispatching + ' because it causes significant performance degradation.', !this._dispatching, { id: 'ember-views.dispatching-modify-property', until: '3.0.0' });
 
       if (!this.scheduledRevalidation || this._dispatching) {
         this.scheduledRevalidation = true;
@@ -44828,7 +44836,11 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   var DeprecatedView = View.extend({
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
+      _emberMetalCore.default.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+        url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view',
+        id: 'ember-views.view-deprecated',
+        until: '2.4.0'
+      });
     }
   });
 
