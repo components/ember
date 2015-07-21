@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a53d4973
+ * @version   2.0.0-canary+ada79f24
  */
 
 (function() {
@@ -5334,6 +5334,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
 enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
   var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
+  exports.default = deprecate;
 
   function registerHandler(handler) {
     _emberDebugHandlers.registerHandler('deprecate', handler);
@@ -5403,6 +5404,13 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
     }
   });
 
+  var missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
+
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
@@ -5410,10 +5418,10 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   
     @method deprecate
     @param {String} message A description of the deprecation.
-    @param {Boolean|Function} test An optional boolean. If falsy, the deprecation
+    @param {Boolean|Function} test A boolean. If falsy, the deprecation
       will be displayed. If this is a function, it will be executed and its return
       value will be used as condition.
-    @param {Object} options An optional object that can be used to pass
+    @param {Object} options An object that can be used to pass
       in a `url` to the transition guide on the emberjs.com website, and a unique
       `id` for this deprecation. The `id` can be used by Ember debugging tools
       to change the behavior (raise, log or silence) for that specific deprecation.
@@ -5421,9 +5429,21 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
     @public
   */
 
-  exports.default = function () {
+  function deprecate(message, test, options) {
+    if (!options || !options.id && !options.until) {
+      deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.deprecate-options-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.id) {
+      deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.deprecate-id-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.until) {
+      deprecate(missingOptionsUntilDeprecation, options && options.until, { id: 'ember-debug.deprecate-until-missing', until: '3.0.0' });
+    }
+
     _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
-  };
+  }
 });
 /*global __fail__*/
 enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function'], function (exports, _emberDebugIsPlainFunction) {
@@ -5467,7 +5487,7 @@ enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
     return typeof test === 'function' && test.PrototypeMixin === undefined;
   }
 });
-enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalLogger, _emberDebugHandlers) {
+enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalLogger, _emberDebugHandlers) {
   var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = warn;
@@ -5483,6 +5503,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-debug/handle
     }
   });
 
+  var missingOptionsDeprecation = 'When calling `Ember.warn` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include an `id` property.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
+
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
@@ -5494,7 +5519,15 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-debug/handle
     @public
   */
 
-  function warn() {
+  function warn(message, test, options) {
+    if (!options) {
+      _emberMetalCore.default.deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.warn-options-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.id) {
+      _emberMetalCore.default.deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.warn-id-missing', until: '3.0.0' });
+    }
+
     _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
   }
 });
@@ -8600,7 +8633,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14205,7 +14238,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a53d4973
+    @version 2.0.0-canary+ada79f24
     @public
   */
 
@@ -14237,11 +14270,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a53d4973'
+    @default '2.0.0-canary+ada79f24'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a53d4973';
+  Ember.VERSION = '2.0.0-canary+ada79f24';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22221,7 +22254,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22719,7 +22752,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36574,7 +36607,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+a53d4973',
+        revision: 'Ember@2.0.0-canary+ada79f24',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41814,7 +41847,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ada79f24';
 
   /**
   @module ember
