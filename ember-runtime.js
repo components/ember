@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+31dff064
+ * @version   2.0.0-canary+574ee7eb
  */
 
 (function() {
@@ -2433,6 +2433,13 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   // This needs to be called before any deprecateFunc
   if (_emberMetalCore.default.__loader.registry['ember-debug']) {
     requireModule('ember-debug');
+  } else {
+    _emberMetalCore.default.Debug = {};
+
+    if (_emberMetalFeatures.default('ember-debug-handlers')) {
+      _emberMetalCore.default.Debug.registerDeprecationHandler = function () {};
+      _emberMetalCore.default.Debug.registerWarnHandler = function () {};
+    }
   }
 
   _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
@@ -4794,7 +4801,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+31dff064
+    @version 2.0.0-canary+574ee7eb
     @public
   */
 
@@ -4826,11 +4833,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+31dff064'
+    @default '2.0.0-canary+574ee7eb'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+31dff064';
+  Ember.VERSION = '2.0.0-canary+574ee7eb';
 
   /**
     The hash of environment variables used to control various configuration

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+31dff064
+ * @version   2.0.0-canary+574ee7eb
  */
 
 (function() {
@@ -3502,32 +3502,173 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
     });
   }
 });
-enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-debug/deprecation-manager'], function (exports, _emberMetalCore, _emberDebugDeprecationManager) {
+enifed('ember-debug/tests/handlers-test', ['exports', 'ember-debug/handlers'], function (exports, _emberDebugHandlers) {
+
+  QUnit.module('ember-debug/handlers', {
+    teardown: function () {
+      delete _emberDebugHandlers.HANDLERS.blarz;
+    }
+  });
+
+  QUnit.test('calls handler on `invoke` when `falsey`', function (assert) {
+    assert.expect(2);
+
+    function handler(message) {
+      assert.ok(true, 'called handler');
+      assert.equal(message, 'Foo bar');
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo bar', false);
+  });
+
+  QUnit.test('does not call handler on `invoke` when `truthy`', function (assert) {
+    assert.expect(0);
+
+    function handler() {
+      assert.ok(false, 'called handler');
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo bar', true);
+  });
+
+  QUnit.test('calling `invoke` without handlers does not throw an error', function (assert) {
+    assert.expect(0);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo bar', false);
+  });
+
+  QUnit.test('invoking `next` argument calls the next handler', function (assert) {
+    assert.expect(2);
+
+    function handler1(message, options, next) {
+      assert.ok(true, 'called handler1');
+    }
+
+    function handler2(message, options, next) {
+      assert.ok(true, 'called handler2');
+      next(message, options);
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler1);
+    _emberDebugHandlers.registerHandler('blarz', handler2);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo', false);
+  });
+
+  QUnit.test('invoking `next` when no other handlers exists does not error', function (assert) {
+    assert.expect(1);
+
+    function handler(message, options, next) {
+      assert.ok(true, 'called handler1');
+
+      next(message, options);
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo', false);
+  });
+
+  QUnit.test('handlers are called in the proper order', function (assert) {
+    assert.expect(11);
+
+    var expectedMessage = 'This is the message';
+    var expectedOptions = { id: 'foo-bar' };
+    var expected = ['first', 'second', 'third', 'fourth', 'fifth'];
+    var actualCalls = [];
+
+    function generateHandler(item) {
+      return function (message, options, next) {
+        assert.equal(message, expectedMessage, 'message supplied to ' + item + ' handler is correct');
+        assert.equal(options, expectedOptions, 'options supplied to ' + item + ' handler is correct');
+
+        actualCalls.push(item);
+
+        next(message, options);
+      };
+    }
+
+    expected.forEach(function (item) {
+      _emberDebugHandlers.registerHandler('blarz', generateHandler(item));
+    });
+
+    _emberDebugHandlers.invoke('blarz', expectedMessage, false, expectedOptions);
+
+    assert.deepEqual(actualCalls, expected.reverse(), 'handlers were called in proper order');
+  });
+
+  QUnit.test('not invoking `next` prevents further handlers from being called', function (assert) {
+    assert.expect(1);
+
+    function handler1(message, options, next) {
+      assert.ok(false, 'called handler1');
+    }
+
+    function handler2(message, options, next) {
+      assert.ok(true, 'called handler2');
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler1);
+    _emberDebugHandlers.registerHandler('blarz', handler2);
+
+    _emberDebugHandlers.invoke('blarz', 'Foo', false);
+  });
+
+  QUnit.test('handlers can call `next` with custom message and/or options', function (assert) {
+    assert.expect(4);
+
+    var initialMessage = 'initial message';
+    var initialOptions = { id: 'initial-options' };
+
+    var handler2Message = 'Handler2 Message';
+    var handler2Options = { id: 'handler-2' };
+
+    function handler1(message, options, next) {
+      assert.equal(message, handler2Message, 'handler2 message provided to handler1');
+      assert.equal(options, handler2Options, 'handler2 options provided to handler1');
+    }
+
+    function handler2(message, options, next) {
+      assert.equal(message, initialMessage, 'initial message provided to handler2');
+      assert.equal(options, initialOptions, 'initial options proivided to handler2');
+
+      next(handler2Message, handler2Options);
+    }
+
+    _emberDebugHandlers.registerHandler('blarz', handler1);
+    _emberDebugHandlers.registerHandler('blarz', handler2);
+
+    _emberDebugHandlers.invoke('blarz', initialMessage, false, initialOptions);
+  });
+});
+enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-debug/handlers', 'ember-debug/deprecate'], function (exports, _emberMetalCore, _emberDebugHandlers, _emberDebugDeprecate) {
 
   var originalEnvValue = undefined;
-  var originalDeprecationDefault = undefined;
-  var originalDeprecationLevels = undefined;
+  var originalDeprecateHandler = undefined;
 
   QUnit.module('ember-debug', {
     setup: function () {
-      originalDeprecationDefault = _emberDebugDeprecationManager.default.defaultLevel;
-      originalDeprecationLevels = _emberDebugDeprecationManager.default.individualLevels;
       originalEnvValue = _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION;
+      originalDeprecateHandler = _emberDebugHandlers.HANDLERS.deprecate;
 
-      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
-      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
+      _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
     },
 
     teardown: function () {
-      _emberDebugDeprecationManager.default.defaultLevel = originalDeprecationDefault;
-      _emberDebugDeprecationManager.default.individualLevels = originalDeprecationLevels;
+      _emberDebugHandlers.HANDLERS.deprecate = originalDeprecateHandler;
+
       _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = originalEnvValue;
     }
   });
 
-  QUnit.test('Ember.deprecate does not throw if default level is silence', function (assert) {
+  QUnit.test('Ember.deprecate does not throw if RAISE_ON_DEPRECATION is false', function (assert) {
     assert.expect(1);
-    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.SILENCE);
+
+    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
       _emberMetalCore.default.deprecate('Should not throw', false);
@@ -3540,22 +3681,31 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
   QUnit.test('Ember.deprecate re-sets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
     assert.expect(2);
 
-    _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.SILENCE);
+    _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
+
+    try {
+      _emberMetalCore.default.deprecate('Should not throw', false);
+      assert.ok(true, 'Ember.deprecate did not throw');
+    } catch (e) {
+      assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
+    }
 
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
 
     assert.throws(function () {
       _emberMetalCore.default.deprecate('Should throw', false);
     }, /Should throw/);
-
-    assert.equal(_emberDebugDeprecationManager.default.defaultLevel, _emberDebugDeprecationManager.deprecationLevels.RAISE, 'default level re-set to RAISE');
   });
 
   QUnit.test('When ENV.RAISE_ON_DEPRECATION is true, it is still possible to silence a deprecation by id', function (assert) {
     assert.expect(3);
 
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
-    _emberDebugDeprecationManager.default.setLevel('my-deprecation', _emberDebugDeprecationManager.deprecationLevels.SILENCE);
+    _emberDebugDeprecate.registerHandler(function (message, options, next) {
+      if (!options || options.id !== 'my-deprecation') {
+        next.apply(undefined, arguments);
+      }
+    });
 
     try {
       _emberMetalCore.default.deprecate('should be silenced with matching id', false, { id: 'my-deprecation' });
@@ -3676,8 +3826,16 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
   QUnit.test('Ember.deprecate does not throw a deprecation at log and silence levels', function () {
     expect(4);
     var id = 'ABC';
+    var shouldThrow = false;
 
-    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.LOG);
+    _emberDebugDeprecate.registerHandler(function (message, options, next) {
+      if (options && options.id === id) {
+        if (shouldThrow) {
+          throw new Error(message);
+        }
+      }
+    });
+
     try {
       _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
       ok(true, 'Deprecation did not throw');
@@ -3685,7 +3843,6 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
       ok(false, 'Deprecation was thrown despite being added to blacklist');
     }
 
-    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.SILENCE);
     try {
       _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
       ok(true, 'Deprecation did not throw');
@@ -3693,13 +3850,11 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
       ok(false, 'Deprecation was thrown despite being added to blacklist');
     }
 
-    _emberDebugDeprecationManager.default.setLevel(id, _emberDebugDeprecationManager.deprecationLevels.RAISE);
+    shouldThrow = true;
 
     throws(function () {
       _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
     });
-
-    _emberDebugDeprecationManager.default.setLevel(id, null);
 
     throws(function () {
       _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
@@ -42455,7 +42610,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+31dff064', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+574ee7eb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
