@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b5025c7d
+ * @version   2.0.0-canary+b07a809e
  */
 
 (function() {
@@ -5681,32 +5681,6 @@ enifed('ember-htmlbars/tests/compat/helper_test', ['exports', 'ember-htmlbars/co
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
-  });
-
-  QUnit.test('allows unbound usage within an element', function () {
-    expect(4);
-
-    function someHelper(param1, param2, options) {
-      equal(param1, 'blammo');
-      equal(param2, 'blazzico');
-
-      return 'class=\'foo\'';
-    }
-
-    _emberHtmlbarsCompatHelper.registerHandlebarsCompatibleHelper('test', someHelper);
-
-    view = _emberViewsViewsView.default.create({
-      controller: {
-        value: 'foo'
-      },
-      template: _emberTemplateCompilerSystemCompile.default('<div {{test "blammo" "blazzico"}}>Bar</div>')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Returning a string of attributes from a helper inside an element is deprecated.');
-
-    equal(view.$('.foo').length, 1, 'class attribute was added by helper');
   });
 
   QUnit.test('registering a helper created from `Ember.Handlebars.makeViewHelper` does not double wrap the helper', function () {
@@ -13951,77 +13925,6 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['exports', 'ember-metal/fea
       }, /Could not find component named "foo-bar" \(no component or template with that name was found\)/);
     });
   }
-});
-enifed('ember-htmlbars/tests/hooks/element_test', ['exports', 'ember-views/views/view', 'ember-htmlbars/helpers', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile'], function (exports, _emberViewsViewsView, _emberHtmlbarsHelpers, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile) {
-
-  var view;
-
-  QUnit.module('ember-htmlbars: element hook', {
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      delete _emberHtmlbarsHelpers.default.test;
-    }
-  });
-
-  QUnit.test('allows unbound usage within an element', function () {
-    expect(4);
-
-    function someHelper(params, hash, options, env) {
-      equal(params[0], 'blammo');
-      equal(params[1], 'blazzico');
-
-      return 'class=\'foo\'';
-    }
-
-    _emberHtmlbarsHelpers.registerHelper('test', someHelper);
-
-    view = _emberViewsViewsView.default.create({
-      controller: {
-        value: 'foo'
-      },
-      template: _emberTemplateCompilerSystemCompile.default('<div {{test "blammo" "blazzico"}}>Bar</div>')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Returning a string of attributes from a helper inside an element is deprecated.');
-
-    equal(view.$('.foo').length, 1, 'class attribute was added by helper');
-  });
-
-  QUnit.test('allows unbound usage within an element from property', function () {
-    expect(2);
-
-    view = _emberViewsViewsView.default.create({
-      controller: {
-        someProp: 'class="foo"'
-      },
-      template: _emberTemplateCompilerSystemCompile.default('<div {{someProp}}>Bar</div>')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Returning a string of attributes from a helper inside an element is deprecated.');
-
-    equal(view.$('.foo').length, 1, 'class attribute was added by helper');
-  });
-
-  QUnit.test('allows unbound usage within an element creating multiple attributes', function () {
-    expect(2);
-
-    view = _emberViewsViewsView.default.create({
-      controller: {
-        someProp: 'class="foo" data-foo="bar"'
-      },
-      template: _emberTemplateCompilerSystemCompile.default('<div {{someProp}}>Bar</div>')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Returning a string of attributes from a helper inside an element is deprecated.');
-
-    equal(view.$('.foo[data-foo="bar"]').length, 1, 'attributes added by helper');
-  });
 });
 enifed('ember-htmlbars/tests/hooks/text_node_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers, _emberRuntimeTestsUtils) {
 
@@ -27788,81 +27691,6 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-me
     equal(top.$().text(), 'HI');
 
     routerState.outlets.mainView = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-  });
-
-  QUnit.test('outlet should correctly lookup a view [DEPRECATED]', function () {
-    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
-    var CoreOutlet = container.lookupFactory('view:core-outlet');
-    var SpecialOutlet = CoreOutlet.extend({
-      classNames: ['special']
-    });
-
-    registry.register('view:special-outlet', SpecialOutlet);
-
-    var routerState = withTemplate('<h1>HI</h1>{{outlet view=\'special-outlet\'}}');
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
-    equal(top.$().find('.special').length, 1, 'expected to find .special element');
-  });
-
-  QUnit.test('outlet should assert view is specified as a string [DEPRECATED]', function () {
-    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
-    top.setOutletState(withTemplate('<h1>HI</h1>{{outlet view=containerView}}'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(top);
-    }, /Using a quoteless view parameter with {{outlet}} is not supported/);
-  });
-
-  QUnit.test('outlet should assert view path is successfully resolved [DEPRECATED]', function () {
-    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
-    top.setOutletState(withTemplate('<h1>HI</h1>{{outlet view=\'someViewNameHere\'}}'));
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(top);
-    }, /someViewNameHere must be a subclass or an instance of Ember.View/);
-  });
-
-  QUnit.test('outlet should support an optional view class [DEPRECATED]', function () {
-    expectDeprecation(/Passing `view` or `viewClass` to {{outlet}} is deprecated/);
-    var CoreOutlet = container.lookupFactory('view:core-outlet');
-    var SpecialOutlet = CoreOutlet.extend({
-      classNames: ['very-special']
-    });
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          template: _emberTemplateCompilerSystemCompile.default('<h1>HI</h1>{{outlet viewClass=view.outletView}}'),
-          outletView: SpecialOutlet
-        })
-      },
-      outlets: {}
-    };
-    top.setOutletState(routerState);
-
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-    equal(top.$().find('.very-special').length, 1, 'Should find .very-special');
-
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
 
     _emberMetalRun_loop.default(function () {
       top.setOutletState(routerState);
@@ -42627,7 +42455,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+b5025c7d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+b07a809e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
