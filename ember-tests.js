@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ada79f24
+ * @version   2.0.0-canary+a53d4973
  */
 
 (function() {
@@ -3645,7 +3645,7 @@ enifed('ember-debug/tests/handlers-test', ['exports', 'ember-debug/handlers'], f
     _emberDebugHandlers.invoke('blarz', initialMessage, false, initialOptions);
   });
 });
-enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-debug/handlers', 'ember-debug/deprecate', 'ember-debug/warn'], function (exports, _emberMetalCore, _emberDebugHandlers, _emberDebugDeprecate, _emberDebugWarn) {
+enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-debug/handlers', 'ember-debug/deprecate'], function (exports, _emberMetalCore, _emberDebugHandlers, _emberDebugDeprecate) {
 
   var originalEnvValue = undefined;
   var originalDeprecateHandler = undefined;
@@ -3671,7 +3671,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
-      _emberMetalCore.default.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Should not throw', false);
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
@@ -3684,7 +3684,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
 
     try {
-      _emberMetalCore.default.deprecate('Should not throw', false, { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Should not throw', false);
       assert.ok(true, 'Ember.deprecate did not throw');
     } catch (e) {
       assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
@@ -3693,7 +3693,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = true;
 
     assert.throws(function () {
-      _emberMetalCore.default.deprecate('Should throw', false, { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Should throw', false);
     }, /Should throw/);
   });
 
@@ -3708,18 +3708,18 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     });
 
     try {
-      _emberMetalCore.default.deprecate('should be silenced with matching id', false, { id: 'my-deprecation', until: 'forever' });
+      _emberMetalCore.default.deprecate('should be silenced with matching id', false, { id: 'my-deprecation' });
       assert.ok(true, 'Did not throw when level is set by id');
     } catch (e) {
       assert.ok(false, 'Expected Ember.deprecate not to throw but it did: ' + e.message);
     }
 
     assert.throws(function () {
-      _emberMetalCore.default.deprecate('Should throw with no matching id', false, { id: 'test', until: 'forever' });
-    }, /Should throw with no matching id/);
+      _emberMetalCore.default.deprecate('Should throw with no id', false);
+    }, /Should throw with no id/);
 
     assert.throws(function () {
-      _emberMetalCore.default.deprecate('Should throw with non-matching id', false, { id: 'other-id', until: 'forever' });
+      _emberMetalCore.default.deprecate('Should throw with non-matching id', false, { id: 'other-id' });
     }, /Should throw with non-matching id/);
   });
 
@@ -3727,15 +3727,15 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     expect(3);
 
     throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Deprecation is thrown', false);
     });
 
     throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', '', { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Deprecation is thrown', '');
     });
 
     throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', 0, { id: 'test', until: 'forever' });
+      _emberMetalCore.default.deprecate('Deprecation is thrown', 0);
     });
   });
 
@@ -3744,7 +3744,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
 
     _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
       return true;
-    }, { id: 'test', until: 'forever' });
+    });
 
     ok(true, 'deprecation was not thrown');
   });
@@ -3754,16 +3754,16 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     throws(function () {
       _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
         return false;
-      }, { id: 'test', until: 'forever' });
+      });
     });
   });
 
   QUnit.test('Ember.deprecate does not throw deprecations if second argument is truthy', function () {
     expect(1);
 
-    _emberMetalCore.default.deprecate('Deprecation is thrown', true, { id: 'test', until: 'forever' });
-    _emberMetalCore.default.deprecate('Deprecation is thrown', '1', { id: 'test', until: 'forever' });
-    _emberMetalCore.default.deprecate('Deprecation is thrown', 1, { id: 'test', until: 'forever' });
+    _emberMetalCore.default.deprecate('Deprecation is thrown', true);
+    _emberMetalCore.default.deprecate('Deprecation is thrown', '1');
+    _emberMetalCore.default.deprecate('Deprecation is thrown', 1);
 
     ok(true, 'deprecations were not thrown');
   });
@@ -3826,7 +3826,6 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
   QUnit.test('Ember.deprecate does not throw a deprecation at log and silence levels', function () {
     expect(4);
     var id = 'ABC';
-    var until = 'forever';
     var shouldThrow = false;
 
     _emberDebugDeprecate.registerHandler(function (message, options, next) {
@@ -3838,14 +3837,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     });
 
     try {
-      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
+      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
     }
 
     try {
-      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id, until: until });
+      _emberMetalCore.default.deprecate('Deprecation for testing purposes', false, { id: id });
       ok(true, 'Deprecation did not throw');
     } catch (e) {
       ok(false, 'Deprecation was thrown despite being added to blacklist');
@@ -3854,83 +3853,12 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     shouldThrow = true;
 
     throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id, until: until });
+      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
     });
 
     throws(function () {
-      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id, until: until });
+      _emberMetalCore.default.deprecate('Deprecation is thrown', false, { id: id });
     });
-  });
-
-  QUnit.test('Ember.deprecate without options triggers a deprecation', function (assert) {
-    assert.expect(4);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      if (message === _emberDebugDeprecate.missingOptionsDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
-      }
-    });
-
-    _emberMetalCore.default.deprecate('foo');
-    _emberMetalCore.default.deprecate('foo', false, {});
-  });
-
-  QUnit.test('Ember.deprecate without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      if (message === _emberDebugDeprecate.missingOptionsIdDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.id is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
-      }
-    });
-
-    _emberMetalCore.default.deprecate('foo', false, { until: 'forever' });
-  });
-
-  QUnit.test('Ember.deprecate without options.until triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      if (message === _emberDebugDeprecate.missingOptionsUntilDeprecation) {
-        assert.ok(true, 'proper deprecation is triggered when options.until is missing');
-      } else if (message === 'foo') {
-        assert.ok(true, 'original deprecation is still triggered');
-      }
-    });
-
-    _emberMetalCore.default.deprecate('foo', false, { id: 'test' });
-  });
-
-  QUnit.test('Ember.warn without options triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      assert.equal(message, _emberDebugWarn.missingOptionsDeprecation, 'deprecation is triggered when options is missing');
-    });
-
-    _emberDebugWarn.registerHandler(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
-
-    _emberMetalCore.default.warn('foo');
-  });
-
-  QUnit.test('Ember.warn without options.id triggers a deprecation', function (assert) {
-    assert.expect(2);
-
-    _emberDebugDeprecate.registerHandler(function (message) {
-      assert.equal(message, _emberDebugWarn.missingOptionsIdDeprecation, 'deprecation is triggered when options is missing');
-    });
-
-    _emberDebugWarn.registerHandler(function (message) {
-      assert.equal(message, 'foo', 'original warning is triggered');
-    });
-
-    _emberMetalCore.default.warn('foo', false, {});
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-debug'], function (exports, _emberMetalCore, _emberDebug) {
@@ -42528,7 +42456,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+ada79f24', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a53d4973', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
