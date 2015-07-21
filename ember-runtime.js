@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e532dcd2
+ * @version   2.0.0-canary+acecb9f7
  */
 
 (function() {
@@ -4794,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e532dcd2
+    @version 2.0.0-canary+acecb9f7
     @public
   */
 
@@ -4826,11 +4826,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e532dcd2'
+    @default '2.0.0-canary+acecb9f7'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e532dcd2';
+  Ember.VERSION = '2.0.0-canary+acecb9f7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18045,7 +18045,9 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
 
   var loadHooks = _emberMetalCore.default.ENV.EMBER_LOAD_HOOKS || {};
   var loaded = {};
+  var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -18067,12 +18069,12 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   */
 
   function onLoad(name, callback) {
-    var object;
+    var object = loaded[name];
 
     loadHooks[name] = loadHooks[name] || _emberMetalCore.default.A();
     loadHooks[name].pushObject(callback);
 
-    if (object = loaded[name]) {
+    if (object) {
       callback(object);
     }
   }
