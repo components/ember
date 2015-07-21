@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+90b22251
+ * @version   2.0.0-canary+a53d4973
  */
 
 (function() {
@@ -6045,7 +6045,7 @@ enifed('ember-htmlbars/tests/compat/make-view-helper_test', ['exports', 'ember-v
     equal(view.$().text(), 'woot!');
   });
 });
-enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat', 'ember-htmlbars/helpers/each'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberRuntimeSystemString, _emberHtmlbarsCompat, _emberHtmlbarsHelpersEach) {
+enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-runtime/system/string', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberRuntimeSystemString, _emberHtmlbarsCompat) {
 
   var compile, helpers, helper;
   compile = _emberHtmlbarsCompat.default.compile;
@@ -6080,12 +6080,10 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
   });
 
   QUnit.test('primitives should work correctly [DEPRECATED]', function () {
-    expectDeprecation(_emberHtmlbarsHelpersEach.deprecation);
-
     view = _emberViewsViewsView.default.create({
       prims: _emberMetalCore.default.A(['string', 12]),
 
-      template: compile('{{#each view.prims}}{{#if this}}inside-if{{/if}}{{/each}}')
+      template: compile('{{#each view.prims as |prim|}}{{#if prim}}inside-if{{/if}}{{/each}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
@@ -6509,12 +6507,10 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
       controller: _emberRuntimeSystemObject.default.create({
         things: _emberRuntimeSystemNative_array.A([null, 0, undefined, false, 'OMG'])
       }),
-      template: compile('{{#each things}}{{this}}|{{reverse this}} {{/each}}{{#each things as |thing|}}{{thing}}|{{reverse thing}} {{/each}}')
+      template: compile('{{#each things as |thing|}}{{thing}}|{{reverse thing}} {{/each}}{{#each things as |thing|}}{{thing}}|{{reverse thing}} {{/each}}')
     });
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, _emberHtmlbarsHelpersEach.deprecation);
+    _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$().text(), '|NOPE 0|NOPE |NOPE false|NOPE OMG|GMO |NOPE 0|NOPE |NOPE false|NOPE OMG|GMO ', 'helper output is correct');
 
@@ -6537,12 +6533,10 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
       controller: _emberRuntimeSystemObject.default.create({
         things: _emberRuntimeSystemNative_array.A([null, { foo: 5 }])
       }),
-      template: compile('{{#each things}}{{foo}}|{{print-foo this}} {{/each}}{{#each things as |thing|}}{{thing.foo}}|{{print-foo thing}} {{/each}}')
+      template: compile('{{#each things as |thing|}}{{thing.foo}}|{{print-foo thing}} {{/each}}{{#each things as |thing|}}{{thing.foo}}|{{print-foo thing}} {{/each}}')
     });
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, _emberHtmlbarsHelpersEach.deprecation);
+    _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$().text(), '|NOPE 5|5 |NOPE 5|5 ', 'helper output is correct');
 
@@ -7210,7 +7204,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
 
   QUnit.test('should pass content as context when using {{#each}} helper [DEPRECATED]', function () {
     view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.releases}}Mac OS X {{version}}: {{name}} {{/each}}'),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.releases as |release|}}Mac OS X {{release.version}}: {{release.name}} {{/each}}'),
 
       releases: _emberRuntimeSystemNative_array.A([{ version: '10.7',
         name: 'Lion' }, { version: '10.6',
@@ -7218,9 +7212,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
         name: 'Leopard' }])
     });
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.');
+    _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$().text(), 'Mac OS X 10.7: Lion Mac OS X 10.6: Snow Leopard Mac OS X 10.5: Leopard ', 'prints each item in sequence');
   });
@@ -8361,76 +8353,16 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/fea
     assert.equal(component.$('li').text(), 'No categories.', 'the inverse is rendered when the value becomes falsey again');
   });
 });
-enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers/each', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpersEach, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/legacy_each_view', 'ember-runtime/system/native_array', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-metal/property_set', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsLegacy_each_view, _emberRuntimeSystemNative_array, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberMetalProperty_set, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberHtmlbarsKeywordsView) {
 
   var people, view, registry, container;
   var template, templateMyView, MyView, MyEmptyView, templateMyEmptyView;
   var originalViewKeyword;
 
-  // This function lets us write {{#EACH|people|p}} {{p}} {{/each}}
-  // and generate:
-  //
-  // - {{#each p in people}} (legacy)
-  // - {{#each people as |p|}} (legacy)
-  function makeReplacer(useBlockParams) {
-    return function (_, matchString) {
-      var values = matchString.split('|');
-      if (values.length === 1) {
-        return 'each';
-      }
-
-      var arr = useBlockParams ? ['each', values[1], 'as', '|' + values[2] + '|'] : ['each', values[2], 'in', values[1]];
-
-      var options = values[3];
-      if (options) {
-        if (useBlockParams) {
-          arr.splice(2, 0, options);
-        } else {
-          arr.push(options);
-        }
-      }
-
-      return arr.join(' ');
-    };
-  }
-
-  var parseEachReplacerBlockParam = makeReplacer(true);
-  var parseEachReplacerNonBlockParam = makeReplacer(false);
-
-  var EACH_REGEX = /(EACH[^\}]*)/g;
-
-  function parseEach(str, useBlockParams) {
-    return str.replace(EACH_REGEX, useBlockParams ? parseEachReplacerBlockParam : parseEachReplacerNonBlockParam);
-  }
-
-  QUnit.module('parseEach test helper');
-
-  QUnit.test('block param syntax substitution', function () {
-    equal(parseEach('{{#EACH|people|p}}p people{{/EACH}}', true), '{{#each people as |p|}}p people{{/each}}');
-    equal(parseEach('{{#EACH|people|p|a=\'b\' c=\'d\'}}p people{{/EACH}}', true), '{{#each people a=\'b\' c=\'d\' as |p|}}p people{{/each}}');
-  });
-
-  QUnit.test('non-block param syntax substitution', function () {
-    equal(parseEach('{{#EACH|people|p}}p people{{/EACH}}', false), '{{#each p in people}}p people{{/each}}');
-    equal(parseEach('{{#EACH|people|p|a=\'b\' c=\'d\'}}p people{{/EACH}}', false), '{{#each p in people a=\'b\' c=\'d\'}}p people{{/each}}');
-  });
-
-  function templateFor(templateString, useBlockParams) {
-    var parsedTemplateString = parseEach(templateString, useBlockParams);
-    var template;
-
-    if (!useBlockParams) {
-      expectDeprecation(/use the block param form/);
-    }
-    template = _emberTemplateCompilerSystemCompile.default(parsedTemplateString);
-
-    return template;
-  }
-
   var originalLookup = _emberMetalCore.default.lookup;
   var lookup;
 
-  QUnit.module('the #each helper [DEPRECATED]', {
+  QUnit.module('the #each helper', {
     setup: function () {
       _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
 
@@ -8438,7 +8370,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
       _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
 
-      template = _emberTemplateCompilerSystemCompile.default('{{#each view.people}}{{name}}{{/each}}');
+      template = _emberTemplateCompilerSystemCompile.default('{{#each view.people as |person|}}{{person.name}}{{/each}}');
       people = _emberRuntimeSystemNative_array.A([{ name: 'Steve Holt' }, { name: 'Annabelle' }]);
 
       registry = new _emberRuntimeSystemContainer.Registry();
@@ -8454,9 +8386,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       });
 
       templateMyView = _emberTemplateCompilerSystemCompile.default('{{name}}');
-      lookup.MyView = MyView = _emberViewsViewsView.default.extend({
-        template: templateMyView
-      });
+      lookup.MyView = MyView = _emberViewsViewsView.default.extend({ template: templateMyView });
       registry.register('view:my-view', MyView);
 
       templateMyEmptyView = _emberTemplateCompilerSystemCompile.default('I\'m empty');
@@ -8465,9 +8395,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       });
       registry.register('view:my-empty-view', MyEmptyView);
 
-      expectDeprecation(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, _emberHtmlbarsHelpersEach.deprecation);
+      _emberRuntimeTestsUtils.runAppend(view);
     },
 
     teardown: function () {
@@ -8506,34 +8434,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     });
 
     assertHTML(view, 'Steve HoltAnnabelleTom Dale');
-  });
-
-  if (typeof Handlebars === 'object') {
-    QUnit.test('should be able to use standard Handlebars #each helper', function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-
-      view = _emberViewsViewsView.default.create({
-        context: { items: ['a', 'b', 'c'] },
-        template: Handlebars.compile('{{#each items}}{{this}}{{/each}}')
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().html(), 'abc');
-    });
-  }
-
-  QUnit.test('it allows you to access the current context using {{this}}', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.people}}{{this}}{{/each}}'),
-      people: _emberRuntimeSystemNative_array.A(['Black Francis', 'Joey Santiago', 'Kim Deal', 'David Lovering'])
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    assertHTML(view, 'Black FrancisJoey SantiagoKim DealDavid Lovering');
   });
 
   QUnit.test('it updates the view if an item is removed', function () {
@@ -8687,12 +8587,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       template: _emberTemplateCompilerSystemCompile.default('itemView:{{name}}')
     });
 
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemView="anItemView"}}'),
-      people: people,
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemView="anItemView"}}'),
+        people: people,
+        container: container
+      });
+    }, /Using 'itemView' with '{{each}}'/);
 
     registry.register('view:anItemView', itemView);
 
@@ -8706,12 +8607,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       template: _emberTemplateCompilerSystemCompile.default('itemView:{{name}}')
     });
 
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemView="an-item-view"}}'),
-      people: people,
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemView="an-item-view"}}'),
+        people: people,
+        container: container
+      });
+    }, /Using 'itemView' with '{{each}}'/);
 
     registry.register('view:an-item-view', itemView);
     _emberRuntimeTestsUtils.runAppend(view);
@@ -8720,12 +8622,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with global (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView}}'),
-      people: people,
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView}}'),
+        people: people,
+        container: container
+      });
+    }, /Using 'itemViewClass' with '{{each}}'/);
 
     var deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
 
@@ -8737,12 +8640,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} via container', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass="my-view"}}'),
-      people: people
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        container: container,
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass="my-view"}}'),
+        people: people
+      });
+    }, /Using 'itemViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8750,12 +8654,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with each view tagName (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView tagName="ul"}}'),
-      people: people,
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView tagName="ul"}}'),
+        people: people,
+        container: container
+      });
+    }, /Using 'itemViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$('ul').length, 1, 'rendered ul tag');
@@ -8764,16 +8669,17 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with tagName in itemViewClass (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
     registry.register('view:li-view', _emberViewsViewsView.default.extend({
       tagName: 'li'
     }));
 
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.people itemViewClass="li-view" as |item|}}{{item.name}}{{/each}}</ul>'),
-      people: people,
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('<ul>{{#each view.people itemViewClass="li-view" as |item|}}{{item.name}}{{/each}}</ul>'),
+        people: people,
+        container: container
+      });
+    }, /Using 'itemViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8783,13 +8689,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with {{else}} block (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('\n      {{~#each view.people itemViewClass="my-view" as |item|~}}\n        {{item.name}}\n      {{~else~}}\n        No records!\n      {{~/each}}'),
-      people: _emberRuntimeSystemNative_array.A(),
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('\n        {{~#each view.people itemViewClass="my-view" as |item|~}}\n          {{item.name}}\n        {{~else~}}\n          No records!\n        {{~/each}}'),
+        people: _emberRuntimeSystemNative_array.A(),
+        container: container
+      });
+    }, /Using 'itemViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8801,13 +8707,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       template: _emberTemplateCompilerSystemCompile.default('emptyView:sad panda')
     });
 
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyView="anEmptyView"}}'),
-      people: _emberRuntimeSystemNative_array.A(),
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyView="anEmptyView"}}'),
+        people: _emberRuntimeSystemNative_array.A(),
+        container: container
+      });
+    }, /Using 'emptyView' with '{{each}}'/);
 
     registry.register('view:anEmptyView', emptyView);
 
@@ -8821,13 +8727,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       template: _emberTemplateCompilerSystemCompile.default('emptyView:sad panda')
     });
 
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyView="an-empty-view"}}'),
-      people: _emberRuntimeSystemNative_array.A(),
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyView="an-empty-view"}}'),
+        people: _emberRuntimeSystemNative_array.A(),
+        container: container
+      });
+    }, /Using 'emptyView' with '{{each}}'/);
 
     registry.register('view:an-empty-view', emptyView);
 
@@ -8837,13 +8743,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} with global (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView}}'),
-      people: _emberRuntimeSystemNative_array.A(),
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView}}'),
+        people: _emberRuntimeSystemNative_array.A(),
+        container: container
+      });
+    }, /Using 'emptyViewClass' with '{{each}}'/);
 
     var deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
 
@@ -8855,13 +8761,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} via container', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass="my-empty-view"}}'),
-      people: _emberRuntimeSystemNative_array.A()
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        container: container,
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass="my-empty-view"}}'),
+        people: _emberRuntimeSystemNative_array.A()
+      });
+    }, /Using 'emptyViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8869,13 +8775,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} with tagName (DEPRECATED)', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView tagName="b"}}'),
-      people: _emberRuntimeSystemNative_array.A(),
-      container: container
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView tagName="b"}}'),
+        people: _emberRuntimeSystemNative_array.A(),
+        container: container
+      });
+    }, /Using 'emptyViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8884,13 +8790,13 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} with in format', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{each person in view.people emptyViewClass="my-empty-view"}}'),
-      people: _emberRuntimeSystemNative_array.A()
-    });
+    expectDeprecation(function () {
+      view = _emberViewsViewsView.default.create({
+        container: container,
+        template: _emberTemplateCompilerSystemCompile.default('{{each person in view.people emptyViewClass="my-empty-view"}}'),
+        people: _emberRuntimeSystemNative_array.A()
+      });
+    }, /Using 'emptyViewClass' with '{{each}}'/);
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -8898,9 +8804,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it uses {{else}} when replacing model with an empty array', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items}}{{this}}{{else}}Nothing{{/each}}'),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
       items: _emberRuntimeSystemNative_array.A(['one', 'two'])
     });
 
@@ -8917,9 +8822,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
   QUnit.test('it uses {{else}} when removing all items in an array', function () {
     var items = _emberRuntimeSystemNative_array.A(['one', 'two']);
-    _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items}}{{this}}{{else}}Nothing{{/each}}'),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
       items: items
     });
 
@@ -8937,9 +8841,8 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
   QUnit.test('it can move to and from {{else}} properly when the backing array gains and looses items (#11140)', function () {
     var items = _emberRuntimeSystemNative_array.A(['one', 'two']);
-    _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items}}{{this}}{{else}}Nothing{{/each}}'),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
       items: items
     });
 
@@ -8969,188 +8872,135 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     assertHTML(view, 'Nothing');
   });
 
-  QUnit.test('views inside #each preserve the new context [DEPRECATED]', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
+  QUnit.module('{{each bar as |foo|}}', {
+    setup: function () {
+      registry = new _emberRuntimeSystemContainer.Registry();
+      container = registry.container();
 
-    var controller = _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]);
-
-    view = _emberViewsViewsView.default.create({
-      container: container,
-      controller: controller,
-      template: _emberTemplateCompilerSystemCompile.default('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, _emberHtmlbarsHelpersEach.deprecation);
-
-    equal(view.$().text(), 'AdamSteve');
+      registry.register('view:toplevel', _emberViewsViewsView.default.extend());
+      registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
+    },
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(container);
+      _emberRuntimeTestsUtils.runDestroy(view);
+      container = view = null;
+    }
   });
 
-  function testEachWithItem(moduleName, useBlockParams) {
-    QUnit.module(moduleName, {
-      setup: function () {
-        registry = new _emberRuntimeSystemContainer.Registry();
-        container = registry.container();
-
-        registry.register('view:toplevel', _emberViewsViewsView.default.extend());
-        registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
-      },
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(container);
-        _emberRuntimeTestsUtils.runDestroy(view);
-        container = view = null;
-      }
-    });
-
-    QUnit.test('#each accepts a name binding', function () {
-      view = _emberViewsViewsView.default.create({
-        template: templateFor('{{#EACH|view.items|item}}{{view.title}} {{item}}{{/each}}', useBlockParams),
-        title: 'My Cool Each Test',
-        items: _emberRuntimeSystemNative_array.A([1, 2])
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
-    });
-
-    QUnit.test('#each accepts a name binding and does not change the context', function () {
-      var controller = _emberRuntimeControllersController.default.create({
-        name: 'bob the controller'
-      });
-      var obj = _emberRuntimeSystemObject.default.create({
-        name: 'henry the item'
-      });
-
-      view = _emberViewsViewsView.default.create({
-        template: templateFor('{{#EACH|view.items|item}}{{name}}{{/each}}', useBlockParams),
-        title: 'My Cool Each Test',
-        items: _emberRuntimeSystemNative_array.A([obj]),
-        controller: controller
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'bob the controller');
-    });
-
-    QUnit.test('#each accepts a name binding and can display child properties', function () {
-      view = _emberViewsViewsView.default.create({
-        template: templateFor('{{#EACH|view.items|item}}{{view.title}} {{item.name}}{{/each}}', useBlockParams),
-        title: 'My Cool Each Test',
-        items: _emberRuntimeSystemNative_array.A([{ name: 1 }, { name: 2 }])
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
-    });
-
-    QUnit.test('#each accepts \'this\' as the right hand side', function () {
-      view = _emberViewsViewsView.default.create({
-        template: templateFor('{{#EACH|this|item}}{{view.title}} {{item.name}}{{/each}}', useBlockParams),
-        title: 'My Cool Each Test',
-        controller: _emberRuntimeSystemNative_array.A([{ name: 1 }, { name: 2 }])
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
-    });
-
-    if (!useBlockParams) {
-      QUnit.test('views inside #each preserve the new context [DEPRECATED]', function () {
-        var controller = _emberRuntimeSystemNative_array.A([{ name: 'Adam' }, { name: 'Steve' }]);
-
-        view = _emberViewsViewsView.default.create({
-          container: container,
-          controller: controller,
-          template: _emberTemplateCompilerSystemCompile.default('{{#each controller}}{{#view}}{{name}}{{/view}}{{/each}}', useBlockParams)
-        });
-
-        expectDeprecation(function () {
-          _emberRuntimeTestsUtils.runAppend(view);
-        }, _emberHtmlbarsHelpersEach.deprecation);
-
-        equal(view.$().text(), 'AdamSteve');
-      });
-    }
-
-    QUnit.test('it doesn\'t assert when the morph tags have the same parent', function () {
-      view = _emberViewsViewsView.default.create({
-        controller: _emberRuntimeSystemNative_array.A(['Cyril', 'David']),
-        template: templateFor('<table><tbody>{{#EACH|this|name}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>', useBlockParams)
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      ok(true, 'No assertion from valid template');
-    });
-
-    QUnit.test('locals in stable loops update when the list is updated', function () {
-      expect(3);
-
-      var list = [{ key: 'adam', name: 'Adam' }, { key: 'steve', name: 'Steve' }];
-      view = _emberViewsViewsView.default.create({
-        queries: list,
-        template: _emberTemplateCompilerSystemCompile.default('{{#each view.queries key="key" as |query|}}{{query.name}}{{/each}}', true)
-      });
-      _emberRuntimeTestsUtils.runAppend(view);
-      equal(view.$().text(), 'AdamSteve');
-
-      _emberMetalRun_loop.default(function () {
-        list.unshift({ key: 'bob', name: 'Bob' });
-        view.set('queries', list);
-        view.notifyPropertyChange('queries');
-      });
-
-      equal(view.$().text(), 'BobAdamSteve');
-
-      _emberMetalRun_loop.default(function () {
-        view.set('queries', [{ key: 'bob', name: 'Bob' }, { key: 'steve', name: 'Steve' }]);
-        view.notifyPropertyChange('queries');
-      });
-
-      equal(view.$().text(), 'BobSteve');
-    });
-
-    if (useBlockParams) {
-      QUnit.test('the index is passed as the second parameter to #each blocks', function () {
-        expect(3);
-
-        var adam = { name: 'Adam' };
-        view = _emberViewsViewsView.default.create({
-          controller: _emberRuntimeSystemNative_array.A([adam, { name: 'Steve' }]),
-          template: templateFor('{{#each this as |person index|}}{{index}}. {{person.name}}{{/each}}', true)
-        });
-        _emberRuntimeTestsUtils.runAppend(view);
-        equal(view.$().text(), '0. Adam1. Steve');
-
-        _emberMetalRun_loop.default(function () {
-          view.get('controller').unshiftObject({ name: 'Bob' });
-        });
-        equal(view.$().text(), '0. Bob1. Adam2. Steve');
-
-        _emberMetalRun_loop.default(function () {
-          view.get('controller').removeObject(adam);
-        });
-        equal(view.$().text(), '0. Bob1. Steve');
-      });
-    }
-  }
-
-  QUnit.test('context switching deprecation is printed when no items are present', function () {
-    _emberRuntimeTestsUtils.runDestroy(view);
+  QUnit.test('#each accepts a name binding', function () {
     view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items}}{{this}}{{else}}Nothing{{/each}}')
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{view.title}} {{item}}{{/each}}'),
+      title: 'My Cool Each Test',
+      items: _emberRuntimeSystemNative_array.A([1, 2])
     });
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Using the context switching form of \{\{each\}\} is deprecated/);
+    _emberRuntimeTestsUtils.runAppend(view);
 
-    assertHTML(view, 'Nothing');
+    equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
+  });
+
+  QUnit.test('#each accepts a name binding and does not change the context', function () {
+    var controller = _emberRuntimeControllersController.default.create({
+      name: 'bob the controller'
+    });
+    var obj = _emberRuntimeSystemObject.default.create({
+      name: 'henry the item'
+    });
+
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{name}}{{/each}}'),
+      title: 'My Cool Each Test',
+      items: _emberRuntimeSystemNative_array.A([obj]),
+      controller: controller
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'bob the controller');
+  });
+
+  QUnit.test('#each accepts a name binding and can display child properties', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{view.title}} {{item.name}}{{/each}}'),
+      title: 'My Cool Each Test',
+      items: _emberRuntimeSystemNative_array.A([{ name: 1 }, { name: 2 }])
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
+  });
+
+  QUnit.test('#each accepts \'this\' as the right hand side', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#each this as |item|}}{{view.title}} {{item.name}}{{/each}}'),
+      title: 'My Cool Each Test',
+      controller: _emberRuntimeSystemNative_array.A([{ name: 1 }, { name: 2 }])
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'My Cool Each Test 1My Cool Each Test 2');
+  });
+
+  QUnit.test('it doesn\'t assert when the morph tags have the same parent', function () {
+    view = _emberViewsViewsView.default.create({
+      controller: _emberRuntimeSystemNative_array.A(['Cyril', 'David']),
+      template: _emberTemplateCompilerSystemCompile.default('<table><tbody>{{#each this as |name|}}<tr><td>{{name}}</td></tr>{{/each}}</tbody></table>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    ok(true, 'No assertion from valid template');
+  });
+
+  QUnit.test('locals in stable loops update when the list is updated', function () {
+    expect(3);
+
+    var list = [{ key: 'adam', name: 'Adam' }, { key: 'steve', name: 'Steve' }];
+    view = _emberViewsViewsView.default.create({
+      queries: list,
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.queries key="key" as |query|}}{{query.name}}{{/each}}', true)
+    });
+    _emberRuntimeTestsUtils.runAppend(view);
+    equal(view.$().text(), 'AdamSteve');
+
+    _emberMetalRun_loop.default(function () {
+      list.unshift({ key: 'bob', name: 'Bob' });
+      view.set('queries', list);
+      view.notifyPropertyChange('queries');
+    });
+
+    equal(view.$().text(), 'BobAdamSteve');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('queries', [{ key: 'bob', name: 'Bob' }, { key: 'steve', name: 'Steve' }]);
+      view.notifyPropertyChange('queries');
+    });
+
+    equal(view.$().text(), 'BobSteve');
+  });
+
+  QUnit.test('the index is passed as the second parameter to #each blocks', function () {
+    expect(3);
+
+    var adam = { name: 'Adam' };
+    view = _emberViewsViewsView.default.create({
+      controller: _emberRuntimeSystemNative_array.A([adam, { name: 'Steve' }]),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each this as |person index|}}{{index}}. {{person.name}}{{/each}}')
+    });
+    _emberRuntimeTestsUtils.runAppend(view);
+    equal(view.$().text(), '0. Adam1. Steve');
+
+    _emberMetalRun_loop.default(function () {
+      view.get('controller').unshiftObject({ name: 'Bob' });
+    });
+    equal(view.$().text(), '0. Bob1. Adam2. Steve');
+
+    _emberMetalRun_loop.default(function () {
+      view.get('controller').removeObject(adam);
+    });
+    equal(view.$().text(), '0. Bob1. Steve');
   });
 
   QUnit.test('a string key can be used with {{each}}', function () {
@@ -9286,8 +9136,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
       });
     }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
   });
-
-  testEachWithItem('{{#each bar as |foo|}}', true);
 });
 /*jshint newcap:false*/
 // Ember.lookup;
@@ -26480,7 +26328,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 // this is present to ensure `actions` hash is present
 // a different error is triggered if `actions` is missing
 // completely
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/helpers/each', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsHelpersEach, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
 
   var dispatcher, view, originalViewKeyword;
   var originalRegisterAction = _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
@@ -27277,13 +27125,13 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
   });
 
   QUnit.test('a quoteless parameter should lookup actionName in context [DEPRECATED]', function () {
-    expect(5);
+    expect(4);
     var lastAction;
     var actionOrder = [];
 
     ignoreDeprecation(function () {
       view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions}}<a id="{{name}}" {{action name}}>{{title}}</a>{{/each}}')
+        template: _emberTemplateCompilerSystemCompile.default('{{#each allactions as |allacation|}}<a id="{{allacation.name}}" {{action allacation.name}}>{{allacation.title}}</a>{{/each}}')
       });
     });
 
@@ -27305,12 +27153,10 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
       }
     }).create();
 
-    expectDeprecation(function () {
-      _emberMetalRun_loop.default(function () {
-        view.set('controller', controller);
-        view.appendTo('#qunit-fixture');
-      });
-    }, _emberHtmlbarsHelpersEach.deprecation);
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      view.appendTo('#qunit-fixture');
+    });
 
     var testBoundAction = function (propertyValue) {
       _emberMetalRun_loop.default(function () {
@@ -42448,7 +42294,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+90b22251', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a53d4973', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

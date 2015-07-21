@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+90b22251
+ * @version   2.0.0-canary+a53d4973
  */
 
 (function() {
@@ -6940,7 +6940,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
   };
   exports.default = eachInHelper;
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalCore, _emberMetalError, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/error', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalError, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   exports.default = eachHelper;
 
   /**
@@ -7015,26 +7015,17 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
     var list = params[0];
     var keyPath = hash.key;
 
-    if (blocks.template.arity === 0) {
-      _emberMetalCore.default.deprecate(deprecation, false, { id: 'ember-htmlbars.each-helper-arity', until: '3.0.0' });
-    }
-
     if (_emberViewsStreamsShould_display.default(list)) {
       (function () {
         var seenKeys = {};
         forEach(list, function (item, i) {
-          var self;
-          if (blocks.template.arity === 0) {
-            self = _emberHtmlbarsUtilsNormalizeSelf.default(item);
-          }
-
           var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
           if (seenKeys[key] === true) {
             throw new _emberMetalError.default('Duplicate key found (\'' + key + '\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
           } else {
             seenKeys[key] = true;
           }
-          blocks.template.yieldItem(key, [item, i], self);
+          blocks.template.yieldItem(key, [item, i]);
         });
       })();
     } else if (blocks.inverse.yield) {
@@ -7045,9 +7036,6 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
   function forEach(iterable, cb) {
     return iterable.forEach ? iterable.forEach(cb) : Array.prototype.forEach.call(iterable, cb);
   }
-
-  var deprecation = 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.';
-  exports.deprecation = deprecation;
 });
 enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'ember-views/streams/should_display'], function (exports, _emberMetalCore, _emberViewsStreamsShould_display) {
 
@@ -8612,7 +8600,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14217,7 +14205,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+90b22251
+    @version 2.0.0-canary+a53d4973
     @public
   */
 
@@ -14249,11 +14237,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+90b22251'
+    @default '2.0.0-canary+a53d4973'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+90b22251';
+  Ember.VERSION = '2.0.0-canary+a53d4973';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22233,7 +22221,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22731,7 +22719,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36586,7 +36574,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+90b22251',
+        revision: 'Ember@2.0.0-canary+a53d4973',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41826,7 +41814,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+90b22251';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+a53d4973';
 
   /**
   @module ember
