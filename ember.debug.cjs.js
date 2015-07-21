@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+816f75c9
+ * @version   2.0.0-canary+b5025c7d
  */
 
 (function() {
@@ -6258,7 +6258,7 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
       fnResult = fn.apply(this, args);
 
       if (options.element) {
-        _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.');
+        _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.', false, { id: 'ember-htmlbars.handlebars-compat-helper', until: '3.0.0' });
         applyAttributes(env.dom, options.element, fnResult);
       } else if (!options.template.yield) {
         return fnResult;
@@ -6812,7 +6812,7 @@ enifed('ember-htmlbars/helpers/-legacy-each-with-controller', ['exports', 'ember
       var self;
 
       if (blocks.template.arity === 0) {
-        _emberMetalCore.default.deprecate(deprecation);
+        _emberMetalCore.default.deprecate(deprecation, false, { id: 'ember-htmlbars.each-with-controller-helper', until: '3.0.0' });
         self = _emberHtmlbarsUtilsNormalizeSelf.default(item);
         self = bindController(self, true);
       }
@@ -7011,7 +7011,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
     var keyPath = hash.key;
 
     if (blocks.template.arity === 0) {
-      _emberMetalCore.default.deprecate(deprecation);
+      _emberMetalCore.default.deprecate(deprecation, false, { id: 'ember-htmlbars.each-helper-arity', until: '3.0.0' });
     }
 
     if (_emberViewsStreamsShould_display.default(list)) {
@@ -7676,7 +7676,7 @@ enifed('ember-htmlbars/hooks/element', ['exports', 'ember-metal/core', 'ember-ht
 
     var value = env.hooks.getValue(result);
     if (value) {
-      _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.');
+      _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.', false, { id: 'ember-htmlbars.ember-element-value', until: '3.0.0' });
       updateElementAttributesFromString(morph.element, value);
     }
   }
@@ -7752,7 +7752,7 @@ enifed('ember-htmlbars/hooks/get-root', ['exports', 'ember-metal/core', 'ember-m
   }
 
   function getGlobal(name) {
-    _emberMetalCore.default.deprecate('Global lookup of ' + name + ' from a Handlebars template is deprecated.');
+    _emberMetalCore.default.deprecate('Global lookup of ' + name + ' from a Handlebars template is deprecated.', false, { id: 'ember-htmlbars.get-global', until: '3.0.0' });
 
     // This stream should be memoized, but this path is deprecated and
     // will be removed soon so it's not worth the trouble.
@@ -8664,7 +8664,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'htmlba
 
   exports.default = function (morph, env, scope, params, hash, template, inverse, visitor) {
     if (hash.hasOwnProperty('view') || hash.hasOwnProperty('viewClass')) {
-      _emberMetalCore.default.deprecate('Passing `view` or `viewClass` to {{outlet}} is deprecated.');
+      _emberMetalCore.default.deprecate('Passing `view` or `viewClass` to {{outlet}} is deprecated.', false, { id: 'ember-htmlbars.pass-view-to-outlet', until: '3.0.0' });
       _htmlbarsRuntimeHooks.keyword('@customized_outlet', morph, env, scope, params, hash, template, inverse, visitor);
     } else {
       _htmlbarsRuntimeHooks.keyword('@real_outlet', morph, env, scope, params, hash, template, inverse, visitor);
@@ -8719,7 +8719,7 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
   }
 });
 enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+816f75c9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b5025c7d';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8833,7 +8833,7 @@ enifed('ember-htmlbars/keywords/template', ['exports', 'ember-metal/core'], func
   exports.deprecation = deprecation;
 
   function templateKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
-    _emberMetalCore.default.deprecate(deprecation);
+    _emberMetalCore.default.deprecate(deprecation, false, { id: 'ember-htmlbars.template-keyword', until: '3.0.0' });
     env.hooks.keyword('partial', morph, env, scope, params, hash, template, inverse, visitor);
     return true;
   }
@@ -9096,7 +9096,7 @@ enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/core', 'dom-
       }
 
       return !escaped;
-    })(this.attrName, value, this.escaped));
+    })(this.attrName, value, this.escaped), { id: 'ember-htmlbars.style-xss-warning' });
   };
 
   proto.setContent = function EmberAttrMorph_setContent(value) {
@@ -9304,7 +9304,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       // as the layout.
       layout = componentTemplate;
       templates = _templates;
-      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.');
+      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.', false, { id: 'ember-htmlbars.extract-component-templates', until: '3.0.0' });
     }
 
     return { layout: layout, templates: templates };
@@ -9317,7 +9317,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // There is no block template provided but the component has a
     // `template` property.
     if ((!_templates || !_templates.default) && componentTemplate) {
-      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.');
+      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.', false, { id: 'ember-htmlbars.extract-legacy-template', until: '3.0.0' });
       templates = { default: componentTemplate.raw };
     } else {
       templates = _templates;
@@ -9447,7 +9447,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     if (!isAngleBracket) {
       var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
-      _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController);
+      _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController, { id: 'ember-htmlbars.create-component', until: '3.0.0' });
 
       var snapshot = takeSnapshot(attrs);
       props.attrs = snapshot;
@@ -9517,7 +9517,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       // set `"blah"` to the root of the target because
       // that would replace all attrs with `attrs.attrs`
       if (prop === 'attrs') {
-        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.');
+        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.', false, { id: 'ember-htmlbars.component-unsupported-attrs' });
         continue;
       }
       var value = attrs[prop];
@@ -9599,7 +9599,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
           var template = getTemplate(component);
 
           if (template) {
-            _emberMetalCore.default.deprecate('Using deprecated `template` property on a ' + (component.isView ? 'View' : 'Component') + '.');
+            _emberMetalCore.default.deprecate('Using deprecated `template` property on a ' + (component.isView ? 'View' : 'Component') + '.', false, { id: 'ember-htmlbars.view-node-manager-create', until: '3.0.0' });
             contentTemplate = template.raw;
           }
         }
@@ -9780,7 +9780,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       // set `"blah"` to the root of the target because
       // that would replace all attrs with `attrs.attrs`
       if (prop === 'attrs') {
-        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.');
+        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.', false, { id: 'ember-htmlbars.view-unsupported-attrs' });
         continue;
       }
       var value = attrs[prop];
@@ -10213,7 +10213,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
         if (container._registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
           if (isLegacyBareHelper(helper)) {
-            _emberMetalCore.default.deprecate('The helper "' + name + '" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.');
+            _emberMetalCore.default.deprecate('The helper "' + name + '" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.', false, { id: 'ember-htmlbars.legacy-bare-helper', until: '3.0.0' });
             helper = new _emberHtmlbarsCompatHelper.default(helper);
           }
         }
@@ -11303,7 +11303,7 @@ enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/core', '
       key = String(key);
     }
 
-    _emberMetalCore.default.deprecate('Using \'' + deprecatedSpecialKey + '\' with the {{each}} helper, is deprecated. Switch to \'@identity\' or remove \'key=\' from your template.', !deprecatedSpecialKey);
+    _emberMetalCore.default.deprecate('Using \'' + deprecatedSpecialKey + '\' with the {{each}} helper, is deprecated. Switch to \'@identity\' or remove \'key=\' from your template.', !deprecatedSpecialKey, { id: 'ember-htmlbars.deprecated-special-each-key', until: '3.0.0' });
 
     return key;
   }
@@ -14275,7 +14275,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+816f75c9
+    @version 2.0.0-canary+b5025c7d
     @public
   */
 
@@ -14307,11 +14307,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+816f75c9'
+    @default '2.0.0-canary+b5025c7d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+816f75c9';
+  Ember.VERSION = '2.0.0-canary+b5025c7d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22291,7 +22291,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+816f75c9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b5025c7d';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22789,7 +22789,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+816f75c9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b5025c7d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36644,7 +36644,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+816f75c9',
+        revision: 'Ember@2.0.0-canary+b5025c7d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41884,7 +41884,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+816f75c9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b5025c7d';
 
   /**
   @module ember
