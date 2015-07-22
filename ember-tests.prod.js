@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+aa97f840
+ * @version   2.0.0-canary+4ff7ba7f
  */
 
 (function() {
@@ -9098,19 +9098,19 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     equal(view.$().text(), 'foobarbaz');
   });
 
-  QUnit.test('duplicate keys trigger a useful error (temporary until we can deal with this properly in HTMLBars)', function () {
+  QUnit.test('duplicate keys work properly with primitive items', function () {
     _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
       items: ['a', 'a', 'a'],
       template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{/each}}')
     });
 
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'aaa');
   });
 
-  QUnit.test('pushing a new duplicate key will trigger a useful error (temporary until we can deal with this properly in HTMLBars)', function () {
+  QUnit.test('pushing a new duplicate key will render properly with primitive items', function () {
     _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
       items: _emberRuntimeSystemNative_array.A(['a', 'b', 'c']),
@@ -9119,11 +9119,42 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    throws(function () {
-      _emberMetalRun_loop.default(function () {
-        view.get('items').pushObject('a');
-      });
-    }, 'Duplicate key found (\'a\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
+    _emberMetalRun_loop.default(function () {
+      view.get('items').pushObject('a');
+    });
+
+    equal(view.$().text(), 'abca');
+  });
+
+  QUnit.test('duplicate keys work properly with objects', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+    var duplicateItem = { display: 'foo' };
+    view = _emberViewsViewsView.default.create({
+      items: [duplicateItem, duplicateItem, { display: 'bar' }, { display: 'qux' }],
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item.display}}{{/each}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'foofoobarqux');
+  });
+
+  QUnit.test('pushing a new duplicate key will render properly with objects', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    var duplicateItem = { display: 'foo' };
+    view = _emberViewsViewsView.default.create({
+      items: _emberRuntimeSystemNative_array.A([duplicateItem, { display: 'bar' }, { display: 'qux' }]),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item.display}}{{/each}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop.default(function () {
+      view.get('items').pushObject(duplicateItem);
+    });
+
+    equal(view.$().text(), 'foobarquxfoo');
   });
 });
 /*jshint newcap:false*/
@@ -42174,7 +42205,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+aa97f840', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+4ff7ba7f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

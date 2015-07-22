@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+aa97f840
+ * @version   2.0.0-canary+4ff7ba7f
  */
 
 (function() {
@@ -6881,7 +6881,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
   };
   exports.default = eachInHelper;
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/error', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalError, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   exports.default = eachHelper;
 
   /**
@@ -6957,18 +6957,11 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/error', 'ember-vi
     var keyPath = hash.key;
 
     if (_emberViewsStreamsShould_display.default(list)) {
-      (function () {
-        var seenKeys = {};
-        forEach(list, function (item, i) {
-          var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
-          if (seenKeys[key] === true) {
-            throw new _emberMetalError.default('Duplicate key found (\'' + key + '\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
-          } else {
-            seenKeys[key] = true;
-          }
-          blocks.template.yieldItem(key, [item, i]);
-        });
-      })();
+      forEach(list, function (item, i) {
+        var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
+
+        blocks.template.yieldItem(key, [item, i]);
+      });
     } else if (blocks.inverse.yield) {
       blocks.inverse.yield();
     }
@@ -8541,7 +8534,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+aa97f840';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14124,7 +14117,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+aa97f840
+    @version 2.0.0-canary+4ff7ba7f
     @public
   */
 
@@ -14156,11 +14149,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+aa97f840'
+    @default '2.0.0-canary+4ff7ba7f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+aa97f840';
+  Ember.VERSION = '2.0.0-canary+4ff7ba7f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22129,7 +22122,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+aa97f840';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22627,7 +22620,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+aa97f840';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36447,7 +36440,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+aa97f840',
+        revision: 'Ember@2.0.0-canary+4ff7ba7f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41079,7 +41072,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+aa97f840';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
 
   /**
   @module ember
@@ -44658,9 +44651,9 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       return seek;
     }
 
-    return function (key, blockArguments, self) {
-      if (typeof key !== "string") {
-        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
+    return function (_key, blockArguments, self) {
+      if (typeof _key !== "string") {
+        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + _key);
       }
 
       // At least one item has been yielded, so we do not wholesale
@@ -44684,6 +44677,25 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       // this list will be pruned from the MorphList during the cleanup
       // process.
       var handledMorphs = renderState.handledMorphs;
+      var key = undefined;
+
+      if (handledMorphs[_key]) {
+        // In this branch we are dealing with a duplicate key. The strategy
+        // is to take the original key and append a counter to it that is
+        // incremented every time the key is reused. In order to greatly
+        // reduce the chance of colliding with another valid key we also add
+        // an extra string "--z8mS2hvDW0A--" to the new key.
+        var collisions = renderState.collisions;
+        if (collisions === undefined) {
+          collisions = renderState.collisions = {};
+        }
+        var count = collisions[_key] | 0;
+        collisions[_key] = ++count;
+
+        key = _key + "--z8mS2hvDW0A--" + count;
+      } else {
+        key = _key;
+      }
 
       if (currentMorph && currentMorph.key === key) {
         yieldTemplate(template, env, parentScope, currentMorph, renderState, visitor)(blockArguments, self);
@@ -46398,6 +46410,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // rendering pass. Any morphs in the DOM but not in this map
     // will be pruned during cleanup.
     this.handledMorphs = {};
+    this.collisions = undefined;
 
     // The morph to clear once rendering is complete. By
     // default, we set this to the previous morph (to catch
@@ -46464,6 +46477,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // yieldTemplate), we detect what was rendered and how it differs from
     // the previous render, cleaning up old state in DOM as appropriate.
     var renderState = options.renderState;
+    renderState.collisions = undefined;
     renderState.shadowOptions = shadowOptions;
 
     // Invoke the callback, instructing it to save information about what it
