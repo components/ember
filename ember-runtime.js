@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4ff7ba7f
+ * @version   2.0.0-canary+1d7b8336
  */
 
 (function() {
@@ -1142,7 +1142,7 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDictionary) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalFeatures) {
 
   /**
    A container used to instantiate and cache objects.
@@ -1158,7 +1158,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
    @class Container
    */
   function Container(registry, options) {
-    this._registry = registry;
+    this.registry = registry;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
@@ -1167,11 +1167,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   Container.prototype = {
     /**
      @private
-     @property _registry
+     @property registry
      @type Registry
      @since 1.11.0
      */
-    _registry: null,
+    registry: null,
 
     /**
      @private
@@ -1226,8 +1226,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookup: function (fullName, options) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this._registry.validateFullName(fullName));
-      return lookup(this, this._registry.normalize(fullName), options);
+      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return lookup(this, this.registry.normalize(fullName), options);
     },
 
     /**
@@ -1238,8 +1238,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookupFactory: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this._registry.validateFullName(fullName));
-      return factoryFor(this, this._registry.normalize(fullName));
+      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return factoryFor(this, this.registry.normalize(fullName));
     },
 
     /**
@@ -1266,7 +1266,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      */
     reset: function (fullName) {
       if (arguments.length > 0) {
-        resetMember(this, this._registry.normalize(fullName));
+        resetMember(this, this.registry.normalize(fullName));
       } else {
         resetCache(this);
       }
@@ -1286,7 +1286,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       return;
     }
 
-    if (container._registry.getOption(fullName, 'singleton') !== false && options.singleton !== false) {
+    if (container.registry.getOption(fullName, 'singleton') !== false && options.singleton !== false) {
       container.cache[fullName] = value;
     }
 
@@ -1307,7 +1307,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
         }
       }
 
-      container._registry.validateInjections(injections);
+      container.registry.validateInjections(injections);
 
       for (i = 0, l = injections.length; i < l; i++) {
         injection = injections[i];
@@ -1323,7 +1323,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     if (cache[fullName]) {
       return cache[fullName];
     }
-    var registry = container._registry;
+    var registry = container.registry;
     var factory = registry.resolve(fullName);
     if (factory === undefined) {
       return;
@@ -1359,7 +1359,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   }
 
   function injectionsFor(container, fullName) {
-    var registry = container._registry;
+    var registry = container.registry;
     var splitName = fullName.split(':');
     var type = splitName[0];
 
@@ -1371,7 +1371,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   }
 
   function factoryInjectionsFor(container, fullName) {
-    var registry = container._registry;
+    var registry = container.registry;
     var splitName = fullName.split(':');
     var type = splitName[0];
 
@@ -1385,7 +1385,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     var factory = factoryFor(container, fullName);
     var lazyInjections, validationCache;
 
-    if (container._registry.getOption(fullName, 'instantiate') === false) {
+    if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
     }
 
@@ -1399,9 +1399,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       // Ensure that all lazy injections are valid at instantiation time
       if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
         lazyInjections = factory._lazyInjections();
-        lazyInjections = container._registry.normalizeInjectionsHash(lazyInjections);
+        lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
 
-        container._registry.validateInjections(lazyInjections);
+        container.registry.validateInjections(lazyInjections);
       }
 
       validationCache[fullName] = true;
@@ -1427,7 +1427,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       key = keys[i];
       value = cache[key];
 
-      if (container._registry.getOption(key, 'instantiate') !== false) {
+      if (container.registry.getOption(key, 'instantiate') !== false) {
         callback(value);
       }
     }
@@ -1457,6 +1457,18 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     }
   }
 
+  // Once registry / container reform is enabled, we no longer need to expose
+  // Container#_registry, since Container itself will be fully private.
+  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
+    Object.defineProperty(Container, '_registry', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        return this.registry;
+      }
+    });
+  }
+
   exports.default = Container;
 });
 // Ember.assert
@@ -1471,8 +1483,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
    A `Registry` stores the factory and option information needed by a
    `Container` to instantiate and cache objects.
   
-   The public API for `Registry` is still in flux and should not be considered
-   stable.
+   The API for `Registry` is still in flux and should not be considered stable.
   
    @private
    @class Registry
@@ -1707,7 +1718,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     },
 
     /**
-     normalize a fullName based on the applications conventions
+     Normalize a fullName based on the application's conventions
       @private
      @method normalize
      @param {String} fullName
@@ -1993,9 +2004,9 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     },
 
     /**
+     @private
      @method knownForType
      @param {String} type the type to iterate over
-     @private
     */
     knownForType: function (type) {
       var fallbackKnown = undefined,
@@ -4709,7 +4720,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4ff7ba7f
+    @version 2.0.0-canary+1d7b8336
     @public
   */
 
@@ -4741,11 +4752,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4ff7ba7f'
+    @default '2.0.0-canary+1d7b8336'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4ff7ba7f';
+  Ember.VERSION = '2.0.0-canary+1d7b8336';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13953,6 +13964,76 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
     compare: null
   });
 });
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalMixin) {
+  exports.default = _emberMetalMixin.Mixin.create({
+    /**
+     The container stores state.
+      @private
+     @property {Ember.Container} __container__
+     */
+    __container__: null,
+
+    /**
+     Given a fullName return a corresponding instance.
+      The default behaviour is for lookup to return a singleton instance.
+     The singleton is scoped to the container, allowing multiple containers
+     to all have their own locally scoped singletons.
+      ```javascript
+     var registry = new Registry();
+     var container = registry.container();
+      registry.register('api:twitter', Twitter);
+      var twitter = container.lookup('api:twitter');
+      twitter instanceof Twitter; // => true
+      // by default the container will return singletons
+     var twitter2 = container.lookup('api:twitter');
+     twitter2 instanceof Twitter; // => true
+      twitter === twitter2; //=> true
+     ```
+      If singletons are not wanted an optional flag can be provided at lookup.
+      ```javascript
+     var registry = new Registry();
+     var container = registry.container();
+      registry.register('api:twitter', Twitter);
+      var twitter = container.lookup('api:twitter', { singleton: false });
+     var twitter2 = container.lookup('api:twitter', { singleton: false });
+      twitter === twitter2; //=> false
+     ```
+      @public
+     @method lookup
+     @param {String} fullName
+     @param {Object} options
+     @return {any}
+     */
+    lookup: containerAlias('lookup'),
+
+    /**
+     Given a fullName return the corresponding factory.
+      @private
+     @method lookupFactory
+     @param {String} fullName
+     @return {any}
+     */
+    lookupFactory: containerAlias('lookupFactory'),
+
+    /**
+     @private
+     */
+    willDestroy: function () {
+      this._super.apply(this, arguments);
+
+      if (this.__container__) {
+        _emberMetalRun_loop.default(this.__container__, 'destroy');
+      }
+    }
+  });
+
+  function containerAlias(name) {
+    return function () {
+      var container = _emberMetalProperty_get.get(this, '__container__');
+      return container[name].apply(container, arguments);
+    };
+  }
+});
 enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'ember-metal/alias', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetalMixin, _emberMetalAlias, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsController_content_model_alias_deprecation) {
 
   /**
@@ -16402,6 +16483,211 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     return function () {
       var promise = _emberMetalProperty_get.get(this, 'promise');
       return promise[name].apply(promise, arguments);
+    };
+  }
+});
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalMixin) {
+  exports.default = _emberMetalMixin.Mixin.create({
+    __registry__: null,
+
+    /**
+     Given a fullName return the corresponding factory.
+      @public
+     @method resolveRegistration
+     @param {String} fullName
+     @return {Function} fullName's factory
+     */
+    resolveRegistration: registryAlias('resolve'),
+
+    /**
+      Registers a factory that can be used for dependency injection (with
+      `inject`) or for service lookup. Each factory is registered with
+      a full name including two parts: `type:name`.
+       A simple example:
+       ```javascript
+      var App = Ember.Application.create();
+       App.Orange = Ember.Object.extend();
+      App.register('fruit:favorite', App.Orange);
+      ```
+       Ember will resolve factories from the `App` namespace automatically.
+      For example `App.CarsController` will be discovered and returned if
+      an application requests `controller:cars`.
+       An example of registering a controller with a non-standard name:
+       ```javascript
+      var App = Ember.Application.create();
+      var Session = Ember.Controller.extend();
+       App.register('controller:session', Session);
+       // The Session controller can now be treated like a normal controller,
+      // despite its non-standard name.
+      App.ApplicationController = Ember.Controller.extend({
+        needs: ['session']
+      });
+      ```
+       Registered factories are **instantiated** by having `create`
+      called on them. Additionally they are **singletons**, each time
+      they are looked up they return the same instance.
+       Some examples modifying that default behavior:
+       ```javascript
+      var App = Ember.Application.create();
+       App.Person = Ember.Object.extend();
+      App.Orange = Ember.Object.extend();
+      App.Email = Ember.Object.extend();
+      App.session = Ember.Object.create();
+       App.register('model:user', App.Person, { singleton: false });
+      App.register('fruit:favorite', App.Orange);
+      App.register('communication:main', App.Email, { singleton: false });
+      App.register('session', App.session, { instantiate: false });
+      ```
+       @public
+      @method register
+      @param  fullName {String} type:name (e.g., 'model:user')
+      @param  factory {Function} (e.g., App.Person)
+      @param  options {Object} (optional) disable instantiation or singleton usage
+      @public
+     */
+    register: registryAlias('register'),
+
+    /**
+     Unregister a factory.
+      ```javascript
+     var App = Ember.Application.create();
+     var User = Ember.Object.extend();
+     App.register('model:user', User);
+      App.resolveRegistration('model:user').create() instanceof User //=> true
+      App.unregister('model:user')
+     App.resolveRegistration('model:user') === undefined //=> true
+     ```
+      @public
+     @method unregister
+     @param {String} fullName
+     */
+    unregister: registryAlias('unregister'),
+
+    /**
+     Check if a factory is registered.
+      @public
+     @method hasRegistration
+     @param {String} fullName
+     @return {Boolean}
+     */
+    hasRegistration: registryAlias('has'),
+
+    /**
+     Register an option for a particular factory.
+      @public
+     @method registerOption
+     @param {String} fullName
+     @param {String} optionName
+     @param {Object} options
+     */
+    registerOption: registryAlias('option'),
+
+    /**
+     Return a specific registered option for a particular factory.
+      @public
+     @method registeredOption
+     @param  {String} fullName
+     @param  {String} optionName
+     @return {Object} options
+     */
+    registeredOption: registryAlias('getOption'),
+
+    /**
+     Register options for a particular factory.
+      @public
+     @method registerOptions
+     @param {String} fullName
+     @param {Object} options
+     */
+    registerOptions: registryAlias('options'),
+
+    /**
+     Return registered options for a particular factory.
+      @public
+     @method registeredOptions
+     @param  {String} fullName
+     @return {Object} options
+     */
+    registeredOptions: registryAlias('getOptions'),
+
+    /**
+     Allow registering options for all factories of a type.
+      ```javascript
+     var App = Ember.Application.create();
+     var appInstance = App.buildInstance();
+      // if all of type `connection` must not be singletons
+     appInstance.optionsForType('connection', { singleton: false });
+      appInstance.register('connection:twitter', TwitterConnection);
+     appInstance.register('connection:facebook', FacebookConnection);
+      var twitter = appInstance.lookup('connection:twitter');
+     var twitter2 = appInstance.lookup('connection:twitter');
+      twitter === twitter2; // => false
+      var facebook = appInstance.lookup('connection:facebook');
+     var facebook2 = appInstance.lookup('connection:facebook');
+      facebook === facebook2; // => false
+     ```
+      @public
+     @method registerOptionsForType
+     @param {String} type
+     @param {Object} options
+     */
+    registerOptionsForType: registryAlias('optionsForType'),
+
+    /**
+     Return the registered options for all factories of a type.
+      @public
+     @method registeredOptionsForType
+     @param {String} type
+     @return {Object} options
+     */
+    registeredOptionsForType: registryAlias('getOptionsForType'),
+
+    /**
+      Define a dependency injection onto a specific factory or all factories
+      of a type.
+       When Ember instantiates a controller, view, or other framework component
+      it can attach a dependency to that component. This is often used to
+      provide services to a set of framework components.
+       An example of providing a session object to all controllers:
+       ```javascript
+      var App = Ember.Application.create();
+      var Session = Ember.Object.extend({ isAuthenticated: false });
+       // A factory must be registered before it can be injected
+      App.register('session:main', Session);
+       // Inject 'session:main' onto all factories of the type 'controller'
+      // with the name 'session'
+      App.inject('controller', 'session', 'session:main');
+       App.IndexController = Ember.Controller.extend({
+        isLoggedIn: Ember.computed.alias('session.isAuthenticated')
+      });
+      ```
+       Injections can also be performed on specific factories.
+       ```javascript
+      App.inject(<full_name or type>, <property name>, <full_name>)
+      App.inject('route', 'source', 'source:main')
+      App.inject('route:application', 'email', 'model:email')
+      ```
+       It is important to note that injections can only be performed on
+      classes that are instantiated by Ember itself. Instantiating a class
+      directly (via `create` or `new`) bypasses the dependency injection
+      system.
+       **Note:** Ember-Data instantiates its models in a unique manner, and consequently
+      injections onto models (or all models) will not work as expected. Injections
+      on models can be enabled by setting `Ember.MODEL_FACTORY_INJECTIONS`
+      to `true`.
+       @public
+      @method inject
+      @param  factoryNameOrType {String}
+      @param  property {String}
+      @param  injectionName {String}
+    **/
+    inject: registryAlias('injection')
+  });
+
+  function registryAlias(name) {
+    return function () {
+      var registry = _emberMetalProperty_get.get(this, '__registry__');
+      return registry[name].apply(registry, arguments);
     };
   }
 });

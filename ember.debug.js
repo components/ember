@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4ff7ba7f
+ * @version   2.0.0-canary+1d7b8336
  */
 
 (function() {
@@ -1142,7 +1142,7 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDictionary) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalFeatures) {
 
   /**
    A container used to instantiate and cache objects.
@@ -1158,7 +1158,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
    @class Container
    */
   function Container(registry, options) {
-    this._registry = registry;
+    this.registry = registry;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
@@ -1167,11 +1167,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   Container.prototype = {
     /**
      @private
-     @property _registry
+     @property registry
      @type Registry
      @since 1.11.0
      */
-    _registry: null,
+    registry: null,
 
     /**
      @private
@@ -1226,8 +1226,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookup: function (fullName, options) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this._registry.validateFullName(fullName));
-      return lookup(this, this._registry.normalize(fullName), options);
+      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return lookup(this, this.registry.normalize(fullName), options);
     },
 
     /**
@@ -1238,8 +1238,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookupFactory: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this._registry.validateFullName(fullName));
-      return factoryFor(this, this._registry.normalize(fullName));
+      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      return factoryFor(this, this.registry.normalize(fullName));
     },
 
     /**
@@ -1266,7 +1266,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      */
     reset: function (fullName) {
       if (arguments.length > 0) {
-        resetMember(this, this._registry.normalize(fullName));
+        resetMember(this, this.registry.normalize(fullName));
       } else {
         resetCache(this);
       }
@@ -1286,7 +1286,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       return;
     }
 
-    if (container._registry.getOption(fullName, 'singleton') !== false && options.singleton !== false) {
+    if (container.registry.getOption(fullName, 'singleton') !== false && options.singleton !== false) {
       container.cache[fullName] = value;
     }
 
@@ -1307,7 +1307,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
         }
       }
 
-      container._registry.validateInjections(injections);
+      container.registry.validateInjections(injections);
 
       for (i = 0, l = injections.length; i < l; i++) {
         injection = injections[i];
@@ -1323,7 +1323,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     if (cache[fullName]) {
       return cache[fullName];
     }
-    var registry = container._registry;
+    var registry = container.registry;
     var factory = registry.resolve(fullName);
     if (factory === undefined) {
       return;
@@ -1359,7 +1359,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   }
 
   function injectionsFor(container, fullName) {
-    var registry = container._registry;
+    var registry = container.registry;
     var splitName = fullName.split(':');
     var type = splitName[0];
 
@@ -1371,7 +1371,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   }
 
   function factoryInjectionsFor(container, fullName) {
-    var registry = container._registry;
+    var registry = container.registry;
     var splitName = fullName.split(':');
     var type = splitName[0];
 
@@ -1385,7 +1385,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     var factory = factoryFor(container, fullName);
     var lazyInjections, validationCache;
 
-    if (container._registry.getOption(fullName, 'instantiate') === false) {
+    if (container.registry.getOption(fullName, 'instantiate') === false) {
       return factory;
     }
 
@@ -1399,9 +1399,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       // Ensure that all lazy injections are valid at instantiation time
       if (!validationCache[fullName] && typeof factory._lazyInjections === 'function') {
         lazyInjections = factory._lazyInjections();
-        lazyInjections = container._registry.normalizeInjectionsHash(lazyInjections);
+        lazyInjections = container.registry.normalizeInjectionsHash(lazyInjections);
 
-        container._registry.validateInjections(lazyInjections);
+        container.registry.validateInjections(lazyInjections);
       }
 
       validationCache[fullName] = true;
@@ -1427,7 +1427,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       key = keys[i];
       value = cache[key];
 
-      if (container._registry.getOption(key, 'instantiate') !== false) {
+      if (container.registry.getOption(key, 'instantiate') !== false) {
         callback(value);
       }
     }
@@ -1457,6 +1457,18 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     }
   }
 
+  // Once registry / container reform is enabled, we no longer need to expose
+  // Container#_registry, since Container itself will be fully private.
+  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
+    Object.defineProperty(Container, '_registry', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        return this.registry;
+      }
+    });
+  }
+
   exports.default = Container;
 });
 // Ember.assert
@@ -1471,8 +1483,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
    A `Registry` stores the factory and option information needed by a
    `Container` to instantiate and cache objects.
   
-   The public API for `Registry` is still in flux and should not be considered
-   stable.
+   The API for `Registry` is still in flux and should not be considered stable.
   
    @private
    @class Registry
@@ -1707,7 +1718,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     },
 
     /**
-     normalize a fullName based on the applications conventions
+     Normalize a fullName based on the application's conventions
       @private
      @method normalize
      @param {String} fullName
@@ -1993,9 +2004,9 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
     },
 
     /**
+     @private
      @method knownForType
      @param {String} type the type to iterate over
-     @private
     */
     knownForType: function (type) {
       var fallbackKnown = undefined,
@@ -3306,7 +3317,7 @@ enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/syste
 @module ember
 @submodule ember-application
 */
-enifed('ember-application/system/application-instance', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-metal/computed', 'container/registry'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberMetalComputed, _containerRegistry) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-metal/computed', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberMetalComputed, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
 
   /**
     The `ApplicationInstance` encapsulates all of the stateful aspects of a
@@ -3331,30 +3342,13 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     @public
   */
 
-  exports.default = _emberRuntimeSystemObject.default.extend({
+  var ApplicationInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
     /**
-      The application instance's container. The container stores all of the
-      instance-specific state for this application run.
-       @property {Ember.Container} container
-      @public
-    */
-    container: null,
-
-    /**
-      The application's registry. The registry contains the classes, templates,
-      and other code that makes up the application.
-       @property {Ember.Registry} registry
+      The `Application` for which this is an instance.
+       @property {Ember.Application} application
       @private
     */
-    applicationRegistry: null,
-
-    /**
-      The registry for this application instance. It should use the
-      `applicationRegistry` as a fallback.
-       @property {Ember.Registry} registry
-      @private
-    */
-    registry: null,
+    application: null,
 
     /**
       The DOM events for which the event dispatcher should listen.
@@ -3379,17 +3373,22 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     init: function () {
       this._super.apply(this, arguments);
 
+      var application = _emberMetalProperty_get.get(this, 'application');
+
+      _emberMetalProperty_set.set(this, 'customEvents', _emberMetalProperty_get.get(application, 'customEvents'));
+      _emberMetalProperty_set.set(this, 'rootElement', _emberMetalProperty_get.get(application, 'rootElement'));
+
       // Create a per-instance registry that will use the application's registry
       // as a fallback for resolving registrations.
-      this.registry = new _containerRegistry.default({
-        fallback: this.applicationRegistry,
-        resolver: this.applicationRegistry.resolver
+      var applicationRegistry = _emberMetalProperty_get.get(application, '__registry__');
+      var registry = this.__registry__ = new _containerRegistry.default({
+        fallback: applicationRegistry
       });
-      this.registry.normalizeFullName = this.applicationRegistry.normalizeFullName;
-      this.registry.makeToString = this.applicationRegistry.makeToString;
+      registry.normalizeFullName = applicationRegistry.normalizeFullName;
+      registry.makeToString = applicationRegistry.makeToString;
 
       // Create a per-instance container from the instance's registry
-      this.container = this.registry.container();
+      this.__container__ = registry.container();
 
       // Register this instance in the per-instance registry.
       //
@@ -3398,11 +3397,11 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       // to notify us when it has created the root-most view. That view is then
       // appended to the rootElement, in the case of apps, to the fixture harness
       // in tests, or rendered to a string in the case of FastBoot.
-      this.registry.register('-application-instance:main', this, { instantiate: false });
+      this.register('-application-instance:main', this, { instantiate: false });
     },
 
     router: _emberMetalComputed.computed(function () {
-      return this.container.lookup('router:main');
+      return this.lookup('router:main');
     }).readOnly(),
 
     /**
@@ -3444,9 +3443,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     */
     startRouting: function () {
       var router = _emberMetalProperty_get.get(this, 'router');
-      var isModuleBasedResolver = !!this.registry.resolver.moduleBasedResolver;
-
-      router.startRouting(isModuleBasedResolver);
+      router.startRouting(isResolverModuleBased(this));
       this._didSetupRouter = true;
     },
 
@@ -3464,8 +3461,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       this._didSetupRouter = true;
 
       var router = _emberMetalProperty_get.get(this, 'router');
-      var isModuleBasedResolver = !!this.registry.resolver.moduleBasedResolver;
-      router.setupRouter(isModuleBasedResolver);
+      router.setupRouter(isResolverModuleBased(this));
     },
 
     /**
@@ -3486,7 +3482,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @private
     */
     setupEventDispatcher: function () {
-      var dispatcher = this.container.lookup('event_dispatcher:main');
+      var dispatcher = this.lookup('event_dispatcher:main');
       dispatcher.setup(this.customEvents, this.rootElement);
 
       return dispatcher;
@@ -3497,16 +3493,56 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     */
     willDestroy: function () {
       this._super.apply(this, arguments);
-      _emberMetalRun_loop.default(this.container, 'destroy');
+      _emberMetalRun_loop.default(this.__container__, 'destroy');
     }
   });
+
+  function isResolverModuleBased(applicationInstance) {
+    return !!applicationInstance.application.__registry__.resolver.moduleBasedResolver;
+  }
+
+  if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+    Object.defineProperty(ApplicationInstance, 'container', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        var instance = this;
+        return {
+          lookup: function () {
+            _emberMetal.default.deprecate('Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead.', false, { id: 'ember-application.app-instance-container', until: '3.0.0' });
+            return instance.lookup.apply(instance, arguments);
+          }
+        };
+      }
+    });
+  } else {
+    Object.defineProperty(ApplicationInstance, 'container', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        return this.__container__;
+      }
+    });
+
+    Object.defineProperty(ApplicationInstance, 'registry', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        return this.__registry__;
+      }
+    });
+  }
+
+  exports.default = ApplicationInstance;
 });
 /**
 @module ember
 @submodule ember-application
 @private
 */
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberMetalEnvironment) {
+
+// Ember.deprecate
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment) {
 
   function props(obj) {
     var properties = [];
@@ -3620,7 +3656,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     Ember.Application.initializer({
       name: 'api-adapter',
   
-      initialize: function(container, application) {
+      initialize: function(application) {
         application.register('api-adapter:main', ApiAdapter);
       }
     });
@@ -3662,7 +3698,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     @public
   */
 
-  var Application = _emberRuntimeSystemNamespace.default.extend({
+  var Application = _emberRuntimeSystemNamespace.default.extend(_emberRuntimeMixinsRegistry_proxy.default, {
     _suppressDeferredDeprecation: true,
 
     /**
@@ -3771,7 +3807,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @return {Ember.Registry} the configured registry
     */
     buildRegistry: function () {
-      var registry = this.registry = Application.buildRegistry(this);
+      var registry = this.__registry__ = Application.buildRegistry(this);
 
       return registry;
     },
@@ -3784,9 +3820,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     */
     buildInstance: function () {
       return _emberApplicationSystemApplicationInstance.default.create({
-        customEvents: _emberMetalProperty_get.get(this, 'customEvents'),
-        rootElement: _emberMetalProperty_get.get(this, 'rootElement'),
-        applicationRegistry: this.registry
+        application: this
       });
     },
 
@@ -3795,13 +3829,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
       // For the default instance only, set the view registry to the global
       // Ember.View.views hash for backwards-compatibility.
-      _emberViewsViewsView.default.views = instance.container.lookup('-view-registry:main');
+      _emberViewsViewsView.default.views = instance.lookup('-view-registry:main');
 
       // TODO2.0: Legacy support for App.__container__
       // and global methods on App that rely on a single,
       // default instance.
       this.__deprecatedInstance__ = instance;
-      this.__container__ = instance.container;
+      this.__container__ = instance.__container__;
 
       return instance;
     },
@@ -3870,99 +3904,15 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Registers a factory that can be used for dependency injection (with
-      `App.inject`) or for service lookup. Each factory is registered with
-      a full name including two parts: `type:name`.
-       A simple example:
-       ```javascript
-      var App = Ember.Application.create();
-       App.Orange = Ember.Object.extend();
-      App.register('fruit:favorite', App.Orange);
-      ```
-       Ember will resolve factories from the `App` namespace automatically.
-      For example `App.CarsController` will be discovered and returned if
-      an application requests `controller:cars`.
-       An example of registering a controller with a non-standard name:
-       ```javascript
-      var App = Ember.Application.create();
-      var Session = Ember.Controller.extend();
-       App.register('controller:session', Session);
-       // The Session controller can now be treated like a normal controller,
-      // despite its non-standard name.
-      App.ApplicationController = Ember.Controller.extend({
-        needs: ['session']
-      });
-      ```
-       Registered factories are **instantiated** by having `create`
-      called on them. Additionally they are **singletons**, each time
-      they are looked up they return the same instance.
-       Some examples modifying that default behavior:
-       ```javascript
-      var App = Ember.Application.create();
-       App.Person = Ember.Object.extend();
-      App.Orange = Ember.Object.extend();
-      App.Email = Ember.Object.extend();
-      App.session = Ember.Object.create();
-       App.register('model:user', App.Person, { singleton: false });
-      App.register('fruit:favorite', App.Orange);
-      App.register('communication:main', App.Email, { singleton: false });
-      App.register('session', App.session, { instantiate: false });
-      ```
-       @method register
-      @param  fullName {String} type:name (e.g., 'model:user')
-      @param  factory {Function} (e.g., App.Person)
-      @param  options {Object} (optional) disable instantiation or singleton usage
-      @public
-    **/
-    register: function () {
-      var _registry;
-
-      (_registry = this.registry).register.apply(_registry, arguments);
-    },
-
-    /**
-      Define a dependency injection onto a specific factory or all factories
-      of a type.
-       When Ember instantiates a controller, view, or other framework component
-      it can attach a dependency to that component. This is often used to
-      provide services to a set of framework components.
-       An example of providing a session object to all controllers:
-       ```javascript
-      var App = Ember.Application.create();
-      var Session = Ember.Object.extend({ isAuthenticated: false });
-       // A factory must be registered before it can be injected
-      App.register('session:main', Session);
-       // Inject 'session:main' onto all factories of the type 'controller'
-      // with the name 'session'
-      App.inject('controller', 'session', 'session:main');
-       App.IndexController = Ember.Controller.extend({
-        isLoggedIn: Ember.computed.alias('session.isAuthenticated')
-      });
-      ```
-       Injections can also be performed on specific factories.
-       ```javascript
-      App.inject(<full_name or type>, <property name>, <full_name>)
-      App.inject('route', 'source', 'source:main')
-      App.inject('route:application', 'email', 'model:email')
-      ```
-       It is important to note that injections can only be performed on
-      classes that are instantiated by Ember itself. Instantiating a class
-      directly (via `create` or `new`) bypasses the dependency injection
-      system.
-       **Note:** Ember-Data instantiates its models in a unique manner, and consequently
-      injections onto models (or all models) will not work as expected. Injections
-      on models can be enabled by setting `Ember.MODEL_FACTORY_INJECTIONS`
-      to `true`.
-       @method inject
-      @param  factoryNameOrType {String}
-      @param  property {String}
-      @param  injectionName {String}
-      @public
-    **/
-    inject: function () {
-      var _registry2;
-
-      (_registry2 = this.registry).injection.apply(_registry2, arguments);
+      Calling initialize manually is not supported.
+       Please see Ember.Application#advanceReadiness and
+      Ember.Application#deferReadiness.
+       @private
+      @deprecated
+      @method initialize
+     **/
+    initialize: function () {
+      _emberMetal.default.deprecate('Calling initialize manually is not supported. Please see Ember.Application#advanceReadiness and Ember.Application#deferReadiness');
     },
 
     /**
@@ -3992,7 +3942,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       this._bootPromise = defer.promise;
       this._bootResolver = defer;
 
-      this.runInitializers(this.registry);
+      this.runInitializers();
       _emberRuntimeSystemLazy_load.runLoadHooks('application', this);
 
       this.advanceReadiness();
@@ -4081,11 +4031,18 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @private
       @method runInitializers
     */
-    runInitializers: function (registry) {
+    runInitializers: function () {
       var App = this;
       this._runInitializer('initializers', function (name, initializer) {
         _emberMetal.default.assert('No application initializer named \'' + name + '\'', !!initializer);
-        initializer.initialize(registry, App);
+        if (initializer.initialize.length === 2) {
+          if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+            _emberMetal.default.deprecate('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, { id: 'ember-application.app-initializer-initialize-arguments', until: '3.0.0' });
+          }
+          initializer.initialize(App.__registry__, App);
+        } else {
+          initializer.initialize(App);
+        }
       });
     },
 
@@ -4235,7 +4192,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        ```javascript
       Ember.Application.initializer({
         name: 'namedInitializer',
-         initialize: function(container, application) {
+         initialize: function(application) {
           Ember.debug('Running namedInitializer!');
         }
       });
@@ -4247,7 +4204,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        ```javascript
       Ember.Application.initializer({
         name: 'first',
-         initialize: function(container, application) {
+         initialize: function(application) {
           Ember.debug('First initializer!');
         }
       });
@@ -4259,7 +4216,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       Ember.Application.initializer({
         name: 'second',
         after: 'first',
-         initialize: function(container, application) {
+         initialize: function(application) {
           Ember.debug('Second initializer!');
         }
       });
@@ -4272,7 +4229,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       Ember.Application.initializer({
         name: 'pre',
         before: 'first',
-         initialize: function(container, application) {
+         initialize: function(application) {
           Ember.debug('Pre initializer!');
         }
       });
@@ -4286,7 +4243,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       Ember.Application.initializer({
         name: 'post',
         after: ['first', 'second'],
-         initialize: function(container, application) {
+         initialize: function(application) {
           Ember.debug('Post initializer!');
         }
       });
@@ -4295,23 +4252,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       // DEBUG: Second initializer!
       // DEBUG: Post initializer!
       ```
-       * `initialize` is a callback function that receives two arguments, `container`
-      and `application` on which you can operate.
-       Example of using `container` to preload data into the store:
-       ```javascript
-      Ember.Application.initializer({
-        name: 'preload-data',
-         initialize: function(container, application) {
-          var store = container.lookup('store:main');
-           store.pushPayload(preloadedData);
-        }
-      });
-      ```
+       * `initialize` is a callback function that receives one argument,
+        `application`, on which you can operate.
        Example of using `application` to register an adapter:
        ```javascript
       Ember.Application.initializer({
         name: 'api-adapter',
-         initialize: function(container, application) {
+         initialize: function(application) {
           application.register('api-adapter:main', ApiAdapter);
         }
       });
@@ -7696,7 +7643,7 @@ enifed('ember-htmlbars/hooks/has-helper', ['exports', 'ember-htmlbars/system/loo
     var container = env.container;
     if (_emberHtmlbarsSystemLookupHelper.validateLazyHelperName(helperName, container, env.hooks.keywords, env.knownHelpers)) {
       var containerName = 'helper:' + helperName;
-      if (container._registry.has(containerName)) {
+      if (container.registry.has(containerName)) {
         return true;
       }
     }
@@ -8534,7 +8481,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1d7b8336';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9866,7 +9813,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
   }
 
   function registerComponentLookup(app) {
-    app.registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+    app.register('component-lookup:main', _emberViewsComponent_lookup.default);
   }
 
   /*
@@ -9904,7 +9851,7 @@ enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/
   exports.default = discoverKnownHelpers;
 
   function discoverKnownHelpers(container) {
-    var registry = container && container._registry;
+    var registry = container && container.registry;
     var helpers = _emberMetalDictionary.default(null);
 
     if (!registry) {
@@ -10055,7 +10002,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
       var container = env.container;
       if (validateLazyHelperName(name, container, env.hooks.keywords, env.knownHelpers)) {
         var helperName = 'helper:' + name;
-        if (container._registry.has(helperName)) {
+        if (container.registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
           if (isLegacyBareHelper(helper)) {
             _emberMetalCore.default.deprecate('The helper "' + name + '" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.', false, { id: 'ember-htmlbars.legacy-bare-helper', until: '3.0.0' });
@@ -11159,7 +11106,7 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/l
     if (!_emberHtmlbarsSystemLookupHelper.CONTAINS_DASH_CACHE.get(path)) {
       return false;
     }
-    return container._registry.has('component:' + path) || container._registry.has('template:components/' + path);
+    return container.registry.has('component:' + path) || container.registry.has('template:components/' + path);
   }
 });
 /**
@@ -14117,7 +14064,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+4ff7ba7f
+    @version 2.0.0-canary+1d7b8336
     @public
   */
 
@@ -14149,11 +14096,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+4ff7ba7f'
+    @default '2.0.0-canary+1d7b8336'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+4ff7ba7f';
+  Ember.VERSION = '2.0.0-canary+1d7b8336';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21954,7 +21901,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
       }
 
       var templateName = 'template:' + name;
-      _emberMetalCore.default.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as either a template or a view.', container._registry.has('view:' + name) || container._registry.has(templateName) || !!template);
+      _emberMetalCore.default.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as either a template or a view.', container.registry.has('view:' + name) || container.registry.has(templateName) || !!template);
 
       var view = container.lookup('view:' + name);
       if (!view) {
@@ -21978,7 +21925,7 @@ enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core',
         controllerFullName = 'controller:' + controllerName;
         delete hash.controller;
 
-        _emberMetalCore.default.assert('The controller name you supplied \'' + controllerName + '\' ' + 'did not resolve to a controller.', container._registry.has(controllerFullName));
+        _emberMetalCore.default.assert('The controller name you supplied \'' + controllerName + '\' ' + 'did not resolve to a controller.', container.registry.has(controllerFullName));
       } else {
         controllerName = name;
         controllerFullName = 'controller:' + controllerName;
@@ -22122,7 +22069,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+1d7b8336';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22620,7 +22567,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1d7b8336';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -22854,17 +22801,29 @@ enifed('ember-routing/ext/run_loop', ['exports', 'ember-metal/run_loop'], functi
   // 'actions' queue first.
   _emberMetalRun_loop.default._addQueue('routerTransitions', 'actions');
 });
-enifed('ember-routing/initializers/routing-service', ['exports', 'ember-runtime/system/lazy_load', 'ember-routing/services/routing'], function (exports, _emberRuntimeSystemLazy_load, _emberRoutingServicesRouting) {
+enifed('ember-routing/initializers/routing-service', ['exports', 'ember-runtime/system/lazy_load', 'ember-routing/services/routing', 'ember-metal/features'], function (exports, _emberRuntimeSystemLazy_load, _emberRoutingServicesRouting, _emberMetalFeatures) {
+
+  var initialize = undefined;
+  if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+    initialize = function (application) {
+      // Register the routing service...
+      application.register('service:-routing', _emberRoutingServicesRouting.default);
+      // Then inject the app router into it
+      application.inject('service:-routing', 'router', 'router:main');
+    };
+  } else {
+    initialize = function (registry, application) {
+      // Register the routing service...
+      registry.register('service:-routing', _emberRoutingServicesRouting.default);
+      // Then inject the app router into it
+      registry.injection('service:-routing', 'router', 'router:main');
+    };
+  }
 
   _emberRuntimeSystemLazy_load.onLoad('Ember.Application', function (Application) {
     Application.initializer({
       name: 'routing-service',
-      initialize: function (registry) {
-        // Register the routing service...
-        registry.register('service:-routing', _emberRoutingServicesRouting.default);
-        // Then inject the app router into it
-        registry.injection('service:-routing', 'router', 'router:main');
-      }
+      initialize: initialize
     });
   });
 });
@@ -24186,7 +24145,7 @@ enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core
 
     fullName = 'controller:' + controllerName;
 
-    container._registry.register(fullName, Factory);
+    container.registry.register(fullName, Factory);
 
     return Factory;
   }
@@ -26737,7 +26696,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
         seen[name] = true;
 
         if (!handler) {
-          container._registry.register(routeName, DefaultRoute.extend());
+          container.registry.register(routeName, DefaultRoute.extend());
           handler = container.lookup(routeName);
 
           if (_emberMetalProperty_get.get(_this2, 'namespace.LOG_ACTIVE_GENERATION')) {
@@ -27088,7 +27047,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
   function routeHasBeenDefined(router, name) {
     var container = router.container;
-    return router.hasRoute(name) && (container._registry.has('template:' + name) || container._registry.has('route:' + name));
+    return router.hasRoute(name) && (container.registry.has('template:' + name) || container.registry.has('route:' + name));
   }
 
   function triggerEvent(handlerInfos, ignoreFailure, args) {
@@ -29886,6 +29845,76 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
     compare: null
   });
 });
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalMixin) {
+  exports.default = _emberMetalMixin.Mixin.create({
+    /**
+     The container stores state.
+      @private
+     @property {Ember.Container} __container__
+     */
+    __container__: null,
+
+    /**
+     Given a fullName return a corresponding instance.
+      The default behaviour is for lookup to return a singleton instance.
+     The singleton is scoped to the container, allowing multiple containers
+     to all have their own locally scoped singletons.
+      ```javascript
+     var registry = new Registry();
+     var container = registry.container();
+      registry.register('api:twitter', Twitter);
+      var twitter = container.lookup('api:twitter');
+      twitter instanceof Twitter; // => true
+      // by default the container will return singletons
+     var twitter2 = container.lookup('api:twitter');
+     twitter2 instanceof Twitter; // => true
+      twitter === twitter2; //=> true
+     ```
+      If singletons are not wanted an optional flag can be provided at lookup.
+      ```javascript
+     var registry = new Registry();
+     var container = registry.container();
+      registry.register('api:twitter', Twitter);
+      var twitter = container.lookup('api:twitter', { singleton: false });
+     var twitter2 = container.lookup('api:twitter', { singleton: false });
+      twitter === twitter2; //=> false
+     ```
+      @public
+     @method lookup
+     @param {String} fullName
+     @param {Object} options
+     @return {any}
+     */
+    lookup: containerAlias('lookup'),
+
+    /**
+     Given a fullName return the corresponding factory.
+      @private
+     @method lookupFactory
+     @param {String} fullName
+     @return {any}
+     */
+    lookupFactory: containerAlias('lookupFactory'),
+
+    /**
+     @private
+     */
+    willDestroy: function () {
+      this._super.apply(this, arguments);
+
+      if (this.__container__) {
+        _emberMetalRun_loop.default(this.__container__, 'destroy');
+      }
+    }
+  });
+
+  function containerAlias(name) {
+    return function () {
+      var container = _emberMetalProperty_get.get(this, '__container__');
+      return container[name].apply(container, arguments);
+    };
+  }
+});
 enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'ember-metal/alias', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/controller_content_model_alias_deprecation'], function (exports, _emberMetalMixin, _emberMetalAlias, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsController_content_model_alias_deprecation) {
 
   /**
@@ -32335,6 +32364,211 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     return function () {
       var promise = _emberMetalProperty_get.get(this, 'promise');
       return promise[name].apply(promise, arguments);
+    };
+  }
+});
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalMixin) {
+  exports.default = _emberMetalMixin.Mixin.create({
+    __registry__: null,
+
+    /**
+     Given a fullName return the corresponding factory.
+      @public
+     @method resolveRegistration
+     @param {String} fullName
+     @return {Function} fullName's factory
+     */
+    resolveRegistration: registryAlias('resolve'),
+
+    /**
+      Registers a factory that can be used for dependency injection (with
+      `inject`) or for service lookup. Each factory is registered with
+      a full name including two parts: `type:name`.
+       A simple example:
+       ```javascript
+      var App = Ember.Application.create();
+       App.Orange = Ember.Object.extend();
+      App.register('fruit:favorite', App.Orange);
+      ```
+       Ember will resolve factories from the `App` namespace automatically.
+      For example `App.CarsController` will be discovered and returned if
+      an application requests `controller:cars`.
+       An example of registering a controller with a non-standard name:
+       ```javascript
+      var App = Ember.Application.create();
+      var Session = Ember.Controller.extend();
+       App.register('controller:session', Session);
+       // The Session controller can now be treated like a normal controller,
+      // despite its non-standard name.
+      App.ApplicationController = Ember.Controller.extend({
+        needs: ['session']
+      });
+      ```
+       Registered factories are **instantiated** by having `create`
+      called on them. Additionally they are **singletons**, each time
+      they are looked up they return the same instance.
+       Some examples modifying that default behavior:
+       ```javascript
+      var App = Ember.Application.create();
+       App.Person = Ember.Object.extend();
+      App.Orange = Ember.Object.extend();
+      App.Email = Ember.Object.extend();
+      App.session = Ember.Object.create();
+       App.register('model:user', App.Person, { singleton: false });
+      App.register('fruit:favorite', App.Orange);
+      App.register('communication:main', App.Email, { singleton: false });
+      App.register('session', App.session, { instantiate: false });
+      ```
+       @public
+      @method register
+      @param  fullName {String} type:name (e.g., 'model:user')
+      @param  factory {Function} (e.g., App.Person)
+      @param  options {Object} (optional) disable instantiation or singleton usage
+      @public
+     */
+    register: registryAlias('register'),
+
+    /**
+     Unregister a factory.
+      ```javascript
+     var App = Ember.Application.create();
+     var User = Ember.Object.extend();
+     App.register('model:user', User);
+      App.resolveRegistration('model:user').create() instanceof User //=> true
+      App.unregister('model:user')
+     App.resolveRegistration('model:user') === undefined //=> true
+     ```
+      @public
+     @method unregister
+     @param {String} fullName
+     */
+    unregister: registryAlias('unregister'),
+
+    /**
+     Check if a factory is registered.
+      @public
+     @method hasRegistration
+     @param {String} fullName
+     @return {Boolean}
+     */
+    hasRegistration: registryAlias('has'),
+
+    /**
+     Register an option for a particular factory.
+      @public
+     @method registerOption
+     @param {String} fullName
+     @param {String} optionName
+     @param {Object} options
+     */
+    registerOption: registryAlias('option'),
+
+    /**
+     Return a specific registered option for a particular factory.
+      @public
+     @method registeredOption
+     @param  {String} fullName
+     @param  {String} optionName
+     @return {Object} options
+     */
+    registeredOption: registryAlias('getOption'),
+
+    /**
+     Register options for a particular factory.
+      @public
+     @method registerOptions
+     @param {String} fullName
+     @param {Object} options
+     */
+    registerOptions: registryAlias('options'),
+
+    /**
+     Return registered options for a particular factory.
+      @public
+     @method registeredOptions
+     @param  {String} fullName
+     @return {Object} options
+     */
+    registeredOptions: registryAlias('getOptions'),
+
+    /**
+     Allow registering options for all factories of a type.
+      ```javascript
+     var App = Ember.Application.create();
+     var appInstance = App.buildInstance();
+      // if all of type `connection` must not be singletons
+     appInstance.optionsForType('connection', { singleton: false });
+      appInstance.register('connection:twitter', TwitterConnection);
+     appInstance.register('connection:facebook', FacebookConnection);
+      var twitter = appInstance.lookup('connection:twitter');
+     var twitter2 = appInstance.lookup('connection:twitter');
+      twitter === twitter2; // => false
+      var facebook = appInstance.lookup('connection:facebook');
+     var facebook2 = appInstance.lookup('connection:facebook');
+      facebook === facebook2; // => false
+     ```
+      @public
+     @method registerOptionsForType
+     @param {String} type
+     @param {Object} options
+     */
+    registerOptionsForType: registryAlias('optionsForType'),
+
+    /**
+     Return the registered options for all factories of a type.
+      @public
+     @method registeredOptionsForType
+     @param {String} type
+     @return {Object} options
+     */
+    registeredOptionsForType: registryAlias('getOptionsForType'),
+
+    /**
+      Define a dependency injection onto a specific factory or all factories
+      of a type.
+       When Ember instantiates a controller, view, or other framework component
+      it can attach a dependency to that component. This is often used to
+      provide services to a set of framework components.
+       An example of providing a session object to all controllers:
+       ```javascript
+      var App = Ember.Application.create();
+      var Session = Ember.Object.extend({ isAuthenticated: false });
+       // A factory must be registered before it can be injected
+      App.register('session:main', Session);
+       // Inject 'session:main' onto all factories of the type 'controller'
+      // with the name 'session'
+      App.inject('controller', 'session', 'session:main');
+       App.IndexController = Ember.Controller.extend({
+        isLoggedIn: Ember.computed.alias('session.isAuthenticated')
+      });
+      ```
+       Injections can also be performed on specific factories.
+       ```javascript
+      App.inject(<full_name or type>, <property name>, <full_name>)
+      App.inject('route', 'source', 'source:main')
+      App.inject('route:application', 'email', 'model:email')
+      ```
+       It is important to note that injections can only be performed on
+      classes that are instantiated by Ember itself. Instantiating a class
+      directly (via `create` or `new`) bypasses the dependency injection
+      system.
+       **Note:** Ember-Data instantiates its models in a unique manner, and consequently
+      injections onto models (or all models) will not work as expected. Injections
+      on models can be enabled by setting `Ember.MODEL_FACTORY_INJECTIONS`
+      to `true`.
+       @public
+      @method inject
+      @param  factoryNameOrType {String}
+      @param  property {String}
+      @param  injectionName {String}
+    **/
+    inject: registryAlias('injection')
+  });
+
+  function registryAlias(name) {
+    return function () {
+      var registry = _emberMetalProperty_get.get(this, '__registry__');
+      return registry[name].apply(registry, arguments);
     };
   }
 });
@@ -36440,7 +36674,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+4ff7ba7f',
+        revision: 'Ember@2.0.0-canary+1d7b8336',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37184,7 +37418,7 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load
       Application.initializer({
         name: name,
 
-        initialize: function (registry, application) {
+        initialize: function (application) {
           if (application.testing) {
             application.deferReadiness();
           }
@@ -38032,10 +38266,10 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-ru
 
       var fullName = 'component:' + name;
       var templateFullName = 'template:components/' + name;
-      var templateRegistered = container && container._registry.has(templateFullName);
+      var templateRegistered = container && container.registry.has(templateFullName);
 
       if (templateRegistered) {
-        container._registry.injection(fullName, 'layout', templateFullName);
+        container.registry.injection(fullName, 'layout', templateFullName);
       }
 
       var Component = container.lookupFactory(fullName);
@@ -38044,7 +38278,7 @@ enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-ru
       // or a template has been registered.
       if (templateRegistered || Component) {
         if (!Component) {
-          container._registry.register(fullName, _emberMetalCore.default.Component);
+          container.registry.register(fullName, _emberMetalCore.default.Component);
           Component = container.lookupFactory(fullName);
         }
         return Component;
@@ -41072,7 +41306,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+4ff7ba7f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+1d7b8336';
 
   /**
   @module ember
