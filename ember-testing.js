@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9549f063
+ * @version   2.0.0-canary+665c7335
  */
 
 (function() {
@@ -1662,6 +1662,13 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
       } else {
         this.helperContainer = window;
       }
+
+      this.reopen({
+        willDestroy: function () {
+          this._super.apply(this, arguments);
+          this.removeTestHelpers();
+        }
+      });
 
       this.testHelpers = {};
       for (var name in helpers) {

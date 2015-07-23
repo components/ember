@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9549f063
+ * @version   2.0.0-canary+665c7335
  */
 
 (function() {
@@ -42259,7 +42259,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+9549f063', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+665c7335', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -42379,7 +42379,6 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     },
 
     teardown: function () {
-      App.removeTestHelpers();
       _emberTestingTest.default.unregisterHelper('slowHelper');
       _emberViewsSystemJquery.default('#ember-testing-container, #ember-testing').remove();
       _emberMetalRun_loop.default(App, App.destroy);
@@ -42651,6 +42650,31 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
     andThen(function () {
       equal(currentURL(), '/comments', 'Redirected to Comments URL');
     });
+  });
+
+  QUnit.module('ember-testing Acceptance – teardown');
+
+  QUnit.test('that the setup/teardown happens correct', function () {
+    expect(2);
+
+    _emberViewsSystemJquery.default('<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>').appendTo('head');
+    _emberViewsSystemJquery.default('<div id="ember-testing-container"><div id="ember-testing"></div></div>').appendTo('body');
+
+    _emberMetalRun_loop.default(function () {
+      indexHitCount = 0;
+      App = _emberApplicationSystemApplication.default.create({
+        rootElement: '#ember-testing'
+      });
+    });
+    App.injectTestHelpers();
+
+    _emberViewsSystemJquery.default('#ember-testing-container, #ember-testing').remove();
+    ok(typeof _emberTestingTest.default.Promise.prototype.click === 'function');
+    _emberMetalRun_loop.default(App, App.destroy);
+    equal(_emberTestingTest.default.Promise.prototype.click, undefined);
+    App = null;
+    _emberTestingTest.default.adapter = originalAdapter;
+    indexHitCount = 0;
   });
 });
 // ensure the initializer is setup
