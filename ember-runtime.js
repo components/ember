@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+360d41da
+ * @version   2.0.0-canary+86d63d43
  */
 
 (function() {
@@ -4754,7 +4754,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+360d41da
+    @version 2.0.0-canary+86d63d43
     @public
   */
 
@@ -4786,11 +4786,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+360d41da'
+    @default '2.0.0-canary+86d63d43'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+360d41da';
+  Ember.VERSION = '2.0.0-canary+86d63d43';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14770,7 +14770,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} [value] optional value to test against. Defaults to `true`
       @return {Boolean}
       @since 1.3.0
-      @private
+      @public
     */
     isAny: function (key, value) {
       return this.any(iter.apply(this, arguments));
