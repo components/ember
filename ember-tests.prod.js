@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+665c7335
+ * @version   2.0.0-canary+be1d622e
  */
 
 (function() {
@@ -25753,16 +25753,14 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
     var meta_Global = _emberMetalCore.default.meta(Global);
     var chainNode = _emberMetalCore.default.meta(obj).chains._chains.Global._chains.foo;
-    var index = meta_Global.chainWatchers.foo.indexOf(chainNode);
 
     equal(meta_Global.watching.foo, 1, 'should be watching foo');
-    strictEqual(meta_Global.chainWatchers.foo[index], chainNode, 'should have chain watcher');
+    equal(meta_Global.chainWatchers.has('foo', chainNode), true, 'should have chain watcher');
 
     _emberMetalWatching.destroy(obj);
 
-    index = meta_Global.chainWatchers.foo.indexOf(chainNode);
     equal(meta_Global.watching.foo, 0, 'should not be watching foo');
-    equal(index, -1, 'should not have chain watcher');
+    equal(meta_Global.chainWatchers.has('foo', chainNode), false, 'should not have chain watcher');
 
     lookup['Global'] = Global = null; // reset
   });
@@ -25777,16 +25775,14 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
     var meta_objB = _emberMetalCore.default.meta(objB);
     var chainNode = _emberMetalCore.default.meta(objA).chains._chains.b._chains.foo;
-    var index = meta_objB.chainWatchers.foo.indexOf(chainNode);
 
     equal(meta_objB.watching.foo, 1, 'should be watching foo');
-    strictEqual(meta_objB.chainWatchers.foo[index], chainNode, 'should have chain watcher');
+    equal(meta_objB.chainWatchers.has('foo', chainNode), true, 'should have chain watcher');
 
     _emberMetalWatching.destroy(objA);
 
-    index = meta_objB.chainWatchers.foo.indexOf(chainNode);
     equal(meta_objB.watching.foo, 0, 'should not be watching foo');
-    equal(index, -1, 'should not have chain watcher');
+    equal(meta_objB.chainWatchers.has('foo', chainNode), false, 'should not have chain watcher');
   });
 
   // TESTS for length property
@@ -42259,7 +42255,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+665c7335', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+be1d622e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
