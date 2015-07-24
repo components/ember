@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+be1d622e
+ * @version   2.0.0-canary+708d3356
  */
 
 (function() {
@@ -4754,7 +4754,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+be1d622e
+    @version 2.0.0-canary+708d3356
     @public
   */
 
@@ -4786,11 +4786,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+be1d622e'
+    @default '2.0.0-canary+708d3356'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+be1d622e';
+  Ember.VERSION = '2.0.0-canary+708d3356';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13973,7 +13973,7 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
     compare: null
   });
 });
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalMixin) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
   exports.default = _emberMetalMixin.Mixin.create({
     /**
      The container stores state.
@@ -14038,8 +14038,9 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
 
   function containerAlias(name) {
     return function () {
-      var container = _emberMetalProperty_get.get(this, '__container__');
-      return container[name].apply(container, arguments);
+      var _container__;
+
+      return (_container__ = this.__container__)[name].apply(_container__, arguments);
     };
   }
 });
@@ -16495,7 +16496,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     };
   }
 });
-enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalMixin) {
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -16695,8 +16696,9 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/property_
 
   function registryAlias(name) {
     return function () {
-      var registry = _emberMetalProperty_get.get(this, '__registry__');
-      return registry[name].apply(registry, arguments);
+      var _registry__;
+
+      return (_registry__ = this.__registry__)[name].apply(_registry__, arguments);
     };
   }
 });
