@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+cf51de27
+ * @version   1.13.5+7895366b
  */
 
 (function() {
@@ -4391,7 +4391,14 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       _emberMetal["default"].BOOTED = false;
       this._bootPromise = null;
       this._bootResolver = null;
-      this.__deprecatedInstance__.destroy();
+
+      if (_emberRuntimeSystemLazy_load._loaded.application === this) {
+        _emberRuntimeSystemLazy_load._loaded.application = undefined;
+      }
+
+      if (this.__deprecatedInstance__) {
+        this.__deprecatedInstance__.destroy();
+      }
     },
 
     initializer: function (options) {
@@ -6824,7 +6831,7 @@ enifed("ember-htmlbars/helpers/bind-attr", ["exports"], function (exports) {});
   @return {String} HTML string
   @public
 */
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/enumerable_utils', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalEnumerable_utils, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed("ember-htmlbars/helpers/each", ["exports", "ember-metal/enumerable_utils", "ember-htmlbars/utils/normalize-self", "ember-views/streams/should_display", "ember-htmlbars/utils/decode-each-key"], function (exports, _emberMetalEnumerable_utils, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   exports["default"] = eachHelper;
 
   /**
@@ -6903,29 +6910,22 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
           }
 
     if (_emberViewsStreamsShould_display["default"](list)) {
-      (function () {
-        var seenKeys = {};
-        _emberMetalEnumerable_utils.forEach(list, function (item, i) {
-          var self;
-          if (blocks.template.arity === 0) {
-            self = _emberHtmlbarsUtilsNormalizeSelf["default"](item);
-          }
+      _emberMetalEnumerable_utils.forEach(list, function (item, i) {
+        var self;
+        if (blocks.template.arity === 0) {
+          self = _emberHtmlbarsUtilsNormalizeSelf["default"](item);
+        }
 
-          var key = _emberHtmlbarsUtilsDecodeEachKey["default"](item, keyPath, i);
-          if (seenKeys[key] === true) {
-            throw new _emberMetalError["default"]('Duplicate key found (\'' + key + '\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
-          } else {
-            seenKeys[key] = true;
-          }
-          blocks.template.yieldItem(key, [item, i], self);
-        });
-      })();
+        var key = _emberHtmlbarsUtilsDecodeEachKey["default"](item, keyPath, i);
+
+        blocks.template.yieldItem(key, [item, i], self);
+      });
     } else if (blocks.inverse.yield) {
       blocks.inverse.yield();
     }
   }
 
-  var deprecation = 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.';
+  var deprecation = "Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.";
   exports.deprecation = deprecation;
 });
 enifed("ember-htmlbars/helpers/if_unless", ["exports", "ember-metal/core", "ember-views/streams/should_display"], function (exports, _emberMetalCore, _emberViewsStreamsShould_display) {
@@ -8418,7 +8418,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+cf51de27";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+7895366b";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -14162,7 +14162,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.5+cf51de27
+    @version 1.13.5+7895366b
     @public
   */
 
@@ -14194,11 +14194,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.5+cf51de27'
+    @default '1.13.5+7895366b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.5+cf51de27';
+  Ember.VERSION = '1.13.5+7895366b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22968,7 +22968,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.5+cf51de27";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.5+7895366b";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   
@@ -23492,7 +23492,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+cf51de27";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+7895366b";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -30870,7 +30870,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
     @param {String} name (optional) name of the controller to inject, defaults
            to the property's name
     @return {Ember.InjectedProperty} injection descriptor instance
-    @private
+    @public
   */
   _emberRuntimeInject.createInjectionHelper('controller', controllerInjectionHelper);
 
@@ -36812,7 +36812,9 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
 
   var loadHooks = _emberMetalCore["default"].ENV.EMBER_LOAD_HOOKS || {};
   var loaded = {};
+  var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -36834,12 +36836,12 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
   */
 
   function onLoad(name, callback) {
-    var object;
+    var object = loaded[name];
 
     loadHooks[name] = loadHooks[name] || _emberMetalCore["default"].A();
     loadHooks[name].pushObject(callback);
 
-    if (object = loaded[name]) {
+    if (object) {
       callback(object);
     }
   }
@@ -40117,7 +40119,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.5+cf51de27",
+        revision: "Ember@1.13.5+7895366b",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40246,7 +40248,7 @@ enifed("ember-views", ["exports", "ember-runtime", "ember-views/system/jquery", 
 
   _emberRuntime["default"].TextSupport = _emberViewsMixinsText_support["default"];
   _emberRuntime["default"].ComponentLookup = _emberViewsComponent_lookup["default"];
-  _emberRuntime["default"].ContainerView = _emberViewsViewsContainer_view["default"];
+  _emberRuntime["default"].ContainerView = _emberViewsViewsContainer_view.DeprecatedContainerView;
   _emberRuntime["default"].CollectionView = _emberViewsViewsCollection_view["default"];
   _emberRuntime["default"].Component = _emberViewsViewsComponent["default"];
   _emberRuntime["default"].EventDispatcher = _emberViewsSystemEvent_dispatcher["default"];
@@ -44033,7 +44035,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.5+cf51de27";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.5+7895366b";
 
   /**
   @module ember
@@ -44189,6 +44191,7 @@ enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "embe
     @class ContainerView
     @namespace Ember
     @extends Ember.View
+    @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-containerview
     @private
   */
   var ContainerView = _emberViewsViewsView["default"].extend(_emberRuntimeMixinsMutable_array["default"], {
@@ -44320,6 +44323,23 @@ enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "embe
       }
     })
   });
+
+  function containerViewDeprecationMessage() {
+      }
+
+  var DeprecatedContainerView = ContainerView.extend({
+    init: function () {
+      containerViewDeprecationMessage();
+      this._super.apply(this, arguments);
+    }
+  });
+
+  exports.DeprecatedContainerView = DeprecatedContainerView;
+  DeprecatedContainerView.reopen = function () {
+    containerViewDeprecationMessage();
+    ContainerView.reopen.apply(ContainerView, arguments);
+    return this;
+  };
 
   exports["default"] = ContainerView;
 });
@@ -45155,11 +45175,21 @@ enifed("ember-views/views/select", ["exports", "ember-metal/enumerable_utils", "
     }
   });
 
+  function selectViewDeprecationMessage() {
+      }
+
   var DeprecatedSelect = Select.extend({
     init: function () {
+      selectViewDeprecationMessage();
       this._super.apply(this, arguments);
-          }
+    }
   });
+
+  DeprecatedSelect.reopen = function () {
+    selectViewDeprecationMessage();
+    Select.reopen.apply(Select, arguments);
+    return this;
+  };
 
   exports["default"] = Select;
   exports.Select = Select;
@@ -46261,7 +46291,7 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
        @property layoutName
       @type String
       @default null
-      @private
+      @public
     */
     layoutName: null,
 
@@ -46301,7 +46331,7 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
       on a subclass.
        @property layout
       @type Function
-      @private
+      @public
     */
     layout: _emberMetalComputed.computed("layoutName", {
       get: function (key) {
@@ -47025,11 +47055,21 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
   // method.
   View.childViewsProperty = _emberViewsMixinsView_child_views_support.childViewsProperty;
 
+  function viewDeprecationMessage() {
+      }
+
   var DeprecatedView = View.extend({
     init: function () {
+      viewDeprecationMessage();
       this._super.apply(this, arguments);
-          }
+    }
   });
+
+  DeprecatedView.reopen = function () {
+    viewDeprecationMessage();
+    View.reopen.apply(View, arguments);
+    return this;
+  };
 
   exports["default"] = View;
   exports.ViewContextSupport = _emberViewsMixinsView_context_support["default"];
@@ -47593,9 +47633,9 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       return seek;
     }
 
-    return function (key, blockArguments, self) {
-      if (typeof key !== "string") {
-        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
+    return function (_key, blockArguments, self) {
+      if (typeof _key !== "string") {
+        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + _key);
       }
 
       // At least one item has been yielded, so we do not wholesale
@@ -47619,6 +47659,25 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       // this list will be pruned from the MorphList during the cleanup
       // process.
       var handledMorphs = renderState.handledMorphs;
+      var key = undefined;
+
+      if (handledMorphs[_key]) {
+        // In this branch we are dealing with a duplicate key. The strategy
+        // is to take the original key and append a counter to it that is
+        // incremented every time the key is reused. In order to greatly
+        // reduce the chance of colliding with another valid key we also add
+        // an extra string "--z8mS2hvDW0A--" to the new key.
+        var collisions = renderState.collisions;
+        if (collisions === undefined) {
+          collisions = renderState.collisions = {};
+        }
+        var count = collisions[_key] | 0;
+        collisions[_key] = ++count;
+
+        key = _key + "--z8mS2hvDW0A--" + count;
+      } else {
+        key = _key;
+      }
 
       if (currentMorph && currentMorph.key === key) {
         yieldTemplate(template, env, parentScope, currentMorph, renderState, visitor)(blockArguments, self);
@@ -49333,6 +49392,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // rendering pass. Any morphs in the DOM but not in this map
     // will be pruned during cleanup.
     this.handledMorphs = {};
+    this.collisions = undefined;
 
     // The morph to clear once rendering is complete. By
     // default, we set this to the previous morph (to catch
@@ -49399,6 +49459,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // yieldTemplate), we detect what was rendered and how it differs from
     // the previous render, cleaning up old state in DOM as appropriate.
     var renderState = options.renderState;
+    renderState.collisions = undefined;
     renderState.shadowOptions = shadowOptions;
 
     // Invoke the callback, instructing it to save information about what it

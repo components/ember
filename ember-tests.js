@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+cf51de27
+ * @version   1.13.5+7895366b
  */
 
 (function() {
@@ -1103,7 +1103,7 @@ enifed('container/tests/registry_test', ['exports', 'container/tests/container_h
     });
   });
 });
-enifed("ember-application/tests/system/application_test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-application/system/application", "ember-application/system/resolver", "ember-routing/system/router", "ember-views/views/view", "ember-runtime/controllers/controller", "ember-routing/location/none_location", "ember-runtime/system/object", "ember-routing/system/route", "ember-views/system/jquery", "ember-template-compiler/system/compile"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile) {
+enifed("ember-application/tests/system/application_test", ["exports", "ember-metal/core", "ember-metal/run_loop", "ember-application/system/application", "ember-application/system/resolver", "ember-routing/system/router", "ember-views/views/view", "ember-runtime/controllers/controller", "ember-routing/location/none_location", "ember-runtime/system/object", "ember-routing/system/route", "ember-views/system/jquery", "ember-template-compiler/system/compile", "ember-runtime/system/lazy_load"], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load) {
 
   var trim = _emberViewsSystemJquery["default"].trim;
 
@@ -1433,6 +1433,14 @@ enifed("ember-application/tests/system/application_test", ["exports", "ember-met
     });
 
     ok(app.__container__.lookup("view:select"), "Select control is registered into views");
+  });
+
+  QUnit.test("does not leak itself in onLoad._loaded", function () {
+    equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
+    var app = _emberMetalRun_loop["default"](_emberApplicationSystemApplication["default"], "create");
+    equal(_emberRuntimeSystemLazy_load._loaded.application, app);
+    _emberMetalRun_loop["default"](app, "destroy");
+    equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
   });
 });
 /*globals EmberDev */
@@ -10144,19 +10152,19 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
     equal(view.$().text(), "foobarbaz");
   });
 
-  QUnit.test("duplicate keys trigger a useful error (temporary until we can deal with this properly in HTMLBars)", function () {
+  QUnit.test("duplicate keys work properly with primitive items", function () {
     _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView["default"].create({
       items: ["a", "a", "a"],
       template: _emberTemplateCompilerSystemCompile["default"]("{{#each view.items as |item|}}{{item}}{{/each}}")
     });
 
-    throws(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, "Duplicate key found ('a') for '{{each}}' helper, please use a unique key or switch to '{{#each model key=\"@index\"}}{{/each}}'.");
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), "aaa");
   });
 
-  QUnit.test("pushing a new duplicate key will trigger a useful error (temporary until we can deal with this properly in HTMLBars)", function () {
+  QUnit.test("pushing a new duplicate key will render properly with primitive items", function () {
     _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView["default"].create({
       items: _emberRuntimeSystemNative_array.A(["a", "b", "c"]),
@@ -10165,11 +10173,42 @@ enifed("ember-htmlbars/tests/helpers/each_test", ["exports", "ember-metal/core",
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    throws(function () {
-      _emberMetalRun_loop["default"](function () {
-        view.get("items").pushObject("a");
-      });
-    }, "Duplicate key found ('a') for '{{each}}' helper, please use a unique key or switch to '{{#each model key=\"@index\"}}{{/each}}'.");
+    _emberMetalRun_loop["default"](function () {
+      view.get("items").pushObject("a");
+    });
+
+    equal(view.$().text(), "abca");
+  });
+
+  QUnit.test("duplicate keys work properly with objects", function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+    var duplicateItem = { display: "foo" };
+    view = _emberViewsViewsView["default"].create({
+      items: [duplicateItem, duplicateItem, { display: "bar" }, { display: "qux" }],
+      template: _emberTemplateCompilerSystemCompile["default"]("{{#each view.items as |item|}}{{item.display}}{{/each}}")
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), "foofoobarqux");
+  });
+
+  QUnit.test("pushing a new duplicate key will render properly with objects", function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+
+    var duplicateItem = { display: "foo" };
+    view = _emberViewsViewsView["default"].create({
+      items: _emberRuntimeSystemNative_array.A([duplicateItem, { display: "bar" }, { display: "qux" }]),
+      template: _emberTemplateCompilerSystemCompile["default"]("{{#each view.items as |item|}}{{item.display}}{{/each}}")
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop["default"](function () {
+      view.get("items").pushObject(duplicateItem);
+    });
+
+    equal(view.$().text(), "foobarquxfoo");
   });
 
   testEachWithItem("{{#each foo in bar}}", false);
@@ -47693,7 +47732,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.5+cf51de27", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.5+7895366b", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -47823,7 +47862,6 @@ enifed("ember-testing/tests/acceptance_test", ["exports", "ember-metal/run_loop"
     },
 
     teardown: function () {
-      App.removeTestHelpers();
       _emberTestingTest["default"].unregisterHelper("slowHelper");
       _emberViewsSystemJquery["default"]("#ember-testing-container, #ember-testing").remove();
       _emberMetalRun_loop["default"](App, App.destroy);
@@ -48095,6 +48133,31 @@ enifed("ember-testing/tests/acceptance_test", ["exports", "ember-metal/run_loop"
     andThen(function () {
       equal(currentURL(), "/comments", "Redirected to Comments URL");
     });
+  });
+
+  QUnit.module("ember-testing Acceptance – teardown");
+
+  QUnit.test("that the setup/teardown happens correct", function () {
+    expect(2);
+
+    _emberViewsSystemJquery["default"]("<style>#ember-testing-container { position: absolute; background: white; bottom: 0; right: 0; width: 640px; height: 384px; overflow: auto; z-index: 9999; border: 1px solid #ccc; } #ember-testing { zoom: 50%; }</style>").appendTo("head");
+    _emberViewsSystemJquery["default"]("<div id=\"ember-testing-container\"><div id=\"ember-testing\"></div></div>").appendTo("body");
+
+    _emberMetalRun_loop["default"](function () {
+      indexHitCount = 0;
+      App = _emberApplicationSystemApplication["default"].create({
+        rootElement: "#ember-testing"
+      });
+    });
+    App.injectTestHelpers();
+
+    _emberViewsSystemJquery["default"]("#ember-testing-container, #ember-testing").remove();
+    ok(typeof _emberTestingTest["default"].Promise.prototype.click === "function");
+    _emberMetalRun_loop["default"](App, App.destroy);
+    equal(_emberTestingTest["default"].Promise.prototype.click, undefined);
+    App = null;
+    _emberTestingTest["default"].adapter = originalAdapter;
+    indexHitCount = 0;
   });
 });
 // ensure the initializer is setup
@@ -48401,15 +48464,24 @@ enifed("ember-testing/tests/helpers_test", ["exports", "ember-metal/core", "embe
     }
   });
 
+  function registerHelper() {
+    _emberTestingTest["default"].registerHelper("LeakyMcLeakLeak", function (app) {});
+  }
+
   QUnit.test("Ember.Application#injectTestHelpers/#removeTestHelpers", function () {
     App = _emberMetalRun_loop["default"](_emberApplicationSystemApplication["default"], _emberApplicationSystemApplication["default"].create);
     assertNoHelpers(App);
 
+    registerHelper();
+
     App.injectTestHelpers();
     assertHelpers(App);
+    ok(_emberMetalCore["default"].Test.Promise.prototype.LeakyMcLeakLeak, "helper in question SHOULD be present");
 
     App.removeTestHelpers();
     assertNoHelpers(App);
+
+    equal(_emberMetalCore["default"].Test.Promise.prototype.LeakyMcLeakLeak, undefined, "should NOT leak test promise extensions");
   });
 
   QUnit.test("Ember.Application#setupForTesting", function () {
@@ -52408,6 +52480,24 @@ enifed("ember-views/tests/views/container_view_test", ["exports", "ember-metal/p
     equal(view.element.tagName, "TABLE", "container view is table");
     equal(view.element.childNodes[2].tagName, "TR", "inner view is tr");
   });
+
+  QUnit.module("DeprecatedContainerView");
+
+  QUnit.test("calling reopen on DeprecatedContainerView delegates to ContainerView", function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsContainer_view["default"].reopen;
+    var obj = {};
+
+    _emberViewsViewsContainer_view["default"].reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsContainer_view.DeprecatedContainerView.reopen(obj);
+    }, /Ember.ContainerView is deprecated./);
+
+    _emberViewsViewsContainer_view["default"].reopen = originalReopen;
+  });
 });
 enifed("ember-views/tests/views/exports_test", ["exports", "ember-views"], function (exports, _emberViews) {
 
@@ -52496,13 +52586,13 @@ enifed("ember-views/tests/views/instrumentation_test", ["exports", "ember-metal/
     confirmPayload(beforeCalls[0], view);
   });
 });
-enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/select", "ember-runtime/system/object", "ember-metal/run_loop", "ember-views/system/jquery", "ember-metal/enumerable_utils", "ember-views/system/event_dispatcher", "htmlbars-util/safe-string"], function (exports, _emberViewsViewsSelect, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalEnumerable_utils, _emberViewsSystemEvent_dispatcher, _htmlbarsUtilSafeString) {
+enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'ember-views/views/select', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/enumerable_utils', 'ember-views/system/event_dispatcher', 'htmlbars-util/safe-string'], function (exports, _emberMetalCore, _emberViewsViewsSelect, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalEnumerable_utils, _emberViewsSystemEvent_dispatcher, _htmlbarsUtilSafeString) {
 
   var trim = _emberViewsSystemJquery["default"].trim;
 
   var dispatcher, select;
 
-  QUnit.module("Ember.Select", {
+  QUnit.module('Ember.Select', {
     setup: function () {
       dispatcher = _emberViewsSystemEvent_dispatcher["default"].create();
       dispatcher.setup();
@@ -52519,272 +52609,272 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
 
   function append() {
     _emberMetalRun_loop["default"](function () {
-      select.appendTo("#qunit-fixture");
+      select.appendTo('#qunit-fixture');
     });
   }
 
   function selectedOptions() {
-    return select.get("childViews").mapBy("selected");
+    return select.get('childViews').mapBy('selected');
   }
 
-  QUnit.test("using the Ember.Select global is deprecated", function (assert) {
+  QUnit.test('using the Ember.Select global is deprecated', function (assert) {
     expectDeprecation(function () {
-      Ember.Select.create();
+      _emberMetalCore["default"].Select.create();
     }, /Ember.Select is deprecated./);
   });
 
-  QUnit.test("has 'ember-view' and 'ember-select' CSS classes", function () {
-    deepEqual(select.get("classNames"), ["ember-view", "ember-select"]);
+  QUnit.test('has \'ember-view\' and \'ember-select\' CSS classes', function () {
+    deepEqual(select.get('classNames'), ['ember-view', 'ember-select']);
   });
 
-  QUnit.test("should render", function () {
+  QUnit.test('should render', function () {
     append();
 
-    ok(select.$().length, "Select renders");
+    ok(select.$().length, 'Select renders');
   });
 
-  QUnit.test("should begin disabled if the disabled attribute is true", function () {
-    select.set("disabled", true);
+  QUnit.test('should begin disabled if the disabled attribute is true', function () {
+    select.set('disabled', true);
     append();
 
-    ok(select.$().is(":disabled"));
+    ok(select.$().is(':disabled'));
   });
 
   // Browsers before IE10 do not support the required property.
-  if (document && "required" in document.createElement("input")) {
-    QUnit.test("should begin required if the required attribute is true", function () {
-      select.set("required", true);
+  if (document && 'required' in document.createElement('input')) {
+    QUnit.test('should begin required if the required attribute is true', function () {
+      select.set('required', true);
       append();
 
-      ok(select.element.required, "required property is truthy");
+      ok(select.element.required, 'required property is truthy');
     });
 
-    QUnit.test("should become required if the required attribute is changed", function () {
+    QUnit.test('should become required if the required attribute is changed', function () {
       append();
-      ok(!select.element.required, "required property is falsy");
+      ok(!select.element.required, 'required property is falsy');
 
       _emberMetalRun_loop["default"](function () {
-        select.set("required", true);
+        select.set('required', true);
       });
-      ok(select.element.required, "required property is truthy");
+      ok(select.element.required, 'required property is truthy');
 
       _emberMetalRun_loop["default"](function () {
-        select.set("required", false);
+        select.set('required', false);
       });
-      ok(!select.element.required, "required property is falsy");
+      ok(!select.element.required, 'required property is falsy');
     });
   }
 
-  QUnit.test("should become disabled if the disabled attribute is changed", function () {
+  QUnit.test('should become disabled if the disabled attribute is changed', function () {
     append();
-    ok(!select.element.disabled, "disabled property is falsy");
+    ok(!select.element.disabled, 'disabled property is falsy');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("disabled", true);
+      select.set('disabled', true);
     });
-    ok(select.element.disabled, "disabled property is truthy");
+    ok(select.element.disabled, 'disabled property is truthy');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("disabled", false);
+      select.set('disabled', false);
     });
-    ok(!select.element.disabled, "disabled property is falsy");
+    ok(!select.element.disabled, 'disabled property is falsy');
   });
 
-  QUnit.test("can have options", function () {
-    select.set("content", Ember.A([1, 2, 3]));
+  QUnit.test('can have options', function () {
+    select.set('content', _emberMetalCore["default"].A([1, 2, 3]));
 
     append();
 
-    equal(select.$("option").length, 3, "Should have three options");
+    equal(select.$('option').length, 3, 'Should have three options');
     // IE 8 adds whitespace
-    equal(trim(select.$().text()), "123", "Options should have content");
+    equal(trim(select.$().text()), '123', 'Options should have content');
   });
 
-  QUnit.test("select tabindex is updated when setting tabindex property of view", function () {
+  QUnit.test('select tabindex is updated when setting tabindex property of view', function () {
     _emberMetalRun_loop["default"](function () {
-      select.set("tabindex", "4");
+      select.set('tabindex', '4');
     });
     append();
 
-    equal(select.$().attr("tabindex"), "4", "renders select with the tabindex");
+    equal(select.$().attr('tabindex'), '4', 'renders select with the tabindex');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("tabindex", "1");
+      select.set('tabindex', '1');
     });
 
-    equal(select.$().attr("tabindex"), "1", "updates select after tabindex changes");
+    equal(select.$().attr('tabindex'), '1', 'updates select after tabindex changes');
   });
 
-  QUnit.test("select name is updated when setting name property of view", function () {
+  QUnit.test('select name is updated when setting name property of view', function () {
     _emberMetalRun_loop["default"](function () {
-      select.set("name", "foo");
+      select.set('name', 'foo');
     });
     append();
 
-    equal(select.$().attr("name"), "foo", "renders select with the name");
+    equal(select.$().attr('name'), 'foo', 'renders select with the name');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("name", "bar");
+      select.set('name', 'bar');
     });
 
-    equal(select.$().attr("name"), "bar", "updates select after name changes");
+    equal(select.$().attr('name'), 'bar', 'updates select after name changes');
   });
 
-  QUnit.test("can specify the property path for an option's label and value", function () {
-    select.set("content", Ember.A([{ id: 1, firstName: "Yehuda" }, { id: 2, firstName: "Tom" }]));
+  QUnit.test('can specify the property path for an option\'s label and value', function () {
+    select.set('content', _emberMetalCore["default"].A([{ id: 1, firstName: 'Yehuda' }, { id: 2, firstName: 'Tom' }]));
 
-    select.set("optionLabelPath", "content.firstName");
-    select.set("optionValuePath", "content.id");
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.id');
 
     append();
 
-    equal(select.$("option").length, 2, "Should have two options");
+    equal(select.$('option').length, 2, 'Should have two options');
     // IE 8 adds whitespace
-    equal(trim(select.$().text()), "YehudaTom", "Options should have content");
-    deepEqual(_emberMetalEnumerable_utils.map(select.$("option").toArray(), function (el) {
-      return _emberViewsSystemJquery["default"](el).attr("value");
-    }), ["1", "2"], "Options should have values");
+    equal(trim(select.$().text()), 'YehudaTom', 'Options should have content');
+    deepEqual(_emberMetalEnumerable_utils.map(select.$('option').toArray(), function (el) {
+      return _emberViewsSystemJquery["default"](el).attr('value');
+    }), ['1', '2'], 'Options should have values');
   });
 
-  QUnit.test("XSS: does not escape label value when it is a SafeString", function () {
-    select.set("content", Ember.A([{ id: 1, firstName: new _htmlbarsUtilSafeString["default"]("<p>Yehuda</p>") }, { id: 2, firstName: new _htmlbarsUtilSafeString["default"]("<p>Tom</p>") }]));
+  QUnit.test('XSS: does not escape label value when it is a SafeString', function () {
+    select.set('content', _emberMetalCore["default"].A([{ id: 1, firstName: new _htmlbarsUtilSafeString["default"]('<p>Yehuda</p>') }, { id: 2, firstName: new _htmlbarsUtilSafeString["default"]('<p>Tom</p>') }]));
 
-    select.set("optionLabelPath", "content.firstName");
-    select.set("optionValuePath", "content.id");
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.id');
 
     append();
 
-    equal(select.$("option").length, 2, "Should have two options");
-    equal(select.$("option[value=1] p").length, 1, "Should have child elements");
-
-    // IE 8 adds whitespace
-    equal(trim(select.$().text()), "YehudaTom", "Options should have content");
-    deepEqual(_emberMetalEnumerable_utils.map(select.$("option").toArray(), function (el) {
-      return _emberViewsSystemJquery["default"](el).attr("value");
-    }), ["1", "2"], "Options should have values");
-  });
-
-  QUnit.test("XSS: escapes label value content", function () {
-    select.set("content", Ember.A([{ id: 1, firstName: "<p>Yehuda</p>" }, { id: 2, firstName: "<p>Tom</p>" }]));
-
-    select.set("optionLabelPath", "content.firstName");
-    select.set("optionValuePath", "content.id");
-
-    append();
-
-    equal(select.$("option").length, 2, "Should have two options");
-    equal(select.$("option[value=1] b").length, 0, "Should have no child elements");
+    equal(select.$('option').length, 2, 'Should have two options');
+    equal(select.$('option[value=1] p').length, 1, 'Should have child elements');
 
     // IE 8 adds whitespace
-    equal(trim(select.$().text()), "<p>Yehuda</p><p>Tom</p>", "Options should have content");
-    deepEqual(_emberMetalEnumerable_utils.map(select.$("option").toArray(), function (el) {
-      return _emberViewsSystemJquery["default"](el).attr("value");
-    }), ["1", "2"], "Options should have values");
+    equal(trim(select.$().text()), 'YehudaTom', 'Options should have content');
+    deepEqual(_emberMetalEnumerable_utils.map(select.$('option').toArray(), function (el) {
+      return _emberViewsSystemJquery["default"](el).attr('value');
+    }), ['1', '2'], 'Options should have values');
   });
 
-  QUnit.test("can retrieve the current selected option when multiple=false", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
+  QUnit.test('XSS: escapes label value content', function () {
+    select.set('content', _emberMetalCore["default"].A([{ id: 1, firstName: '<p>Yehuda</p>' }, { id: 2, firstName: '<p>Tom</p>' }]));
 
-    select.set("content", Ember.A([yehuda, tom]));
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.id');
 
     append();
 
-    equal(select.get("selection"), yehuda, "By default, the first option is selected");
+    equal(select.$('option').length, 2, 'Should have two options');
+    equal(select.$('option[value=1] b').length, 0, 'Should have no child elements');
+
+    // IE 8 adds whitespace
+    equal(trim(select.$().text()), '<p>Yehuda</p><p>Tom</p>', 'Options should have content');
+    deepEqual(_emberMetalEnumerable_utils.map(select.$('option').toArray(), function (el) {
+      return _emberViewsSystemJquery["default"](el).attr('value');
+    }), ['1', '2'], 'Options should have values');
+  });
+
+  QUnit.test('can retrieve the current selected option when multiple=false', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+
+    select.set('content', _emberMetalCore["default"].A([yehuda, tom]));
+
+    append();
+
+    equal(select.get('selection'), yehuda, 'By default, the first option is selected');
 
     select.$()[0].selectedIndex = 1; // select Tom
-    select.$().trigger("change");
+    select.$().trigger('change');
 
-    equal(select.get("selection"), tom, "On change, the new option should be selected");
+    equal(select.get('selection'), tom, 'On change, the new option should be selected');
   });
 
-  QUnit.test("can retrieve the current selected options when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('can retrieve the current selected options when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
-    select.set("content", Ember.A([yehuda, tom, david, brennain]));
-    select.set("multiple", true);
-    select.set("optionLabelPath", "content.firstName");
-    select.set("optionValuePath", "content.firstName");
+    select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+    select.set('multiple', true);
+    select.set('optionLabelPath', 'content.firstName');
+    select.set('optionValuePath', 'content.firstName');
 
     append();
 
-    deepEqual(select.get("selection"), [], "By default, nothing is selected");
+    deepEqual(select.get('selection'), [], 'By default, nothing is selected');
 
-    select.$("option").each(function () {
-      if (this.value === "Tom" || this.value === "David") {
+    select.$('option').each(function () {
+      if (this.value === 'Tom' || this.value === 'David') {
         this.selected = true;
       }
     });
 
-    select.$().trigger("change");
+    select.$().trigger('change');
 
-    deepEqual(select.get("selection"), [tom, david], "On change, the new options should be selected");
+    deepEqual(select.get('selection'), [tom, david], 'On change, the new options should be selected');
   });
 
-  QUnit.test("selection can be set when multiple=false", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
+  QUnit.test('selection can be set when multiple=false', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom]));
-      select.set("multiple", false);
-      select.set("selection", tom);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom]));
+      select.set('multiple', false);
+      select.set('selection', tom);
     });
 
     append();
 
-    equal(select.get("selection"), tom, "Initial selection should be correct");
+    equal(select.get('selection'), tom, 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", yehuda);
+      select.set('selection', yehuda);
     });
 
-    equal(select.$()[0].selectedIndex, 0, "After changing it, selection should be correct");
+    equal(select.$()[0].selectedIndex, 0, 'After changing it, selection should be correct');
   });
 
-  QUnit.test("selection can be set from a Promise when multiple=false", function () {
+  QUnit.test('selection can be set from a Promise when multiple=false', function () {
     expect(1);
 
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom]));
-      select.set("multiple", false);
-      select.set("selection", Ember.RSVP.Promise.resolve(tom));
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom]));
+      select.set('multiple', false);
+      select.set('selection', _emberMetalCore["default"].RSVP.Promise.resolve(tom));
     });
 
     append();
 
-    equal(select.$()[0].selectedIndex, 1, "Should select from Promise content");
+    equal(select.$()[0].selectedIndex, 1, 'Should select from Promise content');
   });
 
-  QUnit.test("selection from a Promise don't overwrite newer selection once resolved, when multiple=false", function () {
+  QUnit.test('selection from a Promise don\'t overwrite newer selection once resolved, when multiple=false', function () {
     expect(1);
 
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var seb = { id: 3, firstName: "Seb" };
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var seb = { id: 3, firstName: 'Seb' };
 
     QUnit.stop();
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, seb]));
-      select.set("multiple", false);
-      select.set("selection", new Ember.RSVP.Promise(function (resolve, reject) {
-        Ember.run.later(function () {
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, seb]));
+      select.set('multiple', false);
+      select.set('selection', new _emberMetalCore["default"].RSVP.Promise(function (resolve, reject) {
+        _emberMetalCore["default"].run.later(function () {
           _emberMetalRun_loop["default"](function () {
             resolve(tom);
           });
           QUnit.start();
-          equal(select.$()[0].selectedIndex, 2, "Should not select from Promise if newer selection");
+          equal(select.$()[0].selectedIndex, 2, 'Should not select from Promise if newer selection');
         }, 40);
       }));
-      select.set("selection", new Ember.RSVP.Promise(function (resolve, reject) {
-        Ember.run.later(function () {
+      select.set('selection', new _emberMetalCore["default"].RSVP.Promise(function (resolve, reject) {
+        _emberMetalCore["default"].run.later(function () {
           _emberMetalRun_loop["default"](function () {
             resolve(seb);
           });
@@ -52795,131 +52885,131 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
     append();
   });
 
-  QUnit.test("selection from a Promise resolving to null should not select when multiple=false", function () {
+  QUnit.test('selection from a Promise resolving to null should not select when multiple=false', function () {
     expect(1);
 
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom]));
-      select.set("multiple", false);
-      select.set("selection", Ember.RSVP.Promise.resolve(null));
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom]));
+      select.set('multiple', false);
+      select.set('selection', _emberMetalCore["default"].RSVP.Promise.resolve(null));
     });
 
     append();
 
-    equal(select.$()[0].selectedIndex, -1, "Should not select any object when the Promise resolve to null");
+    equal(select.$()[0].selectedIndex, -1, 'Should not select any object when the Promise resolve to null');
   });
 
-  QUnit.test("selection can be set when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('selection can be set when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("multiple", true);
-      select.set("selection", tom);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('multiple', true);
+      select.set('selection', tom);
     });
 
     append();
 
-    deepEqual(select.get("selection"), [tom], "Initial selection should be correct");
+    deepEqual(select.get('selection'), [tom], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", yehuda);
+      select.set('selection', yehuda);
     });
 
-    deepEqual(select.get("selection"), [yehuda], "After changing it, selection should be correct");
+    deepEqual(select.get('selection'), [yehuda], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("selection can be set when multiple=true and prompt", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('selection can be set when multiple=true and prompt', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("multiple", true);
-      select.set("prompt", "Pick one!");
-      select.set("selection", tom);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('multiple', true);
+      select.set('prompt', 'Pick one!');
+      select.set('selection', tom);
     });
 
     append();
 
-    deepEqual(select.get("selection"), [tom], "Initial selection should be correct");
+    deepEqual(select.get('selection'), [tom], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", yehuda);
+      select.set('selection', yehuda);
     });
 
-    deepEqual(select.get("selection"), [yehuda], "After changing it, selection should be correct");
+    deepEqual(select.get('selection'), [yehuda], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("multiple selections can be set when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('multiple selections can be set when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("optionLabelPath", "content.firstName");
-      select.set("multiple", true);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('multiple', true);
 
-      select.set("selection", Ember.A([yehuda, david]));
+      select.set('selection', _emberMetalCore["default"].A([yehuda, david]));
     });
 
     append();
 
-    deepEqual(select.get("selection"), [yehuda, david], "Initial selection should be correct");
+    deepEqual(select.get('selection'), [yehuda, david], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", Ember.A([tom, brennain]));
+      select.set('selection', _emberMetalCore["default"].A([tom, brennain]));
     });
 
-    deepEqual(select.$(":selected").map(function () {
+    deepEqual(select.$(':selected').map(function () {
       return trim(_emberViewsSystemJquery["default"](this).text());
-    }).toArray(), ["Tom", "Brennain"], "After changing it, selection should be correct");
+    }).toArray(), ['Tom', 'Brennain'], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("multiple selections can be set by changing in place the selection array when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
-    var selection = Ember.A([yehuda, tom]);
+  QUnit.test('multiple selections can be set by changing in place the selection array when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
+    var selection = _emberMetalCore["default"].A([yehuda, tom]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("optionLabelPath", "content.firstName");
-      select.set("multiple", true);
-      select.set("selection", selection);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('multiple', true);
+      select.set('selection', selection);
     });
 
     append();
 
-    deepEqual(select.get("selection"), [yehuda, tom], "Initial selection should be correct");
+    deepEqual(select.get('selection'), [yehuda, tom], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      selection.replace(0, selection.get("length"), Ember.A([david, brennain]));
+      selection.replace(0, selection.get('length'), _emberMetalCore["default"].A([david, brennain]));
     });
 
-    deepEqual(select.$(":selected").map(function () {
+    deepEqual(select.$(':selected').map(function () {
       return trim(_emberViewsSystemJquery["default"](this).text());
-    }).toArray(), ["David", "Brennain"], "After updating the selection array in-place, selection should be correct");
+    }).toArray(), ['David', 'Brennain'], 'After updating the selection array in-place, selection should be correct');
   });
 
-  QUnit.test("multiple selections can be set indirectly via bindings and in-place when multiple=true (issue #1058)", function () {
+  QUnit.test('multiple selections can be set indirectly via bindings and in-place when multiple=true (issue #1058)', function () {
     var indirectContent = _emberRuntimeSystemObject["default"].create();
 
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
-    var cyril = { id: 5, firstName: "Cyril" };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
+    var cyril = { id: 5, firstName: 'Cyril' };
 
     _emberMetalRun_loop["default"](function () {
       select.destroy(); // Destroy the existing select
@@ -52927,292 +53017,292 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
       _emberMetalRun_loop["default"](function () {
         select = _emberViewsViewsSelect["default"].extend({
           indirectContent: indirectContent,
-          contentBinding: "indirectContent.controller.content",
-          selectionBinding: "indirectContent.controller.selection",
+          contentBinding: 'indirectContent.controller.content',
+          selectionBinding: 'indirectContent.controller.selection',
           multiple: true,
-          optionLabelPath: "content.firstName"
+          optionLabelPath: 'content.firstName'
         }).create();
 
-        indirectContent.set("controller", _emberRuntimeSystemObject["default"].create({
-          content: Ember.A([tom, david, brennain]),
-          selection: Ember.A([david])
+        indirectContent.set('controller', _emberRuntimeSystemObject["default"].create({
+          content: _emberMetalCore["default"].A([tom, david, brennain]),
+          selection: _emberMetalCore["default"].A([david])
         }));
       });
 
       append();
     });
 
-    deepEqual(select.get("content"), [tom, david, brennain], "Initial content should be correct");
-    deepEqual(select.get("selection"), [david], "Initial selection should be correct");
+    deepEqual(select.get('content'), [tom, david, brennain], 'Initial content should be correct');
+    deepEqual(select.get('selection'), [david], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      indirectContent.set("controller.content", Ember.A([david, cyril]));
-      indirectContent.set("controller.selection", Ember.A([cyril]));
+      indirectContent.set('controller.content', _emberMetalCore["default"].A([david, cyril]));
+      indirectContent.set('controller.selection', _emberMetalCore["default"].A([cyril]));
     });
 
-    deepEqual(select.get("content"), [david, cyril], "After updating bound content, content should be correct");
-    deepEqual(select.get("selection"), [cyril], "After updating bound selection, selection should be correct");
+    deepEqual(select.get('content'), [david, cyril], 'After updating bound content, content should be correct');
+    deepEqual(select.get('selection'), [cyril], 'After updating bound selection, selection should be correct');
   });
 
-  QUnit.test("select with group can group options", function () {
-    var content = Ember.A([{ firstName: "Yehuda", organization: "Tilde" }, { firstName: "Tom", organization: "Tilde" }, { firstName: "Keith", organization: "Envato" }]);
+  QUnit.test('select with group can group options', function () {
+    var content = _emberMetalCore["default"].A([{ firstName: 'Yehuda', organization: 'Tilde' }, { firstName: 'Tom', organization: 'Tilde' }, { firstName: 'Keith', organization: 'Envato' }]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionLabelPath", "content.firstName");
+      select.set('content', content);
+      select.set('optionGroupPath', 'organization');
+      select.set('optionLabelPath', 'content.firstName');
     });
 
     append();
 
-    equal(select.$("optgroup").length, 2);
+    equal(select.$('optgroup').length, 2);
 
     var labels = [];
-    select.$("optgroup").each(function () {
+    select.$('optgroup').each(function () {
       labels.push(this.label);
     });
-    equal(labels.join(""), ["TildeEnvato"]);
+    equal(labels.join(''), ['TildeEnvato']);
 
-    equal(trim(select.$("optgroup").first().text()), "YehudaTom");
-    equal(trim(select.$("optgroup").last().text()), "Keith");
+    equal(trim(select.$('optgroup').first().text()), 'YehudaTom');
+    equal(trim(select.$('optgroup').last().text()), 'Keith');
   });
 
-  QUnit.test("select with group doesn't break options", function () {
-    var content = Ember.A([{ id: 1, firstName: "Yehuda", organization: "Tilde" }, { id: 2, firstName: "Tom", organization: "Tilde" }, { id: 3, firstName: "Keith", organization: "Envato" }]);
+  QUnit.test('select with group doesn\'t break options', function () {
+    var content = _emberMetalCore["default"].A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionLabelPath", "content.firstName");
-      select.set("optionValuePath", "content.id");
+      select.set('content', content);
+      select.set('optionGroupPath', 'organization');
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('optionValuePath', 'content.id');
     });
 
     append();
 
-    equal(select.$("option").length, 3);
-    equal(trim(select.$().text()), "YehudaTomKeith");
+    equal(select.$('option').length, 3);
+    equal(trim(select.$().text()), 'YehudaTomKeith');
 
     _emberMetalRun_loop["default"](function () {
-      content.set("firstObject.firstName", "Peter");
+      content.set('firstObject.firstName', 'Peter');
     });
-    equal(select.$().text(), "PeterTomKeith\n");
+    equal(select.$().text(), 'PeterTomKeith\n');
 
-    select.$("option").get(0).selected = true;
-    select.$().trigger("change");
-    deepEqual(select.get("selection"), content.get("firstObject"));
+    select.$('option').get(0).selected = true;
+    select.$().trigger('change');
+    deepEqual(select.get('selection'), content.get('firstObject'));
   });
 
-  QUnit.test("select with group works for initial value", function () {
-    var content = Ember.A([{ id: 1, firstName: "Yehuda", organization: "Tilde" }, { id: 2, firstName: "Tom", organization: "Tilde" }, { id: 3, firstName: "Keith", organization: "Envato" }]);
+  QUnit.test('select with group works for initial value', function () {
+    var content = _emberMetalCore["default"].A([{ id: 1, firstName: 'Yehuda', organization: 'Tilde' }, { id: 2, firstName: 'Tom', organization: 'Tilde' }, { id: 3, firstName: 'Keith', organization: 'Envato' }]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionValuePath", "content.id");
-      select.set("value", 2);
+      select.set('content', content);
+      select.set('optionGroupPath', 'organization');
+      select.set('optionValuePath', 'content.id');
+      select.set('value', 2);
     });
 
     append();
 
-    equal(select.$().val(), 2, "Initial value is set properly");
+    equal(select.$().val(), 2, 'Initial value is set properly');
   });
 
-  QUnit.test("select with group observes its content", function () {
-    var wycats = { firstName: "Yehuda", organization: "Tilde" };
-    var content = Ember.A([wycats]);
+  QUnit.test('select with group observes its content', function () {
+    var wycats = { firstName: 'Yehuda', organization: 'Tilde' };
+    var content = _emberMetalCore["default"].A([wycats]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionLabelPath", "content.firstName");
+      select.set('content', content);
+      select.set('optionGroupPath', 'organization');
+      select.set('optionLabelPath', 'content.firstName');
     });
 
     append();
 
     _emberMetalRun_loop["default"](function () {
-      content.pushObject({ firstName: "Keith", organization: "Envato" });
+      content.pushObject({ firstName: 'Keith', organization: 'Envato' });
     });
 
-    equal(select.$("optgroup").length, 2);
-    equal(select.$("optgroup[label=Envato]").length, 1);
+    equal(select.$('optgroup').length, 2);
+    equal(select.$('optgroup[label=Envato]').length, 1);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("optionGroupPath", "firstName");
+      select.set('optionGroupPath', 'firstName');
     });
     var labels = [];
-    select.$("optgroup").each(function () {
+    select.$('optgroup').each(function () {
       labels.push(this.label);
     });
-    equal(labels.join(""), "YehudaKeith");
+    equal(labels.join(''), 'YehudaKeith');
   });
 
-  QUnit.test("select with group whose content is undefined doesn't breaks", function () {
+  QUnit.test('select with group whose content is undefined doesn\'t breaks', function () {
 
     var content;
     _emberMetalRun_loop["default"](function () {
-      select.set("content", content);
-      select.set("optionGroupPath", "organization");
-      select.set("optionLabelPath", "content.firstName");
+      select.set('content', content);
+      select.set('optionGroupPath', 'organization');
+      select.set('optionLabelPath', 'content.firstName');
     });
 
     append();
 
-    equal(select.$("optgroup").length, 0);
+    equal(select.$('optgroup').length, 0);
   });
 
-  QUnit.test("selection uses the same array when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
-    var selection = Ember.A([yehuda, david]);
+  QUnit.test('selection uses the same array when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
+    var selection = _emberMetalCore["default"].A([yehuda, david]);
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("multiple", true);
-      select.set("optionLabelPath", "content.firstName");
-      select.set("selection", selection);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('multiple', true);
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('selection', selection);
     });
 
     append();
 
-    deepEqual(select.get("selection"), [yehuda, david], "Initial selection should be correct");
+    deepEqual(select.get('selection'), [yehuda, david], 'Initial selection should be correct');
 
-    select.$("option").each(function () {
+    select.$('option').each(function () {
       this.selected = false;
     });
-    select.$(":contains(\"Tom\"), :contains(\"David\")").each(function () {
+    select.$(':contains("Tom"), :contains("David")').each(function () {
       this.selected = true;
     });
 
-    select.$().trigger("change");
+    select.$().trigger('change');
 
-    deepEqual(select.get("selection"), [tom, david], "On change the selection is updated");
-    deepEqual(selection, [tom, david], "On change the original selection array is updated");
+    deepEqual(select.get('selection'), [tom, david], 'On change the selection is updated');
+    deepEqual(selection, [tom, david], 'On change the original selection array is updated');
   });
 
-  QUnit.test("Ember.SelectedOption knows when it is selected when multiple=false", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('Ember.SelectedOption knows when it is selected when multiple=false', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("multiple", false);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('multiple', false);
 
-      select.set("selection", david);
+      select.set('selection', david);
     });
 
     append();
 
-    deepEqual(selectedOptions(), [false, false, true, false], "Initial selection should be correct");
+    deepEqual(selectedOptions(), [false, false, true, false], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", brennain);
+      select.set('selection', brennain);
     });
 
-    deepEqual(selectedOptions(), [false, false, false, true], "After changing it, selection should be correct");
+    deepEqual(selectedOptions(), [false, false, false, true], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("Ember.SelectedOption knows when it is selected when multiple=true", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
-    var david = { id: 3, firstName: "David" };
-    var brennain = { id: 4, firstName: "Brennain" };
+  QUnit.test('Ember.SelectedOption knows when it is selected when multiple=true', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
+    var david = { id: 3, firstName: 'David' };
+    var brennain = { id: 4, firstName: 'Brennain' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom, david, brennain]));
-      select.set("multiple", true);
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom, david, brennain]));
+      select.set('multiple', true);
 
-      select.set("selection", [yehuda, david]);
+      select.set('selection', [yehuda, david]);
     });
 
     append();
 
-    deepEqual(selectedOptions(), [true, false, true, false], "Initial selection should be correct");
+    deepEqual(selectedOptions(), [true, false, true, false], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", [tom, david]);
+      select.set('selection', [tom, david]);
     });
 
-    deepEqual(selectedOptions(), [false, true, true, false], "After changing it, selection should be correct");
+    deepEqual(selectedOptions(), [false, true, true, false], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("Ember.SelectedOption knows when it is selected when multiple=true and options are primitives", function () {
+  QUnit.test('Ember.SelectedOption knows when it is selected when multiple=true and options are primitives', function () {
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([1, 2, 3, 4]));
-      select.set("multiple", true);
-      select.set("selection", [1, 3]);
+      select.set('content', _emberMetalCore["default"].A([1, 2, 3, 4]));
+      select.set('multiple', true);
+      select.set('selection', [1, 3]);
     });
 
     append();
 
-    deepEqual(selectedOptions(), [true, false, true, false], "Initial selection should be correct");
+    deepEqual(selectedOptions(), [true, false, true, false], 'Initial selection should be correct');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", [2, 3]);
+      select.set('selection', [2, 3]);
     });
 
-    deepEqual(selectedOptions(), [false, true, true, false], "After changing it, selection should be correct");
+    deepEqual(selectedOptions(), [false, true, true, false], 'After changing it, selection should be correct');
   });
 
-  QUnit.test("a prompt can be specified", function () {
-    var yehuda = { id: 1, firstName: "Yehuda" };
-    var tom = { id: 2, firstName: "Tom" };
+  QUnit.test('a prompt can be specified', function () {
+    var yehuda = { id: 1, firstName: 'Yehuda' };
+    var tom = { id: 2, firstName: 'Tom' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([yehuda, tom]));
-      select.set("prompt", "Pick a person");
-      select.set("optionLabelPath", "content.firstName");
-      select.set("optionValuePath", "content.id");
+      select.set('content', _emberMetalCore["default"].A([yehuda, tom]));
+      select.set('prompt', 'Pick a person');
+      select.set('optionLabelPath', 'content.firstName');
+      select.set('optionValuePath', 'content.id');
     });
 
     append();
 
-    equal(select.$("option").length, 3, "There should be three options");
-    equal(select.$()[0].selectedIndex, 0, "By default, the prompt is selected in the DOM");
-    equal(trim(select.$("option:selected").text()), "Pick a person", "By default, the prompt is selected in the DOM");
-    equal(select.$().val(), "", "By default, the prompt has no value");
+    equal(select.$('option').length, 3, 'There should be three options');
+    equal(select.$()[0].selectedIndex, 0, 'By default, the prompt is selected in the DOM');
+    equal(trim(select.$('option:selected').text()), 'Pick a person', 'By default, the prompt is selected in the DOM');
+    equal(select.$().val(), '', 'By default, the prompt has no value');
 
-    equal(select.get("selection"), null, "When the prompt is selected, the selection should be null");
+    equal(select.get('selection'), null, 'When the prompt is selected, the selection should be null');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("selection", tom);
+      select.set('selection', tom);
     });
 
-    equal(select.$()[0].selectedIndex, 2, "The selectedIndex accounts for the prompt");
+    equal(select.$()[0].selectedIndex, 2, 'The selectedIndex accounts for the prompt');
 
     select.$()[0].selectedIndex = 0;
-    select.$().trigger("change");
+    select.$().trigger('change');
 
-    equal(select.get("selection"), null, "When the prompt is selected again after another option, the selection should be null");
+    equal(select.get('selection'), null, 'When the prompt is selected again after another option, the selection should be null');
 
     select.$()[0].selectedIndex = 2;
-    select.$().trigger("change");
-    equal(select.get("selection"), tom, "Properly accounts for the prompt when DOM change occurs");
+    select.$().trigger('change');
+    equal(select.get('selection'), tom, 'Properly accounts for the prompt when DOM change occurs');
   });
 
-  QUnit.test("handles null content", function () {
+  QUnit.test('handles null content', function () {
     append();
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", null);
-      select.set("selection", "invalid");
-      select.set("value", "also_invalid");
+      select.set('content', null);
+      select.set('selection', 'invalid');
+      select.set('value', 'also_invalid');
     });
 
-    equal(select.get("element").selectedIndex, -1, "should have no selection");
+    equal(select.get('element').selectedIndex, -1, 'should have no selection');
 
     _emberMetalRun_loop["default"](function () {
-      select.set("multiple", true);
-      select.set("selection", [{ content: "invalid" }]);
+      select.set('multiple', true);
+      select.set('selection', [{ content: 'invalid' }]);
     });
 
-    equal(select.get("element").selectedIndex, -1, "should have no selection");
+    equal(select.get('element').selectedIndex, -1, 'should have no selection');
   });
 
-  QUnit.test("valueBinding handles 0 as initiated value (issue #2763)", function () {
+  QUnit.test('valueBinding handles 0 as initiated value (issue #2763)', function () {
     var indirectData = _emberRuntimeSystemObject["default"].create({
       value: 0
     });
@@ -53221,64 +53311,82 @@ enifed("ember-views/tests/views/select_test", ["exports", "ember-views/views/sel
       select.destroy(); // Destroy the existing select
 
       select = _emberViewsViewsSelect["default"].extend({
-        content: Ember.A([1, 0]),
+        content: _emberMetalCore["default"].A([1, 0]),
         indirectData: indirectData,
-        valueBinding: "indirectData.value"
+        valueBinding: 'indirectData.value'
       }).create();
 
       // append();
       _emberMetalRun_loop["default"](function () {
-        select.appendTo("#qunit-fixture");
+        select.appendTo('#qunit-fixture');
       });
     });
 
-    equal(select.get("value"), 0, "Value property should equal 0");
+    equal(select.get('value'), 0, 'Value property should equal 0');
   });
 
-  QUnit.test("should be able to select an option and then reselect the prompt", function () {
+  QUnit.test('should be able to select an option and then reselect the prompt', function () {
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A(["one", "two", "three"]));
-      select.set("prompt", "Select something");
+      select.set('content', _emberMetalCore["default"].A(['one', 'two', 'three']));
+      select.set('prompt', 'Select something');
     });
 
     append();
 
     select.$()[0].selectedIndex = 2;
-    select.$().trigger("change");
-    equal(select.get("selection"), "two");
+    select.$().trigger('change');
+    equal(select.get('selection'), 'two');
 
     select.$()[0].selectedIndex = 0;
-    select.$().trigger("change");
-    equal(select.get("selection"), null);
+    select.$().trigger('change');
+    equal(select.get('selection'), null);
     equal(select.$()[0].selectedIndex, 0);
   });
 
-  QUnit.test("should be able to get the current selection's value", function () {
+  QUnit.test('should be able to get the current selection\'s value', function () {
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([{ label: "Yehuda Katz", value: "wycats" }, { label: "Tom Dale", value: "tomdale" }, { label: "Peter Wagenet", value: "wagenet" }, { label: "Erik Bryn", value: "ebryn" }]));
-      select.set("optionLabelPath", "content.label");
-      select.set("optionValuePath", "content.value");
+      select.set('content', _emberMetalCore["default"].A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, { label: 'Erik Bryn', value: 'ebryn' }]));
+      select.set('optionLabelPath', 'content.label');
+      select.set('optionValuePath', 'content.value');
     });
 
     append();
 
-    equal(select.get("value"), "wycats");
+    equal(select.get('value'), 'wycats');
   });
 
-  QUnit.test("should be able to set the current selection by value", function () {
-    var ebryn = { label: "Erik Bryn", value: "ebryn" };
+  QUnit.test('should be able to set the current selection by value', function () {
+    var ebryn = { label: 'Erik Bryn', value: 'ebryn' };
 
     _emberMetalRun_loop["default"](function () {
-      select.set("content", Ember.A([{ label: "Yehuda Katz", value: "wycats" }, { label: "Tom Dale", value: "tomdale" }, { label: "Peter Wagenet", value: "wagenet" }, ebryn]));
-      select.set("optionLabelPath", "content.label");
-      select.set("optionValuePath", "content.value");
-      select.set("value", "ebryn");
+      select.set('content', _emberMetalCore["default"].A([{ label: 'Yehuda Katz', value: 'wycats' }, { label: 'Tom Dale', value: 'tomdale' }, { label: 'Peter Wagenet', value: 'wagenet' }, ebryn]));
+      select.set('optionLabelPath', 'content.label');
+      select.set('optionValuePath', 'content.value');
+      select.set('value', 'ebryn');
     });
 
     append();
 
-    equal(select.get("value"), "ebryn");
-    equal(select.get("selection"), ebryn);
+    equal(select.get('value'), 'ebryn');
+    equal(select.get('selection'), ebryn);
+  });
+
+  QUnit.module('DeprecatedSelect');
+
+  QUnit.test('calling reopen on DeprecatedSelect delegates to Select', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsSelect["default"].reopen;
+    var obj = {};
+
+    _emberViewsViewsSelect["default"].reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsSelect.DeprecatedSelect.reopen(obj);
+    }, /Ember.Select is deprecated./);
+
+    _emberViewsViewsSelect["default"].reopen = originalReopen;
   });
 });
 enifed("ember-views/tests/views/text_area_test", ["exports", "ember-runtime/system/object", "ember-metal/array", "ember-metal/run_loop", "ember-views/views/text_area", "ember-metal/property_get", "ember-metal/property_set"], function (exports, _emberRuntimeSystemObject, _emberMetalArray, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
@@ -57792,7 +57900,7 @@ enifed("ember-views/tests/views/view_test", ["exports", "ember-metal/computed", 
       template: _emberTemplateCompiler.compile("{{view view.childView childProp=view.parentProp}}"),
       childView: _emberViewsViewsView["default"].extend({
         template: _emberTemplateCompiler.compile("child template"),
-        childProp: Ember.computed("dependencyProp", {
+        childProp: _emberMetalComputed.computed("dependencyProp", {
           get: function (key) {
             return this.get("dependencyProp");
           },
@@ -57814,6 +57922,24 @@ enifed("ember-views/tests/views/view_test", ["exports", "ember-metal/computed", 
     });
     equal(childView.get("childProp"), "new-value", "pre-cond - new value is propagated to CP");
     equal(view.get("parentProp"), "new-value", "new value is propagated across template");
+  });
+
+  QUnit.module("DeprecatedView");
+
+  QUnit.test("calling reopen on DeprecatedView delegates to View", function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsView["default"].reopen;
+    var obj = {};
+
+    _emberViewsViewsView["default"].reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsView.DeprecatedView.reopen(obj);
+    }, /Ember.View is deprecated./);
+
+    _emberViewsViewsView["default"].reopen = originalReopen;
   });
 });
 enifed("ember/tests/application_lifecycle", ["exports", "ember"], function (exports, _ember) {
