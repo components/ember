@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+eeae38e9
+ * @version   2.0.0-canary+e09c61a7
  */
 
 (function() {
@@ -42330,7 +42330,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+eeae38e9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e09c61a7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -58742,7 +58742,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
   });
 
-  QUnit.test('handle routes names that clash with Object.prototype properties', function () {
+  QUnit.test('handle routes names that class with Object.prototype properties', function () {
     expect(1);
 
     Router.map(function () {
