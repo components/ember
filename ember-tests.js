@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+eeae38e9
+ * @version   2.0.0-canary+e927f3b7
  */
 
 (function() {
@@ -42492,7 +42492,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+eeae38e9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e927f3b7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -47028,6 +47028,24 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     equal(view.element.tagName, 'TABLE', 'container view is table');
     equal(view.element.childNodes[2].tagName, 'TR', 'inner view is tr');
   });
+
+  QUnit.module('DeprecatedContainerView');
+
+  QUnit.test('calling reopen on DeprecatedContainerView delegates to ContainerView', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsContainer_view.default.reopen;
+    var obj = {};
+
+    _emberViewsViewsContainer_view.default.reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsContainer_view.DeprecatedContainerView.reopen(obj);
+    }, /Ember.ContainerView is deprecated./);
+
+    _emberViewsViewsContainer_view.default.reopen = originalReopen;
+  });
 });
 enifed('ember-views/tests/views/instrumentation_test', ['exports', 'ember-metal/instrumentation', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _emberMetalInstrumentation, _emberMetalRun_loop, _emberViewsViewsView) {
 
@@ -47862,6 +47880,24 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'e
 
     equal(select.get('value'), 'ebryn');
     equal(select.get('selection'), ebryn);
+  });
+
+  QUnit.module('DeprecatedSelect');
+
+  QUnit.test('calling reopen on DeprecatedSelect delegates to Select', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsSelect.default.reopen;
+    var obj = {};
+
+    _emberViewsViewsSelect.default.reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsSelect.DeprecatedSelect.reopen(obj);
+    }, /Ember.Select is deprecated./);
+
+    _emberViewsViewsSelect.default.reopen = originalReopen;
   });
 });
 enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
@@ -52417,6 +52453,24 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'emb
     });
     equal(childView.get('childProp'), 'new-value', 'pre-cond - new value is propagated to CP');
     equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
+  });
+
+  QUnit.module('DeprecatedView');
+
+  QUnit.test('calling reopen on DeprecatedView delegates to View', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsView.default.reopen;
+    var obj = {};
+
+    _emberViewsViewsView.default.reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsView.DeprecatedView.reopen(obj);
+    }, /Ember.View is deprecated./);
+
+    _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
 enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/core'], function (exports, _ember, _emberMetalCore) {
