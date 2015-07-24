@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+708d3356
+ * @version   2.0.0-canary+82b123c6
  */
 
 (function() {
@@ -42417,7 +42417,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+708d3356', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+82b123c6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -58827,6 +58827,29 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
     expectAssertion(function () {
       bootApplication();
     }, 'You passed in `[{"commitBy":{"replace":true}}]` as the value for `queryParams` but `queryParams` cannot be an Array');
+  });
+
+  QUnit.test('handle routes names that class with Object.prototype properties', function () {
+    expect(1);
+
+    Router.map(function () {
+      this.route('constructor');
+    });
+
+    App.ConstructorRoute = _emberMetalCore.default.Route.extend({
+      queryParams: {
+        foo: {
+          defaultValue: '123'
+        }
+      }
+    });
+
+    bootApplication();
+
+    _emberMetalCore.default.run(router, 'transitionTo', 'constructor', { queryParams: { foo: '999' } });
+
+    var controller = container.lookup('controller:constructor');
+    equal(get(controller, 'foo'), '999');
   });
 });
 enifed('ember/tests/routing/query_params_test/model_dependent_state_with_query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/compat'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsCompat) {
