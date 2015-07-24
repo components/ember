@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3
+ * @version   2.0.0-beta.3+0af6dc64
  */
 
 (function() {
@@ -1197,7 +1197,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/sys
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked);
+        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
@@ -1579,6 +1579,13 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         this.helperContainer = window;
       }
 
+      this.reopen({
+        willDestroy: function () {
+          this._super.apply(this, arguments);
+          this.removeTestHelpers();
+        }
+      });
+
       this.testHelpers = {};
       for (var name in helpers) {
         this.originalMethods[name] = this.helperContainer[name];
@@ -1608,6 +1615,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
       for (var name in helpers) {
         this.helperContainer[name] = this.originalMethods[name];
+        delete Test.Promise.prototype[name];
         delete this.testHelpers[name];
         delete this.originalMethods[name];
       }

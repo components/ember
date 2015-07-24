@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3
+ * @version   2.0.0-beta.3+0af6dc64
  */
 
 (function() {
@@ -1144,10 +1144,6 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
 });
 enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDictionary) {
 
-  // TODO - Temporary workaround for v0.4.0 of the ES6 transpiler, which lacks support for circular dependencies.
-  // See the below usage of requireModule. Instead, it should be possible to simply `import Registry from './registry';`
-  var Registry;
-
   /**
    A container used to instantiate and cache objects.
   
@@ -1162,17 +1158,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
    @class Container
    */
   function Container(registry, options) {
-    this._registry = registry || (function () {
-      _emberMetalCore.default.deprecate('A container should only be created for an already instantiated registry. For backward compatibility, an isolated registry will be instantiated just for this container.');
-
-      // TODO - See note above about transpiler import workaround.
-      if (!Registry) {
-        Registry = requireModule('container/registry')['default'];
-      }
-
-      return new Registry();
-    })();
-
+    this._registry = registry;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
@@ -1181,7 +1167,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   Container.prototype = {
     /**
      @private
-      @property _registry
+     @property _registry
      @type Registry
      @since 1.11.0
      */
@@ -1189,7 +1175,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
 
     /**
      @private
-      @property cache
+     @property cache
      @type InheritingDict
      */
     cache: null,
@@ -1286,21 +1272,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       }
     }
   };
-
-  (function exposeRegistryMethods() {
-    var methods = ['register', 'unregister', 'resolve', 'normalize', 'typeInjection', 'injection', 'factoryInjection', 'factoryTypeInjection', 'has', 'options', 'optionsForType'];
-
-    function exposeRegistryMethod(method) {
-      Container.prototype[method] = function () {
-        _emberMetalCore.default.deprecate(method + ' should be called on the registry instead of the container');
-        return this._registry[method].apply(this._registry, arguments);
-      };
-    }
-
-    for (var i = 0, l = methods.length; i < l; i++) {
-      exposeRegistryMethod(methods[i]);
-    }
-  })();
 
   function lookup(container, fullName, options) {
     options = options || {};
@@ -1489,13 +1460,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalDictionary, _emberMetalMerge, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalMerge, _container) {
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
-
-  var instanceInitializersFeatureEnabled;
-
-  instanceInitializersFeatureEnabled = true;
 
   /**
    A registry used to store factory and option information keyed
@@ -1611,16 +1578,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
     _typeOptions: null,
 
     /**
-     The first container created for this registry.
-      This allows deprecated access to `lookup` and `lookupFactory` to avoid
-     breaking compatibility for Ember 1.x initializers.
-      @private
-     @property _defaultContainer
-     @type Container
-     */
-    _defaultContainer: null,
-
-    /**
      Creates a container based on this registry.
       @private
      @method container
@@ -1628,50 +1585,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
      @return {Container} created container
      */
     container: function (options) {
-      var container = new _container.default(this, options);
-
-      // 2.0TODO - remove `registerContainer`
-      this.registerContainer(container);
-
-      return container;
-    },
-
-    /**
-     Register the first container created for a registery to allow deprecated
-     access to its `lookup` and `lookupFactory` methods to avoid breaking
-     compatibility for Ember 1.x initializers.
-      2.0TODO: Remove this method. The bookkeeping is only needed to support
-              deprecated behavior.
-      @private
-     @param {Container} newly created container
-     */
-    registerContainer: function (container) {
-      if (!this._defaultContainer) {
-        this._defaultContainer = container;
-      }
-      if (this.fallback) {
-        this.fallback.registerContainer(container);
-      }
-    },
-
-    lookup: function (fullName, options) {
-      _emberMetalCore.default.assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
-
-      if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore.default.deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
-      }
-
-      return this._defaultContainer.lookup(fullName, options);
-    },
-
-    lookupFactory: function (fullName) {
-      _emberMetalCore.default.assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
-
-      if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore.default.deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: 'http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers' });
-      }
-
-      return this._defaultContainer.lookupFactory(fullName);
+      return new _container.default(this, options);
     },
 
     /**
@@ -1896,11 +1810,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/featur
       } else if (this.fallback) {
         return this.fallback.getOption(fullName, optionName);
       }
-    },
-
-    option: function (fullName, optionName) {
-      _emberMetalCore.default.deprecate('`Registry.option()` has been deprecated. Call `Registry.getOption()` instead.');
-      return this.getOption(fullName, optionName);
     },
 
     /**
@@ -3384,8 +3293,7 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
     return tag && tag[propName.toLowerCase()] || false;
   }
 });
-enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/ext/controller'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationExtController) {
-  // side effect of extending ControllerMixin
+enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication) {
 
   _emberMetalCore.default.Application = _emberApplicationSystemApplication.default;
   _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.Resolver;
@@ -3398,35 +3306,6 @@ enifed('ember-application', ['exports', 'ember-metal/core', 'ember-runtime/syste
 @module ember
 @submodule ember-application
 */
-enifed('ember-application/ext/controller', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/mixins/controller', 'ember-routing/system/controller_for'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeMixinsController, _emberRoutingSystemController_for) {
-
-  /**
-    @class ControllerMixin
-    @namespace Ember
-    @public
-  */
-  _emberRuntimeMixinsController.default.reopen({
-    /**
-      @method controllerFor
-      @see {Ember.Route#controllerFor}
-      @deprecated Use `Ember.inject.controller()` instead.
-      @public
-    */
-    controllerFor: function (controllerName) {
-      _emberMetalCore.default.deprecate('Controller#controllerFor is deprecated, please use Ember.inject.controller() instead');
-      return _emberRoutingSystemController_for.default(_emberMetalProperty_get.get(this, 'container'), controllerName);
-    }
-  });
-
-  exports.default = _emberRuntimeMixinsController.default;
-});
-/**
-@module ember
-@submodule ember-application
-@public
-*/
-
-// Ember.assert
 enifed('ember-application/system/application-instance', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-metal/computed', 'container/registry'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberMetalComputed, _containerRegistry) {
 
   /**
@@ -4075,18 +3954,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Calling initialize manually is not supported.
-       Please see Ember.Application#advanceReadiness and
-      Ember.Application#deferReadiness.
-       @private
-      @deprecated
-      @method initialize
-     **/
-    initialize: function () {
-      _emberMetal.default.deprecate('Calling initialize manually is not supported. Please see Ember.Application#advanceReadiness and Ember.Application#deferReadiness');
-    },
-
-    /**
       Initialize the application. This happens automatically.
        Run any initializers and run the application load hook. These hooks may
       choose to defer readiness. For example, an authentication hook might want
@@ -4192,13 +4059,20 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     /**
       @private
+      @method instanceInitializer
+    */
+    instanceInitializer: function (options) {
+      this.constructor.instanceInitializer(options);
+    },
+
+    /**
+      @private
       @method runInitializers
     */
     runInitializers: function (registry) {
       var App = this;
       this._runInitializer('initializers', function (name, initializer) {
         _emberMetal.default.assert('No application initializer named \'' + name + '\'', !!initializer);
-
         initializer.initialize(registry, App);
       });
     },
@@ -4282,6 +4156,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       this._bootPromise = null;
       this._bootResolver = null;
 
+      if (_emberRuntimeSystemLazy_load._loaded.application === this) {
+        _emberRuntimeSystemLazy_load._loaded.application = undefined;
+      }
+
       if (this.__deprecatedInstance__) {
         this.__deprecatedInstance__.destroy();
       }
@@ -4289,12 +4167,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     initializer: function (options) {
       this.constructor.initializer(options);
-    }
-  });
-
-  Application.reopen({
-    instanceInitializer: function (options) {
-      this.constructor.instanceInitializer(options);
     }
   });
 
@@ -4520,9 +4392,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     @return {*} the resolved value for a given lookup
   */
   function resolverFor(namespace) {
-    _emberMetal.default.deprecate('Application.resolver is deprecated in favor of Application.Resolver', !namespace.get('resolver'));
-
-    var ResolverClass = namespace.get('resolver') || namespace.get('Resolver') || _emberApplicationSystemResolver.default;
+    var ResolverClass = namespace.get('Resolver') || _emberApplicationSystemResolver.default;
     var resolver = ResolverClass.create({
       namespace: namespace
     });
@@ -4542,9 +4412,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     resolve.normalize = function (fullName) {
       if (resolver.normalize) {
         return resolver.normalize(fullName);
-      } else {
-        _emberMetal.default.deprecate('The Resolver should now provide a \'normalize\' function', false);
-        return fullName;
       }
     };
 
@@ -4907,12 +4774,12 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
     resolveTemplate: function (parsedName) {
       var templateName = parsedName.fullNameWithoutType.replace(/\./g, '/');
 
-      if (_emberMetalCore.default.TEMPLATES[templateName]) {
+      if (_emberMetalCore.default.TEMPLATES.hasOwnProperty(templateName)) {
         return _emberMetalCore.default.TEMPLATES[templateName];
       }
 
       templateName = _emberRuntimeSystemString.decamelize(templateName);
-      if (_emberMetalCore.default.TEMPLATES[templateName]) {
+      if (_emberMetalCore.default.TEMPLATES.hasOwnProperty(templateName)) {
         return _emberMetalCore.default.TEMPLATES[templateName];
       }
     },
@@ -5103,7 +4970,7 @@ enifed('ember-application/utils/validate-type', ['exports', 'ember-metal/core'],
     var expectedType = validationAttributes[2];
 
     if (action === 'deprecate') {
-      _emberMetalCore.default.deprecate('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), resolvedType[factoryFlag]);
+      _emberMetalCore.default.deprecate('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), resolvedType[factoryFlag], { id: 'ember-application.validate-type', until: '3.0.0' });
     } else {
       _emberMetalCore.default.assert('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), function () {
         return resolvedType[factoryFlag];
@@ -6244,10 +6111,7 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
 
       fnResult = fn.apply(this, args);
 
-      if (options.element) {
-        _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.');
-        applyAttributes(env.dom, options.element, fnResult);
-      } else if (!options.template.yield) {
+      if (!options.template.yield) {
         return fnResult;
       }
     };
@@ -6291,17 +6155,6 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
       var boundFn = _emberHtmlbarsCompatMakeBoundHelper.default.apply(this, boundHelperArgs);
 
       _emberHtmlbarsHelpers.default[name] = boundFn;
-    }
-  }
-
-  function applyAttributes(dom, element, innerString) {
-    var string = '<' + element.tagName + ' ' + innerString + '></div>';
-    var fragment = dom.parseHTML(string, dom.createElement(element.tagName));
-
-    var attrs = fragment.firstChild.attributes;
-
-    for (var i = 0, l = attrs.length; i < l; i++) {
-      element.setAttributeNode(attrs[i].cloneNode());
     }
   }
 
@@ -6507,7 +6360,7 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
 @module ember
 @submodule ember-htmlbars
 */
-enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/real_outlet', 'ember-htmlbars/keywords/customized_outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/template', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalMerge, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsReal_outlet, _emberHtmlbarsKeywordsCustomized_outlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsTemplate, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
+enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalMerge, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
 
   var emberHooks = _emberMetalMerge.default({}, _htmlbarsRuntime.hooks);
   emberHooks.keywords = _emberHtmlbarsKeywords.default;
@@ -6542,12 +6395,9 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 
   _emberHtmlbarsKeywords.registerKeyword('debugger', _emberHtmlbarsKeywordsDebugger.default);
   _emberHtmlbarsKeywords.registerKeyword('with', _emberHtmlbarsKeywordsWith.default);
   _emberHtmlbarsKeywords.registerKeyword('outlet', _emberHtmlbarsKeywordsOutlet.default);
-  _emberHtmlbarsKeywords.registerKeyword('@real_outlet', _emberHtmlbarsKeywordsReal_outlet.default);
-  _emberHtmlbarsKeywords.registerKeyword('@customized_outlet', _emberHtmlbarsKeywordsCustomized_outlet.default);
   _emberHtmlbarsKeywords.registerKeyword('unbound', _emberHtmlbarsKeywordsUnbound.default);
   _emberHtmlbarsKeywords.registerKeyword('component', _emberHtmlbarsKeywordsComponent.default);
   _emberHtmlbarsKeywords.registerKeyword('partial', _emberHtmlbarsKeywordsPartial.default);
-  _emberHtmlbarsKeywords.registerKeyword('template', _emberHtmlbarsKeywordsTemplate.default);
   _emberHtmlbarsKeywords.registerKeyword('input', _emberHtmlbarsKeywordsInput.default);
   _emberHtmlbarsKeywords.registerKeyword('textarea', _emberHtmlbarsKeywordsTextarea.default);
   _emberHtmlbarsKeywords.registerKeyword('collection', _emberHtmlbarsKeywordsCollection.default);
@@ -6797,7 +6647,7 @@ enifed('ember-htmlbars/helpers/-legacy-each-with-controller', ['exports', 'ember
       var self;
 
       if (blocks.template.arity === 0) {
-        _emberMetalCore.default.deprecate(deprecation);
+        _emberMetalCore.default.deprecate(deprecation, false, { id: 'ember-htmlbars.each-with-controller-helper', until: '2.4.0' });
         self = _emberHtmlbarsUtilsNormalizeSelf.default(item);
         self = bindController(self, true);
       }
@@ -6920,7 +6770,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
   };
   exports.default = eachInHelper;
 });
-enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-htmlbars/utils/normalize-self', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberMetalCore, _emberMetalError, _emberHtmlbarsUtilsNormalizeSelf, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
   exports.default = eachHelper;
 
   /**
@@ -6995,28 +6845,12 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
     var list = params[0];
     var keyPath = hash.key;
 
-    if (blocks.template.arity === 0) {
-      _emberMetalCore.default.deprecate(deprecation);
-    }
-
     if (_emberViewsStreamsShould_display.default(list)) {
-      (function () {
-        var seenKeys = {};
-        forEach(list, function (item, i) {
-          var self;
-          if (blocks.template.arity === 0) {
-            self = _emberHtmlbarsUtilsNormalizeSelf.default(item);
-          }
+      forEach(list, function (item, i) {
+        var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
 
-          var key = _emberHtmlbarsUtilsDecodeEachKey.default(item, keyPath, i);
-          if (seenKeys[key] === true) {
-            throw new _emberMetalError.default('Duplicate key found (\'' + key + '\') for \'{{each}}\' helper, please use a unique key or switch to \'{{#each model key="@index"}}{{/each}}\'.');
-          } else {
-            seenKeys[key] = true;
-          }
-          blocks.template.yieldItem(key, [item, i], self);
-        });
-      })();
+        blocks.template.yieldItem(key, [item, i]);
+      });
     } else if (blocks.inverse.yield) {
       blocks.inverse.yield();
     }
@@ -7025,9 +6859,6 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-metal/core', 'ember-met
   function forEach(iterable, cb) {
     return iterable.forEach ? iterable.forEach(cb) : Array.prototype.forEach.call(iterable, cb);
   }
-
-  var deprecation = 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.';
-  exports.deprecation = deprecation;
 });
 enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/core', 'ember-views/streams/should_display'], function (exports, _emberMetalCore, _emberViewsStreamsShould_display) {
 
@@ -7543,26 +7374,8 @@ enifed("ember-htmlbars/hooks/did-render-node", ["exports"], function (exports) {
     env.renderedNodes[morph.guid] = true;
   }
 });
-enifed('ember-htmlbars/hooks/element', ['exports', 'ember-metal/core', 'ember-htmlbars/system/lookup-helper', 'htmlbars-runtime/hooks', 'ember-htmlbars/system/invoke-helper'], function (exports, _emberMetalCore, _emberHtmlbarsSystemLookupHelper, _htmlbarsRuntimeHooks, _emberHtmlbarsSystemInvokeHelper) {
+enifed('ember-htmlbars/hooks/element', ['exports', 'ember-htmlbars/system/lookup-helper', 'htmlbars-runtime/hooks', 'ember-htmlbars/system/invoke-helper'], function (exports, _emberHtmlbarsSystemLookupHelper, _htmlbarsRuntimeHooks, _emberHtmlbarsSystemInvokeHelper) {
   exports.default = emberElement;
-
-  var fakeElement;
-
-  function updateElementAttributesFromString(element, string) {
-    if (!fakeElement) {
-      fakeElement = document.createElement('div');
-    }
-
-    fakeElement.innerHTML = '<' + element.tagName + ' ' + string + '><' + '/' + element.tagName + '>';
-
-    var attrs = fakeElement.firstChild.attributes;
-    for (var i = 0, l = attrs.length; i < l; i++) {
-      var attr = attrs[i];
-      if (attr.specified) {
-        element.setAttribute(attr.name, attr.value);
-      }
-    }
-  }
 
   function emberElement(morph, env, scope, path, params, hash, visitor) {
     if (_htmlbarsRuntimeHooks.handleRedirect(morph, env, scope, path, params, hash, null, null, visitor)) {
@@ -7578,11 +7391,7 @@ enifed('ember-htmlbars/hooks/element', ['exports', 'ember-metal/core', 'ember-ht
       result = env.hooks.get(env, scope, path);
     }
 
-    var value = env.hooks.getValue(result);
-    if (value) {
-      _emberMetalCore.default.deprecate('Returning a string of attributes from a helper inside an element is deprecated.');
-      updateElementAttributesFromString(morph.element, value);
-    }
+    env.hooks.getValue(result);
   }
 });
 /**
@@ -7656,7 +7465,7 @@ enifed('ember-htmlbars/hooks/get-root', ['exports', 'ember-metal/core', 'ember-m
   }
 
   function getGlobal(name) {
-    _emberMetalCore.default.deprecate('Global lookup of ' + name + ' from a Handlebars template is deprecated.');
+    _emberMetalCore.default.deprecate('Global lookup of ' + name + ' from a Handlebars template is deprecated.', false, { id: 'ember-htmlbars.get-global', until: '3.0.0' });
 
     // This stream should be memoized, but this path is deprecated and
     // will be removed soon so it's not worth the trouble.
@@ -8188,31 +7997,6 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/merge'], fu
   @submodule ember-templates
   @public
 */
-enifed('ember-htmlbars/keywords/customized_outlet', ['exports', 'ember-metal/core', 'ember-htmlbars/node-managers/view-node-manager', 'ember-views/streams/utils', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberHtmlbarsNodeManagersViewNodeManager, _emberViewsStreamsUtils, _emberMetalStreamsUtils) {
-  exports.default = {
-    setupState: function (state, env, scope, params, hash) {
-      _emberMetalCore.default.assert('Using a quoteless view parameter with {{outlet}} is not supported', !hash.view || !_emberMetalStreamsUtils.isStream(hash.view));
-      var read = env.hooks.getValue;
-      var viewClass = read(hash.viewClass) || _emberViewsStreamsUtils.readViewFactory(read(hash.view), env.container);
-      return { viewClass: viewClass };
-    },
-    render: function (renderNode, env, scope, params, hash, template, inverse, visitor) {
-      var state = renderNode.state;
-      var parentView = env.view;
-
-      var options = {
-        component: state.viewClass
-      };
-      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, hash, options, parentView, null, null, null);
-      state.manager = nodeManager;
-      nodeManager.render(env, hash, visitor);
-    }
-  };
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
 enifed('ember-htmlbars/keywords/debugger', ['exports', 'ember-metal/logger'], function (exports, _emberMetalLogger) {
   exports.default = debuggerKeyword;
 
@@ -8560,73 +8344,8 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
     this.setValue(val);
   }, _merge));
 });
-enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'htmlbars-runtime/hooks'], function (exports, _emberMetalCore, _htmlbarsRuntimeHooks) {
-
-  /*
-   This level of delegation handles backward-compatibility with the
-   `view` parameter to {{outlet}}. When we drop support for the `view`
-   parameter in 2.0, this keyword should just get replaced directly
-   with @real_outlet.
-  */
-
-  exports.default = function (morph, env, scope, params, hash, template, inverse, visitor) {
-    if (hash.hasOwnProperty('view') || hash.hasOwnProperty('viewClass')) {
-      _emberMetalCore.default.deprecate('Passing `view` or `viewClass` to {{outlet}} is deprecated.');
-      _htmlbarsRuntimeHooks.keyword('@customized_outlet', morph, env, scope, params, hash, template, inverse, visitor);
-    } else {
-      _htmlbarsRuntimeHooks.keyword('@real_outlet', morph, env, scope, params, hash, template, inverse, visitor);
-    }
-    return true;
-  };
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup_partial', 'htmlbars-runtime'], function (exports, _emberViewsSystemLookup_partial, _htmlbarsRuntime) {
-  exports.default = {
-    setupState: function (state, env, scope, params, hash) {
-      return { partialName: env.hooks.getValue(params[0]) };
-    },
-
-    render: function (renderNode, env, scope, params, hash, template, inverse, visitor) {
-      var state = renderNode.state;
-      if (!state.partialName) {
-        return true;
-      }
-      var found = _emberViewsSystemLookup_partial.default(env, state.partialName);
-      if (!found) {
-        return true;
-      }
-
-      _htmlbarsRuntime.internal.hostBlock(renderNode, env, scope, found.raw, null, null, visitor, function (options) {
-        options.templates.template.yield();
-      });
-    }
-  };
-});
-/**
-@module ember
-@submodule ember-htmlbars
-*/
-enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/mut'], function (exports, _emberHtmlbarsKeywordsMut) {
-  exports.default = readonly;
-
-  function readonly(morph, env, scope, originalParams, hash, template, inverse) {
-    // If `morph` is `null` the keyword is being invoked as a subexpression.
-    if (morph === null) {
-      var stream = originalParams[0];
-      if (stream && stream[_emberHtmlbarsKeywordsMut.MUTABLE_REFERENCE]) {
-        return stream.sourceDep.dependee;
-      }
-      return stream;
-    }
-
-    return true;
-  }
-});
-enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3';
+enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+0af6dc64';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8733,15 +8452,45 @@ enifed('ember-htmlbars/keywords/real_outlet', ['exports', 'ember-metal/core', 'e
 @module ember
 @submodule ember-htmlbars
 */
-enifed('ember-htmlbars/keywords/template', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
-  exports.default = templateKeyword;
-  var deprecation = 'The `template` helper has been deprecated in favor of the `partial` helper.';
+enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup_partial', 'htmlbars-runtime'], function (exports, _emberViewsSystemLookup_partial, _htmlbarsRuntime) {
+  exports.default = {
+    setupState: function (state, env, scope, params, hash) {
+      return { partialName: env.hooks.getValue(params[0]) };
+    },
 
-  exports.deprecation = deprecation;
+    render: function (renderNode, env, scope, params, hash, template, inverse, visitor) {
+      var state = renderNode.state;
+      if (!state.partialName) {
+        return true;
+      }
+      var found = _emberViewsSystemLookup_partial.default(env, state.partialName);
+      if (!found) {
+        return true;
+      }
 
-  function templateKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
-    _emberMetalCore.default.deprecate(deprecation);
-    env.hooks.keyword('partial', morph, env, scope, params, hash, template, inverse, visitor);
+      _htmlbarsRuntime.internal.hostBlock(renderNode, env, scope, found.raw, null, null, visitor, function (options) {
+        options.templates.template.yield();
+      });
+    }
+  };
+});
+/**
+@module ember
+@submodule ember-htmlbars
+*/
+enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/mut'], function (exports, _emberHtmlbarsKeywordsMut) {
+  exports.default = readonly;
+
+  function readonly(morph, env, scope, originalParams, hash, template, inverse) {
+    // If `morph` is `null` the keyword is being invoked as a subexpression.
+    if (morph === null) {
+      var stream = originalParams[0];
+      if (stream && stream[_emberHtmlbarsKeywordsMut.MUTABLE_REFERENCE]) {
+        return stream.sourceDep.dependee;
+      }
+      return stream;
+    }
+
     return true;
   }
 });
@@ -9003,7 +8752,7 @@ enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/core', 'dom-
       }
 
       return !escaped;
-    })(this.attrName, value, this.escaped));
+    })(this.attrName, value, this.escaped), { id: 'ember-htmlbars.style-xss-warning' });
   };
 
   proto.setContent = function EmberAttrMorph_setContent(value) {
@@ -9210,7 +8959,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       // as the layout.
       layout = componentTemplate;
       templates = _templates;
-      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.');
+      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.', false, { id: 'ember-htmlbars.extract-component-templates', until: '3.0.0' });
     }
 
     return { layout: layout, templates: templates };
@@ -9223,7 +8972,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // There is no block template provided but the component has a
     // `template` property.
     if ((!_templates || !_templates.default) && componentTemplate) {
-      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.');
+      _emberMetalCore.default.deprecate('Using deprecated `template` property on a Component.', false, { id: 'ember-htmlbars.extract-legacy-template', until: '3.0.0' });
       templates = { default: componentTemplate.raw };
     } else {
       templates = _templates;
@@ -9353,7 +9102,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     if (!isAngleBracket) {
       var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
-      _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController);
+      _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController, { id: 'ember-htmlbars.create-component', until: '3.0.0' });
 
       var snapshot = takeSnapshot(attrs);
       props.attrs = snapshot;
@@ -9423,7 +9172,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       // set `"blah"` to the root of the target because
       // that would replace all attrs with `attrs.attrs`
       if (prop === 'attrs') {
-        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.');
+        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.', false, { id: 'ember-htmlbars.component-unsupported-attrs' });
         continue;
       }
       var value = attrs[prop];
@@ -9505,7 +9254,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
           var template = getTemplate(component);
 
           if (template) {
-            _emberMetalCore.default.deprecate('Using deprecated `template` property on a ' + (component.isView ? 'View' : 'Component') + '.');
+            _emberMetalCore.default.deprecate('Using deprecated `template` property on a ' + (component.isView ? 'View' : 'Component') + '.', false, { id: 'ember-htmlbars.view-node-manager-create', until: '3.0.0' });
             contentTemplate = template.raw;
           }
         }
@@ -9687,7 +9436,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       // set `"blah"` to the root of the target because
       // that would replace all attrs with `attrs.attrs`
       if (prop === 'attrs') {
-        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.');
+        _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.', false, { id: 'ember-htmlbars.view-unsupported-attrs' });
         continue;
       }
       var value = attrs[prop];
@@ -10118,7 +9867,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
         if (container._registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
           if (isLegacyBareHelper(helper)) {
-            _emberMetalCore.default.deprecate('The helper "' + name + '" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.');
+            _emberMetalCore.default.deprecate('The helper "' + name + '" is a deprecated bare function helper. Please use Ember.Helper.build to wrap helper functions.', false, { id: 'ember-htmlbars.legacy-bare-helper', until: '3.0.0' });
             helper = new _emberHtmlbarsCompatHelper.default(helper);
           }
         }
@@ -11162,7 +10911,7 @@ enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-template-co
     };
   })());
 });
-enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils) {
+enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/property_get', 'ember-metal/utils'], function (exports, _emberMetalProperty_get, _emberMetalUtils) {
   exports.default = decodeEachKey;
 
   function identity(item) {
@@ -11179,19 +10928,11 @@ enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/core', '
   }
 
   function decodeEachKey(item, keyPath, index) {
-    var key, deprecatedSpecialKey;
+    var key;
 
     switch (keyPath) {
       case '@index':
         key = index;
-        break;
-      case '@guid':
-        deprecatedSpecialKey = '@guid';
-        key = _emberMetalUtils.guidFor(item);
-        break;
-      case '@item':
-        deprecatedSpecialKey = '@item';
-        key = item;
         break;
       case '@identity':
         key = identity(item);
@@ -11207,8 +10948,6 @@ enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/core', '
     if (typeof key === 'number') {
       key = String(key);
     }
-
-    _emberMetalCore.default.deprecate('Using \'' + deprecatedSpecialKey + '\' with the {{each}} helper, is deprecated. Switch to \'@identity\' or remove \'key=\' from your template.', !deprecatedSpecialKey);
 
     return key;
   }
@@ -11651,9 +11390,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   _emberMetalCore.default.META_DESC = _emberMetalUtils.META_DESC;
   _emberMetalCore.default.EMPTY_META = _emberMetalUtils.EMPTY_META;
   _emberMetalCore.default.meta = _emberMetalUtils.meta;
-  _emberMetalCore.default.getMeta = _emberMetalUtils.getMeta;
-  _emberMetalCore.default.setMeta = _emberMetalUtils.setMeta;
-  _emberMetalCore.default.metaPath = _emberMetalUtils.metaPath;
   _emberMetalCore.default.inspect = _emberMetalUtils.inspect;
   _emberMetalCore.default.tryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
   _emberMetalCore.default.makeArray = _emberMetalUtils.makeArray;
@@ -11801,8 +11537,8 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     requireModule('ember-debug');
   }
 
-  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', Object.create);
-  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', Object.keys);
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
 
   exports.default = _emberMetalCore.default;
 });
@@ -12411,7 +12147,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   exports.flushPendingChains = flushPendingChains;
   exports.finishChains = finishChains;
 
-  var warn = _emberMetalCore.default.warn;
   var FIRST_KEY = /^([^\.]+)/;
 
   function firstKey(path) {
@@ -12429,6 +12164,93 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   function Chains() {}
 
   Chains.prototype = Object.create(null);
+
+  function ChainWatchers(obj) {
+    // this obj would be the referencing chain node's parent node's value
+    this.obj = obj;
+    // chain nodes that reference a key in this obj by key
+    // we only create ChainWatchers when we are going to add them
+    // so create this upfront
+    this.chains = new Chains();
+  }
+
+  ChainWatchers.prototype = {
+    add: function (key, node) {
+      var nodes = this.chains[key];
+      if (nodes === undefined) {
+        this.chains[key] = [node];
+      } else {
+        nodes.push(node);
+      }
+    },
+
+    remove: function (key, node) {
+      var nodes = this.chains[key];
+      if (nodes) {
+        for (var i = 0, l = nodes.length; i < l; i++) {
+          if (nodes[i] === node) {
+            nodes.splice(i, 1);
+            break;
+          }
+        }
+      }
+    },
+
+    has: function (key, node) {
+      var nodes = this.chains[key];
+      if (nodes) {
+        for (var i = 0, l = nodes.length; i < l; i++) {
+          if (nodes[i] === node) {
+            return true;
+          }
+        }
+      }
+      return false;
+    },
+
+    revalidateAll: function () {
+      for (var key in this.chains) {
+        this.notify(key, true, undefined);
+      }
+    },
+
+    revalidate: function (key) {
+      this.notify(key, true, undefined);
+    },
+
+    // key: the string key that is part of a path changed
+    // revalidate: boolean the chains that are watching this value should revalidate
+    // callback: function that will be called with the the object and path that
+    //           will be/are invalidated by this key change depending on the
+    //           whether the revalidate flag is passed
+    notify: function (key, revalidate, callback) {
+      var nodes = this.chains[key];
+      if (nodes === undefined || nodes.length === 0) {
+        return;
+      }
+
+      var affected = undefined;
+
+      if (callback) {
+        affected = [];
+      }
+
+      for (var i = 0, l = nodes.length; i < l; i++) {
+        nodes[i].notify(revalidate, affected);
+      }
+
+      if (callback === undefined) {
+        return;
+      }
+
+      // we gather callbacks so we don't notify them during revalidation
+      for (var i = 0, l = affected.length; i < l; i += 2) {
+        var obj = affected[i];
+        var path = affected[i + 1];
+        callback(obj, path);
+      }
+    }
+  };
 
   var pendingQueue = [];
 
@@ -12448,7 +12270,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       return q[0].add(q[1]);
     });
 
-    warn('Watching an undefined global, Ember expects watched globals to be' + ' setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0);
+    _emberMetalCore.default.warn('Watching an undefined global, Ember expects watched globals to be ' + 'setup by the time the run loop is flushed, check for typos', pendingQueue.length === 0, { id: 'ember-metal.chains-flush-pending-chains' });
   }
 
   function addChainWatcher(obj, keyName, node) {
@@ -12457,18 +12279,12 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     }
 
     var m = _emberMetalUtils.meta(obj);
-    var nodes = m.chainWatchers;
 
-    if (!m.hasOwnProperty('chainWatchers')) {
-      // FIXME?!
-      nodes = m.chainWatchers = new Chains();
+    if (m.chainWatchers === undefined || m.chainWatchers.obj !== obj) {
+      m.chainWatchers = new ChainWatchers(obj);
     }
 
-    if (!nodes[keyName]) {
-      nodes[keyName] = [node];
-    } else {
-      nodes[keyName].push(node);
-    }
+    m.chainWatchers.add(keyName, node);
 
     _emberMetalWatch_key.watchKey(obj, keyName, m);
   }
@@ -12478,22 +12294,17 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       return;
     }
 
-    var m = obj['__ember_meta__'];
-    if (m && !m.hasOwnProperty('chainWatchers')) {
+    var m = obj.__ember_meta__;
+
+    if (!m || m.chainWatchers === undefined || m.chainWatchers.obj !== obj) {
       return;
-    } // nothing to do
-
-    var nodes = m && m.chainWatchers;
-
-    if (nodes && nodes[keyName]) {
-      nodes = nodes[keyName];
-      for (var i = 0, l = nodes.length; i < l; i++) {
-        if (nodes[i] === node) {
-          nodes.splice(i, 1);
-          break;
-        }
-      }
     }
+
+    // make meta writable
+    m = _emberMetalUtils.meta(obj);
+
+    m.chainWatchers.remove(keyName, node);
+
     _emberMetalWatch_key.unwatchKey(obj, keyName, m);
   }
 
@@ -12696,62 +12507,8 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
       }
     },
 
-    willChange: function (events) {
-      var chains = this._chains;
-      var node;
-      if (chains) {
-        for (var key in chains) {
-          node = chains[key];
-          if (node !== undefined) {
-            node.willChange(events);
-          }
-        }
-      }
-
-      if (this._parent) {
-        this._parent.chainWillChange(this, this._key, 1, events);
-      }
-    },
-
-    chainWillChange: function (chain, path, depth, events) {
-      if (this._key) {
-        path = this._key + '.' + path;
-      }
-
-      if (this._parent) {
-        this._parent.chainWillChange(this, path, depth + 1, events);
-      } else {
-        if (depth > 1) {
-          events.push(this.value(), path);
-        }
-        path = 'this.' + path;
-        if (this._paths[path] > 0) {
-          events.push(this.value(), path);
-        }
-      }
-    },
-
-    chainDidChange: function (chain, path, depth, events) {
-      if (this._key) {
-        path = this._key + '.' + path;
-      }
-
-      if (this._parent) {
-        this._parent.chainDidChange(this, path, depth + 1, events);
-      } else {
-        if (depth > 1) {
-          events.push(this.value(), path);
-        }
-        path = 'this.' + path;
-        if (this._paths[path] > 0) {
-          events.push(this.value(), path);
-        }
-      }
-    },
-
-    didChange: function (events) {
-      // invalidate my own value first.
-      if (this._watching) {
+    notify: function (revalidate, affected) {
+      if (revalidate && this._watching) {
         var obj = this._parent.value();
         if (obj !== this._object) {
           removeChainWatcher(this._object, this._key, this);
@@ -12774,54 +12531,56 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
         for (var key in chains) {
           node = chains[key];
           if (node !== undefined) {
-            node.didChange(events);
+            node.notify(revalidate, affected);
           }
         }
       }
 
-      // if no events are passed in then we only care about the above wiring update
-      if (events === null) {
-        return;
+      if (affected && this._parent) {
+        this._parent.populateAffected(this, this._key, 1, affected);
+      }
+    },
+
+    populateAffected: function (chain, path, depth, affected) {
+      if (this._key) {
+        path = this._key + '.' + path;
       }
 
-      // and finally tell parent about my path changing...
       if (this._parent) {
-        this._parent.chainDidChange(this, this._key, 1, events);
+        this._parent.populateAffected(this, path, depth + 1, affected);
+      } else {
+        if (depth > 1) {
+          affected.push(this.value(), path);
+        }
+        path = 'this.' + path;
+        if (this._paths[path] > 0) {
+          affected.push(this.value(), path);
+        }
       }
     }
   };
 
   function finishChains(obj) {
     // We only create meta if we really have to
-    var m = obj['__ember_meta__'];
-    var chains, chainWatchers, chainNodes;
-
+    var m = obj.__ember_meta__;
     if (m) {
       // finish any current chains node watchers that reference obj
-      chainWatchers = m.chainWatchers;
+      var chainWatchers = m.chainWatchers;
       if (chainWatchers) {
-        for (var key in chainWatchers) {
-          chainNodes = chainWatchers[key];
-          if (chainNodes) {
-            for (var i = 0, l = chainNodes.length; i < l; i++) {
-              var node = chainNodes[i];
-              if (node) {
-                node.didChange(null);
-              }
-            }
-          }
-        }
+        chainWatchers.revalidateAll();
       }
       // copy chains from prototype
-      chains = m.chains;
+      var chains = m.chains;
       if (chains && chains.value() !== obj) {
-        _emberMetalUtils.meta(obj).chains = chains = chains.copy(obj);
+        // need to check if meta is writable
+        _emberMetalUtils.meta(obj).chains = chains.copy(obj);
       }
     }
   }
 
   exports.removeChainWatcher = removeChainWatcher;
   exports.ChainNode = ChainNode;
+  ;
 });
 // warn, assert, etc;
 enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
@@ -13082,12 +12841,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     }
   };
 
-  function finishChains(chainNodes) {
-    for (var i = 0, l = chainNodes.length; i < l; i++) {
-      chainNodes[i].didChange(null);
-    }
-  }
-
   /**
     Access the value of the function backing the computed property.
     If this property has already been cached, return the cached result.
@@ -13116,7 +12869,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   ComputedPropertyPrototype.get = function (obj, keyName) {
-    var ret, cache, meta, chainNodes;
+    var ret, cache, meta;
     if (this._cacheable) {
       meta = metaFor(obj);
       cache = meta.cache;
@@ -13140,9 +12893,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
         cache[keyName] = ret;
       }
 
-      chainNodes = meta.chainWatchers && meta.chainWatchers[keyName];
-      if (chainNodes) {
-        finishChains(chainNodes);
+      if (meta.chainWatchers) {
+        meta.chainWatchers.revalidate(keyName);
       }
       _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
     } else {
@@ -14088,14 +13840,14 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     @public
   */
 
-  function deprecatingAlias(dependentKey) {
+  function deprecatingAlias(dependentKey, options) {
     return _emberMetalComputed.computed(dependentKey, {
       get: function (key) {
-        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.');
+        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
         return _emberMetalProperty_get.get(this, dependentKey);
       },
       set: function (key, value) {
-        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.');
+        _emberMetalCore.default.deprecate('Usage of `' + key + '` is deprecated, use `' + dependentKey + '` instead.', false, options);
         _emberMetalProperty_set.set(this, dependentKey, value);
         return value;
       }
@@ -14125,7 +13877,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.3
+    @version 2.0.0-beta.3+0af6dc64
     @public
   */
 
@@ -14157,11 +13909,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.3'
+    @default '2.0.0-beta.3+0af6dc64'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.3';
+  Ember.VERSION = '2.0.0-beta.3+0af6dc64';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14405,9 +14157,9 @@ enifed('ember-metal/deprecate_property', ['exports', 'ember-metal/core', 'ember-
     @since 1.7.0
   */
 
-  function deprecateProperty(object, deprecatedKey, newKey) {
+  function deprecateProperty(object, deprecatedKey, newKey, options) {
     function deprecate() {
-      _emberMetalCore.default.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.');
+      _emberMetalCore.default.deprecate('Usage of `' + deprecatedKey + '` is deprecated, use `' + newKey + '` instead.', false, options);
     }
 
     Object.defineProperty(object, deprecatedKey, {
@@ -14846,11 +14598,6 @@ enifed('ember-metal/events', ['exports', 'ember-metal/core', 'ember-metal/utils'
   */
 
   function sendEvent(obj, eventName, params, actions) {
-    // first give object a chance to handle it
-    if (obj !== _emberMetalCore.default && 'function' === typeof obj.sendEvent) {
-      obj.sendEvent(eventName, params);
-    }
-
     if (!actions) {
       var meta = obj['__ember_meta__'];
       actions = meta && meta.listeners && meta.listeners[eventName];
@@ -15684,7 +15431,7 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/core', 'ember-metal/fea
         }
         this._registry.splice(index, 0, { name: name, version: version });
       } else {
-        _emberMetalCore.default.warn('Library "' + name + '" is already registered with Ember.');
+        _emberMetalCore.default.warn('Library "' + name + '" is already registered with Ember.', false, { id: 'ember-metal.libraries-register' });
       }
     },
 
@@ -15700,13 +15447,6 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/core', 'ember-metal/fea
         index = this._registry.indexOf(lib);
         this._registry.splice(index, 1);
       }
-    },
-
-    each: function (callback) {
-      _emberMetalCore.default.deprecate('Using Ember.libraries.each() is deprecated. Access to a list of registered libraries is currently a private API. If you are not knowingly accessing this method, your out-of-date Ember Inspector may be doing so.');
-      this._registry.forEach(function (lib) {
-        callback(lib.name, lib.version);
-      });
     }
   };
 
@@ -15859,7 +15599,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
   };
 });
 // Ember.imports
-enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalDeprecate_property) {
+enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalUtils) {
 
   function missingFunction(fn) {
     throw new TypeError(Object.prototype.toString.call(fn) + ' is not a function');
@@ -16064,8 +15804,6 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
     }
   };
 
-  _emberMetalDeprecate_property.deprecateProperty(OrderedSet.prototype, 'length', 'size');
-
   /**
     A Map stores values indexed by keys. Unlike JavaScript's
     default Objects, the keys of a Map can be any JavaScript
@@ -16261,8 +15999,6 @@ enifed('ember-metal/map', ['exports', 'ember-metal/core', 'ember-metal/utils', '
       return copyMap(this, new Map());
     }
   };
-
-  _emberMetalDeprecate_property.deprecateProperty(Map.prototype, 'length', 'size');
 
   /**
     @class MapWithDefault
@@ -17185,7 +16921,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function required() {
-    _emberMetalCore.default.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false);
+    _emberMetalCore.default.deprecate('Ember.required is deprecated as its behavior is inconsistent and unreliable.', false, { id: 'ember-metal.required', until: '3.0.0' });
     return REQUIRED;
   }
 
@@ -17250,25 +16986,37 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function observer() {
-    for (var _len4 = arguments.length, paths = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-      paths[_key4] = arguments[_key4];
+    for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
     }
 
-    var func = paths.pop();
-    var expandedPaths = [];
-    var addWatchedProperty = function (path) {
-      expandedPaths.push(path);
-    };
+    var func = args.slice(-1)[0];
+    var paths;
 
-    for (var i = 0; i < paths.length; ++i) {
-      _emberMetalExpand_properties.default(paths[i], addWatchedProperty);
+    var addWatchedProperty = function (path) {
+      paths.push(path);
+    };
+    var _paths = args.slice(0, -1);
+
+    if (typeof func !== 'function') {
+      // revert to old, soft-deprecated argument ordering
+      _emberMetalCore.default.deprecate('Passing the dependentKeys after the callback function in Ember.observer is deprecated. Ensure the callback function is the last argument.', false, { id: 'ember-metal.observer-argument-order', until: '3.0.0' });
+
+      func = args[0];
+      _paths = args.slice(1);
+    }
+
+    paths = [];
+
+    for (var i = 0; i < _paths.length; ++i) {
+      _emberMetalExpand_properties.default(_paths[i], addWatchedProperty);
     }
 
     if (typeof func !== 'function') {
       throw new _emberMetalCore.default.Error('Ember.observer called without a function');
     }
 
-    func.__ember_observes__ = expandedPaths;
+    func.__ember_observes__ = paths;
     return func;
   }
 
@@ -17299,7 +17047,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   */
 
   function _immediateObserver() {
-    _emberMetalCore.default.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.');
+    _emberMetalCore.default.deprecate('Usage of `Ember.immediateObserver` is deprecated, use `Ember.observer` instead.', false, { id: 'ember-metal.immediate-observer', until: '3.0.0' });
 
     for (var i = 0, l = arguments.length; i < l; i++) {
       var arg = arguments[i];
@@ -18003,47 +17751,26 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   }
 
   function chainsWillChange(obj, keyName, m) {
-    if (!(m.hasOwnProperty('chainWatchers') && m.chainWatchers[keyName])) {
+    if (m.chainWatchers === undefined || m.chainWatchers.obj !== obj) {
       return;
     }
 
-    var nodes = m.chainWatchers[keyName];
-    var events = [];
-    var i, l;
-
-    for (i = 0, l = nodes.length; i < l; i++) {
-      nodes[i].willChange(events);
-    }
-
-    for (i = 0, l = events.length; i < l; i += 2) {
-      propertyWillChange(events[i], events[i + 1]);
-    }
+    m.chainWatchers.notify(keyName, false, propertyWillChange);
   }
 
-  function chainsDidChange(obj, keyName, m, suppressEvents) {
-    if (!(m && m.hasOwnProperty('chainWatchers') && m.chainWatchers[keyName])) {
+  function chainsDidChange(obj, keyName, m) {
+    if (m.chainWatchers === undefined || m.chainWatchers.obj !== obj) {
       return;
     }
 
-    var nodes = m.chainWatchers[keyName];
-    var events = suppressEvents ? null : [];
-    var i, l;
-
-    for (i = 0, l = nodes.length; i < l; i++) {
-      nodes[i].didChange(events);
-    }
-
-    if (suppressEvents) {
-      return;
-    }
-
-    for (i = 0, l = events.length; i < l; i += 2) {
-      propertyDidChange(events[i], events[i + 1]);
-    }
+    m.chainWatchers.notify(keyName, true, propertyDidChange);
   }
 
   function overrideChains(obj, keyName, m) {
-    chainsDidChange(obj, keyName, m, true);
+    if (m.chainWatchers === undefined || m.chainWatchers.obj !== obj) {
+      return;
+    }
+    m.chainWatchers.revalidate(keyName);
   }
 
   /**
@@ -18331,7 +18058,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
   */
 
   function set(obj, keyName, value, tolerant) {
-    _emberMetalCore.default.assert('Set must be called with tree or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
+    _emberMetalCore.default.assert('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
     _emberMetalCore.default.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalCore.default.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalCore.default.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
@@ -20194,14 +19921,11 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   }
 });
 enifed("ember-metal/symbol", ["exports"], function (exports) {});
-enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalFeatures) {
+enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (exports, _emberMetalFeatures) {
   exports.uuid = uuid;
   exports.symbol = symbol;
   exports.generateGuid = generateGuid;
   exports.guidFor = guidFor;
-  exports.getMeta = getMeta;
-  exports.setMeta = setMeta;
-  exports.metaPath = metaPath;
   exports.wrap = wrap;
   exports.tryInvoke = tryInvoke;
   exports.makeArray = makeArray;
@@ -20501,20 +20225,16 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
   function Meta(obj) {
     this.watching = {};
     this.cache = undefined;
-    this.cacheMeta = undefined;
     this.source = obj;
     this.deps = undefined;
     this.listeners = undefined;
     this.mixins = undefined;
     this.bindings = undefined;
     this.chains = undefined;
+    this.chainWatchers = undefined;
     this.values = undefined;
     this.proto = undefined;
   }
-
-  Meta.prototype = {
-    chainWatchers: null // FIXME
-  };
 
   // Placeholder for non-writable metas.
   var EMPTY_META = new Meta(null);
@@ -20567,7 +20287,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
       ret = Object.create(ret);
       ret.watching = Object.create(ret.watching);
       ret.cache = undefined;
-      ret.cacheMeta = undefined;
       ret.source = obj;
 
       ret.values = Object.create(ret.values);
@@ -20575,79 +20294,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/core', 'ember-metal/feature
       obj['__ember_meta__'] = ret;
     }
     return ret;
-  }
-
-  function getMeta(obj, property) {
-    var _meta = meta(obj, false);
-    return _meta[property];
-  }
-
-  function setMeta(obj, property, value) {
-    var _meta = meta(obj, true);
-    _meta[property] = value;
-    return value;
-  }
-
-  /**
-    @deprecated
-    @private
-  
-    In order to store defaults for a class, a prototype may need to create
-    a default meta object, which will be inherited by any objects instantiated
-    from the class's constructor.
-  
-    However, the properties of that meta object are only shallow-cloned,
-    so if a property is a hash (like the event system's `listeners` hash),
-    it will by default be shared across all instances of that class.
-  
-    This method allows extensions to deeply clone a series of nested hashes or
-    other complex objects. For instance, the event system might pass
-    `['listeners', 'foo:change', 'ember157']` to `prepareMetaPath`, which will
-    walk down the keys provided.
-  
-    For each key, if the key does not exist, it is created. If it already
-    exists and it was inherited from its constructor, the constructor's
-    key is cloned.
-  
-    You can also pass false for `writable`, which will simply return
-    undefined if `prepareMetaPath` discovers any part of the path that
-    shared or undefined.
-  
-    @method metaPath
-    @for Ember
-    @param {Object} obj The object whose meta we are examining
-    @param {Array} path An array of keys to walk down
-    @param {Boolean} writable whether or not to create a new meta
-      (or meta property) if one does not already exist or if it's
-      shared with its constructor
-  */
-
-  function metaPath(obj, path, writable) {
-    _emberMetalCore.default.deprecate('Ember.metaPath is deprecated and will be removed from future releases.');
-    var _meta = meta(obj, writable);
-    var keyName, value;
-
-    for (var i = 0, l = path.length; i < l; i++) {
-      keyName = path[i];
-      value = _meta[keyName];
-
-      if (!value) {
-        if (!writable) {
-          return undefined;
-        }
-        value = _meta[keyName] = { __ember_source__: obj };
-      } else if (value.__ember_source__ !== obj) {
-        if (!writable) {
-          return undefined;
-        }
-        value = _meta[keyName] = Object.create(value);
-        value.__ember_source__ = obj;
-      }
-
-      _meta = value;
-    }
-
-    return value;
   }
 
   /**
@@ -22229,8 +21875,8 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @module ember
 @submodule ember-routing-views
 */
-enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.3';
+enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.3+0af6dc64';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22261,7 +21907,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       @property currentWhen
       @private
     */
-    currentWhen: null,
+    currentWhen: _emberMetalComputed_macros.deprecatingAlias('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
 
     /**
       Used to determine when this LinkComponent is active.
@@ -22411,8 +22057,6 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     */
     init: function () {
       this._super.apply(this, arguments);
-
-      _emberMetalCore.default.deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', !this.currentWhen);
 
       // Map desired event name to invoke function
       var eventName = _emberMetalProperty_get.get(this, 'eventName');
@@ -22630,17 +22274,6 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         this.set('disabled', attrs.disabledWhen);
       }
 
-      var currentWhen = attrs['current-when'];
-
-      if (attrs.currentWhen) {
-        _emberMetalCore.default.deprecate('Using currentWhen with {{link-to}} is deprecated in favor of `current-when`.', !attrs.currentWhen);
-        currentWhen = attrs.currentWhen;
-      }
-
-      if (currentWhen) {
-        this.set('currentWhen', currentWhen);
-      }
-
       // TODO: Change to built-in hasBlock once it's available
       if (!attrs.hasBlock) {
         this.set('linkTitle', params.shift());
@@ -22654,7 +22287,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         var value = params[i];
 
         while (_emberRuntimeMixinsController.default.detect(value)) {
-          _emberMetalCore.default.deprecate('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. Please update `' + attrs.view + '` to use `{{link-to "post" someController.model}}` instead.');
+          _emberMetalCore.default.deprecate('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + 'Please update `' + attrs.view + '` to use `{{link-to "post" someController.model}}` instead.', false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' });
           value = value.get('model');
         }
 
@@ -22687,7 +22320,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       return false;
     }
 
-    var currentWhen = _emberMetalProperty_get.get(view, 'currentWhen');
+    var currentWhen = _emberMetalProperty_get.get(view, 'current-when');
     var isCurrentWhenSpecified = !!currentWhen;
     currentWhen = currentWhen || _emberMetalProperty_get.get(view, 'targetRouteName');
     currentWhen = currentWhen.split(' ');
@@ -22742,7 +22375,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+0af6dc64';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -23140,31 +22773,6 @@ enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-meta
       _emberMetalCore.default.assert('Ember.Location.create: ' + implementation + ' is not a valid implementation', !!implementationClass);
 
       return implementationClass.create.apply(implementationClass, arguments);
-    },
-
-    /**
-     This is deprecated in favor of using the container to register the
-     location implementation as desired.
-      Example:
-      ```javascript
-     Application.initializer({
-      name: "history-test-location",
-       initialize: function(container, application) {
-        application.register('location:history-test', HistoryTestLocation);
-      }
-     });
-     ```
-      @method registerImplementation
-     @param {String} name
-     @param {Object} implementation of the `location` API
-     @deprecated Register your custom location implementation with the
-     container directly.
-     @private
-    */
-    registerImplementation: function (name, implementation) {
-      _emberMetalCore.default.deprecate('Using the Ember.Location.registerImplementation is no longer supported. Register your custom location implementation with the container instead.', false);
-
-      this.implementations[name] = implementation;
     },
 
     implementations: {},
@@ -24253,7 +23861,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
       }
 
       options.resetNamespace = true;
-      _emberMetalCore.default.deprecate('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
+      _emberMetalCore.default.deprecate('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.', false, { id: 'ember-routing.router-resource', until: '3.0.0' });
       this.route(name, options, callback);
     },
 
@@ -24436,6 +24044,17 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @public
     */
     queryParams: {},
+
+    /**
+      The name of the route, dot-delimited.
+       For example, a route found at `app/routes/posts/post.js` or
+      `app/posts/post/route.js` (with pods) will have a `routeName` of
+      `posts.post`.
+       @property routeName
+      @for Ember.Route
+      @type String
+      @public
+    */
 
     /**
       @private
@@ -25416,50 +25035,40 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         this.controller = controller;
       }
 
-      if (this.setupControllers) {
-        _emberMetalCore.default.deprecate('Ember.Route.setupControllers is deprecated. Please use Ember.Route.setupController(controller, model) instead.');
-        this.setupControllers(controller, context);
-      } else {
-        var queryParams = _emberMetalProperty_get.get(this, '_qp');
+      var queryParams = _emberMetalProperty_get.get(this, '_qp');
 
-        var states = queryParams.states;
-        if (transition) {
-          // Update the model dep values used to calculate cache keys.
-          _emberRoutingUtils.stashParamNames(this.router, transition.state.handlerInfos);
+      var states = queryParams.states;
+      if (transition) {
+        // Update the model dep values used to calculate cache keys.
+        _emberRoutingUtils.stashParamNames(this.router, transition.state.handlerInfos);
 
-          var params = transition.params;
-          var allParams = queryParams.propertyNames;
-          var cache = this._bucketCache;
+        var params = transition.params;
+        var allParams = queryParams.propertyNames;
+        var cache = this._bucketCache;
 
-          allParams.forEach(function (prop) {
-            var aQp = queryParams.map[prop];
+        allParams.forEach(function (prop) {
+          var aQp = queryParams.map[prop];
 
-            aQp.values = params;
-            var cacheKey = _emberRoutingUtils.calculateCacheKey(aQp.prefix, aQp.parts, aQp.values);
+          aQp.values = params;
+          var cacheKey = _emberRoutingUtils.calculateCacheKey(aQp.prefix, aQp.parts, aQp.values);
 
-            if (cache) {
-              var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
-              _emberMetalProperty_set.set(controller, prop, value);
-            }
-          });
-        }
-
-        controller._qpDelegate = states.allowOverrides;
-
-        if (transition) {
-          var qpValues = getQueryParamsFor(this, transition.state);
-          controller.setProperties(qpValues);
-        }
-
-        this.setupController(controller, context, transition);
+          if (cache) {
+            var value = cache.lookup(cacheKey, prop, aQp.undecoratedDefaultValue);
+            _emberMetalProperty_set.set(controller, prop, value);
+          }
+        });
       }
 
-      if (this.renderTemplates) {
-        _emberMetalCore.default.deprecate('Ember.Route.renderTemplates is deprecated. Please use Ember.Route.renderTemplate(controller, model) instead.');
-        this.renderTemplates(context);
-      } else {
-        this.renderTemplate(controller, context);
+      controller._qpDelegate = states.allowOverrides;
+
+      if (transition) {
+        var qpValues = getQueryParamsFor(this, transition.state);
+        controller.setProperties(qpValues);
       }
+
+      this.setupController(controller, context, transition);
+
+      this.renderTemplate(controller, context);
     },
 
     /*
@@ -26403,7 +26012,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
   }
 
   function deprecateQueryParamDefaultValuesSetOnController(controllerName, routeName, propName) {
-    _emberMetalCore.default.deprecate('Configuring query parameter default values on controllers is deprecated. Please move the value for the property \'' + propName + '\' from the \'' + controllerName + '\' controller to the \'' + routeName + '\' route in the format: {queryParams: ' + propName + ': {defaultValue: <default value> }}');
+    _emberMetalCore.default.deprecate('Configuring query parameter default values on controllers is deprecated. Please move the value for the property \'' + propName + '\' from the \'' + controllerName + '\' controller to the \'' + routeName + '\' route in the format: {queryParams: ' + propName + ': {defaultValue: <default value> }}', false, { id: 'ember-routing.deprecate-query-param-default-values-set-on-controller', until: '3.0.0' });
   }
 
   exports.default = Route;
@@ -26488,7 +26097,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
     init: function () {
       this._activeViews = {};
-      this._qpCache = {};
+      this._qpCache = Object.create(null);
       this._resetQueuedQueryParameterChanges();
     },
 
@@ -28655,7 +28264,7 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
     @param {String} name (optional) name of the controller to inject, defaults
            to the property's name
     @return {Ember.InjectedProperty} injection descriptor instance
-    @private
+    @public
   */
   _emberRuntimeInject.createInjectionHelper('controller', controllerInjectionHelper);
 
@@ -28916,7 +28525,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
       @deprecated
       @private
     */
-    FunctionPrototype.observesImmediately = _emberMetalCore.default.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', FunctionPrototype._observesImmediately);
+    FunctionPrototype.observesImmediately = _emberMetalCore.default.deprecateFunc('Function#observesImmediately is deprecated. Use Function#observes instead', { id: 'ember-runtime.ext-function', until: '3.0.0' }, FunctionPrototype._observesImmediately);
 
     /**
       The `on` extension of Javascript's Function prototype is available
@@ -29271,7 +28880,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
     unknownProperty: function (key) {
       var content = _emberMetalProperty_get.get(this, 'content');
       if (content) {
-        _emberMetalCore.default.deprecate(_emberRuntimeSystemString.fmt('You attempted to access `%@` from `%@`, but object proxying is deprecated. ' + 'Please use `model.%@` instead.', [key, this, key]), !this.isController);
+        _emberMetalCore.default.deprecate(_emberRuntimeSystemString.fmt('You attempted to access `%@` from `%@`, but object proxying is deprecated. ' + 'Please use `model.%@` instead.', [key, this, key]), !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
         return _emberMetalProperty_get.get(content, key);
       }
     },
@@ -29288,7 +28897,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
       var content = _emberMetalProperty_get.get(this, 'content');
       _emberMetalCore.default.assert(_emberRuntimeSystemString.fmt('Cannot delegate set(\'%@\', %@) to the \'content\' property of' + ' object proxy %@: its \'content\' is undefined.', [key, value, this]), content);
 
-      _emberMetalCore.default.deprecate(_emberRuntimeSystemString.fmt('You attempted to set `%@` from `%@`, but object proxying is deprecated. ' + 'Please use `model.%@` instead.', [key, this, key]), !this.isController);
+      _emberMetalCore.default.deprecate(_emberRuntimeSystemString.fmt('You attempted to set `%@` from `%@`, but object proxying is deprecated. ' + 'Please use `model.%@` instead.', [key, this, key]), !this.isController, { id: 'ember-runtime.controller-proxy', until: '3.0.0' });
       return _emberMetalProperty_set.set(content, key, value);
     }
 
@@ -30107,7 +29716,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
         props.model = props.content;
         delete props['content'];
 
-        _emberMetalCore.default.deprecate('Do not specify `content` on a Controller, use `model` instead.', false);
+        _emberMetalCore.default.deprecate('Do not specify `content` on a Controller, use `model` instead.', false, { id: 'ember-runtime.will-merge-mixin', until: '3.0.0' });
       }
     }
   });
@@ -30157,7 +29766,7 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-m
       @private
     */
     frozenCopy: function () {
-      _emberMetalCore.default.deprecate('`frozenCopy` is deprecated, use Object.freeze instead.');
+      _emberMetalCore.default.deprecate('`frozenCopy` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.frozen-copy', until: '3.0.0' });
       if (_emberRuntimeMixinsFreezable.Freezable && _emberRuntimeMixinsFreezable.Freezable.detect(this)) {
         return _emberMetalProperty_get.get(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
@@ -31342,7 +30951,7 @@ enifed('ember-runtime/mixins/freezable', ['exports', 'ember-metal/core', 'ember-
   var Freezable = _emberMetalMixin.Mixin.create({
 
     init: function () {
-      _emberMetalCore.default.deprecate('`Ember.Freezable` is deprecated, use `Object.freeze` instead.');
+      _emberMetalCore.default.deprecate('`Ember.Freezable` is deprecated, use `Object.freeze` instead.', false, { id: 'ember-runtime.freezable-init', until: '3.0.0' });
       this._super.apply(this, arguments);
     },
 
@@ -34013,7 +33622,9 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
 
   var loadHooks = _emberMetalCore.default.ENV.EMBER_LOAD_HOOKS || {};
   var loaded = {};
+  var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -34035,12 +33646,12 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   */
 
   function onLoad(name, callback) {
-    var object;
+    var object = loaded[name];
 
     loadHooks[name] = loadHooks[name] || _emberMetalCore.default.A();
     loadHooks[name].pushObject(callback);
 
-    if (object = loaded[name]) {
+    if (object) {
       callback(object);
     }
   }
@@ -36517,7 +36128,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.3',
+        revision: 'Ember@2.0.0-beta.3+0af6dc64',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37322,7 +36933,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/sys
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked);
+        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
@@ -37704,6 +37315,13 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         this.helperContainer = window;
       }
 
+      this.reopen({
+        willDestroy: function () {
+          this._super.apply(this, arguments);
+          this.removeTestHelpers();
+        }
+      });
+
       this.testHelpers = {};
       for (var name in helpers) {
         this.originalMethods[name] = this.helperContainer[name];
@@ -37733,6 +37351,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
       for (var name in helpers) {
         this.helperContainer[name] = this.originalMethods[name];
+        delete Test.Promise.prototype[name];
         delete this.testHelpers[name];
         delete this.originalMethods[name];
       }
@@ -37809,7 +37428,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
   exports.default = Test;
 });
-enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/compat/render_buffer', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views/renderer', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/select', 'ember-views/compat/metamorph_view', 'ember-views/views/legacy_each_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsCompatRender_buffer, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViewsRenderer, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberViewsViewsCollection_view, _emberViewsViewsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsSelect, _emberViewsCompatMetamorph_view, _emberViewsViewsLegacy_each_view) {
+enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views/renderer', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/views/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/select', 'ember-views/compat/metamorph_view', 'ember-views/views/legacy_each_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViewsRenderer, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberViewsViewsCollection_view, _emberViewsViewsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsSelect, _emberViewsCompatMetamorph_view, _emberViewsViewsLegacy_each_view) {
 
   // END IMPORTS
 
@@ -37825,7 +37444,6 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
   _emberRuntime.default.$ = _emberViewsSystemJquery.default;
 
   _emberRuntime.default.ViewTargetActionSupport = _emberViewsMixinsView_target_action_support.default;
-  _emberRuntime.default.RenderBuffer = _emberViewsCompatRender_buffer.default;
 
   var ViewUtils = _emberRuntime.default.ViewUtils = {};
   ViewUtils.isSimpleClick = _emberViewsSystemUtils.isSimpleClick;
@@ -37838,6 +37456,7 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
     _emberRuntime.default.View.states = _emberViewsViewsStates.states;
     _emberRuntime.default.View.cloneStates = _emberViewsViewsStates.cloneStates;
     _emberRuntime.default.View._Renderer = _emberMetalViewsRenderer.default;
+    _emberRuntime.default.ContainerView = _emberViewsViewsContainer_view.DeprecatedContainerView;
   }
 
   _emberRuntime.default._Renderer = _emberMetalViewsRenderer.default;
@@ -37855,7 +37474,6 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
 
   _emberRuntime.default.TextSupport = _emberViewsMixinsText_support.default;
   _emberRuntime.default.ComponentLookup = _emberViewsComponent_lookup.default;
-  _emberRuntime.default.ContainerView = _emberViewsViewsContainer_view.default;
   _emberRuntime.default.CollectionView = _emberViewsViewsCollection_view.default;
   _emberRuntime.default.Component = _emberViewsViewsComponent.default;
   _emberRuntime.default.EventDispatcher = _emberViewsSystemEvent_dispatcher.default;
@@ -37975,7 +37593,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
       if (attrs && key in attrs) {
         // do not deprecate accessing `this[key]` at this time.
         // add this back when we have a proper migration path
-        // Ember.deprecate(deprecation(key));
+        // Ember.deprecate(deprecation(key), { id: 'ember-views.', until: '3.0.0' });
         var possibleCell = _emberMetalProperty_get.get(attrs, key);
 
         if (possibleCell && possibleCell[MUTABLE_CELL]) {
@@ -38026,9 +37644,9 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
 
     init: function () {
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' + ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName);
+      _emberMetalCore.default.deprecate('Supplying a tagName to Metamorph views is unreliable and is deprecated.' + ' You may be setting the tagName on a Handlebars helper that creates a Metamorph.', !this.tagName, { id: 'ember-views.metamorph-tag-name', until: '2.4.0' });
 
-      _emberMetalCore.default.deprecate('Using ' + this.__metamorphType + ' is deprecated.');
+      _emberMetalCore.default.deprecate('Using ' + this.__metamorphType + ' is deprecated.', false, { id: 'ember-views.metamorph', until: '2.4.0' });
     }
   });
 
@@ -38046,614 +37664,6 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
 });
 /*jshint newcap:false*/
 // Ember.deprecate
-enifed('ember-views/compat/render_buffer', ['exports', 'ember-views/system/jquery', 'ember-metal/core', 'dom-helper/prop', 'ember-views/system/platform'], function (exports, _emberViewsSystemJquery, _emberMetalCore, _domHelperProp, _emberViewsSystemPlatform) {
-  exports.renderComponentWithBuffer = renderComponentWithBuffer;
-  exports.default = RenderBuffer;
-
-  // The HTML spec allows for "omitted start tags". These tags are optional
-  // when their intended child is the first thing in the parent tag. For
-  // example, this is a tbody start tag:
-  //
-  // <table>
-  //   <tbody>
-  //     <tr>
-  //
-  // The tbody may be omitted, and the browser will accept and render:
-  //
-  // <table>
-  //   <tr>
-  //
-  // However, the omitted start tag will still be added to the DOM. Here
-  // we test the string and context to see if the browser is about to
-  // perform this cleanup, but with a special allowance for disregarding
-  // <script tags. This disregarding of <script being the first child item
-  // may bend the official spec a bit, and is only needed for Handlebars
-  // templates.
-  //
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/syntax.html#optional-tags
-  // describes which tags are omittable. The spec for tbody and colgroup
-  // explains this behavior:
-  //
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-tbody-element
-  // http://www.whatwg.org/specs/web-apps/current-work/multipage/tables.html#the-colgroup-element
-  //
-  var omittedStartTagChildren;
-  var omittedStartTagChildTest = /(?:<script)*.*?<([\w:]+)/i;
-
-  function detectOmittedStartTag(dom, string, contextualElement) {
-    omittedStartTagChildren = omittedStartTagChildren || {
-      tr: dom.createElement('tbody'),
-      col: dom.createElement('colgroup')
-    };
-
-    // Omitted start tags are only inside table tags.
-    if (contextualElement.tagName === 'TABLE') {
-      var omittedStartTagChildMatch = omittedStartTagChildTest.exec(string);
-      if (omittedStartTagChildMatch) {
-        // It is already asserted that the contextual element is a table
-        // and not the proper start tag. Just look up the start tag.
-        return omittedStartTagChildren[omittedStartTagChildMatch[1].toLowerCase()];
-      }
-    }
-  }
-
-  function ClassSet() {
-    this.seen = Object.create(null);
-    this.list = [];
-  }
-
-  ClassSet.prototype = {
-    add: function (string) {
-      if (this.seen[string] === true) {
-        return;
-      }
-      this.seen[string] = true;
-
-      this.list.push(string);
-    }
-  };
-
-  var BAD_TAG_NAME_TEST_REGEXP = /[^a-zA-Z0-9\-]/;
-  var BAD_TAG_NAME_REPLACE_REGEXP = /[^a-zA-Z0-9\-]/g;
-
-  function stripTagName(tagName) {
-    if (!tagName) {
-      return tagName;
-    }
-
-    if (!BAD_TAG_NAME_TEST_REGEXP.test(tagName)) {
-      return tagName;
-    }
-
-    return tagName.replace(BAD_TAG_NAME_REPLACE_REGEXP, '');
-  }
-
-  var BAD_CHARS_REGEXP = /&(?!\w+;)|[<>"'`]/g;
-  var POSSIBLE_CHARS_REGEXP = /[&<>"'`]/;
-
-  function escapeAttribute(value) {
-    // Stolen shamelessly from Handlebars
-
-    var escape = {
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      '\'': '&#x27;',
-      '`': '&#x60;'
-    };
-
-    var escapeChar = function (chr) {
-      return escape[chr] || '&amp;';
-    };
-
-    var string = value.toString();
-
-    if (!POSSIBLE_CHARS_REGEXP.test(string)) {
-      return string;
-    }
-    return string.replace(BAD_CHARS_REGEXP, escapeChar);
-  }
-
-  function renderComponentWithBuffer(component, contextualElement, dom) {
-    var buffer = [];
-    component.render(buffer);
-    var element = dom.parseHTML(buffer.join(''), contextualElement);
-    return element;
-  }
-
-  /**
-    `Ember.RenderBuffer` gathers information regarding the view and generates the
-    final representation. `Ember.RenderBuffer` will generate HTML which can be pushed
-    to the DOM.
-  
-     ```javascript
-     var buffer = new Ember.RenderBuffer('div', contextualElement);
-    ```
-  
-    @class RenderBuffer
-    @namespace Ember
-    @deprecated
-    @private
-  */
-
-  function RenderBuffer(domHelper) {
-    _emberMetalCore.default.deprecate('`Ember.RenderBuffer` is deprecated.');
-    this.buffer = null;
-    this.childViews = [];
-    this.attrNodes = [];
-
-    _emberMetalCore.default.assert('RenderBuffer requires a DOM helper to be passed to its constructor.', !!domHelper);
-
-    this.dom = domHelper;
-
-    this.tagName = undefined;
-    this.buffer = null;
-    this._element = null;
-    this._outerContextualElement = undefined;
-    this.elementClasses = null;
-    this.elementId = null;
-    this.elementAttributes = null;
-    this.elementProperties = null;
-    this.elementTag = null;
-    this.elementStyle = null;
-  }
-
-  RenderBuffer.prototype = {
-
-    reset: function (tagName, contextualElement) {
-      this.tagName = tagName;
-      this.buffer = null;
-      this._element = null;
-      this._outerContextualElement = contextualElement;
-      this.elementClasses = null;
-      this.elementId = null;
-      this.elementAttributes = null;
-      this.elementProperties = null;
-      this.elementTag = null;
-      this.elementStyle = null;
-      this.childViews.length = 0;
-      this.attrNodes.length = 0;
-    },
-
-    // The root view's element
-    _element: null,
-
-    // The root view's contextualElement
-    _outerContextualElement: null,
-
-    /**
-      An internal set used to de-dupe class names when `addClass()` is
-      used. After each call to `addClass()`, the `classes` property
-      will be updated.
-       @private
-      @property elementClasses
-      @type Array
-      @default null
-    */
-    elementClasses: null,
-
-    /**
-      Array of class names which will be applied in the class attribute.
-       You can use `setClasses()` to set this property directly. If you
-      use `addClass()`, it will be maintained for you.
-       @property classes
-      @type Array
-      @default null
-      @private
-    */
-    classes: null,
-
-    /**
-      The id in of the element, to be applied in the id attribute.
-       You should not set this property yourself, rather, you should use
-      the `id()` method of `Ember.RenderBuffer`.
-       @property elementId
-      @type String
-      @default null
-      @private
-    */
-    elementId: null,
-
-    /**
-      A hash keyed on the name of the attribute and whose value will be
-      applied to that attribute. For example, if you wanted to apply a
-      `data-view="Foo.bar"` property to an element, you would set the
-      elementAttributes hash to `{'data-view':'Foo.bar'}`.
-       You should not maintain this hash yourself, rather, you should use
-      the `attr()` method of `Ember.RenderBuffer`.
-       @property elementAttributes
-      @type Hash
-      @default {}
-      @private
-    */
-    elementAttributes: null,
-
-    /**
-      A hash keyed on the name of the properties and whose value will be
-      applied to that property. For example, if you wanted to apply a
-      `checked=true` property to an element, you would set the
-      elementProperties hash to `{'checked':true}`.
-       You should not maintain this hash yourself, rather, you should use
-      the `prop()` method of `Ember.RenderBuffer`.
-       @property elementProperties
-      @type Hash
-      @default {}
-      @private
-    */
-    elementProperties: null,
-
-    /**
-      The tagname of the element an instance of `Ember.RenderBuffer` represents.
-       Usually, this gets set as the first parameter to `Ember.RenderBuffer`. For
-      example, if you wanted to create a `p` tag, then you would call
-       ```javascript
-      Ember.RenderBuffer('p', contextualElement)
-      ```
-       @property elementTag
-      @type String
-      @default null
-      @private
-    */
-    elementTag: null,
-
-    /**
-      A hash keyed on the name of the style attribute and whose value will
-      be applied to that attribute. For example, if you wanted to apply a
-      `background-color:black;` style to an element, you would set the
-      elementStyle hash to `{'background-color':'black'}`.
-       You should not maintain this hash yourself, rather, you should use
-      the `style()` method of `Ember.RenderBuffer`.
-       @property elementStyle
-      @type Hash
-      @default {}
-      @private
-    */
-    elementStyle: null,
-
-    pushChildView: function (view) {
-      var index = this.childViews.length;
-      this.childViews[index] = view;
-      this.push('<script id=\'morph-' + index + '\' type=\'text/x-placeholder\'></script>');
-    },
-
-    pushAttrNode: function (node) {
-      var index = this.attrNodes.length;
-      this.attrNodes[index] = node;
-    },
-
-    hydrateMorphs: function (contextualElement) {
-      var childViews = this.childViews;
-      var el = this._element;
-      for (var i = 0, l = childViews.length; i < l; i++) {
-        var childView = childViews[i];
-        var ref = el.querySelector('#morph-' + i);
-
-        _emberMetalCore.default.assert('An error occurred while setting up template bindings. Please check ' + (childView && childView.parentView && childView._parentView._debugTemplateName ? '"' + childView._parentView._debugTemplateName + '" template ' : '') + 'for invalid markup or bindings within HTML comments.', ref);
-
-        var parent = ref.parentNode;
-
-        childView._morph = this.dom.insertMorphBefore(parent, ref, parent.nodeType === 1 ? parent : contextualElement);
-        parent.removeChild(ref);
-      }
-    },
-
-    /**
-      Adds a string of HTML to the `RenderBuffer`.
-       @method push
-      @param {String} string HTML to push into the buffer
-      @chainable
-      @private
-    */
-    push: function (content) {
-      if (typeof content === 'string') {
-        if (this.buffer === null) {
-          this.buffer = '';
-        }
-        _emberMetalCore.default.assert('A string cannot be pushed into the buffer after a fragment', !this.buffer.nodeType);
-        this.buffer += content;
-      } else {
-        _emberMetalCore.default.assert('A fragment cannot be pushed into a buffer that contains content', !this.buffer);
-        this.buffer = content;
-      }
-      return this;
-    },
-
-    /**
-      Adds a class to the buffer, which will be rendered to the class attribute.
-       @method addClass
-      @param {String} className Class name to add to the buffer
-      @chainable
-      @private
-    */
-    addClass: function (className) {
-      // lazily create elementClasses
-      this.elementClasses = this.elementClasses || new ClassSet();
-      this.elementClasses.add(className);
-      this.classes = this.elementClasses.list;
-
-      return this;
-    },
-
-    setClasses: function (classNames) {
-      this.elementClasses = null;
-      var len = classNames.length;
-      var i;
-      for (i = 0; i < len; i++) {
-        this.addClass(classNames[i]);
-      }
-    },
-
-    /**
-      Sets the elementID to be used for the element.
-       @method id
-      @param {String} id
-      @chainable
-      @private
-    */
-    id: function (id) {
-      this.elementId = id;
-      return this;
-    },
-
-    // duck type attribute functionality like jQuery so a render buffer
-    // can be used like a jQuery object in attribute binding scenarios.
-
-    /**
-      Adds an attribute which will be rendered to the element.
-       @method attr
-      @param {String} name The name of the attribute
-      @param {String} value The value to add to the attribute
-      @chainable
-      @return {Ember.RenderBuffer|String} this or the current attribute value
-      @private
-    */
-    attr: function (name, value) {
-      var attributes = this.elementAttributes = this.elementAttributes || {};
-
-      if (arguments.length === 1) {
-        return attributes[name];
-      } else {
-        attributes[name] = value;
-      }
-
-      return this;
-    },
-
-    /**
-      Remove an attribute from the list of attributes to render.
-       @method removeAttr
-      @param {String} name The name of the attribute
-      @chainable
-      @private
-    */
-    removeAttr: function (name) {
-      var attributes = this.elementAttributes;
-      if (attributes) {
-        delete attributes[name];
-      }
-
-      return this;
-    },
-
-    /**
-      Adds a property which will be rendered to the element.
-       @method prop
-      @param {String} name The name of the property
-      @param {String} value The value to add to the property
-      @chainable
-      @return {Ember.RenderBuffer|String} this or the current property value
-      @private
-    */
-    prop: function (name, value) {
-      var properties = this.elementProperties = this.elementProperties || {};
-
-      if (arguments.length === 1) {
-        return properties[name];
-      } else {
-        properties[name] = value;
-      }
-
-      return this;
-    },
-
-    /**
-      Remove an property from the list of properties to render.
-       @method removeProp
-      @param {String} name The name of the property
-      @chainable
-      @private
-    */
-    removeProp: function (name) {
-      var properties = this.elementProperties;
-      if (properties) {
-        delete properties[name];
-      }
-
-      return this;
-    },
-
-    /**
-      Adds a style to the style attribute which will be rendered to the element.
-       @method style
-      @param {String} name Name of the style
-      @param {String} value
-      @chainable
-      @private
-    */
-    style: function (name, value) {
-      this.elementStyle = this.elementStyle || {};
-
-      this.elementStyle[name] = value;
-      return this;
-    },
-
-    generateElement: function () {
-      var tagName = this.tagName;
-      var id = this.elementId;
-      var classes = this.classes;
-      var attrs = this.elementAttributes;
-      var props = this.elementProperties;
-      var style = this.elementStyle;
-      var styleBuffer = '';
-      var attr, prop, tagString;
-
-      if (!_emberViewsSystemPlatform.canSetNameOnInputs && attrs && attrs.name) {
-        // IE allows passing a tag to createElement. See note on `canSetNameOnInputs` above as well.
-        tagString = '<' + stripTagName(tagName) + ' name="' + escapeAttribute(attrs.name) + '">';
-      } else {
-        tagString = tagName;
-      }
-
-      var element = this.dom.createElement(tagString, this.outerContextualElement());
-
-      if (id) {
-        this.dom.setAttribute(element, 'id', id);
-        this.elementId = null;
-      }
-      if (classes) {
-        this.dom.setAttribute(element, 'class', classes.join(' '));
-        this.classes = null;
-        this.elementClasses = null;
-      }
-
-      if (style) {
-        for (prop in style) {
-          styleBuffer += prop + ':' + style[prop] + ';';
-        }
-
-        this.dom.setAttribute(element, 'style', styleBuffer);
-
-        this.elementStyle = null;
-      }
-
-      if (attrs) {
-        for (attr in attrs) {
-          this.dom.setAttribute(element, attr, attrs[attr]);
-        }
-
-        this.elementAttributes = null;
-      }
-
-      if (props) {
-        for (prop in props) {
-          var _normalizeProperty = _domHelperProp.normalizeProperty(element, prop);
-
-          var normalized = _normalizeProperty.normalized;
-
-          this.dom.setPropertyStrict(element, normalized, props[prop]);
-        }
-
-        this.elementProperties = null;
-      }
-
-      return this._element = element;
-    },
-
-    /**
-      @method element
-      @return {DOMElement} The element corresponding to the generated HTML
-        of this buffer
-      @private
-    */
-    element: function () {
-
-      if (this._element && this.attrNodes.length > 0) {
-        var i, l, attrMorph, attrNode;
-        for (i = 0, l = this.attrNodes.length; i < l; i++) {
-          attrNode = this.attrNodes[i];
-          attrMorph = this.dom.createAttrMorph(this._element, attrNode.attrName);
-          attrNode._morph = attrMorph;
-        }
-      }
-
-      var content = this.innerContent();
-      // No content means a text node buffer, with the content
-      // in _element. Ember._BoundView is an example.
-      if (content === null) {
-        return this._element;
-      }
-
-      var contextualElement = this.innerContextualElement(content);
-      this.dom.detectNamespace(contextualElement);
-
-      if (!this._element) {
-        this._element = this.dom.createDocumentFragment();
-      }
-
-      if (content.nodeType) {
-        this._element.appendChild(content);
-      } else {
-        var frag = this.dom.parseHTML(content, contextualElement);
-        this._element.appendChild(frag);
-      }
-
-      // This should only happen with legacy string buffers
-      if (this.childViews.length > 0) {
-        this.hydrateMorphs(contextualElement);
-      }
-
-      return this._element;
-    },
-
-    /**
-      Generates the HTML content for this buffer.
-       @method string
-      @return {String} The generated HTML
-      @private
-    */
-    string: function () {
-      if (this._element) {
-        // Firefox versions < 11 do not have support for element.outerHTML.
-        var thisElement = this.element();
-        var outerHTML = thisElement.outerHTML;
-        if (typeof outerHTML === 'undefined') {
-          return _emberViewsSystemJquery.default('<div/>').append(thisElement).html();
-        }
-        return outerHTML;
-      } else {
-        return this.innerString();
-      }
-    },
-
-    outerContextualElement: function () {
-      if (this._outerContextualElement === undefined) {
-        _emberMetalCore.default.deprecate('The render buffer expects an outer contextualElement to exist.' + ' This ensures DOM that requires context is correctly generated (tr, SVG tags).' + ' Defaulting to document.body, but this will be removed in the future');
-        this.outerContextualElement = document.body;
-      }
-      return this._outerContextualElement;
-    },
-
-    innerContextualElement: function (html) {
-      var innerContextualElement;
-      if (this._element && this._element.nodeType === 1) {
-        innerContextualElement = this._element;
-      } else {
-        innerContextualElement = this.outerContextualElement();
-      }
-
-      var omittedStartTag;
-      if (html) {
-        omittedStartTag = detectOmittedStartTag(this.dom, html, innerContextualElement);
-      }
-      return omittedStartTag || innerContextualElement;
-    },
-
-    innerString: function () {
-      var content = this.innerContent();
-      if (content && !content.nodeType) {
-        return content;
-      }
-    },
-
-    innerContent: function () {
-      return this.buffer;
-    }
-  };
-});
-/**
-@module ember
-@submodule ember-views
-*/
 enifed('ember-views/component_lookup', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-htmlbars/system/lookup-helper'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberHtmlbarsSystemLookupHelper) {
   exports.default = _emberRuntimeSystemObject.default.extend({
     invalidName: function (name) {
@@ -38859,7 +37869,7 @@ enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-m
         delete props['template'];
       }
 
-      _emberMetalCore.default.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty);
+      _emberMetalCore.default.deprecate('Do not specify ' + deprecatedProperty + ' on a Component, use ' + replacementProperty + ' instead.', !deprecatedProperty, { id: 'ember-views.component-deprecated-template-layout-properties', until: '3.0.0' });
     }
   });
 });
@@ -39019,7 +38029,7 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/core',
       @private
     */
     nearestChildOf: function (klass) {
-      _emberMetalCore.default.deprecate('nearestChildOf has been deprecated.');
+      _emberMetalCore.default.deprecate('nearestChildOf has been deprecated.', false, { id: 'ember-views.nearest-child-of', until: '3.0.0' });
 
       var view = _emberMetalProperty_get.get(this, 'parentView');
 
@@ -39041,7 +38051,7 @@ enifed('ember-views/mixins/legacy_view_support', ['exports', 'ember-metal/core',
       @private
     */
     nearestInstanceOf: function (klass) {
-      _emberMetalCore.default.deprecate('nearestInstanceOf is deprecated and will be removed from future releases. Use nearestOfType.');
+      _emberMetalCore.default.deprecate('nearestInstanceOf is deprecated and will be removed from future releases. Use nearestOfType.', false, { id: 'ember-views.nearest-instance-of', until: '3.0.0' });
       var view = _emberMetalProperty_get.get(this, 'parentView');
 
       while (view) {
@@ -39691,7 +38701,7 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/core', 
 
   var ViewStateSupport = _emberMetalMixin.Mixin.create({
     transitionTo: function (state) {
-      _emberMetalCore.default.deprecate('Ember.View#transitionTo has been deprecated, it is for internal use only');
+      _emberMetalCore.default.deprecate('Ember.View#transitionTo has been deprecated, it is for internal use only', false, { id: 'ember-views.view-transition-to', until: '2.4.0' });
       this._transitionTo(state);
     },
 
@@ -40251,7 +39261,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/c
 
     if (tagName !== null && typeof tagName === 'object' && tagName.isDescriptor) {
       tagName = _emberMetalProperty_get.get(view, 'tagName');
-      _emberMetalCore.default.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName);
+      _emberMetalCore.default.deprecate('In the future using a computed property to define tagName will not be permitted. That value will be respected, but changing it will not update the element.', !tagName, { id: 'ember-views.computed-tag-name', until: '2.0.0' });
     }
 
     if (tagName === null || tagName === undefined) {
@@ -41443,7 +40453,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     */
     template: _emberMetalComputed.computed('_template', {
       get: function () {
-        _emberMetalCore.default.deprecate('Accessing \'template\' in ' + this + ' is deprecated. To determine if a block was specified to ' + this + ' please use \'{{#if hasBlock}}\' in the components layout.');
+        _emberMetalCore.default.deprecate('Accessing \'template\' in ' + this + ' is deprecated. To determine if a block was specified to ' + this + ' please use \'{{#if hasBlock}}\' in the components layout.', false, { id: 'ember-views.component-template-get', until: '3.0.0' });
 
         return _emberMetalProperty_get.get(this, '_template');
       },
@@ -41689,7 +40699,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.3';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.3+0af6dc64';
 
   /**
   @module ember
@@ -41845,11 +40855,12 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
     @class ContainerView
     @namespace Ember
     @extends Ember.View
+    @deprecated See http://emberjs.com/deprecations/v1.x/#toc_ember-containerview
     @private
   */
   var ContainerView = _emberViewsViewsView.default.extend(_emberRuntimeMixinsMutable_array.default, {
     willWatchProperty: function (prop) {
-      _emberMetalCore.default.deprecate('ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.', !prop.match(/\[]/) && prop.indexOf('@') !== 0);
+      _emberMetalCore.default.deprecate('ContainerViews should not be observed as arrays. This behavior will change in future implementations of ContainerView.', !prop.match(/\[]/) && prop.indexOf('@') !== 0, { id: 'ember-views.container-views-array-observed', until: '2.4.0' });
     },
 
     init: function () {
@@ -41858,7 +40869,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       this._super.apply(this, arguments);
 
       var userChildViews = _emberMetalProperty_get.get(this, 'childViews');
-      _emberMetalCore.default.deprecate('Setting `childViews` on a Container is deprecated.', _emberMetalCore.default.isEmpty(userChildViews));
+      _emberMetalCore.default.deprecate('Setting `childViews` on a Container is deprecated.', _emberMetalCore.default.isEmpty(userChildViews), { id: 'ember-views.container-child-views', until: '2.4.0' });
 
       // redefine view's childViews property that was obliterated
       // 2.0TODO: Don't Ember.A() this so users disabling prototype extensions
@@ -41991,6 +41002,28 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
     })
   });
 
+  function containerViewDeprecationMessage() {
+    _emberMetalCore.default.deprecate('Ember.ContainerView is deprecated.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+      url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-containerview',
+      id: 'ember-views.container-view',
+      until: '2.4.0'
+    });
+  }
+
+  var DeprecatedContainerView = ContainerView.extend({
+    init: function () {
+      containerViewDeprecationMessage();
+      this._super.apply(this, arguments);
+    }
+  });
+
+  exports.DeprecatedContainerView = DeprecatedContainerView;
+  DeprecatedContainerView.reopen = function () {
+    containerViewDeprecationMessage();
+    ContainerView.reopen.apply(ContainerView, arguments);
+    return this;
+  };
+
   exports.default = ContainerView;
 });
 enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-runtime/utils', 'ember-metal-views/renderer', 'ember-views/views/states', 'htmlbars-runtime'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRuntimeUtils, _emberMetalViewsRenderer, _emberViewsViewsStates, _htmlbarsRuntime) {
@@ -42122,7 +41155,7 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-met
 
   var DeprecatedCoreView = CoreView.extend({
     init: function () {
-      _emberMetalCore.default.deprecate('Ember.CoreView is deprecated. Please use Ember.View.', false);
+      _emberMetalCore.default.deprecate('Ember.CoreView is deprecated. Please use Ember.View.', false, { id: 'ember-views.core-view', until: '2.4.0' });
       this._super.apply(this, arguments);
     }
   });
@@ -42802,12 +41835,26 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
     }
   });
 
+  function selectViewDeprecationMessage() {
+    _emberMetalCore.default.deprecate('Ember.Select is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+      url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-select',
+      id: 'ember-views.select-deprecated',
+      until: '2.4.0'
+    });
+  }
+
   var DeprecatedSelect = Select.extend({
     init: function () {
+      selectViewDeprecationMessage();
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Ember.Select is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-select' });
     }
   });
+
+  DeprecatedSelect.reopen = function () {
+    selectViewDeprecationMessage();
+    Select.reopen.apply(Select, arguments);
+    return this;
+  };
 
   function indexesOf(iterable, elements) {
     return elements === undefined ? [] : elements.map(function (item) {
@@ -43259,7 +42306,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   @submodule ember-views
   */
 
-  _emberMetalCore.default.warn('The VIEW_PRESERVES_CONTEXT flag has been removed and the functionality can no longer be disabled.', _emberMetalCore.default.ENV.VIEW_PRESERVES_CONTEXT !== false);
+  _emberMetalCore.default.warn('The VIEW_PRESERVES_CONTEXT flag has been removed and the functionality can no longer be disabled.', _emberMetalCore.default.ENV.VIEW_PRESERVES_CONTEXT !== false, { id: 'ember-views.view-preserves-context-flag', until: '2.0.0' });
 
   /**
     Global hash of shared templates. This will automatically be populated
@@ -44493,15 +43540,15 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
     scheduleRevalidate: function (node, label, manualRerender) {
       if (node && !this._dispatching && node.guid in this.env.renderedNodes) {
         if (manualRerender) {
-          _emberMetalCore.default.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0');
+          _emberMetalCore.default.deprecate('You manually rerendered ' + label + ' (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0', false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
         } else {
-          _emberMetalCore.default.deprecate('You modified ' + label + ' twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0');
+          _emberMetalCore.default.deprecate('You modified ' + label + ' twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0', false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
         }
         _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
         return;
       }
 
-      _emberMetalCore.default.deprecate('A property of ' + this + ' was modified inside the ' + this._dispatching + ' hook. You should never change properties on components, services or models during ' + this._dispatching + ' because it causes significant performance degradation.', !this._dispatching);
+      _emberMetalCore.default.deprecate('A property of ' + this + ' was modified inside the ' + this._dispatching + ' hook. You should never change properties on components, services or models during ' + this._dispatching + ' because it causes significant performance degradation.', !this._dispatching, { id: 'ember-views.dispatching-modify-property', until: '3.0.0' });
 
       if (!this.scheduledRevalidation || this._dispatching) {
         this.scheduledRevalidation = true;
@@ -44679,12 +43726,26 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   // method.
   View.childViewsProperty = _emberViewsMixinsView_child_views_support.childViewsProperty;
 
+  function viewDeprecationMessage() {
+    _emberMetalCore.default.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+      url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view',
+      id: 'ember-views.view-deprecated',
+      until: '2.4.0'
+    });
+  }
+
   var DeprecatedView = View.extend({
     init: function () {
+      viewDeprecationMessage();
       this._super.apply(this, arguments);
-      _emberMetalCore.default.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { url: 'http://emberjs.com/deprecations/v1.x/#toc_ember-view' });
     }
   });
+
+  DeprecatedView.reopen = function () {
+    viewDeprecationMessage();
+    View.reopen.apply(View, arguments);
+    return this;
+  };
 
   exports.default = View;
   exports.ViewContextSupport = _emberViewsMixinsView_context_support.default;
@@ -44699,7 +43760,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
 // Ember.ContainerView circular dependency
 // Ember.ENV
 // for the side effect of extending Ember.run.queues
-enifed('ember', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-routing-views', 'ember-metal/core', 'ember-metal/environment', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberRoutingHtmlbars, _emberRoutingViews, _emberMetalCore, _emberMetalEnvironment, _emberRuntimeSystemLazy_load) {
+enifed('ember', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'ember-routing', 'ember-application', 'ember-extension-support', 'ember-htmlbars', 'ember-routing-htmlbars', 'ember-routing-views', 'ember-metal/core', 'ember-runtime/system/lazy_load'], function (exports, _emberMetal, _emberRuntime, _emberViews, _emberRouting, _emberApplication, _emberExtensionSupport, _emberHtmlbars, _emberRoutingHtmlbars, _emberRoutingViews, _emberMetalCore, _emberRuntimeSystemLazy_load) {
 
   if (_emberMetalCore.default.__loader.registry['ember-template-compiler']) {
     requireModule('ember-template-compiler');
@@ -44716,8 +43777,6 @@ enifed('ember', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'embe
   /**
   @module ember
   */
-
-  _emberMetalCore.default.deprecate('Usage of Ember is deprecated for Internet Explorer 6 and 7, support will be removed in the next major version.', !_emberMetalEnvironment.default.userAgent.match(/MSIE [67]/));
 });
 // require the main entry points for each of these packages
 // this is so that the global exports occur properly
@@ -45249,9 +44308,9 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       return seek;
     }
 
-    return function (key, blockArguments, self) {
-      if (typeof key !== "string") {
-        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + key);
+    return function (_key, blockArguments, self) {
+      if (typeof _key !== "string") {
+        throw new Error("You must provide a string key when calling `yieldItem`; you provided " + _key);
       }
 
       // At least one item has been yielded, so we do not wholesale
@@ -45275,6 +44334,25 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       // this list will be pruned from the MorphList during the cleanup
       // process.
       var handledMorphs = renderState.handledMorphs;
+      var key = undefined;
+
+      if (handledMorphs[_key]) {
+        // In this branch we are dealing with a duplicate key. The strategy
+        // is to take the original key and append a counter to it that is
+        // incremented every time the key is reused. In order to greatly
+        // reduce the chance of colliding with another valid key we also add
+        // an extra string "--z8mS2hvDW0A--" to the new key.
+        var collisions = renderState.collisions;
+        if (collisions === undefined) {
+          collisions = renderState.collisions = {};
+        }
+        var count = collisions[_key] | 0;
+        collisions[_key] = ++count;
+
+        key = _key + "--z8mS2hvDW0A--" + count;
+      } else {
+        key = _key;
+      }
 
       if (currentMorph && currentMorph.key === key) {
         yieldTemplate(template, env, parentScope, currentMorph, renderState, visitor)(blockArguments, self);
@@ -46989,6 +46067,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // rendering pass. Any morphs in the DOM but not in this map
     // will be pruned during cleanup.
     this.handledMorphs = {};
+    this.collisions = undefined;
 
     // The morph to clear once rendering is complete. By
     // default, we set this to the previous morph (to catch
@@ -47055,6 +46134,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     // yieldTemplate), we detect what was rendered and how it differs from
     // the previous render, cleaning up old state in DOM as appropriate.
     var renderState = options.renderState;
+    renderState.collisions = undefined;
     renderState.shadowOptions = shadowOptions;
 
     // Invoke the callback, instructing it to save information about what it
