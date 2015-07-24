@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3+0af6dc64
+ * @version   2.0.0-beta.3+3cc86962
  */
 
 (function() {
@@ -3380,7 +3380,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
 
   exports.removeChainWatcher = removeChainWatcher;
   exports.ChainNode = ChainNode;
-  ;
 });
 // warn, assert, etc;
 enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/expand_properties', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/dependent_keys'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalUtils, _emberMetalExpand_properties, _emberMetalError, _emberMetalProperties, _emberMetalProperty_events, _emberMetalDependent_keys) {
@@ -4677,7 +4676,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.3+0af6dc64
+    @version 2.0.0-beta.3+3cc86962
     @public
   */
 
@@ -4709,11 +4708,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.3+0af6dc64'
+    @default '2.0.0-beta.3+3cc86962'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.3+0af6dc64';
+  Ember.VERSION = '2.0.0-beta.3+3cc86962';
 
   /**
     The hash of environment variables used to control various configuration
