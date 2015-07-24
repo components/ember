@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e09c61a7
+ * @version   2.0.0-canary+2a32a95b
  */
 
 (function() {
@@ -183,7 +183,7 @@ enifed('container/tests/container_helper', ['exports'], function (exports) {
   exports.factory = factory;
   exports.setProperties = setProperties;
 });
-enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/container_helper', 'ember-metal/features'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsContainer_helper, _emberMetalFeatures) {
+enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/container_helper'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsContainer_helper) {
 
   var originalModelInjections;
 
@@ -706,16 +706,6 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     container.lookup('apple:main');
     container.lookup('apple:main');
   });
-
-  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
-    QUnit.test('Container#_registry provides an alias to Container#registry while Container is pseudo-public', function () {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-
-      strictEqual(container.registry, registry, '#registry points to the parent registry');
-      strictEqual(container._registry, registry, '#_registry is an alias to #registry');
-    });
-  }
 });
 enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'container', 'container/tests/container_helper'], function (exports, _emberMetalCore, _container, _containerTestsContainer_helper) {
 
@@ -1110,71 +1100,6 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
       'foo:yorp': true,
       'foo:bar-baz': true
     });
-  });
-});
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalFeatures) {
-
-  var app = undefined,
-      appInstance = undefined;
-
-  QUnit.module('Ember.ApplicationInstance', {
-    setup: function () {
-      _emberViewsSystemJquery.default('#qunit-fixture').html('<div id=\'one\'><div id=\'one-child\'>HI</div></div><div id=\'two\'>HI</div>');
-      _emberMetalRun_loop.default(function () {
-        app = _emberApplicationSystemApplication.default.create({ rootElement: '#one', router: null });
-      });
-    },
-
-    teardown: function () {
-      _emberViewsSystemJquery.default('#qunit-fixture').empty();
-
-      if (appInstance) {
-        _emberMetalRun_loop.default(appInstance, 'destroy');
-      }
-
-      if (app) {
-        _emberMetalRun_loop.default(app, 'destroy');
-      }
-    }
-  });
-
-  QUnit.test('an application instance can be created based upon an application', function () {
-    _emberMetalRun_loop.default(function () {
-      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
-    });
-
-    ok(appInstance, 'instance should be created');
-    equal(appInstance.application, app, 'application should be set to parent');
-  });
-
-  QUnit.test('properties (and aliases) are correctly assigned for accessing the container and registry', function () {
-    _emberMetalRun_loop.default(function () {
-      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
-    });
-
-    ok(appInstance, 'instance should be created');
-    ok(appInstance.__container__, '#__container__ is accessible');
-    ok(appInstance.__registry__, '#__registry__ is accessible');
-
-    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-      expect(6);
-
-      ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
-
-      // stub `lookup` with a no-op to keep deprecation test simple
-      appInstance.__container__.lookup = function () {
-        ok(true, '#loookup alias is called correctly');
-      };
-
-      expectDeprecation(function () {
-        appInstance.container.lookup();
-      }, /Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead./);
-    } else {
-      expect(5);
-
-      strictEqual(appInstance.container, appInstance.__container__, '#container alias should be assigned');
-      strictEqual(appInstance.registry, appInstance.__registry__, '#registry alias should be assigned');
-    }
   });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load) {
@@ -42330,7 +42255,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+e09c61a7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+2a32a95b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e09c61a7
+ * @version   2.0.0-canary+2a32a95b
  */
 
 (function() {
@@ -1460,7 +1460,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   // Once registry / container reform is enabled, we no longer need to expose
   // Container#_registry, since Container itself will be fully private.
   if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
-    Object.defineProperty(Container.prototype, '_registry', {
+    Object.defineProperty(Container, '_registry', {
       configurable: true,
       enumerable: false,
       get: function () {
@@ -4754,7 +4754,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e09c61a7
+    @version 2.0.0-canary+2a32a95b
     @public
   */
 
@@ -4786,11 +4786,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e09c61a7'
+    @default '2.0.0-canary+2a32a95b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e09c61a7';
+  Ember.VERSION = '2.0.0-canary+2a32a95b';
 
   /**
     The hash of environment variables used to control various configuration
