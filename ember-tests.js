@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e4f80326
+ * @version   2.0.0-canary+2c137a19
  */
 
 (function() {
@@ -6350,26 +6350,6 @@ enifed('ember-htmlbars/tests/compat/make_bound_helper_test', ['exports', 'ember-
     equal(view.$().text(), 'AB', 'helper output is correct');
   });
 
-  QUnit.test('bound helpers should support global paths [DEPRECATED]', function () {
-    expectDeprecationInHTMLBars();
-
-    helper('capitalize', function (value) {
-      return value.toUpperCase();
-    });
-
-    _emberMetalCore.default.lookup = { Text: 'ab' };
-
-    view = _emberViewsViewsView.default.create({
-      template: compile('{{capitalize Text}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Global lookup of Text from a Handlebars template is deprecated/);
-
-    equal(view.$().text(), 'AB', 'helper output is correct');
-  });
-
   QUnit.test('bound helper should support this keyword', function () {
     expectDeprecationInHTMLBars();
 
@@ -6992,26 +6972,6 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     _emberRuntimeTestsUtils.runAppend(view);
 
     ok(firstGrandchild(view).isCustom, 'uses the example view class');
-  });
-
-  QUnit.test('itemViewClass works in the #collection helper with a global (DEPRECATED)', function () {
-    TemplateTests.ExampleItemView = _emberViewsViewsView.default.extend({
-      isAlsoCustom: true
-    });
-
-    view = _emberViewsViewsView.default.create({
-      exampleController: _emberRuntimeSystemArray_proxy.default.create({
-        content: _emberRuntimeSystemNative_array.A(['alpha'])
-      }),
-      template: _emberTemplateCompilerSystemCompile.default('{{#collection content=view.exampleController itemViewClass=TemplateTests.ExampleItemView}}beta{{/collection}}')
-    });
-
-    var deprecation = /Global lookup of TemplateTests from a Handlebars template is deprecated/;
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, deprecation);
-
-    ok(firstGrandchild(view).isAlsoCustom, 'uses the example view class specified in the #collection helper');
   });
 
   QUnit.test('itemViewClass works in the #collection helper with a property', function () {
@@ -8773,24 +8733,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     assertText(view, 'itemView:Steve HoltitemView:Annabelle');
   });
 
-  QUnit.test('it supports {{itemViewClass=}} with global (DEPRECATED)', function () {
-    expectDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView}}'),
-        people: people,
-        container: container
-      });
-    }, /Using 'itemViewClass' with '{{each}}'/);
-
-    var deprecation = /Global lookup of MyView from a Handlebars template is deprecated/;
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, deprecation);
-
-    assertText(view, 'Steve HoltAnnabelle');
-  });
-
   QUnit.test('it supports {{itemViewClass=}} via container', function () {
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
@@ -8808,7 +8750,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   QUnit.test('it supports {{itemViewClass=}} with each view tagName (DEPRECATED)', function () {
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass=MyView tagName="ul"}}'),
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass="my-view" tagName="ul"}}'),
         people: people,
         container: container
       });
@@ -8894,24 +8836,6 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     assertText(view, 'emptyView:sad panda');
   });
 
-  QUnit.test('it supports {{emptyViewClass=}} with global (DEPRECATED)', function () {
-    expectDeprecation(function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView}}'),
-        people: _emberRuntimeSystemNative_array.A(),
-        container: container
-      });
-    }, /Using 'emptyViewClass' with '{{each}}'/);
-
-    var deprecation = /Global lookup of MyEmptyView from a Handlebars template is deprecated/;
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, deprecation);
-
-    assertText(view, 'I\'m empty');
-  });
-
   QUnit.test('it supports {{emptyViewClass=}} via container', function () {
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
@@ -8929,7 +8853,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   QUnit.test('it supports {{emptyViewClass=}} with tagName (DEPRECATED)', function () {
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass=MyEmptyView tagName="b"}}'),
+        template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass="my-empty-view" tagName="b"}}'),
         people: _emberRuntimeSystemNative_array.A(),
         container: container
       });
@@ -11844,7 +11768,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
 
 // leave this as an empty function until we are ready to use it
 // to enforce deprecation notice for old Handlebars versions
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsSystemMake_bound_helper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/system/make_bound_helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsSystemMake_bound_helper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
 
   var view, originalLookup, registry, container, lookup, originalViewKeyword;
 
@@ -11948,27 +11872,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     _emberRuntimeTestsUtils.runAppend(view);
 
     ok(_emberViewsSystemJquery.default('#qunit-fixture').html().toUpperCase().match(/<SPAN/), 'contains view with span');
-  });
-
-  QUnit.test('View lookup - App.FuView (DEPRECATED)', function () {
-    _emberMetalCore.default.lookup = {
-      App: {
-        FuView: viewClass({
-          elementId: 'fu',
-          template: _emberTemplateCompilerSystemCompile.default('bro')
-        })
-      }
-    };
-
-    view = viewClass({
-      template: _emberTemplateCompilerSystemCompile.default('{{view App.FuView}}')
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Global lookup of App from a Handlebars template is deprecated./);
-
-    equal(_emberViewsSystemJquery.default('#fu').text(), 'bro');
   });
 
   QUnit.test('View lookup - \'fu\'', function () {
@@ -12668,46 +12571,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     equal(view.$().text(), 'common', 'tries to look up view name locally');
   });
 
-  QUnit.test('{{view}} should evaluate class bindings set to global paths DEPRECATED', function () {
-    var App;
-
-    _emberMetalRun_loop.default(function () {
-      lookup.App = App = _emberRuntimeSystemNamespace.default.create({
-        isApp: true,
-        isGreat: true,
-        directClass: 'app-direct',
-        isEnabled: true
-      });
-    });
-
-    view = _emberViewsViewsView.default.create({
-      textField: _emberViewsViewsText_field.default,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.textField class="unbound" classBinding="App.isGreat:great App.directClass App.isApp App.isEnabled:enabled:disabled"}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    ok(view.$('input').hasClass('unbound'), 'sets unbound classes directly');
-    ok(view.$('input').hasClass('great'), 'evaluates classes bound to global paths');
-    ok(view.$('input').hasClass('app-direct'), 'evaluates classes bound directly to global paths');
-    ok(view.$('input').hasClass('is-app'), 'evaluates classes bound directly to booleans in global paths - dasherizes and sets class when true');
-    ok(view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
-
-    _emberMetalRun_loop.default(function () {
-      App.set('isApp', false);
-      App.set('isEnabled', false);
-    });
-
-    ok(!view.$('input').hasClass('is-app'), 'evaluates classes bound directly to booleans in global paths - removes class when false');
-    ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
-
-    _emberRuntimeTestsUtils.runDestroy(lookup.App);
-  });
-
   QUnit.test('{{view}} should evaluate class bindings set in the current context', function () {
     view = _emberViewsViewsView.default.create({
       isView: true,
@@ -12735,71 +12598,6 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     ok(!view.$('input').hasClass('is-view'), 'evaluates classes bound directly to booleans in the current context - removes class when false');
     ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
     ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
-  });
-
-  QUnit.test('{{view}} should evaluate class bindings set with either classBinding or classNameBindings from globals DEPRECATED', function () {
-    var App;
-
-    _emberMetalRun_loop.default(function () {
-      lookup.App = App = _emberRuntimeSystemNamespace.default.create({
-        isGreat: true,
-        isEnabled: true
-      });
-    });
-
-    view = _emberViewsViewsView.default.create({
-      textField: _emberViewsViewsText_field.default,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.textField class="unbound" classBinding="App.isGreat:great App.isEnabled:enabled:disabled" classNameBindings="App.isGreat:really-great App.isEnabled:really-enabled:really-disabled"}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    });
-
-    ok(view.$('input').hasClass('unbound'), 'sets unbound classes directly');
-    ok(view.$('input').hasClass('great'), 'evaluates classBinding');
-    ok(view.$('input').hasClass('really-great'), 'evaluates classNameBinding');
-    ok(view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('really-enabled'), 'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('really-disabled'), 'evaluates ternary operator in classBindings');
-
-    _emberMetalRun_loop.default(function () {
-      App.set('isEnabled', false);
-    });
-
-    ok(!view.$('input').hasClass('enabled'), 'evaluates ternary operator in classBindings');
-    ok(!view.$('input').hasClass('really-enabled'), 'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('disabled'), 'evaluates ternary operator in classBindings');
-    ok(view.$('input').hasClass('really-disabled'), 'evaluates ternary operator in classBindings');
-
-    _emberRuntimeTestsUtils.runDestroy(lookup.App);
-  });
-
-  QUnit.test('{{view}} should evaluate other attribute bindings set to global paths [DEPRECATED]', function () {
-    _emberMetalRun_loop.default(function () {
-      lookup.App = _emberRuntimeSystemNamespace.default.create({
-        name: 'myApp'
-      });
-    });
-
-    var template;
-    expectDeprecation(function () {
-      template = _emberTemplateCompilerSystemCompile.default('{{view view.textField valueBinding="App.name"}}');
-    }, /You're using legacy binding syntax: valueBinding/);
-
-    view = _emberViewsViewsView.default.create({
-      textField: _emberViewsViewsText_field.default,
-      template: template
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Global lookup of App from a Handlebars template is deprecated.');
-
-    equal(view.$('input').val(), 'myApp', 'evaluates attributes bound to global paths');
-
-    _emberRuntimeTestsUtils.runDestroy(lookup.App);
   });
 
   QUnit.test('{{view}} should evaluate other attributes bindings set in the current context', function () {
@@ -13408,36 +13206,6 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$().text(), 'Limbo-Wrath-Treachery-Wrath-Limbo', 'should be properly scoped after updating');
-  });
-
-  QUnit.module('Handlebars {{#with}} globals helper [DEPRECATED]', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = { Ember: _emberMetalCore.default };
-
-      lookup.Foo = { bar: 'baz' };
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with Foo.bar as |qux|}}{{qux}}{{/with}}')
-      });
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('it should support #with Foo.bar as |qux| [DEPRECATED]', function () {
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, /Global lookup of Foo from a Handlebars template is deprecated/);
-
-    equal(view.$().text(), 'baz', 'should be properly scoped');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(lookup.Foo, 'bar', 'updated');
-    });
-
-    equal(view.$().text(), 'updated', 'should update');
   });
 
   QUnit.module('Handlebars {{#with keyword as |foo|}}');
@@ -16048,7 +15816,7 @@ enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', '
 
   var view;
 
-  QUnit.module('ember-htmlbars: Integration with Globals', {
+  QUnit.module('ember-htmlbars: Escaped Integration', {
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
 
@@ -16155,76 +15923,6 @@ enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', '
     });
 
     equal(view.$('i').length, 2, 'creates an element when value is updated');
-  });
-});
-enifed('ember-htmlbars/tests/integration/globals_integration_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
-
-  var view, originalLookup, lookup;
-
-  var originalLookup = _emberMetalCore.default.lookup;
-
-  QUnit.module('ember-htmlbars: Integration with Globals', {
-    setup: function () {
-      _emberMetalCore.default.lookup = lookup = {};
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(view);
-      view = null;
-
-      _emberMetalCore.default.lookup = lookup = originalLookup;
-    }
-  });
-
-  QUnit.test('should read from globals (DEPRECATED)', function () {
-    _emberMetalCore.default.lookup.Global = 'Klarg';
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{Global}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Global lookup of Global from a Handlebars template is deprecated.');
-
-    equal(view.$().text(), _emberMetalCore.default.lookup.Global);
-  });
-
-  QUnit.test('should read from globals with a path (DEPRECATED)', function () {
-    _emberMetalCore.default.lookup.Global = { Space: 'Klarg' };
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('{{Global.Space}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Global lookup of Global from a Handlebars template is deprecated.');
-    equal(view.$().text(), _emberMetalCore.default.lookup.Global.Space);
-  });
-
-  QUnit.test('with context, should read from globals (DEPRECATED)', function () {
-    _emberMetalCore.default.lookup.Global = 'Klarg';
-    view = _emberViewsViewsView.default.create({
-      context: {},
-      template: _emberTemplateCompilerSystemCompile.default('{{Global}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Global lookup of Global from a Handlebars template is deprecated.');
-    equal(view.$().text(), _emberMetalCore.default.lookup.Global);
-  });
-
-  QUnit.test('with context, should read from globals with a path (DEPRECATED)', function () {
-    _emberMetalCore.default.lookup.Global = { Space: 'Klarg' };
-    view = _emberViewsViewsView.default.create({
-      context: {},
-      template: _emberTemplateCompilerSystemCompile.default('{{Global.Space}}')
-    });
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Global lookup of Global from a Handlebars template is deprecated.');
-    equal(view.$().text(), _emberMetalCore.default.lookup.Global.Space);
   });
 });
 enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'ember-metal/features', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
@@ -42492,7 +42190,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+e4f80326', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+2c137a19', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
