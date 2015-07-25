@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7348ea18
+ * @version   2.0.0-canary+e4f80326
  */
 
 (function() {
@@ -42492,7 +42492,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7348ea18', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e4f80326', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -45957,6 +45957,24 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     _emberMetalRun_loop.default(function () {
       view.get('content').pushObject('baz');
     });
+  });
+
+  QUnit.module('DeprecatedCollectionView');
+
+  QUnit.test('calling reopen on DeprecatedCollectionView delegates to CollectionView', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsCollection_view.default.reopen;
+    var obj = {};
+
+    _emberViewsViewsCollection_view.default.reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectDeprecation(function () {
+      _emberViewsViewsCollection_view.DeprecatedCollectionView.reopen(obj);
+    }, /Ember.CollectionView is deprecated./);
+
+    _emberViewsViewsCollection_view.default.reopen = originalReopen;
   });
 });
 // Ember.A
