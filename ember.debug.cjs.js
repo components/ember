@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2c137a19
+ * @version   2.0.0-canary+68719dd8
  */
 
 (function() {
@@ -6010,7 +6010,7 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   }
 
   _emberMetalCore.default.HTMLBars = {
-    _registerHelper: _emberHtmlbarsHelpers.registerHelper,
+    _registerHelper: _emberHtmlbarsHelpers.deprecatedRegisterHelper,
     template: _emberTemplateCompiler.template,
     compile: _emberTemplateCompiler.compile,
     precompile: _emberTemplateCompiler.precompile,
@@ -6171,6 +6171,8 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
   };
 
   function registerHandlebarsCompatibleHelper(name, value) {
+    _emberMetalCore.default.deprecate('Ember.Handlebars.registerHelper is deprecated, please refactor to Ember.Helper.helper.', false, { id: 'ember-htmlbars.handlebars-register-helper', until: '2.0.0' });
+
     if (value && value.isLegacyViewHelper) {
       _emberHtmlbarsKeywords.registerKeyword(name, function (morph, env, scope, params, hash, template, inverse, visitor) {
         _emberMetalCore.default.assert('You can only pass attributes (such as name=value) not bare ' + 'values to a helper for a View found in \'' + value.viewClass + '\'', params.length === 0);
@@ -6193,6 +6195,8 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
   }
 
   function handlebarsHelper(name, value) {
+    _emberMetalCore.default.deprecate('Ember.Handlebars.helper is deprecated, please refactor to Ember.Helper.helper', false, { id: 'ember-htmlbars.handlebars-helper', until: '2.0.0' });
+
     _emberMetalCore.default.assert('You tried to register a component named \'' + name + '\', but component names must include a \'-\'', !_emberViewsViewsComponent.default.detect(value) || name.match(/-/));
 
     if (_emberViewsViewsView.default.detect(value)) {
@@ -6212,7 +6216,8 @@ enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-ht
 @submodule ember-htmlbars
 */
 enifed('ember-htmlbars/compat/make-bound-helper', ['exports', 'ember-metal/core', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalStreamsUtils) {
-  exports.default = makeBoundHelper;
+  exports.makeBoundHelper = makeBoundHelper;
+  exports.default = deprecatedMakeBoundHelper;
 
   /**
   @module ember
@@ -6279,9 +6284,20 @@ enifed('ember-htmlbars/compat/make-bound-helper', ['exports', 'ember-metal/core'
       }
     };
   }
+
+  function deprecatedMakeBoundHelper(fn) {
+    for (var _len2 = arguments.length, dependentKeys = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      dependentKeys[_key2 - 1] = arguments[_key2];
+    }
+
+    _emberMetalCore.default.deprecate('Using Ember.Handlebars.makeBoundHelper is deprecated. Please refactor to using `Ember.Helper.helper`.', false, { id: 'ember-htmlbars.handlebars-make-bound-helper', until: '2.0.0' });
+
+    return makeBoundHelper.apply(undefined, arguments);
+  }
 });
-enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/make-bound-helper'], function (exports, _emberHtmlbarsHelpers, _emberHtmlbarsCompatMakeBoundHelper) {
-  exports.default = registerBoundHelper;
+enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/make-bound-helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsCompatMakeBoundHelper) {
+  exports.registerBoundHelper = registerBoundHelper;
+  exports.default = deprecatedRegisterBoundHelper;
 
   var slice = [].slice;
 
@@ -6398,9 +6414,15 @@ enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-htmlbar
 
   function registerBoundHelper(name, fn) {
     var boundHelperArgs = slice.call(arguments, 1);
-    var boundFn = _emberHtmlbarsCompatMakeBoundHelper.default.apply(this, boundHelperArgs);
+    var boundFn = _emberHtmlbarsCompatMakeBoundHelper.makeBoundHelper.apply(this, boundHelperArgs);
 
     _emberHtmlbarsHelpers.default[name] = boundFn;
+  }
+
+  function deprecatedRegisterBoundHelper() {
+    _emberMetalCore.default.deprecate('`Ember.Handlebars.registerBoundHelper` is deprecated. Please refactor to use `Ember.Helpers.helper`.', false, { id: 'ember-htmlbars.register-bound-helper', until: '2.0.0' });
+
+    return registerBoundHelper.apply(undefined, arguments);
   }
 });
 /**
@@ -6585,17 +6607,9 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 @module ember
 @submodule ember-templates
 */
-enifed("ember-htmlbars/helpers", ["exports"], function (exports) {
+enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports.registerHelper = registerHelper;
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
 
-  /**
-   @private
-   @property helpers
-  */
   var helpers = Object.create(null);
 
   /**
@@ -6615,8 +6629,20 @@ enifed("ember-htmlbars/helpers", ["exports"], function (exports) {
     helpers[name] = helperFunc;
   }
 
+  var deprecatedRegisterHelper = _emberMetalCore.default.deprecateFunc('Using Ember.HTMLBars._registerHelper is deprecated. Helpers (even dashless ones) are automatically resolved.', { id: 'ember-htmlbars.register-helper', until: '2.0.0' }, registerHelper);
+
+  exports.deprecatedRegisterHelper = deprecatedRegisterHelper;
   exports.default = helpers;
 });
+/**
+@module ember
+@submodule ember-htmlbars
+*/
+
+/**
+ @private
+ @property helpers
+*/
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   exports.default = concat;
   /**
@@ -8462,7 +8488,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   }, _merge));
 });
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2c137a19';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68719dd8';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -10008,8 +10034,9 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
 @module ember
 @submodule ember-htmlbars
 */
-enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports) {
+enifed('ember-htmlbars/system/make-view-helper', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports.default = makeViewHelper;
+
   /**
   @module ember
   @submodule ember-htmlbars
@@ -10028,6 +10055,8 @@ enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports)
   */
 
   function makeViewHelper(ViewClass) {
+    _emberMetalCore.default.deprecate('`Ember.Handlebars.makeViewHelper` and `Ember.HTMLBars.makeViewHelper` are deprecated. Please refactor to normal component usage.', false, { id: 'ember-htmlbars.make-view-helper', until: '2.0.0' });
+
     return {
       isLegacyViewHelper: true,
       isHTMLBars: true,
@@ -10035,7 +10064,7 @@ enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports)
     };
   }
 });
-enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-htmlbars/helper'], function (exports, _emberHtmlbarsHelper) {
+enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelper) {
   exports.default = makeBoundHelper;
 
   /**
@@ -10083,6 +10112,7 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-htmlbars/he
   */
 
   function makeBoundHelper(fn) {
+    _emberMetalCore.default.deprecate('Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to using `Ember.Helper` or `Ember.Helper.helper`.', false, { id: 'ember-htmlbars.make-bound-helper', until: '3.0.0' });
     return _emberHtmlbarsHelper.helper(fn);
   }
 });
@@ -14079,7 +14109,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+2c137a19
+    @version 2.0.0-canary+68719dd8
     @public
   */
 
@@ -14111,11 +14141,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+2c137a19'
+    @default '2.0.0-canary+68719dd8'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+2c137a19';
+  Ember.VERSION = '2.0.0-canary+68719dd8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22059,7 +22089,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 @submodule ember-routing-views
 */
 enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2c137a19';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+68719dd8';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22557,7 +22587,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
 // FEATURES, Logger, assert
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2c137a19';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68719dd8';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36666,7 +36696,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+2c137a19',
+        revision: 'Ember@2.0.0-canary+68719dd8',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41327,7 +41357,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2c137a19';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+68719dd8';
 
   /**
   @module ember
