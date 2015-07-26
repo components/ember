@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3+87f77d2f
+ * @version   2.0.0-beta.3+0d2b56d9
  */
 
 (function() {
@@ -13,7 +13,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
-  var isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
   if (!isNode) {
     Ember = this.Ember = this.Ember || {};
@@ -3966,7 +3967,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.3+87f77d2f
+    @version 2.0.0-beta.3+0d2b56d9
     @public
   */
 
@@ -3998,11 +3999,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.3+87f77d2f'
+    @default '2.0.0-beta.3+0d2b56d9'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.3+87f77d2f';
+  Ember.VERSION = '2.0.0-beta.3+0d2b56d9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11834,7 +11835,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.3+87f77d2f',
+        revision: 'Ember@2.0.0-beta.3+0d2b56d9',
         loc: program.loc,
         moduleName: options.moduleName
       };
