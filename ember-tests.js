@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+eba05635
+ * @version   1.13.5+4eb55108
  */
 
 (function() {
@@ -5905,7 +5905,7 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
   });
 
   QUnit.test("allows unbound usage within an element", function () {
-    expect(4);
+    expect(6);
 
     function someHelper(param1, param2, options) {
       equal(param1, "blammo");
@@ -14519,7 +14519,7 @@ enifed("ember-htmlbars/tests/helpers/yield_test", ["exports", "ember-metal/run_l
 
   var view, registry, container;
 
-  var view, registry, container, originalViewKeyword;
+  var view, registry, container;
 
   function setupContainer() {
     registry = new _emberRuntimeSystemContainer.Registry();
@@ -14536,7 +14536,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test", ["exports", "ember-metal/run_l
   QUnit.module("ember-htmlbars: Support for {{yield}} helper", {
     setup: function () {
       setupContainer();
-      originalViewKeyword = registerKeyword("view", viewKeyword);
     },
     teardown: function () {
       _emberMetalRun_loop["default"](function () {
@@ -14544,7 +14543,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test", ["exports", "ember-metal/run_l
       });
       _emberRuntimeTestsUtils.runDestroy(view);
       teardownContainer();
-      resetKeyword("view", originalViewKeyword);
     }
   });
 
@@ -14793,7 +14791,6 @@ enifed("ember-htmlbars/tests/helpers/yield_test", ["exports", "ember-metal/run_l
   QUnit.module("ember-htmlbars: Component {{yield}}", {
     setup: function () {
       setupContainer();
-      originalViewKeyword = registerKeyword("view", viewKeyword);
     },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
@@ -47781,7 +47778,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, "Ember@1.13.5+eba05635", "revision is included in generated template");
+    equal(actual.meta.revision, "Ember@1.13.5+4eb55108", "revision is included in generated template");
   });
 
   QUnit.test("the template revision is different than the HTMLBars default revision", function () {
@@ -58712,9 +58709,6 @@ enifed("ember/tests/helpers/helper_registration_test", ["exports", "ember", "emb
   var App, registry, container;
 
   QUnit.module("Application Lifecycle - Helper Registration", {
-    setup: function () {
-      originalViewKeyword = registerKeyword("view", viewKeyword);
-    },
     teardown: function () {
       _emberMetalCore["default"].run(function () {
         if (App) {
