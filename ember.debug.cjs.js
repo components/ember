@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+7895366b
+ * @version   1.13.5+eba05635
  */
 
 (function() {
@@ -6229,7 +6229,7 @@ enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compile
   _emberHtmlbarsHelpers.registerHelper("-html-safe", _emberHtmlbarsHelpersHtmlSafe["default"]);
 
   _emberMetalCore["default"].HTMLBars = {
-    _registerHelper: _emberHtmlbarsHelpers.registerHelper,
+    _registerHelper: _emberHtmlbarsHelpers.deprecatedRegisterHelper,
     template: _emberTemplateCompiler.template,
     compile: _emberTemplateCompiler.compile,
     precompile: _emberTemplateCompiler.precompile,
@@ -6423,6 +6423,8 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
   };
 
   function registerHandlebarsCompatibleHelper(name, value) {
+    Ember.deprecate("Ember.Handlebars.registerHelper is deprecated, please refactor to Ember.Helper.helper.", false, { id: "ember-htmlbars.handlebars-register-helper", until: "2.0.0" });
+
     if (value && value.isLegacyViewHelper) {
       _emberHtmlbarsKeywords.registerKeyword(name, function (morph, env, scope, params, hash, template, inverse, visitor) {
         Ember.assert("You can only pass attributes (such as name=value) not bare " + "values to a helper for a View found in '" + value.viewClass + "'", params.length === 0);
@@ -6445,6 +6447,8 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
   }
 
   function handlebarsHelper(name, value) {
+    Ember.deprecate("Ember.Handlebars.helper is deprecated, please refactor to Ember.Helper.helper", false, { id: "ember-htmlbars.handlebars-helper", until: "2.0.0" });
+
     Ember.assert("You tried to register a component named '" + name + "', but component names must include a '-'", !_emberViewsViewsComponent["default"].detect(value) || name.match(/-/));
 
     if (_emberViewsViewsView["default"].detect(value)) {
@@ -6475,7 +6479,8 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
 @submodule ember-htmlbars
 */
 enifed("ember-htmlbars/compat/make-bound-helper", ["exports", "ember-metal/streams/utils"], function (exports, _emberMetalStreamsUtils) {
-  exports["default"] = makeBoundHelper;
+  exports.makeBoundHelper = makeBoundHelper;
+  exports["default"] = deprecatedMakeBoundHelper;
 
   /**
   @module ember
@@ -6542,9 +6547,20 @@ enifed("ember-htmlbars/compat/make-bound-helper", ["exports", "ember-metal/strea
       }
     };
   }
+
+  function deprecatedMakeBoundHelper(fn) {
+    for (var _len2 = arguments.length, dependentKeys = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      dependentKeys[_key2 - 1] = arguments[_key2];
+    }
+
+    Ember.deprecate("Using Ember.Handlebars.makeBoundHelper is deprecated. Please refactor to using `Ember.Helper.helper`.", false, { id: "ember-htmlbars.handlebars-make-bound-helper", until: "2.0.0" });
+
+    return makeBoundHelper.apply(undefined, arguments);
+  }
 });
-enifed("ember-htmlbars/compat/register-bound-helper", ["exports", "ember-htmlbars/helpers", "ember-htmlbars/compat/make-bound-helper"], function (exports, _emberHtmlbarsHelpers, _emberHtmlbarsCompatMakeBoundHelper) {
-  exports["default"] = registerBoundHelper;
+enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/make-bound-helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsCompatMakeBoundHelper) {
+  exports.registerBoundHelper = registerBoundHelper;
+  exports["default"] = deprecatedRegisterBoundHelper;
 
   var slice = [].slice;
 
@@ -6661,9 +6677,15 @@ enifed("ember-htmlbars/compat/register-bound-helper", ["exports", "ember-htmlbar
 
   function registerBoundHelper(name, fn) {
     var boundHelperArgs = slice.call(arguments, 1);
-    var boundFn = _emberHtmlbarsCompatMakeBoundHelper["default"].apply(this, boundHelperArgs);
+    var boundFn = _emberHtmlbarsCompatMakeBoundHelper.makeBoundHelper.apply(this, boundHelperArgs);
 
     _emberHtmlbarsHelpers["default"][name] = boundFn;
+  }
+
+  function deprecatedRegisterBoundHelper() {
+    _emberMetalCore["default"].deprecate('`Ember.Handlebars.registerBoundHelper` is deprecated. Please refactor to use `Ember.Helpers.helper`.', false, { id: 'ember-htmlbars.register-bound-helper', until: '2.0.0' });
+
+    return registerBoundHelper.apply(undefined, arguments);
   }
 });
 /**
@@ -6846,7 +6868,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 @module ember
 @submodule ember-templates
 */
-enifed("ember-htmlbars/helpers", ["exports", "ember-metal/platform/create"], function (exports, _emberMetalPlatformCreate) {
+enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/platform/create', 'ember-metal/core'], function (exports, _emberMetalPlatformCreate, _emberMetalCore) {
   exports.registerHelper = registerHelper;
 
   /**
@@ -6872,6 +6894,9 @@ enifed("ember-htmlbars/helpers", ["exports", "ember-metal/platform/create"], fun
     helpers[name] = helperFunc;
   }
 
+  var deprecatedRegisterHelper = _emberMetalCore["default"].deprecateFunc('Using Ember.HTMLBars._registerHelper is deprecated. Helpers (even dashless ones) are automatically resolved.', { id: 'ember-htmlbars.register-helper', until: '2.0.0' }, registerHelper);
+
+  exports.deprecatedRegisterHelper = deprecatedRegisterHelper;
   exports["default"] = helpers;
 });
 /**
@@ -8826,7 +8851,7 @@ enifed("ember-htmlbars/keywords/readonly", ["exports", "ember-htmlbars/keywords/
   }
 });
 enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_get", "ember-htmlbars/node-managers/view-node-manager", "ember-htmlbars/templates/top-level-view"], function (exports, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+7895366b";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+eba05635";
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -10349,8 +10374,9 @@ enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "e
 @module ember
 @submodule ember-htmlbars
 */
-enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports) {
+enifed('ember-htmlbars/system/make-view-helper', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   exports["default"] = makeViewHelper;
+
   /**
   @module ember
   @submodule ember-htmlbars
@@ -10369,6 +10395,8 @@ enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports)
   */
 
   function makeViewHelper(ViewClass) {
+    _emberMetalCore["default"].deprecate('`Ember.Handlebars.makeViewHelper` and `Ember.HTMLBars.makeViewHelper` are deprecated. Please refactor to normal component usage.', false, { id: 'ember-htmlbars.make-view-helper', until: '2.0.0' });
+
     return {
       isLegacyViewHelper: true,
       isHTMLBars: true,
@@ -10376,7 +10404,7 @@ enifed("ember-htmlbars/system/make-view-helper", ["exports"], function (exports)
     };
   }
 });
-enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/helper"], function (exports, _emberHtmlbarsHelper) {
+enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelper) {
   exports["default"] = makeBoundHelper;
 
   /**
@@ -10424,6 +10452,7 @@ enifed("ember-htmlbars/system/make_bound_helper", ["exports", "ember-htmlbars/he
   */
 
   function makeBoundHelper(fn) {
+    _emberMetalCore["default"].deprecate('Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to using `Ember.Helper` or `Ember.Helper.helper`.', false, { id: 'ember-htmlbars.make-bound-helper', until: '3.0.0' });
     return _emberHtmlbarsHelper.helper(fn);
   }
 });
@@ -14627,7 +14656,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.5+7895366b
+    @version 1.13.5+eba05635
     @public
   */
 
@@ -14659,11 +14688,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.5+7895366b'
+    @default '1.13.5+eba05635'
     @static
     @public
   */
-  Ember.VERSION = '1.13.5+7895366b';
+  Ember.VERSION = '1.13.5+eba05635';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23582,7 +23611,7 @@ enifed("ember-routing-views", ["exports", "ember-metal/core", "ember-routing-vie
 @submodule ember-routing-views
 */
 enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/computed", "ember-views/system/utils", "ember-views/views/component", "ember-runtime/inject", "ember-runtime/mixins/controller", "ember-htmlbars/templates/link-to"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.5+7895366b";
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = "Ember@1.13.5+eba05635";
 
   var linkComponentClassNameBindings = ["active", "loading", "disabled"];
   
@@ -24113,7 +24142,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
 // FEATURES, Logger, assert
 enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view", "ember-htmlbars/templates/top-level-view"], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+7895366b";
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = "Ember@1.13.5+eba05635";
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -40857,7 +40886,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: "Ember@1.13.5+7895366b",
+        revision: "Ember@1.13.5+eba05635",
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42168,8 +42197,6 @@ enifed("ember-views", ["exports", "ember-runtime", "ember-views/system/jquery", 
   ViewUtils.getViewClientRects = _emberViewsSystemUtils.getViewClientRects;
   ViewUtils.getViewBoundingClientRect = _emberViewsSystemUtils.getViewBoundingClientRect;
 
-  _emberRuntime["default"].CoreView = _emberViewsViewsCore_view.DeprecatedCoreView;
-  _emberRuntime["default"].View = _emberViewsViewsView.DeprecatedView;
   _emberRuntime["default"].View.states = _emberViewsViewsStates.states;
   _emberRuntime["default"].View.cloneStates = _emberViewsViewsStates.cloneStates;
   _emberRuntime["default"].View._Renderer = _emberMetalViewsRenderer["default"];
@@ -42177,18 +42204,20 @@ enifed("ember-views", ["exports", "ember-runtime", "ember-views/system/jquery", 
   _emberRuntime["default"].TextField = _emberViewsViewsText_field["default"];
   _emberRuntime["default"].TextArea = _emberViewsViewsText_area["default"];
 
-  _emberRuntime["default"].Select = _emberViewsViewsSelect.DeprecatedSelect;
   _emberRuntime["default"].SelectOption = _emberViewsViewsSelect.SelectOption;
   _emberRuntime["default"].SelectOptgroup = _emberViewsViewsSelect.SelectOptgroup;
 
   _emberRuntime["default"].TextSupport = _emberViewsMixinsText_support["default"];
   _emberRuntime["default"].ComponentLookup = _emberViewsComponent_lookup["default"];
-  _emberRuntime["default"].ContainerView = _emberViewsViewsContainer_view.DeprecatedContainerView;
-  _emberRuntime["default"].CollectionView = _emberViewsViewsCollection_view["default"];
   _emberRuntime["default"].Component = _emberViewsViewsComponent["default"];
   _emberRuntime["default"].EventDispatcher = _emberViewsSystemEvent_dispatcher["default"];
 
   // Deprecated:
+  _emberRuntime["default"].Select = _emberViewsViewsSelect.DeprecatedSelect;
+  _emberRuntime["default"].CoreView = _emberViewsViewsCore_view.DeprecatedCoreView;
+  _emberRuntime["default"].View = _emberViewsViewsView.DeprecatedView;
+  _emberRuntime["default"].ContainerView = _emberViewsViewsContainer_view.DeprecatedContainerView;
+  _emberRuntime["default"].CollectionView = _emberViewsViewsCollection_view.DeprecatedCollectionView;
   _emberRuntime["default"]._Metamorph = _emberViewsCompatMetamorph_view._Metamorph;
   _emberRuntime["default"]._MetamorphView = _emberViewsCompatMetamorph_view["default"];
   _emberRuntime["default"]._LegacyEachView = _emberViewsViewsLegacy_each_view["default"];
@@ -44594,6 +44623,14 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
     var attributeBindings = component.attributeBindings;
     var i, l;
 
+    if (attrs.id && _emberHtmlbarsHooksGetValue["default"](attrs.id)) {
+      // Do not allow binding to the `id`
+      normalized.id = _emberHtmlbarsHooksGetValue["default"](attrs.id);
+      component.elementId = normalized.id;
+    } else {
+      normalized.id = component.elementId;
+    }
+
     if (attributeBindings) {
       for (i = 0, l = attributeBindings.length; i < l; i++) {
         var attr = attributeBindings[i];
@@ -44633,14 +44670,6 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
           normalized[prop] = ["value", val];
         }
       }
-    }
-
-    if (attrs.id && _emberHtmlbarsHooksGetValue["default"](attrs.id)) {
-      // Do not allow binding to the `id`
-      normalized.id = _emberHtmlbarsHooksGetValue["default"](attrs.id);
-      component.elementId = normalized.id;
-    } else {
-      normalized.id = component.elementId;
     }
 
     if (attrs.tagName) {
@@ -45621,7 +45650,29 @@ enifed("ember-views/views/collection_view", ["exports", "ember-metal/core", "emb
     return props;
   }
 
+  function viewDeprecationMessage() {
+    _emberMetalCore["default"].deprecate("Ember.CollectionView is deprecated. Consult the Deprecations Guide for a migration strategy.", !!_emberMetalCore["default"].ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
+      url: "http://emberjs.com/deprecations/v1.x/#toc_ember-collectionview",
+      id: "ember-views.collection-view-deprecated",
+      until: "2.4.0"
+    });
+  }
+
+  var DeprecatedCollectionView = CollectionView.extend({
+    init: function () {
+      viewDeprecationMessage();
+      this._super.apply(this, arguments);
+    }
+  });
+
+  DeprecatedCollectionView.reopen = function () {
+    viewDeprecationMessage();
+    CollectionView.reopen.apply(CollectionView, arguments);
+    return this;
+  };
+
   exports["default"] = CollectionView;
+  exports.DeprecatedCollectionView = DeprecatedCollectionView;
 });
 /**
 @module ember
@@ -46016,7 +46067,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 });
 // Ember.assert, Ember.Handlebars
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.5+7895366b";
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = "Ember@1.13.5+eba05635";
 
   /**
   @module ember
