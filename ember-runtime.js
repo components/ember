@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6e00835b
+ * @version   2.0.0-canary+02a8f86e
  */
 
 (function() {
@@ -128,6 +128,10 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     this._debouncees = [];
     this._throttlers = [];
     this._timers = [];
+    this._eventCallbacks = {
+      end: [],
+      begin: []
+    };
   }
 
   Backburner.prototype = {
@@ -141,6 +145,7 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
       }
 
       this.currentInstance = new _backburnerDeferredActionQueues.default(this.queueNames, options);
+      this._trigger('begin', this.currentInstance, previousInstance);
       if (onBegin) {
         onBegin(this.currentInstance, previousInstance);
       }
@@ -167,11 +172,65 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
             nextInstance = this.instanceStack.pop();
             this.currentInstance = nextInstance;
           }
-
+          this._trigger('end', currentInstance, nextInstance);
           if (onEnd) {
             onEnd(currentInstance, nextInstance);
           }
         }
+      }
+    },
+
+    /**
+     Trigger an event. Supports up to two arguments. Designed around
+     triggering transition events from one run loop instance to the
+     next, which requires an argument for the first instance and then
+     an argument for the next instance.
+      @private
+     @method _trigger
+     @param {String} eventName
+     @param {any} arg1
+     @param {any} arg2
+     */
+    _trigger: function (eventName, arg1, arg2) {
+      var callbacks = this._eventCallbacks[eventName];
+      if (callbacks) {
+        for (var i = 0; i < callbacks.length; i++) {
+          callbacks[i](arg1, arg2);
+        }
+      }
+    },
+
+    on: function (eventName, callback) {
+      if (typeof callback !== 'function') {
+        throw new TypeError('Callback must be a function');
+      }
+      var callbacks = this._eventCallbacks[eventName];
+      if (callbacks) {
+        callbacks.push(callback);
+      } else {
+        throw new TypeError('Cannot on() event "' + eventName + '" because it does not exist');
+      }
+    },
+
+    off: function (eventName, callback) {
+      if (eventName) {
+        var callbacks = this._eventCallbacks[eventName];
+        var callbackFound = false;
+        if (!callbacks) return;
+        if (callback) {
+          for (var i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] === callback) {
+              callbackFound = true;
+              callbacks.splice(i, 1);
+              i--;
+            }
+          }
+        }
+        if (!callbackFound) {
+          throw new TypeError('Cannot off() callback that does not exist');
+        }
+      } else {
+        throw new TypeError('Cannot off() event "' + eventName + '" because it does not exist');
       }
     },
 
@@ -730,6 +789,10 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
     throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
   }
 
+  function noSuchMethod(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+  }
+
   DeferredActionQueues.prototype = {
     schedule: function (name, target, method, args, onceFlag, stack) {
       var queues = this.queues;
@@ -737,6 +800,10 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
 
       if (!queue) {
         noSuchQueue(name);
+      }
+
+      if (!method) {
+        noSuchMethod(name);
       }
 
       if (onceFlag) {
@@ -1081,44 +1148,6 @@ enifed('backburner/utils', ['exports'], function (exports) {
       }
     };
   }
-});
-enifed('calculateVersion', ['exports'], function (exports) {
-  'use strict';
-
-  var fs = eriuqer('fs');
-  var path = eriuqer('path');
-
-  module.exports = function () {
-    var packageVersion = eriuqer('../package.json').version;
-    var output = [packageVersion];
-    var gitPath = path.join(__dirname, '..', '.git');
-    var headFilePath = path.join(gitPath, 'HEAD');
-
-    if (packageVersion.indexOf('+') > -1) {
-      try {
-        if (fs.existsSync(headFilePath)) {
-          var headFile = fs.readFileSync(headFilePath, { encoding: 'utf8' });
-          var branchName = headFile.split('/').slice(-1)[0].trim();
-          var refPath = headFile.split(' ')[1];
-          var branchSHA;
-
-          if (refPath) {
-            var branchPath = path.join(gitPath, refPath.trim());
-            branchSHA = fs.readFileSync(branchPath);
-          } else {
-            branchSHA = branchName;
-          }
-
-          output.push(branchSHA.slice(0, 10));
-        }
-      } catch (err) {
-        console.error(err.stack);
-      }
-      return output.join('.');
-    } else {
-      return packageVersion;
-    }
-  };
 });
 enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'container/container'], function (exports, _emberMetalCore, _containerRegistry, _containerContainer) {
 
@@ -4755,7 +4784,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+6e00835b
+    @version 2.0.0-canary+02a8f86e
     @public
   */
 
@@ -4787,11 +4816,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+6e00835b'
+    @default '2.0.0-canary+02a8f86e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+6e00835b';
+  Ember.VERSION = '2.0.0-canary+02a8f86e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12901,6 +12930,7 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
 // Ember.EXTEND_PROTOTYPES, Ember.assert
 enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-metal/run_loop', 'rsvp'], function (exports, _emberMetalCore, _emberMetalLogger, _emberMetalRun_loop, _rsvp) {
   exports.onerrorDefault = onerrorDefault;
+  exports.after = after;
 
   var testModuleName = 'ember-testing/test';
   var Test;
@@ -12962,9 +12992,7 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
           Test.adapter.exception(error);
           _emberMetalLogger.default.error(error.stack);
         } else {
-          _emberMetalCore.default.run.schedule(_emberMetalCore.default.run.queues[_emberMetalCore.default.run.queues.length - 1], function () {
-            throw error;
-          });
+          throw error;
         }
       } else if (_emberMetalCore.default.onerror) {
         _emberMetalCore.default.onerror(error);
@@ -12974,7 +13002,12 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
     }
   }
 
+  function after(cb) {
+    _emberMetalCore.default.run.schedule(_emberMetalCore.default.run.queues[_emberMetalCore.default.run.queues.length - 1], cb);
+  }
+
   _rsvp.on('error', onerrorDefault);
+  _rsvp.configure('after', after);
 
   exports.default = _rsvp;
 });
@@ -19817,18 +19850,22 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
 });
 enifed('rsvp', ['exports', './rsvp/promise', './rsvp/events', './rsvp/node', './rsvp/all', './rsvp/all-settled', './rsvp/race', './rsvp/hash', './rsvp/hash-settled', './rsvp/rethrow', './rsvp/defer', './rsvp/config', './rsvp/map', './rsvp/resolve', './rsvp/reject', './rsvp/filter', './rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
 
-  _rsvpConfig.config.async = _rsvpAsap.default; // default async is asap;
+  // defaults
+  _rsvpConfig.config.async = _rsvpAsap.default;
+  _rsvpConfig.config.after = function (cb) {
+    setTimeout(cb, 0);
+  };
   var cast = _rsvpResolve.default;
   function async(callback, arg) {
     _rsvpConfig.config.async(callback, arg);
   }
 
   function on() {
-    _rsvpConfig.config.on.apply(_rsvpConfig.config, arguments);
+    _rsvpConfig.config['on'].apply(_rsvpConfig.config, arguments);
   }
 
   function off() {
-    _rsvpConfig.config.off.apply(_rsvpConfig.config, arguments);
+    _rsvpConfig.config['off'].apply(_rsvpConfig.config, arguments);
   }
 
   // Set up instrumentation through `window.__PROMISE_INTRUMENTATION__`
@@ -19862,7 +19899,7 @@ enifed('rsvp', ['exports', './rsvp/promise', './rsvp/events', './rsvp/node', './
   exports.map = _rsvpMap.default;
   exports.filter = _rsvpFilter.default;
 });
-enifed('rsvp.umd', ['exports', './rsvp'], function (exports, _rsvp) {
+enifed('rsvp.umd', ['exports', './rsvp/platform', './rsvp'], function (exports, _rsvpPlatform, _rsvp) {
 
   var RSVP = {
     'race': _rsvp.race,
@@ -19892,8 +19929,8 @@ enifed('rsvp.umd', ['exports', './rsvp'], function (exports, _rsvp) {
     });
   } else if (typeof module !== 'undefined' && module['exports']) {
     module['exports'] = RSVP;
-  } else if (typeof this !== 'undefined') {
-    this['RSVP'] = RSVP;
+  } else if (typeof _rsvpPlatform.default !== 'undefined') {
+    _rsvpPlatform.default['RSVP'] = RSVP;
   }
 });
 enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], function (exports, _utils, _instrument, _config) {
@@ -19959,7 +19996,8 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   function handleOwnThenable(promise, thenable) {
     if (thenable._state === FULFILLED) {
       fulfill(promise, thenable._result);
-    } else if (promise._state === REJECTED) {
+    } else if (thenable._state === REJECTED) {
+      thenable._onError = null;
       reject(promise, thenable._result);
     } else {
       subscribe(thenable, undefined, function (value) {
@@ -20003,8 +20041,8 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   }
 
   function publishRejection(promise) {
-    if (promise._onerror) {
-      promise._onerror(promise._result);
+    if (promise._onError) {
+      promise._onError(promise._result);
     }
 
     publish(promise);
@@ -20033,7 +20071,6 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     }
     promise._state = REJECTED;
     promise._result = reason;
-
     _config.config.async(publishRejection, promise);
   }
 
@@ -20041,7 +20078,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     var subscribers = parent._subscribers;
     var length = subscribers.length;
 
-    parent._onerror = null;
+    parent._onError = null;
 
     subscribers[length] = child;
     subscribers[length + FULFILLED] = onFulfillment;
@@ -20136,10 +20173,19 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   }
 
   function initializePromise(promise, resolver) {
+    var resolved = false;
     try {
       resolver(function resolvePromise(value) {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
         resolve(promise, value);
       }, function rejectPromise(reason) {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
         reject(promise, reason);
       });
     } catch (e) {
@@ -20221,7 +20267,7 @@ enifed('rsvp/all-settled', ['exports', './enumerator', './promise', './utils'], 
     @method allSettled
     @static
     @for RSVP
-    @param {Array} promises
+    @param {Array} entries
     @param {String} label - optional string that describes the promise.
     Useful for tooling.
     @return {Promise} promise that is fulfilled with an array of the settled
@@ -20253,6 +20299,8 @@ enifed("rsvp/all", ["exports", "./promise"], function (exports, _promise) {
 enifed('rsvp/asap', ['exports'], function (exports) {
   exports.default = asap;
   var len = 0;
+  var toString = ({}).toString;
+  var vertxNext;
 
   function asap(callback, arg) {
     queue[len] = callback;
@@ -20269,14 +20317,22 @@ enifed('rsvp/asap', ['exports'], function (exports) {
   var browserWindow = typeof window !== 'undefined' ? window : undefined;
   var browserGlobal = browserWindow || {};
   var BrowserMutationObserver = browserGlobal.MutationObserver || browserGlobal.WebKitMutationObserver;
+  var isNode = typeof window === 'undefined' && typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]';
 
   // test for web worker but not in IE10
   var isWorker = typeof Uint8ClampedArray !== 'undefined' && typeof importScripts !== 'undefined' && typeof MessageChannel !== 'undefined';
 
   // node
   function useNextTick() {
+    var nextTick = process.nextTick;
+    // node version 0.10.x displays a deprecation warning when nextTick is used recursively
+    // setImmediate should be used instead instead
+    var version = process.versions.node.match(/^(?:(\d+)\.)?(?:(\d+)\.)?(\*|\d+)$/);
+    if (Array.isArray(version) && version[1] === '0' && version[2] === '10') {
+      nextTick = setImmediate;
+    }
     return function () {
-      process.nextTick(flush);
+      nextTick(flush);
     };
   }
 
@@ -20330,8 +20386,9 @@ enifed('rsvp/asap', ['exports'], function (exports) {
 
   function attemptVertex() {
     try {
-      var vertx = eriuqer('vertx');
-      var vertxNext = vertx.runOnLoop || vertx.runOnContext;
+      var r = eriuqer;
+      var vertx = r('vertx');
+      vertxNext = vertx.runOnLoop || vertx.runOnContext;
       return useVertxTimer();
     } catch (e) {
       return useSetTimeout();
@@ -20340,7 +20397,7 @@ enifed('rsvp/asap', ['exports'], function (exports) {
 
   var scheduleFlush;
   // Decide what async method to use to triggering processing of queued callbacks:
-  if (typeof process !== 'undefined' && ({}).toString.call(process) === '[object process]') {
+  if (isNode) {
     scheduleFlush = useNextTick();
   } else if (BrowserMutationObserver) {
     scheduleFlush = useMutationObserver();
@@ -20358,14 +20415,14 @@ enifed('rsvp/config', ['exports', './events'], function (exports, _events) {
     instrument: false
   };
 
-  _events.default.mixin(config);
+  _events.default['mixin'](config);
 
   function configure(name, value) {
     if (name === 'onerror') {
       // handle for legacy users that expect the actual
       // error to be passed to their function added via
       // `RSVP.configure('onerror', someFunctionHere);`
-      config.on('error', value);
+      config['on']('error', value);
       return;
     }
 
@@ -20402,7 +20459,7 @@ enifed('rsvp/defer', ['exports', './promise'], function (exports, _promise) {
   
      deferred.resolve("Success!");
   
-     defered.promise.then(function(value){
+     deferred.promise.then(function(value){
        // value here is "Success!"
      });
      ```
@@ -20444,30 +20501,34 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
   }
 
   function Enumerator(Constructor, input, abortOnReject, label) {
-    this._instanceConstructor = Constructor;
-    this.promise = new Constructor(_internal.noop, label);
-    this._abortOnReject = abortOnReject;
+    var enumerator = this;
 
-    if (this._validateInput(input)) {
-      this._input = input;
-      this.length = input.length;
-      this._remaining = input.length;
+    enumerator._instanceConstructor = Constructor;
+    enumerator.promise = new Constructor(_internal.noop, label);
+    enumerator._abortOnReject = abortOnReject;
 
-      this._init();
+    if (enumerator._validateInput(input)) {
+      enumerator._input = input;
+      enumerator.length = input.length;
+      enumerator._remaining = input.length;
 
-      if (this.length === 0) {
-        _internal.fulfill(this.promise, this._result);
+      enumerator._init();
+
+      if (enumerator.length === 0) {
+        _internal.fulfill(enumerator.promise, enumerator._result);
       } else {
-        this.length = this.length || 0;
-        this._enumerate();
-        if (this._remaining === 0) {
-          _internal.fulfill(this.promise, this._result);
+        enumerator.length = enumerator.length || 0;
+        enumerator._enumerate();
+        if (enumerator._remaining === 0) {
+          _internal.fulfill(enumerator.promise, enumerator._result);
         }
       }
     } else {
-      _internal.reject(this.promise, this._validationError());
+      _internal.reject(enumerator.promise, enumerator._validationError());
     }
   }
+
+  exports.default = Enumerator;
 
   Enumerator.prototype._validateInput = function (input) {
     return _utils.isArray(input);
@@ -20481,48 +20542,49 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
     this._result = new Array(this.length);
   };
 
-  exports.default = Enumerator;
-
   Enumerator.prototype._enumerate = function () {
-    var length = this.length;
-    var promise = this.promise;
-    var input = this._input;
+    var enumerator = this;
+    var length = enumerator.length;
+    var promise = enumerator.promise;
+    var input = enumerator._input;
 
     for (var i = 0; promise._state === _internal.PENDING && i < length; i++) {
-      this._eachEntry(input[i], i);
+      enumerator._eachEntry(input[i], i);
     }
   };
 
   Enumerator.prototype._eachEntry = function (entry, i) {
-    var c = this._instanceConstructor;
+    var enumerator = this;
+    var c = enumerator._instanceConstructor;
     if (_utils.isMaybeThenable(entry)) {
       if (entry.constructor === c && entry._state !== _internal.PENDING) {
-        entry._onerror = null;
-        this._settledAt(entry._state, i, entry._result);
+        entry._onError = null;
+        enumerator._settledAt(entry._state, i, entry._result);
       } else {
-        this._willSettleAt(c.resolve(entry), i);
+        enumerator._willSettleAt(c.resolve(entry), i);
       }
     } else {
-      this._remaining--;
-      this._result[i] = this._makeResult(_internal.FULFILLED, i, entry);
+      enumerator._remaining--;
+      enumerator._result[i] = enumerator._makeResult(_internal.FULFILLED, i, entry);
     }
   };
 
   Enumerator.prototype._settledAt = function (state, i, value) {
-    var promise = this.promise;
+    var enumerator = this;
+    var promise = enumerator.promise;
 
     if (promise._state === _internal.PENDING) {
-      this._remaining--;
+      enumerator._remaining--;
 
-      if (this._abortOnReject && state === _internal.REJECTED) {
+      if (enumerator._abortOnReject && state === _internal.REJECTED) {
         _internal.reject(promise, value);
       } else {
-        this._result[i] = this._makeResult(state, i, value);
+        enumerator._result[i] = enumerator._makeResult(state, i, value);
       }
     }
 
-    if (this._remaining === 0) {
-      _internal.fulfill(promise, this._result);
+    if (enumerator._remaining === 0) {
+      _internal.fulfill(promise, enumerator._result);
     }
   };
 
@@ -20540,7 +20602,7 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
     });
   };
 });
-enifed("rsvp/events", ["exports"], function (exports) {
+enifed('rsvp/events', ['exports'], function (exports) {
   function indexOf(callbacks, callback) {
     for (var i = 0, l = callbacks.length; i < l; i++) {
       if (callbacks[i] === callback) {
@@ -20597,10 +20659,10 @@ enifed("rsvp/events", ["exports"], function (exports) {
       @private
       @param {Object} object object to extend with EventTarget methods
     */
-    mixin: function (object) {
-      object.on = this.on;
-      object.off = this.off;
-      object.trigger = this.trigger;
+    'mixin': function (object) {
+      object['on'] = this['on'];
+      object['off'] = this['off'];
+      object['trigger'] = this['trigger'];
       object._promiseCallbacks = undefined;
       return object;
     },
@@ -20619,7 +20681,11 @@ enifed("rsvp/events", ["exports"], function (exports) {
       @param {String} eventName name of the event to listen for
       @param {Function} callback function to be called when the event is triggered.
     */
-    on: function (eventName, callback) {
+    'on': function (eventName, callback) {
+      if (typeof callback !== 'function') {
+        throw new TypeError('Callback must be a function');
+      }
+
       var allCallbacks = callbacksFor(this),
           callbacks;
 
@@ -20664,7 +20730,7 @@ enifed("rsvp/events", ["exports"], function (exports) {
       argument is given, all callbacks will be removed from the event's callback
       queue.
     */
-    off: function (eventName, callback) {
+    'off': function (eventName, callback) {
       var allCallbacks = callbacksFor(this),
           callbacks,
           index;
@@ -20705,10 +20771,10 @@ enifed("rsvp/events", ["exports"], function (exports) {
       @for RSVP.EventTarget
       @private
       @param {String} eventName name of the event to be triggered
-      @param {Any} options optional value to be passed to any event handlers for
+      @param {*} options optional value to be passed to any event handlers for
       the given `eventName`
     */
-    trigger: function (eventName, options) {
+    'trigger': function (eventName, options) {
       var allCallbacks = callbacksFor(this),
           callbacks,
           callback;
@@ -20953,7 +21019,7 @@ enifed('rsvp/hash-settled', ['exports', './promise', './enumerator', './promise-
   
     @method hashSettled
     @for RSVP
-    @param {Object} promises
+    @param {Object} object
     @param {String} label optional string that describes the promise.
     Useful for tooling.
     @return {Promise} promise that is fulfilled when when all properties of `promises`
@@ -21050,7 +21116,7 @@ enifed('rsvp/hash', ['exports', './promise', './promise-hash'], function (export
     @method hash
     @static
     @for RSVP
-    @param {Object} promises
+    @param {Object} object
     @param {String} label optional string that describes the promise.
     Useful for tooling.
     @return {Promise} promise that is fulfilled when all properties of `promises`
@@ -21080,7 +21146,7 @@ enifed('rsvp/instrument', ['exports', './config', './utils'], function (exports,
           payload.stack = payload.error.stack;
         }
 
-        _config.config.trigger(entry.name, entry.payload);
+        _config.config['trigger'](entry.name, entry.payload);
       }
       queue.length = 0;
     }, 50);
@@ -21386,7 +21452,7 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
     its last argument. The callback expects an error to be passed as its first
     argument (if an error occurred, otherwise null), and the value from the
     operation as its second argument ('function(err, value){ }').
-    @param {Boolean|Array} argumentNames An optional paramter that if set
+    @param {Boolean|Array} [options] An optional paramter that if set
     to `true` causes the promise to fulfill with the callback's success arguments
     as an array. This is useful if the node function has multiple success
     paramters. If you set this paramter to an array with names, the promise will
@@ -21470,6 +21536,22 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
     }
   }
 });
+enifed('rsvp/platform', ['exports'], function (exports) {
+  var platform;
+
+  /* global self */
+  if (typeof self === 'object') {
+    platform = self;
+
+    /* global global */
+  } else if (typeof global === 'object') {
+    platform = global;
+  } else {
+    throw new Error('no global: `self` or `global` found');
+  }
+
+  exports.default = platform;
+});
 enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'], function (exports, _enumerator, _internal, _utils) {
 
   function PromiseHash(Constructor, object, label) {
@@ -21493,12 +21575,13 @@ enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'
   };
 
   PromiseHash.prototype._enumerate = function () {
-    var promise = this.promise;
-    var input = this._input;
+    var enumerator = this;
+    var promise = enumerator.promise;
+    var input = enumerator._input;
     var results = [];
 
     for (var key in input) {
-      if (promise._state === _internal.PENDING && input.hasOwnProperty(key)) {
+      if (promise._state === _internal.PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
         results.push({
           position: key,
           entry: input[key]
@@ -21507,16 +21590,17 @@ enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'
     }
 
     var length = results.length;
-    this._remaining = length;
+    enumerator._remaining = length;
     var result;
 
     for (var i = 0; promise._state === _internal.PENDING && i < length; i++) {
       result = results[i];
-      this._eachEntry(result.entry, result.position);
+      enumerator._eachEntry(result.entry, result.position);
     }
   };
 });
 enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-internal', './promise/all', './promise/race', './promise/resolve', './promise/reject'], function (exports, _config, _instrument, _utils, _internal, _promiseAll, _promiseRace, _promiseResolve, _promiseReject) {
+  exports.default = Promise;
 
   var guidKey = 'rsvp_' + _utils.now() + '-';
   var counter = 0;
@@ -21528,7 +21612,6 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
   function needsNew() {
     throw new TypeError('Failed to construct \'Promise\': Please use the \'new\' operator, this object constructor cannot be called as a function.');
   }
-  exports.default = Promise;
 
   /**
     Promise objects represent the eventual result of an asynchronous operation. The
@@ -21634,15 +21717,18 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
     Useful for tooling.
     @constructor
   */
+
   function Promise(resolver, label) {
-    this._id = counter++;
-    this._label = label;
-    this._state = undefined;
-    this._result = undefined;
-    this._subscribers = [];
+    var promise = this;
+
+    promise._id = counter++;
+    promise._label = label;
+    promise._state = undefined;
+    promise._result = undefined;
+    promise._subscribers = [];
 
     if (_config.config.instrument) {
-      _instrument.default('created', this);
+      _instrument.default('created', promise);
     }
 
     if (_internal.noop !== resolver) {
@@ -21650,11 +21736,11 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
         needsResolver();
       }
 
-      if (!(this instanceof Promise)) {
+      if (!(promise instanceof Promise)) {
         needsNew();
       }
 
-      _internal.initializePromise(this, resolver);
+      _internal.initializePromise(promise, resolver);
     }
   }
 
@@ -21669,8 +21755,13 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
 
     _guidKey: guidKey,
 
-    _onerror: function (reason) {
-      _config.config.trigger('error', reason);
+    _onError: function (reason) {
+      var promise = this;
+      _config.config.after(function () {
+        if (promise._onError) {
+          _config.config['trigger']('error', reason);
+        }
+      });
     },
 
     /**
@@ -21861,8 +21952,8 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
       ```
     
       @method then
-      @param {Function} onFulfilled
-      @param {Function} onRejected
+      @param {Function} onFulfillment
+      @param {Function} onRejection
       @param {String} label optional string for labeling the promise.
       Useful for tooling.
       @return {Promise}
@@ -21873,14 +21964,14 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
 
       if (state === _internal.FULFILLED && !onFulfillment || state === _internal.REJECTED && !onRejection) {
         if (_config.config.instrument) {
-          _instrument.default('chained', this, this);
+          _instrument.default('chained', parent, parent);
         }
-        return this;
+        return parent;
       }
 
-      parent._onerror = null;
+      parent._onError = null;
 
-      var child = new this.constructor(_internal.noop, label);
+      var child = new parent.constructor(_internal.noop, label);
       var result = parent._result;
 
       if (_config.config.instrument) {
@@ -21928,7 +22019,7 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
       @return {Promise}
     */
     'catch': function (onRejection, label) {
-      return this.then(null, onRejection, label);
+      return this.then(undefined, onRejection, label);
     },
 
     /**
@@ -21972,9 +22063,10 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
       @return {Promise}
     */
     'finally': function (callback, label) {
-      var constructor = this.constructor;
+      var promise = this;
+      var constructor = promise.constructor;
 
-      return this.then(function (value) {
+      return promise.then(function (value) {
         return constructor.resolve(callback()).then(function () {
           return value;
         });
@@ -22104,7 +22196,7 @@ enifed('rsvp/promise/race', ['exports', '../utils', '../-internal'], function (e
   
     @method race
     @static
-    @param {Array} promises array of promises to observe
+    @param {Array} entries array of promises to observe
     @param {String} label optional string for describing the promise returned.
     Useful for tooling.
     @return {Promise} a promise which settles in the same way as the first passed
@@ -22172,7 +22264,7 @@ enifed('rsvp/promise/reject', ['exports', '../-internal'], function (exports, _i
   
     @method reject
     @static
-    @param {Any} reason value that the returned promise will be rejected with.
+    @param {*} reason value that the returned promise will be rejected with.
     @param {String} label optional string for identifying the returned promise.
     Useful for tooling.
     @return {Promise} a promise rejected with the given `reason`.
@@ -22215,7 +22307,7 @@ enifed('rsvp/promise/resolve', ['exports', '../-internal'], function (exports, _
   
     @method resolve
     @static
-    @param {Any} value value that the returned promise will be resolved with
+    @param {*} object value that the returned promise will be resolved with
     @param {String} label optional string for identifying the returned promise.
     Useful for tooling.
     @return {Promise} a promise that will become fulfilled with the given
@@ -22262,7 +22354,7 @@ enifed('rsvp/reject', ['exports', './promise'], function (exports, _promise) {
     @method reject
     @static
     @for RSVP
-    @param {Any} reason value that the returned promise will be rejected with.
+    @param {*} reason value that the returned promise will be rejected with.
     @param {String} label optional string for identifying the returned promise.
     Useful for tooling.
     @return {Promise} a promise rejected with the given `reason`.
@@ -22281,7 +22373,7 @@ enifed('rsvp/resolve', ['exports', './promise'], function (exports, _promise) {
     @method resolve
     @static
     @for RSVP
-    @param {Any} value value that the returned promise will be resolved with
+    @param {*} value value that the returned promise will be resolved with
     @param {String} label optional string for identifying the returned promise.
     Useful for tooling.
     @return {Promise} a promise that will become fulfilled with the given

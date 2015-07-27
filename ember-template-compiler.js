@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6e00835b
+ * @version   2.0.0-canary+02a8f86e
  */
 
 (function() {
@@ -128,6 +128,10 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     this._debouncees = [];
     this._throttlers = [];
     this._timers = [];
+    this._eventCallbacks = {
+      end: [],
+      begin: []
+    };
   }
 
   Backburner.prototype = {
@@ -141,6 +145,7 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
       }
 
       this.currentInstance = new _backburnerDeferredActionQueues.default(this.queueNames, options);
+      this._trigger('begin', this.currentInstance, previousInstance);
       if (onBegin) {
         onBegin(this.currentInstance, previousInstance);
       }
@@ -167,11 +172,65 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
             nextInstance = this.instanceStack.pop();
             this.currentInstance = nextInstance;
           }
-
+          this._trigger('end', currentInstance, nextInstance);
           if (onEnd) {
             onEnd(currentInstance, nextInstance);
           }
         }
+      }
+    },
+
+    /**
+     Trigger an event. Supports up to two arguments. Designed around
+     triggering transition events from one run loop instance to the
+     next, which requires an argument for the first instance and then
+     an argument for the next instance.
+      @private
+     @method _trigger
+     @param {String} eventName
+     @param {any} arg1
+     @param {any} arg2
+     */
+    _trigger: function (eventName, arg1, arg2) {
+      var callbacks = this._eventCallbacks[eventName];
+      if (callbacks) {
+        for (var i = 0; i < callbacks.length; i++) {
+          callbacks[i](arg1, arg2);
+        }
+      }
+    },
+
+    on: function (eventName, callback) {
+      if (typeof callback !== 'function') {
+        throw new TypeError('Callback must be a function');
+      }
+      var callbacks = this._eventCallbacks[eventName];
+      if (callbacks) {
+        callbacks.push(callback);
+      } else {
+        throw new TypeError('Cannot on() event "' + eventName + '" because it does not exist');
+      }
+    },
+
+    off: function (eventName, callback) {
+      if (eventName) {
+        var callbacks = this._eventCallbacks[eventName];
+        var callbackFound = false;
+        if (!callbacks) return;
+        if (callback) {
+          for (var i = 0; i < callbacks.length; i++) {
+            if (callbacks[i] === callback) {
+              callbackFound = true;
+              callbacks.splice(i, 1);
+              i--;
+            }
+          }
+        }
+        if (!callbackFound) {
+          throw new TypeError('Cannot off() callback that does not exist');
+        }
+      } else {
+        throw new TypeError('Cannot off() event "' + eventName + '" because it does not exist');
       }
     },
 
@@ -730,6 +789,10 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
     throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
   }
 
+  function noSuchMethod(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+  }
+
   DeferredActionQueues.prototype = {
     schedule: function (name, target, method, args, onceFlag, stack) {
       var queues = this.queues;
@@ -737,6 +800,10 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
 
       if (!queue) {
         noSuchQueue(name);
+      }
+
+      if (!method) {
+        noSuchMethod(name);
       }
 
       if (onceFlag) {
@@ -4132,7 +4199,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+6e00835b
+    @version 2.0.0-canary+02a8f86e
     @public
   */
 
@@ -4164,11 +4231,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+6e00835b'
+    @default '2.0.0-canary+02a8f86e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+6e00835b';
+  Ember.VERSION = '2.0.0-canary+02a8f86e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12034,7 +12101,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+6e00835b',
+        revision: 'Ember@2.0.0-canary+02a8f86e',
         loc: program.loc,
         moduleName: options.moduleName
       };

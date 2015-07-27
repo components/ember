@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6e00835b
+ * @version   2.0.0-canary+02a8f86e
  */
 
 (function() {
@@ -32102,6 +32102,137 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
       _emberMetalCore.default.testing = wasEmberTesting;
     }
   });
+
+  var wasTesting;
+  var reason = 'i failed';
+  QUnit.module('Ember.test: rejection assertions', {
+    before: function () {
+      wasTesting = _emberMetalCore.default.testing;
+      _emberMetalCore.default.testing = true;
+    },
+    after: function () {
+      _emberMetalCore.default.testing = wasTesting;
+    }
+  });
+
+  function ajax(something) {
+    return _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+      QUnit.stop();
+      setTimeout(function () {
+        QUnit.start();
+        resolve();
+      }, 0); // fake true / foreign async
+    });
+  }
+
+  QUnit.test('unambigiously unhandled rejection', function () {
+    QUnit.throws(function () {
+      _emberMetalCore.default.run(function () {
+        _emberRuntimeExtRsvp.default.Promise.reject(reason);
+      }); // something is funky, we should likely assert
+    }, reason);
+  });
+
+  QUnit.test('sync handled', function () {
+    _emberMetalCore.default.run(function () {
+      _emberRuntimeExtRsvp.default.Promise.reject(reason).catch(function () {});
+    }); // handled, we shouldn't need to assert.
+    ok(true, 'reached end of test');
+  });
+
+  QUnit.test('handled within the same micro-task (via Ember.RVP.Promise)', function () {
+    _emberMetalCore.default.run(function () {
+      var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+      _emberRuntimeExtRsvp.default.Promise.resolve(1).then(function () {
+        return rejection.catch(function () {});
+      });
+    }); // handled, we shouldn't need to assert.
+    ok(true, 'reached end of test');
+  });
+
+  QUnit.test('handled within the same micro-task (via direct run-loop)', function () {
+    _emberMetalCore.default.run(function () {
+      var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+
+      _emberMetalCore.default.run.schedule('afterRender', function () {
+        return rejection.catch(function () {});
+      });
+    }); // handled, we shouldn't need to assert.
+    ok(true, 'reached end of test');
+  });
+
+  QUnit.test('handled in the next microTask queue flush (Ember.run.next)', function () {
+    expect(2);
+
+    QUnit.throws(function () {
+      _emberMetalCore.default.run(function () {
+        var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+
+        QUnit.stop();
+        _emberMetalCore.default.run.next(function () {
+          QUnit.start();
+          rejection.catch(function () {});
+          ok(true, 'reached end of test');
+        });
+      });
+    }, reason);
+
+    // a promise rejection survived a full flush of the run-loop without being handled
+    // this is very likely an issue.
+  });
+
+  QUnit.test('handled in the same microTask Queue flush do to data locality', function () {
+    // an ambiguous scenario, this may or may not assert
+    // it depends on the locality of `user#1`
+    var store = {
+      find: function () {
+        return Promise.resolve(1);
+      }
+    };
+
+    _emberMetalCore.default.run(function () {
+      var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+
+      store.find('user', 1).then(function () {
+        return rejection.catch(function () {});
+      });
+    });
+
+    ok(true, 'reached end of test');
+  });
+
+  QUnit.test('handled in a different microTask Queue flush do to data locality', function () {
+    // an ambiguous scenario, this may or may not assert
+    // it depends on the locality of `user#1`
+    var store = {
+      find: function () {
+        return ajax();
+      }
+    };
+
+    QUnit.throws(function () {
+      _emberMetalCore.default.run(function () {
+        var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+
+        store.find('user', 1).then(function () {
+          rejection.catch(function () {});
+          ok(true, 'reached end of test');
+        });
+      });
+    }, reason);
+  });
+
+  QUnit.test('handled in the next microTask queue flush (ajax example)', function () {
+    QUnit.throws(function () {
+      _emberMetalCore.default.run(function () {
+        var rejection = _emberRuntimeExtRsvp.default.Promise.reject(reason);
+        ajax('/something/').then(function () {
+          rejection.catch(function () {});
+          ok(true, 'reached end of test');
+        });
+      });
+    }, reason);
+  });
 });
 /* global Promise:true */
 enifed('ember-runtime/tests/inject_test', ['exports', 'ember-metal/injected_property', 'ember-runtime/inject', 'ember-runtime/system/container', 'ember-runtime/system/object'], function (exports, _emberMetalInjected_property, _emberRuntimeInject, _emberRuntimeSystemContainer, _emberRuntimeSystemObject) {
@@ -42075,7 +42206,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+6e00835b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+02a8f86e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
