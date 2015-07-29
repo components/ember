@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+df9fba3f
+ * @version   2.0.0-canary+e5c64900
  */
 
 (function() {
@@ -18783,47 +18783,6 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-metal/core',
     equal(_emberMetalProperty_get.get(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
   });
 });
-enifed('ember-metal/tests/binding/one_way_test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/binding'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalBinding) {
-
-  var MyApp;
-
-  QUnit.module('system/mixin/binding/oneWay_test', {
-    setup: function () {
-      MyApp = {
-        foo: { value: 'FOO' },
-        bar: { value: 'BAR' }
-      };
-    },
-
-    teardown: function () {
-      MyApp = null;
-    }
-  });
-
-  QUnit.test('oneWay(true) should only sync one way', function () {
-    var binding;
-    _emberMetalRun_loop.default(function () {
-      binding = _emberMetalBinding.oneWay(MyApp, 'bar.value', 'foo.value');
-    });
-
-    equal(_emberMetalProperty_get.get(MyApp, 'foo.value'), 'FOO', 'foo synced');
-    equal(_emberMetalProperty_get.get(MyApp, 'bar.value'), 'FOO', 'bar synced');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(MyApp, 'bar.value', 'BAZ');
-    });
-
-    equal(_emberMetalProperty_get.get(MyApp, 'foo.value'), 'FOO', 'foo synced');
-    equal(_emberMetalProperty_get.get(MyApp, 'bar.value'), 'BAZ', 'bar not synced');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(MyApp, 'foo.value', 'BIFF');
-    });
-
-    equal(_emberMetalProperty_get.get(MyApp, 'foo.value'), 'BIFF', 'foo synced');
-    equal(_emberMetalProperty_get.get(MyApp, 'bar.value'), 'BIFF', 'foo synced');
-  });
-});
 enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/props_helper', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/properties'], function (exports, _emberMetalTestsProps_helper, _emberMetalRun_loop, _emberMetalObserver, _emberMetalBinding, _emberMetalComputed, _emberMetalProperties) {
 
   QUnit.module('system/binding/sync_test.js');
@@ -33547,41 +33506,6 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-m
     equal(_emberMetalProperty_get.get(toObject, 'value'), 'start');
   });
 
-  // ..........................................................
-  // one way binding
-  //
-
-  QUnit.module('one way binding', {
-
-    setup: function () {
-      _emberMetalRun_loop.default(function () {
-        fromObject = _emberRuntimeSystemObject.default.create({ value: 'start' });
-        toObject = _emberRuntimeSystemObject.default.create({ value: 'end' });
-        root = { fromObject: fromObject, toObject: toObject };
-        binding = _emberMetalBinding.oneWay(root, 'toObject.value', 'fromObject.value');
-      });
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default.cancelTimers();
-    }
-  });
-
-  QUnit.test('fromObject change should propagate after flush', function () {
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(fromObject, 'value', 'change');
-      equal(_emberMetalProperty_get.get(toObject, 'value'), 'start');
-    });
-    equal(_emberMetalProperty_get.get(toObject, 'value'), 'change');
-  });
-
-  QUnit.test('toObject change should NOT propagate', function () {
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(toObject, 'value', 'change');
-      equal(_emberMetalProperty_get.get(fromObject, 'value'), 'start');
-    });
-    equal(_emberMetalProperty_get.get(fromObject, 'value'), 'start');
-  });
-
   var first, second, third, binding1, binding2; // global variables
 
   // ..........................................................
@@ -42206,7 +42130,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+df9fba3f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e5c64900', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

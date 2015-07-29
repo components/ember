@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+df9fba3f
+ * @version   2.0.0-canary+e5c64900
  */
 
 (function() {
@@ -1715,7 +1715,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
   _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
 
-  _emberMetalCore.default.oneWay = _emberMetalBinding.oneWay;
   _emberMetalCore.default.bind = _emberMetalBinding.bind;
   _emberMetalCore.default.Binding = _emberMetalBinding.Binding;
   _emberMetalCore.default.isGlobalPath = _emberMetalBinding.isGlobalPath;
@@ -1944,7 +1943,6 @@ enifed("ember-metal/assert", ["exports"], function (exports) {
 });
 enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/run_loop', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
   exports.bind = bind;
-  exports.oneWay = oneWay;
 
   // ES6TODO: where is Ember.lookup defined?
   /**
@@ -2391,22 +2389,6 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/prope
 
   function bind(obj, to, from) {
     return new Binding(to, from).connect(obj);
-  }
-
-  /**
-    @method oneWay
-    @for Ember
-    @param {Object} obj The root object of the transform.
-    @param {String} to The path to the 'to' side of the binding.
-      Must be relative to obj.
-    @param {String} from The path to the 'from' side of the binding.
-      Must be relative to obj or a global path.
-    @return {Ember.Binding} binding instance
-    @public
-  */
-
-  function oneWay(obj, to, from) {
-    return new Binding(to, from).oneWay().connect(obj);
   }
 
   exports.Binding = Binding;
@@ -4199,7 +4181,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+df9fba3f
+    @version 2.0.0-canary+e5c64900
     @public
   */
 
@@ -4231,11 +4213,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+df9fba3f'
+    @default '2.0.0-canary+e5c64900'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+df9fba3f';
+  Ember.VERSION = '2.0.0-canary+e5c64900';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12101,7 +12083,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+df9fba3f',
+        revision: 'Ember@2.0.0-canary+e5c64900',
         loc: program.loc,
         moduleName: options.moduleName
       };
