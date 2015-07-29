@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+7f308d4e
+ * @version   1.13.5+92321620
  */
 
 (function() {
@@ -5961,7 +5961,7 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
   });
 
   QUnit.test('allows unbound usage within an element', function () {
-    expect(6);
+    expect(5);
 
     function someHelper(param1, param2, options) {
       equal(param1, 'blammo');
@@ -5979,9 +5979,9 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
       template: _emberTemplateCompilerSystemCompile["default"]('<div {{test "blammo" "blazzico"}}>Bar</div>')
     });
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Returning a string of attributes from a helper inside an element is deprecated.');
+    expectDeprecation('Returning a string of attributes from a helper inside an element is deprecated.');
+
+    _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$('.foo').length, 1, 'class attribute was added by helper');
   });
@@ -48122,7 +48122,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.5+7f308d4e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.5+92321620', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
