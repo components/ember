@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e5c64900
+ * @version   2.0.0-canary+eb8049d6
  */
 
 (function() {
@@ -116,6 +116,8 @@ var mainContext = this;
 })();
 
 enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function'], function (exports, _emberMetalCore, _emberMetalAssert, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction) {
+  'use strict';
+
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   _emberMetalCore.default.deprecate = _emberDebugDeprecate.default;
@@ -346,6 +348,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
   }
 });
 enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
+  /*global __fail__*/
+
+  'use strict';
+
   var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = deprecate;
@@ -424,7 +430,6 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
 
-  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
@@ -442,6 +447,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
 
   function deprecate(message, test, options) {
     if (!options || !options.id && !options.until) {
@@ -459,8 +465,9 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
     _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
   }
 });
-/*global __fail__*/
 enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function'], function (exports, _emberDebugIsPlainFunction) {
+  'use strict';
+
   exports.registerHandler = registerHandler;
   exports.invoke = invoke;
   var HANDLERS = {};
@@ -495,6 +502,8 @@ enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function'], fun
   }
 });
 enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
+  'use strict';
+
   exports.default = isPlainFunction;
 
   function isPlainFunction(test) {
@@ -502,6 +511,8 @@ enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
   }
 });
 enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalLogger, _emberDebugHandlers) {
+  'use strict';
+
   var _slice = Array.prototype.slice;
   exports.registerHandler = registerHandler;
   exports.default = warn;
@@ -521,7 +532,6 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
   exports.missingOptionsDeprecation = missingOptionsDeprecation;
   var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
 
-  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
@@ -532,6 +542,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
       will be displayed.
     @public
   */
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
 
   function warn(message, test, options) {
     if (!options) {
@@ -546,6 +557,8 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
   }
 });
 enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
+  'use strict';
+
   // adds helpers to helpers object in Test
 
   /**
@@ -561,6 +574,7 @@ enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializ
 // to setup initializer
 // to handle various edge cases
 enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
+  'use strict';
 
   function K() {
     return this;
@@ -618,6 +632,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
   exports.default = Adapter;
 });
 enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, _emberTestingAdaptersAdapter, _emberMetalUtils) {
+  'use strict';
 
   /**
     This class implements the methods defined by Ember.Test.Adapter for the
@@ -641,6 +656,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
   });
 });
 enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+  'use strict';
 
   /**
   @module ember
@@ -1164,6 +1180,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   asyncHelper('triggerEvent', triggerEvent);
 });
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
+  'use strict';
 
   var name = 'deferReadiness in `testing` mode';
 
@@ -1182,6 +1199,8 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load
   });
 });
 enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember-testing/adapters/qunit', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberTestingAdaptersQunit, _emberViewsSystemJquery) {
+  'use strict';
+
   exports.default = setupForTesting;
 
   var Test, requests;
@@ -1237,6 +1256,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
 
 // import Test from "ember-testing/test";  // ES6TODO: fix when cycles are supported
 enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberMetalEnvironment) {
+  'use strict';
 
   /**
     @module ember
@@ -1288,6 +1308,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/sys
   }
 });
 enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication) {
+  'use strict';
 
   /**
     @module ember
