@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+92321620
+ * @version   1.13.5+d731c70e
  */
 
 (function() {
@@ -5792,6 +5792,8 @@ enifed("ember-htmlbars/tests/compat/handlebars_get_test", ["exports", "ember-met
 });
 // Ember.lookup
 enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/compat/helper", "ember-views/views/view", "ember-views/views/component", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/helpers", "ember-template-compiler/system/compile", "ember-runtime/tests/utils", "container/registry", "ember-views/component_lookup"], function (exports, _emberHtmlbarsCompatHelper, _emberViewsViewsView, _emberViewsViewsComponent, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsHelpers, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberViewsComponent_lookup) {
+  /*globals EmberDev */
+
   "use strict";
 
   var view, registry, container;
@@ -5961,7 +5963,11 @@ enifed("ember-htmlbars/tests/compat/helper_test", ["exports", "ember-htmlbars/co
   });
 
   QUnit.test('allows unbound usage within an element', function () {
-    expect(5);
+    if (EmberDev && EmberDev.runningProdBuild) {
+      expect(4);
+    } else {
+      expect(5);
+    }
 
     function someHelper(param1, param2, options) {
       equal(param1, 'blammo');
@@ -47968,7 +47974,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.5+92321620', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.5+d731c70e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
