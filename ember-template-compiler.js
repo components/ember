@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+eb8049d6
+ * @version   2.0.0-canary+91e4e791
  */
 
 (function() {
@@ -4218,7 +4218,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+eb8049d6
+    @version 2.0.0-canary+91e4e791
     @public
   */
 
@@ -4252,11 +4252,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+eb8049d6'
+    @default '2.0.0-canary+91e4e791'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+eb8049d6';
+  Ember.VERSION = '2.0.0-canary+91e4e791';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5860,7 +5860,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
   
     @class Logger
     @namespace Ember
-    @private
+    @public
   */
   exports.default = {
     /**
@@ -5874,7 +5874,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method log
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     log: consoleMethod('log') || K,
 
@@ -5888,7 +5888,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method warn
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     warn: consoleMethod('warn') || K,
 
@@ -5902,7 +5902,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method error
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     error: consoleMethod('error') || K,
 
@@ -5917,7 +5917,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method info
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     info: consoleMethod('info') || K,
 
@@ -5932,7 +5932,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method debug
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     debug: consoleMethod('debug') || consoleMethod('info') || K,
 
@@ -5945,7 +5945,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method assert
      @for Ember.Logger
      @param {Boolean} bool Value to test
-     @private
+     @public
     */
     assert: consoleMethod('assert') || assertPolyfill
   };
@@ -12232,7 +12232,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+eb8049d6',
+        revision: 'Ember@2.0.0-canary+91e4e791',
         loc: program.loc,
         moduleName: options.moduleName
       };
