@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3+deebd53c
+ * @version   2.0.0-beta.3+388ebc0c
  */
 
 (function() {
@@ -8566,7 +8566,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+deebd53c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+388ebc0c';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9122,8 +9122,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       createOptions._deprecatedFlagForBlockProvided = true;
     }
 
+    var proto = extractPositionalParams(renderNode, component, params, attrs);
+
     // Instantiate the component
-    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
+    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs, proto);
 
     // If the component specifies its template via the `layout` or `template`
     // properties instead of using the template looked up in the container, get
@@ -9132,41 +9134,57 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     layout = result.layout || layout;
     templates = result.templates || templates;
 
-    extractPositionalParams(renderNode, component, params, attrs);
-
     var results = _emberViewsSystemBuildComponentTemplate.default({ layout: layout, component: component, isAngleBracket: isAngleBracket }, attrs, { templates: templates, scope: parentScope });
 
     return new ComponentNodeManager(component, isAngleBracket, parentScope, renderNode, attrs, results.block, results.createdElement);
   };
 
   function extractPositionalParams(renderNode, component, params, attrs) {
-    if (component.positionalParams) {
-      (function () {
-        // if the component is rendered via {{component}} helper, the first
-        // element of `params` is the name of the component, so we need to
-        // skip that when the positional parameters are constructed
-        var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
-        var positionalParams = component.positionalParams;
-        var isNamed = typeof positionalParams === 'string';
-        var paramsStream = undefined;
+    var positionalParams = component.positionalParams;
+    var proto = undefined;
 
-        if (isNamed) {
-          paramsStream = new _emberMetalStreamsStream.default(function () {
-            return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
-          }, 'params');
+    if (!positionalParams) {
+      proto = component.proto();
+      positionalParams = proto.positionalParams;
 
-          attrs[positionalParams] = paramsStream;
-        }
+      _emberMetalCore.default.deprecate('Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` ' + 'is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });', !positionalParams, { id: 'ember-htmlbars.component-positional-params', until: '2.0.0' });
+    }
 
-        for (var i = 0; i < positionalParams.length; i++) {
-          var param = params[paramsStartIndex + i];
-          if (isNamed) {
-            paramsStream.addDependency(param);
-          } else {
-            attrs[positionalParams[i]] = param;
-          }
-        }
-      })();
+    if (positionalParams) {
+      processPositionalParams(renderNode, positionalParams, params, attrs);
+    }
+
+    // returns `proto` here so that we can avoid doing this
+    // twice for each initial render per component (it is also needed in `createComponent`)
+    return proto;
+  }
+
+  function processPositionalParams(renderNode, positionalParams, params, attrs) {
+    // if the component is rendered via {{component}} helper, the first
+    // element of `params` is the name of the component, so we need to
+    // skip that when the positional parameters are constructed
+    var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
+    var isNamed = typeof positionalParams === 'string';
+    var paramsStream = undefined;
+
+    if (isNamed) {
+      paramsStream = new _emberMetalStreamsStream.default(function () {
+        return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
+      }, 'params');
+
+      attrs[positionalParams] = paramsStream;
+    }
+
+    if (isNamed) {
+      for (var i = paramsStartIndex; i < params.length; i++) {
+        var param = params[i];
+        paramsStream.addDependency(param);
+      }
+    } else {
+      for (var i = 0; i < positionalParams.length; i++) {
+        var param = params[paramsStartIndex + i];
+        attrs[positionalParams[i]] = param;
+      }
     }
   }
 
@@ -9243,13 +9261,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   ComponentNodeManager.prototype.render = function (_env, visitor) {
     var component = this.component;
-    var attrs = this.attrs;
 
     return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function () {
       var env = _env.childWithView(component);
 
-      var snapshot = takeSnapshot(attrs);
-      env.renderer.componentInitAttrs(this.component, snapshot);
       env.renderer.componentWillRender(component);
       env.renderedViews.push(component.elementId);
 
@@ -9334,42 +9349,46 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   function createComponent(_component, isAngleBracket, _props, renderNode, env) {
     var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
+    var proto = arguments.length <= 6 || arguments[6] === undefined ? _component.proto() : arguments[6];
+    return (function () {
+      var props = _emberMetalMerge.assign({}, _props);
+      var attrsSnapshot = undefined;
 
-    var props = _emberMetalMerge.assign({}, _props);
+      if (!isAngleBracket) {
+        var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
+        _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController, { id: 'ember-htmlbars.create-component', until: '3.0.0' });
 
-    if (!isAngleBracket) {
-      var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
-      _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController, { id: 'ember-htmlbars.create-component', until: '3.0.0' });
+        attrsSnapshot = takeSnapshot(attrs);
+        props.attrs = attrsSnapshot;
 
-      var snapshot = takeSnapshot(attrs);
-      props.attrs = snapshot;
-
-      var proto = _component.proto();
-      mergeBindings(props, shadowedAttrs(proto, snapshot));
-    } else {
-      props._isAngleBracket = true;
-    }
-
-    props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup('renderer:-dom');
-    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup('-view-registry:main');
-
-    var component = _component.create(props);
-
-    // for the fallback case
-    component.container = component.container || env.container;
-
-    if (props.parentView) {
-      props.parentView.appendChild(component);
-
-      if (props.viewName) {
-        _emberMetalProperty_set.set(props.parentView, props.viewName, component);
+        mergeBindings(props, shadowedAttrs(proto, attrsSnapshot));
+      } else {
+        props._isAngleBracket = true;
       }
-    }
 
-    component._renderNode = renderNode;
-    renderNode.emberView = component;
-    renderNode.buildChildEnv = buildChildEnv;
-    return component;
+      props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup('renderer:-dom');
+      props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup('-view-registry:main');
+
+      var component = _component.create(props);
+
+      env.renderer.componentInitAttrs(component, attrsSnapshot);
+
+      // for the fallback case
+      component.container = component.container || env.container;
+
+      if (props.parentView) {
+        props.parentView.appendChild(component);
+
+        if (props.viewName) {
+          _emberMetalProperty_set.set(props.parentView, props.viewName, component);
+        }
+      }
+
+      component._renderNode = renderNode;
+      renderNode.emberView = component;
+      renderNode.buildChildEnv = buildChildEnv;
+      return component;
+    })();
   }
 
   function shadowedAttrs(target, attrs) {
@@ -11536,7 +11555,6 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   }; // set attrs the first time
 
   Renderer.prototype.componentInitAttrs = function (component, attrs) {
-    _emberMetalProperty_set.set(component, 'attrs', attrs);
     component.trigger('didInitAttrs', { attrs: attrs });
     component.trigger('didReceiveAttrs', { newAttrs: attrs });
   }; // set attrs the first time
@@ -14187,7 +14205,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.3+deebd53c
+    @version 2.0.0-beta.3+388ebc0c
     @public
   */
 
@@ -14221,11 +14239,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.3+deebd53c'
+    @default '2.0.0-beta.3+388ebc0c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.3+deebd53c';
+  Ember.VERSION = '2.0.0-beta.3+388ebc0c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15850,7 +15868,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
   
     @class Logger
     @namespace Ember
-    @private
+    @public
   */
   exports.default = {
     /**
@@ -15864,7 +15882,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method log
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     log: consoleMethod('log') || K,
 
@@ -15878,7 +15896,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method warn
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     warn: consoleMethod('warn') || K,
 
@@ -15892,7 +15910,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method error
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     error: consoleMethod('error') || K,
 
@@ -15907,7 +15925,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method info
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     info: consoleMethod('info') || K,
 
@@ -15922,7 +15940,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method debug
      @for Ember.Logger
      @param {*} arguments
-     @private
+     @public
     */
     debug: consoleMethod('debug') || consoleMethod('info') || K,
 
@@ -15935,7 +15953,7 @@ enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'
       @method assert
      @for Ember.Logger
      @param {Boolean} bool Value to test
-     @private
+     @public
     */
     assert: consoleMethod('assert') || assertPolyfill
   };
@@ -22283,7 +22301,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.3+deebd53c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.3+388ebc0c';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22784,7 +22802,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+deebd53c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.3+388ebc0c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -26029,7 +26047,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        @method renderTemplate
       @param {Object} controller the route's controller
       @param {Object} model the route's model
-      @private
+      @public
     */
     renderTemplate: function (controller, model) {
       this.render();
@@ -32199,7 +32217,7 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
        @method notifyPropertyChange
       @param {String} keyName The property key to be notified about.
       @return {Ember.Observable}
-      @private
+      @public
     */
     notifyPropertyChange: function (keyName) {
       this.propertyWillChange(keyName);
@@ -36662,7 +36680,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.3+deebd53c',
+        revision: 'Ember@2.0.0-beta.3+388ebc0c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41315,7 +41333,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.3+deebd53c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.3+388ebc0c';
 
   /**
   @module ember
