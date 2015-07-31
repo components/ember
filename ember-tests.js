@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.5+d731c70e
+ * @version   1.13.5+c03dee0d
  */
 
 (function() {
@@ -15944,7 +15944,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
     });
   
 
-  QUnit.test('static named positional parameters', function () {
+  QUnit.test('static named positional parameters [DEPRECATED]', function () {
     registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{attrs.name}}{{attrs.age}}'));
     registry.register('component:sample-component', _emberViewsViewsComponent["default"].extend({
       positionalParams: ['name', 'age']
@@ -15955,12 +15955,14 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       container: container
     }).create();
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
 
     equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Quint4');
   });
 
-  QUnit.test('dynamic named positional parameters', function () {
+  QUnit.test('dynamic named positional parameters [DEPRECATED]', function () {
     registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{attrs.name}}{{attrs.age}}'));
     registry.register('component:sample-component', _emberViewsViewsComponent["default"].extend({
       positionalParams: ['name', 'age']
@@ -15975,7 +15977,10 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       }
     }).create();
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
+
     equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Quint4');
     _emberMetalRun_loop["default"](function () {
       _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
@@ -15985,7 +15990,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
     equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Edward5');
   });
 
-  QUnit.test('static arbitrary number of positional parameters', function () {
+  QUnit.test('static arbitrary number of positional parameters [DEPRECATED]', function () {
     registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
     registry.register('component:sample-component', _emberViewsViewsComponent["default"].extend({
       positionalParams: 'names'
@@ -15996,14 +16001,16 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       container: container
     }).create();
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
 
     equal(view.$('#args-3').text(), 'Foo4Bar');
     equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
     equal(view.$('#helper').text(), 'Foo4Bar5Baz');
   });
 
-  QUnit.test('dynamic arbitrary number of positional parameters', function () {
+  QUnit.test('dynamic arbitrary number of positional parameters [DEPRECATED]', function () {
     registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
     registry.register('component:sample-component', _emberViewsViewsComponent["default"].extend({
       positionalParams: 'names'
@@ -16018,7 +16025,10 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       }
     }).create();
 
-    _emberRuntimeTestsUtils.runAppend(view);
+    expectDeprecation(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
+
     equal(view.$('#direct').text(), 'Foo4');
     equal(view.$('#helper').text(), 'Foo4');
     _emberMetalRun_loop["default"](function () {
@@ -16028,6 +16038,111 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
 
     equal(view.$('#direct').text(), 'Bar5');
     equal(view.$('#helper').text(), 'Bar5');
+  });
+
+  QUnit.test('static named positional parameters', function () {
+    var SampleComponent = _emberViewsViewsComponent["default"].extend();
+    SampleComponent.reopenClass({
+      positionalParams: ['name', 'age']
+    });
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{attrs.name}}{{attrs.age}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView["default"].extend({
+      layout: _emberTemplateCompilerSystemCompile["default"]('{{sample-component "Quint" 4}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Quint4');
+  });
+
+  QUnit.test('dynamic named positional parameters', function () {
+    var SampleComponent = _emberViewsViewsComponent["default"].extend();
+    SampleComponent.reopenClass({
+      positionalParams: ['name', 'age']
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{attrs.name}}{{attrs.age}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView["default"].extend({
+      layout: _emberTemplateCompilerSystemCompile["default"]('{{sample-component myName myAge}}'),
+      container: container,
+      context: {
+        myName: 'Quint',
+        myAge: 4
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Quint4');
+    _emberMetalRun_loop["default"](function () {
+      _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
+      _emberMetalProperty_set.set(view.context, 'myAge', '5');
+    });
+
+    equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Edward5');
+  });
+
+  QUnit.test('static arbitrary number of positional parameters', function () {
+    var SampleComponent = _emberViewsViewsComponent["default"].extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'names'
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView["default"].extend({
+      layout: _emberTemplateCompilerSystemCompile["default"]('{{sample-component "Foo" 4 "Bar" id="args-3"}}{{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}{{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#args-3').text(), 'Foo4Bar');
+    equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
+    equal(view.$('#helper').text(), 'Foo4Bar5Baz');
+  });
+
+  QUnit.test('dynamic arbitrary number of positional parameters', function () {
+    var SampleComponent = _emberViewsViewsComponent["default"].extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'n'
+    });
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{#each attrs.n as |name|}}{{name}}{{/each}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView["default"].extend({
+      layout: _emberTemplateCompilerSystemCompile["default"]('{{sample-component user1 user2 id="direct"}}{{component "sample-component" user1 user2 id="helper"}}'),
+      container: container,
+      context: {
+        user1: 'Foo',
+        user2: 4
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#direct').text(), 'Foo4');
+    equal(view.$('#helper').text(), 'Foo4');
+    _emberMetalRun_loop["default"](function () {
+      _emberMetalProperty_set.set(view.context, 'user1', 'Bar');
+      _emberMetalProperty_set.set(view.context, 'user2', '5');
+    });
+
+    equal(view.$('#direct').text(), 'Bar5');
+    equal(view.$('#helper').text(), 'Bar5');
+
+    _emberMetalRun_loop["default"](function () {
+      _emberMetalProperty_set.set(view.context, 'user2', '6');
+    });
+
+    equal(view.$('#direct').text(), 'Bar6');
+    equal(view.$('#helper').text(), 'Bar6');
   });
 
   QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
@@ -16078,6 +16193,37 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       registry.register('component:sample-component', _emberViewsViewsComponent["default"].extend({
         positionalParams: ['name', 'age']
       }));
+
+      view = _emberViewsViewsView["default"].extend({
+        layout: _emberTemplateCompilerSystemCompile["default"]('{{component "sample-component" myName myAge}}'),
+        container: container,
+        context: {
+          myName: 'Quint',
+          myAge: 4
+        }
+      }).create();
+
+      expectDeprecation(function () {
+        _emberRuntimeTestsUtils.runAppend(view);
+      }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
+
+      equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Quint4');
+      _emberMetalRun_loop["default"](function () {
+        _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
+        _emberMetalProperty_set.set(view.context, 'myAge', '5');
+      });
+
+      equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'Edward5');
+    });
+
+    QUnit.test('{{component}} helper works with positional params', function () {
+      var SampleComponent = _emberViewsViewsComponent["default"].extend();
+      SampleComponent.reopenClass({
+        positionalParams: ['name', 'age']
+      });
+
+      registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile["default"]('{{attrs.name}}{{attrs.age}}'));
+      registry.register('component:sample-component', SampleComponent);
 
       view = _emberViewsViewsView["default"].extend({
         layout: _emberTemplateCompilerSystemCompile["default"]('{{component "sample-component" myName myAge}}'),
@@ -48128,7 +48274,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.5+d731c70e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.5+c03dee0d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
