@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.3
+ * @version   2.0.0-beta.4
  */
 
 (function() {
@@ -13,7 +13,8 @@ var enifed, requireModule, eriuqer, requirejs, Ember;
 var mainContext = this;
 
 (function() {
-  var isNode = typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
 
   if (!isNode) {
     Ember = this.Ember = this.Ember || {};
@@ -115,6 +116,10 @@ var mainContext = this;
 })();
 
 enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
+  /*global __fail__*/
+
+  'use strict';
+
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
   /**
@@ -436,8 +441,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
-/*global __fail__*/
 enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  'use strict';
+
   var deprecationLevels = {
     RAISE: _emberMetalUtils.symbol('RAISE'),
     LOG: _emberMetalUtils.symbol('LOG'),
@@ -464,6 +470,8 @@ enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 
   };
 });
 enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
+  'use strict';
+
   // adds helpers to helpers object in Test
 
   /**
@@ -479,6 +487,7 @@ enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializ
 // to setup initializer
 // to handle various edge cases
 enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
+  'use strict';
 
   function K() {
     return this;
@@ -536,6 +545,7 @@ enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/objec
   exports.default = Adapter;
 });
 enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapter', 'ember-metal/utils'], function (exports, _emberTestingAdaptersAdapter, _emberMetalUtils) {
+  'use strict';
 
   /**
     This class implements the methods defined by Ember.Test.Adapter for the
@@ -559,6 +569,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
   });
 });
 enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+  'use strict';
 
   /**
   @module ember
@@ -1079,6 +1090,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   @private
 */
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
+  'use strict';
 
   var name = 'deferReadiness in `testing` mode';
 
@@ -1097,6 +1109,8 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load
   });
 });
 enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember-testing/adapters/qunit', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberTestingAdaptersQunit, _emberViewsSystemJquery) {
+  'use strict';
+
   exports.default = setupForTesting;
 
   var Test, requests;
@@ -1152,6 +1166,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
 
 // import Test from "ember-testing/test";  // ES6TODO: fix when cycles are supported
 enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberMetalEnvironment) {
+  'use strict';
 
   /**
     @module ember
@@ -1197,12 +1212,13 @@ enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/sys
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked);
+        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
 });
 enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication) {
+  'use strict';
 
   /**
     @module ember
@@ -1579,6 +1595,13 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         this.helperContainer = window;
       }
 
+      this.reopen({
+        willDestroy: function () {
+          this._super.apply(this, arguments);
+          this.removeTestHelpers();
+        }
+      });
+
       this.testHelpers = {};
       for (var name in helpers) {
         this.originalMethods[name] = this.helperContainer[name];
@@ -1608,6 +1631,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
       for (var name in helpers) {
         this.helperContainer[name] = this.originalMethods[name];
+        delete Test.Promise.prototype[name];
         delete this.testHelpers[name];
         delete this.originalMethods[name];
       }
