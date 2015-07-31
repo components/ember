@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+02284d19
+ * @version   2.0.0-canary+facb04b9
  */
 
 (function() {
@@ -4218,7 +4218,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+02284d19
+    @version 2.0.0-canary+facb04b9
     @public
   */
 
@@ -4252,11 +4252,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+02284d19'
+    @default '2.0.0-canary+facb04b9'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+02284d19';
+  Ember.VERSION = '2.0.0-canary+facb04b9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12232,7 +12232,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+02284d19',
+        revision: 'Ember@2.0.0-canary+facb04b9',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -15931,7 +15931,8 @@ enifed('htmlbars-syntax/handlebars/compiler/ast', ['exports'], function (exports
       },
 
       scopedId: function (path) {
-        return /^\.|this\b/.test(path.original);
+        return (/^\.|this\b/.test(path.original)
+        );
       },
 
       // an ID is simple if it only has one part, and that part is not
@@ -21935,11 +21936,13 @@ enifed("simple-html-tokenizer/utils", ["exports"], function (exports) {
   exports.preprocessInput = preprocessInput;
 
   function isSpace(char) {
-    return /[\t\n\f ]/.test(char);
+    return (/[\t\n\f ]/.test(char)
+    );
   }
 
   function isAlpha(char) {
-    return /[A-Za-z]/.test(char);
+    return (/[A-Za-z]/.test(char)
+    );
   }
 
   function preprocessInput(input) {
