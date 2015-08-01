@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+622e5975
+ * @version   2.0.0-canary+e5ab0af4
  */
 
 (function() {
@@ -29487,16 +29487,19 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features', 'ember-routing/system/router'], function (exports, _emberMetalFeatures, _emberRoutingSystemRouter) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features', 'ember-routing/system/router', 'ember-debug/handlers', 'ember-debug/warn'], function (exports, _emberMetalFeatures, _emberRoutingSystemRouter, _emberDebugHandlers, _emberDebugWarn) {
+  /* globals EmberDev */
   'use strict';
 
-  var Router;
+  var Router, outerWarnHandler;
 
   QUnit.module('Ember Router DSL', {
     setup: function () {
       Router = _emberRoutingSystemRouter.default.extend();
+      outerWarnHandler = _emberDebugHandlers.HANDLERS.warn;
     },
     teardown: function () {
+      _emberDebugHandlers.HANDLERS.warn = outerWarnHandler;
       Router = null;
     }
   });
@@ -29531,6 +29534,31 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features'
       }, '\'' + reservedName + '\' cannot be used as a route name.');
     });
   });
+
+  // jscs:disable validateIndentation
+  if (EmberDev && !EmberDev.runningProdBuild) {
+    QUnit.test('should warn when using a dangerous select route name', function (assert) {
+      expect(1);
+
+      var originalWarnHandler = _emberDebugHandlers.HANDLERS.warn;
+
+      _emberDebugWarn.registerHandler(function (message) {
+        assert.equal(message, 'Using a route named \'select\' (and defining a App.SelectView) will prevent you from using {{view \'select\'}}', 'select route warning is triggered');
+      });
+
+      Router = _emberRoutingSystemRouter.default.extend();
+
+      Router.map(function () {
+        this.route('select');
+      });
+
+      var router = Router.create();
+      router._initRouterJs();
+
+      _emberDebugHandlers.HANDLERS.warn = originalWarnHandler;
+    });
+  }
+  // jscs:enable validateIndentation
 
   QUnit.test('should reset namespace if nested with resource', function () {
     expectDeprecation('this.resource() is deprecated. Use this.route(\'name\', { resetNamespace: true }, function () {}) instead.');
@@ -42748,7 +42776,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+622e5975', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e5ab0af4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
