@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+30add033
+ * @version   2.0.0-canary+574df27b
  */
 
 (function() {
@@ -1966,6 +1966,33 @@ enifed("ember-metal/assert", ["exports"], function (exports) {
 
   function runInDebug() {
     return debugFunctions.runInDebug.apply(undefined, arguments);
+  }
+});
+enifed("ember-metal/assign", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = assign;
+
+  function assign(original) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    for (var i = 0, l = args.length; i < l; i++) {
+      var arg = args[i];
+      if (!arg) {
+        continue;
+      }
+
+      var updates = Object.keys(arg);
+
+      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
+      }
+    }
+
+    return original;
   }
 });
 enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/run_loop', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
@@ -4218,7 +4245,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+30add033
+    @version 2.0.0-canary+574df27b
     @public
   */
 
@@ -4252,11 +4279,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+30add033'
+    @default '2.0.0-canary+574df27b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+30add033';
+  Ember.VERSION = '2.0.0-canary+574df27b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6469,7 +6496,6 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
   'use strict';
 
   exports.default = merge;
-  exports.assign = assign;
 
   function merge(original, updates) {
     if (!updates || typeof updates !== 'object') {
@@ -6483,28 +6509,6 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     for (var i = 0; i < length; i++) {
       prop = props[i];
       original[prop] = updates[prop];
-    }
-
-    return original;
-  }
-
-  function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0, l = args.length; i < l; i++) {
-      var arg = args[i];
-      if (!arg) {
-        continue;
-      }
-
-      var updates = Object.keys(arg);
-
-      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
-        var prop = updates[_i];
-        original[prop] = arg[prop];
-      }
     }
 
     return original;
@@ -12189,7 +12193,7 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-metal/core',
     return _emberTemplateCompilerSystemTemplate.default(templateSpec);
   };
 });
-enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/merge', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalMerge, _emberTemplateCompilerPlugins) {
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/features', 'ember-metal/assign', 'ember-template-compiler/plugins'], function (exports, _emberMetalFeatures, _emberMetalAssign, _emberTemplateCompilerPlugins) {
   /**
   @module ember
   @submodule ember-template-compiler
@@ -12215,7 +12219,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     if (_options === true) {
       options = {};
     } else {
-      options = _emberMetalMerge.assign({}, _options);
+      options = _emberMetalAssign.default({}, _options);
     }
 
     options.disableComponentGeneration = disableComponentGeneration;
@@ -12232,7 +12236,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+30add033',
+        revision: 'Ember@2.0.0-canary+574df27b',
         loc: program.loc,
         moduleName: options.moduleName
       };

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+30add033
+ * @version   2.0.0-canary+574df27b
  */
 
 (function() {
@@ -1515,7 +1515,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   exports.default = Container;
 });
 // Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/merge', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalMerge, _container) {
+enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/assign', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalAssign, _container) {
   'use strict';
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
@@ -2075,7 +2075,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
         resolverKnown = this.resolver.knownForType(type);
       }
 
-      return _emberMetalMerge.assign({}, fallbackKnown, localKnown, resolverKnown);
+      return _emberMetalAssign.default({}, fallbackKnown, localKnown, resolverKnown);
     },
 
     validateFullName: function (fullName) {
@@ -2543,6 +2543,33 @@ enifed("ember-metal/assert", ["exports"], function (exports) {
 
   function runInDebug() {
     return debugFunctions.runInDebug.apply(undefined, arguments);
+  }
+});
+enifed("ember-metal/assign", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = assign;
+
+  function assign(original) {
+    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      args[_key - 1] = arguments[_key];
+    }
+
+    for (var i = 0, l = args.length; i < l; i++) {
+      var arg = args[i];
+      if (!arg) {
+        continue;
+      }
+
+      var updates = Object.keys(arg);
+
+      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
+        var prop = updates[_i];
+        original[prop] = arg[prop];
+      }
+    }
+
+    return original;
   }
 });
 enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/run_loop', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
@@ -4795,7 +4822,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+30add033
+    @version 2.0.0-canary+574df27b
     @public
   */
 
@@ -4829,11 +4856,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+30add033'
+    @default '2.0.0-canary+574df27b'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+30add033';
+  Ember.VERSION = '2.0.0-canary+574df27b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7046,7 +7073,6 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
   'use strict';
 
   exports.default = merge;
-  exports.assign = assign;
 
   function merge(original, updates) {
     if (!updates || typeof updates !== 'object') {
@@ -7060,28 +7086,6 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     for (var i = 0; i < length; i++) {
       prop = props[i];
       original[prop] = updates[prop];
-    }
-
-    return original;
-  }
-
-  function assign(original) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    for (var i = 0, l = args.length; i < l; i++) {
-      var arg = args[i];
-      if (!arg) {
-        continue;
-      }
-
-      var updates = Object.keys(arg);
-
-      for (var _i = 0, _l = updates.length; _i < _l; _i++) {
-        var prop = updates[_i];
-        original[prop] = arg[prop];
-      }
     }
 
     return original;
