@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+42586fa9
+ * @version   2.0.0-canary+bc2a93fb
  */
 
 (function() {
@@ -4822,7 +4822,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+42586fa9
+    @version 2.0.0-canary+bc2a93fb
     @public
   */
 
@@ -4856,11 +4856,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+42586fa9'
+    @default '2.0.0-canary+bc2a93fb'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+42586fa9';
+  Ember.VERSION = '2.0.0-canary+bc2a93fb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5731,7 +5731,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     return all;
   }
 });
-enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
+enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalAssign) {
   'use strict';
 
   exports.default = isEnabled;
@@ -5749,7 +5749,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalCore.default.ENV.FEATURES || {};
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-application-visit": null, "ember-routing-core-outlet": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-debug-handlers": null, "ember-registry-container-reform": null }, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's

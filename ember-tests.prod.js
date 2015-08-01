@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+42586fa9
+ * @version   2.0.0-canary+bc2a93fb
  */
 
 (function() {
@@ -3583,11 +3583,11 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
         app.instanceInitializer({
           name: 'register-application-template',
           initialize: function (app) {
-            app.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1> {{view "child"}}'));
+            app.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1> {{component "x-child"}}'));
             app.register('view:application', _emberViewsViewsView.default.extend({
               elementId: 'my-cool-app'
             }));
-            app.register('view:child', _emberViewsViewsView.default.extend({
+            app.register('component:x-child', _emberViewsViewsView.default.extend({
               elementId: 'child-view'
             }));
           }
@@ -3603,8 +3603,17 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
         _emberMetalRun_loop.default(instance.view, 'appendTo', '#qunit-fixture');
         assert.equal(_emberMetalCore.default.$('#qunit-fixture > #my-cool-app h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
         assert.strictEqual(_emberViewsViewsView.default.views['my-cool-app'], undefined, 'view was not registered globally');
-        ok(instance.container.lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
-        ok(instance.container.lookup('-view-registry:main')['child-view'] instanceof _emberViewsViewsView.default, 'child view was registered on the instance\'s view registry');
+
+        function lookup(fullName) {
+          if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+            return instance.lookup(fullName);
+          } else {
+            return instance.container.lookup(fullName);
+          }
+        }
+
+        ok(lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
+        ok(lookup('-view-registry:main')['child-view'] instanceof _emberViewsViewsView.default, 'child view was registered on the instance\'s view registry');
 
         instance.destroy();
       }, function (error) {
@@ -15509,7 +15518,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(view.$().html(), '<div>This is a</div><div>fragment</div>', 'Just the fragment was used');
     });
 
-    QUnit.test('non-block without properties replaced with a div', function () {
+    QUnit.skip('non-block without properties replaced with a div', function () {
       // The whitespace is added intentionally to verify that the heuristic is not "a single node" but
       // rather "a single non-whitespace, non-comment node"
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('  <div>In layout</div>  '));
@@ -15527,7 +15536,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       ok(view.$('div.ember-view[id]').length === 1, 'The non-block tag name was used');
     });
 
-    QUnit.test('non-block without properties replaced with identity element', function () {
+    QUnit.skip('non-block without properties replaced with identity element', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block such="{{attrs.stability}}">In layout</non-block>'));
 
       view = appendViewFor('<non-block stability={{view.stability}} />', {
@@ -15548,7 +15557,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       ok(view.$().html().match(/^<non-block id="[^"]*" such="stability!" class="ember-view">In layout<\/non-block>$/), 'The root element has gotten the default class and ids');
     });
 
-    QUnit.test('non-block with class replaced with a div merges classes', function () {
+    QUnit.skip('non-block with class replaced with a div merges classes', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div class="inner-class" />'));
 
       view = appendViewFor('<non-block class="{{view.outer}}" />', {
@@ -15564,7 +15573,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(view.$('div').attr('class'), 'inner-class new-outer ember-view', 'the classes are merged');
     });
 
-    QUnit.test('non-block with class replaced with a identity element merges classes', function () {
+    QUnit.skip('non-block with class replaced with a identity element merges classes', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block class="inner-class" />'));
 
       view = appendViewFor('<non-block class="{{view.outer}}" />', {
@@ -15580,7 +15589,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(view.$('non-block').attr('class'), 'inner-class new-outer ember-view', 'the classes are merged');
     });
 
-    QUnit.test('non-block rendering a fragment', function () {
+    QUnit.skip('non-block rendering a fragment', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<p>{{attrs.first}}</p><p>{{attrs.second}}</p>'));
 
       view = appendViewFor('<non-block first={{view.first}} second={{view.second}} />', {
@@ -15622,7 +15631,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       //equal(jQuery('#qunit-fixture').text(), 'In layout - someProp: something here');
     });
 
-    QUnit.test('attributes are not installed on the top level', function () {
+    QUnit.skip('attributes are not installed on the top level', function () {
       var component = undefined;
 
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout - {{attrs.text}}</non-block>'));
@@ -15668,7 +15677,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
     });
 
-    QUnit.test('rerendering component with attrs from parent', function () {
+    QUnit.skip('rerendering component with attrs from parent', function () {
       var willUpdate = 0;
       var didReceiveAttrs = 0;
 
@@ -16590,7 +16599,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 
   // jscs:disable validateIndentation
   if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-    QUnit.test('mutable bindings work as angle-bracket component attributes', function (assert) {
+    QUnit.skip('mutable bindings work as angle-bracket component attributes', function (assert) {
       var middle;
 
       registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
@@ -16625,7 +16634,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
       assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
     });
 
-    QUnit.test('a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components', function (assert) {
+    QUnit.skip('a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components', function (assert) {
       var middle, bottom;
 
       registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
@@ -42614,7 +42623,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+42586fa9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+bc2a93fb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
