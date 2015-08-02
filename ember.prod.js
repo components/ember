@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+06d85a01
+ * @version   2.0.0-canary+68cef73a
  */
 
 (function() {
@@ -8205,7 +8205,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
     this.setValue(val);
   }, _merge));
 });
-enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
+enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView, _emberMetalFeatures) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -8213,7 +8213,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06d85a01';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68cef73a';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8264,18 +8264,33 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
         ViewClass = env.container.lookupFactory('view:toplevel');
       }
 
-      var options = {
-        component: ViewClass,
-        self: toRender.controller,
-        createOptions: {
-          controller: toRender.controller
+      var Component;
+
+      if (_emberMetalFeatures.default('ember-routing-routable-components')) {
+        Component = outletState.render.Component;
+      }
+
+      var options;
+      var attrs = {};
+      if (Component) {
+        options = {
+          component: Component
+        };
+        attrs = toRender.attrs;
+      } else {
+        options = {
+          component: ViewClass,
+          self: toRender.controller,
+          createOptions: {
+            controller: toRender.controller
+          }
+        };
+
+        template = template || toRender.template && toRender.template.raw;
+
+        if (LOG_VIEW_LOOKUPS && ViewClass) {
+          _emberMetalCore.default.Logger.info('Rendering ' + toRender.name + ' with ' + ViewClass, { fullName: 'view:' + toRender.name });
         }
-      };
-
-      template = template || toRender.template && toRender.template.raw;
-
-      if (LOG_VIEW_LOOKUPS && ViewClass) {
-        _emberMetalCore.default.Logger.info('Rendering ' + toRender.name + ' with ' + ViewClass, { fullName: 'view:' + toRender.name });
       }
 
       if (state.manager) {
@@ -8283,7 +8298,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
         state.manager = null;
       }
 
-      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, {}, options, parentView, null, null, template);
+      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, attrs, options, parentView, null, null, template);
       state.manager = nodeManager;
 
       nodeManager.render(env, hash, visitor);
@@ -13917,7 +13932,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+06d85a01
+    @version 2.0.0-canary+68cef73a
     @public
   */
 
@@ -13951,11 +13966,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+06d85a01'
+    @default '2.0.0-canary+68cef73a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+06d85a01';
+  Ember.VERSION = '2.0.0-canary+68cef73a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14840,7 +14855,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null}, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -21830,7 +21845,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+06d85a01';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+68cef73a';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22328,7 +22343,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06d85a01';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68cef73a';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -25873,12 +25888,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     viewName = options && options.view || namePassed && name || route.viewName || name;
     ViewClass = route.container.lookupFactory('view:' + viewName);
     template = route.container.lookup('template:' + templateName);
-    if (!ViewClass && !template) {
-            if (LOG_VIEW_LOOKUPS) {
-        var fullName = 'template:' + name;
-        _emberMetalCore.default.Logger.info('Could not find "' + name + '" template or view. Nothing will be rendered', { fullName: fullName });
-      }
-    }
 
     var parent;
     if (into && (parent = parentRoute(route)) && into === parentRoute(route).routeName) {
@@ -25893,6 +25902,26 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       ViewClass: ViewClass,
       template: template
     };
+
+    var Component = undefined;
+    if (_emberMetalFeatures.default('ember-routing-routable-components')) {
+      var componentName = options && options.component || namePassed && name || route.componentName || name;
+      var componentLookup = route.container.lookup('component-lookup:main');
+      Component = componentLookup.lookupFactory(componentName);
+      var isGlimmerComponent = Component && Component.proto().isGlimmerComponent;
+      if (!template && !ViewClass && Component && isGlimmerComponent) {
+        renderOptions.Component = Component;
+        renderOptions.ViewClass = undefined;
+        renderOptions.attrs = { model: _emberMetalProperty_get.get(controller, 'model') };
+      }
+    }
+
+    if (!ViewClass && !template && !Component) {
+            if (LOG_VIEW_LOOKUPS) {
+        var fullName = 'template:' + name;
+        _emberMetalCore.default.Logger.info('Could not find "' + name + '" template or view. Nothing will be rendered', { fullName: fullName });
+      }
+    }
 
     return renderOptions;
   }
@@ -36480,7 +36509,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+06d85a01',
+        revision: 'Ember@2.0.0-canary+68cef73a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39894,7 +39923,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+06d85a01';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+68cef73a';
 
   /**
   @module ember
