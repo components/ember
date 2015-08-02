@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b9b7c5be
+ * @version   2.0.0-canary+221beec4
  */
 
 (function() {
@@ -1702,6 +1702,12 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     equal(resolvedLegacyHandlebars, LegacyHandlebarsBoundHelper, 'resolves legacy Handlebars bound helper');
   });
 
+  QUnit.test('the default resolver resolves to the same instance no matter the notation ', function () {
+    application.NestedPostController = _emberRuntimeControllersController.default.extend({});
+
+    equal(locator.lookup('controller:nested-post'), locator.lookup('controller:nested_post'), 'looks up NestedPost controller on application');
+  });
+
   QUnit.test('the default resolver throws an error if the fullName to resolve is invalid', function () {
     throws(function () {
       registry.resolve(undefined);
@@ -1883,14 +1889,18 @@ enifed('ember-application/tests/system/dependency_injection/normalization_test',
     equal(registry.normalize('controller:posts'), 'controller:posts');
     equal(registry.normalize('controller:posts_index'), 'controller:postsIndex');
     equal(registry.normalize('controller:posts.index'), 'controller:postsIndex');
+    equal(registry.normalize('controller:posts-index'), 'controller:postsIndex');
     equal(registry.normalize('controller:posts.post.index'), 'controller:postsPostIndex');
     equal(registry.normalize('controller:posts_post.index'), 'controller:postsPostIndex');
     equal(registry.normalize('controller:posts.post_index'), 'controller:postsPostIndex');
+    equal(registry.normalize('controller:posts.post-index'), 'controller:postsPostIndex');
     equal(registry.normalize('controller:postsIndex'), 'controller:postsIndex');
     equal(registry.normalize('controller:blogPosts.index'), 'controller:blogPostsIndex');
     equal(registry.normalize('controller:blog/posts.index'), 'controller:blog/postsIndex');
+    equal(registry.normalize('controller:blog/posts-index'), 'controller:blog/postsIndex');
     equal(registry.normalize('controller:blog/posts.post.index'), 'controller:blog/postsPostIndex');
     equal(registry.normalize('controller:blog/posts_post.index'), 'controller:blog/postsPostIndex');
+    equal(registry.normalize('controller:blog/posts_post-index'), 'controller:blog/postsPostIndex');
 
     equal(registry.normalize('template:blog/posts_index'), 'template:blog/posts_index');
   });
@@ -42462,7 +42472,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+b9b7c5be', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+221beec4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
