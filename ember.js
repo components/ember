@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+be01a621
+ * @version   2.0.0-canary+b9b7c5be
  */
 
 (function() {
@@ -8700,7 +8700,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b9b7c5be';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14465,7 +14465,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+be01a621
+    @version 2.0.0-canary+b9b7c5be
     @public
   */
 
@@ -14499,11 +14499,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+be01a621'
+    @default '2.0.0-canary+b9b7c5be'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+be01a621';
+  Ember.VERSION = '2.0.0-canary+b9b7c5be';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22493,7 +22493,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b9b7c5be';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22993,7 +22993,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b9b7c5be';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37250,7 +37250,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+be01a621',
+        revision: 'Ember@2.0.0-canary+b9b7c5be',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41950,7 +41950,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b9b7c5be';
 
   /**
   @module ember
@@ -44948,22 +44948,23 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
   // once the view has been inserted into the DOM, legal manipulations
   // are done on the DOM element.
 
-  /**
-    Global views hash
-  
-    @property views
-    @static
-    @type Object
-    @private
-  */
-  View.views = {};
+  View.reopenClass({
+    /**
+      Global views hash
+       @property views
+      @static
+      @type Object
+      @private
+    */
+    views: {},
 
-  // If someone overrides the child views computed property when
-  // defining their class, we want to be able to process the user's
-  // supplied childViews and then restore the original computed property
-  // at view initialization time. This happens in Ember.ContainerView's init
-  // method.
-  View.childViewsProperty = _emberViewsMixinsView_child_views_support.childViewsProperty;
+    // If someone overrides the child views computed property when
+    // defining their class, we want to be able to process the user's
+    // supplied childViews and then restore the original computed property
+    // at view initialization time. This happens in Ember.ContainerView's init
+    // method.
+    childViewsProperty: _emberViewsMixinsView_child_views_support.childViewsProperty
+  });
 
   function viewDeprecationMessage() {
     _emberMetalCore.default.deprecate('Ember.View is deprecated. Consult the Deprecations Guide for a migration strategy.', !!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, {
