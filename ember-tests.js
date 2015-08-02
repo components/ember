@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2adcb6cb
+ * @version   2.0.0-canary+68cef73a
  */
 
 (function() {
@@ -7630,7 +7630,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 });
-enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
   var view, registry, container;
@@ -7651,53 +7651,6 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     }
   });
 
-  QUnit.test('component helper with bound properties are updating correctly in init of component', function () {
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        equal(_emberMetalProperty_get.get(this, 'location'), 'Caracas', 'location is bound on init');
-      }
-    }));
-    registry.register('component:baz-qux', _emberViewsViewsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-
-        equal(_emberMetalProperty_get.get(this, 'location'), 'Loisaida', 'location is bound on init');
-      }
-    }));
-    registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{location}} {{yield}}'));
-    registry.register('template:components/baz-qux', _emberTemplateCompilerSystemCompile.default('yummy {{location}} {{yield}}'));
-
-    view = _emberViewsViewsView.default.extend({
-      container: container,
-      dynamicComponent: _emberMetalComputed.default('location', function () {
-        var location = _emberMetalProperty_get.get(this, 'location');
-
-        if (location === 'Caracas') {
-          return 'foo-bar';
-        } else {
-          return 'baz-qux';
-        }
-      }),
-      location: 'Caracas',
-      template: _emberTemplateCompilerSystemCompile.default('{{#component view.dynamicComponent location=view.location}}arepas!{{/component}}')
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'location', 'Loisaida');
-    });
-    equal(view.$().text(), 'yummy Loisaida arepas!', 'component was updated and re-rendered');
-
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view, 'location', 'Caracas');
-    });
-    equal(view.$().text(), 'yippie! Caracas arepas!', 'component was updated up and rendered');
-  });
-
   QUnit.test('component helper with unquoted string is bound', function () {
     registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{attrs.location}} {{yield}}'));
     registry.register('template:components/baz-qux', _emberTemplateCompilerSystemCompile.default('yummy {{attrs.location}} {{yield}}'));
@@ -7712,7 +7665,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
 
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       _emberMetalProperty_set.set(view, 'dynamicComponent', 'baz-qux');
       _emberMetalProperty_set.set(view, 'location', 'Loisaida');
     });
@@ -7752,14 +7705,14 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     equal(currentComponent, 'foo-bar', 'precond - instantiates the proper component');
     equal(destroyCalls, 0, 'precond - nothing destroyed yet');
 
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       _emberMetalProperty_set.set(view, 'dynamicComponent', 'baz-qux');
     });
 
     equal(currentComponent, 'baz-qux', 'changing bound value instantiates the proper component');
     equal(destroyCalls, 1, 'prior component should be destroyed');
 
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       _emberMetalProperty_set.set(view, 'dynamicComponent', 'foo-bar');
     });
 
@@ -7769,7 +7722,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
 
   QUnit.test('component helper with actions', function () {
     registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberMetalCore.default.Component.extend({
       classNames: 'foo-bar',
       didInsertElement: function () {
         // trigger action on click in absence of app's EventDispatcher
@@ -7799,7 +7752,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       view.$('.foo-bar').trigger('click');
     });
     equal(actionTriggered, 1, 'action was triggered');
@@ -7808,7 +7761,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
   QUnit.test('component helper maintains expected logical parentView', function () {
     registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
     var componentInstance;
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberMetalCore.default.Component.extend({
       didInsertElement: function () {
         componentInstance = this;
       }
@@ -7840,7 +7793,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$().text(), 'yippie! Caracas yummy Caracas arepas!', 'components were looked up and rendered');
 
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       _emberMetalProperty_set.set(view, 'dynamicComponent1', 'corge-grault');
       _emberMetalProperty_set.set(view, 'location', 'Loisaida');
     });
@@ -7887,7 +7840,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
 
     equal(view.$().text(), 'yippie! Caracas arepas!', 'component was looked up and rendered');
 
-    _emberMetalRun_loop.default(function () {
+    _emberMetalCore.default.run(function () {
       _emberMetalProperty_set.set(view, 'dynamicComponent', undefined);
     });
 
@@ -42624,7 +42577,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+2adcb6cb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+68cef73a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
