@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+460783d1
+ * @version   2.0.0-canary+06d85a01
  */
 
 (function() {
@@ -18184,53 +18184,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     }
   });
 
-  QUnit.test('should invoke INTERCEPT_GET even if the property exists', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    var calledWith = undefined;
-    obj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      calledWith = [obj, key];
-      return _emberMetalProperty_get.UNHANDLED_GET;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      calledWith = undefined;
-      equal(_emberMetalProperty_get.get(obj, key), obj[key], key);
-      equal(calledWith[0], obj, 'the object was passed');
-      equal(calledWith[1], key, 'the key was passed');
-    }
-  });
-
-  QUnit.test('should invoke INTERCEPT_GET and accept a return value', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    obj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      return key;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key) || key === _emberMetalProperty_get.INTERCEPT_GET) {
-        continue;
-      }
-      equal(_emberMetalProperty_get.get(obj, key), key, key);
-    }
-  });
-
   _emberMetalTestsProps_helper.testBoth('should call unknownProperty on watched values if the value is undefined', function (get, set) {
     var obj = {
       count: 0,
@@ -18656,114 +18609,6 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
 
       equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
       equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'should set value');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_SET and support UNHANDLED_SET if INTERCEPT_SET is defined', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      undefinedValue: 'emberjs'
-    };
-
-    var calledWith = undefined;
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      calledWith = [key, value];
-      return _emberMetalProperty_set.UNHANDLED_SET;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      calledWith = undefined;
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(calledWith[0], key, 'INTERCEPT_SET called with the key');
-      equal(calledWith[1], obj[key], 'INTERCEPT_SET called with the key');
-      equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'should set value since UNHANDLED_SET was returned');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_SET and support handling the set if it is defined', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      bucket: {}
-    };
-
-    var calledWith = undefined;
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      _emberMetalProperty_set.set(obj.bucket, key, value);
-      return value;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      calledWith = undefined;
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(_emberMetalProperty_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
-      ok(newObj.bucket.hasOwnProperty(key), 'the key is defined in bucket');
-      ok(!newObj.hasOwnProperty(key), 'the key is not defined on the raw object');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_GET and INTERCEPT_SET', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      string: null,
-      number: null,
-      boolTrue: null,
-      boolFalse: null,
-      nullValue: null,
-      undefinedValue: null,
-      bucket: {}
-    };
-
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      _emberMetalProperty_set.set(obj.bucket, key, value);
-      return value;
-    };
-
-    newObj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      return _emberMetalProperty_get.get(obj.bucket, key);
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(_emberMetalProperty_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
-      equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'INTERCEPT_GET was called');
     }
   });
 
@@ -42570,7 +42415,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+460783d1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+06d85a01', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
