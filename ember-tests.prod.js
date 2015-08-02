@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+bc2a93fb
+ * @version   2.0.0-canary+d38ca83d
  */
 
 (function() {
@@ -32005,48 +32005,48 @@ enifed('ember-runtime/tests/core/copy_test', ['exports', 'ember-runtime/copy'], 
     equal(_emberRuntimeCopy.default(obj).foo, 'bar', 'bar should still be bar');
   });
 });
-enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/core'], function (exports, _emberRuntimeCore) {
+enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/is-equal'], function (exports, _emberRuntimeIsEqual) {
   'use strict';
 
   QUnit.module('isEqual');
 
   QUnit.test('undefined and null', function () {
-    ok(_emberRuntimeCore.isEqual(undefined, undefined), 'undefined is equal to undefined');
-    ok(!_emberRuntimeCore.isEqual(undefined, null), 'undefined is not equal to null');
-    ok(_emberRuntimeCore.isEqual(null, null), 'null is equal to null');
-    ok(!_emberRuntimeCore.isEqual(null, undefined), 'null is not equal to undefined');
+    ok(_emberRuntimeIsEqual.default(undefined, undefined), 'undefined is equal to undefined');
+    ok(!_emberRuntimeIsEqual.default(undefined, null), 'undefined is not equal to null');
+    ok(_emberRuntimeIsEqual.default(null, null), 'null is equal to null');
+    ok(!_emberRuntimeIsEqual.default(null, undefined), 'null is not equal to undefined');
   });
 
   QUnit.test('strings should be equal', function () {
-    ok(!_emberRuntimeCore.isEqual('Hello', 'Hi'), 'different Strings are unequal');
-    ok(_emberRuntimeCore.isEqual('Hello', 'Hello'), 'same Strings are equal');
+    ok(!_emberRuntimeIsEqual.default('Hello', 'Hi'), 'different Strings are unequal');
+    ok(_emberRuntimeIsEqual.default('Hello', 'Hello'), 'same Strings are equal');
   });
 
   QUnit.test('numericals should be equal', function () {
-    ok(_emberRuntimeCore.isEqual(24, 24), 'same numbers are equal');
-    ok(!_emberRuntimeCore.isEqual(24, 21), 'different numbers are inequal');
+    ok(_emberRuntimeIsEqual.default(24, 24), 'same numbers are equal');
+    ok(!_emberRuntimeIsEqual.default(24, 21), 'different numbers are inequal');
   });
 
   QUnit.test('dates should be equal', function () {
-    ok(_emberRuntimeCore.isEqual(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
-    ok(!_emberRuntimeCore.isEqual(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
+    ok(_emberRuntimeIsEqual.default(new Date(1985, 7, 22), new Date(1985, 7, 22)), 'same dates are equal');
+    ok(!_emberRuntimeIsEqual.default(new Date(2014, 7, 22), new Date(1985, 7, 22)), 'different dates are not equal');
   });
 
   QUnit.test('array should be equal', function () {
     // NOTE: We don't test for array contents -- that would be too expensive.
-    ok(!_emberRuntimeCore.isEqual([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
-    ok(!_emberRuntimeCore.isEqual([1, 2], [1]), 'two array instances with different values should not be equal');
+    ok(!_emberRuntimeIsEqual.default([1, 2], [1, 2]), 'two array instances with the same values should not be equal');
+    ok(!_emberRuntimeIsEqual.default([1, 2], [1]), 'two array instances with different values should not be equal');
   });
 
   QUnit.test('first object implements isEqual should use it', function () {
-    ok(_emberRuntimeCore.isEqual({ isEqual: function () {
+    ok(_emberRuntimeIsEqual.default({ isEqual: function () {
         return true;
       } }, null), 'should return true always');
 
     var obj = { isEqual: function () {
         return false;
       } };
-    equal(_emberRuntimeCore.isEqual(obj, obj), false, 'should return false because isEqual returns false');
+    equal(_emberRuntimeIsEqual.default(obj, obj), false, 'should return false because isEqual returns false');
   });
 });
 enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-metal/core', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
@@ -42623,7 +42623,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+bc2a93fb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+d38ca83d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
