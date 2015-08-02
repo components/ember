@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2adcb6cb
+ * @version   2.0.0-canary+be01a621
  */
 
 (function() {
@@ -4822,7 +4822,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+2adcb6cb
+    @version 2.0.0-canary+be01a621
     @public
   */
 
@@ -4856,11 +4856,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+2adcb6cb'
+    @default '2.0.0-canary+be01a621'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+2adcb6cb';
+  Ember.VERSION = '2.0.0-canary+be01a621';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13630,7 +13630,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     membership of an array changes by using `.observes('myArray.[]')`.
   
     To support `Ember.Array` in your own class, you must override two
-    primitives to use it: `replace()` and `objectAt()`.
+    primitives to use it: `length()` and `objectAt()`.
   
     Note that the Ember.Array mixin also incorporates the `Ember.Enumerable`
     mixin. All `Ember.Array`-like objects are also enumerable.

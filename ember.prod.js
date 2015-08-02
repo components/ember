@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+2adcb6cb
+ * @version   2.0.0-canary+be01a621
  */
 
 (function() {
@@ -8213,7 +8213,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2adcb6cb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13932,7 +13932,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+2adcb6cb
+    @version 2.0.0-canary+be01a621
     @public
   */
 
@@ -13966,11 +13966,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+2adcb6cb'
+    @default '2.0.0-canary+be01a621'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+2adcb6cb';
+  Ember.VERSION = '2.0.0-canary+be01a621';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21845,7 +21845,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2adcb6cb';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22343,7 +22343,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2adcb6cb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -29178,7 +29178,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
     membership of an array changes by using `.observes('myArray.[]')`.
   
     To support `Ember.Array` in your own class, you must override two
-    primitives to use it: `replace()` and `objectAt()`.
+    primitives to use it: `length()` and `objectAt()`.
   
     Note that the Ember.Array mixin also incorporates the `Ember.Enumerable`
     mixin. All `Ember.Array`-like objects are also enumerable.
@@ -36509,7 +36509,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+2adcb6cb',
+        revision: 'Ember@2.0.0-canary+be01a621',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39923,7 +39923,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2adcb6cb';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+be01a621';
 
   /**
   @module ember
