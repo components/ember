@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+221beec4
+ * @version   2.0.0-canary+c12a55ce
  */
 
 (function() {
@@ -15638,7 +15638,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     QUnit.skip('attributes are not installed on the top level', function () {
       var component = undefined;
 
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout - {{attrs.text}}</non-block>'));
+      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout - {{attrs.text}} -- {{text}}</non-block>'));
       registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
         text: null,
         dynamic: null,
@@ -15655,7 +15655,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       var el = view.$('non-block.ember-view');
       ok(el, 'precond - the view was rendered');
 
-      equal(el.text(), 'In layout - texting');
+      equal(el.text(), 'In layout - texting -- ');
       equal(component.attrs.text, 'texting');
       equal(component.attrs.dynamic, 'dynamic');
       strictEqual(_emberMetalProperty_get.get(component, 'text'), null);
@@ -15665,7 +15665,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         return view.rerender();
       });
 
-      equal(el.text(), 'In layout - texting');
+      equal(el.text(), 'In layout - texting -- ');
       equal(component.attrs.text, 'texting');
       equal(component.attrs.dynamic, 'dynamic');
       strictEqual(_emberMetalProperty_get.get(component, 'text'), null);
@@ -42472,7 +42472,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+221beec4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+c12a55ce', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
