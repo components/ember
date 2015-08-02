@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d38ca83d
+ * @version   2.0.0-canary+460783d1
  */
 
 (function() {
@@ -8700,7 +8700,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d38ca83d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+460783d1';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -9487,16 +9487,15 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     var proto = arguments.length <= 6 || arguments[6] === undefined ? _component.proto() : arguments[6];
     return (function () {
       var props = _emberMetalAssign.default({}, _props);
-      var attrsSnapshot = undefined;
 
       if (!isAngleBracket) {
         var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
         _emberMetalCore.default.deprecate('controller= is deprecated', !hasSuppliedController, { id: 'ember-htmlbars.create-component', until: '3.0.0' });
 
-        attrsSnapshot = takeSnapshot(attrs);
-        props.attrs = attrsSnapshot;
+        var snapshot = takeSnapshot(attrs);
+        props.attrs = snapshot;
 
-        mergeBindings(props, shadowedAttrs(proto, attrsSnapshot));
+        mergeBindings(props, shadowedAttrs(proto, snapshot));
       } else {
         props._isAngleBracket = true;
       }
@@ -9505,8 +9504,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup('-view-registry:main');
 
       var component = _component.create(props);
-
-      env.renderer.componentInitAttrs(component, attrsSnapshot);
 
       // for the fallback case
       component.container = component.container || env.container;
@@ -9679,8 +9676,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       }
 
       if (component) {
-        var snapshot = takeSnapshot(attrs);
-        env.renderer.setAttrs(this.component, snapshot);
         env.renderer.willRender(component);
         env.renderedViews.push(component.elementId);
       }
@@ -9714,7 +9709,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
         env.renderer.willUpdate(component, snapshot);
 
         if (component._renderNode.shouldReceiveAttrs) {
-          env.renderer.updateAttrs(component, snapshot);
+          env.renderer.componentUpdateAttrs(component, snapshot);
           _emberMetalSet_properties.default(component, mergeBindings({}, shadowedAttrs(component, snapshot)));
           component._renderNode.shouldReceiveAttrs = false;
         }
@@ -9773,6 +9768,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       component = component.create(props);
     } else {
+      env.renderer.componentUpdateAttrs(component, snapshot);
       mergeBindings(props, shadowedAttrs(component, snapshot));
       _emberMetalSet_properties.default(component, props);
     }
@@ -14454,7 +14450,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+d38ca83d
+    @version 2.0.0-canary+460783d1
     @public
   */
 
@@ -14488,11 +14484,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+d38ca83d'
+    @default '2.0.0-canary+460783d1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+d38ca83d';
+  Ember.VERSION = '2.0.0-canary+460783d1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22508,7 +22504,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+d38ca83d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+460783d1';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23008,7 +23004,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d38ca83d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+460783d1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37251,7 +37247,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+d38ca83d',
+        revision: 'Ember@2.0.0-canary+460783d1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38677,7 +38673,7 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
   exports.default = _emberRuntime.default;
 });
 // for the side effect of extending Ember.run.queues
-enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/events', 'ember-metal/utils', 'ember-metal/property_events', 'ember-metal/observer'], function (exports, _emberMetalProperty_get, _emberMetalMixin, _emberMetalEvents, _emberMetalUtils, _emberMetalProperty_events, _emberMetalObserver) {
+enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/property_events', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalUtils, _emberMetalProperty_events, _emberMetalEvents) {
   'use strict';
 
   exports.deprecation = deprecation;
@@ -38691,16 +38687,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
   exports.MUTABLE_CELL = MUTABLE_CELL;
   function isCell(val) {
     return val && val[MUTABLE_CELL];
-  }
-
-  function attrsWillChange(view, attrsKey) {
-    var key = attrsKey.slice(6);
-    view.currentState.legacyAttrWillChange(view, key);
-  }
-
-  function attrsDidChange(view, attrsKey) {
-    var key = attrsKey.slice(6);
-    view.currentState.legacyAttrDidChange(view, key);
   }
 
   var AttrsProxyMixin = {
@@ -38730,54 +38716,40 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
       val.update(value);
     },
 
-    willWatchProperty: function (key) {
-      if (this._isAngleBracket || key === 'attrs') {
-        return;
-      }
-
-      var attrsKey = 'attrs.' + key;
-      _emberMetalObserver._addBeforeObserver(this, attrsKey, null, attrsWillChange);
-      _emberMetalObserver.addObserver(this, attrsKey, null, attrsDidChange);
-    },
-
-    didUnwatchProperty: function (key) {
-      if (this._isAngleBracket || key === 'attrs') {
-        return;
-      }
-
-      var attrsKey = 'attrs.' + key;
-      _emberMetalObserver._removeBeforeObserver(this, attrsKey, null, attrsWillChange);
-      _emberMetalObserver.removeObserver(this, attrsKey, null, attrsDidChange);
-    },
-
-    legacyDidReceiveAttrs: _emberMetalEvents.on('didReceiveAttrs', function () {
-      if (this._isAngleBracket) {
-        return;
-      }
-
-      var keys = Object.keys(this.attrs);
-
-      for (var i = 0, l = keys.length; i < l; i++) {
-        // Only issue the deprecation if it wasn't already issued when
-        // setting attributes initially.
-        if (!(keys[i] in this)) {
-          this.notifyPropertyChange(keys[i]);
+    _propagateAttrsToThis: function () {
+      var attrs = this.attrs;
+      var values = {};
+      for (var prop in attrs) {
+        if (prop !== 'attrs') {
+          values[prop] = this.getAttr(prop);
         }
       }
+      this.setProperties(values);
+    },
+
+    initializeShape: _emberMetalEvents.on('init', function () {
+      this._isDispatchingAttrs = false;
     }),
+
+    didReceiveAttrs: function () {
+      this._super();
+      this._isDispatchingAttrs = true;
+      this._propagateAttrsToThis();
+      this._isDispatchingAttrs = false;
+    },
 
     unknownProperty: function (key) {
       if (this._isAngleBracket) {
         return;
       }
 
-      var attrs = _emberMetalProperty_get.get(this, 'attrs');
+      var attrs = this.attrs;
 
       if (attrs && key in attrs) {
         // do not deprecate accessing `this[key]` at this time.
         // add this back when we have a proper migration path
         // Ember.deprecate(deprecation(key), { id: 'ember-views.', until: '3.0.0' });
-        var possibleCell = _emberMetalProperty_get.get(attrs, key);
+        var possibleCell = attrs.key;
 
         if (possibleCell && possibleCell[MUTABLE_CELL]) {
           return possibleCell.value;
@@ -38794,6 +38766,9 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/property_get',
 
   AttrsProxyMixin[_emberMetalProperty_events.PROPERTY_DID_CHANGE] = function (key) {
     if (this._isAngleBracket) {
+      return;
+    }
+    if (this._isDispatchingAttrs) {
       return;
     }
 
@@ -41972,7 +41947,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+d38ca83d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+460783d1';
 
   /**
   @module ember
@@ -43184,7 +43159,7 @@ enifed('ember-views/views/states', ['exports', 'ember-metal/merge', 'ember-views
   };
   exports.states = states;
 });
-enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_events, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'ember-metal/property_get', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalError, _emberMetalProperty_get, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   /**
@@ -43205,21 +43180,8 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'emb
       return null;
     },
 
-    legacyAttrWillChange: function (view, key) {
-      if (key in view.attrs && !(key in view)) {
-        _emberMetalProperty_events.propertyWillChange(view, key);
-      }
-    },
-
-    legacyAttrDidChange: function (view, key) {
-      if (key in view.attrs && !(key in view)) {
-        _emberMetalProperty_events.propertyDidChange(view, key);
-      }
-    },
-
     legacyPropertyDidChange: function (view, key) {
       var attrs = view.attrs;
-
       if (attrs && key in attrs) {
         var possibleCell = attrs[key];
 
@@ -43392,8 +43354,6 @@ enifed('ember-views/views/states/pre_render', ['exports', 'ember-views/views/sta
   var preRender = Object.create(_emberViewsViewsStatesDefault.default);
 
   _emberMetalMerge.default(preRender, {
-    legacyAttrWillChange: function (view, key) {},
-    legacyAttrDidChange: function (view, key) {},
     legacyPropertyDidChange: function (view, key) {}
   });
 
@@ -44804,6 +44764,8 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
       if (!this._viewRegistry) {
         this._viewRegistry = View.views;
       }
+
+      this.renderer.componentInitAttrs(this, this.attrs || {});
     },
 
     __defineNonEnumerable: function (property) {

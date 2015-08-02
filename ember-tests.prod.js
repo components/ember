@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d38ca83d
+ * @version   2.0.0-canary+460783d1
  */
 
 (function() {
@@ -15245,59 +15245,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(view.$('#zomg').text(), 'Whoop!');
   });
 
-  QUnit.test('comopnent should rerender when a property is changed during children\'s rendering', function () {
-    expectDeprecation(/twice in a single render/);
-
-    var outer, middle;
-
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
-      value: 1,
-      grabReference: _emberMetalCore.default.on('init', function () {
-        outer = this;
-      })
-    }));
-
-    registry.register('component:x-middle', _emberViewsViewsComponent.default.extend({
-      grabReference: _emberMetalCore.default.on('init', function () {
-        middle = this;
-      })
-    }));
-
-    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
-      pushDataUp: _emberMetalCore.default.observer('value', function () {
-        middle.set('value', this.get('value'));
-      })
-    }));
-
-    registry.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{#x-middle}}{{x-inner value=value}}{{/x-middle}}'));
-    registry.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('<div id="middle-value">{{value}}</div>{{yield}}'));
-    registry.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('<div id="inner-value">{{value}}</div>'));
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{x-outer}}'),
-      container: container
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('#inner-value').text(), '1', 'initial render of inner');
-    equal(view.$('#middle-value').text(), '1', 'initial render of middle');
-
-    _emberMetalRun_loop.default(function () {
-      return outer.set('value', 2);
-    });
-
-    equal(view.$('#inner-value').text(), '2', 'second render of inner');
-    equal(view.$('#middle-value').text(), '2', 'second render of middle');
-
-    _emberMetalRun_loop.default(function () {
-      return outer.set('value', 3);
-    });
-
-    equal(view.$('#inner-value').text(), '3', 'third render of inner');
-    equal(view.$('#middle-value').text(), '3', 'third render of middle');
-  });
-
   QUnit.test('components in template of a yielding component should have the proper parentView', function () {
     var outer, innerTemplate, innerLayout;
 
@@ -15410,7 +15357,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(outer._viewRegistry, viewRegistry);
   });
 
-  QUnit.test('comopnent should rerender when a property (with a default) is changed during children\'s rendering', function () {
+  QUnit.test('comopnent should rerender when a property is changed during children\'s rendering', function () {
     expectDeprecation(/modified value twice in a single render/);
 
     var outer, middle;
@@ -42623,7 +42570,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+d38ca83d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+460783d1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44476,7 +44423,6 @@ enifed('ember-views/tests/compat/attrs_proxy_test', ['exports', 'ember-views/vie
 
       barObserver: _emberMetalEvents.on('init', _emberMetalMixin.observer('bar', function () {
         var count = _emberMetalProperty_get.get(this, 'observerFiredCount');
-
         _emberMetalProperty_set.set(this, 'observerFiredCount', count + 1);
       })),
 
