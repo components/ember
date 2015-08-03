@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e1c80a4f
+ * @version   2.0.0-canary+563b2fa9
  */
 
 (function() {
@@ -8219,7 +8219,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e1c80a4f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13938,7 +13938,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e1c80a4f
+    @version 2.0.0-canary+563b2fa9
     @public
   */
 
@@ -13972,11 +13972,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e1c80a4f'
+    @default '2.0.0-canary+563b2fa9'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e1c80a4f';
+  Ember.VERSION = '2.0.0-canary+563b2fa9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21853,7 +21853,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+e1c80a4f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -21889,7 +21889,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
     /**
       Used to determine when this LinkComponent is active.
        @property currentWhen
-      @private
+      @public
     */
     'current-when': null,
 
@@ -21897,7 +21897,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       Sets the `title` attribute of the `LinkComponent`'s HTML element.
        @property title
       @default null
-      @private
+      @public
     **/
     title: null,
 
@@ -21905,7 +21905,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       Sets the `rel` attribute of the `LinkComponent`'s HTML element.
        @property rel
       @default null
-      @private
+      @public
     **/
     rel: null,
 
@@ -21913,7 +21913,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       Sets the `tabindex` attribute of the `LinkComponent`'s HTML element.
        @property tabindex
       @default null
-      @private
+      @public
     **/
     tabindex: null,
 
@@ -21922,7 +21922,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
        @since 1.8.0
       @property target
       @default null
-      @private
+      @public
     **/
     target: null,
 
@@ -21963,7 +21963,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
        @property replace
       @type Boolean
       @default false
-      @private
+      @public
     **/
     replace: false,
 
@@ -21974,7 +21974,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
        @property attributeBindings
       @type Array | String
       @default ['title', 'rel', 'tabindex', 'target']
-       @private
+      @public
     */
     attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
 
@@ -21984,7 +21984,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
        @property classNameBindings
       @type Array
       @default ['active', 'loading', 'disabled']
-       @private
+      @public
     */
     classNameBindings: linkComponentClassNameBindings,
 
@@ -22351,7 +22351,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e1c80a4f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36518,7 +36518,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+e1c80a4f',
+        revision: 'Ember@2.0.0-canary+563b2fa9',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39932,7 +39932,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+e1c80a4f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
 
   /**
   @module ember
