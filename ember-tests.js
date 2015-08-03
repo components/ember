@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a49c2eb3
+ * @version   2.0.0-canary+1873a122
  */
 
 (function() {
@@ -13996,7 +13996,7 @@ enifed('ember-htmlbars/tests/hooks/text_node_test', ['exports', 'ember-views/vie
 
   var view;
 
-  QUnit.module('ember-htmlbars: hooks/text_node_test', {
+  QUnit.module('ember-htmlbars: textNode hook', {
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
     }
@@ -42660,7 +42660,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+a49c2eb3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+1873a122', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -46453,7 +46453,7 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
   var trim = _emberViewsSystemJquery.default.trim;
   var container, registry, view, otherContainer, originalViewKeyword;
 
-  QUnit.module('ember-views/views/container_view_test', {
+  QUnit.module('Ember.ContainerView', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       registry = new _containerRegistry.default();
@@ -46901,13 +46901,39 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     equal(trim(container.$().text()), 'This is the tertiary view.', 'should render its child');
   });
 
-  QUnit.test('should be able to modify childViews many times during an run loop', function () {
-    container = _emberViewsViewsContainer_view.default.create();
+  var child, count;
+  QUnit.module('Ember.ContainerView - modify childViews', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+      registry = new _containerRegistry.default();
+      container = _emberViewsViewsContainer_view.default.create();
 
-    _emberMetalRun_loop.default(function () {
-      container.appendTo('#qunit-fixture');
-    });
+      _emberMetalRun_loop.default(function () {
+        container.appendTo('#qunit-fixture');
+      });
 
+      count = 0;
+      child = _emberViewsViewsView.default.create({
+        template: function () {
+          count++;
+          return 'child';
+        }
+      });
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        container.destroy();
+        if (view) {
+          view.destroy();
+        }
+        if (otherContainer) {
+          otherContainer.destroy();
+        }
+      });
+    }
+  });
+
+  QUnit.test('should be able to modify childViews many times during a run loop', function () {
     var one = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('one')
     });
@@ -46949,6 +46975,24 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     });
 
     equal(trim(container.$().text()), 'child');
+  });
+
+  QUnit.test('should be able to modify childViews then remove the ContainerView in same run loop', function () {
+    _emberMetalRun_loop.default(function () {
+      container.pushObject(child);
+      container.remove();
+    });
+
+    equal(count, 0, 'did not render child');
+  });
+
+  QUnit.test('should be able to modify childViews then destroy the ContainerView in same run loop', function () {
+    _emberMetalRun_loop.default(function () {
+      container.pushObject(child);
+      container.destroy();
+    });
+
+    equal(count, 0, 'did not render child');
   });
 
   QUnit.test('should be able to modify childViews then rerender then modify again the ContainerView in same run loop', function () {
@@ -47015,6 +47059,24 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
 
     // IE 8 adds a line break but this shouldn't affect validity
     equal(trim(container.$().text()), 'onetwo');
+  });
+
+  QUnit.module('Ember.ContainerView', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+      registry = new _containerRegistry.default();
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        container.destroy();
+        if (view) {
+          view.destroy();
+        }
+        if (otherContainer) {
+          otherContainer.destroy();
+        }
+      });
+    }
   });
 
   QUnit.test('should invalidate `element` on itself and childViews when being rendered by ensureChildrenAreInDOM', function () {
@@ -48171,122 +48233,36 @@ enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/syst
     ok(textArea.$().is(':not(:disabled)'));
   });
 
-  QUnit.test('input value is updated when setting value property of view', function () {
+  ['placeholder', 'name', 'title', 'maxlength', 'rows', 'cols', 'tabindex'].forEach(function (attributeName) {
+    QUnit.test('text area ' + attributeName + ' is updated when setting ' + attributeName + ' property of view', function () {
+      _emberMetalRun_loop.default(function () {
+        set(textArea, attributeName, '1');
+        textArea.append();
+      });
+
+      equal(textArea.$().attr(attributeName), '1', 'renders text area with ' + attributeName);
+
+      _emberMetalRun_loop.default(function () {
+        set(textArea, attributeName, '2');
+      });
+
+      equal(textArea.$().attr(attributeName), '2', 'updates text area after ' + attributeName + ' changes');
+    });
+  });
+
+  QUnit.test('text area value is updated when setting value property of view', function () {
     _emberMetalRun_loop.default(function () {
       set(textArea, 'value', 'foo');
       textArea.append();
     });
 
-    equal(textArea.$().val(), 'foo', 'renders text field with value');
+    equal(textArea.$().val(), 'foo', 'renders text area with value');
 
     _emberMetalRun_loop.default(function () {
       set(textArea, 'value', 'bar');
     });
 
-    equal(textArea.$().val(), 'bar', 'updates text field after value changes');
-  });
-
-  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'placeholder', 'foo');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('placeholder'), 'foo', 'renders text area with placeholder');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'placeholder', 'bar');
-    });
-
-    equal(textArea.$().attr('placeholder'), 'bar', 'updates text area after placeholder changes');
-  });
-
-  QUnit.test('input name is updated when setting name property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'name', 'foo');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('name'), 'foo', 'renders text area with name');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'name', 'bar');
-    });
-
-    equal(textArea.$().attr('name'), 'bar', 'updates text area after name changes');
-  });
-
-  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'maxlength', '300');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('maxlength'), '300', 'renders text area with maxlength');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'maxlength', '400');
-    });
-
-    equal(textArea.$().attr('maxlength'), '400', 'updates text area after maxlength changes');
-  });
-
-  QUnit.test('input rows is updated when setting rows property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'rows', '3');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('rows'), '3', 'renders text area with rows');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'rows', '4');
-    });
-
-    equal(textArea.$().attr('rows'), '4', 'updates text area after rows changes');
-  });
-
-  QUnit.test('input cols is updated when setting cols property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'cols', '30');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('cols'), '30', 'renders text area with cols');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'cols', '40');
-    });
-
-    equal(textArea.$().attr('cols'), '40', 'updates text area after cols changes');
-  });
-
-  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'tabindex', '4');
-      textArea.append();
-    });
-
-    equal(textArea.$().attr('tabindex'), '4', 'renders text area with the tabindex');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'tabindex', '1');
-    });
-
-    equal(textArea.$().attr('tabindex'), '1', 'updates text area after tabindex changes');
-  });
-
-  QUnit.test('input title is updated when setting title property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'title', 'FooTitle');
-      textArea.append();
-    });
-    equal(textArea.$().attr('title'), 'FooTitle', 'renders text area with the title');
-
-    _emberMetalRun_loop.default(function () {
-      set(textArea, 'title', 'BarTitle');
-    });
-    equal(textArea.$().attr('title'), 'BarTitle', 'updates text area after title changes');
+    equal(textArea.$().val(), 'bar', 'updates text area after value changes');
   });
 
   QUnit.test('value binding works properly for inputs that haven\'t been created', function () {
@@ -48469,6 +48445,23 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
     ok(textField.$().is(':not(:disabled)'));
   });
 
+  ['placeholder', 'name', 'title', 'size', 'maxlength', 'tabindex'].forEach(function (attributeName) {
+    QUnit.test('text field ' + attributeName + ' is updated when setting ' + attributeName + ' property of view', function () {
+      _emberMetalRun_loop.default(function () {
+        set(textField, attributeName, '1');
+        textField.append();
+      });
+
+      equal(textField.$().attr(attributeName), '1', 'renders text field with ' + attributeName);
+
+      _emberMetalRun_loop.default(function () {
+        set(textField, attributeName, '2');
+      });
+
+      equal(textField.$().attr(attributeName), '2', 'updates text field after ' + attributeName + ' changes');
+    });
+  });
+
   QUnit.test('input value is updated when setting value property of view', function () {
     _emberMetalRun_loop.default(function () {
       set(textField, 'value', 'foo');
@@ -48482,96 +48475,6 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
     });
 
     equal(textField.$().val(), 'bar', 'updates text field after value changes');
-  });
-
-  QUnit.test('input placeholder is updated when setting placeholder property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'placeholder', 'foo');
-      textField.append();
-    });
-
-    equal(textField.$().attr('placeholder'), 'foo', 'renders text field with placeholder');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'placeholder', 'bar');
-    });
-
-    equal(textField.$().attr('placeholder'), 'bar', 'updates text field after placeholder changes');
-  });
-
-  QUnit.test('input name is updated when setting name property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'name', 'foo');
-      textField.append();
-    });
-
-    equal(textField.$().attr('name'), 'foo', 'renders text field with name');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'name', 'bar');
-    });
-
-    equal(textField.$().attr('name'), 'bar', 'updates text field after name changes');
-  });
-
-  QUnit.test('input maxlength is updated when setting maxlength property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'maxlength', '30');
-      textField.append();
-    });
-
-    equal(textField.$().attr('maxlength'), '30', 'renders text field with maxlength');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'maxlength', '40');
-    });
-
-    equal(textField.$().attr('maxlength'), '40', 'updates text field after maxlength changes');
-  });
-
-  QUnit.test('input size is updated when setting size property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'size', '30');
-      textField.append();
-    });
-
-    equal(textField.$().attr('size'), '30', 'renders text field with size');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'size', '40');
-    });
-
-    equal(textField.$().attr('size'), '40', 'updates text field after size changes');
-  });
-
-  QUnit.test('input tabindex is updated when setting tabindex property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'tabindex', '5');
-      textField.append();
-    });
-
-    equal(textField.$().attr('tabindex'), '5', 'renders text field with the tabindex');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'tabindex', '3');
-    });
-
-    equal(textField.$().attr('tabindex'), '3', 'updates text field after tabindex changes');
-  });
-
-  QUnit.test('input title is updated when setting title property of view', function () {
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'title', 'FooTitle');
-      textField.append();
-    });
-
-    equal(textField.$().attr('title'), 'FooTitle', 'renders text field with the title');
-
-    _emberMetalRun_loop.default(function () {
-      set(textField, 'title', 'BarTitle');
-    });
-
-    equal(textField.$().attr('title'), 'BarTitle', 'updates text field after title changes');
   });
 
   QUnit.test('input type is configurable when creating view', function () {
