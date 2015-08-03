@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+563b2fa9
+ * @version   2.0.0-canary+adabda53
  */
 
 (function() {
@@ -9325,6 +9325,28 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
     });
 
     equal(view.$().text(), 'abca');
+  });
+
+  QUnit.test('pushing primitive item twice will render properly', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
+    view = _emberViewsViewsView.default.create({
+      items: _emberRuntimeSystemNative_array.A(),
+      template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{/each}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    _emberMetalRun_loop.default(function () {
+      view.get('items').pushObject('a');
+    });
+
+    equal(view.$().text(), 'a');
+
+    _emberMetalRun_loop.default(function () {
+      view.get('items').pushObject('a');
+    });
+
+    equal(view.$().text(), 'aa');
   });
 
   QUnit.test('duplicate keys work properly with objects', function () {
@@ -42634,7 +42656,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+563b2fa9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+adabda53', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

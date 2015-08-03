@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+563b2fa9
+ * @version   2.0.0-canary+adabda53
  */
 
 (function() {
@@ -2529,11 +2529,33 @@ enifed("dom-helper", ["exports", "./htmlbars-runtime/morph", "./morph-attr", "./
     return element.appendChild(childElement);
   };
 
+  var itemAt;
+
+  // It appears that sometimes, in yet to be itentified scenarios PhantomJS 2.0
+  // crashes on childNodes.item(index), but works as expected with childNodes[index];
+  //
+  // Although it would be nice to move to childNodes[index] in all scenarios,
+  // this would require SimpleDOM to maintain the childNodes array. This would be
+  // quite costly, in both dev time and runtime.
+  //
+  // So instead, we choose the best possible method and call it a day.
+  //
+  /*global navigator */
+  if (typeof navigator !== 'undefined' && navigator.userAgent.indexOf('PhantomJS')) {
+    itemAt = function (nodes, index) {
+      return nodes[index];
+    };
+  } else {
+    itemAt = function (nodes, index) {
+      return nodes.item(index);
+    };
+  }
+
   prototype.childAt = function (element, indices) {
     var child = element;
 
     for (var i = 0; i < indices.length; i++) {
-      child = child.childNodes.item(indices[i]);
+      child = itemAt(child.childNodes, indices[i]);
     }
 
     return child;
@@ -2639,8 +2661,7 @@ enifed("dom-helper", ["exports", "./htmlbars-runtime/morph", "./morph-attr", "./
   };
 
   prototype.setProperty = function (element, name, value, namespace) {
-    var lowercaseName = name.toLowerCase();
-    if (element.namespaceURI === _domHelperBuildHtmlDom.svgNamespace || lowercaseName === 'style') {
+    if (element.namespaceURI === _domHelperBuildHtmlDom.svgNamespace) {
       if (_domHelperProp.isAttrRemovalValue(value)) {
         element.removeAttribute(name);
       } else {
@@ -3313,7 +3334,7 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
       }
     }
 
-    if (type === 'prop' && preferAttr(element.tagName, normalized)) {
+    if (type === 'prop' && (normalized.toLowerCase() === 'style' || preferAttr(element.tagName, normalized))) {
       type = 'attr';
     }
 
@@ -8706,7 +8727,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+adabda53';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -14471,7 +14492,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+563b2fa9
+    @version 2.0.0-canary+adabda53
     @public
   */
 
@@ -14505,11 +14526,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+563b2fa9'
+    @default '2.0.0-canary+adabda53'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+563b2fa9';
+  Ember.VERSION = '2.0.0-canary+adabda53';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22501,7 +22522,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+adabda53';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23001,7 +23022,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+adabda53';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37259,7 +37280,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+563b2fa9',
+        revision: 'Ember@2.0.0-canary+adabda53',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41959,7 +41980,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+563b2fa9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+adabda53';
 
   /**
   @module ember
@@ -45584,7 +45605,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       var handledMorphs = renderState.handledMorphs;
       var key = undefined;
 
-      if (handledMorphs[_key]) {
+      if (_key in handledMorphs) {
         // In this branch we are dealing with a duplicate key. The strategy
         // is to take the original key and append a counter to it that is
         // incremented every time the key is reused. In order to greatly
