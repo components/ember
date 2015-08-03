@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1873a122
+ * @version   2.0.0-canary+a5a0489b
  */
 
 (function() {
@@ -41706,6 +41706,7 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['exports', 'ember-m
   }
 
   QUnit.test('\'Hello %@ %@\'.fmt(\'John\', \'Doe\') => \'Hello John Doe\'', function () {
+    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
     equal(_emberRuntimeSystemString.fmt('Hello %@ %@', ['John', 'Doe']), 'Hello John Doe');
     if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
       equal('Hello %@ %@'.fmt('John', 'Doe'), 'Hello John Doe');
@@ -41713,6 +41714,7 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['exports', 'ember-m
   });
 
   QUnit.test('\'Hello %@2 %@1\'.fmt(\'John\', \'Doe\') => \'Hello Doe John\'', function () {
+    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
     equal(_emberRuntimeSystemString.fmt('Hello %@2 %@1', ['John', 'Doe']), 'Hello Doe John');
     if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
       equal('Hello %@2 %@1'.fmt('John', 'Doe'), 'Hello Doe John');
@@ -41720,6 +41722,7 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['exports', 'ember-m
   });
 
   QUnit.test('\'%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01\'.fmt(\'One\', \'Two\', \'Three\', \'Four\', \'Five\', \'Six\', \'Seven\', \'Eight\') => \'Eight Seven Six Five Four Three Two One\'', function () {
+    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
     equal(_emberRuntimeSystemString.fmt('%@08 %@07 %@06 %@05 %@04 %@03 %@02 %@01', ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight']), 'Eight Seven Six Five Four Three Two One');
 
     if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
@@ -41728,6 +41731,7 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['exports', 'ember-m
   });
 
   QUnit.test('\'data: %@\'.fmt({ id: 3 }) => \'data: {id: 3}\'', function () {
+    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
     equal(_emberRuntimeSystemString.fmt('data: %@', [{ id: 3 }]), 'data: {id: 3}');
     if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
       equal('data: %@'.fmt({ id: 3 }), 'data: {id: 3}');
@@ -41735,6 +41739,7 @@ enifed('ember-runtime/tests/system/string/fmt_string_test', ['exports', 'ember-m
   });
 
   QUnit.test('works with argument form', function () {
+    expectDeprecation('Ember.String.fmt is deprecated, use ES6 template strings instead.');
     equal(_emberRuntimeSystemString.fmt('%@', 'John'), 'John');
     equal(_emberRuntimeSystemString.fmt('%@ %@', ['John'], 'Doe'), '[John] Doe');
   });
@@ -42498,7 +42503,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+1873a122', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+a5a0489b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
