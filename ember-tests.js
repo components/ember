@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+57b1f224
+ * @version   2.0.0-canary+6c0dce94
  */
 
 (function() {
@@ -42634,7 +42634,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+57b1f224', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+6c0dce94', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -53811,6 +53811,33 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     equal(_emberMetalCore.default.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
     equal(_emberMetalCore.default.$('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
     equal(_emberMetalCore.default.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+  });
+
+  QUnit.test('The {{link-to}} helper supports \'classNameBindings\' with custom values [GH #11699]', function () {
+    _emberMetalCore.default.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}');
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      foo: false
+    });
+
+    bootApplication();
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/');
+    });
+
+    equal(_emberMetalCore.default.$('#about-link.foo-is-false', '#qunit-fixture').length, 1, 'The about-link was rendered with the falsy class');
+
+    var controller = container.lookup('controller:index');
+    _emberMetalCore.default.run(function () {
+      controller.set('foo', true);
+    });
+
+    equal(_emberMetalCore.default.$('#about-link.foo-is-true', '#qunit-fixture').length, 1, 'The about-link was rendered with the truthy class after toggling the property');
   });
 
   QUnit.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
