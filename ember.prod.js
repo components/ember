@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ca8eb7c7
+ * @version   2.0.0-canary+57b1f224
  */
 
 (function() {
@@ -8219,7 +8219,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ca8eb7c7';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+57b1f224';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13938,7 +13938,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ca8eb7c7
+    @version 2.0.0-canary+57b1f224
     @public
   */
 
@@ -13972,11 +13972,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ca8eb7c7'
+    @default '2.0.0-canary+57b1f224'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ca8eb7c7';
+  Ember.VERSION = '2.0.0-canary+57b1f224';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21851,7 +21851,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ca8eb7c7';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+57b1f224';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22349,7 +22349,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ca8eb7c7';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+57b1f224';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -26042,7 +26042,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
   exports.default = Route;
 });
 // FEATURES, A, deprecate, assert, Logger
-enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', './router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _router_state, _router4, _routerTransition) {
+enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', './router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _router_state, _router4, _routerTransition) {
   'use strict';
 
   function K() {
@@ -28847,7 +28847,7 @@ enifed('ember-runtime/is-equal', ['exports'], function (exports) {
     return a === b;
   }
 });
-enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/mixin', 'ember-runtime/system/string'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalProperty_events, _emberMetalComputed, _emberMetalProperties, _emberMetalMixin, _emberRuntimeSystemString) {
+enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalProperty_events, _emberMetalComputed, _emberMetalProperties, _emberMetalMixin) {
   /**
   @module ember
   @submodule ember-runtime
@@ -29821,7 +29821,7 @@ enifed('ember-runtime/mixins/controller_content_model_alias_deprecation', ['expo
   });
 });
 // Ember.deprecate
-enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/mixins/freezable', 'ember-runtime/system/string', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberRuntimeSystemString, _emberMetalError) {
+enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-runtime/mixins/freezable', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin, _emberRuntimeMixinsFreezable, _emberMetalError) {
   /**
   @module ember
   @submodule ember-runtime
@@ -29874,7 +29874,7 @@ enifed('ember-runtime/mixins/copyable', ['exports', 'ember-metal/core', 'ember-m
             if (_emberRuntimeMixinsFreezable.Freezable && _emberRuntimeMixinsFreezable.Freezable.detect(this)) {
         return _emberMetalProperty_get.get(this, 'isFrozen') ? this : this.copy().freeze();
       } else {
-        throw new _emberMetalError.default(_emberRuntimeSystemString.fmt('%@ does not support freezing', [this]));
+        throw new _emberMetalError.default(this + ' does not support freezing');
       }
     }
   });
@@ -32550,7 +32550,7 @@ enifed('ember-runtime/system/application', ['exports', 'ember-runtime/system/nam
 
   exports.default = _emberRuntimeSystemNamespace.default.extend();
 });
-enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/error', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-runtime/system/string', 'ember-metal/alias'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalProperty_events, _emberMetalError, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberRuntimeSystemString, _emberMetalAlias) {
+enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/error', 'ember-runtime/system/object', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/enumerable', 'ember-metal/alias'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeUtils, _emberMetalComputed, _emberMetalMixin, _emberMetalProperty_events, _emberMetalError, _emberRuntimeSystemObject, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsEnumerable, _emberMetalAlias) {
   'use strict';
 
   /**
@@ -34698,6 +34698,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
       @param {Array} formats An array of parameters to interpolate into string.
       @return {String} formatted string
       @public
+      @deprecated Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');
     */
     fmt: fmt,
 
@@ -36515,7 +36516,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ca8eb7c7',
+        revision: 'Ember@2.0.0-canary+57b1f224',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38284,7 +38285,7 @@ enifed('ember-views/streams/should_display', ['exports', 'ember-metal/core', 'em
     }
   });
 });
-enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-metal/streams/utils', 'ember-runtime/mixins/controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberRuntimeSystemString, _emberMetalStreamsUtils, _emberRuntimeMixinsController) {
+enifed('ember-views/streams/utils', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/streams/utils', 'ember-runtime/mixins/controller'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalStreamsUtils, _emberRuntimeMixinsController) {
   'use strict';
 
   exports.readViewFactory = readViewFactory;
@@ -38631,7 +38632,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/c
   function validateTaglessComponent(component) {
       }
 });
-enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-metal/merge'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberMetalMerge) {
+enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-metal/merge'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberMetalMerge) {
   /**
   @module ember
   @submodule ember-views
@@ -39087,7 +39088,7 @@ enifed('ember-views/views/checkbox', ['exports', 'ember-metal/property_get', 'em
     }
   });
 });
-enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'ember-views/views/container_view', 'ember-views/views/view', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/utils', 'ember-views/mixins/empty_view_support'], function (exports, _emberMetalCore, _emberViewsViewsContainer_view, _emberViewsViewsView, _emberRuntimeMixinsArray, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemString, _emberMetalComputed, _emberMetalMixin, _emberViewsStreamsUtils, _emberViewsMixinsEmpty_view_support) {
+enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'ember-views/views/container_view', 'ember-views/views/view', 'ember-runtime/mixins/array', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/streams/utils', 'ember-views/mixins/empty_view_support'], function (exports, _emberMetalCore, _emberViewsViewsContainer_view, _emberViewsViewsView, _emberRuntimeMixinsArray, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalMixin, _emberViewsStreamsUtils, _emberViewsMixinsEmpty_view_support) {
   /**
   @module ember
   @submodule ember-views
@@ -39929,7 +39930,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ca8eb7c7';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+57b1f224';
 
   /**
   @module ember
@@ -41167,7 +41168,7 @@ enifed('ember-views/views/states/default', ['exports', 'ember-metal/error', 'emb
     invokeObserver: function () {}
   };
 });
-enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/merge', 'ember-runtime/system/string', 'ember-views/views/states/default', 'ember-metal/error'], function (exports, _emberMetalMerge, _emberRuntimeSystemString, _emberViewsViewsStatesDefault, _emberMetalError) {
+enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/merge', 'ember-views/views/states/default', 'ember-metal/error'], function (exports, _emberMetalMerge, _emberViewsViewsStatesDefault, _emberMetalError) {
   'use strict';
 
   /**
@@ -41175,19 +41176,17 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/merge', '
   @submodule ember-views
   */
 
-  var destroyingError = 'You can\'t call %@ on a view being destroyed';
-
   var destroying = Object.create(_emberViewsViewsStatesDefault.default);
 
   _emberMetalMerge.default(destroying, {
     appendChild: function () {
-      throw new _emberMetalError.default(_emberRuntimeSystemString.fmt(destroyingError, ['appendChild']));
+      throw new _emberMetalError.default('You can\'t call appendChild on a view being destroyed');
     },
     rerender: function () {
-      throw new _emberMetalError.default(_emberRuntimeSystemString.fmt(destroyingError, ['rerender']));
+      throw new _emberMetalError.default('You can\'t call rerender on a view being destroyed');
     },
     destroyElement: function () {
-      throw new _emberMetalError.default(_emberRuntimeSystemString.fmt(destroyingError, ['destroyElement']));
+      throw new _emberMetalError.default('You can\'t call destroyElement on a view being destroyed');
     }
   });
 

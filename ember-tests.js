@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ca8eb7c7
+ * @version   2.0.0-canary+57b1f224
  */
 
 (function() {
@@ -9732,7 +9732,7 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.get('context.source.banana'), 'some value');
   });
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/system/string', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeSystemString, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var originalLookup = _emberMetalCore.default.lookup;
@@ -9997,7 +9997,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'onDrugs', val);
       });
 
-      equal(view.$('h1').text(), 'Eat your vegetables', _emberRuntimeSystemString.fmt('renders block when conditional is "%@"; %@', [String(val), _emberRuntimeUtils.typeOf(val)]));
+      equal(view.$('h1').text(), 'Eat your vegetables', 'renders block when conditional is "' + val + '"; ' + _emberRuntimeUtils.typeOf(val));
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'onDrugs', true);
       });
@@ -10051,7 +10051,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'inception', val);
       });
 
-      equal(view.$('h1').text(), '', _emberRuntimeSystemString.fmt('hides block when conditional is "%@"', [String(val)]));
+      equal(view.$('h1').text(), '', 'hides block when conditional is "' + val + '"');
 
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'inception', true);
@@ -10088,7 +10088,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'inception', val);
       });
 
-      equal(view.$('h1').text(), 'BOONG?', _emberRuntimeSystemString.fmt('renders alternate if %@', [String(val)]));
+      equal(view.$('h1').text(), 'BOONG?', 'renders alternate if ' + val);
 
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'inception', true);
@@ -10164,7 +10164,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'onDrugs', val);
       });
 
-      equal(view.$('h1').text(), 'Eat your vegetables', _emberRuntimeSystemString.fmt('renders block when conditional is "%@"; %@', [String(val), _emberRuntimeUtils.typeOf(val)]));
+      equal(view.$('h1').text(), 'Eat your vegetables', 'renders block when conditional is "' + val + '"; ' + _emberRuntimeUtils.typeOf(val));
 
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'onDrugs', true);
@@ -10219,7 +10219,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'inception', val);
       });
 
-      equal(view.$('h1').text(), '', _emberRuntimeSystemString.fmt('hides block when conditional is "%@"', [String(val)]));
+      equal(view.$('h1').text(), '', 'hides block when conditional is "' + val + '"');
 
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'inception', true);
@@ -10256,7 +10256,7 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
         _emberMetalProperty_set.set(view, 'inception', val);
       });
 
-      equal(view.$('h1').text(), 'BOONG?', _emberRuntimeSystemString.fmt('renders alternate if %@', [String(val)]));
+      equal(view.$('h1').text(), 'BOONG?', 'renders alternate if ' + val);
 
       _emberMetalRun_loop.default(function () {
         _emberMetalProperty_set.set(view, 'inception', true);
@@ -33051,17 +33051,17 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
     var keys = _emberRuntimeSystemString.w('computed computedCached dependent dependentFront dependentCached');
 
     keys.forEach(function (key) {
-      equal(object.get(key), key, _emberRuntimeSystemString.fmt('Try #1: object.get(%@) should run function', [key]));
-      equal(object.get(key), key, _emberRuntimeSystemString.fmt('Try #2: object.get(%@) should run function', [key]));
+      equal(object.get(key), key, 'Try #1: object.get(' + key + ') should run function');
+      equal(object.get(key), key, 'Try #2: object.get(' + key + ') should run function');
     });
 
     // verify each call count.  cached should only be called once
     _emberRuntimeSystemString.w('computedCalls dependentFrontCalls dependentCalls').forEach(function (key) {
-      equal(object[key].length, 2, _emberRuntimeSystemString.fmt('non-cached property %@ should be called 2x', [key]));
+      equal(object[key].length, 2, 'non-cached property ' + key + ' should be called 2x');
     });
 
     _emberRuntimeSystemString.w('computedCachedCalls dependentCachedCalls').forEach(function (key) {
-      equal(object[key].length, 1, _emberRuntimeSystemString.fmt('non-cached property %@ should be called 1x', [key]));
+      equal(object[key].length, 1, 'non-cached property ' + key + ' should be called 1x');
     });
   });
 
@@ -33071,11 +33071,11 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
     var values = _emberRuntimeSystemString.w('value1 value2');
 
     keys.forEach(function (key) {
-      equal(object.set(key, values[0]), values[0], _emberRuntimeSystemString.fmt('Try #1: object.set(%@, %@) should run function', [key, values[0]]));
+      equal(object.set(key, values[0]), values[0], 'Try #1: object.set(' + key + ', ' + values[0] + ') should run function');
 
-      equal(object.set(key, values[1]), values[1], _emberRuntimeSystemString.fmt('Try #2: object.set(%@, %@) should run function', [key, values[1]]));
+      equal(object.set(key, values[1]), values[1], 'Try #2: object.set(' + key + ', ' + values[1] + ') should run function');
 
-      equal(object.set(key, values[1]), values[1], _emberRuntimeSystemString.fmt('Try #3: object.set(%@, %@) should not run function since it is setting same value as before', [key, values[1]]));
+      equal(object.set(key, values[1]), values[1], 'Try #3: object.set(' + key + ', ' + values[1] + ') should not run function since it is setting same value as before');
     });
 
     // verify each call count.  cached should only be called once
@@ -33086,9 +33086,9 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
       // Cached properties first check their cached value before setting the
       // property. Other properties blindly call set.
       expectedLength = 3;
-      equal(calls.length, expectedLength, _emberRuntimeSystemString.fmt('set(%@) should be called the right amount of times', [key]));
+      equal(calls.length, expectedLength, 'set(' + key + ') should be called the right amount of times');
       for (idx = 0; idx < 2; idx++) {
-        equal(calls[idx], values[idx], _emberRuntimeSystemString.fmt('call #%@ to set(%@) should have passed value %@', [idx + 1, key, values[idx]]));
+        equal(calls[idx], values[idx], 'call #' + (idx + 1) + ' to set(' + key + ') should have passed value ' + values[idx]);
       }
     });
   });
@@ -34356,7 +34356,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/bindings_test', ['exports', 
     ok(_emberMetalProperty_get.get(testObject, 'foo') !== 'bar', 'binding should not have synced');
   });
 });
-enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['exports', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject) {
   'use strict';
 
   /*
@@ -34395,7 +34395,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate values property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
   QUnit.test('concatenates subclasses', function () {
@@ -34407,7 +34407,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate values property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
   QUnit.test('concatenates reopen', function () {
@@ -34419,7 +34419,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate values property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
   QUnit.test('concatenates mixin', function () {
@@ -34434,7 +34434,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate values property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
   QUnit.test('concatenates reopen, subclass, and instance', function () {
@@ -34445,7 +34445,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'values');
     var expected = ['a', 'b', 'c', 'd', 'e', 'f'];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate values property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate values property (expected: ' + expected + ', got: ' + values + ')');
   });
 
   QUnit.test('concatenates subclasses when the values are functions', function () {
@@ -34457,7 +34457,7 @@ enifed('ember-runtime/tests/legacy_1x/system/object/concatenated_test', ['export
     var values = _emberMetalProperty_get.get(obj, 'functions');
     var expected = [K, K];
 
-    deepEqual(values, expected, _emberRuntimeSystemString.default.fmt('should concatenate functions property (expected: %@, got: %@)', [expected, values]));
+    deepEqual(values, expected, 'should concatenate functions property (expected: ' + expected + ', got: ' + values + ')');
   });
 });
 enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/binding', 'ember-runtime/mixins/observable', 'ember-runtime/system/object'], function (exports, _emberMetalMixin, _emberMetalRun_loop, _emberMetalBinding, _emberRuntimeMixinsObservable, _emberRuntimeSystemObject) {
@@ -36188,7 +36188,7 @@ enifed('ember-runtime/tests/suites/array', ['exports', 'ember-runtime/tests/suit
   exports.ArrayTests = ArrayTests;
   exports.ObserverClass = ObserverClass;
 });
-enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/string'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemString) {
+enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -36202,7 +36202,7 @@ enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/te
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.indexOf(expected[idx]), idx, _emberRuntimeSystemString.fmt('obj.indexOf(%@) should match idx', [expected[idx]]));
+      equal(obj.indexOf(expected[idx]), idx, 'obj.indexOf(' + expected[idx] + ') should match idx');
     }
   });
 
@@ -36215,7 +36215,7 @@ enifed('ember-runtime/tests/suites/array/indexOf', ['exports', 'ember-runtime/te
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/string'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemString) {
+enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -36229,7 +36229,7 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx]), idx, _emberRuntimeSystemString.fmt('obj.lastIndexOf(%@) should match idx', [expected[idx]]));
+      equal(obj.lastIndexOf(expected[idx]), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
     }
   });
 
@@ -36240,7 +36240,7 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx], len), idx, _emberRuntimeSystemString.fmt('obj.lastIndexOfs(%@) should match idx', [expected[idx]]));
+      equal(obj.lastIndexOf(expected[idx], len), idx, 'obj.lastIndexOfs(' + expected[idx] + ') should match idx');
     }
   });
 
@@ -36251,7 +36251,7 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.lastIndexOf(expected[idx], len + 1), idx, _emberRuntimeSystemString.fmt('obj.lastIndexOf(%@) should match idx', [expected[idx]]));
+      equal(obj.lastIndexOf(expected[idx], len + 1), idx, 'obj.lastIndexOf(' + expected[idx] + ') should match idx');
     }
   });
 
@@ -36278,7 +36278,7 @@ enifed('ember-runtime/tests/suites/array/lastIndexOf', ['exports', 'ember-runtim
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/tests/suites/suite', 'ember-runtime/system/string'], function (exports, _emberRuntimeTestsSuitesSuite, _emberRuntimeSystemString) {
+enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/tests/suites/suite'], function (exports, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -36292,7 +36292,7 @@ enifed('ember-runtime/tests/suites/array/objectAt', ['exports', 'ember-runtime/t
     var idx;
 
     for (idx = 0; idx < len; idx++) {
-      equal(obj.objectAt(idx), expected[idx], _emberRuntimeSystemString.fmt('obj.objectAt(%@) should match', [idx]));
+      equal(obj.objectAt(idx), expected[idx], 'obj.objectAt(' + idx + ') should match');
     }
   });
 
@@ -42634,7 +42634,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+ca8eb7c7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+57b1f224', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -45453,7 +45453,7 @@ enifed('ember-views/tests/views/checkbox_test', ['exports', 'ember-views/views/c
     equal(_emberMetalProperty_get.get(checkboxComponent, 'checked'), false, 'changing the checkbox causes the view\'s value to get updated');
   });
 });
-enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/system/string', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeSystemString, _emberViewsSystemJquery, _emberViewsViewsCollection_view, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/system/jquery', 'ember-views/views/collection_view', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalMixin, _emberViewsSystemJquery, _emberViewsViewsCollection_view, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var trim = _emberViewsSystemJquery.default.trim;
@@ -45632,7 +45632,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text(), item);
+      equal(view.$(':nth-child(' + (idx + 1) + ')').text(), item);
     });
   });
 
@@ -45660,7 +45660,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(trim(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text()), item, 'postcond - correct array update');
+      equal(trim(view.$(':nth-child(' + (idx + 1) + ')').text()), item, 'postcond - correct array update');
     });
   });
 
@@ -45689,7 +45689,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(trim(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text()), item, 'postcond - correct array update');
+      equal(trim(view.$(':nth-child(' + (idx + 1) + ')').text()), item, 'postcond - correct array update');
     });
   });
 
@@ -45718,7 +45718,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(trim(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text()), item, 'postcond - correct array update');
+      equal(trim(view.$(':nth-child(' + (idx + 1) + ')').text()), item, 'postcond - correct array update');
     });
   });
 
@@ -45749,7 +45749,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(trim(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text()), item, 'postcond - correct array update: ' + item.name + '!=' + view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text());
+      equal(trim(view.$(':nth-child(' + (idx + 1) + ')').text()), item, 'postcond - correct array update: ' + item.name + '!=' + view.$(':nth-child(' + (idx + 1) + ')').text());
     });
   });
 
@@ -45781,7 +45781,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
 
     content.forEach(function (item, idx) {
-      equal(trim(view.$(_emberRuntimeSystemString.fmt(':nth-child(%@)', [String(idx + 1)])).text()), item, 'postcond - correct array update');
+      equal(trim(view.$(':nth-child(' + (idx + 1) + ')').text()), item, 'postcond - correct array update');
     });
   });
 
