@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a5a0489b
+ * @version   2.0.0-canary+1873a122
  */
 
 (function() {
@@ -4824,7 +4824,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a5a0489b
+    @version 2.0.0-canary+1873a122
     @public
   */
 
@@ -4858,11 +4858,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a5a0489b'
+    @default '2.0.0-canary+1873a122'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a5a0489b';
+  Ember.VERSION = '2.0.0-canary+1873a122';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13076,7 +13076,6 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
        @method fmt
       @for String
       @private
-      @deprecated
     */
     StringPrototype.fmt = function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -19079,7 +19078,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
   });
 
-  function _fmt(str, formats) {
+  function fmt(str, formats) {
     var cachedFormats = formats;
 
     if (!_emberRuntimeUtils.isArray(cachedFormats) || arguments.length > 2) {
@@ -19099,18 +19098,13 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     });
   }
 
-  function fmt(str, formats) {
-    _emberMetalCore.default.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
-    return _fmt.apply(undefined, arguments);
-  }
-
   function loc(str, formats) {
     if (!_emberRuntimeUtils.isArray(formats) || arguments.length > 2) {
       formats = Array.prototype.slice.call(arguments, 1);
     }
 
     str = _emberMetalCore.default.STRINGS[str] || str;
-    return _fmt(str, formats);
+    return fmt(str, formats);
   }
 
   function w(str) {
