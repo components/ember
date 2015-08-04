@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1e63835f
+ * @version   2.0.0-canary+e02159e1
  */
 
 (function() {
@@ -4824,7 +4824,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+1e63835f
+    @version 2.0.0-canary+e02159e1
     @public
   */
 
@@ -4858,11 +4858,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+1e63835f'
+    @default '2.0.0-canary+e02159e1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+1e63835f';
+  Ember.VERSION = '2.0.0-canary+e02159e1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5688,7 +5688,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
-    @method
+    @method expandProperties
+    @for Ember
     @private
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
