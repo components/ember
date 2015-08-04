@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+691c73f5
+ * @version   2.0.0-canary+5a23f025
  */
 
 (function() {
@@ -4824,7 +4824,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+691c73f5
+    @version 2.0.0-canary+5a23f025
     @public
   */
 
@@ -4858,11 +4858,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+691c73f5'
+    @default '2.0.0-canary+5a23f025'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+691c73f5';
+  Ember.VERSION = '2.0.0-canary+5a23f025';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14056,7 +14056,9 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         // ES6TODO: GRRRRR
         var EachProxy = requireModule('ember-runtime/system/each_proxy')['EachProxy'];
 
-        this.__each = new EachProxy(this);
+        this.__each = new EachProxy({
+          content: this
+        });
       }
 
       return this.__each;
@@ -17412,6 +17414,11 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       if (!wasApplied) {
         Class.proto(); // prepare prototype...
       }
+
+      if (arguments.length > 0) {
+        initProperties = [arguments[0]];
+      }
+
       this.__defineNonEnumerable(_emberMetalUtils.GUID_KEY_PROPERTY);
       this.__defineNonEnumerable(_emberMetalUtils.NEXT_SUPER_PROPERTY);
       var m = _emberMetalUtils.meta(this);
@@ -18173,11 +18180,11 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
 
   var EachArray = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsArray.default, {
 
-    init: function (content, keyName, owner) {
+    init: function (attr) {
       this._super.apply(this, arguments);
-      this._keyName = keyName;
-      this._owner = owner;
-      this._content = content;
+      this._keyName = attr.keyName;
+      this._owner = attr.owner;
+      this._content = attr.content;
     },
 
     objectAt: function (idx) {
@@ -18249,13 +18256,13 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     @private
   */
   var EachProxy = _emberRuntimeSystemObject.default.extend({
-
-    init: function (content) {
+    init: function (attrs) {
       var _this = this;
 
       this._super.apply(this, arguments);
-      this._content = content;
-      content.addArrayObserver(this);
+      this._content = attrs.content;
+
+      this._content.addArrayObserver(this);
 
       // in case someone is already observing some keys make sure they are
       // added
@@ -18273,7 +18280,11 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
       @private
     */
     unknownProperty: function (keyName, value) {
-      var ret = new EachArray(this._content, keyName, this);
+      var ret = new EachArray({
+        content: this._content,
+        keyName: keyName,
+        owner: this
+      });
       _emberMetalProperties.defineProperty(this, keyName, null, ret);
       this.beginObservingContentKey(keyName);
       return ret;
