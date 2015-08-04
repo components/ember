@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ba723a18
+ * @version   2.0.0-canary+691c73f5
  */
 
 (function() {
@@ -4824,7 +4824,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ba723a18
+    @version 2.0.0-canary+691c73f5
     @public
   */
 
@@ -4858,11 +4858,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ba723a18'
+    @default '2.0.0-canary+691c73f5'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ba723a18';
+  Ember.VERSION = '2.0.0-canary+691c73f5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7070,7 +7070,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
-    @private
+    @public
   */
   'use strict';
 
