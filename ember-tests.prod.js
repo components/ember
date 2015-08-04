@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5a23f025
+ * @version   2.0.0-canary+691c73f5
  */
 
 (function() {
@@ -39636,35 +39636,6 @@ enifed('ember-runtime/tests/system/array_proxy/suite_test', ['exports', 'ember-m
 
   }).run();
 });
-enifed('ember-runtime/tests/system/core_object_test', ['exports', 'ember-runtime/system/core_object'], function (exports, _emberRuntimeSystemCore_object) {
-  'use strict';
-
-  QUnit.module('Ember.CoreObject');
-
-  QUnit.test('works with new (one arg)', function () {
-    var obj = new _emberRuntimeSystemCore_object.default({
-      firstName: 'Stef',
-      lastName: 'Penner'
-    });
-
-    equal(obj.firstName, 'Stef');
-    equal(obj.lastName, 'Penner');
-  });
-
-  QUnit.test('works with new (> 1 arg)', function () {
-    var obj = new _emberRuntimeSystemCore_object.default({
-      firstName: 'Stef',
-      lastName: 'Penner'
-    }, {
-      other: 'name'
-    });
-
-    equal(obj.firstName, 'Stef');
-    equal(obj.lastName, 'Penner');
-
-    equal(obj.other, undefined); // doesn't support multiple pojo' to the constructor
-  });
-});
 enifed('ember-runtime/tests/system/lazy_load_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemLazy_load) {
   'use strict';
 
@@ -42532,7 +42503,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5a23f025', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+691c73f5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
