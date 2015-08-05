@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8ec08a7a
+ * @version   2.0.0-canary+d9d614a5
  */
 
 (function() {
@@ -21540,27 +21540,6 @@ enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function 
     }
   });
 
-  QUnit.test('meta is not enumerable', function () {
-    var proto, obj, props, prop;
-    proto = { foo: 'bar' };
-    _emberMetalMeta.meta(proto);
-    obj = Object.create(proto);
-    _emberMetalMeta.meta(obj);
-    obj.bar = 'baz';
-    props = [];
-    for (prop in obj) {
-      props.push(prop);
-    }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
-      try {
-        JSON.stringify(obj);
-      } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
-      }
-    }
-  });
-
   QUnit.test('meta.listeners basics', function (assert) {
     var t = {};
     var m = _emberMetalMeta.meta({});
@@ -42571,7 +42550,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8ec08a7a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+d9d614a5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
