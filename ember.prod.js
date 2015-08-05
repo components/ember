@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+41ece2b5
+ * @version   2.0.0-canary+8ec08a7a
  */
 
 (function() {
@@ -8240,7 +8240,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+41ece2b5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8ec08a7a';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13960,7 +13960,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+41ece2b5
+    @version 2.0.0-canary+8ec08a7a
     @public
   */
 
@@ -13994,11 +13994,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+41ece2b5'
+    @default '2.0.0-canary+8ec08a7a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+41ece2b5';
+  Ember.VERSION = '2.0.0-canary+8ec08a7a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22107,7 +22107,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+41ece2b5';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8ec08a7a';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22605,7 +22605,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+41ece2b5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8ec08a7a';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36790,7 +36790,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+41ece2b5',
+        revision: 'Ember@2.0.0-canary+8ec08a7a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40204,7 +40204,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+41ece2b5';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8ec08a7a';
 
   /**
   @module ember
@@ -41117,7 +41117,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
     */
     groupView: SelectOptgroup,
 
-    groupedContent: _emberMetalComputed.computed('optionGroupPath', 'content.@each', function () {
+    groupedContent: _emberMetalComputed.computed('optionGroupPath', 'content.[]', function () {
       var groupPath = _emberMetalProperty_get.get(this, 'optionGroupPath');
       var groupedContent = _emberRuntimeSystemNative_array.A();
       var content = _emberMetalProperty_get.get(this, 'content') || [];
@@ -41155,7 +41155,7 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
       }
     },
 
-    selectionDidChange: _emberMetalMixin.observer('selection.@each', function () {
+    selectionDidChange: _emberMetalMixin.observer('selection.[]', function () {
       var selection = _emberMetalProperty_get.get(this, 'selection');
       if (_emberMetalProperty_get.get(this, 'multiple')) {
         if (!_emberRuntimeUtils.isArray(selection)) {
