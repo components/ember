@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+a9178d81
+ * @version   2.0.0-canary+17b7cc7d
  */
 
 (function() {
@@ -5622,7 +5622,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     }
   });
 });
-enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
   
     &nbsp;
@@ -5669,11 +5669,9 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   }
 
   _emberMetalCore.default.HTMLBars = {
-    _registerHelper: _emberHtmlbarsHelpers.deprecatedRegisterHelper,
     template: _emberTemplateCompiler.template,
     compile: _emberTemplateCompiler.compile,
     precompile: _emberTemplateCompiler.precompile,
-    makeViewHelper: _emberHtmlbarsSystemMakeViewHelper.default,
     makeBoundHelper: _emberHtmlbarsSystemMake_bound_helper.default,
     registerPlugin: _emberTemplateCompiler.registerPlugin,
     DOMHelper: _emberHtmlbarsSystemDomHelper.default
@@ -5688,16 +5686,10 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
 
 // importing ember-htmlbars/compat updates the
 // Ember.Handlebars global if htmlbars is enabled
-enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/helper', 'ember-htmlbars/compat/make-bound-helper', 'ember-htmlbars/compat/register-bound-helper', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsCompatHelper, _emberHtmlbarsCompatMakeBoundHelper, _emberHtmlbarsCompatRegisterBoundHelper, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsUtilsString) {
+enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
   'use strict';
 
   var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-  EmberHandlebars.helpers = _emberHtmlbarsHelpers.default;
-  EmberHandlebars.helper = _emberHtmlbarsCompatHelper.handlebarsHelper;
-  EmberHandlebars.registerHelper = _emberHtmlbarsCompatHelper.registerHandlebarsCompatibleHelper;
-  EmberHandlebars.registerBoundHelper = _emberHtmlbarsCompatRegisterBoundHelper.default;
-  EmberHandlebars.makeBoundHelper = _emberHtmlbarsCompatMakeBoundHelper.default;
-  EmberHandlebars.makeViewHelper = _emberHtmlbarsSystemMakeViewHelper.default;
 
   EmberHandlebars.SafeString = _emberHtmlbarsUtilsString.SafeString;
   EmberHandlebars.Utils = {
@@ -5705,366 +5697,6 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
   };
 
   exports.default = EmberHandlebars;
-});
-enifed('ember-htmlbars/compat/helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-views/views/view', 'ember-views/views/component', 'ember-htmlbars/system/make-view-helper', 'ember-htmlbars/compat/make-bound-helper', 'ember-metal/streams/utils', 'ember-htmlbars/keywords'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberViewsViewsView, _emberViewsViewsComponent, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsCompatMakeBoundHelper, _emberMetalStreamsUtils, _emberHtmlbarsKeywords) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerHandlebarsCompatibleHelper = registerHandlebarsCompatibleHelper;
-  exports.handlebarsHelper = handlebarsHelper;
-
-  var slice = [].slice;
-
-  function calculateCompatType(item) {
-    if (_emberMetalStreamsUtils.isStream(item)) {
-      return 'ID';
-    } else {
-      var itemType = typeof item;
-
-      return itemType.toUpperCase();
-    }
-  }
-
-  function pathFor(param) {
-    if (_emberMetalStreamsUtils.isStream(param)) {
-      // param arguments to helpers may have their path prefixes with self. For
-      // example {{box-thing foo}} may have a param path of `self.foo` depending
-      // on scope.
-      if (param.source && param.source.dependee && param.source.dependee.label === 'self') {
-        return param.path.slice(5);
-      } else {
-        return param.path;
-      }
-    } else {
-      return param;
-    }
-  }
-
-  /**
-    Wraps an Handlebars helper with an HTMLBars helper for backwards compatibility.
-  
-    @class HandlebarsCompatibleHelper
-    @constructor
-    @private
-  */
-  function HandlebarsCompatibleHelper(fn) {
-    this.helperFunction = function helperFunc(params, hash, options, env, scope) {
-      var param, fnResult;
-      var hasBlock = options.template && options.template.yield;
-
-      var handlebarsOptions = {
-        hash: {},
-        types: new Array(params.length),
-        hashTypes: {}
-      };
-
-      handlebarsOptions.hash = {};
-
-      if (hasBlock) {
-        handlebarsOptions.fn = function () {
-          options.template.yield();
-        };
-
-        if (options.inverse.yield) {
-          handlebarsOptions.inverse = function () {
-            options.inverse.yield();
-          };
-        }
-      }
-
-      for (var prop in hash) {
-        param = hash[prop];
-        handlebarsOptions.hashTypes[prop] = calculateCompatType(param);
-        handlebarsOptions.hash[prop] = pathFor(param);
-      }
-
-      var args = new Array(params.length);
-      for (var i = 0, l = params.length; i < l; i++) {
-        param = params[i];
-        handlebarsOptions.types[i] = calculateCompatType(param);
-        args[i] = pathFor(param);
-      }
-
-      handlebarsOptions.legacyGetPath = function (path) {
-        return env.hooks.get(env, scope, path).value();
-      };
-
-      handlebarsOptions.data = {
-        view: scope.view
-      };
-
-      args.push(handlebarsOptions);
-
-      fnResult = fn.apply(this, args);
-
-      if (!options.template.yield) {
-        return fnResult;
-      }
-    };
-
-    this.isHTMLBars = true;
-  }
-
-  HandlebarsCompatibleHelper.prototype = {
-    preprocessArguments: function () {}
-  };
-
-  function registerHandlebarsCompatibleHelper(name, value) {
-    
-    if (value && value.isLegacyViewHelper) {
-      _emberHtmlbarsKeywords.registerKeyword(name, function (morph, env, scope, params, hash, template, inverse, visitor) {
-        
-        env.hooks.keyword('view', morph, env, scope, [value.viewClass], hash, template, inverse, visitor);
-        return true;
-      });
-      return;
-    }
-
-    var helper;
-
-    if (value && value.isHTMLBars) {
-      helper = value;
-    } else {
-      helper = new HandlebarsCompatibleHelper(value);
-    }
-
-    _emberHtmlbarsHelpers.default[name] = helper;
-  }
-
-  function handlebarsHelper(name, value) {
-    
-    
-    if (_emberViewsViewsView.default.detect(value)) {
-      _emberHtmlbarsHelpers.default[name] = _emberHtmlbarsSystemMakeViewHelper.default(value);
-    } else {
-      var boundHelperArgs = slice.call(arguments, 1);
-      var boundFn = _emberHtmlbarsCompatMakeBoundHelper.default.apply(this, boundHelperArgs);
-
-      _emberHtmlbarsHelpers.default[name] = boundFn;
-    }
-  }
-
-  exports.default = HandlebarsCompatibleHelper;
-});
-enifed('ember-htmlbars/compat/make-bound-helper', ['exports', 'ember-metal/core', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalStreamsUtils) {
-  'use strict';
-
-  exports.makeBoundHelper = makeBoundHelper;
-  exports.default = deprecatedMakeBoundHelper;
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    A helper function used by `registerBoundHelper`. Takes the
-    provided Handlebars helper function fn and returns it in wrapped
-    bound helper form.
-  
-    The main use case for using this outside of `registerBoundHelper`
-    is for registering helpers on the container:
-  
-    ```js
-    var boundHelperFn = Ember.Handlebars.makeBoundHelper(function(word) {
-      return word.toUpperCase();
-    });
-  
-    container.register('helper:my-bound-helper', boundHelperFn);
-    ```
-  
-    In the above example, if the helper function hadn't been wrapped in
-    `makeBoundHelper`, the registered helper would be unbound.
-  
-    @method makeBoundHelper
-    @for Ember.Handlebars
-    @param {Function} fn
-    @param {String} dependentKeys*
-    @since 1.2.0
-    @deprecated
-    @private
-  */
-
-  function makeBoundHelper(fn) {
-    for (var _len = arguments.length, dependentKeys = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      dependentKeys[_key - 1] = arguments[_key];
-    }
-
-    return {
-      _dependentKeys: dependentKeys,
-
-      isHandlebarsCompat: true,
-      isHTMLBars: true,
-
-      helperFunction: function (params, hash, templates) {
-        
-        var args = _emberMetalStreamsUtils.readArray(params);
-        var properties = new Array(params.length);
-
-        for (var i = 0, l = params.length; i < l; i++) {
-          var param = params[i];
-
-          if (_emberMetalStreamsUtils.isStream(param)) {
-            properties[i] = param.label;
-          } else {
-            properties[i] = param;
-          }
-        }
-
-        args.push({ hash: _emberMetalStreamsUtils.readHash(hash), templates: templates, data: { properties: properties } });
-        return fn.apply(undefined, args);
-      }
-    };
-  }
-
-  function deprecatedMakeBoundHelper(fn) {
-    for (var _len2 = arguments.length, dependentKeys = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-      dependentKeys[_key2 - 1] = arguments[_key2];
-    }
-
-    
-    return makeBoundHelper.apply(undefined, arguments);
-  }
-});
-enifed('ember-htmlbars/compat/register-bound-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/compat/make-bound-helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsCompatMakeBoundHelper) {
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  'use strict';
-
-  exports.registerBoundHelper = registerBoundHelper;
-  exports.default = deprecatedRegisterBoundHelper;
-
-  var slice = [].slice;
-
-  /**
-    Register a bound handlebars helper. Bound helpers behave similarly to regular
-    handlebars helpers, with the added ability to re-render when the underlying data
-    changes.
-  
-    ## Simple example
-  
-    ```javascript
-    Ember.Handlebars.registerBoundHelper('capitalize', function(value) {
-      return Ember.String.capitalize(value);
-    });
-    ```
-  
-    The above bound helper can be used inside of templates as follows:
-  
-    ```handlebars
-    {{capitalize name}}
-    ```
-  
-    In this case, when the `name` property of the template's context changes,
-    the rendered value of the helper will update to reflect this change.
-  
-    ## Example with options
-  
-    Like normal handlebars helpers, bound helpers have access to the options
-    passed into the helper call.
-  
-    ```javascript
-    Ember.Handlebars.registerBoundHelper('repeat', function(value, options) {
-      var count = options.hash.count;
-      var a = [];
-      while(a.length < count) {
-          a.push(value);
-      }
-      return a.join('');
-    });
-    ```
-  
-    This helper could be used in a template as follows:
-  
-    ```handlebars
-    {{repeat text count=3}}
-    ```
-  
-    ## Example with bound options
-  
-    Bound hash options are also supported. Example:
-  
-    ```handlebars
-    {{repeat text count=numRepeats}}
-    ```
-  
-    In this example, count will be bound to the value of
-    the `numRepeats` property on the context. If that property
-    changes, the helper will be re-rendered.
-  
-    ## Example with extra dependencies
-  
-    The `Ember.Handlebars.registerBoundHelper` method takes a variable length
-    third parameter which indicates extra dependencies on the passed in value.
-    This allows the handlebars helper to update when these dependencies change.
-  
-    ```javascript
-    Ember.Handlebars.registerBoundHelper('capitalizeName', function(value) {
-      return value.get('name').toUpperCase();
-    }, 'name');
-    ```
-  
-    ## Example with multiple bound properties
-  
-    `Ember.Handlebars.registerBoundHelper` supports binding to
-    multiple properties, e.g.:
-  
-    ```javascript
-    Ember.Handlebars.registerBoundHelper('concatenate', function() {
-      var values = Array.prototype.slice.call(arguments, 0, -1);
-      return values.join('||');
-    });
-    ```
-  
-    Which allows for template syntax such as `{{concatenate prop1 prop2}}` or
-    `{{concatenate prop1 prop2 prop3}}`. If any of the properties change,
-    the helper will re-render.  Note that dependency keys cannot be
-    using in conjunction with multi-property helpers, since it is ambiguous
-    which property the dependent keys would belong to.
-  
-    ## Use with unbound helper
-  
-    The `{{unbound}}` helper can be used with bound helper invocations
-    to render them in their unbound form, e.g.
-  
-    ```handlebars
-    {{unbound capitalize name}}
-    ```
-  
-    In this example, if the name property changes, the helper
-    will not re-render.
-  
-    ## Use with blocks not supported
-  
-    Bound helpers do not support use with Handlebars blocks or
-    the addition of child views of any kind.
-  
-    @method registerBoundHelper
-    @for Ember.Handlebars
-    @param {String} name
-    @param {Function} fn
-    @param {String} dependentKeys*
-    @private
-  */
-
-  function registerBoundHelper(name, fn) {
-    var boundHelperArgs = slice.call(arguments, 1);
-    var boundFn = _emberHtmlbarsCompatMakeBoundHelper.makeBoundHelper.apply(this, boundHelperArgs);
-
-    _emberHtmlbarsHelpers.default[name] = boundFn;
-  }
-
-  function deprecatedRegisterBoundHelper() {
-    
-    return registerBoundHelper.apply(undefined, arguments);
-  }
 });
 enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/hooks/attributes', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalMerge, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHooksAttributes, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
   'use strict';
@@ -6180,7 +5812,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     @public
   */
   var Helper = _emberRuntimeSystemObject.default.extend({
-    isHelper: true,
+    isHelperInstance: true,
 
     /**
       On a class-based helper, it may be useful to force a recomputation of that
@@ -6248,7 +5880,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 
   exports.default = Helper;
 });
-enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/core', 'ember-metal/empty_object'], function (exports, _emberMetalCore, _emberMetalEmpty_object) {
+enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -6281,9 +5913,6 @@ enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/core', 'ember-metal/em
     helpers[name] = helperFunc;
   }
 
-  var deprecatedRegisterHelper = _emberMetalCore.default.deprecateFunc('Using Ember.HTMLBars._registerHelper is deprecated. Helpers (even dashless ones) are automatically resolved.', { id: 'ember-htmlbars.register-helper', until: '2.0.0' }, registerHelper);
-
-  exports.deprecatedRegisterHelper = deprecatedRegisterHelper;
   exports.default = helpers;
 });
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
@@ -6817,7 +6446,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-views/streams/should_di
 
   function withHelper(params, hash, options) {
     if (_emberViewsStreamsShould_display.default(params[0])) {
-      this.yield([params[0]]);
+      options.template.yield([params[0]]);
     } else if (options.inverse && options.inverse.yield) {
       options.inverse.yield([]);
     }
@@ -7249,7 +6878,7 @@ enifed('ember-htmlbars/hooks/element', ['exports', 'ember-htmlbars/system/lookup
     var result;
     var helper = _emberHtmlbarsSystemLookupHelper.findHelper(path, scope.self, env);
     if (helper) {
-      var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, { element: morph.element }, env, scope, null, path);
+      var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, { element: morph.element }, env, scope, path);
       result = helperStream.value();
     } else {
       result = env.hooks.get(env, scope, path);
@@ -7388,7 +7017,7 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-metal/core', 'em
       return { handled: true };
     }
 
-    var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, templates, env, scope, context);
+    var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, templates, env, scope);
 
     // Ember.Helper helpers are pure values, thus linkable
     if (helperStream.linkable) {
@@ -7414,12 +7043,12 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-metal/core', 'em
       return { link: true, value: helperStream };
     }
 
-    // Legacy helpers are not linkable, they must run every rerender
+    // Built-in helpers are not linkable, they must run every rerender
     return { value: helperStream.value() };
   }
 });
 // Ember.assert
-enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-metal/streams/utils', 'ember-htmlbars/system/lookup-helper'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberMetalStreamsUtils, _emberHtmlbarsSystemLookupHelper) {
+enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-metal/streams/utils'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberMetalStreamsUtils) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -7435,7 +7064,6 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
     }
 
     var keyword = env.hooks.keywords[path];
-    var helper;
     if (keyword && keyword.link) {
       keyword.link(renderNode.state, params, hash);
     } else {
@@ -7447,12 +7075,6 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
           params[0] = shouldDisplay(params[0]);break;
         case 'each':
           params[0] = eachParam(params[0]);break;
-        default:
-          helper = _emberHtmlbarsSystemLookupHelper.findHelper(path, env.view, env);
-
-          if (helper && helper.isHandlebarsCompat && params[0]) {
-            params[0] = processHandlebarsCompatDepKeys(params[0], helper._dependentKeys);
-          }
       }
     }
 
@@ -7519,29 +7141,6 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       return obj && obj[key];
     }
   }
-
-  function processHandlebarsCompatDepKeys(base, additionalKeys) {
-    if (!_emberMetalStreamsUtils.isStream(base) || additionalKeys.length === 0) {
-      return base;
-    }
-
-    var depKeyStreams = [];
-
-    var stream = _emberMetalStreamsUtils.chain(base, function () {
-      _emberMetalStreamsUtils.readArray(depKeyStreams);
-
-      return _emberMetalStreamsUtils.read(base);
-    }, 'HandlebarsCompatHelper');
-
-    for (var i = 0, l = additionalKeys.length; i < l; i++) {
-      var depKeyStream = base.get(additionalKeys[i]);
-
-      depKeyStreams.push(depKeyStream);
-      stream.addDependency(depKeyStream);
-    }
-
-    return stream;
-  }
 });
 enifed('ember-htmlbars/hooks/lookup-helper', ['exports', 'ember-htmlbars/system/lookup-helper'], function (exports, _emberHtmlbarsSystemLookupHelper) {
   'use strict';
@@ -7573,7 +7172,7 @@ enifed('ember-htmlbars/hooks/subexpr', ['exports', 'ember-htmlbars/system/lookup
     var label = labelForSubexpr(params, hash, helperName);
     var helper = _emberHtmlbarsSystemLookupHelper.default(helperName, scope.self, env);
 
-    var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, { template: {}, inverse: {} }, env, scope, null, label);
+    var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, null, env, scope, label);
 
     for (var i = 0, l = params.length; i < l; i++) {
       helperStream.addDependency(params[i]);
@@ -8000,7 +7599,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-met
   };
 
   var getKeyword = function getKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
-    if (!morph) {
+    if (morph === null) {
       return buildStream(params);
     } else {
       var stream = undefined;
@@ -8240,7 +7839,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a9178d81';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+17b7cc7d';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8420,40 +8019,31 @@ enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
     return true;
   }
 });
-enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/merge', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalMerge, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+  'use strict';
+
+  exports.default = unbound;
+  // assert
+
   /**
   @module ember
   @submodule ember-htmlbars
   */
 
-  'use strict';
-
-  exports.default = unbound;
-
-  function unbound(morph, env, scope, originalParams, hash, template, inverse) {
-    // Since we already got the params as a set of streams, we need to extract the key from
-    // the first param instead of (incorrectly) trying to read from it. If this was a call
-    // to `{{unbound foo.bar}}`, then we pass along the original stream to `hooks.range`.
-    var params = originalParams.slice();
-    var valueStream = params.shift();
-
-    // If `morph` is `null` the keyword is being invoked as a subexpression.
+  function unbound(morph, env, scope, params, hash, template, inverse, visitor) {
+        
     if (morph === null) {
-      if (originalParams.length > 1) {
-        valueStream = env.hooks.subexpr(env, scope, valueStream.key, params, hash);
-      }
-
-      return new VolatileStream(valueStream);
+      return new VolatileStream(params[0]);
     }
 
-    if (params.length === 0) {
-      env.hooks.range(morph, env, scope, null, valueStream);
-    } else if (template === null) {
-      env.hooks.inline(morph, env, scope, valueStream.key, params, hash);
+    var stream = undefined;
+    if (morph.linkedResult) {
+      stream = morph.linkedResult;
     } else {
-      env.hooks.block(morph, env, scope, valueStream.key, params, hash, template, inverse);
+      stream = new VolatileStream(params[0]);
+      morph.linkedResult = stream;
     }
-
+    env.hooks.range(morph, env, scope, null, stream, visitor);
     return true;
   }
 
@@ -9371,7 +8961,7 @@ enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-metal/stream
 
   exports.default = BuiltInHelperStream;
 
-  function BuiltInHelperStream(helper, params, hash, templates, env, scope, context, label) {
+  function BuiltInHelperStream(helper, params, hash, templates, env, scope, label) {
     this.init(label);
     this.helper = helper;
     this.params = params;
@@ -9379,39 +8969,13 @@ enifed('ember-htmlbars/streams/built-in-helper', ['exports', 'ember-metal/stream
     this.env = env;
     this.scope = scope;
     this.hash = hash;
-    this.context = context;
   }
 
   BuiltInHelperStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
 
   _emberMetalMerge.default(BuiltInHelperStream.prototype, {
     compute: function () {
-      // Using call and undefined is probably not needed, these are only internal
-      return this.helper.call(this.context, _emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this.env, this.scope);
-    }
-  });
-});
-enifed('ember-htmlbars/streams/compat-helper', ['exports', 'ember-metal/streams/stream', 'ember-metal/merge'], function (exports, _emberMetalStreamsStream, _emberMetalMerge) {
-  'use strict';
-
-  exports.default = CompatHelperStream;
-
-  function CompatHelperStream(helper, params, hash, templates, env, scope, label) {
-    this.init(label);
-    this.helper = helper.helperFunction;
-    this.params = params;
-    this.templates = templates;
-    this.env = env;
-    this.scope = scope;
-    this.hash = hash;
-  }
-
-  CompatHelperStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
-
-  _emberMetalMerge.default(CompatHelperStream.prototype, {
-    compute: function () {
-      // Using call and undefined is probably not needed, these are only internal
-      return this.helper.call(undefined, this.params, this.hash, this.templates, this.env, this.scope);
+      return this.helper(_emberHtmlbarsStreamsUtils.getArrayValues(this.params), _emberHtmlbarsStreamsUtils.getHashValues(this.hash), this.templates, this.env, this.scope);
     }
   });
 });
@@ -9673,23 +9237,6 @@ enifed('ember-htmlbars/system/dom-helper', ['exports', 'dom-helper', 'ember-html
 
   exports.default = EmberDOMHelper;
 });
-enifed("ember-htmlbars/system/helper", ["exports"], function (exports) {
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  "use strict";
-
-  function Helper(helper) {
-    this.helperFunction = helper;
-
-    this.isHelper = true;
-    this.isHTMLBars = true;
-  }
-
-  exports.default = Helper;
-});
 enifed('ember-htmlbars/system/instrumentation-support', ['exports', 'ember-metal/instrumentation'], function (exports, _emberMetalInstrumentation) {
   'use strict';
 
@@ -9734,24 +9281,23 @@ enifed('ember-htmlbars/system/instrumentation-support', ['exports', 'ember-metal
     }
   }
 });
-enifed('ember-htmlbars/system/invoke-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/streams/helper-instance', 'ember-htmlbars/streams/helper-factory', 'ember-htmlbars/streams/built-in-helper', 'ember-htmlbars/streams/compat-helper'], function (exports, _emberMetalCore, _emberHtmlbarsStreamsHelperInstance, _emberHtmlbarsStreamsHelperFactory, _emberHtmlbarsStreamsBuiltInHelper, _emberHtmlbarsStreamsCompatHelper) {
+enifed('ember-htmlbars/system/invoke-helper', ['exports', 'ember-metal/core', 'ember-htmlbars/streams/helper-instance', 'ember-htmlbars/streams/helper-factory', 'ember-htmlbars/streams/built-in-helper'], function (exports, _emberMetalCore, _emberHtmlbarsStreamsHelperInstance, _emberHtmlbarsStreamsHelperFactory, _emberHtmlbarsStreamsBuiltInHelper) {
   'use strict';
 
   exports.buildHelperStream = buildHelperStream;
 
-  function buildHelperStream(helper, params, hash, templates, env, scope, context, label) {
-        if (helper.isHelperFactory) {
+  function buildHelperStream(helper, params, hash, templates, env, scope, label) {
+            if (helper.isHelperFactory) {
       return new _emberHtmlbarsStreamsHelperFactory.default(helper, params, hash, label);
     } else if (helper.isHelperInstance) {
       return new _emberHtmlbarsStreamsHelperInstance.default(helper, params, hash, label);
-    } else if (helper.helperFunction) {
-      return new _emberHtmlbarsStreamsCompatHelper.default(helper, params, hash, templates, env, scope, label);
     } else {
-      return new _emberHtmlbarsStreamsBuiltInHelper.default(helper, params, hash, templates, env, scope, context, label);
+      templates = templates || { template: {}, inverse: {} };
+      return new _emberHtmlbarsStreamsBuiltInHelper.default(helper, params, hash, templates, env, scope, label);
     }
   }
 });
-enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'ember-metal/cache', 'ember-htmlbars/compat/helper'], function (exports, _emberMetalCore, _emberMetalCache, _emberHtmlbarsCompatHelper) {
+enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'ember-metal/cache'], function (exports, _emberMetalCore, _emberMetalCache) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -9778,10 +9324,6 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
     }
   }
 
-  function isLegacyBareHelper(helper) {
-    return helper && (!helper.isHelperFactory && !helper.isHelperInstance && !helper.isHTMLBars);
-  }
-
   /**
     Used to lookup/resolve handlebars helpers. The lookup order is:
   
@@ -9806,10 +9348,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
         var helperName = 'helper:' + name;
         if (container.registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
-          if (isLegacyBareHelper(helper)) {
-                        helper = new _emberHtmlbarsCompatHelper.default(helper);
-          }
-        }
+                  }
       }
     }
 
@@ -9821,37 +9360,6 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/core', 'e
 
     
     return helper;
-  }
-});
-enifed('ember-htmlbars/system/make-view-helper', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
-  'use strict';
-
-  exports.default = makeViewHelper;
-
-  /**
-  @module ember
-  @submodule ember-htmlbars
-  */
-
-  /**
-    Returns a helper function that renders the provided ViewClass.
-  
-    Used internally by Ember.Handlebars.helper and other methods
-    involving helper/component registration.
-  
-    @private
-    @method makeViewHelper
-    @param {Function} ViewClass view class constructor
-    @since 1.2.0
-  */
-
-  function makeViewHelper(ViewClass) {
-    
-    return {
-      isLegacyViewHelper: true,
-      isHTMLBars: true,
-      viewClass: ViewClass
-    };
   }
 });
 enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/core', 'ember-htmlbars/helper'], function (exports, _emberMetalCore, _emberHtmlbarsHelper) {
@@ -13960,7 +13468,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+a9178d81
+    @version 2.0.0-canary+17b7cc7d
     @public
   */
 
@@ -13994,11 +13502,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+a9178d81'
+    @default '2.0.0-canary+17b7cc7d'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+a9178d81';
+  Ember.VERSION = '2.0.0-canary+17b7cc7d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22099,7 +21607,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 
   exports.default = _emberMetalCore.default;
 });
-enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
+enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
   /**
   @module ember
   @submodule ember-routing-views
@@ -22107,7 +21615,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+a9178d81';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+17b7cc7d';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22597,6 +22105,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   exports.default = LinkComponent;
 });
 // FEATURES, Logger, assert
+// creates inject.service
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
   /**
   @module ember
@@ -22605,7 +22114,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+a9178d81';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+17b7cc7d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36790,7 +36299,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+a9178d81',
+        revision: 'Ember@2.0.0-canary+17b7cc7d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40204,7 +39713,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+a9178d81';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+17b7cc7d';
 
   /**
   @module ember
