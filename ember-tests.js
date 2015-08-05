@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5a23f025
+ * @version   2.0.0-canary+41ece2b5
  */
 
 (function() {
@@ -18459,15 +18459,15 @@ enifed('ember-metal/tests/accessors/is_global_path_test', ['exports', 'ember-met
     ok(!_emberMetalBinding.isGlobalPath('myObj.SecondProperty'));
   });
 });
-enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/utils'], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalUtils) {
+enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/watching', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalWatching, _emberMetalMeta) {
   'use strict';
 
   QUnit.module('mandatory-setters');
 
   function hasMandatorySetter(object, property) {
-    var meta = _emberMetalUtils.meta(object);
-
-    return property in meta.values;
+    var meta = _emberMetalMeta.meta(object);
+    var values = meta.readableValues();
+    return values && property in values;
   }
 
   QUnit.test('does not assert if property is not being watched', function () {
@@ -18562,7 +18562,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
         return 'custom-object';
       }
     };
-    var meta = _emberMetalUtils.meta(obj);
+    var meta = _emberMetalMeta.meta(obj);
 
     Object.defineProperty(obj, 'someProp', {
       configurable: false,
@@ -18571,7 +18571,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     });
 
     _emberMetalWatching.watch(obj, 'someProp');
-    ok(!('someProp' in meta.values), 'blastix');
+    ok(!('someProp' in meta.readableValues()), 'blastix');
   });
 
   QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
@@ -18586,9 +18586,9 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     var obj2 = Object.create(obj);
 
     _emberMetalWatching.watch(obj2, 'someProp');
-    var meta = _emberMetalUtils.meta(obj2);
+    var meta = _emberMetalMeta.meta(obj2);
 
-    ok('someProp' in meta.values, 'mandatory setter has been setup');
+    ok('someProp' in meta.readableValues(), 'mandatory setter has been setup');
 
     expectAssertion(function () {
       obj2.someProp = 'foo-bar';
@@ -18867,7 +18867,7 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
     }, /The key provided to set must be a string, you passed 42/);
   });
 });
-enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalAlias, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalWatching, _emberMetalObserver) {
+enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-metal/properties', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/meta', 'ember-metal/watching', 'ember-metal/observer'], function (exports, _emberMetalAlias, _emberMetalProperties, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMeta, _emberMetalWatching, _emberMetalObserver) {
   'use strict';
 
   var obj, count;
@@ -18899,11 +18899,11 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
 
   QUnit.test('basic lifecycle', function () {
     _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalAlias.default('foo.faz'));
-    var m = _emberMetalUtils.meta(obj);
+    var m = _emberMetalMeta.meta(obj);
     _emberMetalObserver.addObserver(obj, 'bar', incrementCount);
-    equal(m.deps['foo.faz'].bar, 1);
+    equal(m.readableDeps('foo.faz').bar, 1);
     _emberMetalObserver.removeObserver(obj, 'bar', incrementCount);
-    equal(m.deps['foo.faz'].bar, 0);
+    equal(m.readableDeps('foo.faz').bar, 0);
   });
 
   QUnit.test('begins watching alt key as soon as alias is watched', function () {
@@ -19246,8 +19246,7 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
 
     var childObj = Object.create(obj);
     _emberMetalChains.finishChains(childObj);
-
-    ok(obj['__ember_meta__'].chains !== childObj['__ember_meta__'].chains, 'The chains object is copied');
+    ok(obj['__ember_meta__'].readableChains() !== childObj['__ember_meta__'].readableChains(), 'The chains object is copied');
   });
 
   QUnit.test('observer and CP chains', function () {
@@ -20129,7 +20128,7 @@ enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/core'], function
     }, 'the assigned message was displayed');
   });
 });
-enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalUtils, _emberMetalEvents) {
+enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-metal/meta', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalMeta, _emberMetalEvents) {
   'use strict';
 
   QUnit.module('system/props/events_test');
@@ -20313,7 +20312,6 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     _emberMetalEvents.addListener(obj, 'event!', F2);
 
     equal(_emberMetalEvents.hasListeners(obj, 'event!'), true, 'has listeners');
-
     _emberMetalEvents.removeListener(obj, 'event!');
 
     equal(_emberMetalEvents.hasListeners(obj, 'event!'), false, 'has no more listeners');
@@ -20341,7 +20339,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     _emberMetalEvents.suspendListener(obj, 'event!', target, target.method, callback);
 
     equal(target.count, 1, 'should invoke');
-    equal(_emberMetalUtils.meta(obj).listeners['event!'].length, 3, 'a duplicate listener wasn\'t added');
+    equal(_emberMetalMeta.meta(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
 
     // now test suspendListeners...
 
@@ -20350,7 +20348,7 @@ enifed('ember-metal/tests/events_test', ['exports', 'ember-metal/mixin', 'ember-
     _emberMetalEvents.suspendListeners(obj, ['event!'], target, target.method, callback);
 
     equal(target.count, 2, 'should have invoked again');
-    equal(_emberMetalUtils.meta(obj).listeners['event!'].length, 3, 'a duplicate listener wasn\'t added');
+    equal(_emberMetalMeta.meta(obj).matchingListeners('event!').length, 3, 'a duplicate listener wasn\'t added');
   });
 
   QUnit.test('a listener can be added as part of a mixin', function () {
@@ -21631,6 +21629,104 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     var obj = {};
     equal(map.add(obj), map);
     equal(map.add(obj), map, 'when it is already in the set');
+  });
+});
+enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
+  'use strict';
+
+  QUnit.module('Ember.meta');
+
+  QUnit.test('should return the same hash for an object', function () {
+    var obj = {};
+
+    _emberMetalMeta.meta(obj).foo = 'bar';
+
+    equal(_emberMetalMeta.meta(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
+  });
+
+  QUnit.test('meta is not enumerable', function () {
+    var proto, obj, props, prop;
+    proto = { foo: 'bar' };
+    _emberMetalMeta.meta(proto);
+    obj = Object.create(proto);
+    _emberMetalMeta.meta(obj);
+    obj.bar = 'baz';
+    props = [];
+    for (prop in obj) {
+      props.push(prop);
+    }
+    deepEqual(props.sort(), ['bar', 'foo']);
+    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
+      try {
+        JSON.stringify(obj);
+      } catch (e) {
+        ok(false, 'meta should not fail JSON.stringify');
+      }
+    }
+  });
+
+  QUnit.test('meta is not enumerable', function () {
+    var proto, obj, props, prop;
+    proto = { foo: 'bar' };
+    _emberMetalMeta.meta(proto);
+    obj = Object.create(proto);
+    _emberMetalMeta.meta(obj);
+    obj.bar = 'baz';
+    props = [];
+    for (prop in obj) {
+      props.push(prop);
+    }
+    deepEqual(props.sort(), ['bar', 'foo']);
+    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
+      try {
+        JSON.stringify(obj);
+      } catch (e) {
+        ok(false, 'meta should not fail JSON.stringify');
+      }
+    }
+  });
+
+  QUnit.test('meta.listeners basics', function (assert) {
+    var t = {};
+    var m = _emberMetalMeta.meta({});
+    m.addToListeners('hello', t, 'm', 0);
+    var matching = m.matchingListeners('hello');
+    assert.equal(matching.length, 3);
+    assert.equal(matching[0], t);
+    m.removeFromListeners('hello', t, 'm');
+    matching = m.matchingListeners('hello');
+    assert.equal(matching.length, 0);
+  });
+
+  QUnit.test('meta.listeners inheritance', function (assert) {
+    var target = {};
+    var parent = {};
+    var parentMeta = _emberMetalMeta.meta(parent);
+    parentMeta.addToListeners('hello', target, 'm', 0);
+
+    var child = Object.create(parent);
+    var m = _emberMetalMeta.meta(child);
+
+    var matching = m.matchingListeners('hello');
+    assert.equal(matching.length, 3);
+    assert.equal(matching[0], target);
+    assert.equal(matching[1], 'm');
+    assert.equal(matching[2], 0);
+    m.removeFromListeners('hello', target, 'm');
+    matching = m.matchingListeners('hello');
+    assert.equal(matching.length, 0);
+    matching = parentMeta.matchingListeners('hello');
+    assert.equal(matching.length, 3);
+  });
+
+  QUnit.test('meta.listeners deduplication', function (assert) {
+    var t = {};
+    var m = _emberMetalMeta.meta({});
+    m.addToListeners('hello', t, 'm', 0);
+    m.addToListeners('hello', t, 'm', 0);
+    var matching = m.matchingListeners('hello');
+    assert.equal(matching.length, 3);
+    assert.equal(matching[0], t);
   });
 });
 enifed('ember-metal/tests/mixin/alias_method_test', ['exports', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalProperty_get, _emberMetalMixin) {
@@ -25367,63 +25463,6 @@ enifed('ember-metal/tests/utils/guid_for_test', ['exports', 'ember-metal/utils']
     nanGuid(a);
   });
 });
-enifed('ember-metal/tests/utils/meta_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('Ember.meta');
-
-  QUnit.test('should return the same hash for an object', function () {
-    var obj = {};
-
-    _emberMetalUtils.meta(obj).foo = 'bar';
-
-    equal(_emberMetalUtils.meta(obj).foo, 'bar', 'returns same hash with multiple calls to Ember.meta()');
-  });
-
-  QUnit.module('Ember.meta enumerable');
-
-  QUnit.test('meta is not enumerable', function () {
-    var proto, obj, props, prop;
-    proto = { foo: 'bar' };
-    _emberMetalUtils.meta(proto);
-    obj = Object.create(proto);
-    _emberMetalUtils.meta(obj);
-    obj.bar = 'baz';
-    props = [];
-    for (prop in obj) {
-      props.push(prop);
-    }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
-      try {
-        JSON.stringify(obj);
-      } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
-      }
-    }
-  });
-
-  QUnit.test('meta is not enumerable', function () {
-    var proto, obj, props, prop;
-    proto = { foo: 'bar' };
-    _emberMetalUtils.meta(proto);
-    obj = Object.create(proto);
-    _emberMetalUtils.meta(obj);
-    obj.bar = 'baz';
-    props = [];
-    for (prop in obj) {
-      props.push(prop);
-    }
-    deepEqual(props.sort(), ['bar', 'foo']);
-    if (typeof JSON !== 'undefined' && 'stringify' in JSON) {
-      try {
-        JSON.stringify(obj);
-      } catch (e) {
-        ok(false, 'meta should not fail JSON.stringify');
-      }
-    }
-  });
-});
 enifed('ember-metal/tests/utils/try_invoke_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
   'use strict';
 
@@ -25851,15 +25890,15 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     _emberMetalWatching.watch(obj, 'Global.foo');
 
     var meta_Global = _emberMetalCore.default.meta(Global);
-    var chainNode = _emberMetalCore.default.meta(obj).chains._chains.Global._chains.foo;
+    var chainNode = _emberMetalCore.default.meta(obj).readableChains()._chains.Global._chains.foo;
 
-    equal(meta_Global.watching.foo, 1, 'should be watching foo');
-    equal(meta_Global.chainWatchers.has('foo', chainNode), true, 'should have chain watcher');
+    equal(meta_Global.peekWatching('foo'), 1, 'should be watching foo');
+    equal(meta_Global.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
 
     _emberMetalWatching.destroy(obj);
 
-    equal(meta_Global.watching.foo, 0, 'should not be watching foo');
-    equal(meta_Global.chainWatchers.has('foo', chainNode), false, 'should not have chain watcher');
+    equal(meta_Global.peekWatching('foo'), 0, 'should not be watching foo');
+    equal(meta_Global.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
 
     lookup['Global'] = Global = null; // reset
   });
@@ -25873,15 +25912,15 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     _emberMetalWatching.watch(objA, 'b.foo');
 
     var meta_objB = _emberMetalCore.default.meta(objB);
-    var chainNode = _emberMetalCore.default.meta(objA).chains._chains.b._chains.foo;
+    var chainNode = _emberMetalCore.default.meta(objA).readableChains()._chains.b._chains.foo;
 
-    equal(meta_objB.watching.foo, 1, 'should be watching foo');
-    equal(meta_objB.chainWatchers.has('foo', chainNode), true, 'should have chain watcher');
+    equal(meta_objB.peekWatching('foo'), 1, 'should be watching foo');
+    equal(meta_objB.readableChainWatchers().has('foo', chainNode), true, 'should have chain watcher');
 
     _emberMetalWatching.destroy(objA);
 
-    equal(meta_objB.watching.foo, 0, 'should not be watching foo');
-    equal(meta_objB.chainWatchers.has('foo', chainNode), false, 'should not have chain watcher');
+    equal(meta_objB.peekWatching('foo'), 0, 'should not be watching foo');
+    equal(meta_objB.readableChainWatchers().has('foo', chainNode), false, 'should not have chain watcher');
   });
 
   // TESTS for length property
@@ -42694,7 +42733,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5a23f025', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+41ece2b5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -57953,7 +57992,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       App.OtherRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
           var m = _emberMetalCore.default.meta(trans.params.application);
-          ok(!m.watching.woot, 'A meta object isn\'t constructed for this params POJO');
+          ok(!m.peekWatching('woot'), 'A meta object isn\'t constructed for this params POJO');
         }
       });
 
@@ -59090,7 +59129,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember', 'ember-meta
       App.OtherRoute = _emberMetalCore.default.Route.extend({
         model: function (p, trans) {
           var m = _emberMetalCore.default.meta(trans.params.application);
-          ok(!m.watching.woot, 'A meta object isn\'t constructed for this params POJO');
+          ok(!m.peekWatching('woot'), 'A meta object isn\'t constructed for this params POJO');
         }
       });
 
