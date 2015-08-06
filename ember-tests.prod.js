@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+490fba7e
+ * @version   2.0.0-canary+62e32596
  */
 
 (function() {
@@ -19018,9 +19018,10 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
 
     _emberMetalExpand_properties.default('a', addProperty);
     _emberMetalExpand_properties.default('a.b', addProperty);
-    _emberMetalExpand_properties.default('a.b.@each', addProperty);
+    _emberMetalExpand_properties.default('a.b.[]', addProperty);
+    _emberMetalExpand_properties.default('a.b.@each.c', addProperty);
 
-    deepEqual(['a', 'a.b', 'a.b.@each'].sort(), foundProperties.sort());
+    deepEqual(['a', 'a.b', 'a.b.[]', 'a.b.@each.c'].sort(), foundProperties.sort());
   });
 
   QUnit.test('A single expansion at the end expands properly', function () {
@@ -33540,26 +33541,6 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 
     }
   });
 
-  QUnit.test('adding an object should notify (@each)', function () {
-    var called = 0;
-
-    var observerObject = _emberRuntimeSystemObject.default.create({
-      wasCalled: function () {
-        called++;
-      }
-    });
-
-    // get(ary, '@each');
-    _emberMetalObserver.addObserver(ary, '@each', observerObject, 'wasCalled');
-
-    ary.addObject(_emberRuntimeSystemObject.default.create({
-      desc: 'foo',
-      isDone: false
-    }));
-
-    equal(called, 1, 'calls observer when object is pushed');
-  });
-
   QUnit.test('adding an object should notify (@each.isDone)', function () {
     var called = 0;
 
@@ -36293,7 +36274,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+      equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
       equal(observer.timesCalled('length'), 1, 'should have notified length once');
       equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36370,7 +36351,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
     equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -36400,13 +36381,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] did change once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each did change once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each did change once');
     equal(observer.timesCalled('length'), 1, 'should have notified length did change once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject did change once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject did change once');
@@ -36438,13 +36419,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -36468,13 +36449,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36507,13 +36488,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 1, 'should have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -36537,13 +36518,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 0, 'should NOT have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
@@ -36567,13 +36548,13 @@ enifed('ember-runtime/tests/suites/mutable_array/insertAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalledBefore('[]'), 1, 'should have notified [] will change once');
-    equal(observer.timesCalledBefore('@each'), 1, 'should have notified @each will change once');
+    equal(observer.timesCalledBefore('@each'), 0, 'should not have notified @each will change once');
     equal(observer.timesCalledBefore('length'), 1, 'should have notified length will change once');
     equal(observer.timesCalledBefore('firstObject'), 0, 'should NOT have notified firstObject will change once');
     equal(observer.timesCalledBefore('lastObject'), 1, 'should have notified lastObject will change once');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36623,7 +36604,7 @@ enifed('ember-runtime/tests/suites/mutable_array/popObject', ['exports', 'ember-
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -36645,7 +36626,7 @@ enifed('ember-runtime/tests/suites/mutable_array/popObject', ['exports', 'ember-
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36682,7 +36663,7 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -36704,7 +36685,7 @@ enifed('ember-runtime/tests/suites/mutable_array/pushObject', ['exports', 'ember
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36752,7 +36733,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -36780,7 +36761,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -36802,7 +36783,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -36824,7 +36805,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -36846,7 +36827,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -36885,7 +36866,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-      equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+      equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
       equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
       equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -36939,7 +36920,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     deepEqual(this.toArray(obj), exp, 'post item results');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -36961,7 +36942,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     deepEqual(this.toArray(obj), after, 'post item results');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -36984,7 +36965,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     deepEqual(this.toArray(obj), after, 'post item results');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.validate('length'), false, 'should NOT have notified length');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -37007,7 +36988,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     deepEqual(this.toArray(obj), after, 'post item results');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject once');
@@ -37029,7 +37010,7 @@ enifed('ember-runtime/tests/suites/mutable_array/replace', ['exports', 'ember-ru
     deepEqual(this.toArray(obj), after, 'post item results');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
 
@@ -37084,7 +37065,7 @@ enifed('ember-runtime/tests/suites/mutable_array/reverseObjects', ['exports', 'e
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 0, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37114,7 +37095,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37135,7 +37116,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37187,7 +37168,7 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37208,7 +37189,7 @@ enifed('ember-runtime/tests/suites/mutable_array/shiftObject', ['exports', 'embe
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -37246,7 +37227,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37268,7 +37249,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -37291,7 +37272,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
     equal(_emberMetalProperty_get.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
@@ -37328,7 +37309,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     equal(_emberMetalCore.default.get(obj, 'length'), items.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
     equal(observer.timesCalled('lastObject'), 1, 'should have notified lastObject once');
@@ -37350,7 +37331,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
     equal(observer.timesCalled('firstObject'), 1, 'should have notified firstObject once');
 
@@ -37373,7 +37354,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
-    equal(observer.timesCalled('@each'), 1, 'should have notified @each once');
+    equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
     equal(observer.timesCalled('length'), 1, 'should have notified length once');
 
     equal(observer.validate('firstObject'), false, 'should NOT have notified firstObject');
@@ -40896,7 +40877,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+490fba7e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+62e32596', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
