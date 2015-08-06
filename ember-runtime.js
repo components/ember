@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+62e32596
+ * @version   2.0.0-canary+490fba7e
  */
 
 (function() {
@@ -3275,6 +3275,15 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
         addChainWatcher(this._object, this._key, this);
       }
     }
+
+    // Special-case: the EachProxy relies on immediate evaluation to
+    // establish its observers.
+    //
+    // TODO: Replace this with an efficient callback that the EachProxy
+    // can implement.
+    if (this._parent && this._parent._key === '@each') {
+      this.value();
+    }
   }
 
   function lazyGet(obj, key) {
@@ -3290,7 +3299,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key])) {
+    if (key === '@each' || isVolatile(obj[key])) {
       return _emberMetalProperty_get.get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -3448,6 +3457,12 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
           addChainWatcher(obj, this._key, this);
         }
         this._value = undefined;
+
+        // Special-case: the EachProxy relies on immediate evaluation to
+        // establish its observers.
+        if (this._parent && this._parent._key === '@each') {
+          this.value();
+        }
       }
 
       // then notify chains...
@@ -4808,7 +4823,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+62e32596
+    @version 2.0.0-canary+490fba7e
     @public
   */
 
@@ -4842,11 +4857,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+62e32596'
+    @default '2.0.0-canary+490fba7e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+62e32596';
+  Ember.VERSION = '2.0.0-canary+490fba7e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5542,7 +5557,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
     Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
-    Ember.expandProperties('foo.{bar,baz}.[]', echo)      //=> 'foo.bar.[]', 'foo.baz.[]'
+    Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
@@ -13782,7 +13797,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
 
   exports.default = ActionHandler;
 });
-enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
+enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-metal/watching'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberMetalWatching) {
   /**
   @module ember
   @submodule ember-runtime
@@ -14160,8 +14175,9 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
         }
       }
 
-      if (this.__each) {
-        this.__each.arrayWillChange(this, startIdx, removeAmt, addAmt);
+      // Make sure the @each proxy is set up if anyone is observing @each
+      if (_emberMetalWatching.isWatching(this, '@each')) {
+        _emberMetalProperty_get.get(this, '@each');
       }
 
       _emberMetalEvents.sendEvent(this, '@array:before', [this, startIdx, removeAmt, addAmt]);
@@ -14225,11 +14241,6 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       }
 
       this.enumerableContentDidChange(removeAmt, adding);
-
-      if (this.__each) {
-        this.__each.arrayDidChange(this, startIdx, removeAmt, addAmt);
-      }
-
       _emberMetalEvents.sendEvent(this, '@array:change', [this, startIdx, removeAmt, addAmt]);
 
       var length = _emberMetalProperty_get.get(this, 'length');
@@ -14249,6 +14260,10 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       return this;
     },
 
+    // ..........................................................
+    // ENUMERATED PROPERTIES
+    //
+
     /**
       Returns a special object that can be used to observe individual properties
       on the array. Just get an equivalent property on this object and it will
@@ -14260,13 +14275,17 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       @public
     */
     '@each': _emberMetalComputed.computed(function () {
-      // TODO use Symbol or add to meta
       if (!this.__each) {
-        this.__each = new _emberRuntimeSystemEach_proxy.default(this);
+        // ES6TODO: GRRRRR
+        var EachProxy = requireModule('ember-runtime/system/each_proxy')['EachProxy'];
+
+        this.__each = new EachProxy({
+          content: this
+        });
       }
 
       return this.__each;
-    }).volatile()
+    })
   });
 });
 // ES6TODO: Ember.A
@@ -18368,8 +18387,83 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
 // NOTE: this object should never be included directly. Instead use `Ember.Object`.
 // We only define this separately so that `Ember.Set` can depend on it.
-enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/empty_object'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalObserver, _emberMetalProperty_events, _emberMetalEmpty_object) {
+enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/utils', 'ember-runtime/utils', 'ember-runtime/mixins/array', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/properties', 'ember-metal/property_events'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalUtils, _emberRuntimeUtils, _emberRuntimeMixinsArray, _emberRuntimeSystemObject, _emberMetalComputed, _emberMetalObserver, _emberMetalEvents, _emberMetalProperties, _emberMetalProperty_events) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
+
+  var EachArray = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsArray.default, {
+
+    init: function (attr) {
+      this._super.apply(this, arguments);
+      this._keyName = attr.keyName;
+      this._owner = attr.owner;
+      this._content = attr.content;
+    },
+
+    objectAt: function (idx) {
+      var item = this._content.objectAt(idx);
+      return item && _emberMetalProperty_get.get(item, this._keyName);
+    },
+
+    length: _emberMetalComputed.computed(function () {
+      var content = this._content;
+      return content ? _emberMetalProperty_get.get(content, 'length') : 0;
+    })
+
+  });
+
+  var IS_OBSERVER = /^.+:(before|change)$/;
+
+  function addObserverForContentKey(content, keyName, proxy, idx, loc) {
+    var objects = proxy._objects;
+    var guid;
+    if (!objects) {
+      objects = proxy._objects = {};
+    }
+
+    while (--loc >= idx) {
+      var item = content.objectAt(loc);
+      if (item) {
+        _emberMetalCore.default.assert('When using @each to observe the array ' + content + ', the array must return an object', _emberRuntimeUtils.typeOf(item) === 'instance' || _emberRuntimeUtils.typeOf(item) === 'object');
+        _emberMetalObserver._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+        _emberMetalObserver.addObserver(item, keyName, proxy, 'contentKeyDidChange');
+
+        // keep track of the index each item was found at so we can map
+        // it back when the obj changes.
+        guid = _emberMetalUtils.guidFor(item);
+        if (!objects[guid]) {
+          objects[guid] = [];
+        }
+
+        objects[guid].push(loc);
+      }
+    }
+  }
+
+  function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
+    var objects = proxy._objects;
+    if (!objects) {
+      objects = proxy._objects = {};
+    }
+
+    var indices, guid;
+
+    while (--loc >= idx) {
+      var item = content.objectAt(loc);
+      if (item) {
+        _emberMetalObserver._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
+        _emberMetalObserver.removeObserver(item, keyName, proxy, 'contentKeyDidChange');
+
+        guid = _emberMetalUtils.guidFor(item);
+        indices = objects[guid];
+        indices[indices.indexOf(loc)] = null;
+      }
+    }
+  }
 
   /**
     This is the object instance returned when you get the `@each` property on an
@@ -18378,15 +18472,39 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     @class EachProxy
     @private
   */
-  function EachProxy(content) {
-    this._content = content;
-    this._keys = undefined;
-    this.__ember_meta__ = undefined;
-  }
+  var EachProxy = _emberRuntimeSystemObject.default.extend({
+    init: function (attrs) {
+      var _this = this;
 
-  EachProxy.prototype = {
-    __defineNonEnumerable: function (property) {
-      this[property.name] = property.descriptor.value;
+      this._super.apply(this, arguments);
+      this._content = attrs.content;
+
+      this._content.addArrayObserver(this);
+
+      // in case someone is already observing some keys make sure they are
+      // added
+      _emberMetalEvents.watchedEvents(this).forEach(function (eventName) {
+        _this.didAddListener(eventName);
+      });
+    },
+
+    /**
+      You can directly access mapped properties by simply requesting them.
+      The `unknownProperty` handler will generate an EachArray of each item.
+       @method unknownProperty
+      @param keyName {String}
+      @param value {*}
+      @private
+    */
+    unknownProperty: function (keyName, value) {
+      var ret = new EachArray({
+        content: this._content,
+        keyName: keyName,
+        owner: this
+      });
+      _emberMetalProperties.defineProperty(this, keyName, null, ret);
+      this.beginObservingContentKey(keyName);
+      return ret;
     },
 
     // ..........................................................
@@ -18395,36 +18513,63 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
 
     arrayWillChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
-      var lim = removedCnt > 0 ? idx + removedCnt : -1;
-      for (var key in keys) {
+      var key, lim;
+
+      lim = removedCnt > 0 ? idx + removedCnt : -1;
+      _emberMetalProperty_events.beginPropertyChanges(this);
+
+      for (key in keys) {
+        if (!keys.hasOwnProperty(key)) {
+          continue;
+        }
+
         if (lim > 0) {
           removeObserverForContentKey(content, key, this, idx, lim);
         }
+
         _emberMetalProperty_events.propertyWillChange(this, key);
       }
+
+      _emberMetalProperty_events.propertyWillChange(this._content, '@each');
+      _emberMetalProperty_events.endPropertyChanges(this);
     },
 
     arrayDidChange: function (content, idx, removedCnt, addedCnt) {
       var keys = this._keys;
-      var lim = addedCnt > 0 ? idx + addedCnt : -1;
-      for (var key in keys) {
-        if (lim > 0) {
-          addObserverForContentKey(content, key, this, idx, lim);
+      var lim;
+
+      lim = addedCnt > 0 ? idx + addedCnt : -1;
+      _emberMetalProperty_events.changeProperties(function () {
+        for (var key in keys) {
+          if (!keys.hasOwnProperty(key)) {
+            continue;
+          }
+
+          if (lim > 0) {
+            addObserverForContentKey(content, key, this, idx, lim);
+          }
+
+          _emberMetalProperty_events.propertyDidChange(this, key);
         }
-        _emberMetalProperty_events.propertyDidChange(this, key);
-      }
+
+        _emberMetalProperty_events.propertyDidChange(this._content, '@each');
+      }, this);
     },
 
     // ..........................................................
     // LISTEN FOR NEW OBSERVERS AND OTHER EVENT LISTENERS
     // Start monitoring keys based on who is listening...
 
-    willWatchProperty: function (property) {
-      this.beginObservingContentKey(property);
+    didAddListener: function (eventName) {
+      if (IS_OBSERVER.test(eventName)) {
+        this.beginObservingContentKey(eventName.slice(0, -7));
+      }
     },
 
-    didUnwatchProperty: function (property) {
-      this.stopObservingContentKey(property);
+    didRemoveListener: function (eventName) {
+      if (IS_OBSERVER.test(eventName)) {
+        this.stopObservingContentKey(eventName.slice(0, -7));
+      }
     },
 
     // ..........................................................
@@ -18434,7 +18579,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     beginObservingContentKey: function (keyName) {
       var keys = this._keys;
       if (!keys) {
-        keys = this._keys = new _emberMetalEmpty_object.default();
+        keys = this._keys = {};
       }
 
       if (!keys[keyName]) {
@@ -18465,32 +18610,14 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/core', 'ember
     contentKeyDidChange: function (obj, keyName) {
       _emberMetalProperty_events.propertyDidChange(this, keyName);
     }
-  };
+  });
 
-  function addObserverForContentKey(content, keyName, proxy, idx, loc) {
-    while (--loc >= idx) {
-      var item = content.objectAt(loc);
-      if (item) {
-        _emberMetalCore.default.assert('When using @each to observe the array ' + content + ', the array must return an object', typeof item === 'object');
-        _emberMetalObserver._addBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
-        _emberMetalObserver.addObserver(item, keyName, proxy, 'contentKeyDidChange');
-      }
-    }
-  }
-
-  function removeObserverForContentKey(content, keyName, proxy, idx, loc) {
-    while (--loc >= idx) {
-      var item = content.objectAt(loc);
-      if (item) {
-        _emberMetalObserver._removeBeforeObserver(item, keyName, proxy, 'contentKeyWillChange');
-        _emberMetalObserver.removeObserver(item, keyName, proxy, 'contentKeyDidChange');
-      }
-    }
-  }
-
-  exports.default = EachProxy;
+  exports.EachArray = EachArray;
+  exports.EachProxy = EachProxy;
 });
 // Ember.assert
+
+// ES6TODO: WAT? Circular dep?
 enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRuntimeSystemNative_array) {
   /*globals CustomEvent */
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+62e32596
+ * @version   2.0.0-canary+490fba7e
  */
 
 (function() {
@@ -2698,6 +2698,15 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
         addChainWatcher(this._object, this._key, this);
       }
     }
+
+    // Special-case: the EachProxy relies on immediate evaluation to
+    // establish its observers.
+    //
+    // TODO: Replace this with an efficient callback that the EachProxy
+    // can implement.
+    if (this._parent && this._parent._key === '@each') {
+      this.value();
+    }
   }
 
   function lazyGet(obj, key) {
@@ -2713,7 +2722,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (isVolatile(obj[key])) {
+    if (key === '@each' || isVolatile(obj[key])) {
       return _emberMetalProperty_get.get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -2871,6 +2880,12 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
           addChainWatcher(obj, this._key, this);
         }
         this._value = undefined;
+
+        // Special-case: the EachProxy relies on immediate evaluation to
+        // establish its observers.
+        if (this._parent && this._parent._key === '@each') {
+          this.value();
+        }
       }
 
       // then notify chains...
@@ -4231,7 +4246,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+62e32596
+    @version 2.0.0-canary+490fba7e
     @public
   */
 
@@ -4265,11 +4280,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+62e32596'
+    @default '2.0.0-canary+490fba7e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+62e32596';
+  Ember.VERSION = '2.0.0-canary+490fba7e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4965,7 +4980,7 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
     Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
-    Ember.expandProperties('foo.{bar,baz}.[]', echo)      //=> 'foo.bar.[]', 'foo.baz.[]'
+    Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
@@ -12426,7 +12441,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+62e32596',
+        revision: 'Ember@2.0.0-canary+490fba7e',
         loc: program.loc,
         moduleName: options.moduleName
       };
