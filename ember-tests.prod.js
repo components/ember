@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+691fc604
+ * @version   2.0.0-canary+af8ed044
  */
 
 (function() {
@@ -12545,10 +12545,15 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
       name: 'Bob Loblaw'
     });
 
+    var template;
+    expectDeprecation(function () {
+      template = _emberTemplateCompilerSystemCompile.default('{{#with person controller="person" as |steve|}}{{controllerName}}{{/with}}');
+    }, 'Using the {{with}} helper with a `controller` specified (L1:C0) is deprecated and will be removed in 2.0.0.');
+
     view = _emberViewsViewsView.default.create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile.default('{{#with person controller="person" as |steve|}}{{controllerName}}{{/with}}'),
-      controller: parentController
+      controller: parentController,
+      template: template,
+      container: container
     });
 
     registry.register('controller:person', Controller);
@@ -40727,6 +40732,21 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {
   "use strict";
 });
+enifed('ember-template-compiler/tests/plugins/deprecate-with-controller-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: deprecate-with-controller');
+
+  QUnit.test('Using `{{with}}` with `controller` hash argument provides a deprecation', function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      _emberTemplateCompiler.compile('{{#with controller="foo"}}{{/with}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    }, 'Using the {{with}} helper with a `controller` specified (\'foo/bar/baz\' @ L1:C0) is deprecated and will be removed in 2.0.0.');
+  });
+});
 enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
   'use strict';
 
@@ -40932,7 +40952,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+691fc604', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+af8ed044', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
