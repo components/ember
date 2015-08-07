@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+62e32596
+ * @version   2.0.0-canary+d9c3a617
  */
 
 (function() {
@@ -4808,7 +4808,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+62e32596
+    @version 2.0.0-canary+d9c3a617
     @public
   */
 
@@ -4842,11 +4842,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+62e32596'
+    @default '2.0.0-canary+d9c3a617'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+62e32596';
+  Ember.VERSION = '2.0.0-canary+d9c3a617';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17263,7 +17263,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     @namespace Ember
     @extends Ember.Object
     @uses Ember.MutableArray
-    @private
+    @public
   */
   var ArrayProxy = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsMutable_array.default, {
 
