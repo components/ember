@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b0644b1c
+ * @version   2.0.0-canary+7f62867a
  */
 
 (function() {
@@ -4939,7 +4939,6 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-metal/
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('disabled property can be set true', function () {
     view = _emberViewsViewsView.default.create({
       context: { isDisabled: true },
@@ -5005,6 +5004,8 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-metal/
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<input>', 'attribute is not output');
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
@@ -5031,7 +5032,6 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('class renders before didInsertElement', function () {
     var matchingElement;
     view = _emberViewsViewsView.default.create({
@@ -5154,6 +5154,8 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
 
     strictEqual(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViewsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
   'use strict';
@@ -5424,7 +5426,6 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/fea
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('href is set', function () {
     view = _emberViewsViewsView.default.create({
       context: { url: 'http://example.com' },
@@ -5434,6 +5435,8 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/fea
 
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<a href="http://example.com"></a>', 'attribute is output');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
   'use strict';
@@ -5463,7 +5466,6 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('maxlength sets the property and attribute', function () {
     view = _emberViewsViewsView.default.create({
       context: { length: 5 },
@@ -5506,6 +5508,8 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     _emberMetalCore.default.run(view, view.set, 'context.items', [4, 5]);
     ok(true, 'no legacy assertion prohibited setting an array');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberMetalEnvironment) {
   /* jshint scripturl:true */
@@ -5549,8 +5553,6 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-meta
     quotedTemplate: _emberTemplateCompilerSystemCompile.default('<iframe src=\'{{url}}\'></iframe>'),
     multipartTemplate: _emberTemplateCompilerSystemCompile.default('<iframe src=\'{{protocol}}{{path}}\'></iframe>') }];
 
-  // jscs:enable disallowTrailingWhitespace
-  // jscs:enable validateIndentation
   for (var i = 0, l = badTags.length; i < l; i++) {
     (function () {
       var subject = badTags[i];
@@ -5608,6 +5610,9 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-meta
       });
     })(); //jshint ignore:line
   }
+
+  // jscs:enable disallowTrailingWhitespace
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberHtmlbarsMorphsAttrMorph) {
   /* globals EmberDev */
@@ -5659,7 +5664,6 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
     });
   }
 
-  // jscs:enable validateIndentation
   QUnit.test('specifying `<div style={{{userValue}}}></div>` works properly without a warning', function () {
     view = _emberViewsViewsView.default.create({
       userValue: 'width: 42px',
@@ -5681,6 +5685,8 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
 
     deepEqual(warnings, []);
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
@@ -5703,7 +5709,6 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('unquoted viewBox property is output', function () {
     var viewBoxString = '0 0 100 100';
     view = _emberViewsViewsView.default.create({
@@ -5758,6 +5763,8 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core
 
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg class="red tall"></svg>', 'attribute is output');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
   'use strict';
@@ -5780,7 +5787,6 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
     }
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('property is output', function () {
     view = _emberViewsViewsView.default.create({
       context: { name: 'rick' },
@@ -5813,6 +5819,8 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
     equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
     equal(view.element.firstChild.value, '', 'property is set true');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths) {
   'use strict';
@@ -28114,7 +28122,6 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features'
     ok(router.router.recognizer.names['blork_error'], 'error route was added');
   });
 
-  // jscs:enable validateIndentation
   QUnit.test('should not add loading and error routes if _isRouterMapResult is false', function () {
     Router.map(function () {
       this.route('blork');
@@ -28127,6 +28134,8 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features'
     ok(!router.router.recognizer.names['blork_loading'], 'loading route was not added');
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
+
+  // jscs:enable validateIndentation
 });
 enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'container/registry', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject'], function (exports, _emberRuntimeTestsUtils, _containerRegistry, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject) {
   'use strict';
@@ -40877,7 +40886,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+b0644b1c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+7f62867a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

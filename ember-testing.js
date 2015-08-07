@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b0644b1c
+ * @version   2.0.0-canary+7f62867a
  */
 
 (function() {
@@ -430,6 +430,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
 
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
@@ -447,7 +448,6 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
-  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
 
   function deprecate(message, test, options) {
     if (!options || !options.id && !options.until) {
@@ -532,6 +532,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
   exports.missingOptionsDeprecation = missingOptionsDeprecation;
   var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
 
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
@@ -542,7 +543,6 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
       will be displayed.
     @public
   */
-  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
 
   function warn(message, test, options) {
     if (!options) {

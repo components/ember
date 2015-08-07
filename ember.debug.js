@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b0644b1c
+ * @version   2.0.0-canary+7f62867a
  */
 
 (function() {
@@ -4574,6 +4574,7 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
     _logLookup: null // required
   });
 
+  exports.Resolver = Resolver;
   /**
     The DefaultResolver defines the default lookup rules to resolve
     container lookups before consulting the container for registered
@@ -4646,7 +4647,6 @@ enifed('ember-application/system/resolver', ['exports', 'ember-metal/core', 'emb
     @public
   */
 
-  exports.Resolver = Resolver;
   exports.default = _emberRuntimeSystemObject.default.extend({
     /**
       This will be set to the Application instance when it is
@@ -5352,6 +5352,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
 
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
@@ -5369,7 +5370,6 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
-  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
 
   function deprecate(message, test, options) {
     if (!options || !options.id && !options.until) {
@@ -5454,6 +5454,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
   exports.missingOptionsDeprecation = missingOptionsDeprecation;
   var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
 
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
@@ -5464,7 +5465,6 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
       will be displayed.
     @public
   */
-  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
 
   function warn(message, test, options) {
     if (!options) {
@@ -6549,10 +6549,10 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
     var propName = params[0];
     var value = params[1];
     var activeClass = hash.activeClass;
+    var inactiveClass = hash.inactiveClass;
 
     // When using the colon syntax, evaluate the truthiness or falsiness
     // of the value to determine which className to return
-    var inactiveClass = hash.inactiveClass;
     if (activeClass || inactiveClass) {
       if (!!value) {
         return activeClass;
@@ -8319,7 +8319,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b0644b1c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7f62867a';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13708,6 +13708,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -13735,7 +13736,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
     var value;
     for (var key in properties) {
@@ -13747,6 +13747,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -13773,7 +13774,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -13788,6 +13788,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -13849,7 +13850,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -13959,7 +13959,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b0644b1c
+    @version 2.0.0-canary+7f62867a
     @public
   */
 
@@ -13993,11 +13993,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b0644b1c'
+    @default '2.0.0-canary+7f62867a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b0644b1c';
+  Ember.VERSION = '2.0.0-canary+7f62867a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14761,7 +14761,8 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  // jshint ignore:line
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -14780,7 +14781,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -20490,6 +20490,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -20507,7 +20508,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -21583,9 +21583,9 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
   };
   var ActionHelper = {};
 
+  exports.ActionHelper = ActionHelper;
   // registeredActions is re-exported for compatibility with older plugins
   // that were using this undocumented API.
-  exports.ActionHelper = ActionHelper;
   ActionHelper.registeredActions = _emberViewsSystemAction_manager.default.registeredActions;
 
   ActionHelper.registerAction = function (_ref) {
@@ -22219,7 +22219,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b0644b1c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+7f62867a';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22720,7 +22720,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b0644b1c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7f62867a';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -27233,11 +27233,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
 
     // First, try a named loading state, e.g. 'foo_loading'
     childName = namespace + targetChildRouteName + '_' + name;
-
-    // Second, try general loading state, e.g. 'loading'
     if (routeHasBeenDefined(router, childName)) {
       return childName;
     }
+
+    // Second, try general loading state, e.g. 'loading'
     childName = namespace + name;
     if (routeHasBeenDefined(router, childName)) {
       return childName;
@@ -28363,6 +28363,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var union = uniq;
 
+  exports.union = union;
   /**
     A computed property which returns a new array with all the duplicated
     elements from two or more dependent arrays.
@@ -28387,7 +28388,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     duplicated elements from the dependent arrays
     @public
   */
-  exports.union = union;
 
   function intersect() {
     for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -34272,6 +34272,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   var loaded = {};
   var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -34291,7 +34292,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
     @param callback {Function} callback to be called
     @private
   */
-  exports._loaded = _loaded;
 
   function onLoad(name, callback) {
     var object = loaded[name];
@@ -36377,7 +36377,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+b0644b1c',
+        revision: 'Ember@2.0.0-canary+7f62867a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37940,6 +37940,7 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
     }
   });
 
+  exports._Metamorph = _Metamorph;
   /**
    @class _MetamorphView
    @namespace Ember
@@ -37947,7 +37948,6 @@ enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/core', 'emb
    @uses Ember._Metamorph
    @private
   */
-  exports._Metamorph = _Metamorph;
   exports.default = _emberViewsViewsView.default.extend(_Metamorph, {
     __metamorphType: 'Ember._MetamorphView'
   });
@@ -39735,10 +39735,11 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/c
 
       var _className$split = className.split(':');
 
-      // Legacy :class microsyntax for static class names
       var propName = _className$split[0];
       var activeClass = _className$split[1];
       var inactiveClass = _className$split[2];
+
+      // Legacy :class microsyntax for static class names
       if (propName === '') {
         output.push(activeClass);
         continue;
@@ -41077,7 +41078,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b0644b1c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+7f62867a';
 
   /**
   @module ember
@@ -45317,6 +45318,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   };
 
+  exports.keywords = keywords;
   /**
     Host Hook: partial
   
@@ -45343,7 +45345,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     The host hook should invoke the referenced partial with
     the ambient `self`.
   */
-  exports.keywords = keywords;
 
   function partial(renderNode, env, scope, path) {
     var template = env.partials[path];
@@ -46140,10 +46141,10 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -46155,16 +46156,16 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
@@ -49729,12 +49730,12 @@ enifed('router/utils', ['exports'], function (exports) {
     return new F();
   };
 
+  exports.oCreate = oCreate;
   /**
     @private
   
     Extracts query params from the end of an array
   **/
-  exports.oCreate = oCreate;
 
   function extractQueryParams(array) {
     var len = array && array.length,
@@ -52600,9 +52601,9 @@ enifed('rsvp/utils', ['exports'], function (exports) {
 
   var isArray = _isArray;
 
+  exports.isArray = isArray;
   // Date.now is not available in browsers < IE9
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  exports.isArray = isArray;
   var now = Date.now || function () {
     return new Date().getTime();
   };

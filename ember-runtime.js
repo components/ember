@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b0644b1c
+ * @version   2.0.0-canary+7f62867a
  */
 
 (function() {
@@ -4557,6 +4557,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -4584,7 +4585,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
     var value;
     for (var key in properties) {
@@ -4596,6 +4596,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -4622,7 +4623,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -4637,6 +4637,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -4698,7 +4699,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -4808,7 +4808,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b0644b1c
+    @version 2.0.0-canary+7f62867a
     @public
   */
 
@@ -4842,11 +4842,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b0644b1c'
+    @default '2.0.0-canary+7f62867a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b0644b1c';
+  Ember.VERSION = '2.0.0-canary+7f62867a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5610,7 +5610,8 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-application-visit": null, "ember-routing-core-outlet": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-debug-handlers": null, "ember-registry-container-reform": null, "ember-routing-routable-components": null }, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-application-visit": null, "ember-routing-core-outlet": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-debug-handlers": null, "ember-registry-container-reform": null, "ember-routing-routable-components": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  // jshint ignore:line
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -5629,7 +5630,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -11357,6 +11357,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -11374,7 +11375,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -12596,6 +12596,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var union = uniq;
 
+  exports.union = union;
   /**
     A computed property which returns a new array with all the duplicated
     elements from two or more dependent arrays.
@@ -12620,7 +12621,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     duplicated elements from the dependent arrays
     @public
   */
-  exports.union = union;
 
   function intersect() {
     for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -18509,6 +18509,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   var loaded = {};
   var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -18528,7 +18529,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
     @param callback {Function} callback to be called
     @private
   */
-  exports._loaded = _loaded;
 
   function onLoad(name, callback) {
     var object = loaded[name];
@@ -22249,9 +22249,9 @@ enifed('rsvp/utils', ['exports'], function (exports) {
 
   var isArray = _isArray;
 
+  exports.isArray = isArray;
   // Date.now is not available in browsers < IE9
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  exports.isArray = isArray;
   var now = Date.now || function () {
     return new Date().getTime();
   };

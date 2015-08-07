@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b0644b1c
+ * @version   2.0.0-canary+7f62867a
  */
 
 (function() {
@@ -1475,6 +1475,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
 
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
@@ -1492,7 +1493,6 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       The `id` should be namespaced by dots, e.g. "view.helper.select".
     @public
   */
-  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
 
   function deprecate(message, test, options) {
     if (!options || !options.id && !options.until) {
@@ -1577,6 +1577,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
   exports.missingOptionsDeprecation = missingOptionsDeprecation;
   var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
 
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
@@ -1587,7 +1588,6 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
       will be displayed.
     @public
   */
-  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
 
   function warn(message, test, options) {
     if (!options) {
@@ -3980,6 +3980,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -4007,7 +4008,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
     var value;
     for (var key in properties) {
@@ -4019,6 +4019,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -4045,7 +4046,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -4060,6 +4060,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -4121,7 +4122,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -4231,7 +4231,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b0644b1c
+    @version 2.0.0-canary+7f62867a
     @public
   */
 
@@ -4265,11 +4265,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b0644b1c'
+    @default '2.0.0-canary+7f62867a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b0644b1c';
+  Ember.VERSION = '2.0.0-canary+7f62867a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5033,7 +5033,8 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-application-visit": null, "ember-routing-core-outlet": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-debug-handlers": null, "ember-registry-container-reform": null, "ember-routing-routable-components": null }, _emberMetalCore.default.ENV.FEATURES); // jshint ignore:line
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-metal-stream": null, "ember-application-visit": null, "ember-routing-core-outlet": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-debug-handlers": null, "ember-registry-container-reform": null, "ember-routing-routable-components": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  // jshint ignore:line
 
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
@@ -5052,7 +5053,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -10762,6 +10762,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -10779,7 +10780,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -12426,7 +12426,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+b0644b1c',
+        revision: 'Ember@2.0.0-canary+7f62867a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -15015,6 +15015,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   };
 
+  exports.keywords = keywords;
   /**
     Host Hook: partial
   
@@ -15041,7 +15042,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     The host hook should invoke the referenced partial with
     the ambient `self`.
   */
-  exports.keywords = keywords;
 
   function partial(renderNode, env, scope, path) {
     var template = env.partials[path];
@@ -17583,10 +17583,10 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -17598,16 +17598,16 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
@@ -18781,10 +18781,10 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -18796,16 +18796,16 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
