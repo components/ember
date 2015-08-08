@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+f9914055
+ * @version   2.0.0-canary+e9751f50
  */
 
 (function() {
@@ -7839,7 +7839,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f9914055';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8020,24 +8020,38 @@ enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
   }
 });
 enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   exports.default = unbound;
   // assert
 
   /**
-    The `{{unbound}}` helper can be used with bound helper invocations to
-    render them in their unbound form.
+    The `{{unbound}}` helper disconnects the one-way binding of a property,
+    essentially freezing its value at the moment of rendering. For example,
+    in this example the display of the variable `name` will not change even
+    if it is set with a new value:
   
     ```handlebars
-    {{unbound (capitalize name)}}
+    {{unbound name}}
     ```
   
-    In the aforementioned example, if the `name` property changes, the helper
-    will not re-render.
+    Like any helper, the `unbound` helper can accept a nested helper expression.
+    This allows for custom helpers to be rendered unbound:
   
-    @module ember
-    @submodule ember-templates
+    ```handlebars
+    {{unbound (some-custom-helper)}}
+    {{unbound (capitalize name)}}
+    {{! You can use any helper, including unbound, in a nested expression }}
+    {{capitalize (unbound name)}}
+    ```
+  
+    The `unbound` helper only accepts a single argument, and it return an
+    unbound value.
   
     @method unbound
     @for Ember.Templates.helpers
@@ -13431,7 +13445,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+f9914055
+    @version 2.0.0-canary+e9751f50
     @public
   */
 
@@ -13465,11 +13479,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+f9914055'
+    @default '2.0.0-canary+e9751f50'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+f9914055';
+  Ember.VERSION = '2.0.0-canary+e9751f50';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21579,7 +21593,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+f9914055';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22078,7 +22092,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f9914055';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35643,7 +35657,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+f9914055',
+        revision: 'Ember@2.0.0-canary+e9751f50',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39058,7 +39072,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+f9914055';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
 
   /**
   @module ember
