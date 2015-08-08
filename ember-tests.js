@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+034f8237
+ * @version   1.13.6+95cec06e
  */
 
 (function() {
@@ -10367,7 +10367,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
   QUnit.test("The `if` helper does not error on undefined", function () {
     view = _emberViewsViewsView["default"].create({
       undefinedValue: undefined,
-      template: _emberTemplateCompilerSystemCompile["default"]('{{#if view.undefinedValue}}Yep{{/if}}{{#unbound if view.undefinedValue}}Yep{{/unbound}}')
+      template: _emberTemplateCompilerSystemCompile["default"]('{{#if view.undefinedValue}}Yep{{/if}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
@@ -10378,12 +10378,12 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
   QUnit.test("The `unless` helper does not error on undefined", function () {
     view = _emberViewsViewsView["default"].create({
       undefinedValue: undefined,
-      template: _emberTemplateCompilerSystemCompile["default"]('{{#unless view.undefinedValue}}YepBound{{/unless}}{{#unbound unless view.undefinedValue}}YepUnbound{{/unbound}}')
+      template: _emberTemplateCompilerSystemCompile["default"]('{{#unless view.undefinedValue}}YepBound{{/unless}}')
     });
 
     _emberRuntimeTestsUtils.runAppend(view);
 
-    equal(view.$().text(), 'YepBoundYepUnbound');
+    equal(view.$().text(), 'YepBound');
   });
 
   QUnit.test("The `if` helper does not print the contents for an object proxy without content", function () {
@@ -10493,6 +10493,8 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
   });
 
   QUnit.test("The `unbound if` helper does not update when the value changes", function () {
+    expectDeprecation(/Using the {{unbound}} helper with a block .* is deprecated and will be removed/);
+
     view = _emberViewsViewsView["default"].create({
       conditional: true,
       template: _emberTemplateCompilerSystemCompile["default"]('{{#unbound if view.conditional}}Yep{{/unbound}}')
@@ -10519,6 +10521,8 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
   });
 
   QUnit.test("The `unbound if` helper does not update when the value changes", function () {
+    expectDeprecation(/Using the {{unbound}} helper with a block .* is deprecated and will be removed/);
+
     view = _emberViewsViewsView["default"].create({
       conditional: false,
       template: _emberTemplateCompilerSystemCompile["default"]('{{#unbound unless view.conditional}}Nope{{/unbound}}')
@@ -10532,6 +10536,8 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
   });
 
   QUnit.test("The `unbound if` helper should work when its inverse is not present", function () {
+    expectDeprecation(/Using the {{unbound}} helper with a block .* is deprecated and will be removed/);
+
     view = _emberViewsViewsView["default"].create({
       conditional: false,
       template: _emberTemplateCompilerSystemCompile["default"]('{{#unbound if view.conditional}}Yep{{/unbound}}')
@@ -12063,6 +12069,8 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
   });
 
   QUnit.test('it should throw the helper missing error if multiple properties are provided', function () {
+    expectDeprecation(/Using the {{unbound}} helper with multiple params .* is deprecated and will be removed/);
+
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(_emberViewsViewsView["default"].create({
         template: _emberTemplateCompilerSystemCompile["default"]('{{unbound foo bar}}'),
@@ -47810,6 +47818,41 @@ enifed("ember-runtime/tests/utils", ["exports", "ember-metal/run_loop"], functio
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {
   "use strict";
 });
+enifed('ember-template-compiler/tests/plugins/deprecate-unbound-block-and-multi-params-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: deprecate-unbound-block-and-multi-params');
+
+  QUnit.test('Using `{{unbound}}` with a block issues a deprecation', function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      _emberTemplateCompiler.compile('{{#unbound "foo"}}{{/unbound}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    }, 'Using the {{unbound}} helper with a block (\'foo/bar/baz\' @ L1:C0) is deprecated and will be removed in 2.0.0.');
+  });
+
+  QUnit.test('Using `{{unbound}}` with multiple params issues a deprecation', function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      _emberTemplateCompiler.compile('{{unbound foo bar}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    }, 'Using the {{unbound}} helper with multiple params (\'foo/bar/baz\' @ L1:C0) is deprecated and will be removed in 2.0.0. Please refactor to nested helper usage.');
+  });
+
+  QUnit.test('Using `{{unbound}}` with a single param is not deprecated', function () {
+    expect(1);
+
+    _emberTemplateCompiler.compile('{{unbound foo}}', {
+      moduleName: 'foo/bar/baz'
+    });
+
+    ok(true, 'no deprecations or assertions');
+  });
+});
 enifed('ember-template-compiler/tests/plugins/deprecate-with-controller-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
   'use strict';
 
@@ -48108,7 +48151,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.6+034f8237', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.6+95cec06e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
