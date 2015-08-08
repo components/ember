@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7f62867a
+ * @version   2.0.0-canary+4feb881d
  */
 
 (function() {
@@ -14339,7 +14339,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('implementing `render` allows pushing into a string buffer', function () {
-    expect(1);
+    expect(2);
 
     registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
       render: function (buffer) {
@@ -14351,6 +14351,8 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       template: _emberTemplateCompilerSystemCompile.default('{{non-block}}'),
       container: container
     }).create();
+
+    expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -14862,7 +14864,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     });
 
     QUnit.test('implementing `render` allows pushing into a string buffer', function () {
-      expect(1);
+      expect(2);
+
+      // this deprecation is fired upon init
+      expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
 
       registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
         render: function (buffer) {
@@ -41048,7 +41053,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7f62867a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+4feb881d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -42948,6 +42953,8 @@ enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-meta
 
   QUnit.module('ember-views: View#render hook', {
     setup: function () {
+      expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
+
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
     },
     teardown: function () {
