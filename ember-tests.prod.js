@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+567de7e0
+ * @version   1.13.6+034f8237
  */
 
 (function() {
@@ -7783,6 +7783,7 @@ enifed("ember-htmlbars/tests/helpers/collection_test", ["exports", "ember-views/
     });
 
     view = _emberViewsViewsView["default"].create({
+      _viewRegistry: {},
       listView: ListView,
       listController: listController,
       template: _emberTemplateCompilerSystemCompile["default"]('{{#collection view.listView content=view.listController tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
@@ -20089,6 +20090,16 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(_emberMetalProperty_set.set(obj, 'foo', 'bar'), 'bar', 'should return set value');
     equal(count, 1, 'should have invoked computed property');
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'computed bar', 'should return new value');
+  });
+
+  QUnit.test('defining a computed property with a dependent key ending with @each is deprecated', function () {
+    expectDeprecation(function () {
+      _emberMetalComputed.computed('blazo.@each', function () {});
+    }, 'Depending on arrays using a dependent key ending with `@each` is deprecated. Please refactor from `Ember.computed(\'blazo.@each\', function() {});` to `Ember.computed(\'blazo.[]\', function() {})`.');
+
+    expectDeprecation(function () {
+      _emberMetalComputed.computed('qux', 'zoopa.@each', function () {});
+    }, 'Depending on arrays using a dependent key ending with `@each` is deprecated. Please refactor from `Ember.computed(\'zoopa.@each\', function() {});` to `Ember.computed(\'zoopa.[]\', function() {})`.');
   });
 
   var objA, objB;
@@ -47943,7 +47954,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.6+567de7e0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.6+034f8237', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55571,6 +55582,10 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
     _emberMetalRun_loop["default"](outerView, 'set', 'value', false);
 
     equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
+
+    _emberMetalRun_loop["default"](function () {
+      outerView.destroy();
+    });
   });
 
   QUnit.test('should remove childViews inside {{each}} on destroy', function () {
@@ -55610,6 +55625,10 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
     _emberMetalRun_loop["default"](outerView, 'set', 'value', false);
 
     equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
+
+    _emberMetalRun_loop["default"](function () {
+      outerView.destroy();
+    });
   });
 });
 enifed("ember-views/tests/views/view/class_name_bindings_test", ["exports", "ember-metal/property_set", "ember-metal/run_loop", "ember-metal/property_events", "ember-metal/watching", "ember-runtime/system/object", "ember-views/views/view"], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalProperty_events, _emberMetalWatching, _emberRuntimeSystemObject, _emberViewsViewsView) {
