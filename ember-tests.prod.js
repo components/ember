@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4feb881d
+ * @version   2.0.0-canary+f9914055
  */
 
 (function() {
@@ -17953,6 +17953,16 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
     equal(_emberMetalProperty_set.set(obj, 'foo', 'bar'), 'bar', 'should return set value');
     equal(count, 1, 'should have invoked computed property');
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'computed bar', 'should return new value');
+  });
+
+  QUnit.test('defining a computed property with a dependent key ending with @each is deprecated', function () {
+    expectAssertion(function () {
+      _emberMetalComputed.computed('blazo.@each', function () {});
+    }, 'Depending on arrays using a dependent key ending with `@each` is no longer supported. Please refactor from `Ember.computed(\'blazo.@each\', function() {});` to `Ember.computed(\'blazo.[]\', function() {})`.');
+
+    expectAssertion(function () {
+      _emberMetalComputed.computed('qux', 'zoopa.@each', function () {});
+    }, 'Depending on arrays using a dependent key ending with `@each` is no longer supported. Please refactor from `Ember.computed(\'zoopa.@each\', function() {});` to `Ember.computed(\'zoopa.[]\', function() {})`.');
   });
 
   var objA, objB;
@@ -40891,7 +40901,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+4feb881d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+f9914055', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
