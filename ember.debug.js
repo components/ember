@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+95cec06e
+ * @version   1.13.6+a3ac45da
  */
 
 (function() {
@@ -9044,7 +9044,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+95cec06e';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -14982,7 +14982,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.6+95cec06e
+    @version 1.13.6+a3ac45da
     @public
   */
 
@@ -15016,11 +15016,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.6+95cec06e'
+    @default '1.13.6+a3ac45da'
     @static
     @public
   */
-  Ember.VERSION = '1.13.6+95cec06e';
+  Ember.VERSION = '1.13.6+a3ac45da';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24012,7 +24012,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+95cec06e';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -24545,7 +24545,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+95cec06e';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -40222,11 +40222,19 @@ enifed('ember-template-compiler/plugins/deprecate-unbound-block-and-multi-param'
       if (pluginContext.isBlockUsage(node)) {
         var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay["default"](moduleName, node.loc);
 
-        _emberMetalCore["default"].deprecate('Using the {{unbound}} helper with a block ' + moduleInfo + 'is deprecated and will be removed in 2.0.0.', false, { id: 'ember-template-compiler.unbound-block', until: '2.0.0' });
+        _emberMetalCore["default"].deprecate('Using the {{unbound}} helper with a block ' + moduleInfo + 'is deprecated and will be removed in 2.0.0.', false, {
+          id: 'ember-template-compiler.unbound-block',
+          until: '2.0.0',
+          url: 'http://emberjs.com/deprecations/v1.x/#toc_block-and-multi-argument-unbound-helper'
+        });
       } else if (pluginContext.hasMultipleParams(node)) {
         var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay["default"](moduleName, node.loc);
 
-        _emberMetalCore["default"].deprecate('Using the {{unbound}} helper with multiple params ' + moduleInfo + 'is deprecated and will be removed in 2.0.0. Please refactor to nested helper usage.', false, { id: 'ember-template-compiler.unbound-multiple-params', until: '2.0.0' });
+        _emberMetalCore["default"].deprecate('Using the {{unbound}} helper with multiple params ' + moduleInfo + 'is deprecated and will be removed in 2.0.0. Please refactor to nested helper usage.', false, {
+          id: 'ember-template-compiler.unbound-multiple-params',
+          until: '2.0.0',
+          url: 'http://emberjs.com/deprecations/v1.x/#toc_block-and-multi-argument-unbound-helper'
+        });
       }
     });
 
@@ -41533,7 +41541,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.6+95cec06e',
+        revision: 'Ember@1.13.6+a3ac45da',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -46755,7 +46763,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+95cec06e';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
 
   /**
   @module ember
