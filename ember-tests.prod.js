@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e9751f50
+ * @version   2.0.0-canary+f1a3fe65
  */
 
 (function() {
@@ -14338,27 +14338,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
   });
 
-  QUnit.test('implementing `render` allows pushing into a string buffer', function () {
-    expect(2);
-
-    registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
-      render: function (buffer) {
-        buffer.push('<span id="zomg">Whoop!</span>');
-      }
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{non-block}}'),
-      container: container
-    }).create();
-
-    expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('#zomg').text(), 'Whoop!');
-  });
-
   QUnit.test('components in template of a yielding component should have the proper parentView', function () {
     var outer, innerTemplate, innerLayout;
 
@@ -14861,23 +14840,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
       equal(view.$('#expect-no').text(), 'No');
       equal(view.$('#expect-yes').text(), 'Yes');
-    });
-
-    QUnit.test('implementing `render` allows pushing into a string buffer', function () {
-      expect(2);
-
-      // this deprecation is fired upon init
-      expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
-
-      registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
-        render: function (buffer) {
-          buffer.push('<span id="zomg">Whoop!</span>');
-        }
-      }));
-
-      expectAssertion(function () {
-        appendViewFor('<non-block />');
-      });
     });
   }
 });
@@ -40901,7 +40863,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+e9751f50', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+f1a3fe65', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -42794,15 +42756,13 @@ enifed('ember-views/tests/compat/metamorph_test', ['exports', 'ember-views/views
     }, /Using Ember\._MetamorphView is deprecated./);
   });
 });
-enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-metal/core', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var view, parentView, originalViewKeyword;
 
   QUnit.module('ember-views: View#render hook', {
     setup: function () {
-      expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
-
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
     },
     teardown: function () {
@@ -42812,90 +42772,14 @@ enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-meta
     }
   });
 
-  QUnit.test('the render hook replaces a view if present', function (assert) {
-    var count = 0;
-    view = _emberViewsViewsView.default.create({
-      template: _emberTemplateCompilerSystemCompile.default('bob'),
-      render: function () {
-        count++;
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    assert.equal(count, 1, 'render called');
-    assert.equal(view.$().html(), '<!---->', 'template not rendered');
-  });
-
-  QUnit.test('the render hook can push HTML into the buffer once', function (assert) {
-    view = _emberViewsViewsView.default.create({
-      render: function (buffer) {
-        buffer.push('<span>Nancy</span>');
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    assert.equal(view.$().html(), '<span>Nancy</span>', 'buffer made DOM');
-  });
-
-  QUnit.test('the render hook can push HTML into the buffer on nested view', function (assert) {
-    view = _emberViewsViewsView.default.create({
-      render: function (buffer) {
-        buffer.push('<span>Nancy</span>');
-      }
-    });
-    parentView = _emberViewsViewsView.default.create({
-      childView: view,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.childView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(parentView);
-
-    assert.equal(view.$().html(), '<span>Nancy</span>', 'buffer made DOM');
-  });
-
-  QUnit.test('the render hook can push arbitrary HTML into the buffer', function (assert) {
-    view = _emberViewsViewsView.default.create({
-      render: function (buffer) {
-        buffer.push('<span>');
-        buffer.push('Nancy</span>');
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    assert.equal(view.$().html(), '<span>Nancy</span>', 'buffer made DOM');
-  });
-
-  QUnit.test('the render hook can push HTML into the buffer on tagless view', function (assert) {
-    view = _emberViewsViewsView.default.create({
-      tagName: '',
-      render: function (buffer) {
-        buffer.push('<span>Nancy</span>');
-      }
-    });
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    assert.equal(_emberMetalCore.default.$('#qunit-fixture').html(), '<span>Nancy</span>', 'buffer made DOM');
-  });
-
-  QUnit.test('the render hook can push HTML into the buffer on nested tagless view', function (assert) {
-    view = _emberViewsViewsView.default.create({
-      tagName: '',
-      render: function (buffer) {
-        buffer.push('<span>Nancy</span>');
-      }
-    });
-    parentView = _emberViewsViewsView.default.create({
-      childView: view,
-      template: _emberTemplateCompilerSystemCompile.default('{{view view.childView}}')
-    });
-
-    _emberRuntimeTestsUtils.runAppend(parentView);
-
-    assert.equal(parentView.$().html(), '<span>Nancy</span>', 'buffer made DOM');
+  QUnit.test('the render hook triggers an assertion', function (assert) {
+    expectAssertion(function () {
+      view = _emberViewsViewsView.default.create({
+        render: function (buffer) {
+          buffer.push('<span>Nancy</span>');
+        }
+      });
+    }, 'Using a custom `.render` function is no longer supported.');
   });
 });
 enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {

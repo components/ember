@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+e9751f50
+ * @version   2.0.0-canary+f1a3fe65
  */
 
 (function() {
@@ -6094,8 +6094,80 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 });
 enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
+    Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
+    an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
   
-    &nbsp;
+    ### Showing a property
+  
+    Templates manage the flow of an application's UI, and display state (through
+    the DOM) to a user. For example, given a component with the property "name",
+    that component's template can use the name in several ways:
+  
+    ```javascript
+    // app/components/person.js
+    export default Ember.Component.extend({
+      name: 'Jill'
+    });
+    ```
+  
+    ```handlebars
+    {{! app/components/person.hbs }}
+    {{name}}
+    <div>{{name}}</div>
+    <span data-name={{name}}></span>
+    ```
+  
+    Any time the "name" property on the component changes, the DOM will be
+    updated.
+  
+    Properties can be chained as well:
+  
+    ```handlebars
+    {{aUserModel.name}}
+    <div>{{listOfUsers.firstObject.name}}</div>
+    ```
+  
+    ### Using Ember helpers
+  
+    When content is passed in mustaches `{{}}`, Ember will first try to find a helper
+    or component with that name. For example, the `if` helper:
+  
+    ```handlebars
+    {{if name "I have a name" "I have no name"}}
+    <span data-has-name={{if name true}}></span>
+    ```
+  
+    The returned value is placed where the `{{}}` is called. The above style is
+    called "inline". A second style of helper usage is called "block". For example:
+  
+    ```handlebars
+    {{#if name}}
+      I have a name
+    {{else}}
+      I have no name
+    {{/if}}
+    ```
+  
+    The block form of helpers allows you to control how the UI is created based
+    on the values of properties.
+  
+    A third form of helper is called "nested". For example here the concat
+    helper will add " Doe" to a displayed name if the person has no last name:
+  
+    ```handlebars
+    <span data-name={{concat firstName (
+     if lastName (concat " " lastName) "Doe"
+    )}}></span>
+    ```
+  
+    Ember's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)
+    namespace. Documentation on creating custom helpers can be found under
+    [Ember.Helper](/api/classes/Ember.Helper.html).
+  
+    ### Invoking a Component
+  
+    Ember components represent state to the UI of an application. Further
+    reading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).
   
     @module ember
     @submodule ember-templates
@@ -6387,6 +6459,11 @@ enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], functi
 });
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
     Concatenates input params together.
   
     Example:
@@ -6399,7 +6476,7 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   
     @public
     @method concat
-    @for Ember.HTMLBars
+    @for Ember.Templates.helpers
   */
   'use strict';
 
@@ -8055,6 +8132,11 @@ enifed('ember-htmlbars/keywords/each', ['exports'], function (exports) {
   }
 });
 enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/streams/utils', 'ember-metal/merge', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalStreamsUtils, _emberMetalMerge, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   function labelFor(source, key) {
@@ -8075,6 +8157,38 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-met
     return stream;
   };
 
+  /**
+    Dynamically look up a property on an object. The second argument to `{{get}}`
+    should have a string value, although it can be bound.
+     For example, these two usages are equivilent:
+     ```handlebars
+    {{person.height}}
+    {{get person "height"}}
+    ```
+     If there were several facts about a person, the `{{get}}` helper can dynamically
+    pick one:
+     ```handlebars
+    {{get person factName}}
+    ```
+     For a more complex example, this template would allow the user to switch
+    between showing the user's height and weight with a click:
+     ```handlebars
+    {{get person factName}}
+    <button {{action (mut factName) "height"}}>Show height</button>
+    <button {{action (mut factName) "weight"}}>Show weight</button>
+    ```
+     The `{{get}}` helper can also respect mutable values itself. For example:
+     ```handlebars
+    {{input value=(mut (get person factName)) type="text"}}
+    <button {{action (mut factName) "height"}}>Show height</button>
+    <button {{action (mut factName) "weight"}}>Show weight</button>
+    ```
+     Would allow the user to swap what fact is being displayed, and also edit
+    that fact via a two-way mutable binding.
+     @public
+    @method get
+    @for Ember.Templates.helpers
+  */
   var getKeyword = function getKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
     if (morph === null) {
       return buildStream(params);
@@ -8319,7 +8433,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f1a3fe65';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8810,10 +8924,9 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper'], function (expor
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'htmlbars-util/safe-string', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsCompatAttrsProxy, _htmlbarsUtilSafeString, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsViewsComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsViewsComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
-  exports.handleLegacyRender = handleLegacyRender;
   exports.createComponent = createComponent;
 
   function ComponentNodeManager(component, isAngleBracket, scope, renderNode, attrs, block, expectElement) {
@@ -9028,34 +9141,12 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
       var element = this.expectElement && this.renderNode.firstNode;
 
-      handleLegacyRender(component, element);
       env.renderer.didCreateElement(component, element);
       env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
 
       env.lifecycleHooks.push({ type: 'didInsertElement', view: component });
     }, this);
   };
-
-  function handleLegacyRender(component, element) {
-    if (!component.render) {
-      return;
-    }
-
-    _emberMetalCore.default.assert('Legacy render functions are not supported with angle-bracket components', !component._isAngleBracket);
-
-    var content, node, lastChildIndex;
-    var buffer = [];
-    var renderNode = component._renderNode;
-    component.render(buffer);
-    content = buffer.join('');
-    if (element) {
-      lastChildIndex = renderNode.childNodes.length - 1;
-      node = renderNode.childNodes[lastChildIndex];
-    } else {
-      node = renderNode;
-    }
-    node.setContent(new _htmlbarsUtilSafeString.default(content));
-  }
 
   ComponentNodeManager.prototype.rerender = function (_env, attrs, visitor) {
     var component = this.component;
@@ -9203,7 +9294,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 // be safe to import this until we make the hook system public
 // and it gets actively used in addons or other downstream
 // libraries.
-enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalMerge, _emberMetalCore, _emberViewsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalMerge, _emberMetalCore, _emberViewsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.createOrUpdateComponent = createOrUpdateComponent;
@@ -9305,7 +9396,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
       if (component) {
         var element = this.expectElement && this.renderNode.firstNode;
-        _emberHtmlbarsNodeManagersComponentNodeManager.handleLegacyRender(component, element);
 
         env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
         env.renderer.willInsertElement(component, element);
@@ -13974,7 +14064,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+e9751f50
+    @version 2.0.0-canary+f1a3fe65
     @public
   */
 
@@ -14008,11 +14098,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+e9751f50'
+    @default '2.0.0-canary+f1a3fe65'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+e9751f50';
+  Ember.VERSION = '2.0.0-canary+f1a3fe65';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22236,7 +22326,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+f1a3fe65';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22737,7 +22827,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+f1a3fe65';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36394,7 +36484,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+e9751f50',
+        revision: 'Ember@2.0.0-canary+f1a3fe65',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41095,7 +41185,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+e9751f50';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+f1a3fe65';
 
   /**
   @module ember
@@ -43900,7 +43990,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
 
       this.renderer.componentInitAttrs(this, this.attrs || {});
 
-      _emberMetalCore.default.deprecate('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.', !this.render, { id: 'ember-views.render', until: '2.0.0' });
+      _emberMetalCore.default.assert('Using a custom `.render` function is no longer supported.', !this.render);
     },
 
     __defineNonEnumerable: function (property) {
