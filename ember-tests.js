@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+b6dc64b7
+ * @version   1.13.6+567de7e0
  */
 
 (function() {
@@ -14260,6 +14260,8 @@ enifed("ember-htmlbars/tests/helpers/with_test", ["exports", "ember-views/views/
       name: 'Bob Loblaw'
     });
 
+    expectDeprecation(/Using the {{with}} helper with a `controller` specified/);
+
     view = _emberViewsViewsView["default"].create({
       container: container,
       template: _emberTemplateCompilerSystemCompile["default"]('{{#with view.person controller="person"}}{{controllerName}}{{/with}}'),
@@ -14390,6 +14392,8 @@ enifed("ember-htmlbars/tests/helpers/with_test", ["exports", "ember-views/views/
   });
 
   QUnit.test("destroys the controller generated with {{with foo controller='blah'}} [DEPRECATED]", function () {
+    expectDeprecation(/Using the {{with}} helper with a `controller` specified/);
+
     var destroyed = false;
     var Controller = _emberRuntimeControllersController["default"].extend({
       willDestroy: function () {
@@ -14444,10 +14448,15 @@ enifed("ember-htmlbars/tests/helpers/with_test", ["exports", "ember-views/views/
       name: 'Bob Loblaw'
     });
 
+    var template;
+    expectDeprecation(function () {
+      template = _emberTemplateCompilerSystemCompile["default"]('{{#with person controller="person" as |steve|}}{{controllerName}}{{/with}}');
+    }, "Using the {{with}} helper with a `controller` specified (L1:C0) is deprecated and will be removed in 2.0.0.");
+
     view = _emberViewsViewsView["default"].create({
-      container: container,
-      template: _emberTemplateCompilerSystemCompile["default"]('{{#with person controller="person" as |steve|}}{{controllerName}}{{/with}}'),
-      controller: parentController
+      controller: parentController,
+      template: template,
+      container: container
     });
 
     registry.register('controller:person', Controller);
@@ -19064,53 +19073,6 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     }
   });
 
-  QUnit.test('should invoke INTERCEPT_GET even if the property exists', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    var calledWith = undefined;
-    obj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      calledWith = [obj, key];
-      return _emberMetalProperty_get.UNHANDLED_GET;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-      calledWith = undefined;
-      equal(_emberMetalProperty_get.get(obj, key), obj[key], key);
-      equal(calledWith[0], obj, 'the object was passed');
-      equal(calledWith[1], key, 'the key was passed');
-    }
-  });
-
-  QUnit.test('should invoke INTERCEPT_GET and accept a return value', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null
-    };
-
-    obj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      return key;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key) || key === _emberMetalProperty_get.INTERCEPT_GET) {
-        continue;
-      }
-      equal(_emberMetalProperty_get.get(obj, key), key, key);
-    }
-  });
-
   _emberMetalTestsProps_helper.testBoth("should call unknownProperty on watched values if the value is undefined", function (get, set) {
     var obj = {
       count: 0,
@@ -19696,114 +19658,6 @@ enifed('ember-metal/tests/accessors/set_test', ['exports', 'ember-metal/property
 
       equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
       equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'should set value');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_SET and support UNHANDLED_SET if INTERCEPT_SET is defined', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      undefinedValue: 'emberjs'
-    };
-
-    var calledWith = undefined;
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      calledWith = [key, value];
-      return _emberMetalProperty_set.UNHANDLED_SET;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      calledWith = undefined;
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(calledWith[0], key, 'INTERCEPT_SET called with the key');
-      equal(calledWith[1], obj[key], 'INTERCEPT_SET called with the key');
-      equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'should set value since UNHANDLED_SET was returned');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_SET and support handling the set if it is defined', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      bucket: {}
-    };
-
-    var calledWith = undefined;
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      _emberMetalProperty_set.set(obj.bucket, key, value);
-      return value;
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      calledWith = undefined;
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(_emberMetalProperty_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
-      ok(newObj.bucket.hasOwnProperty(key), 'the key is defined in bucket');
-      ok(!newObj.hasOwnProperty(key), 'the key is not defined on the raw object');
-    }
-  });
-
-  QUnit.test('should call INTERCEPT_GET and INTERCEPT_SET', function () {
-    var obj = {
-      string: 'string',
-      number: 23,
-      boolTrue: true,
-      boolFalse: false,
-      nullValue: null,
-      undefinedValue: undefined
-    };
-
-    var newObj = {
-      string: null,
-      number: null,
-      boolTrue: null,
-      boolFalse: null,
-      nullValue: null,
-      undefinedValue: null,
-      bucket: {}
-    };
-
-    newObj[_emberMetalProperty_set.INTERCEPT_SET] = function (obj, key, value) {
-      _emberMetalProperty_set.set(obj.bucket, key, value);
-      return value;
-    };
-
-    newObj[_emberMetalProperty_get.INTERCEPT_GET] = function (obj, key) {
-      return _emberMetalProperty_get.get(obj.bucket, key);
-    };
-
-    for (var key in obj) {
-      if (!obj.hasOwnProperty(key)) {
-        continue;
-      }
-
-      equal(_emberMetalProperty_set.set(newObj, key, obj[key]), obj[key], 'should return value');
-      equal(_emberMetalProperty_get.get(newObj.bucket, key), obj[key], 'should have moved the value to `bucket`');
-      equal(_emberMetalProperty_get.get(newObj, key), obj[key], 'INTERCEPT_GET was called');
     }
   });
 
@@ -28327,6 +28181,8 @@ enifed("ember-routing-htmlbars/tests/helpers/element_action_test", ["exports", "
 
   QUnit.test("should target the with-controller inside an {{#with controller='person'}} [DEPRECATED]", function () {
     var registeredTarget;
+
+    expectDeprecation(/Using the {{with}} helper with a `controller` specified/);
 
     _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref5) {
       var node = _ref5.node;
@@ -47543,6 +47399,7 @@ enifed("ember-runtime/tests/system/subarray_test", ["exports", "ember-metal/enum
 
   QUnit.module('SubArray', {
     setup: function () {
+      expectDeprecation('Ember.SubArray will be removed in 2.0.0.');
       subarray = new _emberRuntimeSystemSubarray["default"]();
     }
   });
@@ -47662,15 +47519,19 @@ enifed("ember-runtime/tests/system/subarray_test", ["exports", "ember-metal/enum
     equal(operationsString(), "r:2 f:1 r:1", "left-composition does not confuse right non-composition");
   });
 });
-enifed("ember-runtime/tests/system/tracked_array_test", ["exports", "ember-runtime/system/tracked_array"], function (exports, _emberRuntimeSystemTracked_array) {
-  "use strict";
+enifed('ember-runtime/tests/system/tracked_array_test', ['exports', 'ember-runtime/system/tracked_array'], function (exports, _emberRuntimeSystemTracked_array) {
+  'use strict';
 
   var trackedArray;
   var RETAIN = _emberRuntimeSystemTracked_array["default"].RETAIN;
   var INSERT = _emberRuntimeSystemTracked_array["default"].INSERT;
   var DELETE = _emberRuntimeSystemTracked_array["default"].DELETE;
 
-  QUnit.module('Ember.TrackedArray');
+  QUnit.module('Ember.TrackedArray', {
+    setup: function () {
+      expectDeprecation('Ember.TrackedArray will be removed in 2.0.0.');
+    }
+  });
 
   QUnit.test("operations for a tracked array of length n are initially retain:n", function () {
     trackedArray = new _emberRuntimeSystemTracked_array["default"]([1, 2, 3, 4]);
@@ -47937,6 +47798,21 @@ enifed("ember-runtime/tests/utils", ["exports", "ember-metal/run_loop"], functio
 });
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {
   "use strict";
+});
+enifed('ember-template-compiler/tests/plugins/deprecate-with-controller-test', ['exports', 'ember-template-compiler'], function (exports, _emberTemplateCompiler) {
+  'use strict';
+
+  QUnit.module('ember-template-compiler: deprecate-with-controller');
+
+  QUnit.test('Using `{{with}}` with `controller` hash argument provides a deprecation', function () {
+    expect(1);
+
+    expectDeprecation(function () {
+      _emberTemplateCompiler.compile('{{#with controller="foo"}}{{/with}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    }, 'Using the {{with}} helper with a `controller` specified (\'foo/bar/baz\' @ L1:C0) is deprecated and will be removed in 2.0.0.');
+  });
 });
 enifed("ember-template-compiler/tests/plugins/transform-bind-attr-to-attributes-test", ["exports", "ember-template-compiler"], function (exports, _emberTemplateCompiler) {
   "use strict";
@@ -48221,7 +48097,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.6+b6dc64b7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.6+567de7e0', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -59649,7 +59525,34 @@ enifed("ember/tests/helpers/link_to_test", ["exports", "ember", "ember-views/com
     equal(Ember.$('#about-link:not(.active)', '#qunit-fixture').length, 1, "The other link was rendered without active class");
   });
 
-  QUnit.test("The {{link-to}} helper supports leaving off .index for nested routes", function () {
+  QUnit.test('The {{link-to}} helper supports \'classNameBindings\' with custom values [GH #11699]', function () {
+    Ember.TEMPLATES.index = compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' classNameBindings=\'foo:foo-is-true:foo-is-false\'}}About{{/link-to}}');
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.IndexController = Ember.Controller.extend({
+      foo: false
+    });
+
+    bootApplication();
+
+    Ember.run(function () {
+      router.handleURL('/');
+    });
+
+    equal(Ember.$('#about-link.foo-is-false', '#qunit-fixture').length, 1, 'The about-link was rendered with the falsy class');
+
+    var controller = container.lookup('controller:index');
+    Ember.run(function () {
+      controller.set('foo', true);
+    });
+
+    equal(Ember.$('#about-link.foo-is-true', '#qunit-fixture').length, 1, 'The about-link was rendered with the truthy class after toggling the property');
+  });
+
+  QUnit.test('The {{link-to}} helper supports leaving off .index for nested routes', function () {
     Router.map(function () {
       this.resource("about", function () {
         this.route("item");

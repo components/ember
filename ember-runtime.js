@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+b6dc64b7
+ * @version   1.13.6+567de7e0
  */
 
 (function() {
@@ -5057,7 +5057,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.6+b6dc64b7
+    @version 1.13.6+567de7e0
     @public
   */
 
@@ -5091,11 +5091,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.6+b6dc64b7'
+    @default '1.13.6+567de7e0'
     @static
     @public
   */
-  Ember.VERSION = '1.13.6+b6dc64b7';
+  Ember.VERSION = '1.13.6+567de7e0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5248,7 +5248,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     An empty function useful for some operations. Always returns `this`.
   
     @method K
-    @private
     @return {Object}
     @public
   */
@@ -6315,7 +6314,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error', 'ember-
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
-    @method
+    @method expandProperties
+    @for Ember
     @private
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
@@ -7677,7 +7677,7 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/keys'], function (exports, 
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
-    @private
+    @public
   */
 
   function merge(original, updates) {
@@ -9740,7 +9740,7 @@ enifed("ember-metal/property_events", ["exports", "ember-metal/utils", "ember-me
   exports.endPropertyChanges = endPropertyChanges;
   exports.changeProperties = changeProperties;
 });
-enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property", "ember-metal/utils", "ember-metal/is_none"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property, _emberMetalUtils, _emberMetalIs_none) {
+enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property", "ember-metal/is_none"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property, _emberMetalIs_none) {
   /**
   @module ember-metal
   */
@@ -9753,10 +9753,6 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
   exports.getWithDefault = getWithDefault;
 
   var FIRST_KEY = /^([^\.]+)/;
-
-  var INTERCEPT_GET = _emberMetalUtils.symbol("INTERCEPT_GET");
-  exports.INTERCEPT_GET = INTERCEPT_GET;
-  var UNHANDLED_GET = _emberMetalUtils.symbol("UNHANDLED_GET");
 
   // ..........................................................
   // GET AND SET
@@ -9790,7 +9786,6 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     @return {Object} the property value or `null`.
     @public
   */
-  exports.UNHANDLED_GET = UNHANDLED_GET;
 
   function get(obj, keyName) {
     _emberMetalCore["default"].deprecate("Get must be called with two arguments; an object and a property key", arguments.length === 2);
@@ -9811,13 +9806,6 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
     if (_emberMetalIs_none["default"](obj)) {
       _emberMetalCore["default"].deprecate('Calling Ember.get without a target object has been deprecated, please specify a target object.');
       return _getPath(obj, keyName);
-    }
-
-    if (obj && typeof obj[INTERCEPT_GET] === 'function') {
-      var result = obj[INTERCEPT_GET](obj, keyName);
-      if (result !== UNHANDLED_GET) {
-        return result;
-      }
     }
 
     var meta = obj['__ember_meta__'];
@@ -9933,14 +9921,11 @@ enifed("ember-metal/property_get", ["exports", "ember-metal/core", "ember-metal/
 
   exports["default"] = get;
 });
-enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_events", "ember-metal/properties", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property", "ember-metal/utils"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property, _emberMetalUtils) {
+enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/property_events", "ember-metal/properties", "ember-metal/error", "ember-metal/path_cache", "ember-metal/platform/define_property"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalPlatformDefine_property) {
   "use strict";
 
   exports.set = set;
   exports.trySet = trySet;
-  var INTERCEPT_SET = _emberMetalUtils.symbol("INTERCEPT_SET");
-  exports.INTERCEPT_SET = INTERCEPT_SET;
-  var UNHANDLED_SET = _emberMetalUtils.symbol("UNHANDLED_SET");
 
   /**
     Sets the value of a property on an object, respecting computed properties
@@ -9956,7 +9941,6 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
     @return {Object} the passed value.
     @public
   */
-  exports.UNHANDLED_SET = UNHANDLED_SET;
 
   function set(obj, keyName, value, tolerant) {
     if (typeof obj === 'string') {
@@ -9972,16 +9956,6 @@ enifed("ember-metal/property_set", ["exports", "ember-metal/core", "ember-metal/
 
     if (obj === _emberMetalCore["default"].lookup) {
       return setPath(obj, keyName, value, tolerant);
-    }
-
-    // This path exists purely to implement backwards-compatible
-    // effects (specifically, setting a property on a view may
-    // invoke a mutator on `attrs`).
-    if (obj && typeof obj[INTERCEPT_SET] === 'function') {
-      var result = obj[INTERCEPT_SET](obj, keyName, value, tolerant);
-      if (result !== UNHANDLED_SET) {
-        return result;
-      }
     }
 
     var meta, possibleDesc, desc;
@@ -13577,7 +13551,7 @@ enifed('ember-runtime/computed/reduce_computed', ['exports', 'ember-metal/core',
     },
 
     resetTransformations: function (dependentKey, observerContexts) {
-      this.trackedArraysByGuid[dependentKey] = new _emberRuntimeSystemTracked_array["default"](observerContexts);
+      this.trackedArraysByGuid[dependentKey] = new _emberRuntimeSystemTracked_array["default"](observerContexts, true);
     },
 
     trackAdd: function (dependentKey, index, newItems) {
@@ -14564,7 +14538,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       _suppressDeprecation: true,
 
       initialize: function (array, changeMeta, instanceMeta) {
-        instanceMeta.filteredArrayIndexes = new _emberRuntimeSystemSubarray["default"]();
+        instanceMeta.filteredArrayIndexes = new _emberRuntimeSystemSubarray["default"](undefined, true);
       },
 
       addedItem: function (array, item, changeMeta, instanceMeta) {
@@ -17389,7 +17363,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Object} receiver
-      @private
+      @public
     */
     forEach: function (callback, target) {
       if (typeof callback !== 'function') {
@@ -17729,7 +17703,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Boolean}
-      @private
+      @public
     */
     every: function (callback, target) {
       return !this.find(function (x, idx, i) {
@@ -17982,7 +17956,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       ```
        @method compact
       @return {Array} the array without null and undefined elements.
-      @private
+      @public
     */
     compact: function () {
       return this.filter(function (value) {
@@ -18001,7 +17975,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method without
       @param {Object} value
       @return {Ember.Enumerable}
-      @private
+      @public
     */
     without: function (value) {
       if (!this.contains(value)) {
@@ -18244,7 +18218,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} property name(s) to sort on
       @return {Array} The sorted array.
       @since 1.2.0
-      @private
+      @public
     */
     sortBy: function () {
       var sortKeys = arguments;
@@ -20133,7 +20107,7 @@ enifed("ember-runtime/system/array_proxy", ["exports", "ember-metal/core", "embe
     @namespace Ember
     @extends Ember.Object
     @uses Ember.MutableArray
-    @private
+    @public
   */
   var ArrayProxy = _emberRuntimeSystemObject["default"].extend(_emberRuntimeMixinsMutable_array["default"], {
 
@@ -22927,7 +22901,7 @@ enifed("ember-runtime/system/string", ["exports", "ember-metal/core", "ember-met
   exports.capitalize = capitalize;
 });
 // Ember.STRINGS, Ember.FEATURES
-enifed("ember-runtime/system/subarray", ["exports", "ember-metal/error", "ember-metal/enumerable_utils"], function (exports, _emberMetalError, _emberMetalEnumerable_utils) {
+enifed("ember-runtime/system/subarray", ["exports", "ember-metal/core", "ember-metal/error", "ember-metal/enumerable_utils"], function (exports, _emberMetalCore, _emberMetalError, _emberMetalEnumerable_utils) {
   "use strict";
 
   var RETAIN = 'r';
@@ -22949,8 +22923,10 @@ enifed("ember-runtime/system/subarray", ["exports", "ember-metal/error", "ember-
     @namespace Ember
     @private
   */
-  function SubArray(length) {
-    if (arguments.length < 1) {
+  function SubArray(length, _suppressDeprecation) {
+    _emberMetalCore["default"].deprecate('Ember.SubArray will be removed in 2.0.0.', _suppressDeprecation, { id: 'ember-metal.sub-array', until: '2.0.0' });
+
+    if (length === undefined) {
       length = 0;
     }
 
@@ -23101,7 +23077,7 @@ enifed("ember-runtime/system/subarray", ["exports", "ember-metal/error", "ember-
     }
   };
 });
-enifed("ember-runtime/system/tracked_array", ["exports", "ember-metal/property_get", "ember-metal/enumerable_utils"], function (exports, _emberMetalProperty_get, _emberMetalEnumerable_utils) {
+enifed("ember-runtime/system/tracked_array", ["exports", "ember-metal/core", "ember-metal/property_get", "ember-metal/enumerable_utils"], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEnumerable_utils) {
   "use strict";
 
   var RETAIN = 'r';
@@ -23121,7 +23097,9 @@ enifed("ember-runtime/system/tracked_array", ["exports", "ember-metal/property_g
     the initial items for the starting state of retain:n.
     @private
   */
-  function TrackedArray(items) {
+  function TrackedArray(items, _suppressDeprecation) {
+    _emberMetalCore["default"].deprecate('Ember.TrackedArray will be removed in 2.0.0.', _suppressDeprecation, { id: 'ember-metal.tracked-array', until: '2.0.0' });
+
     if (arguments.length < 1) {
       items = [];
     }
