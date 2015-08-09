@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+a3ac45da
+ * @version   1.13.6+3e2fa681
  */
 
 (function() {
@@ -16349,7 +16349,7 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
   });
 
   QUnit.test('implementing `render` allows pushing into a string buffer', function () {
-    expect(1);
+    expect(2);
 
     registry.register('component:non-block', _emberViewsViewsComponent["default"].extend({
       render: function (buffer) {
@@ -16361,6 +16361,8 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
       template: _emberTemplateCompilerSystemCompile["default"]('{{non-block}}'),
       container: container
     }).create();
+
+    expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -48151,7 +48153,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.6+a3ac45da', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.6+3e2fa681', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

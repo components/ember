@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+a3ac45da
+ * @version   1.13.6+3e2fa681
  */
 
 (function() {
@@ -6258,8 +6258,80 @@ enifed("ember-extension-support/data_adapter", ["exports", "ember-metal/property
 });
 enifed("ember-htmlbars", ["exports", "ember-metal/core", "ember-template-compiler", "ember-htmlbars/system/make-view-helper", "ember-htmlbars/system/make_bound_helper", "ember-htmlbars/helpers", "ember-htmlbars/helpers/if_unless", "ember-htmlbars/helpers/with", "ember-htmlbars/helpers/loc", "ember-htmlbars/helpers/log", "ember-htmlbars/helpers/each", "ember-htmlbars/helpers/-bind-attr-class", "ember-htmlbars/helpers/-normalize-class", "ember-htmlbars/helpers/-concat", "ember-htmlbars/helpers/-join-classes", "ember-htmlbars/helpers/-legacy-each-with-controller", "ember-htmlbars/helpers/-legacy-each-with-keyword", "ember-htmlbars/helpers/-html-safe", "ember-htmlbars/system/dom-helper", "ember-htmlbars/helper", "ember-htmlbars/system/bootstrap", "ember-htmlbars/compat"], function (exports, _emberMetalCore, _emberTemplateCompiler, _emberHtmlbarsSystemMakeViewHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersBindAttrClass, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
+    Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
+    an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
   
-    &nbsp;
+    ### Showing a property
+  
+    Templates manage the flow of an application's UI, and display state (through
+    the DOM) to a user. For example, given a component with the property "name",
+    that component's template can use the name in several ways:
+  
+    ```javascript
+    // app/components/person.js
+    export default Ember.Component.extend({
+      name: 'Jill'
+    });
+    ```
+  
+    ```handlebars
+    {{! app/components/person.hbs }}
+    {{name}}
+    <div>{{name}}</div>
+    <span data-name={{name}}></span>
+    ```
+  
+    Any time the "name" property on the component changes, the DOM will be
+    updated.
+  
+    Properties can be chained as well:
+  
+    ```handlebars
+    {{aUserModel.name}}
+    <div>{{listOfUsers.firstObject.name}}</div>
+    ```
+  
+    ### Using Ember helpers
+  
+    When content is passed in mustaches `{{}}`, Ember will first try to find a helper
+    or component with that name. For example, the `if` helper:
+  
+    ```handlebars
+    {{if name "I have a name" "I have no name"}}
+    <span data-has-name={{if name true}}></span>
+    ```
+  
+    The returned value is placed where the `{{}}` is called. The above style is
+    called "inline". A second style of helper usage is called "block". For example:
+  
+    ```handlebars
+    {{#if name}}
+      I have a name
+    {{else}}
+      I have no name
+    {{/if}}
+    ```
+  
+    The block form of helpers allows you to control how the UI is created based
+    on the values of properties.
+  
+    A third form of helper is called "nested". For example here the concat
+    helper will add " Doe" to a displayed name if the person has no last name:
+  
+    ```handlebars
+    <span data-name={{concat firstName (
+     if lastName (concat " " lastName) "Doe"
+    )}}></span>
+    ```
+  
+    Ember's built-in helpers are described under the [Ember.Templates.helpers](/api/classes/Ember.Templates.helpers.html)
+    namespace. Documentation on creating custom helpers can be found under
+    [Ember.Helper](/api/classes/Ember.Helper.html).
+  
+    ### Invoking a Component
+  
+    Ember components represent state to the UI of an application. Further
+    reading on components can be found under [Ember.Component](/api/classes/Ember.Component.html).
   
     @module ember
     @submodule ember-templates
@@ -6994,6 +7066,11 @@ enifed('ember-htmlbars/helpers/-bind-attr-class', ['exports', 'ember-metal/prope
 });
 enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
     Concatenates input params together.
   
     Example:
@@ -7006,7 +7083,7 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
   
     @public
     @method concat
-    @for Ember.HTMLBars
+    @for Ember.Templates.helpers
   */
   'use strict';
 
@@ -9044,7 +9121,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+3e2fa681';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -9183,18 +9260,32 @@ enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
 });
 enifed("ember-htmlbars/keywords/unbound", ["exports", "ember-metal/merge", "ember-metal/platform/create", "ember-metal/streams/stream", "ember-metal/streams/utils"], function (exports, _emberMetalMerge, _emberMetalPlatformCreate, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
   /**
-    The `{{unbound}}` helper can be used with bound helper invocations to
-    render them in their unbound form.
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
+    The `{{unbound}}` helper disconnects the one-way binding of a property,
+    essentially freezing its value at the moment of rendering. For example,
+    in this example the display of the variable `name` will not change even
+    if it is set with a new value:
   
     ```handlebars
-    {{unbound (capitalize name)}}
+    {{unbound name}}
     ```
   
-    In the aforementioned example, if the `name` property changes, the helper
-    will not re-render.
+    Like any helper, the `unbound` helper can accept a nested helper expression.
+    This allows for custom helpers to be rendered unbound:
   
-    @module ember
-    @submodule ember-templates
+    ```handlebars
+    {{unbound (some-custom-helper)}}
+    {{unbound (capitalize name)}}
+    {{! You can use any helper, including unbound, in a nested expression }}
+    {{capitalize (unbound name)}}
+    ```
+  
+    The `unbound` helper only accepts a single argument, and it return an
+    unbound value.
   
     @method unbound
     @for Ember.Templates.helpers
@@ -14982,7 +15073,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.6+a3ac45da
+    @version 1.13.6+3e2fa681
     @public
   */
 
@@ -15016,11 +15107,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.6+a3ac45da'
+    @default '1.13.6+3e2fa681'
     @static
     @public
   */
-  Ember.VERSION = '1.13.6+a3ac45da';
+  Ember.VERSION = '1.13.6+3e2fa681';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24012,7 +24103,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+3e2fa681';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -24545,7 +24636,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+3e2fa681';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -28477,7 +28568,7 @@ enifed("ember-routing/system/router", ["exports", "ember-metal/core", "ember-met
       change.
        Triggers the router level `didTransition` hook.
        @method didTransition
-      @private
+      @public
       @since 1.2.0
     */
     didTransition: function (infos) {
@@ -28537,7 +28628,7 @@ enifed("ember-routing/system/router", ["exports", "ember-metal/core", "ember-met
       change.
        Triggers the router level `willTransition` hook.
        @method willTransition
-      @private
+      @public
       @since 1.11.0
     */
     willTransition: function (oldInfos, newInfos, transition) {
@@ -41541,7 +41632,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.6+a3ac45da',
+        revision: 'Ember@1.13.6+3e2fa681',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -46511,7 +46602,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
     @property template
     @public
     */
-    template: _emberMetalComputed.computed('_template', {
+    template: _emberMetalComputed.computed({
       get: function () {
         _emberMetalCore["default"].deprecate("Accessing 'template' in " + this + " is deprecated. To determine if a block was specified to " + this + " please use '{{#if hasBlock}}' in the components layout.");
 
@@ -46523,7 +46614,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
       }
     }),
 
-    _template: _emberMetalComputed.computed('templateName', {
+    _template: _emberMetalComputed.computed({
       get: function () {
         if (_emberMetalProperty_get.get(this, '_deprecatedFlagForBlockProvided')) {
           return true;
@@ -46763,7 +46854,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+a3ac45da';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+3e2fa681';
 
   /**
   @module ember
@@ -49070,8 +49161,7 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
       @type Function
       @private
     */
-
-    template: _emberMetalComputed.computed('templateName', {
+    template: _emberMetalComputed.computed({
       get: function () {
         var templateName = _emberMetalProperty_get.get(this, 'templateName');
         var template = this.templateForName(templateName, 'template');
@@ -49099,7 +49189,7 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
       @type Function
       @public
     */
-    layout: _emberMetalComputed.computed('layoutName', {
+    layout: _emberMetalComputed.computed({
       get: function (key) {
         var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
         var layout = this.templateForName(layoutName, 'layout');
@@ -49617,6 +49707,8 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
       }
 
       this.renderer.componentInitAttrs(this, this.attrs || {});
+
+      _emberMetalCore["default"].deprecate('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.', !this.render, { id: 'ember-views.render', until: '2.0.0' });
     },
 
     __defineNonEnumerable: function (property) {
