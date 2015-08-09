@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+665bbe7e
+ * @version   1.13.6+b084a7e2
  */
 
 (function() {
@@ -8953,15 +8953,54 @@ enifed("ember-htmlbars/keywords/legacy-yield", ["exports", "ember-metal/streams/
     return true;
   }
 });
-enifed("ember-htmlbars/keywords/mut", ["exports", "ember-metal/platform/create", "ember-metal/merge", "ember-metal/utils", "ember-metal/streams/proxy-stream", "ember-metal/streams/utils", "ember-metal/streams/stream", "ember-views/compat/attrs-proxy", "ember-routing-htmlbars/keywords/closure-action"], function (exports, _emberMetalPlatformCreate, _emberMetalMerge, _emberMetalUtils, _emberMetalStreamsProxyStream, _emberMetalStreamsUtils, _emberMetalStreamsStream, _emberViewsCompatAttrsProxy, _emberRoutingHtmlbarsKeywordsClosureAction) {
+enifed("ember-htmlbars/keywords/mut", ["exports", "ember-metal/core", "ember-metal/platform/create", "ember-metal/merge", "ember-metal/utils", "ember-metal/streams/proxy-stream", "ember-metal/streams/utils", "ember-metal/streams/stream", "ember-views/compat/attrs-proxy", "ember-routing-htmlbars/keywords/closure-action"], function (exports, _emberMetalCore, _emberMetalPlatformCreate, _emberMetalMerge, _emberMetalUtils, _emberMetalStreamsProxyStream, _emberMetalStreamsUtils, _emberMetalStreamsStream, _emberViewsCompatAttrsProxy, _emberRoutingHtmlbarsKeywordsClosureAction) {
   "use strict";
 
   var _merge;
 
   exports["default"] = mut;
   exports.privateMut = privateMut;
+
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   var MUTABLE_REFERENCE = _emberMetalUtils.symbol("MUTABLE_REFERENCE");
 
+  /**
+    The `mut` helper lets you __clearly specify__ that a child `Component` can update the
+    (mutable) value passed to it, which will __change the value of the parent compnent__.
+  
+    This is very helpful for passing mutable values to a `Component` of any size, but
+    critical to understanding the logic of a large/complex `Component`.
+  
+    To specify that a parameter is mutable, when invoking the child `Component`:
+  
+    ```handlebars
+    <my-child child-click-count={{mut totalClicks}} />
+    ```
+  
+    The child `Component` can then modify the parent's value as needed:
+  
+    ```javascript
+    // my-child.js
+    export default Component.extend({
+      click: function() {
+        this.attrs.childClickCount.update(this.attrs.childClickCount.value + 1);
+      }
+    });
+    ```
+  
+    See a [2.0 blog post](http://emberjs.com/blog/2015/05/10/run-up-to-two-oh.html#toc_the-code-mut-code-helper) for
+    additional information on using `{{mut}}`.
+  
+    @public
+    @method mut
+    @param {Object} [attr] the "two-way" attribute that can be modified.
+    @for Ember.Templates.helpers
+    @public
+  */
   exports.MUTABLE_REFERENCE = MUTABLE_REFERENCE;
 
   function mut(morph, env, scope, originalParams, hash, template, inverse) {
@@ -8999,7 +9038,7 @@ enifed("ember-htmlbars/keywords/mut", ["exports", "ember-metal/platform/create",
         })();
       }
     } else {
-      Ember.assert("You can only pass a path to mut", _emberMetalStreamsUtils.isStream(stream));
+      _emberMetalCore["default"].assert("You can only pass a path to mut", _emberMetalStreamsUtils.isStream(stream));
     }
 
     if (stream[MUTABLE_REFERENCE]) {
@@ -9165,7 +9204,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+665bbe7e';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+b084a7e2';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -15117,7 +15156,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.6+665bbe7e
+    @version 1.13.6+b084a7e2
     @public
   */
 
@@ -15151,11 +15190,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.6+665bbe7e'
+    @default '1.13.6+b084a7e2'
     @static
     @public
   */
-  Ember.VERSION = '1.13.6+665bbe7e';
+  Ember.VERSION = '1.13.6+b084a7e2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24147,7 +24186,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+665bbe7e';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.6+b084a7e2';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -24680,7 +24719,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+665bbe7e';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.6+b084a7e2';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -41676,7 +41715,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.6+665bbe7e',
+        revision: 'Ember@1.13.6+b084a7e2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -46898,7 +46937,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+665bbe7e';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.6+b084a7e2';
 
   /**
   @module ember
