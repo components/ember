@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.4+177fc45c
+ * @version   2.0.0-beta.4+5b379d11
  */
 
 (function() {
@@ -4033,7 +4033,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.4+177fc45c
+    @version 2.0.0-beta.4+5b379d11
     @public
   */
 
@@ -4067,11 +4067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.4+177fc45c'
+    @default '2.0.0-beta.4+5b379d11'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.4+177fc45c';
+  Ember.VERSION = '2.0.0-beta.4+5b379d11';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7943,6 +7943,11 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       keys = keysOf(deps);
       for (i = 0; i < keys.length; i++) {
         key = keys[i];
+
+        if (!deps[key]) {
+          continue;
+        }
+
         possibleDesc = obj[key];
         desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
@@ -11987,7 +11992,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.4+177fc45c',
+        revision: 'Ember@2.0.0-beta.4+5b379d11',
         loc: program.loc,
         moduleName: options.moduleName
       };

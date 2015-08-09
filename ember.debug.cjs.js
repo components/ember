@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.4+177fc45c
+ * @version   2.0.0-beta.4+5b379d11
  */
 
 (function() {
@@ -8293,13 +8293,69 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
 enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-htmlbars/node-managers/view-node-manager', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberHtmlbarsNodeManagersViewNodeManager, _emberHtmlbarsTemplatesTopLevelView) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.4+177fc45c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.4+5b379d11';
 
+  /**
+    The `{{outlet}}` helper lets you specify where a child routes will render in
+    your template. An important use of the `{{outlet}}` helper is in your
+    application's `application.hbs` file:
+  
+    ```handlebars
+    {{! app/templates/application.hbs }}
+  
+    <!-- header content goes here, and will always display -->
+    {{my-header}}
+  
+    <div class="my-dynamic-content">
+      <!-- this content will change based on the current route, which depends on the current URL -->
+      {{outlet}}
+    </div>
+  
+    <!-- footer content goes here, and will always display -->
+    {{my-footer}}
+    ```
+  
+    See [templates guide](http://emberjs.com/guides/templates/the-application-template/) for
+    additional information on using `{{outlet}}` in `application.hbs`.
+  
+    You may also specify a name for the `{{outlet}}`, which is useful when using more than one
+    `{{outlet}}` in a template:
+  
+    ```handlebars
+    {{outlet "menu"}}
+    {{outlet "sidebar"}}
+    {{outlet "main"}}
+    ```
+  
+    Your routes can then render into a specific one of these `outlet`s by specifying the `outlet`
+    attribute in your `renderTemplate` function:
+  
+    ```javascript
+    // app/routes/menu.js
+  
+    export default Ember.Route.extend({
+      renderTemplate() {
+        this.render({ outlet: 'menu' });
+      }
+    });
+    ```
+  
+    See the [routing guide](http://emberjs.com/guides/routing/rendering-a-template/) for more
+    information on how your `route` interacts with the `{{outlet}}` helper.
+  
+    Note: Your content __will not render__ if there isn't an `{{outlet}}` for it.
+  
+    @public
+    @method outlet
+    @param {String} [name]
+    @for Ember.Templates.helpers
+    @public
+  */
   exports.default = {
     willRender: function (renderNode, env) {
       env.view.ownerView._outlets.push(renderNode);
@@ -13725,7 +13781,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.4+177fc45c
+    @version 2.0.0-beta.4+5b379d11
     @public
   */
 
@@ -13759,11 +13815,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.4+177fc45c'
+    @default '2.0.0-beta.4+5b379d11'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.4+177fc45c';
+  Ember.VERSION = '2.0.0-beta.4+5b379d11';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17635,6 +17691,11 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       keys = keysOf(deps);
       for (i = 0; i < keys.length; i++) {
         key = keys[i];
+
+        if (!deps[key]) {
+          continue;
+        }
+
         possibleDesc = obj[key];
         desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
@@ -21797,7 +21858,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.4+177fc45c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.4+5b379d11';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22299,7 +22360,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.4+177fc45c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.4+5b379d11';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35561,7 +35622,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.4+177fc45c',
+        revision: 'Ember@2.0.0-beta.4+5b379d11',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40089,7 +40150,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.4+177fc45c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.4+5b379d11';
 
   /**
   @module ember
