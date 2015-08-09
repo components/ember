@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.4+2d0127ea
+ * @version   2.0.0-beta.4+d910c43f
  */
 
 (function() {
@@ -2932,6 +2932,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     var args;
 
     var addArg = function (property) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.computed(\'' + property + '\', function() {});` to `Ember.computed(\'' + property.slice(0, -6) + '.[]\', function() {})`.'), property.slice(-5) !== '@each');
       args.push(property);
     };
 
@@ -3781,6 +3782,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -3808,16 +3810,18 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
+    var value;
     for (var key in properties) {
-      if (properties.hasOwnProperty(key) && properties[key]) {
-        return properties[key];
+      value = properties[key];
+      if (properties.hasOwnProperty(key) && value) {
+        return value;
       }
     }
-    return false;
+    return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -3844,7 +3848,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -3859,6 +3862,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -3920,7 +3924,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -4030,7 +4033,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.4+2d0127ea
+    @version 2.0.0-beta.4+d910c43f
     @public
   */
 
@@ -4064,11 +4067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.4+2d0127ea'
+    @default '2.0.0-beta.4+d910c43f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.4+2d0127ea';
+  Ember.VERSION = '2.0.0-beta.4+d910c43f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4166,7 +4169,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     An empty function useful for some operations. Always returns `this`.
   
     @method K
-    @private
     @return {Object}
     @public
   */
@@ -4922,7 +4924,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
-    @method
+    @method expandProperties
+    @for Ember
     @private
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
@@ -4986,6 +4989,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
   */
   var FEATURES = _emberMetalCore.default.ENV.FEATURES || {};
 
+  exports.FEATURES = FEATURES;
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
     build tools to exclude experimental features from beta/stable builds.
@@ -5003,7 +5007,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -6298,7 +6301,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
-    @private
+    @public
   */
   'use strict';
 
@@ -7189,6 +7192,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var paths;
 
     var addWatchedProperty = function (path) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.observer(\'' + path + '\', function() {});` to `Ember.observer(\'' + path.slice(0, -6) + '.[]\', function() {})`.'), path.slice(-5) !== '@each');
+
       paths.push(path);
     };
     var _paths = args.slice(0, -1);
@@ -10293,6 +10298,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -10310,7 +10316,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -11982,7 +11987,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.4+2d0127ea',
+        revision: 'Ember@2.0.0-beta.4+d910c43f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -14525,6 +14530,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   };
 
+  exports.keywords = keywords;
   /**
     Host Hook: partial
   
@@ -14551,7 +14557,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     The host hook should invoke the referenced partial with
     the ambient `self`.
   */
-  exports.keywords = keywords;
 
   function partial(renderNode, env, scope, path) {
     var template = env.partials[path];
@@ -17093,10 +17098,10 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -17108,16 +17113,16 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
@@ -18291,10 +18296,10 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -18306,16 +18311,16 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.4+2d0127ea
+ * @version   2.0.0-beta.4+d910c43f
  */
 
 (function() {
@@ -3602,6 +3602,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     var args;
 
     var addArg = function (property) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.computed(\'' + property + '\', function() {});` to `Ember.computed(\'' + property.slice(0, -6) + '.[]\', function() {})`.'), property.slice(-5) !== '@each');
       args.push(property);
     };
 
@@ -4451,6 +4452,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -4478,16 +4480,18 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
+    var value;
     for (var key in properties) {
-      if (properties.hasOwnProperty(key) && properties[key]) {
-        return properties[key];
+      value = properties[key];
+      if (properties.hasOwnProperty(key) && value) {
+        return value;
       }
     }
-    return false;
+    return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -4514,7 +4518,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -4529,6 +4532,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -4590,7 +4594,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -4700,7 +4703,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.4+2d0127ea
+    @version 2.0.0-beta.4+d910c43f
     @public
   */
 
@@ -4734,11 +4737,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.4+2d0127ea'
+    @default '2.0.0-beta.4+d910c43f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.4+2d0127ea';
+  Ember.VERSION = '2.0.0-beta.4+d910c43f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4836,7 +4839,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     An empty function useful for some operations. Always returns `this`.
   
     @method K
-    @private
     @return {Object}
     @public
   */
@@ -5592,7 +5594,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
-    @method
+    @method expandProperties
+    @for Ember
     @private
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
@@ -5656,6 +5659,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
   */
   var FEATURES = _emberMetalCore.default.ENV.FEATURES || {};
 
+  exports.FEATURES = FEATURES;
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
     build tools to exclude experimental features from beta/stable builds.
@@ -5673,7 +5677,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -6974,7 +6977,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
-    @private
+    @public
   */
   'use strict';
 
@@ -7865,6 +7868,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var paths;
 
     var addWatchedProperty = function (path) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.observer(\'' + path + '\', function() {});` to `Ember.observer(\'' + path.slice(0, -6) + '.[]\', function() {})`.'), path.slice(-5) !== '@each');
+
       paths.push(path);
     };
     var _paths = args.slice(0, -1);
@@ -10985,6 +10990,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -11002,7 +11008,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -11715,7 +11720,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/tracked_array', 'ember-runtime/system/subarray', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemTracked_array, _emberRuntimeSystemSubarray, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeCore, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
   /**
   @module ember
   @submodule ember-runtime
@@ -11772,8 +11777,6 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
 
   _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
-  _emberMetal.default.TrackedArray = _emberRuntimeSystemTracked_array.default;
-  _emberMetal.default.SubArray = _emberRuntimeSystemSubarray.default;
   _emberMetal.default.Container = _emberRuntimeSystemContainer.Container;
   _emberMetal.default.Registry = _emberRuntimeSystemContainer.Registry;
   _emberMetal.default.Namespace = _emberRuntimeSystemNamespace.default;
@@ -12316,6 +12319,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var union = uniq;
 
+  exports.union = union;
   /**
     A computed property which returns a new array with all the duplicated
     elements from two or more dependent arrays.
@@ -12340,7 +12344,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     duplicated elements from the dependent arrays
     @public
   */
-  exports.union = union;
 
   function intersect() {
     for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -12587,7 +12590,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 });
 // Ember.assert
-enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject) {
+enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
   'use strict';
 
   /**
@@ -12603,6 +12606,8 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
     @public
   */
   var Controller = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsController.default);
+
+  _emberRuntimeMixinsAction_handler.deprecateUnderscoreActions(Controller);
 
   function controllerInjectionHelper(factory) {
     _emberMetalCore.default.assert('Defining an injected controller property on a ' + 'non-controller is not allowed.', _emberRuntimeMixinsController.default.detect(factory.PrototypeMixin));
@@ -13036,6 +13041,7 @@ enifed('ember-runtime/ext/string', ['exports', 'ember-metal/core', 'ember-runtim
        @method fmt
       @for String
       @private
+      @deprecated
     */
     StringPrototype.fmt = function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -13300,18 +13306,16 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
   });
 });
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalMixin, _emberMetalProperty_get) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDeprecate_property) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
 
+  exports.deprecateUnderscoreActions = deprecateUnderscoreActions;
+
   /**
-    The `Ember.ActionHandler` mixin implements support for moving an `actions`
-    property to an `_actions` property at extend time, and adding `_actions`
-    to the object's mergedProperties list.
-  
     `Ember.ActionHandler` is available on some familiar classes including
     `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
@@ -13323,7 +13327,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     @private
   */
   var ActionHandler = _emberMetalMixin.Mixin.create({
-    mergedProperties: ['_actions'],
+    mergedProperties: ['actions'],
 
     /**
       The collection of functions, keyed by name, available on this
@@ -13427,25 +13431,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     */
 
     /**
-      Moves `actions` to `_actions` at extend time. Note that this currently
-      modifies the mixin themselves, which is technically dubious but
-      is practically of little consequence. This may change in the future.
-       @private
-      @method willMergeMixin
-    */
-    willMergeMixin: function (props) {
-      if (!props._actions) {
-        _emberMetalCore.default.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
-
-        if (!!props.actions && typeof props.actions === 'object') {
-          var hashName = 'actions';
-          props._actions = _emberMetalMerge.default(props._actions || {}, props[hashName]);
-          delete props[hashName];
-        }
-      }
-    },
-
-    /**
       Triggers a named action on the `ActionHandler`. Any parameters
       supplied after the `actionName` string will be passed as arguments
       to the action target function.
@@ -13478,8 +13463,8 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
 
       var target;
 
-      if (this._actions && this._actions[actionName]) {
-        var shouldBubble = this._actions[actionName].apply(this, args) === true;
+      if (this.actions && this.actions[actionName]) {
+        var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
           return;
         }
@@ -13495,6 +13480,12 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
   });
 
   exports.default = ActionHandler;
+
+  function deprecateUnderscoreActions(factory) {
+    _emberMetalDeprecate_property.deprecateProperty(factory.prototype, '_actions', 'actions', {
+      id: 'ember-runtime.action-handler-_actions', until: '3.0.0'
+    });
+  }
 });
 enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
   /**
@@ -14391,7 +14382,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Object} receiver
-      @private
+      @public
     */
     forEach: function (callback, target) {
       if (typeof callback !== 'function') {
@@ -14680,7 +14671,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Boolean}
-      @private
+      @public
     */
     every: function (callback, target) {
       return !this.find(function (x, idx, i) {
@@ -14862,7 +14853,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       ```
        @method compact
       @return {Array} the array without null and undefined elements.
-      @private
+      @public
     */
     compact: function () {
       return this.filter(function (value) {
@@ -14881,7 +14872,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        @method without
       @param {Object} value
       @return {Ember.Enumerable}
-      @private
+      @public
     */
     without: function (value) {
       if (!this.contains(value)) {
@@ -15124,7 +15115,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} property name(s) to sort on
       @return {Array} The sorted array.
       @since 1.2.0
-      @private
+      @public
     */
     sortBy: function () {
       var sortKeys = arguments;
@@ -16697,7 +16688,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     @namespace Ember
     @extends Ember.Object
     @uses Ember.MutableArray
-    @private
+    @public
   */
   var ArrayProxy = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsMutable_array.default, {
 
@@ -17947,6 +17938,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   var loaded = {};
   var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -17966,7 +17958,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
     @param callback {Function} callback to be called
     @private
   */
-  exports._loaded = _loaded;
 
   function onLoad(name, callback) {
     var object = loaded[name];
@@ -18619,7 +18610,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     return str.replace(STRING_DECAMELIZE_REGEXP, '$1_$2').toLowerCase();
   });
 
-  function fmt(str, formats) {
+  function _fmt(str, formats) {
     var cachedFormats = formats;
 
     if (!_emberRuntimeUtils.isArray(cachedFormats) || arguments.length > 2) {
@@ -18639,13 +18630,18 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     });
   }
 
+  function fmt(str, formats) {
+    _emberMetalCore.default.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
+    return _fmt.apply(undefined, arguments);
+  }
+
   function loc(str, formats) {
     if (!_emberRuntimeUtils.isArray(formats) || arguments.length > 2) {
       formats = Array.prototype.slice.call(arguments, 1);
     }
 
     str = _emberMetalCore.default.STRINGS[str] || str;
-    return fmt(str, formats);
+    return _fmt(str, formats);
   }
 
   function w(str) {
@@ -18870,512 +18866,6 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
   exports.capitalize = capitalize;
 });
 // Ember.STRINGS
-enifed('ember-runtime/system/subarray', ['exports', 'ember-metal/error'], function (exports, _emberMetalError) {
-  'use strict';
-
-  var RETAIN = 'r';
-  var FILTER = 'f';
-
-  function Operation(type, count) {
-    this.type = type;
-    this.count = count;
-  }
-
-  exports.default = SubArray;
-
-  /**
-    An `Ember.SubArray` tracks an array in a way similar to, but more specialized
-    than, `Ember.TrackedArray`.  It is useful for keeping track of the indexes of
-    items within a filtered array.
-  
-    @class SubArray
-    @namespace Ember
-    @private
-  */
-  function SubArray(length) {
-    if (arguments.length < 1) {
-      length = 0;
-    }
-
-    if (length > 0) {
-      this._operations = [new Operation(RETAIN, length)];
-    } else {
-      this._operations = [];
-    }
-  }
-
-  SubArray.prototype = {
-    /**
-      Track that an item was added to the tracked array.
-       @method addItem
-       @param {Number} index The index of the item in the tracked array.
-      @param {Boolean} match `true` iff the item is included in the subarray.
-       @return {number} The index of the item in the subarray.
-      @private
-    */
-    addItem: function (index, match) {
-      var returnValue = -1;
-      var itemType = match ? RETAIN : FILTER;
-      var self = this;
-
-      this._findOperation(index, function (operation, operationIndex, rangeStart, rangeEnd, seenInSubArray) {
-        var newOperation, splitOperation;
-
-        if (itemType === operation.type) {
-          ++operation.count;
-        } else if (index === rangeStart) {
-          // insert to the left of `operation`
-          self._operations.splice(operationIndex, 0, new Operation(itemType, 1));
-        } else {
-          newOperation = new Operation(itemType, 1);
-          splitOperation = new Operation(operation.type, rangeEnd - index + 1);
-          operation.count = index - rangeStart;
-
-          self._operations.splice(operationIndex + 1, 0, newOperation, splitOperation);
-        }
-
-        if (match) {
-          if (operation.type === RETAIN) {
-            returnValue = seenInSubArray + (index - rangeStart);
-          } else {
-            returnValue = seenInSubArray;
-          }
-        }
-
-        self._composeAt(operationIndex);
-      }, function (seenInSubArray) {
-        self._operations.push(new Operation(itemType, 1));
-
-        if (match) {
-          returnValue = seenInSubArray;
-        }
-
-        self._composeAt(self._operations.length - 1);
-      });
-
-      return returnValue;
-    },
-
-    /**
-      Track that an item was removed from the tracked array.
-       @method removeItem
-       @param {Number} index The index of the item in the tracked array.
-       @return {number} The index of the item in the subarray, or `-1` if the item
-      was not in the subarray.
-      @private
-    */
-    removeItem: function (index) {
-      var returnValue = -1;
-      var self = this;
-
-      this._findOperation(index, function (operation, operationIndex, rangeStart, rangeEnd, seenInSubArray) {
-        if (operation.type === RETAIN) {
-          returnValue = seenInSubArray + (index - rangeStart);
-        }
-
-        if (operation.count > 1) {
-          --operation.count;
-        } else {
-          self._operations.splice(operationIndex, 1);
-          self._composeAt(operationIndex);
-        }
-      }, function () {
-        throw new _emberMetalError.default('Can\'t remove an item that has never been added.');
-      });
-
-      return returnValue;
-    },
-
-    _findOperation: function (index, foundCallback, notFoundCallback) {
-      var seenInSubArray = 0;
-      var operationIndex, len, operation, rangeStart, rangeEnd;
-
-      // OPTIMIZE: change to balanced tree
-      // find leftmost operation to the right of `index`
-      for (operationIndex = rangeStart = 0, len = this._operations.length; operationIndex < len; rangeStart = rangeEnd + 1, ++operationIndex) {
-        operation = this._operations[operationIndex];
-        rangeEnd = rangeStart + operation.count - 1;
-
-        if (index >= rangeStart && index <= rangeEnd) {
-          foundCallback(operation, operationIndex, rangeStart, rangeEnd, seenInSubArray);
-          return;
-        } else if (operation.type === RETAIN) {
-          seenInSubArray += operation.count;
-        }
-      }
-
-      notFoundCallback(seenInSubArray);
-    },
-
-    _composeAt: function (index) {
-      var op = this._operations[index];
-      var otherOp;
-
-      if (!op) {
-        // Composing out of bounds is a no-op, as when removing the last operation
-        // in the list.
-        return;
-      }
-
-      if (index > 0) {
-        otherOp = this._operations[index - 1];
-        if (otherOp.type === op.type) {
-          op.count += otherOp.count;
-          this._operations.splice(index - 1, 1);
-          --index;
-        }
-      }
-
-      if (index < this._operations.length - 1) {
-        otherOp = this._operations[index + 1];
-        if (otherOp.type === op.type) {
-          op.count += otherOp.count;
-          this._operations.splice(index + 1, 1);
-        }
-      }
-    },
-
-    toString: function () {
-      var str = '';
-      this._operations.forEach(function (operation) {
-        str += ' ' + operation.type + ':' + operation.count;
-      });
-      return str.substring(1);
-    }
-  };
-});
-enifed('ember-runtime/system/tracked_array', ['exports', 'ember-metal/property_get'], function (exports, _emberMetalProperty_get) {
-  'use strict';
-
-  var RETAIN = 'r';
-  var INSERT = 'i';
-  var DELETE = 'd';
-
-  exports.default = TrackedArray;
-
-  /**
-    An `Ember.TrackedArray` tracks array operations.  It's useful when you want to
-    lazily compute the indexes of items in an array after they've been shifted by
-    subsequent operations.
-  
-    @class TrackedArray
-    @namespace Ember
-    @param {Array} [items=[]] The array to be tracked.  This is used just to get
-    the initial items for the starting state of retain:n.
-    @private
-  */
-  function TrackedArray(items) {
-    if (arguments.length < 1) {
-      items = [];
-    }
-
-    var length = _emberMetalProperty_get.get(items, 'length');
-
-    if (length) {
-      this._operations = [new ArrayOperation(RETAIN, length, items)];
-    } else {
-      this._operations = [];
-    }
-  }
-
-  TrackedArray.RETAIN = RETAIN;
-  TrackedArray.INSERT = INSERT;
-  TrackedArray.DELETE = DELETE;
-
-  TrackedArray.prototype = {
-
-    /**
-      Track that `newItems` were added to the tracked array at `index`.
-       @method addItems
-      @param index
-      @param newItems
-      @private
-    */
-    addItems: function (index, newItems) {
-      var count = _emberMetalProperty_get.get(newItems, 'length');
-      if (count < 1) {
-        return;
-      }
-
-      var match = this._findArrayOperation(index);
-      var arrayOperation = match.operation;
-      var arrayOperationIndex = match.index;
-      var arrayOperationRangeStart = match.rangeStart;
-      var composeIndex, newArrayOperation;
-
-      newArrayOperation = new ArrayOperation(INSERT, count, newItems);
-
-      if (arrayOperation) {
-        if (!match.split) {
-          // insert left of arrayOperation
-          this._operations.splice(arrayOperationIndex, 0, newArrayOperation);
-          composeIndex = arrayOperationIndex;
-        } else {
-          this._split(arrayOperationIndex, index - arrayOperationRangeStart, newArrayOperation);
-          composeIndex = arrayOperationIndex + 1;
-        }
-      } else {
-        // insert at end
-        this._operations.push(newArrayOperation);
-        composeIndex = arrayOperationIndex;
-      }
-
-      this._composeInsert(composeIndex);
-    },
-
-    /**
-      Track that `count` items were removed at `index`.
-       @method removeItems
-      @param index
-      @param count
-      @private
-    */
-    removeItems: function (index, count) {
-      if (count < 1) {
-        return;
-      }
-
-      var match = this._findArrayOperation(index);
-      var arrayOperationIndex = match.index;
-      var arrayOperationRangeStart = match.rangeStart;
-      var newArrayOperation, composeIndex;
-
-      newArrayOperation = new ArrayOperation(DELETE, count);
-      if (!match.split) {
-        // insert left of arrayOperation
-        this._operations.splice(arrayOperationIndex, 0, newArrayOperation);
-        composeIndex = arrayOperationIndex;
-      } else {
-        this._split(arrayOperationIndex, index - arrayOperationRangeStart, newArrayOperation);
-        composeIndex = arrayOperationIndex + 1;
-      }
-
-      return this._composeDelete(composeIndex);
-    },
-
-    /**
-      Apply all operations, reducing them to retain:n, for `n`, the number of
-      items in the array.
-       `callback` will be called for each operation and will be passed the following arguments:
-       * {array} items The items for the given operation
-      * {number} offset The computed offset of the items, ie the index in the
-      array of the first item for this operation.
-      * {string} operation The type of the operation.  One of
-      `Ember.TrackedArray.{RETAIN, DELETE, INSERT}`
-       @method apply
-      @param {Function} callback
-      @private
-    */
-    apply: function (callback) {
-      var items = [];
-      var offset = 0;
-
-      this._operations.forEach(function (arrayOperation, operationIndex) {
-        callback(arrayOperation.items, offset, arrayOperation.type, operationIndex);
-
-        if (arrayOperation.type !== DELETE) {
-          offset += arrayOperation.count;
-          items = items.concat(arrayOperation.items);
-        }
-      });
-
-      this._operations = [new ArrayOperation(RETAIN, items.length, items)];
-    },
-
-    /**
-      Return an `ArrayOperationMatch` for the operation that contains the item at `index`.
-       @method _findArrayOperation
-       @param {Number} index the index of the item whose operation information
-      should be returned.
-      @private
-    */
-    _findArrayOperation: function (index) {
-      var split = false;
-      var arrayOperationIndex, arrayOperation, arrayOperationRangeStart, arrayOperationRangeEnd, len;
-
-      // OPTIMIZE: we could search these faster if we kept a balanced tree.
-      // find leftmost arrayOperation to the right of `index`
-      for (arrayOperationIndex = arrayOperationRangeStart = 0, len = this._operations.length; arrayOperationIndex < len; ++arrayOperationIndex) {
-        arrayOperation = this._operations[arrayOperationIndex];
-
-        if (arrayOperation.type === DELETE) {
-          continue;
-        }
-
-        arrayOperationRangeEnd = arrayOperationRangeStart + arrayOperation.count - 1;
-
-        if (index === arrayOperationRangeStart) {
-          break;
-        } else if (index > arrayOperationRangeStart && index <= arrayOperationRangeEnd) {
-          split = true;
-          break;
-        } else {
-          arrayOperationRangeStart = arrayOperationRangeEnd + 1;
-        }
-      }
-
-      return new ArrayOperationMatch(arrayOperation, arrayOperationIndex, split, arrayOperationRangeStart);
-    },
-
-    _split: function (arrayOperationIndex, splitIndex, newArrayOperation) {
-      var arrayOperation = this._operations[arrayOperationIndex];
-      var splitItems = arrayOperation.items.slice(splitIndex);
-      var splitArrayOperation = new ArrayOperation(arrayOperation.type, splitItems.length, splitItems);
-
-      // truncate LHS
-      arrayOperation.count = splitIndex;
-      arrayOperation.items = arrayOperation.items.slice(0, splitIndex);
-
-      this._operations.splice(arrayOperationIndex + 1, 0, newArrayOperation, splitArrayOperation);
-    },
-
-    // see SubArray for a better implementation.
-    _composeInsert: function (index) {
-      var newArrayOperation = this._operations[index];
-      var leftArrayOperation = this._operations[index - 1]; // may be undefined
-      var rightArrayOperation = this._operations[index + 1]; // may be undefined
-      var leftOp = leftArrayOperation && leftArrayOperation.type;
-      var rightOp = rightArrayOperation && rightArrayOperation.type;
-
-      if (leftOp === INSERT) {
-        // merge left
-        leftArrayOperation.count += newArrayOperation.count;
-        leftArrayOperation.items = leftArrayOperation.items.concat(newArrayOperation.items);
-
-        if (rightOp === INSERT) {
-          // also merge right (we have split an insert with an insert)
-          leftArrayOperation.count += rightArrayOperation.count;
-          leftArrayOperation.items = leftArrayOperation.items.concat(rightArrayOperation.items);
-          this._operations.splice(index, 2);
-        } else {
-          // only merge left
-          this._operations.splice(index, 1);
-        }
-      } else if (rightOp === INSERT) {
-        // merge right
-        newArrayOperation.count += rightArrayOperation.count;
-        newArrayOperation.items = newArrayOperation.items.concat(rightArrayOperation.items);
-        this._operations.splice(index + 1, 1);
-      }
-    },
-
-    _composeDelete: function (index) {
-      var arrayOperation = this._operations[index];
-      var deletesToGo = arrayOperation.count;
-      var leftArrayOperation = this._operations[index - 1]; // may be undefined
-      var leftOp = leftArrayOperation && leftArrayOperation.type;
-      var nextArrayOperation;
-      var nextOp;
-      var nextCount;
-      var removeNewAndNextOp = false;
-      var removedItems = [];
-
-      if (leftOp === DELETE) {
-        arrayOperation = leftArrayOperation;
-        index -= 1;
-      }
-
-      for (var i = index + 1; deletesToGo > 0; ++i) {
-        nextArrayOperation = this._operations[i];
-        nextOp = nextArrayOperation.type;
-        nextCount = nextArrayOperation.count;
-
-        if (nextOp === DELETE) {
-          arrayOperation.count += nextCount;
-          continue;
-        }
-
-        if (nextCount > deletesToGo) {
-          // d:2 {r,i}:5  we reduce the retain or insert, but it stays
-          removedItems = removedItems.concat(nextArrayOperation.items.splice(0, deletesToGo));
-          nextArrayOperation.count -= deletesToGo;
-
-          // In the case where we truncate the last arrayOperation, we don't need to
-          // remove it; also the deletesToGo reduction is not the entirety of
-          // nextCount
-          i -= 1;
-          nextCount = deletesToGo;
-
-          deletesToGo = 0;
-        } else {
-          if (nextCount === deletesToGo) {
-            // Handle edge case of d:2 i:2 in which case both operations go away
-            // during composition.
-            removeNewAndNextOp = true;
-          }
-          removedItems = removedItems.concat(nextArrayOperation.items);
-          deletesToGo -= nextCount;
-        }
-
-        if (nextOp === INSERT) {
-          // d:2 i:3 will result in delete going away
-          arrayOperation.count -= nextCount;
-        }
-      }
-
-      if (arrayOperation.count > 0) {
-        // compose our new delete with possibly several operations to the right of
-        // disparate types
-        this._operations.splice(index + 1, i - 1 - index);
-      } else {
-        // The delete operation can go away; it has merely reduced some other
-        // operation, as in d:3 i:4; it may also have eliminated that operation,
-        // as in d:3 i:3.
-        this._operations.splice(index, removeNewAndNextOp ? 2 : 1);
-      }
-
-      return removedItems;
-    },
-
-    toString: function () {
-      var str = '';
-      this._operations.forEach(function (operation) {
-        str += ' ' + operation.type + ':' + operation.count;
-      });
-      return str.substring(1);
-    }
-  };
-
-  /**
-    Internal data structure to represent an array operation.
-  
-    @method ArrayOperation
-    @private
-    @param {String} operation The type of the operation.  One of
-    `Ember.TrackedArray.{RETAIN, INSERT, DELETE}`
-    @param {Number} count The number of items in this operation.
-    @param {Array} items The items of the operation, if included.  RETAIN and
-    INSERT include their items, DELETE does not.
-    @private
-  */
-  function ArrayOperation(operation, count, items) {
-    this.type = operation; // RETAIN | INSERT | DELETE
-    this.count = count;
-    this.items = items;
-  }
-
-  /**
-    Internal data structure used to include information when looking up operations
-    by item index.
-  
-    @method ArrayOperationMatch
-    @private
-    @param {ArrayOperation} operation
-    @param {Number} index The index of `operation` in the array of operations.
-    @param {Boolean} split Whether or not the item index searched for would
-    require a split for a new operation type.
-    @param {Number} rangeStart The index of the first item in the operation,
-    with respect to the tracked array.  The index of the last item can be computed
-    from `rangeStart` and `operation.count`.
-    @private
-  */
-  function ArrayOperationMatch(operation, index, split, rangeStart) {
-    this.operation = operation;
-    this.index = index;
-    this.split = split;
-    this.rangeStart = rangeStart;
-  }
-});
 enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-runtime/system/object'], function (exports, _emberRuntimeMixinsArray, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -22189,9 +21679,9 @@ enifed('rsvp/utils', ['exports'], function (exports) {
 
   var isArray = _isArray;
 
+  exports.isArray = isArray;
   // Date.now is not available in browsers < IE9
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  exports.isArray = isArray;
   var now = Date.now || function () {
     return new Date().getTime();
   };
