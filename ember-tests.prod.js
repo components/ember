@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+66e71ff7
+ * @version   2.0.0-canary+4630cfac
  */
 
 (function() {
@@ -17425,7 +17425,7 @@ enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-metal/core',
     equal(_emberMetalProperty_get.get(a, 'foo'), 'BAZ', 'should have synced binding on new obj');
   });
 });
-enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/props_helper', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/properties'], function (exports, _emberMetalTestsProps_helper, _emberMetalRun_loop, _emberMetalObserver, _emberMetalBinding, _emberMetalComputed, _emberMetalProperties) {
+enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/props_helper', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_events'], function (exports, _emberMetalTestsProps_helper, _emberMetalRun_loop, _emberMetalObserver, _emberMetalBinding, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_events) {
   'use strict';
 
   QUnit.module('system/binding/sync_test.js');
@@ -17445,7 +17445,9 @@ enifed('ember-metal/tests/binding/sync_test', ['exports', 'ember-metal/tests/pro
         },
         set: function (key, value) {
           setCalled++;
+          _emberMetalProperty_events.propertyWillChange(this, key);
           setValue = value;
+          _emberMetalProperty_events.propertyDidChange(this, key);
           return value;
         }
       }).volatile());
@@ -22162,7 +22164,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
       changed++;
     });
 
-    equal(undefined, _emberMetalComputed.cacheFor(obj, 'computed'), 'addObserver should not compute CP');
+    equal(_emberMetalComputed.cacheFor(obj, 'computed'), undefined, 'addObserver should not compute CP');
 
     set(obj, 'computed.foo', 'baz');
 
@@ -40621,7 +40623,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+66e71ff7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+4630cfac', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -48771,7 +48773,7 @@ enifed('ember-views/tests/views/view/init_test', ['exports', 'ember-metal/core',
         elementId: 'test',
         classNames: _emberMetalComputed.computed(function () {
           return ['className'];
-        }).volatile()
+        })
       }).create();
     }, /Only arrays of static class strings.*For dynamic classes/i);
   });
@@ -48782,7 +48784,7 @@ enifed('ember-views/tests/views/view/init_test', ['exports', 'ember-metal/core',
         elementId: 'test',
         classNameBindings: _emberMetalComputed.computed(function () {
           return ['className'];
-        }).volatile()
+        })
       }).create();
     }, /Only arrays are allowed/i);
   });
