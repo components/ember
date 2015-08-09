@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d2c181ed
+ * @version   2.0.0-canary+66e71ff7
  */
 
 (function() {
@@ -28083,6 +28083,22 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     equal(undefined, route.send('nonexistent', 1, 2, 3));
   });
 
+  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
+    expect(2);
+
+    var route = _emberRoutingSystemRoute.default.extend({
+      actions: {
+        foo: function () {
+          ok(true, 'called foo action');
+        }
+      }
+    }).create();
+
+    expectDeprecation(function () {
+      route._actions.foo();
+    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
+  });
+
   QUnit.module('Ember.Route serialize', {
     setup: setup,
     teardown: teardown
@@ -30082,6 +30098,22 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
 
   QUnit.module('Controller event handling');
 
+  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
+    expect(2);
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      actions: {
+        foo: function () {
+          ok(true, 'called foo action');
+        }
+      }
+    }).create();
+
+    expectDeprecation(function () {
+      controller._actions.foo();
+    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
+  });
+
   QUnit.test('Action can be handled by a function on actions object', function () {
     expect(1);
     var TestController = _emberRuntimeControllersController.default.extend({
@@ -30093,36 +30125,6 @@ enifed('ember-runtime/tests/controllers/controller_test', ['exports', 'ember-run
     });
     var controller = TestController.create({});
     controller.send('poke');
-  });
-
-  // TODO: Can we support this?
-  // QUnit.test("Actions handlers can be configured to use another name", function() {
-  //   expect(1);
-  //   var TestController = Controller.extend({
-  //     actionsProperty: 'actionHandlers',
-  //     actionHandlers: {
-  //       poke: function() {
-  //         ok(true, 'poked');
-  //       }
-  //     }
-  //   });
-  //   var controller = TestController.create({});
-  //   controller.send("poke");
-  // });
-
-  QUnit.test('When `_actions` is provided, `actions` is left alone', function () {
-    expect(2);
-    var TestController = _emberRuntimeControllersController.default.extend({
-      actions: ['foo', 'bar'],
-      _actions: {
-        poke: function () {
-          ok(true, 'poked');
-        }
-      }
-    });
-    var controller = TestController.create({});
-    controller.send('poke');
-    equal('foo', controller.get('actions')[0], 'actions property is not untouched');
   });
 
   QUnit.test('A handled action can be bubbled to the target for continued processing', function () {
@@ -32966,25 +32968,6 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-
 
     //Since binding triggered after the end loop the value changed to 'change'.
     equal(MyApp.second.get('output'), 'change');
-  });
-});
-enifed('ember-runtime/tests/mixins/action_handler_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController) {
-  'use strict';
-
-  QUnit.module('ActionHandler');
-
-  QUnit.test('passing a function for the actions hash triggers an assertion', function () {
-    expect(1);
-
-    var controller = _emberRuntimeControllersController.default.extend({
-      actions: function () {}
-    });
-
-    expectAssertion(function () {
-      _emberMetalRun_loop.default(function () {
-        controller.create();
-      });
-    });
   });
 });
 enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/tests/props_helper', 'ember-runtime/tests/suites/array', 'ember-runtime/system/object', 'ember-runtime/mixins/array'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberMetalComputed, _emberMetalTestsProps_helper, _emberRuntimeTestsSuitesArray, _emberRuntimeSystemObject, _emberRuntimeMixinsArray) {
@@ -40638,7 +40621,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+d2c181ed', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+66e71ff7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44093,6 +44076,22 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         }
       });
     }
+  });
+
+  QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
+    expect(2);
+
+    component = _emberViewsViewsComponent.default.extend({
+      actions: {
+        foo: function () {
+          ok(true, 'called foo action');
+        }
+      }
+    }).create();
+
+    expectDeprecation(function () {
+      component._actions.foo();
+    }, 'Usage of `_actions` is deprecated, use `actions` instead.');
   });
 
   QUnit.test('The context of an Ember.Component is itself', function () {

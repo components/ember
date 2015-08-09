@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d2c181ed
+ * @version   2.0.0-canary+66e71ff7
  */
 
 (function() {
@@ -4809,7 +4809,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+d2c181ed
+    @version 2.0.0-canary+66e71ff7
     @public
   */
 
@@ -4843,11 +4843,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+d2c181ed'
+    @default '2.0.0-canary+66e71ff7'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+d2c181ed';
+  Ember.VERSION = '2.0.0-canary+66e71ff7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12869,7 +12869,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 });
 // Ember.assert
-enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject) {
+enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
   'use strict';
 
   /**
@@ -12885,6 +12885,8 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
     @public
   */
   var Controller = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsController.default);
+
+  _emberRuntimeMixinsAction_handler.deprecateUnderscoreActions(Controller);
 
   function controllerInjectionHelper(factory) {
     _emberMetalCore.default.assert('Defining an injected controller property on a ' + 'non-controller is not allowed.', _emberRuntimeMixinsController.default.detect(factory.PrototypeMixin));
@@ -13589,18 +13591,16 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
   });
 });
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalMixin, _emberMetalProperty_get) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDeprecate_property) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
 
+  exports.deprecateUnderscoreActions = deprecateUnderscoreActions;
+
   /**
-    The `Ember.ActionHandler` mixin implements support for moving an `actions`
-    property to an `_actions` property at extend time, and adding `_actions`
-    to the object's mergedProperties list.
-  
     `Ember.ActionHandler` is available on some familiar classes including
     `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
@@ -13612,7 +13612,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     @private
   */
   var ActionHandler = _emberMetalMixin.Mixin.create({
-    mergedProperties: ['_actions'],
+    mergedProperties: ['actions'],
 
     /**
       The collection of functions, keyed by name, available on this
@@ -13716,25 +13716,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     */
 
     /**
-      Moves `actions` to `_actions` at extend time. Note that this currently
-      modifies the mixin themselves, which is technically dubious but
-      is practically of little consequence. This may change in the future.
-       @private
-      @method willMergeMixin
-    */
-    willMergeMixin: function (props) {
-      if (!props._actions) {
-        _emberMetalCore.default.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
-
-        if (!!props.actions && typeof props.actions === 'object') {
-          var hashName = 'actions';
-          props._actions = _emberMetalMerge.default(props._actions || {}, props[hashName]);
-          delete props[hashName];
-        }
-      }
-    },
-
-    /**
       Triggers a named action on the `ActionHandler`. Any parameters
       supplied after the `actionName` string will be passed as arguments
       to the action target function.
@@ -13767,8 +13748,8 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
 
       var target;
 
-      if (this._actions && this._actions[actionName]) {
-        var shouldBubble = this._actions[actionName].apply(this, args) === true;
+      if (this.actions && this.actions[actionName]) {
+        var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
           return;
         }
@@ -13784,6 +13765,12 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
   });
 
   exports.default = ActionHandler;
+
+  function deprecateUnderscoreActions(factory) {
+    _emberMetalDeprecate_property.deprecateProperty(factory.prototype, '_actions', 'actions', {
+      id: 'ember-runtime.action-handler-_actions', until: '3.0.0'
+    });
+  }
 });
 enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
   /**

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+d2c181ed
+ * @version   2.0.0-canary+66e71ff7
  */
 
 (function() {
@@ -8433,7 +8433,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+66e71ff7';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -13989,7 +13989,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+d2c181ed
+    @version 2.0.0-canary+66e71ff7
     @public
   */
 
@@ -14023,11 +14023,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+d2c181ed'
+    @default '2.0.0-canary+66e71ff7'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+d2c181ed';
+  Ember.VERSION = '2.0.0-canary+66e71ff7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21501,8 +21501,6 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
           }
           if (target.actions) {
             action = target.actions[actionName];
-          } else if (target._actions) {
-            action = target._actions[actionName];
           }
 
           if (!action) {
@@ -22251,7 +22249,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+66e71ff7';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22752,7 +22750,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+66e71ff7';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -24672,7 +24670,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       router._updatingQPChanged(qp.urlKey);
     },
 
-    mergedProperties: ['events', 'queryParams'],
+    mergedProperties: ['queryParams'],
 
     /**
       Retrieves parameters, for current route using the state.params
@@ -25059,7 +25057,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @private
     */
 
-    _actions: {
+    actions: {
 
       queryParamsDidChange: function (changed, totalPresent, removed) {
         var qpMap = _emberMetalProperty_get.get(this, '_qp').map;
@@ -25162,14 +25160,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         router._qpUpdates = null;
       }
     },
-
-    /**
-      @deprecated
-       Please use `actions` instead.
-      @method events
-      @private
-    */
-    events: null,
 
     /**
       This hook is executed when the router completely exits this route. It is
@@ -25434,9 +25424,9 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       } else {
         var name = args[0];
         args = slice.call(args, 1);
-        var action = this._actions[name];
+        var action = this.actions[name];
         if (action) {
-          return this._actions[name].apply(this, args);
+          return this.actions[name].apply(this, args);
         }
       }
     },
@@ -26255,6 +26245,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       }
     }
   });
+
+  _emberRuntimeMixinsAction_handler.deprecateUnderscoreActions(Route);
 
   Route.reopenClass({
     isRouteFactory: true
@@ -27298,8 +27290,8 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       handlerInfo = handlerInfos[i];
       handler = handlerInfo.handler;
 
-      if (handler._actions && handler._actions[name]) {
-        if (handler._actions[name].apply(handler, args) === true) {
+      if (handler.actions && handler.actions[name]) {
+        if (handler.actions[name].apply(handler, args) === true) {
           eventWasHandled = true;
         } else {
           return;
@@ -28665,7 +28657,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   }
 });
 // Ember.assert
-enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject) {
+enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-runtime/mixins/controller', 'ember-runtime/inject', 'ember-runtime/mixins/action_handler'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberRuntimeMixinsController, _emberRuntimeInject, _emberRuntimeMixinsAction_handler) {
   'use strict';
 
   /**
@@ -28681,6 +28673,8 @@ enifed('ember-runtime/controllers/controller', ['exports', 'ember-metal/core', '
     @public
   */
   var Controller = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsController.default);
+
+  _emberRuntimeMixinsAction_handler.deprecateUnderscoreActions(Controller);
 
   function controllerInjectionHelper(factory) {
     _emberMetalCore.default.assert('Defining an injected controller property on a ' + 'non-controller is not allowed.', _emberRuntimeMixinsController.default.detect(factory.PrototypeMixin));
@@ -29385,18 +29379,16 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
   });
 });
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalMixin, _emberMetalProperty_get) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDeprecate_property) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
 
+  exports.deprecateUnderscoreActions = deprecateUnderscoreActions;
+
   /**
-    The `Ember.ActionHandler` mixin implements support for moving an `actions`
-    property to an `_actions` property at extend time, and adding `_actions`
-    to the object's mergedProperties list.
-  
     `Ember.ActionHandler` is available on some familiar classes including
     `Ember.Route`, `Ember.View`, `Ember.Component`, and `Ember.Controller`.
     (Internally the mixin is used by `Ember.CoreView`, `Ember.ControllerMixin`,
@@ -29408,7 +29400,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     @private
   */
   var ActionHandler = _emberMetalMixin.Mixin.create({
-    mergedProperties: ['_actions'],
+    mergedProperties: ['actions'],
 
     /**
       The collection of functions, keyed by name, available on this
@@ -29512,25 +29504,6 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
     */
 
     /**
-      Moves `actions` to `_actions` at extend time. Note that this currently
-      modifies the mixin themselves, which is technically dubious but
-      is practically of little consequence. This may change in the future.
-       @private
-      @method willMergeMixin
-    */
-    willMergeMixin: function (props) {
-      if (!props._actions) {
-        _emberMetalCore.default.assert('\'actions\' should not be a function', typeof props.actions !== 'function');
-
-        if (!!props.actions && typeof props.actions === 'object') {
-          var hashName = 'actions';
-          props._actions = _emberMetalMerge.default(props._actions || {}, props[hashName]);
-          delete props[hashName];
-        }
-      }
-    },
-
-    /**
       Triggers a named action on the `ActionHandler`. Any parameters
       supplied after the `actionName` string will be passed as arguments
       to the action target function.
@@ -29563,8 +29536,8 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
 
       var target;
 
-      if (this._actions && this._actions[actionName]) {
-        var shouldBubble = this._actions[actionName].apply(this, args) === true;
+      if (this.actions && this.actions[actionName]) {
+        var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
           return;
         }
@@ -29580,6 +29553,12 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
   });
 
   exports.default = ActionHandler;
+
+  function deprecateUnderscoreActions(factory) {
+    _emberMetalDeprecate_property.deprecateProperty(factory.prototype, '_actions', 'actions', {
+      id: 'ember-runtime.action-handler-_actions', until: '3.0.0'
+    });
+  }
 });
 enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/is_none', 'ember-runtime/mixins/enumerable', 'ember-metal/mixin', 'ember-metal/property_events', 'ember-metal/events', 'ember-runtime/system/each_proxy'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalIs_none, _emberRuntimeMixinsEnumerable, _emberMetalMixin, _emberMetalProperty_events, _emberMetalEvents, _emberRuntimeSystemEach_proxy) {
   /**
@@ -36409,7 +36388,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+d2c181ed',
+        revision: 'Ember@2.0.0-canary+66e71ff7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40913,10 +40892,10 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
       }
 
       var target;
-      var hasAction = this._actions && this._actions[actionName];
+      var hasAction = this.actions && this.actions[actionName];
 
       if (hasAction) {
-        var shouldBubble = this._actions[actionName].apply(this, args) === true;
+        var shouldBubble = this.actions[actionName].apply(this, args) === true;
         if (!shouldBubble) {
           return;
         }
@@ -41005,7 +40984,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+66e71ff7';
 
   /**
   @module ember
@@ -41455,6 +41434,8 @@ enifed('ember-views/views/core_view', ['exports', 'ember-metal/core', 'ember-met
     _transitionTo: K,
     destroyElement: K
   });
+
+  _emberRuntimeMixinsAction_handler.deprecateUnderscoreActions(CoreView);
 
   CoreView.reopenClass({
     isViewFactory: true
