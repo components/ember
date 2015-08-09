@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1b45842c
+ * @version   2.0.0-canary+06b1bb62
  */
 
 (function() {
@@ -7991,7 +7991,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1b45842c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -13576,7 +13576,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+1b45842c
+    @version 2.0.0-canary+06b1bb62
     @public
   */
 
@@ -13610,11 +13610,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+1b45842c'
+    @default '2.0.0-canary+06b1bb62'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+1b45842c';
+  Ember.VERSION = '2.0.0-canary+06b1bb62';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21727,7 +21727,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+1b45842c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22226,7 +22226,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1b45842c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32477,7 +32477,21 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
       @type Ember.Array
       @private
     */
-    content: null,
+    content: _emberMetalComputed.computed({
+      get: function () {
+        return this._content;
+      },
+      set: function (k, v) {
+        if (this._didInitArrayProxy) {
+          var oldContent = this._content;
+          var len = oldContent ? _emberMetalProperty_get.get(oldContent, 'length') : 0;
+          this.arrangedContentArrayWillChange(this, 0, len, undefined);
+          this.arrangedContentWillChange(this);
+        }
+        this._content = v;
+        return v;
+      }
+    }),
 
     /**
      The array that the proxy pretends to be. In the default `ArrayProxy`
@@ -32485,7 +32499,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
      can override this property to provide things like sorting and filtering.
       @property arrangedContent
      @private
-    */
+     */
     arrangedContent: _emberMetalAlias.default('content'),
 
     /**
@@ -32519,19 +32533,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
       _emberMetalProperty_get.get(this, 'content').replace(idx, amt, objects);
     },
 
-    /**
-      Invoked when the content property is about to change. Notifies observers that the
-      entire array content will change.
-       @private
-      @method _contentWillChange
-    */
-    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
-      this._teardownContent();
-    }),
-
-    _teardownContent: function () {
-      var content = _emberMetalProperty_get.get(this, 'content');
-
+    _teardownContent: function (content) {
       if (content) {
         content.removeArrayObserver(this, {
           willChange: 'contentArrayWillChange',
@@ -32569,6 +32571,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     */
     _contentDidChange: _emberMetalMixin.observer('content', function () {
       var content = _emberMetalProperty_get.get(this, 'content');
+      this._teardownContent(this._prevContent);
 
       
       this._setupContent();
@@ -32576,6 +32579,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
 
     _setupContent: function () {
       var content = _emberMetalProperty_get.get(this, 'content');
+      this._prevContent = content;
 
       if (content) {
         
@@ -32586,17 +32590,8 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
       }
     },
 
-    _arrangedContentWillChange: _emberMetalMixin._beforeObserver('arrangedContent', function () {
-      var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-      var len = arrangedContent ? _emberMetalProperty_get.get(arrangedContent, 'length') : 0;
-
-      this.arrangedContentArrayWillChange(this, 0, len, undefined);
-      this.arrangedContentWillChange(this);
-
-      this._teardownArrangedContent(arrangedContent);
-    }),
-
     _arrangedContentDidChange: _emberMetalMixin.observer('arrangedContent', function () {
+      this._teardownArrangedContent(this._prevArrangedContent);
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
       var len = arrangedContent ? _emberMetalProperty_get.get(arrangedContent, 'length') : 0;
 
@@ -32609,6 +32604,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
 
     _setupArrangedContent: function () {
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
+      this._prevArrangedContent = arrangedContent;
 
       if (arrangedContent) {
         
@@ -32760,6 +32756,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
     },
 
     init: function () {
+      this._didInitArrayProxy = true;
       this._super.apply(this, arguments);
       this._setupContent();
       this._setupArrangedContent();
@@ -32767,7 +32764,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/core', 'embe
 
     willDestroy: function () {
       this._teardownArrangedContent();
-      this._teardownContent();
+      this._teardownContent(this.get('content'));
     }
   });
 
@@ -35773,7 +35770,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+1b45842c',
+        revision: 'Ember@2.0.0-canary+06b1bb62',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38497,22 +38494,6 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
     },
 
     /**
-      Invoked when the content property is about to change. Notifies observers that the
-      entire array content will change.
-       @private
-      @method _contentWillChange
-    */
-    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
-      var content = this.get('content');
-
-      if (content) {
-        content.removeArrayObserver(this);
-      }
-      var len = content ? _emberMetalProperty_get.get(content, 'length') : 0;
-      this.arrayWillChange(content, 0, len);
-    }),
-
-    /**
       Check to make sure that the content has changed, and if so,
       update the children directly. This is always scheduled
       asynchronously, to allow the element to be created before
@@ -38521,14 +38502,22 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
       @method _contentDidChange
     */
     _contentDidChange: _emberMetalMixin.observer('content', function () {
+      var prevContent = this._prevContent;
+      if (prevContent) {
+        prevContent.removeArrayObserver(this);
+      }
+      var len = prevContent ? _emberMetalProperty_get.get(prevContent, 'length') : 0;
+      this.arrayWillChange(prevContent, 0, len);
+
       var content = _emberMetalProperty_get.get(this, 'content');
 
       if (content) {
+        this._prevContent = content;
         this._assertArrayLike(content);
         content.addArrayObserver(this);
       }
 
-      var len = content ? _emberMetalProperty_get.get(content, 'length') : 0;
+      len = content ? _emberMetalProperty_get.get(content, 'length') : 0;
       this.arrayDidChange(content, 0, null, len);
     }),
 
@@ -39086,7 +39075,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+1b45842c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
 
   /**
   @module ember
@@ -39253,7 +39242,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       var _this = this;
 
       this._super.apply(this, arguments);
-
+      this._prevCurrentView = undefined;
       var userChildViews = _emberMetalProperty_get.get(this, 'childViews');
       
       // redefine view's childViews property that was obliterated
@@ -39299,15 +39288,13 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       }
     },
 
-    _currentViewWillChange: _emberMetalMixin._beforeObserver('currentView', function () {
-      var currentView = _emberMetalProperty_get.get(this, 'currentView');
-      if (currentView) {
-        currentView.destroy();
-      }
-    }),
-
     _currentViewDidChange: _emberMetalMixin.observer('currentView', function () {
+      var prevView = this._prevCurrentView;
+      if (prevView) {
+        prevView.destroy();
+      }
       var currentView = _emberMetalProperty_get.get(this, 'currentView');
+      this._prevCurrentView = currentView;
       if (currentView) {
                 this.pushObject(currentView);
       }

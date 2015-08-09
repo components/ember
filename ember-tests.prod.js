@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+1b45842c
+ * @version   2.0.0-canary+06b1bb62
  */
 
 (function() {
@@ -38039,13 +38039,11 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
     var expectedLength;
 
     var proxy = _emberRuntimeSystemArray_proxy.default.extend({
-      content: _emberMetalCore.default.A([1, 2, 3]),
-
       arrangedContentWillChange: function () {
         equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked before array has changed');
         callCount++;
       }
-    }).create();
+    }).create({ content: _emberMetalCore.default.A([1, 2, 3]) });
 
     proxy.pushObject(4);
     equal(callCount, 0, 'pushing content onto the array doesn\'t trigger it');
@@ -38063,13 +38061,13 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
     var expectedLength;
 
     var proxy = _emberRuntimeSystemArray_proxy.default.extend({
-      content: _emberMetalCore.default.A([1, 2, 3]),
-
       arrangedContentDidChange: function () {
         equal(this.get('arrangedContent.length'), expectedLength, 'hook should be invoked after array has changed');
         callCount++;
       }
-    }).create();
+    }).create({
+      content: _emberMetalCore.default.A([1, 2, 3])
+    });
 
     equal(callCount, 0, 'hook is not called after creating the object');
 
@@ -40659,7 +40657,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+1b45842c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+06b1bb62', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
