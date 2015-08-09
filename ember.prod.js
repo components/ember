@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+06b1bb62
+ * @version   2.0.0-canary+52b55acf
  */
 
 (function() {
@@ -7875,7 +7875,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   exports.MUTABLE_REFERENCE = MUTABLE_REFERENCE;
   /**
     The `mut` helper lets you __clearly specify__ that a child `Component` can update the
-    (mutable) value passed to it, which will __change the value of the parent compnent__.
+    (mutable) value passed to it, which will __change the value of the parent component__.
   
     This is very helpful for passing mutable values to a `Component` of any size, but
     critical to understanding the logic of a large/complex `Component`.
@@ -7991,7 +7991,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+52b55acf';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -13576,7 +13576,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+06b1bb62
+    @version 2.0.0-canary+52b55acf
     @public
   */
 
@@ -13610,11 +13610,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+06b1bb62'
+    @default '2.0.0-canary+52b55acf'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+06b1bb62';
+  Ember.VERSION = '2.0.0-canary+52b55acf';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21727,7 +21727,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+52b55acf';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22226,7 +22226,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+52b55acf';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35770,7 +35770,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+06b1bb62',
+        revision: 'Ember@2.0.0-canary+52b55acf',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39075,7 +39075,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+06b1bb62';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+52b55acf';
 
   /**
   @module ember
