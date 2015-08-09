@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c9577a9a
+ * @version   2.0.0-canary+c0ce9f7f
  */
 
 (function() {
@@ -17411,6 +17411,42 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     equal(m.readableDeps('foo.faz').bar, 1);
     _emberMetalObserver.removeObserver(obj, 'bar', incrementCount);
     equal(m.readableDeps('foo.faz').bar, 0);
+  });
+
+  QUnit.test('old dependent keys should not trigger property changes', function () {
+    var obj1 = Object.create(null);
+    _emberMetalProperties.defineProperty(obj1, 'foo', null, null);
+    _emberMetalProperties.defineProperty(obj1, 'bar', _emberMetalAlias.default('foo'));
+    _emberMetalProperties.defineProperty(obj1, 'baz', _emberMetalAlias.default('foo'));
+    _emberMetalProperties.defineProperty(obj1, 'baz', _emberMetalAlias.default('bar')); // redefine baz
+    _emberMetalObserver.addObserver(obj1, 'baz', incrementCount);
+
+    _emberMetalProperty_set.set(obj1, 'foo', 'FOO');
+    equal(count, 1);
+
+    _emberMetalObserver.removeObserver(obj1, 'baz', incrementCount);
+
+    _emberMetalProperty_set.set(obj1, 'foo', 'OOF');
+    equal(count, 1);
+  });
+
+  QUnit.test('overridden dependent keys should not trigger property changes', function () {
+    var obj1 = Object.create(null);
+    _emberMetalProperties.defineProperty(obj1, 'foo', null, null);
+    _emberMetalProperties.defineProperty(obj1, 'bar', _emberMetalAlias.default('foo'));
+    _emberMetalProperties.defineProperty(obj1, 'baz', _emberMetalAlias.default('foo'));
+    _emberMetalObserver.addObserver(obj1, 'baz', incrementCount);
+
+    var obj2 = Object.create(obj1);
+    _emberMetalProperties.defineProperty(obj2, 'baz', _emberMetalAlias.default('bar')); // override baz
+
+    _emberMetalProperty_set.set(obj2, 'foo', 'FOO');
+    equal(count, 1);
+
+    _emberMetalObserver.removeObserver(obj2, 'baz', incrementCount);
+
+    _emberMetalProperty_set.set(obj2, 'foo', 'OOF');
+    equal(count, 1);
   });
 
   QUnit.test('begins watching alt key as soon as alias is watched', function () {
@@ -40785,7 +40821,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+c9577a9a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+c0ce9f7f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
