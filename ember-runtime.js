@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+c0ce9f7f
+ * @version   2.0.0-canary+c9577a9a
  */
 
 (function() {
@@ -4826,7 +4826,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+c0ce9f7f
+    @version 2.0.0-canary+c9577a9a
     @public
   */
 
@@ -4860,11 +4860,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+c0ce9f7f'
+    @default '2.0.0-canary+c9577a9a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+c0ce9f7f';
+  Ember.VERSION = '2.0.0-canary+c9577a9a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9027,11 +9027,6 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       keys = keysOf(deps);
       for (i = 0; i < keys.length; i++) {
         key = keys[i];
-
-        if (!deps[key]) {
-          continue;
-        }
-
         possibleDesc = obj[key];
         desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
