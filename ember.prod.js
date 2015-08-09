@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+16e064a6
+ * @version   2.0.0-canary+d2c181ed
  */
 
 (function() {
@@ -7953,7 +7953,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+16e064a6';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
 
   exports.default = {
     willRender: function (renderNode, env) {
@@ -8482,25 +8482,15 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       createOptions._controller = _emberHtmlbarsHooksGetValue.default(parentScope.locals.controller);
     }
 
-    // this flag is set when a block was provided so that components can see if
-    // `this.get('template')` is truthy.  this is added for backwards compat only
-    // and accessing `template` prop on a component will trigger a deprecation
-    // 2.0TODO: remove
-    if (templates.default) {
-      createOptions._deprecatedFlagForBlockProvided = true;
-    }
-
-    var proto = extractPositionalParams(renderNode, component, params, attrs);
+    extractPositionalParams(renderNode, component, params, attrs);
 
     // Instantiate the component
-    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs, proto);
+    component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
 
-    // If the component specifies its template via the `layout` or `template`
+    // If the component specifies its template via the `layout`
     // properties instead of using the template looked up in the container, get
     // them now that we have the component instance.
-    var result = extractComponentTemplates(component, templates);
-    layout = result.layout || layout;
-    templates = result.templates || templates;
+    layout = _emberMetalProperty_get.get(component, 'layout') || layout;
 
     var results = _emberViewsSystemBuildComponentTemplate.default({ layout: layout, component: component, isAngleBracket: isAngleBracket }, attrs, { templates: templates, scope: parentScope });
 
@@ -8509,21 +8499,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   function extractPositionalParams(renderNode, component, params, attrs) {
     var positionalParams = component.positionalParams;
-    var proto = undefined;
-
-    if (!positionalParams) {
-      proto = component.proto();
-      positionalParams = proto.positionalParams;
-
-          }
 
     if (positionalParams) {
       processPositionalParams(renderNode, positionalParams, params, attrs);
     }
-
-    // returns `proto` here so that we can avoid doing this
-    // twice for each initial render per component (it is also needed in `createComponent`)
-    return proto;
   }
 
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
@@ -8553,52 +8532,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
         attrs[positionalParams[i]] = param;
       }
     }
-  }
-
-  function extractComponentTemplates(component, _templates) {
-    // Even though we looked up a layout from the container earlier, the
-    // component may specify a `layout` property that overrides that.
-    // The component may also provide a `template` property we should
-    // respect (though this behavior is deprecated).
-    var componentLayout = _emberMetalProperty_get.get(component, 'layout');
-    var hasBlock = _templates && _templates.default;
-    var layout = undefined,
-        templates = undefined,
-        componentTemplate = undefined;
-    if (hasBlock) {
-      componentTemplate = null;
-    } else if (component.isComponent) {
-      componentTemplate = _emberMetalProperty_get.get(component, '_template');
-    } else {
-      componentTemplate = _emberMetalProperty_get.get(component, 'template');
-    }
-
-    if (componentLayout) {
-      layout = componentLayout;
-      templates = extractLegacyTemplate(_templates, componentTemplate);
-    } else if (componentTemplate) {
-      // If the component has a `template` but no `layout`, use the template
-      // as the layout.
-      layout = componentTemplate;
-      templates = _templates;
-          }
-
-    return { layout: layout, templates: templates };
-  }
-
-  // 2.0TODO: Remove legacy behavior
-  function extractLegacyTemplate(_templates, componentTemplate) {
-    var templates = undefined;
-
-    // There is no block template provided but the component has a
-    // `template` property.
-    if ((!_templates || !_templates.default) && componentTemplate) {
-            templates = { default: componentTemplate.raw };
-    } else {
-      templates = _templates;
-    }
-
-    return templates;
   }
 
   function configureTagName(attrs, tagName, component, isAngleBracket, createOptions) {
@@ -8692,42 +8625,41 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   function createComponent(_component, isAngleBracket, _props, renderNode, env) {
     var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
-    var proto = arguments.length <= 6 || arguments[6] === undefined ? _component.proto() : arguments[6];
-    return (function () {
-      var props = _emberMetalAssign.default({}, _props);
 
-      if (!isAngleBracket) {
-        var hasSuppliedController = ('controller' in attrs); // 2.0TODO remove
-        
-        var snapshot = takeSnapshot(attrs);
-        props.attrs = snapshot;
+    var props = _emberMetalAssign.default({}, _props);
 
-        mergeBindings(props, shadowedAttrs(proto, snapshot));
-      } else {
-        props._isAngleBracket = true;
+    if (!isAngleBracket) {
+      var proto = _component.proto();
+
+      
+      var snapshot = takeSnapshot(attrs);
+      props.attrs = snapshot;
+
+      mergeBindings(props, shadowedAttrs(proto, snapshot));
+    } else {
+      props._isAngleBracket = true;
+    }
+
+    props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup('renderer:-dom');
+    props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup('-view-registry:main');
+
+    var component = _component.create(props);
+
+    // for the fallback case
+    component.container = component.container || env.container;
+
+    if (props.parentView) {
+      props.parentView.appendChild(component);
+
+      if (props.viewName) {
+        _emberMetalProperty_set.set(props.parentView, props.viewName, component);
       }
+    }
 
-      props.renderer = props.parentView ? props.parentView.renderer : env.container.lookup('renderer:-dom');
-      props._viewRegistry = props.parentView ? props.parentView._viewRegistry : env.container.lookup('-view-registry:main');
-
-      var component = _component.create(props);
-
-      // for the fallback case
-      component.container = component.container || env.container;
-
-      if (props.parentView) {
-        props.parentView.appendChild(component);
-
-        if (props.viewName) {
-          _emberMetalProperty_set.set(props.parentView, props.viewName, component);
-        }
-      }
-
-      component._renderNode = renderNode;
-      renderNode.emberView = component;
-      renderNode.buildChildEnv = buildChildEnv;
-      return component;
-    })();
+    component._renderNode = renderNode;
+    renderNode.emberView = component;
+    renderNode.buildChildEnv = buildChildEnv;
+    return component;
   }
 
   function shadowedAttrs(target, attrs) {
@@ -8839,13 +8771,6 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       var layout = _emberMetalProperty_get.get(component, 'layout');
       if (layout) {
         componentInfo.layout = layout;
-        if (!contentTemplate) {
-          var template = getTemplate(component);
-
-          if (template) {
-                        contentTemplate = template.raw;
-          }
-        }
       } else {
         componentInfo.layout = getTemplate(component) || componentInfo.layout;
       }
@@ -8930,7 +8855,11 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
   };
 
   function getTemplate(componentOrView) {
-    return componentOrView.isComponent ? _emberMetalProperty_get.get(componentOrView, '_template') : _emberMetalProperty_get.get(componentOrView, 'template');
+    if (!componentOrView.isComponent) {
+      return _emberMetalProperty_get.get(componentOrView, 'template');
+    }
+
+    return null;
   }
 
   function createOrUpdateComponent(component, options, createOptions, renderNode, env) {
@@ -10680,7 +10609,7 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
     view._renderNode = renderNode;
 
     var layout = _emberMetalProperty_get.get(view, 'layout');
-    var template = view.isComponent ? _emberMetalProperty_get.get(view, '_template') : _emberMetalProperty_get.get(view, 'template');
+    var template = _emberMetalProperty_get.get(view, 'template');
 
     var componentInfo = { component: view, layout: layout };
 
@@ -13536,7 +13465,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+16e064a6
+    @version 2.0.0-canary+d2c181ed
     @public
   */
 
@@ -13570,11 +13499,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+16e064a6'
+    @default '2.0.0-canary+d2c181ed'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+16e064a6';
+  Ember.VERSION = '2.0.0-canary+d2c181ed';
 
   /**
     The hash of environment variables used to control various configuration
@@ -21684,7 +21613,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+16e064a6';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22183,7 +22112,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+16e064a6';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35748,7 +35677,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+16e064a6',
+        revision: 'Ember@2.0.0-canary+d2c181ed',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36238,59 +36167,6 @@ enifed('ember-views/mixins/class_names_support', ['exports', 'ember-metal/core',
     classNameBindings: EMPTY_ARRAY
   });
 });
-enifed('ember-views/mixins/component_template_deprecation', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalMixin) {
-  'use strict';
-
-  /*
-    The ComponentTemplateDeprecation mixin is used to provide a useful
-    deprecation warning when using either `template` or `templateName` with
-    a component. The `template` and `templateName` properties specified at
-    extend time are moved to `layout` and `layoutName` respectively.
-  
-    This is used internally by Ember in `Ember.Component`.
-  */
-  exports.default = _emberMetalMixin.Mixin.create({
-    /**
-      @private
-       Moves `templateName` to `layoutName` and `template` to `layout` at extend
-      time if a layout is not also specified.
-       Note that this currently modifies the mixin themselves, which is technically
-      dubious but is practically of little consequence. This may change in the
-      future.
-       @method willMergeMixin
-      @since 1.4.0
-    */
-    willMergeMixin: function (props) {
-      // must call _super here to ensure that the ActionHandler
-      // mixin is setup properly (moves actions -> _actions)
-      //
-      // Calling super is only OK here since we KNOW that
-      // there is another Mixin loaded first.
-      this._super.apply(this, arguments);
-
-      var deprecatedProperty, replacementProperty;
-      var layoutSpecified = props.layoutName || props.layout || _emberMetalProperty_get.get(this, 'layoutName');
-
-      if (props.templateName && !layoutSpecified) {
-        deprecatedProperty = 'templateName';
-        replacementProperty = 'layoutName';
-
-        props.layoutName = props.templateName;
-        delete props['templateName'];
-      }
-
-      if (props.template && !layoutSpecified) {
-        deprecatedProperty = 'template';
-        replacementProperty = 'layout';
-
-        props.layout = props.template;
-        delete props['template'];
-      }
-
-          }
-  });
-});
-// Ember.deprecate
 enifed('ember-views/mixins/empty_view_support', ['exports', 'ember-metal/mixin', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed'], function (exports, _emberMetalMixin, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed) {
   /**
    @module ember
@@ -38775,7 +38651,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports.DeprecatedCollectionView = DeprecatedCollectionView;
 });
 // Ember.assert
-enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-views/mixins/component_template_deprecation', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalCore, _emberViewsMixinsComponent_template_deprecation, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalComputed, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-runtime/mixins/target_action_support', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/computed', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalCore, _emberRuntimeMixinsTarget_action_support, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalComputed, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   function validateAction(component, actionName) {
@@ -38876,7 +38752,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
     @extends Ember.View
     @public
   */
-  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, _emberViewsMixinsComponent_template_deprecation.default, {
+  var Component = _emberViewsViewsView.default.extend(_emberRuntimeMixinsTarget_action_support.default, {
     isComponent: true,
     /*
       This is set so that the proto inspection in appendTemplatedView does not
@@ -38898,56 +38774,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
       _emberMetalProperty_set.set(this, 'context', this);
     },
 
-    /**
-    A components template property is set by passing a block
-    during its invocation. It is executed within the parent context.
-     Example:
-     ```handlebars
-    {{#my-component}}
-      // something that is run in the context
-      // of the parent context
-    {{/my-component}}
-    ```
-     Specifying a template directly to a component is deprecated without
-    also specifying the layout property.
-     @deprecated
-    @property template
-    @public
-    */
-    template: _emberMetalComputed.computed({
-      get: function () {
-        
-        return _emberMetalProperty_get.get(this, '_template');
-      },
-
-      set: function (key, value) {
-        return _emberMetalProperty_set.set(this, '_template', value);
-      }
-    }),
-
-    _template: _emberMetalComputed.computed({
-      get: function () {
-        if (this._deprecatedFlagForBlockProvided) {
-          return true;
-        }
-        var templateName = _emberMetalProperty_get.get(this, 'templateName');
-        var template = this.templateForName(templateName, 'template');
-
-                return template || _emberMetalProperty_get.get(this, 'defaultTemplate');
-      },
-      set: function (key, value) {
-        return value;
-      }
-    }),
-
-    /**
-    Specifying a components `templateName` is deprecated without also
-    providing the `layout` or `layoutName` properties.
-     @deprecated
-    @property templateName
-    @public
-    */
-    templateName: null,
+    template: null,
 
     /**
       If the component is currently inserted into the DOM of a parent view, this
@@ -39163,7 +38990,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-vie
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+16e064a6';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+d2c181ed';
 
   /**
   @module ember

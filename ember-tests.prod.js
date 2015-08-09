@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+16e064a6
+ * @version   2.0.0-canary+d2c181ed
  */
 
 (function() {
@@ -13803,60 +13803,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(view.$('#aria-test').attr('role'), 'main', 'role attribute is applied');
   });
 
-  QUnit.test('`template` is true when block supplied', function () {
-    expect(3);
-
-    var innerComponent = undefined;
-    registry.register('component:with-block', _emberViewsViewsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        innerComponent = this;
-      }
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{#with-block}}In template{{/with-block}}'),
-      container: container
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In template');
-
-    var template = undefined;
-    expectDeprecation(function () {
-      template = _emberMetalProperty_get.get(innerComponent, 'template');
-    }, /Accessing 'template' in .+ is deprecated. To determine if a block was specified to .+ please use '{{#if hasBlock}}' in the components layout./);
-
-    ok(template, 'template property is truthy when a block was provided');
-  });
-
-  QUnit.test('`template` is false when no block supplied', function () {
-    expect(2);
-
-    var innerComponent = undefined;
-    registry.register('component:without-block', _emberViewsViewsComponent.default.extend({
-      init: function () {
-        this._super.apply(this, arguments);
-        innerComponent = this;
-      }
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{without-block}}'),
-      container: container
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    var template = undefined;
-    expectDeprecation(function () {
-      template = _emberMetalProperty_get.get(innerComponent, 'template');
-    }, /Accessing 'template' in .+ is deprecated. To determine if a block was specified to .+ please use '{{#if hasBlock}}' in the components layout./);
-
-    ok(!template, 'template property is falsey when a block was not provided');
-  });
-
   QUnit.test('`template` specified in a component is overridden by block', function () {
     expect(1);
 
@@ -13873,25 +13819,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     _emberRuntimeTestsUtils.runAppend(view);
 
     equal(view.$().text(), 'Whoop, whoop!', 'block provided always overrides template property');
-  });
-
-  QUnit.test('template specified inline is available from Views looked up as components', function () {
-    expect(2);
-
-    registry.register('component:without-block', _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('Whoop, whoop!')
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{without-block}}'),
-      container: container
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Using deprecated `template` property on a Component.');
-
-    equal(view.$().text(), 'Whoop, whoop!', 'template inline works properly');
   });
 
   QUnit.test('hasBlock is true when block supplied', function () {
@@ -13952,102 +13879,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     _emberRuntimeTestsUtils.runAppend(view);
 
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In block No Block Param!');
-  });
-
-  QUnit.test('static named positional parameters [DEPRECATED]', function () {
-    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
-      positionalParams: ['name', 'age']
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component "Quint" 4}}'),
-      container: container
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-  });
-
-  QUnit.test('dynamic named positional parameters [DEPRECATED]', function () {
-    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
-      positionalParams: ['name', 'age']
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component myName myAge}}'),
-      container: container,
-      context: {
-        myName: 'Quint',
-        myAge: 4
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
-      _emberMetalProperty_set.set(view.context, 'myAge', '5');
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
-  });
-
-  QUnit.test('static arbitrary number of positional parameters [DEPRECATED]', function () {
-    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
-      positionalParams: 'names'
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" id="args-3"}}{{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}{{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'),
-      container: container
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
-
-    equal(view.$('#args-3').text(), 'Foo4Bar');
-    equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
-    equal(view.$('#helper').text(), 'Foo4Bar5Baz');
-  });
-
-  QUnit.test('dynamic arbitrary number of positional parameters [DEPRECATED]', function () {
-    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
-      positionalParams: 'names'
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component user1 user2 id="direct"}}{{component "sample-component" user1 user2 id="helper"}}'),
-      container: container,
-      context: {
-        user1: 'Foo',
-        user2: 4
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
-
-    equal(view.$('#direct').text(), 'Foo4');
-    equal(view.$('#helper').text(), 'Foo4');
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view.context, 'user1', 'Bar');
-      _emberMetalProperty_set.set(view.context, 'user2', '5');
-    });
-
-    equal(view.$('#direct').text(), 'Bar5');
-    equal(view.$('#helper').text(), 'Bar5');
   });
 
   QUnit.test('static named positional parameters', function () {
@@ -14195,34 +14026,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     }).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
-  });
-
-  QUnit.test('{{component}} helper works with positional params [DEPRECATED]', function () {
-    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
-      positionalParams: ['name', 'age']
-    }));
-
-    view = _emberViewsViewsView.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{component "sample-component" myName myAge}}'),
-      container: container,
-      context: {
-        myName: 'Quint',
-        myAge: 4
-      }
-    }).create();
-
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'Calling `var Thing = Ember.Component.extend({ positionalParams: [\'a\', \'b\' ]});` is deprecated in favor of `Thing.reopenClass({ positionalParams: [\'a\', \'b\'] });');
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
-    _emberMetalRun_loop.default(function () {
-      _emberMetalProperty_set.set(view.context, 'myName', 'Edward');
-      _emberMetalProperty_set.set(view.context, 'myAge', '5');
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
   });
 
   QUnit.test('{{component}} helper works with positional params', function () {
@@ -26291,34 +26094,6 @@ enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-me
 
     var output = _emberViewsSystemJquery.default('#qunit-fixture h1 ~ h3').text();
     equal(output, 'BOTTOM', 'all templates were rendered');
-  });
-
-  QUnit.test('should support layouts [DEPRECATED]', function () {
-    expectDeprecation(/Using deprecated `template` property on a View/);
-    var template = '{{outlet}}';
-    var layout = '<h1>HI</h1>{{yield}}';
-    var routerState = {
-      render: {
-        ViewClass: _emberViewsViewsView.default.extend({
-          template: _emberTemplateCompilerSystemCompile.default(template),
-          layout: _emberTemplateCompilerSystemCompile.default(layout)
-        })
-      },
-      outlets: {}
-    };
-    top.setOutletState(routerState);
-    _emberRuntimeTestsUtils.runAppend(top);
-
-    equal(top.$().text(), 'HI');
-
-    routerState.outlets.main = withTemplate('<p>BYE</p>');
-
-    _emberMetalRun_loop.default(function () {
-      top.setOutletState(routerState);
-    });
-
-    // Replace whitespace for older IE
-    equal(trim(top.$().text()), 'HIBYE');
   });
 
   QUnit.test('should not throw deprecations if {{outlet}} is used without a name', function () {
@@ -40863,7 +40638,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+16e064a6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+d2c181ed', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44326,40 +44101,6 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('The controller (target of `action`) of an Ember.Component is itself', function () {
     strictEqual(component, component.get('controller'), 'A component\'s controller is itself');
-  });
-
-  QUnit.test('A templateName specified to a component is moved to the layoutName', function () {
-    expectDeprecation(/Do not specify templateName on a Component, use layoutName instead/);
-    component = _emberViewsViewsComponent.default.extend({
-      templateName: 'blah-blah'
-    }).create();
-
-    equal(component.get('layoutName'), 'blah-blah', 'The layoutName now contains the templateName specified.');
-  });
-
-  QUnit.test('A template specified to a component is moved to the layout', function () {
-    expectDeprecation(/Do not specify template on a Component, use layout instead/);
-    component = _emberViewsViewsComponent.default.extend({
-      template: 'blah-blah'
-    }).create();
-
-    equal(component.get('layout'), 'blah-blah', 'The layoutName now contains the templateName specified.');
-  });
-
-  QUnit.test('A template specified to a component is deprecated', function () {
-    expectDeprecation(function () {
-      component = _emberViewsViewsComponent.default.extend({
-        template: 'blah-blah'
-      }).create();
-    }, 'Do not specify template on a Component, use layout instead.');
-  });
-
-  QUnit.test('A templateName specified to a component is deprecated', function () {
-    expectDeprecation(function () {
-      component = _emberViewsViewsComponent.default.extend({
-        templateName: 'blah-blah'
-      }).create();
-    }, 'Do not specify templateName on a Component, use layoutName instead.');
   });
 
   QUnit.test('Specifying both templateName and layoutName to a component is NOT deprecated', function () {
@@ -50959,15 +50700,13 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
     equal(_emberMetalCore.default.$('div.testing123', '#qunit-fixture').text(), 'hello world', 'The component is composed correctly');
   });
 
-  QUnit.test('Late-registered components can be rendered with custom `template` property (DEPRECATED)', function () {
+  QUnit.test('Late-registered components can be rendered with custom `layout` property', function () {
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>there goes {{my-hero}}</div>');
-
-    expectDeprecation(/Do not specify template on a Component/);
 
     boot(function () {
       registry.register('component:my-hero', _emberMetalCore.default.Component.extend({
         classNames: 'testing123',
-        template: _emberTemplateCompilerSystemCompile.default('watch him as he GOES')
+        layout: _emberTemplateCompilerSystemCompile.default('watch him as he GOES')
       }));
     });
 
@@ -51010,14 +50749,12 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
     equal(_emberMetalCore.default.$('#wrapper').text(), 'machty hello  world', 'The component is composed correctly');
   });
 
-  QUnit.test('Assigning templateName to a component should setup the template as a layout (DEPRECATED)', function () {
-    expect(2);
+  QUnit.test('Assigning templateName to a component should setup the template as a layout', function () {
+    expect(1);
 
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
     _emberMetalCore.default.TEMPLATES['foo-bar-baz'] = _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}');
 
-    expectDeprecation(/Do not specify templateName on a Component/);
-
     boot(function () {
       registry.register('controller:application', _emberMetalCore.default.Controller.extend({
         'text': 'outer'
@@ -51025,30 +50762,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
 
       registry.register('component:my-component', _emberMetalCore.default.Component.extend({
         text: 'inner',
-        templateName: 'foo-bar-baz'
-      }));
-    });
-
-    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
-  });
-
-  QUnit.test('Assigning templateName and layoutName should use the templates specified [DEPRECATED]', function () {
-    expect(2);
-    expectDeprecation(/Using deprecated `template` property on a Component/);
-
-    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{my-component}}</div>');
-    _emberMetalCore.default.TEMPLATES['foo'] = _emberTemplateCompilerSystemCompile.default('{{text}}');
-    _emberMetalCore.default.TEMPLATES['bar'] = _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}');
-
-    boot(function () {
-      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
-        'text': 'outer'
-      }));
-
-      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
-        text: 'inner',
-        layoutName: 'bar',
-        templateName: 'foo'
+        layoutName: 'foo-bar-baz'
       }));
     });
 
