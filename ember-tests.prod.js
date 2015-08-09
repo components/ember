@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.6+3e2fa681
+ * @version   1.13.6+63d3364b
  */
 
 (function() {
@@ -47999,7 +47999,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.6+3e2fa681', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.6+63d3364b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -50127,6 +50127,9 @@ enifed("ember-views/tests/compat/view_render_hook_test", ["exports", "ember-runt
   var view, parentView;
 
   QUnit.module("ember-views: View#render hook", {
+    setup: function () {
+      expectDeprecation('Using a custom `.render` function is deprecated and will be removed in Ember 2.0.0.');
+    },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
       _emberRuntimeTestsUtils.runDestroy(parentView);
