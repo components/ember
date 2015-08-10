@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+52b55acf
+ * @version   2.0.0-canary+92b8d933
  */
 
 (function() {
@@ -40657,7 +40657,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+52b55acf', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+92b8d933', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -58881,6 +58881,54 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.error', 'Initial route fully loaded');
+  });
+
+  QUnit.test('Setting a query param during a slow transition should work', function () {
+    var deferred = _emberMetalCore.default.RSVP.defer();
+
+    Router.map(function () {
+      this.route('grandma', { path: '/grandma/:seg' }, function () {});
+    });
+
+    templates['grandma/loading'] = 'GMONEYLOADING';
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
+      beforeModel: function () {
+        this.transitionTo('grandma', 1);
+      }
+    });
+
+    App.GrandmaRoute = _emberMetalCore.default.Route.extend({
+      queryParams: {
+        test: { defaultValue: 1 }
+      }
+    });
+
+    App.GrandmaIndexRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        return deferred.promise;
+      }
+    });
+
+    bootApplication('/');
+
+    var appController = container.lookup('controller:application');
+    var grandmaController = container.lookup('controller:grandma');
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Initial route should be loading');
+
+    _emberMetalCore.default.run(function () {
+      grandmaController.set('test', 3);
+    });
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Route should still be loading');
+    equal(grandmaController.get('test'), 3, 'Controller query param value should have changed');
+
+    _emberMetalCore.default.run(deferred, 'resolve', {});
+
+    equal(appController.get('currentPath'), 'grandma.index', 'Transition should be complete');
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {
