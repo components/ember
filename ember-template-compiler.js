@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.5
+ * @version   2.0.0-beta.5+4589517e
  */
 
 (function() {
@@ -2323,7 +2323,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   }
 
   function isVolatile(obj) {
-    return !(isObject(obj) && obj.isDescriptor && obj._cacheable);
+    return !(isObject(obj) && obj.isDescriptor && !obj._volatile);
   }
 
   function Chains() {}
@@ -2842,7 +2842,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
-    this._cacheable = true;
+    this._volatile = false;
     this._dependentKeys = opts && opts.dependentKeys;
     this._readOnly = false;
   }
@@ -2854,6 +2854,12 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
   /**
     Call on a computed property to set it into non-cached mode. When in this
     mode the computed property will not automatically cache the return value.
+  
+    It also does not automatically fire any change events. You must manually notify
+    any changes if you want to observe this property.
+  
+    Dependency keys have no effect on volatile properties as they are for cache
+    invalidation and notification when cached value is invalidated.
   
     ```javascript
     var outsideService = Ember.Object.extend({
@@ -2869,7 +2875,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   ComputedPropertyPrototype.volatile = function () {
-    this._cacheable = false;
+    this._volatile = true;
     return this;
   };
 
@@ -2980,16 +2986,24 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     }
   };
 
-  /* impl descriptor API */
+  // invalidate cache when CP key changes
   ComputedPropertyPrototype.didChange = function (obj, keyName) {
     // _suspended is set via a CP.set to ensure we don't clear
     // the cached value set by the setter
-    if (this._cacheable && this._suspended !== obj) {
-      var meta = metaFor(obj);
-      if (meta.cache && meta.cache[keyName] !== undefined) {
-        meta.cache[keyName] = undefined;
-        _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
-      }
+    if (this._volatile || this._suspended === obj) {
+      return;
+    }
+
+    // don't create objects just to invalidate
+    var meta = obj.__ember_meta__;
+    if (!meta || meta.source !== obj) {
+      return;
+    }
+
+    var cache = meta.cache;
+    if (cache && cache[keyName] !== undefined) {
+      cache[keyName] = undefined;
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
     }
   };
 
@@ -3021,37 +3035,36 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   ComputedPropertyPrototype.get = function (obj, keyName) {
-    var ret, cache, meta;
-    if (this._cacheable) {
-      meta = metaFor(obj);
-      cache = meta.cache;
-
-      var result = cache && cache[keyName];
-
-      if (result === UNDEFINED) {
-        return undefined;
-      } else if (result !== undefined) {
-        return result;
-      }
-
-      ret = this._getter.call(obj, keyName);
-      cache = meta.cache;
-      if (!cache) {
-        cache = meta.cache = {};
-      }
-      if (ret === undefined) {
-        cache[keyName] = UNDEFINED;
-      } else {
-        cache[keyName] = ret;
-      }
-
-      if (meta.chainWatchers) {
-        meta.chainWatchers.revalidate(keyName);
-      }
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-    } else {
-      ret = this._getter.call(obj, keyName);
+    if (this._volatile) {
+      return this._getter.call(obj, keyName);
     }
+
+    var meta = metaFor(obj);
+    var cache = meta.cache;
+    if (!cache) {
+      cache = meta.cache = {};
+    }
+
+    var result = cache[keyName];
+    if (result === UNDEFINED) {
+      return undefined;
+    } else if (result !== undefined) {
+      return result;
+    }
+
+    var ret = this._getter.call(obj, keyName);
+    if (ret === undefined) {
+      cache[keyName] = UNDEFINED;
+    } else {
+      cache[keyName] = ret;
+    }
+
+    var chainWatchers = meta.chainWatchers;
+    if (chainWatchers) {
+      chainWatchers.revalidate(keyName);
+    }
+    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+
     return ret;
   };
 
@@ -3104,51 +3117,72 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @return {Object} The return value of the function backing the CP.
     @public
   */
-  ComputedPropertyPrototype.set = function computedPropertySetWithSuspend(obj, keyName, value) {
+  ComputedPropertyPrototype.set = function computedPropertySetEntry(obj, keyName, value) {
+    if (this._readOnly) {
+      this._throwReadOnlyError(obj, keyName);
+    }
+
+    if (!this._setter) {
+      return this.clobberSet(obj, keyName, value);
+    }
+
+    if (this._volatile) {
+      return this.volatileSet(obj, keyName, value);
+    }
+
+    return this.setWithSuspend(obj, keyName, value);
+  };
+
+  ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
+    throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberMetalUtils.inspect(obj));
+  };
+
+  ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
+    var cachedValue = cacheFor(obj, keyName);
+    _emberMetalProperties.defineProperty(obj, keyName, null, cachedValue);
+    _emberMetalProperty_set.set(obj, keyName, value);
+    return value;
+  };
+
+  ComputedPropertyPrototype.volatileSet = function computedPropertyVolatileSet(obj, keyName, value) {
+    return this._setter.call(obj, keyName, value);
+  };
+
+  ComputedPropertyPrototype.setWithSuspend = function computedPropertySetWithSuspend(obj, keyName, value) {
     var oldSuspended = this._suspended;
-
     this._suspended = obj;
-
     try {
-      this._set(obj, keyName, value);
+      return this._set(obj, keyName, value);
     } finally {
       this._suspended = oldSuspended;
     }
   };
 
   ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
-    var cacheable = this._cacheable;
-    var setter = this._setter;
-    var meta = metaFor(obj, cacheable);
+    // cache requires own meta
+    var meta = metaFor(obj);
+    // either there is a writable cache or we need one to update
     var cache = meta.cache;
-    var hadCachedValue = false;
-
-    var cachedValue, ret;
-
-    if (this._readOnly) {
-      throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberMetalUtils.inspect(obj));
+    if (!cache) {
+      cache = meta.cache = {};
     }
-
-    if (cacheable && cache && cache[keyName] !== undefined) {
+    var hadCachedValue = false;
+    var cachedValue = undefined;
+    if (cache[keyName] !== undefined) {
       if (cache[keyName] !== UNDEFINED) {
         cachedValue = cache[keyName];
       }
-
       hadCachedValue = true;
     }
 
-    if (!setter) {
-      _emberMetalProperties.defineProperty(obj, keyName, null, cachedValue);
-      return _emberMetalProperty_set.set(obj, keyName, value);
-    } else {
-      ret = setter.call(obj, keyName, value, cachedValue);
-    }
+    var ret = this._setter.call(obj, keyName, value, cachedValue);
 
+    // allows setter to return the same value that is cached already
     if (hadCachedValue && cachedValue === ret) {
-      return;
+      return ret;
     }
 
-    var watched = meta.watching[keyName];
+    var watched = meta.watching && meta.watching[keyName];
     if (watched) {
       _emberMetalProperty_events.propertyWillChange(obj, keyName);
     }
@@ -3157,18 +3191,14 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
       cache[keyName] = undefined;
     }
 
-    if (cacheable) {
-      if (!hadCachedValue) {
-        _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-      }
-      if (!cache) {
-        cache = meta.cache = {};
-      }
-      if (ret === undefined) {
-        cache[keyName] = UNDEFINED;
-      } else {
-        cache[keyName] = ret;
-      }
+    if (!hadCachedValue) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+
+    if (ret === undefined) {
+      cache[keyName] = UNDEFINED;
+    } else {
+      cache[keyName] = ret;
     }
 
     if (watched) {
@@ -3180,19 +3210,15 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
 
   /* called before property is overridden */
   ComputedPropertyPrototype.teardown = function (obj, keyName) {
-    var meta = metaFor(obj);
-
-    if (meta.cache) {
-      if (keyName in meta.cache) {
-        _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
-      }
-
-      if (this._cacheable) {
-        delete meta.cache[keyName];
-      }
+    if (this._volatile) {
+      return;
     }
-
-    return null; // no value to restore
+    var meta = metaFor(obj);
+    var cache = meta.cache;
+    if (cache && cache[keyName] !== undefined) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+      cache[keyName] = undefined;
+    }
   };
 
   /**
@@ -3282,8 +3308,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   function cacheFor(obj, key) {
-    var meta = obj['__ember_meta__'];
-    var cache = meta && meta.cache;
+    var meta = obj.__ember_meta__;
+    var cache = meta && meta.source === obj && meta.cache;
     var ret = cache && cache[key];
 
     if (ret === UNDEFINED) {
@@ -4033,7 +4059,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.5
+    @version 2.0.0-beta.5+4589517e
     @public
   */
 
@@ -4067,11 +4093,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.5'
+    @default '2.0.0-beta.5+4589517e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.5';
+  Ember.VERSION = '2.0.0-beta.5+4589517e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11992,7 +12018,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.5',
+        revision: 'Ember@2.0.0-beta.5+4589517e',
         loc: program.loc,
         moduleName: options.moduleName
       };
