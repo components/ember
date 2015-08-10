@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.4
+ * @version   2.0.0-beta.5
  */
 
 (function() {
@@ -2500,15 +2500,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
         addChainWatcher(this._object, this._key, this);
       }
     }
-
-    // Special-case: the EachProxy relies on immediate evaluation to
-    // establish its observers.
-    //
-    // TODO: Replace this with an efficient callback that the EachProxy
-    // can implement.
-    if (this._parent && this._parent._key === '@each') {
-      this.value();
-    }
   }
 
   function lazyGet(obj, key) {
@@ -2524,7 +2515,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
     }
 
     // Use `get` if the return value is an EachProxy or an uncacheable value.
-    if (key === '@each' || isVolatile(obj[key])) {
+    if (isVolatile(obj[key])) {
       return _emberMetalProperty_get.get(obj, key);
       // Otherwise attempt to get the cached value of the computed property
     } else {
@@ -2681,12 +2672,6 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
           addChainWatcher(obj, this._key, this);
         }
         this._value = undefined;
-
-        // Special-case: the EachProxy relies on immediate evaluation to
-        // establish its observers.
-        if (this._parent && this._parent._key === '@each') {
-          this.value();
-        }
       }
 
       // then notify chains...
@@ -2947,6 +2932,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     var args;
 
     var addArg = function (property) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.computed(\'' + property + '\', function() {});` to `Ember.computed(\'' + property.slice(0, -6) + '.[]\', function() {})`.'), property.slice(-5) !== '@each');
       args.push(property);
     };
 
@@ -3796,6 +3782,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -3823,16 +3810,18 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
+    var value;
     for (var key in properties) {
-      if (properties.hasOwnProperty(key) && properties[key]) {
-        return properties[key];
+      value = properties[key];
+      if (properties.hasOwnProperty(key) && value) {
+        return value;
       }
     }
-    return false;
+    return value;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -3859,7 +3848,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.or = or;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore.default.A();
     for (var key in properties) {
@@ -3874,6 +3862,7 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -3935,7 +3924,6 @@ enifed('ember-metal/computed_macros', ['exports', 'ember-metal/core', 'ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias.default(dependentKey).oneWay();
@@ -4045,7 +4033,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.4
+    @version 2.0.0-beta.5
     @public
   */
 
@@ -4079,11 +4067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.4'
+    @default '2.0.0-beta.5'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.4';
+  Ember.VERSION = '2.0.0-beta.5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4181,7 +4169,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     An empty function useful for some operations. Always returns `this`.
   
     @method K
-    @private
     @return {Object}
     @public
   */
@@ -4932,12 +4919,13 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
     Ember.expandProperties('{foo,bar}', echo);            //=> 'foo', 'bar'
     Ember.expandProperties('foo.{bar,baz}', echo);        //=> 'foo.bar', 'foo.baz'
     Ember.expandProperties('{foo,bar}.baz', echo);        //=> 'foo.baz', 'bar.baz'
-    Ember.expandProperties('foo.{bar,baz}.@each', echo)   //=> 'foo.bar.@each', 'foo.baz.@each'
+    Ember.expandProperties('foo.{bar,baz}.[]', echo)   //=> 'foo.bar.[]', 'foo.baz.[]'
     Ember.expandProperties('{foo,bar}.{spam,eggs}', echo) //=> 'foo.spam', 'foo.eggs', 'bar.spam', 'bar.eggs'
     Ember.expandProperties('{foo}.bar.{baz}')             //=> 'foo.bar.baz'
     ```
   
-    @method
+    @method expandProperties
+    @for Ember
     @private
     @param {String} pattern The property pattern to expand.
     @param {Function} callback The callback to invoke.  It is invoked once per
@@ -5001,6 +4989,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
   */
   var FEATURES = _emberMetalCore.default.ENV.FEATURES || {};
 
+  exports.FEATURES = FEATURES;
   /**
     Determine whether the specified `feature` is enabled. Used by Ember's
     build tools to exclude experimental features from beta/stable builds.
@@ -5018,7 +5007,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core'], function (export
     @since 1.1.0
     @public
   */
-  exports.FEATURES = FEATURES;
 
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
@@ -6313,7 +6301,7 @@ enifed('ember-metal/merge', ['exports'], function (exports) {
     @param {Object} original The object to merge into
     @param {Object} updates The object to copy properties from
     @return {Object}
-    @private
+    @public
   */
   'use strict';
 
@@ -7204,6 +7192,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var paths;
 
     var addWatchedProperty = function (path) {
+      _emberMetalCore.default.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.observer(\'' + path + '\', function() {});` to `Ember.observer(\'' + path.slice(0, -6) + '.[]\', function() {})`.'), path.slice(-5) !== '@each');
+
       paths.push(path);
     };
     var _paths = args.slice(0, -1);
@@ -7953,6 +7943,11 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       keys = keysOf(deps);
       for (i = 0; i < keys.length; i++) {
         key = keys[i];
+
+        if (!deps[key]) {
+          continue;
+        }
+
         possibleDesc = obj[key];
         desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
@@ -8072,7 +8067,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
   exports.endPropertyChanges = endPropertyChanges;
   exports.changeProperties = changeProperties;
 });
-enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils) {
+enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalPath_cache) {
   /**
   @module ember-metal
   */
@@ -8085,10 +8080,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
   exports.getWithDefault = getWithDefault;
 
   var FIRST_KEY = /^([^\.]+)/;
-
-  var INTERCEPT_GET = _emberMetalUtils.symbol('INTERCEPT_GET');
-  exports.INTERCEPT_GET = INTERCEPT_GET;
-  var UNHANDLED_GET = _emberMetalUtils.symbol('UNHANDLED_GET');
 
   // ..........................................................
   // GET AND SET
@@ -8122,7 +8113,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     @return {Object} the property value or `null`.
     @public
   */
-  exports.UNHANDLED_GET = UNHANDLED_GET;
 
   function get(obj, keyName) {
     _emberMetalCore.default.assert('Get must be called with two arguments; an object and a property key', arguments.length === 2);
@@ -8133,13 +8123,6 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     // Helpers that operate with 'this' within an #each
     if (keyName === '') {
       return obj;
-    }
-
-    if (typeof obj[INTERCEPT_GET] === 'function') {
-      var result = obj[INTERCEPT_GET](obj, keyName);
-      if (result !== UNHANDLED_GET) {
-        return result;
-      }
     }
 
     var meta = obj['__ember_meta__'];
@@ -8252,14 +8235,11 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
 
   exports.default = get;
 });
-enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/error', 'ember-metal/path_cache', 'ember-metal/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache, _emberMetalUtils) {
+enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/error', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_events, _emberMetalProperties, _emberMetalError, _emberMetalPath_cache) {
   'use strict';
 
   exports.set = set;
   exports.trySet = trySet;
-  var INTERCEPT_SET = _emberMetalUtils.symbol('INTERCEPT_SET');
-  exports.INTERCEPT_SET = INTERCEPT_SET;
-  var UNHANDLED_SET = _emberMetalUtils.symbol('UNHANDLED_SET');
 
   /**
     Sets the value of a property on an object, respecting computed properties
@@ -8275,23 +8255,12 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/core', 'ember-metal/
     @return {Object} the passed value.
     @public
   */
-  exports.UNHANDLED_SET = UNHANDLED_SET;
 
   function set(obj, keyName, value, tolerant) {
     _emberMetalCore.default.assert('Set must be called with three or four arguments; an object, a property key, a value and tolerant true/false', arguments.length === 3 || arguments.length === 4);
     _emberMetalCore.default.assert('Cannot call set with \'' + keyName + '\' on an undefined object.', obj !== undefined && obj !== null);
     _emberMetalCore.default.assert('The key provided to set must be a string, you passed ' + keyName, typeof keyName === 'string');
     _emberMetalCore.default.assert('\'this\' in paths is not supported', !_emberMetalPath_cache.hasThis(keyName));
-
-    // This path exists purely to implement backwards-compatible
-    // effects (specifically, setting a property on a view may
-    // invoke a mutator on `attrs`).
-    if (obj && typeof obj[INTERCEPT_SET] === 'function') {
-      var result = obj[INTERCEPT_SET](obj, keyName, value, tolerant);
-      if (result !== UNHANDLED_SET) {
-        return result;
-      }
-    }
 
     var meta, possibleDesc, desc;
     if (obj) {
@@ -10334,6 +10303,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -10351,7 +10321,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -12023,7 +11992,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.4',
+        revision: 'Ember@2.0.0-beta.5',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13938,7 +13907,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       var handledMorphs = renderState.handledMorphs;
       var key = undefined;
 
-      if (handledMorphs[_key]) {
+      if (_key in handledMorphs) {
         // In this branch we are dealing with a duplicate key. The strategy
         // is to take the original key and append a counter to it that is
         // incremented every time the key is reused. In order to greatly
@@ -14566,6 +14535,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
 
   };
 
+  exports.keywords = keywords;
   /**
     Host Hook: partial
   
@@ -14592,7 +14562,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     The host hook should invoke the referenced partial with
     the ambient `self`.
   */
-  exports.keywords = keywords;
 
   function partial(renderNode, env, scope, path) {
     var template = env.partials[path];
@@ -15267,12 +15236,14 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return fragment;
   }
 });
-enifed("htmlbars-syntax", ["exports", "./htmlbars-syntax/walker", "./htmlbars-syntax/builders", "./htmlbars-syntax/parser"], function (exports, _htmlbarsSyntaxWalker, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser) {
+enifed("htmlbars-syntax", ["exports", "./htmlbars-syntax/builders", "./htmlbars-syntax/parser", "./htmlbars-syntax/generation/print", "./htmlbars-syntax/traversal/traverse", "./htmlbars-syntax/traversal/walker"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser, _htmlbarsSyntaxGenerationPrint, _htmlbarsSyntaxTraversalTraverse, _htmlbarsSyntaxTraversalWalker) {
   "use strict";
 
-  exports.Walker = _htmlbarsSyntaxWalker.default;
   exports.builders = _htmlbarsSyntaxBuilders.default;
   exports.parse = _htmlbarsSyntaxParser.default;
+  exports.print = _htmlbarsSyntaxGenerationPrint.default;
+  exports.traverse = _htmlbarsSyntaxTraversalTraverse.default;
+  exports.Walker = _htmlbarsSyntaxTraversalWalker.default;
 });
 enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   // Statements
@@ -15303,7 +15274,7 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   function buildMustache(path, params, hash, raw, loc) {
     return {
       type: "MustacheStatement",
-      path: path,
+      path: buildPath(path),
       params: params || [],
       hash: hash || buildHash([]),
       escaped: !raw,
@@ -15314,7 +15285,7 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   function buildBlock(path, params, hash, program, inverse, loc) {
     return {
       type: "BlockStatement",
-      path: path,
+      path: buildPath(path),
       params: params || [],
       hash: hash || buildHash([]),
       program: program || null,
@@ -15326,7 +15297,7 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   function buildElementModifier(path, params, hash, loc) {
     return {
       type: "ElementModifierStatement",
-      path: path,
+      path: buildPath(path),
       params: params || [],
       hash: hash || buildHash([]),
       loc: buildLoc(loc)
@@ -15401,18 +15372,22 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   function buildSexpr(path, params, hash) {
     return {
       type: "SubExpression",
-      path: path,
+      path: buildPath(path),
       params: params || [],
       hash: hash || buildHash([])
     };
   }
 
   function buildPath(original) {
-    return {
-      type: "PathExpression",
-      original: original,
-      parts: original.split('.')
-    };
+    if (typeof original === 'string') {
+      return {
+        type: "PathExpression",
+        original: original,
+        parts: original.split('.')
+      };
+    } else {
+      return original;
+    }
   }
 
   function buildString(value) {
@@ -15538,6 +15513,201 @@ enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
     loc: buildLoc,
     pos: buildPosition
   };
+});
+enifed('htmlbars-syntax/generation/print', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = build;
+
+  function build(ast) {
+    if (!ast) {
+      return '';
+    }
+    var output = [];
+
+    switch (ast.type) {
+      case 'Program':
+        {
+          var chainBlock = ast.chained && ast.body[0];
+          if (chainBlock) {
+            chainBlock.chained = true;
+          }
+          var body = buildEach(ast.body).join('');
+          output.push(body);
+        }
+        break;
+      case 'ElementNode':
+        output.push('<', ast.tag);
+        if (ast.attributes.length) {
+          output.push(' ', buildEach(ast.attributes).join(' '));
+        }
+        if (ast.modifiers.length) {
+          output.push(' ', buildEach(ast.modifiers).join(' '));
+        }
+        output.push('>');
+        output.push.apply(output, buildEach(ast.children));
+        output.push('</', ast.tag, '>');
+        break;
+      case 'AttrNode':
+        output.push(ast.name, '=');
+        var value = build(ast.value);
+        if (ast.value.type === 'TextNode') {
+          output.push('"', value, '"');
+        } else {
+          output.push(value);
+        }
+        break;
+      case 'ConcatStatement':
+        output.push('"');
+        ast.parts.forEach(function (node) {
+          if (node.type === 'StringLiteral') {
+            output.push(node.original);
+          } else {
+            output.push(build(node));
+          }
+        });
+        output.push('"');
+        break;
+      case 'TextNode':
+        output.push(ast.chars);
+        break;
+      case 'MustacheStatement':
+        {
+          output.push(compactJoin(['{{', pathParams(ast), '}}']));
+        }
+        break;
+      case 'ElementModifierStatement':
+        {
+          output.push(compactJoin(['{{', pathParams(ast), '}}']));
+        }
+        break;
+      case 'PathExpression':
+        output.push(ast.original);
+        break;
+      case 'SubExpression':
+        {
+          output.push('(', pathParams(ast), ')');
+        }
+        break;
+      case 'BooleanLiteral':
+        output.push(ast.value ? 'true' : false);
+        break;
+      case 'BlockStatement':
+        {
+          var lines = [];
+
+          if (ast.chained) {
+            lines.push(['{{else ', pathParams(ast), '}}'].join(''));
+          } else {
+            lines.push(openBlock(ast));
+          }
+
+          lines.push(build(ast.program));
+
+          if (ast.inverse) {
+            if (!ast.inverse.chained) {
+              lines.push('{{else}}');
+            }
+            lines.push(build(ast.inverse));
+          }
+
+          if (!ast.chained) {
+            lines.push(closeBlock(ast));
+          }
+
+          output.push(lines.join(''));
+        }
+        break;
+      case 'PartialStatement':
+        {
+          output.push(compactJoin(['{{>', pathParams(ast), '}}']));
+        }
+        break;
+      case 'CommentStatement':
+        {
+          output.push(compactJoin(['<!--', ast.value, '-->']));
+        }
+        break;
+      case 'StringLiteral':
+        {
+          output.push('"' + ast.value + '"');
+        }
+        break;
+      case 'NumberLiteral':
+        {
+          output.push(ast.value);
+        }
+        break;
+      case 'UndefinedLiteral':
+        {
+          output.push('undefined');
+        }
+        break;
+      case 'NullLiteral':
+        {
+          output.push('null');
+        }
+        break;
+      case 'Hash':
+        {
+          output.push(ast.pairs.map(function (pair) {
+            return build(pair);
+          }).join(' '));
+        }
+        break;
+      case 'HashPair':
+        {
+          output.push(ast.key + '=' + build(ast.value));
+        }
+        break;
+    }
+    return output.join('');
+  }
+
+  function compact(array) {
+    var newArray = [];
+    array.forEach(function (a) {
+      if (typeof a !== 'undefined' && a !== null && a !== '') {
+        newArray.push(a);
+      }
+    });
+    return newArray;
+  }
+
+  function buildEach(asts) {
+    var output = [];
+    asts.forEach(function (node) {
+      output.push(build(node));
+    });
+    return output;
+  }
+
+  function pathParams(ast) {
+    var name = build(ast.name);
+    var path = build(ast.path);
+    var params = buildEach(ast.params).join(' ');
+    var hash = build(ast.hash);
+    return compactJoin([name, path, params, hash], ' ');
+  }
+
+  function compactJoin(array, delimiter) {
+    return compact(array).join(delimiter || '');
+  }
+
+  function blockParams(block) {
+    var params = block.program.blockParams;
+    if (params.length) {
+      return ' as |' + params.join(',') + '|';
+    }
+  }
+
+  function openBlock(block) {
+    return ['{{#', pathParams(block), blockParams(block), '}}'].join('');
+  }
+
+  function closeBlock(block) {
+    return ['{{/', build(block.path), '}}'].join('');
+  }
 });
 enifed('htmlbars-syntax/handlebars/compiler/ast', ['exports'], function (exports) {
   'use strict';
@@ -16933,10 +17103,10 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -16948,16 +17118,16 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
@@ -17534,6 +17704,274 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
     return "`" + tag.name + "` (on line " + tag.loc.end.line + ")";
   }
 });
+enifed("htmlbars-syntax/traversal/errors", ["exports"], function (exports) {
+  "use strict";
+
+  exports.cannotRemoveNode = cannotRemoveNode;
+  exports.cannotReplaceNode = cannotReplaceNode;
+  exports.cannotReplaceOrRemoveInKeyHandlerYet = cannotReplaceOrRemoveInKeyHandlerYet;
+  function TraversalError(message, node, parent, key) {
+    this.name = "TraversalError";
+    this.message = message;
+    this.node = node;
+    this.parent = parent;
+    this.key = key;
+  }
+
+  TraversalError.prototype = Object.create(Error.prototype);
+  TraversalError.prototype.constructor = TraversalError;
+
+  exports.default = TraversalError;
+
+  function cannotRemoveNode(node, parent, key) {
+    return new TraversalError("Cannot remove a node unless it is part of an array", node, parent, key);
+  }
+
+  function cannotReplaceNode(node, parent, key) {
+    return new TraversalError("Cannot replace a node with multiple nodes unless it is part of an array", node, parent, key);
+  }
+
+  function cannotReplaceOrRemoveInKeyHandlerYet(node, key) {
+    return new TraversalError("Replacing and removing in key handlers is not yet supported.", node, null, key);
+  }
+});
+enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys', './errors'], function (exports, _typesVisitorKeys, _errors) {
+  'use strict';
+
+  exports.default = traverse;
+  exports.normalizeVisitor = normalizeVisitor;
+
+  function visitNode(visitor, node) {
+    var handler = visitor[node.type] || visitor.All;
+    var result = undefined;
+
+    if (handler && handler.enter) {
+      result = handler.enter.call(null, node);
+    }
+
+    if (result === undefined) {
+      var keys = _typesVisitorKeys.default[node.type];
+
+      for (var i = 0; i < keys.length; i++) {
+        visitKey(visitor, handler, node, keys[i]);
+      }
+
+      if (handler && handler.exit) {
+        result = handler.exit.call(null, node);
+      }
+    }
+
+    return result;
+  }
+
+  function visitKey(visitor, handler, node, key) {
+    var value = node[key];
+    if (!value) {
+      return;
+    }
+
+    var keyHandler = handler && (handler.keys[key] || handler.keys.All);
+    var result = undefined;
+
+    if (keyHandler && keyHandler.enter) {
+      result = keyHandler.enter.call(null, node, key);
+      if (result !== undefined) {
+        throw _errors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
+      }
+    }
+
+    if (Array.isArray(value)) {
+      visitArray(visitor, value);
+    } else {
+      var _result = visitNode(visitor, value);
+      if (_result !== undefined) {
+        assignKey(node, key, _result);
+      }
+    }
+
+    if (keyHandler && keyHandler.exit) {
+      result = keyHandler.exit.call(null, node, key);
+      if (result !== undefined) {
+        throw _errors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
+      }
+    }
+  }
+
+  function visitArray(visitor, array) {
+    for (var i = 0; i < array.length; i++) {
+      var result = visitNode(visitor, array[i]);
+      if (result !== undefined) {
+        i += spliceArray(array, i, result) - 1;
+      }
+    }
+  }
+
+  function assignKey(node, key, result) {
+    if (result === null) {
+      throw _errors.cannotRemoveNode(node[key], node, key);
+    } else if (Array.isArray(result)) {
+      if (result.length === 1) {
+        node[key] = result[0];
+      } else {
+        if (result.length === 0) {
+          throw _errors.cannotRemoveNode(node[key], node, key);
+        } else {
+          throw _errors.cannotReplaceNode(node[key], node, key);
+        }
+      }
+    } else {
+      node[key] = result;
+    }
+  }
+
+  function spliceArray(array, index, result) {
+    if (result === null) {
+      array.splice(index, 1);
+      return 0;
+    } else if (Array.isArray(result)) {
+      array.splice.apply(array, [index, 1].concat(result));
+      return result.length;
+    } else {
+      array.splice(index, 1, result);
+      return 1;
+    }
+  }
+
+  function traverse(node, visitor) {
+    visitNode(normalizeVisitor(visitor), node);
+  }
+
+  function normalizeVisitor(visitor) {
+    var normalizedVisitor = {};
+
+    for (var type in visitor) {
+      var handler = visitor[type] || visitor.All;
+      var normalizedKeys = {};
+
+      if (typeof handler === 'object') {
+        var keys = handler.keys;
+        if (keys) {
+          for (var key in keys) {
+            var keyHandler = keys[key];
+            if (typeof keyHandler === 'object') {
+              normalizedKeys[key] = {
+                enter: typeof keyHandler.enter === 'function' ? keyHandler.enter : null,
+                exit: typeof keyHandler.exit === 'function' ? keyHandler.exit : null
+              };
+            } else if (typeof keyHandler === 'function') {
+              normalizedKeys[key] = {
+                enter: keyHandler,
+                exit: null
+              };
+            }
+          }
+        }
+
+        normalizedVisitor[type] = {
+          enter: typeof handler.enter === 'function' ? handler.enter : null,
+          exit: typeof handler.exit === 'function' ? handler.exit : null,
+          keys: normalizedKeys
+        };
+      } else if (typeof handler === 'function') {
+        normalizedVisitor[type] = {
+          enter: handler,
+          exit: null,
+          keys: normalizedKeys
+        };
+      }
+    }
+
+    return normalizedVisitor;
+  }
+});
+enifed('htmlbars-syntax/traversal/walker', ['exports'], function (exports) {
+  'use strict';
+
+  function Walker(order) {
+    this.order = order;
+    this.stack = [];
+  }
+
+  exports.default = Walker;
+
+  Walker.prototype.visit = function (node, callback) {
+    if (!node) {
+      return;
+    }
+
+    this.stack.push(node);
+
+    if (this.order === 'post') {
+      this.children(node, callback);
+      callback(node, this);
+    } else {
+      callback(node, this);
+      this.children(node, callback);
+    }
+
+    this.stack.pop();
+  };
+
+  var visitors = {
+    Program: function (walker, node, callback) {
+      for (var i = 0; i < node.body.length; i++) {
+        walker.visit(node.body[i], callback);
+      }
+    },
+
+    ElementNode: function (walker, node, callback) {
+      for (var i = 0; i < node.children.length; i++) {
+        walker.visit(node.children[i], callback);
+      }
+    },
+
+    BlockStatement: function (walker, node, callback) {
+      walker.visit(node.program, callback);
+      walker.visit(node.inverse, callback);
+    },
+
+    ComponentNode: function (walker, node, callback) {
+      walker.visit(node.program, callback);
+    }
+  };
+
+  Walker.prototype.children = function (node, callback) {
+    var visitor = visitors[node.type];
+    if (visitor) {
+      visitor(this, node, callback);
+    }
+  };
+});
+enifed('htmlbars-syntax/types/visitor-keys', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = {
+    Program: ['body'],
+
+    MustacheStatement: ['path', 'params', 'hash'],
+    BlockStatement: ['path', 'params', 'hash', 'program', 'inverse'],
+    ElementModifierStatement: ['path', 'params', 'hash'],
+    PartialStatement: ['name', 'params', 'hash'],
+    CommentStatement: [],
+    ElementNode: ['attributes', 'modifiers', 'children'],
+    ComponentNode: ['attributes', 'program'],
+    AttrNode: ['value'],
+    TextNode: [],
+
+    ConcatStatement: ['parts'],
+    SubExpression: ['path', 'params', 'hash'],
+    PathExpression: [],
+
+    StringLiteral: [],
+    BooleanLiteral: [],
+    NumberLiteral: [],
+    NullLiteral: [],
+    UndefinedLiteral: [],
+
+    Hash: ['pairs'],
+    HashPair: ['value']
+  };
+});
 enifed('htmlbars-syntax/utils', ['exports', '../htmlbars-util/array-utils'], function (exports, _htmlbarsUtilArrayUtils) {
   'use strict';
 
@@ -17613,64 +18051,6 @@ enifed('htmlbars-syntax/utils', ['exports', '../htmlbars-util/array-utils'], fun
       return mustache.path;
     }
   }
-});
-enifed('htmlbars-syntax/walker', ['exports'], function (exports) {
-  'use strict';
-
-  function Walker(order) {
-    this.order = order;
-    this.stack = [];
-  }
-
-  exports.default = Walker;
-
-  Walker.prototype.visit = function (node, callback) {
-    if (!node) {
-      return;
-    }
-
-    this.stack.push(node);
-
-    if (this.order === 'post') {
-      this.children(node, callback);
-      callback(node, this);
-    } else {
-      callback(node, this);
-      this.children(node, callback);
-    }
-
-    this.stack.pop();
-  };
-
-  var visitors = {
-    Program: function (walker, node, callback) {
-      for (var i = 0; i < node.body.length; i++) {
-        walker.visit(node.body[i], callback);
-      }
-    },
-
-    ElementNode: function (walker, node, callback) {
-      for (var i = 0; i < node.children.length; i++) {
-        walker.visit(node.children[i], callback);
-      }
-    },
-
-    BlockStatement: function (walker, node, callback) {
-      walker.visit(node.program, callback);
-      walker.visit(node.inverse, callback);
-    },
-
-    ComponentNode: function (walker, node, callback) {
-      walker.visit(node.program, callback);
-    }
-  };
-
-  Walker.prototype.children = function (node, callback) {
-    var visitor = visitors[node.type];
-    if (visitor) {
-      visitor(this, node, callback);
-    }
-  };
 });
 enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
   "use strict";
@@ -17921,10 +18301,10 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
 
   var toString = Object.prototype.toString;
 
+  exports.toString = toString;
   // Sourced from lodash
   // https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
   /*eslint-disable func-style, no-var */
-  exports.toString = toString;
   var isFunction = function (value) {
     return typeof value === 'function';
   };
@@ -17936,16 +18316,16 @@ enifed('htmlbars-util/handlebars/utils', ['exports'], function (exports) {
     };
   }
   var isFunction;
+  exports.isFunction = isFunction;
   /*eslint-enable func-style, no-var */
 
   /* istanbul ignore next */
-  exports.isFunction = isFunction;
   var isArray = Array.isArray || function (value) {
     return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
   };
 
-  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
   exports.isArray = isArray;
+  // Older IE versions do not directly support indexOf so we must implement our own, sadly.
 
   function indexOf(array, value) {
     for (var i = 0, len = array.length; i < len; i++) {
