@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+5a947038
+ * @version   2.0.0-canary+0c95d490
  */
 
 (function() {
@@ -1181,6 +1181,25 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
       strictEqual(appInstance.container, appInstance.__container__, '#container alias should be assigned');
       strictEqual(appInstance.registry, appInstance.__registry__, '#registry alias should be assigned');
     }
+  });
+
+  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
+    assert.expect(1);
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+    });
+
+    app.customEvents = {
+      awesome: 'sauce'
+    };
+
+    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+    eventDispatcher.setup = function (events) {
+      assert.equal(events.awesome, 'sauce');
+    };
+
+    appInstance.setupEventDispatcher();
   });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load) {
@@ -40657,7 +40676,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+5a947038', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+0c95d490', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -50534,31 +50553,40 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'emb
     _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
-enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/core'], function (exports, _ember, _emberMetalCore) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures) {
   'use strict';
 
-  var App, container, router;
+  var compile = _emberMetalCore.default.HTMLBars.compile;
+
+  var ApplicationSubclass, App, container, router;
+
+  function setupApp() {
+    _emberMetalCore.default.run(function () {
+      App = ApplicationSubclass.create({
+        rootElement: '#qunit-fixture'
+      });
+
+      App.Router = App.Router.extend({
+        location: 'none'
+      });
+
+      App.deferReadiness();
+
+      container = App.__container__;
+    });
+  }
 
   QUnit.module('Application Lifecycle', {
     setup: function () {
-      _emberMetalCore.default.run(function () {
-        App = _emberMetalCore.default.Application.create({
-          rootElement: '#qunit-fixture'
-        });
+      ApplicationSubclass = _emberMetalCore.default.Application.extend();
 
-        App.Router = App.Router.extend({
-          location: 'none'
-        });
-
-        App.deferReadiness();
-
-        container = App.__container__;
-      });
+      setupApp();
     },
 
     teardown: function () {
       router = null;
       _emberMetalCore.default.run(App, 'destroy');
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 
@@ -50647,6 +50675,49 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/co
 
     equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), null);
     equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), null);
+  });
+
+  QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
+    assert.expect(1);
+
+    _emberMetalCore.default.run(App, 'destroy');
+
+    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+      ApplicationSubclass.initializer({
+        name: 'customize-things',
+        initialize: function (application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
+    } else {
+      ApplicationSubclass.initializer({
+        name: 'customize-things',
+        initialize: function (registry, application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
+    }
+
+    setupApp();
+
+    App.FooBarComponent = _emberMetalCore.default.Component.extend({
+      wowza: function () {
+        assert.ok(true, 'fired the event!');
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES['application'] = compile('{{foo-bar}}');
+    _emberMetalCore.default.TEMPLATES['components/foo-bar'] = compile('<div id=\'wowza-thingy\'></div>');
+
+    _emberMetalCore.default.run(App, 'advanceReadiness');
+
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#wowza-thingy').trigger('wowza');
+    });
   });
 });
 enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
