@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8459b2a2
+ * @version   2.0.0-canary+1bd0e852
  */
 
 (function() {
@@ -8150,7 +8150,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1bd0e852';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14185,7 +14185,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8459b2a2
+    @version 2.0.0-canary+1bd0e852
     @public
   */
 
@@ -14219,11 +14219,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8459b2a2'
+    @default '2.0.0-canary+1bd0e852'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8459b2a2';
+  Ember.VERSION = '2.0.0-canary+1bd0e852';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22336,7 +22336,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+1bd0e852';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22835,7 +22835,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+1bd0e852';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -24136,6 +24136,7 @@ enifed('ember-routing/services/routing', ['exports', 'ember-runtime/system/servi
     targetState: _emberMetalComputed_macros.readOnly('router.targetState'),
     currentState: _emberMetalComputed_macros.readOnly('router.currentState'),
     currentRouteName: _emberMetalComputed_macros.readOnly('router.currentRouteName'),
+    currentPath: _emberMetalComputed_macros.readOnly('router.currentPath'),
 
     availableRoutes: function () {
       return Object.keys(_emberMetalProperty_get.get(this, 'router').router.recognizer.names);
@@ -27386,6 +27387,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
   }
 
   function updatePaths(router) {
+    var infos = router.router.currentHandlerInfos;
+    var path = EmberRouter._routePath(infos);
+    var currentRouteName = infos[infos.length - 1].name;
+
+    _emberMetalProperty_set.set(router, 'currentPath', path);
+    _emberMetalProperty_set.set(router, 'currentRouteName', currentRouteName);
+
     var appController = router.container.lookup('controller:application');
 
     if (!appController) {
@@ -27395,22 +27403,17 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       return;
     }
 
-    var infos = router.router.currentHandlerInfos;
-    var path = EmberRouter._routePath(infos);
-
     if (!('currentPath' in appController)) {
       _emberMetalProperties.defineProperty(appController, 'currentPath');
     }
 
     _emberMetalProperty_set.set(appController, 'currentPath', path);
-    _emberMetalProperty_set.set(router, 'currentPath', path);
 
     if (!('currentRouteName' in appController)) {
       _emberMetalProperties.defineProperty(appController, 'currentRouteName');
     }
 
-    _emberMetalProperty_set.set(appController, 'currentRouteName', infos[infos.length - 1].name);
-    _emberMetalProperty_set.set(router, 'currentRouteName', infos[infos.length - 1].name);
+    _emberMetalProperty_set.set(appController, 'currentRouteName', currentRouteName);
   }
 
   EmberRouter.reopenClass({
@@ -36381,7 +36384,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8459b2a2',
+        revision: 'Ember@2.0.0-canary+1bd0e852',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39686,7 +39689,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+1bd0e852';
 
   /**
   @module ember
