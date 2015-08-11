@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b2b68610
+ * @version   2.0.0-canary+bf5d155f
  */
 
 (function() {
@@ -6661,8 +6661,38 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
   }
 });
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'ember-views/streams/should_display'], function (exports, _emberMetalFeatures, _emberViewsStreamsShould_display) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
+  /**
+    The `{{each-in}}` helper loops over properties on an object. It is unbound,
+    in that new (or removed) properties added to the target object will not be
+    rendered.
+     For example, given a `user` object that looks like:
+     ```javascript
+    {
+      "name": "Shelly Sails",
+      "age": 42
+    }
+    ```
+     This template would display all properties on the `user`
+    object in a list:
+     ```handlebars
+    <ul>
+    {{#each-in user as |key value|}}
+      <li>{{key}}: {{value}}</li>
+    {{/each-in}}
+    </ul>
+    ```
+     Outputting their name and age.
+     @method each-in
+    @for Ember.Templates.helpers
+    @public
+  */
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
 
@@ -6680,6 +6710,11 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
   exports.default = eachInHelper;
 });
 enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   exports.default = eachHelper;
@@ -8595,7 +8630,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b2b68610';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14639,7 +14674,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b2b68610
+    @version 2.0.0-canary+bf5d155f
     @public
   */
 
@@ -14673,11 +14708,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b2b68610'
+    @default '2.0.0-canary+bf5d155f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b2b68610';
+  Ember.VERSION = '2.0.0-canary+bf5d155f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22904,7 +22939,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b2b68610';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23405,7 +23440,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b2b68610';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37042,7 +37077,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+b2b68610',
+        revision: 'Ember@2.0.0-canary+bf5d155f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41630,7 +41665,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b2b68610';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
 
   /**
   @module ember
