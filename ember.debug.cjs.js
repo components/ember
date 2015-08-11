@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+bf5d155f
+ * @version   2.0.0-canary+8459b2a2
  */
 
 (function() {
@@ -8630,7 +8630,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10704,6 +10704,7 @@ enifed("ember-htmlbars/templates/component", ["exports", "ember-template-compile
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10733,6 +10734,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
     var child0 = (function () {
       return {
         meta: {},
+        isEmpty: false,
         arity: 1,
         cachedFragment: null,
         hasRendered: false,
@@ -10758,6 +10760,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
       var child0 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -10781,6 +10784,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -10804,6 +10808,7 @@ enifed("ember-htmlbars/templates/container-view", ["exports", "ember-template-co
     })();
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10832,6 +10837,7 @@ enifed("ember-htmlbars/templates/empty", ["exports", "ember-template-compiler/sy
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: true,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -10858,6 +10864,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           var child0 = (function () {
             return {
               meta: {},
+              isEmpty: false,
               arity: 0,
               cachedFragment: null,
               hasRendered: false,
@@ -10881,6 +10888,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           })();
           return {
             meta: {},
+            isEmpty: false,
             arity: 0,
             cachedFragment: null,
             hasRendered: false,
@@ -10905,6 +10913,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
         var child1 = (function () {
           return {
             meta: {},
+            isEmpty: false,
             arity: 0,
             cachedFragment: null,
             hasRendered: false,
@@ -10928,6 +10937,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
         })();
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -10954,6 +10964,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           var child0 = (function () {
             return {
               meta: {},
+              isEmpty: false,
               arity: 0,
               cachedFragment: null,
               hasRendered: false,
@@ -10977,6 +10988,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
           })();
           return {
             meta: {},
+            isEmpty: false,
             arity: 0,
             cachedFragment: null,
             hasRendered: false,
@@ -11001,6 +11013,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
         var child1 = (function () {
           return {
             meta: {},
+            isEmpty: false,
             arity: 0,
             cachedFragment: null,
             hasRendered: false,
@@ -11024,6 +11037,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
         })();
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -11047,6 +11061,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 1,
         cachedFragment: null,
         hasRendered: false,
@@ -11072,6 +11087,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
       var child0 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -11095,6 +11111,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11118,6 +11135,7 @@ enifed("ember-htmlbars/templates/legacy-each", ["exports", "ember-template-compi
     })();
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11146,6 +11164,7 @@ enifed("ember-htmlbars/templates/link-to-escaped", ["exports", "ember-template-c
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11174,6 +11193,7 @@ enifed("ember-htmlbars/templates/link-to-unescaped", ["exports", "ember-template
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11204,6 +11224,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
       var child0 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -11228,6 +11249,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
       var child1 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 0,
           cachedFragment: null,
           hasRendered: false,
@@ -11251,6 +11273,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11275,6 +11298,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
     var child1 = (function () {
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11298,6 +11322,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
     })();
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11327,6 +11352,7 @@ enifed("ember-htmlbars/templates/select-optgroup", ["exports", "ember-template-c
     var child0 = (function () {
       return {
         meta: {},
+        isEmpty: false,
         arity: 1,
         cachedFragment: null,
         hasRendered: false,
@@ -11350,6 +11376,7 @@ enifed("ember-htmlbars/templates/select-optgroup", ["exports", "ember-template-c
     })();
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11378,6 +11405,7 @@ enifed("ember-htmlbars/templates/select-option", ["exports", "ember-template-com
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11407,6 +11435,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
     var child0 = (function () {
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11433,6 +11462,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
       var child0 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 1,
           cachedFragment: null,
           hasRendered: false,
@@ -11456,6 +11486,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11481,6 +11512,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
       var child0 = (function () {
         return {
           meta: {},
+          isEmpty: false,
           arity: 1,
           cachedFragment: null,
           hasRendered: false,
@@ -11504,6 +11536,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
       })();
       return {
         meta: {},
+        isEmpty: false,
         arity: 0,
         cachedFragment: null,
         hasRendered: false,
@@ -11527,6 +11560,7 @@ enifed("ember-htmlbars/templates/select", ["exports", "ember-template-compiler/s
     })();
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -11559,6 +11593,7 @@ enifed("ember-htmlbars/templates/top-level-view", ["exports", "ember-template-co
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     return {
       meta: {},
+      isEmpty: false,
       arity: 0,
       cachedFragment: null,
       hasRendered: false,
@@ -14674,7 +14709,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+bf5d155f
+    @version 2.0.0-canary+8459b2a2
     @public
   */
 
@@ -14708,11 +14743,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+bf5d155f'
+    @default '2.0.0-canary+8459b2a2'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+bf5d155f';
+  Ember.VERSION = '2.0.0-canary+8459b2a2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22939,7 +22974,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23440,7 +23475,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37077,7 +37112,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+bf5d155f',
+        revision: 'Ember@2.0.0-canary+8459b2a2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41665,7 +41700,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+bf5d155f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8459b2a2';
 
   /**
   @module ember
@@ -44719,7 +44754,7 @@ enifed('ember', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'embe
   @module ember
   */
 });
-enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', './htmlbars-runtime/expression-visitor', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeExpressionVisitor, _htmlbarsRuntimeHooks2) {
+enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeHooks2) {
   'use strict';
 
   var internal = {
@@ -44729,7 +44764,7 @@ enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-r
     continueBlock: _htmlbarsRuntimeHooks2.continueBlock,
     hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks2.hostYieldWithShadowTemplate,
     visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
-    validateChildMorphs: _htmlbarsRuntimeExpressionVisitor.validateChildMorphs,
+    validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
     clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
   };
 
@@ -44737,28 +44772,8 @@ enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-r
   exports.render = _htmlbarsRuntimeRender.default;
   exports.internal = internal;
 });
-enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/object-utils", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils) {
-  "use strict";
-
+enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
   /**
-    Node classification:
-  
-    # Primary Statement Nodes:
-  
-    These nodes are responsible for a render node that represents a morph-range.
-  
-    * block
-    * inline
-    * content
-    * element
-    * component
-  
-    # Leaf Statement Nodes:
-  
-    This node is responsible for a render node that represents a morph-attr.
-  
-    * attribute
-  
     # Expression Nodes:
   
     These nodes are not directly responsible for any part of the DOM, but are
@@ -44769,249 +44784,84 @@ enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/obje
     * concat
   */
 
-  var base = {
-    acceptExpression: function (node, env, scope) {
-      var ret = { value: null };
+  'use strict';
 
-      // Primitive literals are unambiguously non-array representations of
-      // themselves.
-      if (typeof node !== 'object' || node === null) {
-        ret.value = node;
-        return ret;
-      }
+  exports.acceptParams = acceptParams;
+  exports.acceptHash = acceptHash;
 
-      switch (node[0]) {
-        // can be used by manualElement
-        case 'value':
-          ret.value = node[1];break;
-        case 'get':
-          ret.value = this.get(node, env, scope);break;
-        case 'subexpr':
-          ret.value = this.subexpr(node, env, scope);break;
-        case 'concat':
-          ret.value = this.concat(node, env, scope);break;
-      }
+  function acceptParams(nodes, env, scope) {
+    var array = [];
 
-      return ret;
-    },
-
-    acceptParams: function (nodes, env, scope) {
-      var arr = new Array(nodes.length);
-
-      for (var i = 0, l = nodes.length; i < l; i++) {
-        arr[i] = this.acceptExpression(nodes[i], env, scope).value;
-      }
-
-      return arr;
-    },
-
-    acceptHash: function (pairs, env, scope) {
-      var object = {};
-
-      for (var i = 0, l = pairs.length; i < l; i += 2) {
-        object[pairs[i]] = this.acceptExpression(pairs[i + 1], env, scope).value;
-      }
-
-      return object;
-    },
-
-    // [ 'get', path ]
-    get: function (node, env, scope) {
-      return env.hooks.get(env, scope, node[1]);
-    },
-
-    // [ 'subexpr', path, params, hash ]
-    subexpr: function (node, env, scope) {
-      var path = node[1],
-          params = node[2],
-          hash = node[3];
-      return env.hooks.subexpr(env, scope, path, this.acceptParams(params, env, scope), this.acceptHash(hash, env, scope));
-    },
-
-    // [ 'concat', parts ]
-    concat: function (node, env, scope) {
-      return env.hooks.concat(env, this.acceptParams(node[1], env, scope));
-    },
-
-    linkParamsAndHash: function (env, scope, morph, path, params, hash) {
-      if (morph.linkedParams) {
-        params = morph.linkedParams.params;
-        hash = morph.linkedParams.hash;
-      } else {
-        params = params && this.acceptParams(params, env, scope);
-        hash = hash && this.acceptHash(hash, env, scope);
-      }
-
-      _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, path, params, hash);
-      return [params, hash];
-    }
-  };
-
-  var AlwaysDirtyVisitor = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
-    // [ 'block', path, params, hash, templateId, inverseId ]
-    block: function (node, morph, env, scope, template, visitor) {
-      var path = node[1],
-          params = node[2],
-          hash = node[3],
-          templateId = node[4],
-          inverseId = node[5];
-      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.block(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templateId === null ? null : template.templates[templateId], inverseId === null ? null : template.templates[inverseId], visitor);
-    },
-
-    // [ 'inline', path, params, hash ]
-    inline: function (node, morph, env, scope, visitor) {
-      var path = node[1],
-          params = node[2],
-          hash = node[3];
-      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.inline(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
-    },
-
-    // [ 'content', path ]
-    content: function (node, morph, env, scope, visitor) {
-      var path = node[1];
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-
-      if (isHelper(env, scope, path)) {
-        env.hooks.inline(morph, env, scope, path, [], {}, visitor);
-        if (morph.linkedResult) {
-          _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, '@content-helper', [morph.linkedResult], null);
-        }
-        return;
-      }
-
-      var params;
-      if (morph.linkedParams) {
-        params = morph.linkedParams.params;
-      } else {
-        params = [env.hooks.get(env, scope, path)];
-      }
-
-      _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, '@range', params, null);
-      env.hooks.range(morph, env, scope, path, params[0], visitor);
-    },
-
-    // [ 'element', path, params, hash ]
-    element: function (node, morph, env, scope, visitor) {
-      var path = node[1],
-          params = node[2],
-          hash = node[3];
-      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, params, hash);
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.element(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
-    },
-
-    // [ 'attribute', name, value ]
-    attribute: function (node, morph, env, scope) {
-      var name = node[1],
-          value = node[2];
-      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, '@attribute', [value], null);
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.attribute(morph, env, scope, name, paramsAndHash[0][0]);
-    },
-
-    // [ 'component', path, attrs, templateId, inverseId ]
-    component: function (node, morph, env, scope, template, visitor) {
-      var path = node[1],
-          attrs = node[2],
-          templateId = node[3],
-          inverseId = node[4];
-      var paramsAndHash = this.linkParamsAndHash(env, scope, morph, path, [], attrs);
-      var templates = {
-        default: template.templates[templateId],
-        inverse: template.templates[inverseId]
-      };
-
-      morph.isDirty = morph.isSubtreeDirty = false;
-      env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templates, visitor);
-    },
-
-    // [ 'attributes', template ]
-    attributes: function (node, morph, env, scope, parentMorph, visitor) {
-      var template = node[1];
-      env.hooks.attributes(morph, env, scope, template, parentMorph, visitor);
-    }
-  });
-
-  exports.AlwaysDirtyVisitor = AlwaysDirtyVisitor;
-  exports.default = _htmlbarsUtilObjectUtils.merge(Object.create(base), {
-    // [ 'block', path, params, hash, templateId, inverseId ]
-    block: function (node, morph, env, scope, template, visitor) {
-      dirtyCheck(env, morph, visitor, function (visitor) {
-        AlwaysDirtyVisitor.block(node, morph, env, scope, template, visitor);
-      });
-    },
-
-    // [ 'inline', path, params, hash ]
-    inline: function (node, morph, env, scope, visitor) {
-      dirtyCheck(env, morph, visitor, function (visitor) {
-        AlwaysDirtyVisitor.inline(node, morph, env, scope, visitor);
-      });
-    },
-
-    // [ 'content', path ]
-    content: function (node, morph, env, scope, visitor) {
-      dirtyCheck(env, morph, visitor, function (visitor) {
-        AlwaysDirtyVisitor.content(node, morph, env, scope, visitor);
-      });
-    },
-
-    // [ 'element', path, params, hash ]
-    element: function (node, morph, env, scope, template, visitor) {
-      dirtyCheck(env, morph, visitor, function (visitor) {
-        AlwaysDirtyVisitor.element(node, morph, env, scope, template, visitor);
-      });
-    },
-
-    // [ 'attribute', name, value ]
-    attribute: function (node, morph, env, scope, template) {
-      dirtyCheck(env, morph, null, function () {
-        AlwaysDirtyVisitor.attribute(node, morph, env, scope, template);
-      });
-    },
-
-    // [ 'component', path, attrs, templateId ]
-    component: function (node, morph, env, scope, template, visitor) {
-      dirtyCheck(env, morph, visitor, function (visitor) {
-        AlwaysDirtyVisitor.component(node, morph, env, scope, template, visitor);
-      });
-    },
-
-    // [ 'attributes', template ]
-    attributes: function (node, morph, env, scope, parentMorph, visitor) {
-      AlwaysDirtyVisitor.attributes(node, morph, env, scope, parentMorph, visitor);
-    }
-  });
-
-  function dirtyCheck(_env, morph, visitor, callback) {
-    var isDirty = morph.isDirty;
-    var isSubtreeDirty = morph.isSubtreeDirty;
-    var env = _env;
-
-    if (isSubtreeDirty) {
-      visitor = AlwaysDirtyVisitor;
+    for (var i = 0, l = nodes.length; i < l; i++) {
+      array.push(acceptExpression(nodes[i], env, scope).value);
     }
 
-    if (isDirty || isSubtreeDirty) {
-      callback(visitor);
+    return array;
+  }
+
+  function acceptHash(pairs, env, scope) {
+    var object = {};
+
+    for (var i = 0, l = pairs.length; i < l; i += 2) {
+      var key = pairs[i];
+      var value = pairs[i + 1];
+      object[key] = acceptExpression(value, env, scope).value;
+    }
+
+    return object;
+  }
+
+  function acceptExpression(node, env, scope) {
+    var ret = { value: null };
+
+    // Primitive literals are unambiguously non-array representations of
+    // themselves.
+    if (typeof node !== 'object' || node === null) {
+      ret.value = node;
     } else {
-      if (morph.buildChildEnv) {
-        env = morph.buildChildEnv(morph.state, env);
-      }
-      _htmlbarsUtilMorphUtils.validateChildMorphs(env, morph, visitor);
+      ret.value = evaluateNode(node, env, scope);
+    }
+
+    return ret;
+  }
+
+  function evaluateNode(node, env, scope) {
+    switch (node[0]) {
+      // can be used by manualElement
+      case 'value':
+        return node[1];
+      case 'get':
+        return evaluateGet(node, env, scope);
+      case 'subexpr':
+        return evaluateSubexpr(node, env, scope);
+      case 'concat':
+        return evaluateConcat(node, env, scope);
     }
   }
 
-  function isHelper(env, scope, path) {
-    return env.hooks.keywords[path] !== undefined || env.hooks.hasHelper(env, scope, path);
+  function evaluateGet(node, env, scope) {
+    var path = node[1];
+
+    return env.hooks.get(env, scope, path);
+  }
+
+  function evaluateSubexpr(node, env, scope) {
+    var path = node[1];
+    var rawParams = node[2];
+    var rawHash = node[3];
+
+    var params = acceptParams(rawParams, env, scope);
+    var hash = acceptHash(rawHash, env, scope);
+
+    return env.hooks.subexpr(env, scope, path, params, hash);
+  }
+
+  function evaluateConcat(node, env, scope) {
+    var rawParts = node[1];
+
+    var parts = acceptParams(rawParts, env, scope);
+
+    return env.hooks.concat(env, parts);
   }
 });
 enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-list", "../htmlbars-util/object-utils", "../htmlbars-util/morph-utils", "../htmlbars-util/template-utils"], function (exports, _render, _morphRangeMorphList, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
@@ -45505,6 +45355,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   function createChildScope(parent) {
     var scope = Object.create(parent);
     scope.locals = Object.create(parent.locals);
+    scope.localPresent = Object.create(parent.localPresent);
+    scope.blocks = Object.create(parent.blocks);
     return scope;
   }
 
@@ -46253,7 +46105,204 @@ enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (export
 
   exports.default = HTMLBarsMorph;
 });
-enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", "../htmlbars-util/morph-utils", "./expression-visitor", "./morph", "../htmlbars-util/template-utils", "../htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _expressionVisitor, _morph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
+enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-utils", "./expression-visitor"], function (exports, _htmlbarsUtilMorphUtils, _expressionVisitor) {
+  "use strict";
+
+  /**
+    Node classification:
+  
+    # Primary Statement Nodes:
+  
+    These nodes are responsible for a render node that represents a morph-range.
+  
+    * block
+    * inline
+    * content
+    * element
+    * component
+  
+    # Leaf Statement Nodes:
+  
+    This node is responsible for a render node that represents a morph-attr.
+  
+    * attribute
+  */
+
+  function linkParamsAndHash(env, scope, morph, path, params, hash) {
+    if (morph.linkedParams) {
+      params = morph.linkedParams.params;
+      hash = morph.linkedParams.hash;
+    } else {
+      params = params && _expressionVisitor.acceptParams(params, env, scope);
+      hash = hash && _expressionVisitor.acceptHash(hash, env, scope);
+    }
+
+    _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, path, params, hash);
+    return [params, hash];
+  }
+
+  var AlwaysDirtyVisitor = {
+
+    block: function (node, morph, env, scope, template, visitor) {
+      var path = node[1];
+      var params = node[2];
+      var hash = node[3];
+      var templateId = node[4];
+      var inverseId = node[5];
+
+      var paramsAndHash = linkParamsAndHash(env, scope, morph, path, params, hash);
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+      env.hooks.block(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templateId === null ? null : template.templates[templateId], inverseId === null ? null : template.templates[inverseId], visitor);
+    },
+
+    inline: function (node, morph, env, scope, visitor) {
+      var path = node[1];
+      var params = node[2];
+      var hash = node[3];
+
+      var paramsAndHash = linkParamsAndHash(env, scope, morph, path, params, hash);
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+      env.hooks.inline(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
+    },
+
+    content: function (node, morph, env, scope, visitor) {
+      var path = node[1];
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+
+      if (isHelper(env, scope, path)) {
+        env.hooks.inline(morph, env, scope, path, [], {}, visitor);
+        if (morph.linkedResult) {
+          _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, '@content-helper', [morph.linkedResult], null);
+        }
+        return;
+      }
+
+      var params = undefined;
+      if (morph.linkedParams) {
+        params = morph.linkedParams.params;
+      } else {
+        params = [env.hooks.get(env, scope, path)];
+      }
+
+      _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, '@range', params, null);
+      env.hooks.range(morph, env, scope, path, params[0], visitor);
+    },
+
+    element: function (node, morph, env, scope, visitor) {
+      var path = node[1];
+      var params = node[2];
+      var hash = node[3];
+
+      var paramsAndHash = linkParamsAndHash(env, scope, morph, path, params, hash);
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+      env.hooks.element(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], visitor);
+    },
+
+    attribute: function (node, morph, env, scope) {
+      var name = node[1];
+      var value = node[2];
+
+      var paramsAndHash = linkParamsAndHash(env, scope, morph, '@attribute', [value], null);
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+      env.hooks.attribute(morph, env, scope, name, paramsAndHash[0][0]);
+    },
+
+    component: function (node, morph, env, scope, template, visitor) {
+      var path = node[1];
+      var attrs = node[2];
+      var templateId = node[3];
+      var inverseId = node[4];
+
+      var paramsAndHash = linkParamsAndHash(env, scope, morph, path, [], attrs);
+      var templates = {
+        default: template.templates[templateId],
+        inverse: template.templates[inverseId]
+      };
+
+      morph.isDirty = morph.isSubtreeDirty = false;
+      env.hooks.component(morph, env, scope, path, paramsAndHash[0], paramsAndHash[1], templates, visitor);
+    },
+
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      var template = node[1];
+
+      env.hooks.attributes(morph, env, scope, template, parentMorph, visitor);
+    }
+
+  };
+
+  exports.AlwaysDirtyVisitor = AlwaysDirtyVisitor;
+  exports.default = {
+    block: function (node, morph, env, scope, template, visitor) {
+      dirtyCheck(env, morph, visitor, function (visitor) {
+        AlwaysDirtyVisitor.block(node, morph, env, scope, template, visitor);
+      });
+    },
+
+    inline: function (node, morph, env, scope, visitor) {
+      dirtyCheck(env, morph, visitor, function (visitor) {
+        AlwaysDirtyVisitor.inline(node, morph, env, scope, visitor);
+      });
+    },
+
+    content: function (node, morph, env, scope, visitor) {
+      dirtyCheck(env, morph, visitor, function (visitor) {
+        AlwaysDirtyVisitor.content(node, morph, env, scope, visitor);
+      });
+    },
+
+    element: function (node, morph, env, scope, template, visitor) {
+      dirtyCheck(env, morph, visitor, function (visitor) {
+        AlwaysDirtyVisitor.element(node, morph, env, scope, template, visitor);
+      });
+    },
+
+    attribute: function (node, morph, env, scope, template) {
+      dirtyCheck(env, morph, null, function () {
+        AlwaysDirtyVisitor.attribute(node, morph, env, scope, template);
+      });
+    },
+
+    component: function (node, morph, env, scope, template, visitor) {
+      dirtyCheck(env, morph, visitor, function (visitor) {
+        AlwaysDirtyVisitor.component(node, morph, env, scope, template, visitor);
+      });
+    },
+
+    attributes: function (node, morph, env, scope, parentMorph, visitor) {
+      AlwaysDirtyVisitor.attributes(node, morph, env, scope, parentMorph, visitor);
+    }
+  };
+
+  function dirtyCheck(_env, morph, visitor, callback) {
+    var isDirty = morph.isDirty;
+    var isSubtreeDirty = morph.isSubtreeDirty;
+    var env = _env;
+
+    if (isSubtreeDirty) {
+      visitor = AlwaysDirtyVisitor;
+    }
+
+    if (isDirty || isSubtreeDirty) {
+      callback(visitor);
+    } else {
+      if (morph.buildChildEnv) {
+        env = morph.buildChildEnv(morph.state, env);
+      }
+      _htmlbarsUtilMorphUtils.validateChildMorphs(env, morph, visitor);
+    }
+  }
+
+  function isHelper(env, scope, path) {
+    return env.hooks.keywords[path] !== undefined || env.hooks.hasHelper(env, scope, path);
+  }
+});
+enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", "../htmlbars-util/morph-utils", "./node-visitor", "./morph", "../htmlbars-util/template-utils", "../htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _nodeVisitor, _morph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
   "use strict";
 
   exports.default = render;
@@ -46340,7 +46389,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return new RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent);
   };
 
-  function manualElement(tagName, attributes) {
+  function manualElement(tagName, attributes, _isEmpty) {
     var statements = [];
 
     for (var key in attributes) {
@@ -46350,7 +46399,11 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
       statements.push(["attribute", key, attributes[key]]);
     }
 
-    statements.push(['content', 'yield']);
+    var isEmpty = _isEmpty || _htmlbarsUtilVoidTagNames.default[tagName];
+
+    if (!isEmpty) {
+      statements.push(['content', 'yield']);
+    }
 
     var template = {
       arity: 0,
@@ -46370,7 +46423,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
           dom.setAttribute(el1, key, attributes[key]);
         }
 
-        if (!_htmlbarsUtilVoidTagNames.default[tagName]) {
+        if (!isEmpty) {
           var el2 = dom.createComment("");
           dom.appendChild(el1, el2);
         }
@@ -46390,7 +46443,10 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
           morphs.push(dom.createAttrMorph(element, key));
         }
 
-        morphs.push(dom.createMorphAt(element, 0, 0));
+        if (!isEmpty) {
+          morphs.push(dom.createMorphAt(element, 0, 0));
+        }
+
         return morphs;
       },
       statements: statements,
@@ -46460,7 +46516,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
-    this.populateNodes(_expressionVisitor.AlwaysDirtyVisitor);
+    this.populateNodes(_nodeVisitor.AlwaysDirtyVisitor);
 
     if (this.shouldSetContent && this.root.setContent) {
       this.root.setContent(this.fragment);
@@ -46474,11 +46530,11 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   };
 
   RenderResult.prototype.revalidate = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _expressionVisitor.default);
+    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.default);
   };
 
   RenderResult.prototype.rerender = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _expressionVisitor.AlwaysDirtyVisitor);
+    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.AlwaysDirtyVisitor);
   };
 
   RenderResult.prototype.revalidateWith = function (env, scope, self, blockArguments, visitor) {
