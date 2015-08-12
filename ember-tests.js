@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+9bffc1ac
+ * @version   2.0.0-canary+40822807
  */
 
 (function() {
@@ -40876,7 +40876,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+9bffc1ac', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+40822807', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -53473,6 +53473,50 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
     });
 
+    QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
+      // Test harness for bug #12033
+
+      _emberMetalCore.default.TEMPLATES.cars = _emberTemplateCompiler.compile('{{#link-to \'cars.create\' id=\'create-link\'}}Create new car{{/link-to}} ' + '{{#link-to (query-params page=\'2\') id=\'page2-link\'}}Page 2{{/link-to}}' + '{{outlet}}');
+
+      _emberMetalCore.default.TEMPLATES['cars/create'] = _emberTemplateCompiler.compile('{{#link-to \'cars\' id=\'close-link\'}}Close create form{{/link-to}}');
+
+      Router.map(function () {
+        this.route('cars', function () {
+          this.route('create');
+        });
+      });
+
+      App.CarsRoute = _emberMetalCore.default.Route.extend({
+        queryParams: {
+          page: { defaultValue: 1 }
+        }
+      });
+
+      bootApplication();
+
+      _emberMetalCore.default.run(function () {
+        router.handleURL('/cars/create');
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.create');
+        _emberMetalCore.default.$('#close-link').click();
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.index');
+        equal(router.get('url'), '/cars');
+        equal(container.lookup('controller:cars').get('page'), 1, 'The page query-param is 1');
+        _emberMetalCore.default.$('#page2-link').click();
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
+        equal(router.get('url'), '/cars?page=2', 'The url has been updated');
+        equal(container.lookup('controller:cars').get('page'), 2, 'The query params have been updated');
+      });
+    });
+
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
       _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
 
@@ -53803,6 +53847,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
       equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
       _emberMetalCore.default.run(indexController, 'set', 'foo', 'YEAH');
       equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
+    });
+
+    QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
+      // Test harness for bug #12033
+
+      _emberMetalCore.default.TEMPLATES.cars = _emberTemplateCompiler.compile('{{#link-to \'cars.create\' id=\'create-link\'}}Create new car{{/link-to}} ' + '{{#link-to (query-params page=\'2\') id=\'page2-link\'}}Page 2{{/link-to}}' + '{{outlet}}');
+
+      _emberMetalCore.default.TEMPLATES['cars/create'] = _emberTemplateCompiler.compile('{{#link-to \'cars\' id=\'close-link\'}}Close create form{{/link-to}}');
+
+      Router.map(function () {
+        this.route('cars', function () {
+          this.route('create');
+        });
+      });
+
+      App.CarsController = _emberMetalCore.default.Controller.extend({
+        queryParams: ['page'],
+        page: 1
+      });
+
+      bootApplication();
+
+      var carsController = container.lookup('controller:cars');
+
+      _emberMetalCore.default.run(function () {
+        router.handleURL('/cars/create');
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.create');
+        _emberMetalCore.default.$('#close-link').click();
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.index');
+        equal(router.get('url'), '/cars');
+        equal(carsController.get('page'), 1, 'The page query-param is 1');
+        _emberMetalCore.default.$('#page2-link').click();
+      });
+
+      _emberMetalCore.default.run(function () {
+        equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
+        equal(router.get('url'), '/cars?page=2', 'The url has been updated');
+        equal(carsController.get('page'), 2, 'The query params have been updated');
+      });
     });
 
     QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
