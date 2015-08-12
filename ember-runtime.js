@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.7+6ccfe040
+ * @version   1.13.7+0d5f11b4
  */
 
 (function() {
@@ -4730,6 +4730,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     return value;
   });
 
+  exports.and = and;
   /**
     A computed property which performs a logical `or` on the
     original values for the provided dependent properties.
@@ -4757,7 +4758,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     a logical `or` on the values of all the original values for properties.
     @public
   */
-  exports.and = and;
   var or = generateComputedWithProperties(function (properties) {
     for (var key in properties) {
       if (properties.hasOwnProperty(key) && properties[key]) {
@@ -4767,6 +4767,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     return false;
   });
 
+  exports.or = or;
   /**
     A computed property that returns the first truthy value
     from a list of dependent properties.
@@ -4793,7 +4794,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     @deprecated Use `Ember.computed.or` instead.
     @public
   */
-  exports.or = or;
   var any = generateComputedWithProperties(function (properties) {
     _emberMetalCore["default"].deprecate('Usage of Ember.computed.any is deprecated, use `Ember.computed.or` instead.');
     for (var key in properties) {
@@ -4804,6 +4804,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     return null;
   });
 
+  exports.any = any;
   /**
     A computed property that returns the array of values
     for the provided dependent properties.
@@ -4830,7 +4831,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     values of all passed in properties to an array.
     @public
   */
-  exports.any = any;
   var collect = generateComputedWithProperties(function (properties) {
     var res = _emberMetalCore["default"].A();
     for (var key in properties) {
@@ -4845,6 +4845,7 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     return res;
   });
 
+  exports.collect = collect;
   /**
     Creates a new property that is an alias for another property
     on an object. Calls to `get` or `set` this property behave as
@@ -4906,7 +4907,6 @@ enifed("ember-metal/computed_macros", ["exports", "ember-metal/core", "ember-met
     one way computed property to the original value for property.
     @public
   */
-  exports.collect = collect;
 
   function oneWay(dependentKey) {
     return _emberMetalAlias["default"](dependentKey).oneWay();
@@ -5059,7 +5059,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.7+6ccfe040
+    @version 1.13.7+0d5f11b4
     @public
   */
 
@@ -5093,11 +5093,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.7+6ccfe040'
+    @default '1.13.7+0d5f11b4'
     @static
     @public
   */
-  Ember.VERSION = '1.13.7+6ccfe040';
+  Ember.VERSION = '1.13.7+0d5f11b4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11950,6 +11950,7 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
     descriptor: undefinedDescriptor
   };
 
+  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -11967,7 +11968,6 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
       separate the guid into separate namespaces.
     @return {String} the guid
   */
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
 
   function generateGuid(obj, prefix) {
     if (!prefix) {
@@ -14498,6 +14498,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var mapProperty = mapBy;
 
+  exports.mapProperty = mapProperty;
   /**
     Filters the array by the callback.
   
@@ -14535,7 +14536,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     @return {Ember.ComputedProperty} the filtered array
     @public
   */
-  exports.mapProperty = mapProperty;
 
   function filter(dependentKey, callback) {
     var options = {
@@ -14625,6 +14625,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var filterProperty = filterBy;
 
+  exports.filterProperty = filterProperty;
   /**
     A computed property which returns a new array with all the unique
     elements from one or more dependent arrays.
@@ -14655,7 +14656,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     unique elements from the dependent array
     @public
   */
-  exports.filterProperty = filterProperty;
 
   function uniq() {
     var args = a_slice.call(arguments);
@@ -14706,6 +14706,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
   */
   var union = uniq;
 
+  exports.union = union;
   /**
     A computed property which returns a new array with all the duplicated
     elements from two or more dependent arrays.
@@ -14730,7 +14731,6 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     duplicated elements from the dependent arrays
     @public
   */
-  exports.union = union;
 
   function intersect() {
     var args = a_slice.call(arguments);
@@ -15138,6 +15138,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
   exports.arrayControllerDeprecation = arrayControllerDeprecation;
   var arrayControllerDeprecation = '`Ember.ArrayController` is deprecated.';
 
+  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   /**
     `Ember.ArrayController` provides a way for you to publish a collection of
     objects so that you can easily bind to the collection from a Handlebars
@@ -15226,7 +15227,6 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     @public
   */
 
-  exports.arrayControllerDeprecation = arrayControllerDeprecation;
   exports["default"] = _emberRuntimeSystemArray_proxy["default"].extend(_emberRuntimeMixinsController["default"], _emberRuntimeMixinsSortable["default"], {
 
     /**
@@ -15469,6 +15469,7 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
 
   var objectControllerDeprecation = 'Ember.ObjectController is deprecated, ' + 'please use Ember.Controller and use `model.propertyName`.';
 
+  exports.objectControllerDeprecation = objectControllerDeprecation;
   /**
   @module ember
   @submodule ember-runtime
@@ -15489,7 +15490,6 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
     @deprecated
     @public
   **/
-  exports.objectControllerDeprecation = objectControllerDeprecation;
   exports["default"] = _emberRuntimeSystemObject_proxy["default"].extend(_emberRuntimeMixinsController["default"], {
     init: function () {
       this._super();
@@ -21504,6 +21504,7 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
   var loaded = {};
   var _loaded = loaded;
 
+  exports._loaded = _loaded;
   /**
     Detects when a specific package of Ember (e.g. 'Ember.Application')
     has fully loaded and is available for extension.
@@ -21523,7 +21524,6 @@ enifed("ember-runtime/system/lazy_load", ["exports", "ember-metal/core", "ember-
     @param callback {Function} callback to be called
     @private
   */
-  exports._loaded = _loaded;
 
   function onLoad(name, callback) {
     var object = loaded[name];
@@ -26166,9 +26166,9 @@ enifed('rsvp/utils', ['exports'], function (exports) {
 
   var isArray = _isArray;
 
+  exports.isArray = isArray;
   // Date.now is not available in browsers < IE9
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  exports.isArray = isArray;
   var now = Date.now || function () {
     return new Date().getTime();
   };
