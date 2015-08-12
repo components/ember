@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+40822807
+ * @version   2.0.0-canary+4a8d9a37
  */
 
 (function() {
@@ -1316,6 +1316,10 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     }
   };
 
+  function isSingleton(container, fullName) {
+    return container.registry.getOption(fullName, 'singleton') !== false;
+  }
+
   function lookup(container, fullName, options) {
     options = options || {};
 
@@ -1329,11 +1333,19 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       return;
     }
 
-    if (container.registry.getOption(fullName, 'singleton') !== false && options.singleton !== false) {
+    if (isSingleton(container, fullName) && options.singleton !== false) {
       container.cache[fullName] = value;
     }
 
     return value;
+  }
+
+  function markInjectionsAsDynamic(injections) {
+    injections._dynamic = true;
+  }
+
+  function areInjectionsDynamic(injections) {
+    return !!injections._dynamic;
   }
 
   function buildInjections(container) {
@@ -1355,6 +1367,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
       for (i = 0, l = injections.length; i < l; i++) {
         injection = injections[i];
         hash[injection.property] = lookup(container, injection.fullName);
+        if (!isSingleton(container, injection.fullName)) {
+          markInjectionsAsDynamic(hash);
+        }
       }
     }
 
@@ -1385,6 +1400,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
     } else {
       var injections = injectionsFor(container, fullName);
       var factoryInjections = factoryInjectionsFor(container, fullName);
+      var cacheable = !areInjectionsDynamic(injections) && !areInjectionsDynamic(factoryInjections);
 
       factoryInjections._toString = registry.makeToString(factory, fullName);
 
@@ -1395,7 +1411,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
         factory._onLookup(fullName);
       }
 
-      cache[fullName] = injectedFactory;
+      if (cacheable) {
+        cache[fullName] = injectedFactory;
+      }
 
       return injectedFactory;
     }
@@ -4826,7 +4844,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+40822807
+    @version 2.0.0-canary+4a8d9a37
     @public
   */
 
@@ -4860,11 +4878,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+40822807'
+    @default '2.0.0-canary+4a8d9a37'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+40822807';
+  Ember.VERSION = '2.0.0-canary+4a8d9a37';
 
   /**
     The hash of environment variables used to control various configuration
