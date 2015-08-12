@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+0c95d490
+ * @version   2.0.0-canary+c4905667
  */
 
 (function() {
@@ -1191,6 +1191,44 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     });
 
     app.customEvents = {
+      awesome: 'sauce'
+    };
+
+    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+    eventDispatcher.setup = function (events) {
+      assert.equal(events.awesome, 'sauce');
+    };
+
+    appInstance.setupEventDispatcher();
+  });
+
+  QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
+    assert.expect(1);
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+    });
+
+    app.customEvents = {
+      awesome: 'sauce'
+    };
+
+    var eventDispatcher = appInstance.lookup('event_dispatcher:main');
+    eventDispatcher.setup = function (events) {
+      assert.equal(events.awesome, 'sauce');
+    };
+
+    appInstance.setupEventDispatcher();
+  });
+
+  QUnit.test('customEvents added to the application instance before setupEventDispatcher', function (assert) {
+    assert.expect(1);
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+    });
+
+    appInstance.customEvents = {
       awesome: 'sauce'
     };
 
@@ -40838,7 +40876,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+0c95d490', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+c4905667', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -50720,11 +50758,11 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
 
   var compile = _emberMetalCore.default.HTMLBars.compile;
 
-  var ApplicationSubclass, App, container, router;
+  var App, container, router;
 
-  function setupApp() {
+  function setupApp(klass) {
     _emberMetalCore.default.run(function () {
-      App = ApplicationSubclass.create({
+      App = klass.create({
         rootElement: '#qunit-fixture'
       });
 
@@ -50740,9 +50778,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
 
   QUnit.module('Application Lifecycle', {
     setup: function () {
-      ApplicationSubclass = _emberMetalCore.default.Application.extend();
-
-      setupApp();
+      setupApp(_emberMetalCore.default.Application.extend());
     },
 
     teardown: function () {
@@ -50844,6 +50880,8 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
 
     _emberMetalCore.default.run(App, 'destroy');
 
+    var ApplicationSubclass = _emberMetalCore.default.Application.extend();
+
     if (_emberMetalFeatures.default('ember-registry-container-reform')) {
       ApplicationSubclass.initializer({
         name: 'customize-things',
@@ -50864,7 +50902,7 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
       });
     }
 
-    setupApp();
+    setupApp(ApplicationSubclass);
 
     App.FooBarComponent = _emberMetalCore.default.Component.extend({
       wowza: function () {
@@ -50879,6 +50917,40 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
 
     _emberMetalCore.default.run(function () {
       _emberMetalCore.default.$('#wowza-thingy').trigger('wowza');
+    });
+  });
+
+  QUnit.test('instanceInitializers can augment an the customEvents hash', function (assert) {
+    assert.expect(1);
+
+    _emberMetalCore.default.run(App, 'destroy');
+
+    var ApplicationSubclass = _emberMetalCore.default.Application.extend();
+
+    ApplicationSubclass.instanceInitializer({
+      name: 'customize-things',
+      initialize: function (application) {
+        application.customEvents = {
+          herky: 'jerky'
+        };
+      }
+    });
+
+    setupApp(ApplicationSubclass);
+
+    App.FooBarComponent = _emberMetalCore.default.Component.extend({
+      jerky: function () {
+        assert.ok(true, 'fired the event!');
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES['application'] = compile('{{foo-bar}}');
+    _emberMetalCore.default.TEMPLATES['components/foo-bar'] = compile('<div id=\'herky-thingy\'></div>');
+
+    _emberMetalCore.default.run(App, 'advanceReadiness');
+
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#herky-thingy').trigger('herky');
     });
   });
 });
