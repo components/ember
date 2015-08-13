@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.7+6103094b
+ * @version   1.13.7+0e724a4d
  */
 
 (function() {
@@ -48201,7 +48201,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.7+6103094b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.7+0e724a4d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -64422,6 +64422,7 @@ enifed("ember/tests/routing/substates_test", ["exports", "ember", "ember-htmlbar
       }
     });
 
+    App.GrandmaController = Ember.Controller.extend();
     App.GrandmaRoute = Ember.Route.extend({
       queryParams: {
         test: { defaultValue: 1 }
