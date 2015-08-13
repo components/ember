@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.7+0d5f11b4
+ * @version   1.13.7+6103094b
  */
 
 (function() {
@@ -15218,6 +15218,32 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
     equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
     equal(component.get('first'), 'FIRST ATTR', 'component lookup uses local state');
   });
+
+  QUnit.test('should be able to access unspecified attr #12035', function () {
+    var component;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent["default"].extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      },
+
+      didReceiveAttrs: function () {
+        equal(this.get('woot'), 'yes', 'found attr in didReceiveAttrs');
+      }
+    }));
+    // registry.register('template:components/foo-bar', compile('{{first}}'));
+
+    view = _emberViewsViewsView["default"].extend({
+      template: _emberTemplateCompilerSystemCompile["default"]('{{foo-bar woot="yes"}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
+    equal(component.get('woot'), 'yes', 'component found attr');
+  });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set) {
   'use strict';
@@ -16559,6 +16585,28 @@ enifed("ember-htmlbars/tests/integration/component_invocation_test", ["exports",
     });
 
     equal(_emberViewsSystemJquery["default"]('#qunit-fixture').text(), 'In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: James.]');
+  });
+
+  QUnit.test('specifying classNames results in correct class', function (assert) {
+    expect(1);
+
+    registry.register('component:some-clicky-thing', _emberViewsViewsComponent["default"].extend({
+      tagName: 'button',
+      classNames: ['foo', 'bar'],
+      click: function () {
+        assert.ok(true, 'click was fired!');
+      }
+    }));
+
+    view = _emberViewsViewsView["default"].extend({
+      template: _emberTemplateCompilerSystemCompile["default"]('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var button = view.$('button');
+    ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
   });
 
   // jscs:disable validateIndentation
@@ -48153,7 +48201,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.7+0d5f11b4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.7+6103094b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -58463,31 +58511,40 @@ enifed("ember-views/tests/views/view_test", ["exports", "ember-metal/computed", 
     _emberViewsViewsView["default"].reopen = originalReopen;
   });
 });
-enifed("ember/tests/application_lifecycle", ["exports", "ember"], function (exports, _ember) {
-  "use strict";
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember'], function (exports, _ember) {
+  'use strict';
 
-  var App, container, router;
+  var compile = Ember.HTMLBars.compile;
 
-  QUnit.module("Application Lifecycle", {
-    setup: function () {
-      Ember.run(function () {
-        App = Ember.Application.create({
-          rootElement: '#qunit-fixture'
-        });
+  var ApplicationSubclass, App, container, router;
 
-        App.Router = App.Router.extend({
-          location: 'none'
-        });
-
-        App.deferReadiness();
-
-        container = App.__container__;
+  function setupApp() {
+    Ember.run(function () {
+      App = ApplicationSubclass.create({
+        rootElement: '#qunit-fixture'
       });
+
+      App.Router = App.Router.extend({
+        location: 'none'
+      });
+
+      App.deferReadiness();
+
+      container = App.__container__;
+    });
+  }
+
+  QUnit.module('Application Lifecycle', {
+    setup: function () {
+      ApplicationSubclass = Ember.Application.extend();
+
+      setupApp();
     },
 
     teardown: function () {
       router = null;
       Ember.run(App, 'destroy');
+      Ember.TEMPLATES = {};
     }
   });
 
@@ -58576,6 +58633,40 @@ enifed("ember/tests/application_lifecycle", ["exports", "ember"], function (expo
 
     equal(Ember.controllerFor(container, 'home').get('selectedMenuItem'), null);
     equal(Ember.controllerFor(container, 'application').get('selectedMenuItem'), null);
+  });
+
+  QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
+    assert.expect(1);
+
+    Ember.run(App, 'destroy');
+
+    
+      ApplicationSubclass.initializer({
+        name: 'customize-things',
+        initialize: function (registry, application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
+    
+
+    setupApp();
+
+    App.FooBarComponent = Ember.Component.extend({
+      wowza: function () {
+        assert.ok(true, 'fired the event!');
+      }
+    });
+
+    Ember.TEMPLATES['application'] = compile('{{foo-bar}}');
+    Ember.TEMPLATES['components/foo-bar'] = compile('<div id=\'wowza-thingy\'></div>');
+
+    Ember.run(App, 'advanceReadiness');
+
+    Ember.run(function () {
+      Ember.$('#wowza-thingy').trigger('wowza');
+    });
   });
 });
 enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
@@ -64314,10 +64405,57 @@ enifed("ember/tests/routing/substates_test", ["exports", "ember", "ember-htmlbar
     equal(appController.get('currentPath'), 'grandma.error', "Initial route fully loaded");
   });
 
+  QUnit.test('Setting a query param during a slow transition should work', function () {
+    var deferred = Ember.RSVP.defer();
+
+    Router.map(function () {
+      this.route('grandma', { path: '/grandma/:seg' }, function () {});
+    });
+
+    templates['grandma/loading'] = 'GMONEYLOADING';
+
+    App.ApplicationController = Ember.Controller.extend();
+
+    App.IndexRoute = Ember.Route.extend({
+      beforeModel: function () {
+        this.transitionTo('grandma', 1);
+      }
+    });
+
+    App.GrandmaRoute = Ember.Route.extend({
+      queryParams: {
+        test: { defaultValue: 1 }
+      }
+    });
+
+    App.GrandmaIndexRoute = Ember.Route.extend({
+      model: function () {
+        return deferred.promise;
+      }
+    });
+
+    bootApplication('/');
+
+    var appController = container.lookup('controller:application');
+    var grandmaController = container.lookup('controller:grandma');
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Initial route should be loading');
+
+    Ember.run(function () {
+      grandmaController.set('test', 3);
+    });
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Route should still be loading');
+    equal(grandmaController.get('test'), 3, 'Controller query param value should have changed');
+
+    Ember.run(deferred, 'resolve', {});
+
+    equal(appController.get('currentPath'), 'grandma.index', 'Transition should be complete');
+  });
+
   
 
     QUnit.test("Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present", function () {
-
       expect(2);
 
       // fake a modules resolver

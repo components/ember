@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.7+0d5f11b4
+ * @version   1.13.7+6103094b
  */
 
 (function() {
@@ -3299,7 +3299,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.7+0d5f11b4
+    @version 1.13.7+6103094b
     @public
   */
 
@@ -3333,11 +3333,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.7+0d5f11b4'
+    @default '1.13.7+6103094b'
     @static
     @public
   */
-  Ember.VERSION = '1.13.7+0d5f11b4';
+  Ember.VERSION = '1.13.7+6103094b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10246,6 +10246,9 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
   */
 
   function guidFor(obj) {
+    if (obj && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
 
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
@@ -10283,10 +10286,6 @@ enifed("ember-metal/utils", ["exports", "ember-metal/core", "ember-metal/platfor
         return obj ? '(true)' : '(false)';
 
       default:
-        if (obj[GUID_KEY]) {
-          return obj[GUID_KEY];
-        }
-
         if (obj === Object) {
           return '(Object)';
         }
@@ -12641,7 +12640,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.7+0d5f11b4',
+        revision: 'Ember@1.13.7+6103094b',
         loc: program.loc,
         moduleName: options.moduleName
       };
