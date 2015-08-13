@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+89ba4e05
+ * @version   2.0.0-canary+c53e68f7
  */
 
 (function() {
@@ -5895,15 +5895,41 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
 
   // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths) {
+enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
   'use strict';
 
   var component = undefined;
 
   QUnit.module('ember-htmlbars: compat - controller keyword (use as a path)', {
     setup: function () {
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+
+      component = null;
+    },
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(component);
+
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = true;
+    }
+  });
+
+  QUnit.test('reading the controller keyword fails assertion', function () {
+    var text = 'a-prop';
+    expectAssertion(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        prop: text,
+        layout: _emberTemplateCompilerSystemCompile.default('{{controller.prop}}')
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(component);
+    }, /Using `{{controller}}` or any path based on it .*/);
+  });
+
+  QUnit.module('ember-htmlbars: compat - controller keyword (use as a path) [LEGACY]', {
+    setup: function () {
       _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
-      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
 
       component = null;
     },
@@ -5911,59 +5937,60 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
       _emberRuntimeTestsUtils.runDestroy(component);
 
       _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsTransformEachIntoCollection.default);
-      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
     }
   });
 
-  QUnit.test('reading the controller keyword is deprecated [DEPRECATED]', function () {
+  QUnit.test('reading the controller keyword works [LEGACY]', function () {
     var text = 'a-prop';
-    expectDeprecation(function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{controller.prop}}')
       }).create();
+    }, /Using `{{controller}}` or any path based on it .*/);
 
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), text, 'controller keyword is read');
   });
 
-  QUnit.test('reading the controller keyword for hash is deprecated [DEPRECATED]', function () {
-    expectDeprecation(function () {
+  QUnit.test('reading the controller keyword for hash [LEGACY]', function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{if true \'hiho\' option=controller.prop}}')
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    }, /Using `{{controller}}` or any path based on it .*/);
+    ok(true, 'access keyword');
   });
 
-  QUnit.test('reading the controller keyword for param is deprecated [DEPRECATED]', function () {
+  QUnit.test('reading the controller keyword for param [LEGACY]', function () {
     var text = 'a-prop';
-    expectDeprecation(function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{if controller.prop \'' + text + '\'}}')
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    }, /Using `{{controller}}` or any path based on it .*/);
     equal(component.$().text(), text, 'controller keyword is read');
   });
 
-  QUnit.test('reading the controller keyword for param with block is deprecated [DEPRECATED]', function () {
-    expectDeprecation(function () {
+  QUnit.test('reading the controller keyword for param with block fails assertion [LEGACY]', function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{#each controller as |things|}}{{/each}}')
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{controller}}` or any path based on it .* has been deprecated./);
+    }, /Using `{{controller}}` or any path based on it .*/);
+    ok(true, 'access keyword');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/views/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-htmlbars/keywords/view'], function (exports, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var component = undefined,
@@ -5973,7 +6000,8 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/
 
   QUnit.module('ember-htmlbars: compat - view helper', {
     setup: function () {
-      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewHelper.default);
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewHelper.default);
 
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
 
@@ -5983,92 +6011,125 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-views/
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(component);
       _emberRuntimeTestsUtils.runDestroy(container);
-      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewHelper.default);
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewHelper.default);
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
       registry = container = component = null;
 
       _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
     }
   });
 
-  QUnit.test('using the view helper with a string (inline form) is deprecated [DEPRECATED]', function (assert) {
+  QUnit.test('using the view helper fails assertion', function (assert) {
     var ViewClass = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('fooView')
     });
     registry.register('view:foo', ViewClass);
 
-    expectDeprecation(function () {
+    expectAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'),
         container: container
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using the `{{view "string"}}` helper is deprecated/);
+    }, /Using the `{{view "string"}}` helper/);
+  });
+
+  QUnit.module('ember-htmlbars: compat - view helper [LEGACY]', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+
+      registry = new _containerRegistry.default();
+      container = registry.container();
+    },
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(component);
+      _emberRuntimeTestsUtils.runDestroy(container);
+      registry = container = component = null;
+
+      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+    }
+  });
+
+  QUnit.test('using the view helper with a string (inline form) fails assertion [LEGACY]', function (assert) {
+    var ViewClass = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('fooView')
+    });
+    registry.register('view:foo', ViewClass);
+
+    ignoreAssertion(function () {
+      component = _emberViewsViewsComponent.default.extend({
+        layout: _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'),
+        container: container
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(component);
+    });
 
     assert.equal(component.$().text(), 'fooView', 'view helper is still rendered');
   });
 
-  QUnit.test('using the view helper with a string (block form) is deprecated [DEPRECATED]', function (assert) {
+  QUnit.test('using the view helper with a string (block form) fails assertion [LEGACY]', function (assert) {
     var ViewClass = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('Foo says: {{yield}}')
     });
     registry.register('view:foo', ViewClass);
 
-    expectDeprecation(function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{#view \'foo\'}}I am foo{{/view}}'),
         container: container
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using the `{{view "string"}}` helper is deprecated/);
+    });
 
     assert.equal(component.$().text(), 'Foo says: I am foo', 'view helper is still rendered');
   });
 
-  QUnit.test('using the view helper with string "select" has its own deprecation message [DEPRECATED]', function (assert) {
+  QUnit.test('using the view helper with string "select" fails assertion [LEGACY]', function (assert) {
     registry.register('view:select', _emberViewsViewsSelect.default);
 
-    expectDeprecation(function () {
+    ignoreAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{view \'select\'}}'),
         container: container
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{view "select"}}` is deprecated/);
+    });
 
     assert.ok(!!component.$('select').length, 'still renders select');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths'], function (exports, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths) {
+enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
   'use strict';
 
   var component = undefined;
 
   QUnit.module('ember-htmlbars: compat - view keyword (use as a path)', {
     setup: function () {
-      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
       component = null;
     },
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(component);
-      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
     }
   });
 
-  QUnit.test('reading the view keyword is deprecated [DEPRECATED]', function () {
+  QUnit.test('reading the view keyword fails assertion', function () {
     var text = 'a-prop';
-    expectDeprecation(function () {
+    expectAssertion(function () {
       component = _emberViewsViewsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{view.prop}}')
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-    }, /Using `{{view}}` or any path based on it .* has been deprecated./);
-
-    equal(component.$().text(), text, 'view keyword is read');
+    }, /Using `{{view}}` or any path based on it .*/);
   });
 });
 enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/core', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
@@ -6146,7 +6207,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     return _emberMetalProperty_get.get(_emberMetalProperty_get.get(view, 'childViews').objectAt(0), 'childViews').objectAt(0);
   }
 
-  QUnit.module('collection helper', {
+  QUnit.module('collection helper [LEGACY]', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
 
@@ -6295,6 +6356,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     });
 
     view = _emberViewsViewsView.default.create({
+      _viewRegistry: {},
       listView: ListView,
       listController: listController,
       template: _emberTemplateCompilerSystemCompile.default('{{#collection view.listView content=view.listController tagName="table"}} <td>{{view.content.title}}</td> {{/collection}}')
@@ -7976,6 +8038,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemView=}}', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var itemView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('itemView:{{name}}')
     });
@@ -7996,6 +8059,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it defers all normalization of itemView names to the resolver', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var itemView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('itemView:{{name}}')
     });
@@ -8015,6 +8079,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} via container', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         container: container,
@@ -8029,6 +8094,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with each view tagName (DEPRECATED)', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompilerSystemCompile.default('{{each view.people itemViewClass="my-view" tagName="ul"}}'),
@@ -8044,6 +8110,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with tagName in itemViewClass (DEPRECATED)', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     registry.register('view:li-view', _emberViewsViewsView.default.extend({
       tagName: 'li'
     }));
@@ -8064,6 +8131,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{itemViewClass=}} with {{else}} block (DEPRECATED)', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompilerSystemCompile.default('\n        {{~#each view.people itemViewClass="my-view" as |item|~}}\n          {{item.name}}\n        {{~else~}}\n          No records!\n        {{~/each}}'),
@@ -8078,6 +8146,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyView=}}', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var emptyView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('emptyView:sad panda')
     });
@@ -8098,6 +8167,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it defers all normalization of emptyView names to the resolver', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var emptyView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('emptyView:sad panda')
     });
@@ -8118,6 +8188,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} via container', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         container: container,
@@ -8132,6 +8203,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} with tagName (DEPRECATED)', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         template: _emberTemplateCompilerSystemCompile.default('{{each view.people emptyViewClass="my-empty-view" tagName="b"}}'),
@@ -8147,6 +8219,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it supports {{emptyViewClass=}} with in format', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     expectDeprecation(function () {
       view = _emberViewsViewsView.default.create({
         container: container,
@@ -8161,6 +8234,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it uses {{else}} when replacing model with an empty array', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
       items: _emberRuntimeSystemNative_array.A(['one', 'two'])
@@ -8178,6 +8252,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it uses {{else}} when removing all items in an array', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var items = _emberRuntimeSystemNative_array.A(['one', 'two']);
     view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
@@ -8197,6 +8272,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('it can move to and from {{else}} properly when the backing array gains and looses items (#11140)', function () {
+    _emberRuntimeTestsUtils.runDestroy(view);
     var items = _emberRuntimeSystemNative_array.A(['one', 'two']);
     view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('{{#each view.items as |item|}}{{item}}{{else}}Nothing{{/each}}'),
@@ -40778,7 +40854,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+89ba4e05', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+c53e68f7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44224,7 +44300,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
     });
   });
 
-  QUnit.module('DeprecatedCollectionView');
+  QUnit.module('DeprecatedCollectionView [LEGACY]');
 
   QUnit.test('calling reopen on DeprecatedCollectionView delegates to CollectionView', function () {
     expect(2);
@@ -44235,9 +44311,8 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
       ok(arg === obj);
     };
 
-    expectDeprecation(function () {
-      _emberViewsViewsCollection_view.DeprecatedCollectionView.reopen(obj);
-    }, /Ember.CollectionView is deprecated./);
+    expectNoDeprecation();
+    _emberViewsViewsCollection_view.DeprecatedCollectionView.reopen(obj);
 
     _emberViewsViewsCollection_view.default.reopen = originalReopen;
   });
@@ -44961,7 +45036,9 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       registry = new _containerRegistry.default();
-      container = _emberViewsViewsContainer_view.default.create();
+      container = _emberViewsViewsContainer_view.default.create({
+        _viewRegistry: {}
+      });
 
       _emberMetalRun_loop.default(function () {
         container.appendTo('#qunit-fixture');
@@ -44980,6 +45057,9 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
         container.destroy();
         if (view) {
           view.destroy();
+        }
+        if (child) {
+          child.destroy();
         }
         if (otherContainer) {
           otherContainer.destroy();
@@ -45014,13 +45094,14 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
   });
 
   QUnit.test('should be able to modify childViews then rerender the ContainerView in same run loop', function () {
-    container = _emberViewsViewsContainer_view.default.create();
+    container = _emberViewsViewsContainer_view.default.create({});
 
     _emberMetalRun_loop.default(function () {
       container.appendTo('#qunit-fixture');
     });
 
     var child = _emberViewsViewsView.default.create({
+      _viewRegistry: {},
       template: _emberTemplateCompilerSystemCompile.default('child')
     });
 
@@ -45369,9 +45450,8 @@ enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/p
       ok(arg === obj);
     };
 
-    expectDeprecation(function () {
-      _emberViewsViewsContainer_view.DeprecatedContainerView.reopen(obj);
-    }, /Ember.ContainerView is deprecated./);
+    expectNoDeprecation();
+    _emberViewsViewsContainer_view.DeprecatedContainerView.reopen(obj);
 
     _emberViewsViewsContainer_view.default.reopen = originalReopen;
   });
@@ -45439,7 +45519,7 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'e
   var dispatcher, select;
   var originalViewKeyword;
 
-  QUnit.module('Ember.Select', {
+  QUnit.module('Ember.Select [LEGACY]', {
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       dispatcher = _emberViewsSystemEvent_dispatcher.default.create();
@@ -46211,24 +46291,6 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/core', 'e
 
     equal(select.get('value'), 'ebryn');
     equal(select.get('selection'), ebryn);
-  });
-
-  QUnit.module('DeprecatedSelect');
-
-  QUnit.test('calling reopen on DeprecatedSelect delegates to Select', function () {
-    expect(2);
-    var originalReopen = _emberViewsViewsSelect.default.reopen;
-    var obj = {};
-
-    _emberViewsViewsSelect.default.reopen = function (arg) {
-      ok(arg === obj);
-    };
-
-    expectDeprecation(function () {
-      _emberViewsViewsSelect.DeprecatedSelect.reopen(obj);
-    }, /Ember.Select is deprecated./);
-
-    _emberViewsViewsSelect.default.reopen = originalReopen;
   });
 });
 enifed('ember-views/tests/views/text_area_test', ['exports', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-views/views/text_area', 'ember-metal/property_get', 'ember-metal/property_set'], function (exports, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberViewsViewsText_area, _emberMetalProperty_get, _emberMetalProperty_set) {
@@ -48001,6 +48063,10 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
     _emberMetalRun_loop.default(outerView, 'set', 'value', false);
 
     equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
+
+    _emberMetalRun_loop.default(function () {
+      outerView.destroy();
+    });
   });
 
   QUnit.test('should remove childViews inside {{each}} on destroy', function () {
@@ -48040,6 +48106,10 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
     _emberMetalRun_loop.default(outerView, 'set', 'value', false);
 
     equal(outerView.get('childViews.length'), 0, 'expected no views to be leaked');
+
+    _emberMetalRun_loop.default(function () {
+      outerView.destroy();
+    });
   });
 });
 enifed('ember-views/tests/views/view/class_name_bindings_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/property_events', 'ember-metal/watching', 'ember-runtime/system/object', 'ember-views/views/view'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalProperty_events, _emberMetalWatching, _emberRuntimeSystemObject, _emberViewsViewsView) {
@@ -49508,15 +49578,22 @@ enifed('ember-views/tests/views/view/layout_test', ['exports', 'container/regist
     equal('used layout', view.$().text(), 'default layout was not printed');
   });
 });
-enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var parentView, view;
   var originalViewKeyword;
 
+  var Mixin, Parent;
+
   QUnit.module('View#nearest*', {
     setup: function () {
+      _emberHtmlbarsTestsUtils.removeAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+      Mixin = _emberMetalMixin.Mixin.create({});
+      Parent = _emberViewsViewsView.default.extend(Mixin, {
+        template: _emberTemplateCompilerSystemCompile.default('{{view}}')
+      });
     },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
@@ -49528,69 +49605,63 @@ enifed('ember-views/tests/views/view/nearest_of_type_test', ['exports', 'ember-m
         }
       });
       _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+      _emberHtmlbarsTestsUtils.registerAstPlugin(_emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
     }
   });
 
-  (function () {
-    var Mixin = _emberMetalMixin.Mixin.create({});
-    var Parent = _emberViewsViewsView.default.extend(Mixin, {
+  QUnit.test('nearestOfType should find the closest view by view class', function () {
+    var child;
+
+    _emberMetalRun_loop.default(function () {
+      parentView = Parent.create();
+      parentView.appendTo('#qunit-fixture');
+    });
+
+    child = parentView.get('childViews')[0];
+    equal(child.nearestOfType(Parent), parentView, 'finds closest view in the hierarchy by class');
+  });
+
+  QUnit.test('nearestOfType should find the closest view by mixin', function () {
+    var child;
+
+    _emberMetalRun_loop.default(function () {
+      parentView = Parent.create();
+      parentView.appendTo('#qunit-fixture');
+    });
+
+    child = parentView.get('childViews')[0];
+    equal(child.nearestOfType(Mixin), parentView, 'finds closest view in the hierarchy by class');
+  });
+
+  QUnit.test('nearestWithProperty should search immediate parent', function () {
+    var childView;
+
+    view = _emberViewsViewsView.default.create({
+      myProp: true,
       template: _emberTemplateCompilerSystemCompile.default('{{view}}')
     });
 
-    QUnit.test('nearestOfType should find the closest view by view class', function () {
-      var child;
-
-      _emberMetalRun_loop.default(function () {
-        parentView = Parent.create();
-        parentView.appendTo('#qunit-fixture');
-      });
-
-      child = parentView.get('childViews')[0];
-      equal(child.nearestOfType(Parent), parentView, 'finds closest view in the hierarchy by class');
+    _emberMetalRun_loop.default(function () {
+      view.appendTo('#qunit-fixture');
     });
 
-    QUnit.test('nearestOfType should find the closest view by mixin', function () {
-      var child;
+    childView = view.get('childViews')[0];
+    equal(childView.nearestWithProperty('myProp'), view);
+  });
 
-      _emberMetalRun_loop.default(function () {
-        parentView = Parent.create();
-        parentView.appendTo('#qunit-fixture');
-      });
+  QUnit.test('nearestChildOf should be deprecated', function () {
+    var child;
 
-      child = parentView.get('childViews')[0];
-      equal(child.nearestOfType(Mixin), parentView, 'finds closest view in the hierarchy by class');
+    _emberMetalRun_loop.default(function () {
+      parentView = Parent.create();
+      parentView.appendTo('#qunit-fixture');
     });
 
-    QUnit.test('nearestWithProperty should search immediate parent', function () {
-      var childView;
-
-      view = _emberViewsViewsView.default.create({
-        myProp: true,
-        template: _emberTemplateCompilerSystemCompile.default('{{view}}')
-      });
-
-      _emberMetalRun_loop.default(function () {
-        view.appendTo('#qunit-fixture');
-      });
-
-      childView = view.get('childViews')[0];
-      equal(childView.nearestWithProperty('myProp'), view);
-    });
-
-    QUnit.test('nearestChildOf should be deprecated', function () {
-      var child;
-
-      _emberMetalRun_loop.default(function () {
-        parentView = Parent.create();
-        parentView.appendTo('#qunit-fixture');
-      });
-
-      child = parentView.get('childViews')[0];
-      expectDeprecation(function () {
-        child.nearestChildOf(Parent);
-      }, 'nearestChildOf has been deprecated.');
-    });
-  })();
+    child = parentView.get('childViews')[0];
+    expectDeprecation(function () {
+      child.nearestChildOf(Parent);
+    }, 'nearestChildOf has been deprecated.');
+  });
 });
 enifed('ember-views/tests/views/view/nested_view_ordering_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
@@ -50679,9 +50750,8 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'emb
       ok(arg === obj);
     };
 
-    expectDeprecation(function () {
-      _emberViewsViewsView.DeprecatedView.reopen(obj);
-    }, /Ember.View is deprecated./);
+    expectNoDeprecation();
+    _emberViewsViewsView.DeprecatedView.reopen(obj);
 
     _emberViewsViewsView.default.reopen = originalReopen;
   });

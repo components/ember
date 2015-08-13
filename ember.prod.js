@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+89ba4e05
+ * @version   2.0.0-canary+c53e68f7
  */
 
 (function() {
@@ -5861,7 +5861,6 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 
   _emberHtmlbarsKeywords.registerKeyword('partial', _emberHtmlbarsKeywordsPartial.default);
   _emberHtmlbarsKeywords.registerKeyword('input', _emberHtmlbarsKeywordsInput.default);
   _emberHtmlbarsKeywords.registerKeyword('textarea', _emberHtmlbarsKeywordsTextarea.default);
-  _emberHtmlbarsKeywords.registerKeyword('collection', _emberHtmlbarsKeywordsCollection.default);
   _emberHtmlbarsKeywords.registerKeyword('legacy-yield', _emberHtmlbarsKeywordsLegacyYield.default);
   _emberHtmlbarsKeywords.registerKeyword('mut', _emberHtmlbarsKeywordsMut.default);
   _emberHtmlbarsKeywords.registerKeyword('@mut', _emberHtmlbarsKeywordsMut.privateMut);
@@ -5869,6 +5868,7 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 
   _emberHtmlbarsKeywords.registerKeyword('readonly', _emberHtmlbarsKeywordsReadonly.default);
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
+    _emberHtmlbarsKeywords.registerKeyword('collection', _emberHtmlbarsKeywordsCollection.default);
     _emberHtmlbarsKeywords.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
   }
 
@@ -8349,7 +8349,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+89ba4e05';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+c53e68f7';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14326,7 +14326,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+89ba4e05
+    @version 2.0.0-canary+c53e68f7
     @public
   */
 
@@ -14360,11 +14360,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+89ba4e05'
+    @default '2.0.0-canary+c53e68f7'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+89ba4e05';
+  Ember.VERSION = '2.0.0-canary+c53e68f7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22506,7 +22506,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+89ba4e05';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+c53e68f7';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23005,7 +23005,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+89ba4e05';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+c53e68f7';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35544,7 +35544,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
   'use strict';
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -35558,8 +35558,9 @@ enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-com
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsDeprecateViewHelper.default);
+  } else {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewHelper.default);
   }
 
   exports._Ember = _emberMetal.default;
@@ -35640,10 +35641,10 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
   exports.default = plugins;
 });
-enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function DeprecateViewAndControllerPaths(options) {
+  function AssertNoViewAndControllerPaths(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
     this.options = options || {};
@@ -35654,7 +35655,7 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  DeprecateViewAndControllerPaths.prototype.transform = function DeprecateViewAndControllerPaths_transform(ast) {
+  AssertNoViewAndControllerPaths.prototype.transform = function AssertNoViewAndControllerPaths_transform(ast) {
     var walker = new this.syntax.Walker();
     var moduleName = this.options && this.options.moduleName;
 
@@ -35663,15 +35664,15 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
         return;
       }
 
-      deprecatePath(moduleName, node, node.path);
-      deprecatePaths(moduleName, node, node.params);
-      deprecateHash(moduleName, node, node.hash);
+      assertPath(moduleName, node, node.path);
+      assertPaths(moduleName, node, node.params);
+      assertHash(moduleName, node, node.hash);
     });
 
     return ast;
   };
 
-  function deprecateHash(moduleName, node, hash) {
+  function assertHash(moduleName, node, hash) {
     if (!hash || !hash.pairs) {
       return;
     }
@@ -35679,34 +35680,34 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
     for (i = 0, l = hash.pairs.length; i < l; i++) {
       pair = hash.pairs[i];
       paths = pair.value.params;
-      deprecatePaths(moduleName, pair, paths);
+      assertPaths(moduleName, pair, paths);
     }
   }
 
-  function deprecatePaths(moduleName, node, paths) {
+  function assertPaths(moduleName, node, paths) {
     if (!paths) {
       return;
     }
     var i, l, path;
     for (i = 0, l = paths.length; i < l; i++) {
       path = paths[i];
-      deprecatePath(moduleName, node, path);
+      assertPath(moduleName, node, path);
     }
   }
 
-  function deprecatePath(moduleName, node, path) {
+  function assertPath(moduleName, node, path) {
       }
 
   function validate(node) {
     return node.type === 'MustacheStatement' || node.type === 'BlockStatement';
   }
 
-  exports.default = DeprecateViewAndControllerPaths;
+  exports.default = AssertNoViewAndControllerPaths;
 });
-enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function DeprecateViewHelper(options) {
+  function AssertNoViewHelper(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
     this.options = options || {};
@@ -35717,7 +35718,7 @@ enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'emb
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  DeprecateViewHelper.prototype.transform = function DeprecateViewHelper_transform(ast) {
+  AssertNoViewHelper.prototype.transform = function AssertNoViewHelper_transform(ast) {
     if (!!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
       return ast;
     }
@@ -35729,31 +35730,26 @@ enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'emb
         return;
       }
 
-      deprecateHelper(moduleName, node);
+      assertHelper(moduleName, node);
     });
 
     return ast;
   };
 
-  function deprecateHelper(moduleName, node) {
+  function assertHelper(moduleName, node) {
     var paramValue = node.params.length && node.params[0].value;
 
     if (!paramValue) {
       return;
-    } else if (paramValue === 'select') {
-      deprecateSelect(moduleName, node);
     } else {
           }
   }
-
-  function deprecateSelect(moduleName, node) {
-      }
 
   function validate(node) {
     return (node.type === 'MustacheStatement' || node.type === 'BlockStatement') && node.path.parts[0] === 'view';
   }
 
-  exports.default = DeprecateViewHelper;
+  exports.default = AssertNoViewHelper;
 });
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   'use strict';
@@ -36554,7 +36550,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+89ba4e05',
+        revision: 'Ember@2.0.0-canary+c53e68f7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36715,7 +36711,7 @@ enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 
   _emberRuntime.default.TextArea = _emberViewsViewsText_area.default;
 
   if (_emberRuntime.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberRuntime.default.Select = _emberViewsViewsSelect.DeprecatedSelect;
+    _emberRuntime.default.Select = _emberViewsViewsSelect.Select;
   }
 
   _emberRuntime.default.SelectOption = _emberViewsViewsSelect.SelectOption;
@@ -39879,7 +39875,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+89ba4e05';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+c53e68f7';
 
   /**
   @module ember
@@ -40355,7 +40351,7 @@ enifed('ember-views/views/legacy_each_view', ['exports', 'ember-htmlbars/templat
     })
   });
 });
-enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/replace', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/utils', 'ember-metal/is_none', 'ember-metal/computed', 'ember-runtime/system/native_array', 'ember-metal/mixin', 'ember-metal/properties', 'ember-htmlbars/templates/select', 'ember-htmlbars/templates/select-option', 'ember-htmlbars/templates/select-optgroup'], function (exports, _emberMetalCore, _emberMetalReplace, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeUtils, _emberMetalIs_none, _emberMetalComputed, _emberRuntimeSystemNative_array, _emberMetalMixin, _emberMetalProperties, _emberHtmlbarsTemplatesSelect, _emberHtmlbarsTemplatesSelectOption, _emberHtmlbarsTemplatesSelectOptgroup) {
+enifed('ember-views/views/select', ['exports', 'ember-metal/replace', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/utils', 'ember-metal/is_none', 'ember-metal/computed', 'ember-runtime/system/native_array', 'ember-metal/mixin', 'ember-metal/properties', 'ember-htmlbars/templates/select', 'ember-htmlbars/templates/select-option', 'ember-htmlbars/templates/select-optgroup'], function (exports, _emberMetalReplace, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeUtils, _emberMetalIs_none, _emberMetalComputed, _emberRuntimeSystemNative_array, _emberMetalMixin, _emberMetalProperties, _emberHtmlbarsTemplatesSelect, _emberHtmlbarsTemplatesSelectOption, _emberHtmlbarsTemplatesSelectOptgroup) {
   /**
   @module ember
   @submodule ember-views
@@ -41006,22 +41002,6 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
     }
   });
 
-  function selectViewDeprecationMessage() {
-      }
-
-  var DeprecatedSelect = Select.extend({
-    init: function () {
-      selectViewDeprecationMessage();
-      this._super.apply(this, arguments);
-    }
-  });
-
-  DeprecatedSelect.reopen = function () {
-    selectViewDeprecationMessage();
-    Select.reopen.apply(Select, arguments);
-    return this;
-  };
-
   function indexesOf(iterable, elements) {
     return elements === undefined ? [] : elements.map(function (item) {
       return iterable.indexOf(item);
@@ -41030,7 +41010,6 @@ enifed('ember-views/views/select', ['exports', 'ember-metal/core', 'ember-metal/
 
   exports.default = Select;
   exports.Select = Select;
-  exports.DeprecatedSelect = DeprecatedSelect;
   exports.SelectOption = SelectOption;
   exports.SelectOptgroup = SelectOptgroup;
 });
