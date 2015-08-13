@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.5+4589517e
+ * @version   2.0.0-beta.5+e86da10f
  */
 
 (function() {
@@ -12724,6 +12724,32 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
     equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
     equal(component.get('first'), 'FIRST ATTR', 'component lookup uses local state');
   });
+
+  QUnit.test('should be able to access unspecified attr #12035', function () {
+    var component;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      },
+
+      didReceiveAttrs: function () {
+        equal(this.get('woot'), 'yes', 'found attr in didReceiveAttrs');
+      }
+    }));
+    // registry.register('template:components/foo-bar', compile('{{first}}'));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{foo-bar woot="yes"}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
+    equal(component.get('woot'), 'yes', 'component found attr');
+  });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
@@ -13831,6 +13857,28 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     });
 
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: James.]');
+  });
+
+  QUnit.test('specifying classNames results in correct class', function (assert) {
+    expect(1);
+
+    registry.register('component:some-clicky-thing', _emberViewsViewsComponent.default.extend({
+      tagName: 'button',
+      classNames: ['foo', 'bar'],
+      click: function () {
+        assert.ok(true, 'click was fired!');
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var button = view.$('button');
+    ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
   });
 
   // jscs:disable validateIndentation
@@ -39954,7 +40002,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-beta.5+4589517e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-beta.5+e86da10f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -49845,31 +49893,40 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'emb
     _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
-enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/core'], function (exports, _ember, _emberMetalCore) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures) {
   'use strict';
 
-  var App, container, router;
+  var compile = _emberMetalCore.default.HTMLBars.compile;
+
+  var ApplicationSubclass, App, container, router;
+
+  function setupApp() {
+    _emberMetalCore.default.run(function () {
+      App = ApplicationSubclass.create({
+        rootElement: '#qunit-fixture'
+      });
+
+      App.Router = App.Router.extend({
+        location: 'none'
+      });
+
+      App.deferReadiness();
+
+      container = App.__container__;
+    });
+  }
 
   QUnit.module('Application Lifecycle', {
     setup: function () {
-      _emberMetalCore.default.run(function () {
-        App = _emberMetalCore.default.Application.create({
-          rootElement: '#qunit-fixture'
-        });
+      ApplicationSubclass = _emberMetalCore.default.Application.extend();
 
-        App.Router = App.Router.extend({
-          location: 'none'
-        });
-
-        App.deferReadiness();
-
-        container = App.__container__;
-      });
+      setupApp();
     },
 
     teardown: function () {
       router = null;
       _emberMetalCore.default.run(App, 'destroy');
+      _emberMetalCore.default.TEMPLATES = {};
     }
   });
 
@@ -49958,6 +50015,49 @@ enifed('ember/tests/application_lifecycle', ['exports', 'ember', 'ember-metal/co
 
     equal(_emberMetalCore.default.controllerFor(container, 'home').get('selectedMenuItem'), null);
     equal(_emberMetalCore.default.controllerFor(container, 'application').get('selectedMenuItem'), null);
+  });
+
+  QUnit.test('initializers can augment an applications customEvents hash', function (assert) {
+    assert.expect(1);
+
+    _emberMetalCore.default.run(App, 'destroy');
+
+    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
+      ApplicationSubclass.initializer({
+        name: 'customize-things',
+        initialize: function (application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
+    } else {
+      ApplicationSubclass.initializer({
+        name: 'customize-things',
+        initialize: function (registry, application) {
+          application.customEvents = {
+            wowza: 'wowza'
+          };
+        }
+      });
+    }
+
+    setupApp();
+
+    App.FooBarComponent = _emberMetalCore.default.Component.extend({
+      wowza: function () {
+        assert.ok(true, 'fired the event!');
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES['application'] = compile('{{foo-bar}}');
+    _emberMetalCore.default.TEMPLATES['components/foo-bar'] = compile('<div id=\'wowza-thingy\'></div>');
+
+    _emberMetalCore.default.run(App, 'advanceReadiness');
+
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#wowza-thingy').trigger('wowza');
+    });
   });
 });
 enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/keys', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet'], function (exports, _ember, _emberMetalCore, _emberMetalKeys, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet) {
@@ -52379,6 +52479,51 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     equal(_emberMetalCore.default.$('#the-link').attr('href'), '/?bar=BORF&foo=lol');
   });
 
+  QUnit.test('The {{link-to}} with only query params always transitions to the current route with the query params applied', function () {
+    // Test harness for bug #12033
+
+    _emberMetalCore.default.TEMPLATES.cars = _emberTemplateCompiler.compile('{{#link-to \'cars.create\' id=\'create-link\'}}Create new car{{/link-to}} ' + '{{#link-to (query-params page=\'2\') id=\'page2-link\'}}Page 2{{/link-to}}' + '{{outlet}}');
+
+    _emberMetalCore.default.TEMPLATES['cars/create'] = _emberTemplateCompiler.compile('{{#link-to \'cars\' id=\'close-link\'}}Close create form{{/link-to}}');
+
+    Router.map(function () {
+      this.route('cars', function () {
+        this.route('create');
+      });
+    });
+
+    App.CarsController = _emberMetalCore.default.Controller.extend({
+      queryParams: ['page'],
+      page: 1
+    });
+
+    bootApplication();
+
+    var carsController = container.lookup('controller:cars');
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/cars/create');
+    });
+
+    _emberMetalCore.default.run(function () {
+      equal(router.currentRouteName, 'cars.create');
+      _emberMetalCore.default.$('#close-link').click();
+    });
+
+    _emberMetalCore.default.run(function () {
+      equal(router.currentRouteName, 'cars.index');
+      equal(router.get('url'), '/cars');
+      equal(carsController.get('page'), 1, 'The page query-param is 1');
+      _emberMetalCore.default.$('#page2-link').click();
+    });
+
+    _emberMetalCore.default.run(function () {
+      equal(router.currentRouteName, 'cars.index', 'The active route is still cars');
+      equal(router.get('url'), '/cars?page=2', 'The url has been updated');
+      equal(carsController.get('page'), 2, 'The query params have been updated');
+    });
+  });
+
   QUnit.test('The {{link-to}} applies activeClass when query params are not changed', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to (query-params foo=\'cat\') id=\'cat-link\'}}Index{{/link-to}} ' + '{{#link-to (query-params foo=\'dog\') id=\'dog-link\'}}Index{{/link-to}} ' + '{{#link-to \'index\' id=\'change-nothing\'}}Index{{/link-to}}');
 
@@ -52549,6 +52694,8 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     equal(router.get('location.path'), '/parent');
   });
 });
+
+// Test harness for bug #12033
 
 //Basic tests
 
@@ -55797,6 +55944,54 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/c
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.error', 'Initial route fully loaded');
+  });
+
+  QUnit.test('Setting a query param during a slow transition should work', function () {
+    var deferred = _emberMetalCore.default.RSVP.defer();
+
+    Router.map(function () {
+      this.route('grandma', { path: '/grandma/:seg' }, function () {});
+    });
+
+    templates['grandma/loading'] = 'GMONEYLOADING';
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.IndexRoute = _emberMetalCore.default.Route.extend({
+      beforeModel: function () {
+        this.transitionTo('grandma', 1);
+      }
+    });
+
+    App.GrandmaRoute = _emberMetalCore.default.Route.extend({
+      queryParams: {
+        test: { defaultValue: 1 }
+      }
+    });
+
+    App.GrandmaIndexRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        return deferred.promise;
+      }
+    });
+
+    bootApplication('/');
+
+    var appController = container.lookup('controller:application');
+    var grandmaController = container.lookup('controller:grandma');
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Initial route should be loading');
+
+    _emberMetalCore.default.run(function () {
+      grandmaController.set('test', 3);
+    });
+
+    equal(appController.get('currentPath'), 'grandma.loading', 'Route should still be loading');
+    equal(grandmaController.get('test'), 3, 'Controller query param value should have changed');
+
+    _emberMetalCore.default.run(deferred, 'resolve', {});
+
+    equal(appController.get('currentPath'), 'grandma.index', 'Transition should be complete');
   });
 
   QUnit.test('Slow promises returned from ApplicationRoute#model enter ApplicationLoadingRoute if present', function () {

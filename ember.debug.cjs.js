@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.5+4589517e
+ * @version   2.0.0-beta.5+e86da10f
  */
 
 (function() {
@@ -3569,8 +3569,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       @private
     */
     setupEventDispatcher: function () {
-      var dispatcher = this.container.lookup('event_dispatcher:main');
-      dispatcher.setup(this.customEvents, this.rootElement);
+      var dispatcher = this.lookup('event_dispatcher:main');
+      var applicationCustomEvents = _emberMetalProperty_get.get(this.application, 'customEvents');
+
+      dispatcher.setup(applicationCustomEvents, this.rootElement);
 
       return dispatcher;
     },
@@ -6606,8 +6608,38 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
   }
 });
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'ember-views/streams/should_display'], function (exports, _emberMetalFeatures, _emberViewsStreamsShould_display) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
+  /**
+    The `{{each-in}}` helper loops over properties on an object. It is unbound,
+    in that new (or removed) properties added to the target object will not be
+    rendered.
+     For example, given a `user` object that looks like:
+     ```javascript
+    {
+      "name": "Shelly Sails",
+      "age": 42
+    }
+    ```
+     This template would display all properties on the `user`
+    object in a list:
+     ```handlebars
+    <ul>
+    {{#each-in user as |key value|}}
+      <li>{{key}}: {{value}}</li>
+    {{/each-in}}
+    </ul>
+    ```
+     Outputting their name and age.
+     @method each-in
+    @for Ember.Templates.helpers
+    @public
+  */
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
 
@@ -6625,6 +6657,11 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
   exports.default = eachInHelper;
 });
 enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   exports.default = eachHelper;
@@ -7738,11 +7775,135 @@ enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exp
 enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/utils', 'ember-views/views/collection_view', 'ember-htmlbars/node-managers/view-node-manager', 'ember-metal/merge'], function (exports, _emberViewsStreamsUtils, _emberViewsViewsCollection_view, _emberHtmlbarsNodeManagersViewNodeManager, _emberMetalMerge) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
   'use strict';
 
+  /**
+    `{{collection}}` is a template helper for adding instances of
+    `Ember.CollectionView` to a template. See [Ember.CollectionView](/api/classes/Ember.CollectionView.html)
+     for additional information on how a `CollectionView` functions.
+  
+    `{{collection}}`'s primary use is as a block helper with a `contentBinding`
+    option pointing towards an `Ember.Array`-compatible object. An `Ember.View`
+    instance will be created for each item in its `content` property. Each view
+    will have its own `content` property set to the appropriate item in the
+    collection.
+  
+    The provided block will be applied as the template for each item's view.
+  
+    Given an empty `<body>` the following template:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{#collection content=model}}
+      Hi {{view.content.name}}
+    {{/collection}}
+    ```
+  
+    And the following application code
+  
+    ```javascript
+    App = Ember.Application.create();
+    App.ApplicationRoute = Ember.Route.extend({
+      model: function() {
+        return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+      }
+    });
+    ```
+  
+    The following HTML will result:
+  
+    ```html
+    <div class="ember-view">
+      <div class="ember-view">Hi Yehuda</div>
+      <div class="ember-view">Hi Tom</div>
+      <div class="ember-view">Hi Peter</div>
+    </div>
+    ```
+  
+    ### Non-block version of collection
+  
+    If you provide an `itemViewClass` option that has its own `template` you may
+    omit the block.
+  
+    The following template:
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{collection content=model itemViewClass="an-item"}}
+    ```
+  
+    And application code
+  
+    ```javascript
+    App = Ember.Application.create();
+    App.ApplicationRoute = Ember.Route.extend({
+      model: function() {
+        return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
+      }
+    });
+  
+    App.AnItemView = Ember.View.extend({
+      template: Ember.Handlebars.compile("Greetings {{view.content.name}}")
+    });
+    ```
+  
+    Will result in the HTML structure below
+  
+    ```html
+    <div class="ember-view">
+      <div class="ember-view">Greetings Yehuda</div>
+      <div class="ember-view">Greetings Tom</div>
+      <div class="ember-view">Greetings Peter</div>
+    </div>
+    ```
+  
+    ### Specifying a CollectionView subclass
+  
+    By default the `{{collection}}` helper will create an instance of
+    `Ember.CollectionView`. You can supply a `Ember.CollectionView` subclass to
+    the helper by passing it as the first argument:
+  
+    ```handlebars
+    {{#collection "my-custom-collection" content=model}}
+      Hi {{view.content.name}}
+    {{/collection}}
+    ```
+  
+    This example would look for the class `App.MyCustomCollection`.
+  
+    ### Forwarded `item.*`-named Options
+  
+    As with the `{{view}}`, helper options passed to the `{{collection}}` will be
+    set on the resulting `Ember.CollectionView` as properties. Additionally,
+    options prefixed with `item` will be applied to the views rendered for each
+    item (note the camelcasing):
+  
+    ```handlebars
+    {{#collection content=model
+                  itemTagName="p"
+                  itemClassNames="greeting"}}
+      Howdy {{view.content.name}}
+    {{/collection}}
+    ```
+  
+    Will result in the following HTML structure:
+  
+    ```html
+    <div class="ember-view">
+      <p class="ember-view greeting">Howdy Yehuda</p>
+      <p class="ember-view greeting">Howdy Tom</p>
+      <p class="ember-view greeting">Howdy Peter</p>
+    </div>
+    ```
+  
+    @method collection
+    @for Ember.Templates.helpers
+    @deprecated Use `{{each}}` helper instead.
+    @public
+  */
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
       var read = env.hooks.getValue;
@@ -8148,8 +8309,158 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-met
   exports.default = getKeyword;
 });
 enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/core', 'ember-metal/merge'], function (exports, _emberMetalCore, _emberMetalMerge) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
   'use strict';
 
+  /**
+    The `{{input}}` helper lets you create an HTML `<input />` component.
+    It causes an `Ember.TextField` component to be rendered.  For more info,
+    see the [Ember.TextField](/api/classes/Ember.TextField.html) docs and
+    the [templates guide](http://emberjs.com/guides/templates/input-helpers/).
+  
+    ```handlebars
+    {{input value="987"}}
+    ```
+  
+    renders as:
+  
+    ```HTML
+    <input type="text" value="987" />
+    ```
+  
+    ### Text field
+  
+    If no `type` option is specified, a default of type 'text' is used.
+  
+    Many of the standard HTML attributes may be passed to this helper.
+  
+    <table>
+      <tr><td>`readonly`</td><td>`required`</td><td>`autofocus`</td></tr>
+      <tr><td>`value`</td><td>`placeholder`</td><td>`disabled`</td></tr>
+      <tr><td>`size`</td><td>`tabindex`</td><td>`maxlength`</td></tr>
+      <tr><td>`name`</td><td>`min`</td><td>`max`</td></tr>
+      <tr><td>`pattern`</td><td>`accept`</td><td>`autocomplete`</td></tr>
+      <tr><td>`autosave`</td><td>`formaction`</td><td>`formenctype`</td></tr>
+      <tr><td>`formmethod`</td><td>`formnovalidate`</td><td>`formtarget`</td></tr>
+      <tr><td>`height`</td><td>`inputmode`</td><td>`multiple`</td></tr>
+      <tr><td>`step`</td><td>`width`</td><td>`form`</td></tr>
+      <tr><td>`selectionDirection`</td><td>`spellcheck`</td><td>&nbsp;</td></tr>
+    </table>
+  
+  
+    When set to a quoted string, these values will be directly applied to the HTML
+    element. When left unquoted, these values will be bound to a property on the
+    template's current rendering context (most typically a controller instance).
+  
+  
+    A very common use of this helper is to bind the `value` of an input to an Object's attribute:
+  
+    ```handlebars
+    Search:
+    {{input value=searchWord}}
+    ```
+  
+    In this example, the inital value in the `<input />` will be set to the value of `searchWord`.
+    If the user changes the text, the value of `searchWord` will also be updated.
+  
+    ### Actions
+    The helper can send multiple actions based on user events.
+    The action property defines the action which is sent when
+    the user presses the return key.
+  
+    ```handlebars
+    {{input action="submit"}}
+    ```
+  
+    The helper allows some user events to send actions.
+  
+    * `enter`
+    * `insert-newline`
+    * `escape-press`
+    * `focus-in`
+    * `focus-out`
+    * `key-press`
+    * `key-up`
+  
+  
+    For example, if you desire an action to be sent when the input is blurred,
+    you only need to setup the action name to the event name property.
+  
+    ```handlebars
+    {{input focus-in="alertMessage"}}
+    ```
+  
+    See more about [Text Support Actions](/api/classes/Ember.TextField.html)
+  
+  
+    ### Extending `Ember.TextField`
+  
+    Internally, `{{input type="text"}}` creates an instance of `Ember.TextField`, passing
+    arguments from the helper to `Ember.TextField`'s `create` method. You can extend the
+    capabilities of text inputs in your applications by reopening this class. For example,
+    if you are building a Bootstrap project where `data-*` attributes are used, you
+    can add one to the `TextField`'s `attributeBindings` property:
+  
+  
+    ```javascript
+    Ember.TextField.reopen({
+      attributeBindings: ['data-error']
+    });
+    ```
+  
+    Keep in mind when writing `Ember.TextField` subclasses that `Ember.TextField`
+    itself extends `Ember.Component`. Expect isolated component semantics, not
+    legacy 1.x view semantics (like `controller` being present).
+  
+    See more about [Ember components](/api/classes/Ember.Component.html)
+  
+  
+    ### Checkbox
+  
+    Checkboxes are special forms of the `{{input}}` helper.  To create a `<checkbox />`:
+  
+    ```handlebars
+    Emberize Everything:
+    {{input type="checkbox" name="isEmberized" checked=isEmberized}}
+    ```
+  
+    This will bind checked state of this checkbox to the value of `isEmberized`  -- if either one changes,
+    it will be reflected in the other.
+  
+  
+    The following HTML attributes can be set via the helper:
+  
+    * `checked`
+    * `disabled`
+    * `tabindex`
+    * `indeterminate`
+    * `name`
+    * `autofocus`
+    * `form`
+  
+  
+    ### Extending `Ember.Checkbox`
+  
+    Internally, `{{input type="checkbox"}}` creates an instance of `Ember.Checkbox`, passing
+    arguments from the helper to `Ember.Checkbox`'s `create` method. You can extend the
+    capablilties of checkbox inputs in your applications by reopening this class. For example,
+    if you wanted to add a css class to all checkboxes in your application:
+  
+    ```javascript
+    Ember.Checkbox.reopen({
+      classNames: ['my-app-checkbox']
+    });
+    ```
+  
+  
+    @method input
+    @for Ember.Templates.helpers
+    @param {Hash} options
+    @public
+  */
   exports.default = {
     setupState: function (lastState, env, scope, params, hash) {
       var type = env.hooks.getValue(hash.type);
@@ -8219,7 +8530,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/core', 'ember-met
   exports.MUTABLE_REFERENCE = MUTABLE_REFERENCE;
   /**
     The `mut` helper lets you __clearly specify__ that a child `Component` can update the
-    (mutable) value passed to it, which will __change the value of the parent compnent__.
+    (mutable) value passed to it, which will __change the value of the parent component__.
   
     This is very helpful for passing mutable values to a `Component` of any size, but
     critical to understanding the logic of a large/complex `Component`.
@@ -8336,7 +8647,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.5+4589517e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.5+e86da10f';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -8498,10 +8809,51 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup_partial', 'htmlbars-runtime'], function (exports, _emberViewsSystemLookup_partial, _htmlbarsRuntime) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
   'use strict';
+
+  /**
+    The `partial` helper renders another template without
+    changing the template context:
+  
+    ```handlebars
+    {{foo}}
+    {{partial "nav"}}
+    ```
+  
+    The above example template will render a template named
+    "_nav", which has the same context as the parent template
+    it's rendered into, so if the "_nav" template also referenced
+    `{{foo}}`, it would print the same thing as the `{{foo}}`
+    in the above example.
+  
+    If a "_nav" template isn't found, the `partial` helper will
+    fall back to a template named "nav".
+  
+    ### Bound template names
+  
+    The parameter supplied to `partial` can also be a path
+    to a property containing a template name, e.g.:
+  
+    ```handlebars
+    {{partial someTemplateName}}
+    ```
+  
+    The above example will look up the value of `someTemplateName`
+    on the template context (e.g. a controller) and use that
+    value as the name of the template to render. If the resolved
+    value is falsy, nothing will be rendered. If `someTemplateName`
+    changes, the partial will be re-rendered using the new template
+    name.
+  
+  
+    @method partial
+    @for Ember.Templates.helpers
+    @param {String} partialName the name of the template to render minus the leading underscore
+    @public
+  */
 
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
@@ -8525,6 +8877,11 @@ enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup
   };
 });
 enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/mut'], function (exports, _emberHtmlbarsKeywordsMut) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   exports.default = readonly;
@@ -8545,9 +8902,195 @@ enifed('ember-htmlbars/keywords/readonly', ['exports', 'ember-htmlbars/keywords/
 enifed('ember-htmlbars/keywords/textarea', ['exports'], function (exports) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
+  /**
+    `{{textarea}}` inserts a new instance of `<textarea>` tag into the template.
+    The attributes of `{{textarea}}` match those of the native HTML tags as
+    closely as possible.
+  
+    The following HTML attributes can be set:
+  
+      * `value`
+      * `name`
+      * `rows`
+      * `cols`
+      * `placeholder`
+      * `disabled`
+      * `maxlength`
+      * `tabindex`
+      * `selectionEnd`
+      * `selectionStart`
+      * `selectionDirection`
+      * `wrap`
+      * `readonly`
+      * `autofocus`
+      * `form`
+      * `spellcheck`
+      * `required`
+  
+    When set to a quoted string, these value will be directly applied to the HTML
+    element. When left unquoted, these values will be bound to a property on the
+    template's current rendering context (most typically a controller instance).
+  
+    Unbound:
+  
+    ```handlebars
+    {{textarea value="Lots of static text that ISN'T bound"}}
+    ```
+  
+    Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of static text that ISN'T bound
+    </textarea>
+    ```
+  
+    Bound:
+  
+    In the following example, the `writtenWords` property on `App.ApplicationController`
+    will be updated live as the user types 'Lots of text that IS bound' into
+    the text area of their browser's window.
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound"
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+    ```
+  
+     Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    ```
+  
+    If you wanted a one way binding between the text area and a div tag
+    somewhere else on your screen, you could use `Ember.computed.oneWay`:
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound",
+      outputWrittenWords: Ember.computed.oneWay("writtenWords")
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+  
+    <div>
+      {{outputWrittenWords}}
+    </div>
+    ```
+  
+    Would result in the following HTML:
+  
+    ```html
+    <textarea class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+  
+    <-- the following div will be updated in real time as you type -->
+  
+    <div>
+      Lots of text that IS bound
+    </div>
+    ```
+  
+    Finally, this example really shows the power and ease of Ember when two
+    properties are bound to eachother via `Ember.computed.alias`. Type into
+    either text area box and they'll both stay in sync. Note that
+    `Ember.computed.alias` costs more in terms of performance, so only use it when
+    your really binding in both directions:
+  
+    ```javascript
+    App.ApplicationController = Ember.Controller.extend({
+      writtenWords: "Lots of text that IS bound",
+      twoWayWrittenWords: Ember.computed.alias("writtenWords")
+    });
+    ```
+  
+    ```handlebars
+    {{textarea value=writtenWords}}
+    {{textarea value=twoWayWrittenWords}}
+    ```
+  
+    ```html
+    <textarea id="ember1" class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+  
+    <-- both updated in real time -->
+  
+    <textarea id="ember2" class="ember-text-area">
+      Lots of text that IS bound
+    </textarea>
+    ```
+  
+    ### Actions
+  
+    The helper can send multiple actions based on user events.
+  
+    The action property defines the action which is send when
+    the user presses the return key.
+  
+    ```handlebars
+    {{input action="submit"}}
+    ```
+  
+    The helper allows some user events to send actions.
+  
+  * `enter`
+  * `insert-newline`
+  * `escape-press`
+  * `focus-in`
+  * `focus-out`
+  * `key-press`
+  
+    For example, if you desire an action to be sent when the input is blurred,
+    you only need to setup the action name to the event name property.
+  
+    ```handlebars
+    {{textarea focus-in="alertMessage"}}
+    ```
+  
+    See more about [Text Support Actions](/api/classes/Ember.TextArea.html)
+  
+    ### Extension
+  
+    Internally, `{{textarea}}` creates an instance of `Ember.TextArea`, passing
+    arguments from the helper to `Ember.TextArea`'s `create` method. You can
+    extend the capabilities of text areas in your application by reopening this
+    class. For example, if you are building a Bootstrap project where `data-*`
+    attributes are used, you can globally add support for a `data-*` attribute
+    on all `{{textarea}}`s' in your app by reopening `Ember.TextArea` or
+    `Ember.TextSupport` and adding it to the `attributeBindings` concatenated
+    property:
+  
+    ```javascript
+    Ember.TextArea.reopen({
+      attributeBindings: ['data-error']
+    });
+    ```
+  
+    Keep in mind when writing `Ember.TextArea` subclasses that `Ember.TextArea`
+    itself extends `Ember.Component`. Expect isolated component semantics, not
+    legacy 1.x view semantics (like `controller` being present).
+  
+    See more about [Ember components](/api/classes/Ember.Component.html)
+  
+    @method textarea
+    @for Ember.Templates.helpers
+    @param {Hash} options
+    @public
+  */
   'use strict';
 
   exports.default = textarea;
@@ -8635,10 +9178,188 @@ enifed('ember-htmlbars/keywords/unbound', ['exports', 'ember-metal/core', 'ember
 enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 'ember-views/views/view', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberViewsStreamsUtils, _emberViewsViewsView, _emberHtmlbarsNodeManagersViewNodeManager) {
   /**
   @module ember
-  @submodule ember-htmlbars
+  @submodule ember-templates
   */
 
   'use strict';
+
+  /**
+    `{{view}}` inserts a new instance of an `Ember.View` into a template passing its
+    options to the `Ember.View`'s `create` method and using the supplied block as
+    the view's own template.
+  
+    An empty `<body>` and the following template:
+  
+    ```handlebars
+    A span:
+    {{#view tagName="span"}}
+      hello.
+    {{/view}}
+    ```
+  
+    Will result in HTML structure:
+  
+    ```html
+    <body>
+      <!-- Note: the handlebars template script
+           also results in a rendered Ember.View
+           which is the outer <div> here -->
+  
+      <div class="ember-view">
+        A span:
+        <span id="ember1" class="ember-view">
+          Hello.
+        </span>
+      </div>
+    </body>
+    ```
+  
+    ### `parentView` setting
+  
+    The `parentView` property of the new `Ember.View` instance created through
+    `{{view}}` will be set to the `Ember.View` instance of the template where
+    `{{view}}` was called.
+  
+    ```javascript
+    aView = Ember.View.create({
+      template: Ember.Handlebars.compile("{{#view}} my parent: {{parentView.elementId}} {{/view}}")
+    });
+  
+    aView.appendTo('body');
+    ```
+  
+    Will result in HTML structure:
+  
+    ```html
+    <div id="ember1" class="ember-view">
+      <div id="ember2" class="ember-view">
+        my parent: ember1
+      </div>
+    </div>
+    ```
+  
+    ### Setting CSS id and class attributes
+  
+    The HTML `id` attribute can be set on the `{{view}}`'s resulting element with
+    the `id` option. This option will _not_ be passed to `Ember.View.create`.
+  
+    ```handlebars
+    {{#view tagName="span" id="a-custom-id"}}
+      hello.
+    {{/view}}
+    ```
+  
+    Results in the following HTML structure:
+  
+    ```html
+    <div class="ember-view">
+      <span id="a-custom-id" class="ember-view">
+        hello.
+      </span>
+    </div>
+    ```
+  
+    The HTML `class` attribute can be set on the `{{view}}`'s resulting element
+    with the `class` or `classNameBindings` options. The `class` option will
+    directly set the CSS `class` attribute and will not be passed to
+    `Ember.View.create`. `classNameBindings` will be passed to `create` and use
+    `Ember.View`'s class name binding functionality:
+  
+    ```handlebars
+    {{#view tagName="span" class="a-custom-class"}}
+      hello.
+    {{/view}}
+    ```
+  
+    Results in the following HTML structure:
+  
+    ```html
+    <div class="ember-view">
+      <span id="ember2" class="ember-view a-custom-class">
+        hello.
+      </span>
+    </div>
+    ```
+  
+    ### Supplying a different view class
+  
+    `{{view}}` can take an optional first argument before its supplied options to
+    specify a path to a custom view class.
+  
+    ```handlebars
+    {{#view "custom"}}{{! will look up App.CustomView }}
+      hello.
+    {{/view}}
+    ```
+  
+    The first argument can also be a relative path accessible from the current
+    context.
+  
+    ```javascript
+    MyApp = Ember.Application.create({});
+    MyApp.OuterView = Ember.View.extend({
+      innerViewClass: Ember.View.extend({
+        classNames: ['a-custom-view-class-as-property']
+      }),
+      template: Ember.Handlebars.compile('{{#view view.innerViewClass}} hi {{/view}}')
+    });
+  
+    MyApp.OuterView.create().appendTo('body');
+    ```
+  
+    Will result in the following HTML:
+  
+    ```html
+    <div id="ember1" class="ember-view">
+      <div id="ember2" class="ember-view a-custom-view-class-as-property">
+        hi
+      </div>
+    </div>
+    ```
+  
+    ### Blockless use
+  
+    If you supply a custom `Ember.View` subclass that specifies its own template
+    or provide a `templateName` option to `{{view}}` it can be used without
+    supplying a block. Attempts to use both a `templateName` option and supply a
+    block will throw an error.
+  
+    ```javascript
+    var App = Ember.Application.create();
+    App.WithTemplateDefinedView = Ember.View.extend({
+      templateName: 'defined-template'
+    });
+    ```
+  
+    ```handlebars
+    {{! application.hbs }}
+    {{view 'with-template-defined'}}
+    ```
+  
+    ```handlebars
+    {{! defined-template.hbs }}
+    Some content for the defined template view.
+    ```
+  
+    ### `viewName` property
+  
+    You can supply a `viewName` option to `{{view}}`. The `Ember.View` instance
+    will be referenced as a property of its parent view by this name.
+  
+    ```javascript
+    aView = Ember.View.create({
+      template: Ember.Handlebars.compile('{{#view viewName="aChildByName"}} hi {{/view}}')
+    });
+  
+    aView.appendTo('body');
+    aView.get('aChildByName') // the instance of Ember.View created by {{view}} helper
+    ```
+  
+    @method view
+    @for Ember.Templates.helpers
+    @public
+    @deprecated
+  */
 
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
@@ -8744,6 +9465,11 @@ enifed('ember-htmlbars/keywords/view', ['exports', 'ember-views/streams/utils', 
   }
 });
 enifed('ember-htmlbars/keywords/with', ['exports', 'ember-metal/core', 'htmlbars-runtime'], function (exports, _emberMetalCore, _htmlbarsRuntime) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
   exports.default = {
@@ -13845,7 +14571,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.5+4589517e
+    @version 2.0.0-beta.5+e86da10f
     @public
   */
 
@@ -13879,11 +14605,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.5+4589517e'
+    @default '2.0.0-beta.5+e86da10f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.5+4589517e';
+  Ember.VERSION = '2.0.0-beta.5+e86da10f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20171,6 +20897,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
   */
 
   function guidFor(obj) {
+    if (obj && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
 
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
@@ -20208,10 +20937,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
         return obj ? '(true)' : '(false)';
 
       default:
-        if (obj[GUID_KEY]) {
-          return obj[GUID_KEY];
-        }
-
         if (obj === Object) {
           return '(Object)';
         }
@@ -21520,6 +22245,35 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
     To override this option for your entire application, see
     "Overriding Application-wide Defaults".
   
+    ### Keeping a link active for other routes
+  
+    If you need a link to be 'active' even when it doesn't match
+    the current route, you can use the the `current-when`
+    argument.
+  
+    ```handlebars
+    {{#link-to 'photoGallery' current-when='photos'}}
+      Photo Gallery
+    {{/link-to}}
+    ```
+  
+    This may be helpful for keeping links active for:
+  
+    * non-nested routes that are logically related
+    * some secondary menu approaches
+    * 'top navigation' with 'sub navigation' scenarios
+  
+    A link will be active if `current-when` is `true` or the current
+    route is the route this link would transition to.
+  
+    To match multiple routes 'space-separate' the routes:
+  
+    ```handlebars
+    {{#link-to 'gallery' current-when='photos drawings paintings'}}
+      Art Gallery
+    {{/link-to}}
+    ```
+  
     ### Supplying a model
     An optional model argument can be used for routes whose
     paths contain dynamic segments. This argument will become
@@ -21922,7 +22676,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.5+4589517e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-beta.5+e86da10f';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22217,7 +22971,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       }
 
       var routing = _emberMetalProperty_get.get(this, '_routing');
-      var targetRouteName = _emberMetalProperty_get.get(this, 'targetRouteName');
+      var targetRouteName = this._handleOnlyQueryParamsSupplied(_emberMetalProperty_get.get(this, 'targetRouteName'));
       var models = _emberMetalProperty_get.get(this, 'models');
       var queryParamValues = _emberMetalProperty_get.get(this, 'queryParams.values');
       var shouldReplace = _emberMetalProperty_get.get(this, 'attrs.replace');
@@ -22424,7 +23178,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.5+4589517e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-beta.5+e86da10f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -24695,7 +25449,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        @property controller
       @type Ember.Controller
       @since 1.6.0
-      @private
+      @public
     */
 
     actions: {
@@ -27339,11 +28093,13 @@ enifed('ember-routing/utils', ['exports', 'ember-metal/merge', 'ember-metal/prop
       var part = parts[i];
       var cacheValuePrefix = _calculateCacheValuePrefix(prefix, part);
       var value;
-      if (cacheValuePrefix && cacheValuePrefix in values) {
-        var partRemovedPrefix = part.indexOf(cacheValuePrefix) === 0 ? part.substr(cacheValuePrefix.length + 1) : part;
-        value = _emberMetalProperty_get.get(values[cacheValuePrefix], partRemovedPrefix);
-      } else {
-        value = _emberMetalProperty_get.get(values, part);
+      if (values) {
+        if (cacheValuePrefix && cacheValuePrefix in values) {
+          var partRemovedPrefix = part.indexOf(cacheValuePrefix) === 0 ? part.substr(cacheValuePrefix.length + 1) : part;
+          value = _emberMetalProperty_get.get(values[cacheValuePrefix], partRemovedPrefix);
+        } else {
+          value = _emberMetalProperty_get.get(values, part);
+        }
       }
       suffixes += '::' + part + ':' + value;
     }
@@ -35686,7 +36442,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.5+4589517e',
+        revision: 'Ember@2.0.0-beta.5+e86da10f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37108,13 +37864,16 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
     _propagateAttrsToThis: function () {
       var attrs = this.attrs;
-      var values = {};
+
       for (var prop in attrs) {
-        if (prop !== 'attrs') {
-          values[prop] = this.getAttr(prop);
+        if (prop !== 'attrs' &&
+        // These list of properties are concatenated and merged properties of
+        // Ember.View / Ember.Component. Setting them here results in them being
+        // completely stomped and not handled properly, BAIL OUT!
+        prop !== 'actions' && prop !== 'classNames' && prop !== 'classNameBindings' && prop !== 'attributeBindings') {
+          this.set(prop, this.getAttr(prop));
         }
       }
-      this.setProperties(values);
     },
 
     initializeShape: _emberMetalEvents.on('init', function () {
@@ -37139,7 +37898,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
         // do not deprecate accessing `this[key]` at this time.
         // add this back when we have a proper migration path
         // Ember.deprecate(deprecation(key), { id: 'ember-views.', until: '3.0.0' });
-        var possibleCell = attrs.key;
+        var possibleCell = attrs[key];
 
         if (possibleCell && possibleCell[MUTABLE_CELL]) {
           return possibleCell.value;
@@ -40214,7 +40973,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.5+4589517e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-beta.5+e86da10f';
 
   /**
   @module ember
