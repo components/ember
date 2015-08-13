@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-beta.5
+ * @version   2.0.0
  */
 
 (function() {
@@ -2323,7 +2323,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   }
 
   function isVolatile(obj) {
-    return !(isObject(obj) && obj.isDescriptor && obj._cacheable);
+    return !(isObject(obj) && obj.isDescriptor && !obj._volatile);
   }
 
   function Chains() {}
@@ -2842,7 +2842,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
-    this._cacheable = true;
+    this._volatile = false;
     this._dependentKeys = opts && opts.dependentKeys;
     this._readOnly = false;
   }
@@ -2854,6 +2854,12 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
   /**
     Call on a computed property to set it into non-cached mode. When in this
     mode the computed property will not automatically cache the return value.
+  
+    It also does not automatically fire any change events. You must manually notify
+    any changes if you want to observe this property.
+  
+    Dependency keys have no effect on volatile properties as they are for cache
+    invalidation and notification when cached value is invalidated.
   
     ```javascript
     var outsideService = Ember.Object.extend({
@@ -2869,7 +2875,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   ComputedPropertyPrototype.volatile = function () {
-    this._cacheable = false;
+    this._volatile = true;
     return this;
   };
 
@@ -2980,16 +2986,24 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     }
   };
 
-  /* impl descriptor API */
+  // invalidate cache when CP key changes
   ComputedPropertyPrototype.didChange = function (obj, keyName) {
     // _suspended is set via a CP.set to ensure we don't clear
     // the cached value set by the setter
-    if (this._cacheable && this._suspended !== obj) {
-      var meta = metaFor(obj);
-      if (meta.cache && meta.cache[keyName] !== undefined) {
-        meta.cache[keyName] = undefined;
-        _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
-      }
+    if (this._volatile || this._suspended === obj) {
+      return;
+    }
+
+    // don't create objects just to invalidate
+    var meta = obj.__ember_meta__;
+    if (!meta || meta.source !== obj) {
+      return;
+    }
+
+    var cache = meta.cache;
+    if (cache && cache[keyName] !== undefined) {
+      cache[keyName] = undefined;
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
     }
   };
 
@@ -3021,37 +3035,36 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   ComputedPropertyPrototype.get = function (obj, keyName) {
-    var ret, cache, meta;
-    if (this._cacheable) {
-      meta = metaFor(obj);
-      cache = meta.cache;
-
-      var result = cache && cache[keyName];
-
-      if (result === UNDEFINED) {
-        return undefined;
-      } else if (result !== undefined) {
-        return result;
-      }
-
-      ret = this._getter.call(obj, keyName);
-      cache = meta.cache;
-      if (!cache) {
-        cache = meta.cache = {};
-      }
-      if (ret === undefined) {
-        cache[keyName] = UNDEFINED;
-      } else {
-        cache[keyName] = ret;
-      }
-
-      if (meta.chainWatchers) {
-        meta.chainWatchers.revalidate(keyName);
-      }
-      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-    } else {
-      ret = this._getter.call(obj, keyName);
+    if (this._volatile) {
+      return this._getter.call(obj, keyName);
     }
+
+    var meta = metaFor(obj);
+    var cache = meta.cache;
+    if (!cache) {
+      cache = meta.cache = {};
+    }
+
+    var result = cache[keyName];
+    if (result === UNDEFINED) {
+      return undefined;
+    } else if (result !== undefined) {
+      return result;
+    }
+
+    var ret = this._getter.call(obj, keyName);
+    if (ret === undefined) {
+      cache[keyName] = UNDEFINED;
+    } else {
+      cache[keyName] = ret;
+    }
+
+    var chainWatchers = meta.chainWatchers;
+    if (chainWatchers) {
+      chainWatchers.revalidate(keyName);
+    }
+    _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+
     return ret;
   };
 
@@ -3104,51 +3117,72 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @return {Object} The return value of the function backing the CP.
     @public
   */
-  ComputedPropertyPrototype.set = function computedPropertySetWithSuspend(obj, keyName, value) {
+  ComputedPropertyPrototype.set = function computedPropertySetEntry(obj, keyName, value) {
+    if (this._readOnly) {
+      this._throwReadOnlyError(obj, keyName);
+    }
+
+    if (!this._setter) {
+      return this.clobberSet(obj, keyName, value);
+    }
+
+    if (this._volatile) {
+      return this.volatileSet(obj, keyName, value);
+    }
+
+    return this.setWithSuspend(obj, keyName, value);
+  };
+
+  ComputedPropertyPrototype._throwReadOnlyError = function computedPropertyThrowReadOnlyError(obj, keyName) {
+    throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberMetalUtils.inspect(obj));
+  };
+
+  ComputedPropertyPrototype.clobberSet = function computedPropertyClobberSet(obj, keyName, value) {
+    var cachedValue = cacheFor(obj, keyName);
+    _emberMetalProperties.defineProperty(obj, keyName, null, cachedValue);
+    _emberMetalProperty_set.set(obj, keyName, value);
+    return value;
+  };
+
+  ComputedPropertyPrototype.volatileSet = function computedPropertyVolatileSet(obj, keyName, value) {
+    return this._setter.call(obj, keyName, value);
+  };
+
+  ComputedPropertyPrototype.setWithSuspend = function computedPropertySetWithSuspend(obj, keyName, value) {
     var oldSuspended = this._suspended;
-
     this._suspended = obj;
-
     try {
-      this._set(obj, keyName, value);
+      return this._set(obj, keyName, value);
     } finally {
       this._suspended = oldSuspended;
     }
   };
 
   ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
-    var cacheable = this._cacheable;
-    var setter = this._setter;
-    var meta = metaFor(obj, cacheable);
+    // cache requires own meta
+    var meta = metaFor(obj);
+    // either there is a writable cache or we need one to update
     var cache = meta.cache;
-    var hadCachedValue = false;
-
-    var cachedValue, ret;
-
-    if (this._readOnly) {
-      throw new _emberMetalError.default('Cannot set read-only property "' + keyName + '" on object: ' + _emberMetalUtils.inspect(obj));
+    if (!cache) {
+      cache = meta.cache = {};
     }
-
-    if (cacheable && cache && cache[keyName] !== undefined) {
+    var hadCachedValue = false;
+    var cachedValue = undefined;
+    if (cache[keyName] !== undefined) {
       if (cache[keyName] !== UNDEFINED) {
         cachedValue = cache[keyName];
       }
-
       hadCachedValue = true;
     }
 
-    if (!setter) {
-      _emberMetalProperties.defineProperty(obj, keyName, null, cachedValue);
-      return _emberMetalProperty_set.set(obj, keyName, value);
-    } else {
-      ret = setter.call(obj, keyName, value, cachedValue);
-    }
+    var ret = this._setter.call(obj, keyName, value, cachedValue);
 
+    // allows setter to return the same value that is cached already
     if (hadCachedValue && cachedValue === ret) {
-      return;
+      return ret;
     }
 
-    var watched = meta.watching[keyName];
+    var watched = meta.watching && meta.watching[keyName];
     if (watched) {
       _emberMetalProperty_events.propertyWillChange(obj, keyName);
     }
@@ -3157,18 +3191,14 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
       cache[keyName] = undefined;
     }
 
-    if (cacheable) {
-      if (!hadCachedValue) {
-        _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
-      }
-      if (!cache) {
-        cache = meta.cache = {};
-      }
-      if (ret === undefined) {
-        cache[keyName] = UNDEFINED;
-      } else {
-        cache[keyName] = ret;
-      }
+    if (!hadCachedValue) {
+      _emberMetalDependent_keys.addDependentKeys(this, obj, keyName, meta);
+    }
+
+    if (ret === undefined) {
+      cache[keyName] = UNDEFINED;
+    } else {
+      cache[keyName] = ret;
     }
 
     if (watched) {
@@ -3180,19 +3210,15 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
 
   /* called before property is overridden */
   ComputedPropertyPrototype.teardown = function (obj, keyName) {
-    var meta = metaFor(obj);
-
-    if (meta.cache) {
-      if (keyName in meta.cache) {
-        _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
-      }
-
-      if (this._cacheable) {
-        delete meta.cache[keyName];
-      }
+    if (this._volatile) {
+      return;
     }
-
-    return null; // no value to restore
+    var meta = metaFor(obj);
+    var cache = meta.cache;
+    if (cache && cache[keyName] !== undefined) {
+      _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
+      cache[keyName] = undefined;
+    }
   };
 
   /**
@@ -3282,8 +3308,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @public
   */
   function cacheFor(obj, key) {
-    var meta = obj['__ember_meta__'];
-    var cache = meta && meta.cache;
+    var meta = obj.__ember_meta__;
+    var cache = meta && meta.source === obj && meta.cache;
     var ret = cache && cache[key];
 
     if (ret === UNDEFINED) {
@@ -4033,7 +4059,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-beta.5
+    @version 2.0.0
     @public
   */
 
@@ -4067,11 +4093,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-beta.5'
+    @default '2.0.0'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-beta.5';
+  Ember.VERSION = '2.0.0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10359,6 +10385,9 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
   */
 
   function guidFor(obj) {
+    if (obj && obj[GUID_KEY]) {
+      return obj[GUID_KEY];
+    }
 
     // special cases where we don't want to add a key to object
     if (obj === undefined) {
@@ -10396,10 +10425,6 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
         return obj ? '(true)' : '(false)';
 
       default:
-        if (obj[GUID_KEY]) {
-          return obj[GUID_KEY];
-        }
-
         if (obj === Object) {
           return '(Object)';
         }
@@ -11021,7 +11046,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/deprecate-view-and-controller-paths', 'ember-template-compiler/plugins/deprecate-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths, _emberTemplateCompilerPluginsDeprecateViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
   'use strict';
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -11034,8 +11059,9 @@ enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-com
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsDeprecateViewAndControllerPaths.default);
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsDeprecateViewHelper.default);
+  } else {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewHelper.default);
   }
 
   exports._Ember = _emberMetal.default;
@@ -11116,10 +11142,10 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
   exports.default = plugins;
 });
-enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function DeprecateViewAndControllerPaths(options) {
+  function AssertNoViewAndControllerPaths(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
     this.options = options || {};
@@ -11130,7 +11156,7 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  DeprecateViewAndControllerPaths.prototype.transform = function DeprecateViewAndControllerPaths_transform(ast) {
+  AssertNoViewAndControllerPaths.prototype.transform = function AssertNoViewAndControllerPaths_transform(ast) {
     var walker = new this.syntax.Walker();
     var moduleName = this.options && this.options.moduleName;
 
@@ -11139,15 +11165,15 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
         return;
       }
 
-      deprecatePath(moduleName, node, node.path);
-      deprecatePaths(moduleName, node, node.params);
-      deprecateHash(moduleName, node, node.hash);
+      assertPath(moduleName, node, node.path);
+      assertPaths(moduleName, node, node.params);
+      assertHash(moduleName, node, node.hash);
     });
 
     return ast;
   };
 
-  function deprecateHash(moduleName, node, hash) {
+  function assertHash(moduleName, node, hash) {
     if (!hash || !hash.pairs) {
       return;
     }
@@ -11155,46 +11181,49 @@ enifed('ember-template-compiler/plugins/deprecate-view-and-controller-paths', ['
     for (i = 0, l = hash.pairs.length; i < l; i++) {
       pair = hash.pairs[i];
       paths = pair.value.params;
-      deprecatePaths(moduleName, pair, paths);
+      assertPaths(moduleName, pair, paths);
     }
   }
 
-  function deprecatePaths(moduleName, node, paths) {
+  function assertPaths(moduleName, node, paths) {
     if (!paths) {
       return;
     }
     var i, l, path;
     for (i = 0, l = paths.length; i < l; i++) {
       path = paths[i];
-      deprecatePath(moduleName, node, path);
+      assertPath(moduleName, node, path);
     }
   }
 
-  function deprecatePath(moduleName, node, path) {
-    _emberMetalCore.default.deprecate('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been deprecated.', function deprecatePath_test() {
-      var noDeprecate = true;
+  function assertPath(moduleName, node, path) {
+    _emberMetalCore.default.assert('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been removed in Ember 2.0', function assertPath_test() {
+      var noAssertion = true;
 
       var viewKeyword = path && path.type === 'PathExpression' && path.parts && path.parts[0];
       if (viewKeyword === 'view') {
-        noDeprecate = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+        noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
       } else if (viewKeyword === 'controller') {
-        noDeprecate = false;
+        noAssertion = _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
       }
 
-      return noDeprecate;
-    }, { url: 'http://emberjs.com/deprecations/v1.x#toc_view-and-controller-template-keywords', id: path.parts && path.parts[0] === 'view' ? 'view.keyword.view' : 'view.keyword.controller' });
+      return noAssertion;
+    }, {
+      id: path.parts && path.parts[0] === 'view' ? 'view.keyword.view' : 'view.keyword.controller',
+      until: '2.0.0'
+    });
   }
 
   function validate(node) {
     return node.type === 'MustacheStatement' || node.type === 'BlockStatement';
   }
 
-  exports.default = DeprecateViewAndControllerPaths;
+  exports.default = AssertNoViewAndControllerPaths;
 });
-enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function DeprecateViewHelper(options) {
+  function AssertNoViewHelper(options) {
     // set later within HTMLBars to the syntax package
     this.syntax = null;
     this.options = options || {};
@@ -11205,7 +11234,7 @@ enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'emb
     @method transform
     @param {AST} ast The AST to be transformed.
   */
-  DeprecateViewHelper.prototype.transform = function DeprecateViewHelper_transform(ast) {
+  AssertNoViewHelper.prototype.transform = function AssertNoViewHelper_transform(ast) {
     if (!!_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
       return ast;
     }
@@ -11217,33 +11246,27 @@ enifed('ember-template-compiler/plugins/deprecate-view-helper', ['exports', 'emb
         return;
       }
 
-      deprecateHelper(moduleName, node);
+      assertHelper(moduleName, node);
     });
 
     return ast;
   };
 
-  function deprecateHelper(moduleName, node) {
+  function assertHelper(moduleName, node) {
     var paramValue = node.params.length && node.params[0].value;
 
     if (!paramValue) {
       return;
-    } else if (paramValue === 'select') {
-      deprecateSelect(moduleName, node);
     } else {
-      _emberMetalCore.default.deprecate('Using the `{{view "string"}}` helper is deprecated. ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc), false, { url: 'http://emberjs.com/deprecations/v1.x#toc_ember-view', id: 'view.helper' });
+      _emberMetalCore.default.assert('Using the `{{view "string"}}` helper is removed in 2.0. ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc), _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'view.helper', until: '2.0.0' });
     }
-  }
-
-  function deprecateSelect(moduleName, node) {
-    _emberMetalCore.default.deprecate('Using `{{view "select"}}` is deprecated. ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc), false, { url: 'http://emberjs.com/deprecations/v1.x#toc_ember-select', id: 'view.helper.select' });
   }
 
   function validate(node) {
     return (node.type === 'MustacheStatement' || node.type === 'BlockStatement') && node.path.parts[0] === 'view';
   }
 
-  exports.default = DeprecateViewHelper;
+  exports.default = AssertNoViewHelper;
 });
 enifed('ember-template-compiler/plugins/transform-angle-bracket-components', ['exports'], function (exports) {
   'use strict';
@@ -11992,7 +12015,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0-beta.5',
+        revision: 'Ember@2.0.0',
         loc: program.loc,
         moduleName: options.moduleName
       };
