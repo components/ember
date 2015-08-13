@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+4a8d9a37
+ * @version   2.0.0-canary+6c78b25b
  */
 
 (function() {
@@ -13296,6 +13296,32 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
 
     equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
     equal(component.get('first'), 'FIRST ATTR', 'component lookup uses local state');
+  });
+
+  QUnit.test('should be able to access unspecified attr #12035', function () {
+    var component;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        component = this;
+      },
+
+      didReceiveAttrs: function () {
+        equal(this.get('woot'), 'yes', 'found attr in didReceiveAttrs');
+      }
+    }));
+    // registry.register('template:components/foo-bar', compile('{{first}}'));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{foo-bar woot="yes"}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
+    equal(component.get('woot'), 'yes', 'component found attr');
   });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -40730,7 +40756,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+4a8d9a37', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+6c78b25b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
