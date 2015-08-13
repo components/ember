@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ac9405e1
+ * @version   2.0.0-canary+e7b807cd
  */
 
 (function() {
@@ -3719,20 +3719,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     });
     ```
   
-    To prevent Ember from setting up a listener for a default event,
-    specify the event name with a `null` value in the `customEvents`
-    property:
-  
-    ```javascript
-    var App = Ember.Application.create({
-      customEvents: {
-        // prevent listeners for mouseenter/mouseleave events
-        mouseenter: null,
-        mouseleave: null
-      }
-    });
-    ```
-  
     By default, the application sets up these event listeners on the document
     body. However, in cases where you are embedding an Ember application inside
     an existing page, you may want it to set up the listeners on an element
@@ -3846,10 +3832,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        If you would like additional bubbling events to be delegated to your
       views, set your `Ember.Application`'s `customEvents` property
       to a hash containing the DOM event name as the key and the
-      corresponding view method name as the value. Setting an event to
-      a value of `null` will prevent a default event listener from being
-      added for that event.
-       To add new events to be listened to:
+      corresponding view method name as the value. For example:
        ```javascript
       var App = Ember.Application.create({
         customEvents: {
@@ -3858,17 +3841,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
         }
       });
       ```
-       To prevent default events from being listened to:
-       ```javascript
-      var App = Ember.Application.create({
-        customEvents: {
-          // remove support for mouseenter / mouseleave events
-          mouseenter: null,
-          mouseleave: null
-        }
-      });
-      ```
-      @property customEvents
+       @property customEvents
       @type Object
       @default null
       @public
@@ -8829,7 +8802,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ac9405e1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14908,7 +14881,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ac9405e1
+    @version 2.0.0-canary+e7b807cd
     @public
   */
 
@@ -14942,11 +14915,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ac9405e1'
+    @default '2.0.0-canary+e7b807cd'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ac9405e1';
+  Ember.VERSION = '2.0.0-canary+e7b807cd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23202,7 +23175,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ac9405e1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23703,7 +23676,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ac9405e1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37343,7 +37316,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ac9405e1',
+        revision: 'Ember@2.0.0-canary+e7b807cd',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40678,7 +40651,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/c
     });
   }
 });
-enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberMetalAssign) {
+enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/is_none', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/system/jquery', 'ember-views/system/action_manager', 'ember-views/views/view', 'ember-metal/merge'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalIs_none, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsSystemJquery, _emberViewsSystemAction_manager, _emberViewsViewsView, _emberMetalMerge) {
   /**
   @module ember
   @submodule ember-views
@@ -40700,26 +40673,11 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
 
     /**
       The set of events names (and associated handler function names) to be setup
-      and dispatched by the `EventDispatcher`. Modifications to this list can be done
-      at setup time, generally via the `Ember.Application.customEvents` hash.
-       To add new events to be listened to:
-       ```javascript
-      var App = Ember.Application.create({
-        customEvents: {
-          paste: 'paste'
-        }
-      });
-      ```
-       To prevent default events from being listened to:
-       ```javascript
-      var App = Ember.Application.create({
-        customEvents: {
-          mouseenter: null,
-          mouseleave: null
-        }
-      });
-      ```
-      @property events
+      and dispatched by the `EventDispatcher`. Custom events can added to this list at setup
+      time, generally via the `Ember.Application.customEvents` hash. Only override this
+      default set to prevent the EventDispatcher from listening on some events all together.
+       This set will be modified by `setup` to also include any events added at that time.
+       @property events
       @type Object
       @private
     */
@@ -40805,7 +40763,9 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
     */
     setup: function (addedEvents, rootElement) {
       var event;
-      var events = _emberMetalAssign.default({}, _emberMetalProperty_get.get(this, 'events'), addedEvents);
+      var events = _emberMetalProperty_get.get(this, 'events');
+
+      _emberMetalMerge.default(events, addedEvents || {});
 
       if (!_emberMetalIs_none.default(rootElement)) {
         _emberMetalProperty_set.set(this, 'rootElement', rootElement);
@@ -40843,10 +40803,6 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/core', 'e
     setupHandler: function (rootElement, event, eventName) {
       var self = this;
       var viewRegistry = this.container && this.container.lookup('-view-registry:main') || _emberViewsViewsView.default.views;
-
-      if (eventName === null) {
-        return;
-      }
 
       rootElement.on(event + '.ember', '.ember-view', function (evt, triggeringManager) {
         var view = viewRegistry[this.id];
@@ -41951,7 +41907,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ac9405e1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   /**
   @module ember

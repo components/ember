@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ac9405e1
+ * @version   2.0.0-canary+e7b807cd
  */
 
 (function() {
@@ -40940,7 +40940,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+ac9405e1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e7b807cd', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -43278,37 +43278,6 @@ enifed('ember-views/tests/system/event_dispatcher_test', ['exports', 'ember-meta
     equal(dispatcher.get('rootElement'), '.custom-root', 'the rootElement is updated');
 
     _emberViewsSystemJquery.default('#leView').trigger('myevent');
-  });
-
-  QUnit.test('default events can be disabled via `customEvents`', function () {
-    expect(1);
-
-    _emberMetalRun_loop.default(function () {
-      dispatcher.setup({
-        click: null
-      });
-
-      view = _emberViewsViewsView.default.create({
-        elementId: 'leView',
-
-        null: function () {
-          // yes, at one point `click: null` made an event handler
-          // for `click` that called `null` on the view
-          ok(false, 'null event has been triggered');
-        },
-
-        click: function () {
-          ok(false, 'click event has been triggered');
-        },
-
-        doubleClick: function () {
-          ok(true, 'good event was still triggered');
-        }
-      }).appendTo(dispatcher.get('rootElement'));
-    });
-
-    _emberViewsSystemJquery.default('#leView').trigger('click');
-    _emberViewsSystemJquery.default('#leView').trigger('dblclick');
   });
 });
 enifed('ember-views/tests/system/ext_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
