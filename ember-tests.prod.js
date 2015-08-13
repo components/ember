@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6c78b25b
+ * @version   2.0.0-canary+e7b807cd
  */
 
 (function() {
@@ -14430,6 +14430,28 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     });
 
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout. [Child: Tom.][Child: Dick.][Child: Harry.][Child: James.]');
+  });
+
+  QUnit.test('specifying classNames results in correct class', function (assert) {
+    expect(1);
+
+    registry.register('component:some-clicky-thing', _emberViewsViewsComponent.default.extend({
+      tagName: 'button',
+      classNames: ['foo', 'bar'],
+      click: function () {
+        assert.ok(true, 'click was fired!');
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var button = view.$('button');
+    ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
   });
 
   // jscs:disable validateIndentation
@@ -40756,7 +40778,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+6c78b25b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+e7b807cd', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

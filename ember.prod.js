@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+6c78b25b
+ * @version   2.0.0-canary+e7b807cd
  */
 
 (function() {
@@ -8322,7 +8322,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+6c78b25b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14357,7 +14357,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+6c78b25b
+    @version 2.0.0-canary+e7b807cd
     @public
   */
 
@@ -14391,11 +14391,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+6c78b25b'
+    @default '2.0.0-canary+e7b807cd'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+6c78b25b';
+  Ember.VERSION = '2.0.0-canary+e7b807cd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22537,7 +22537,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+6c78b25b';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23036,7 +23036,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+6c78b25b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36585,7 +36585,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+6c78b25b',
+        revision: 'Ember@2.0.0-canary+e7b807cd',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -36814,13 +36814,16 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
 
     _propagateAttrsToThis: function () {
       var attrs = this.attrs;
-      var values = {};
+
       for (var prop in attrs) {
-        if (prop !== 'attrs') {
-          values[prop] = this.getAttr(prop);
+        if (prop !== 'attrs' &&
+        // These list of properties are concatenated and merged properties of
+        // Ember.View / Ember.Component. Setting them here results in them being
+        // completely stomped and not handled properly, BAIL OUT!
+        prop !== 'actions' && prop !== 'classNames' && prop !== 'classNameBindings' && prop !== 'attributeBindings') {
+          this.set(prop, this.getAttr(prop));
         }
       }
-      this.setProperties(values);
     },
 
     initializeShape: _emberMetalEvents.on('init', function () {
@@ -39890,7 +39893,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+6c78b25b';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+e7b807cd';
 
   /**
   @module ember
