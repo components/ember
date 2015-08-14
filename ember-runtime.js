@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0
+ * @version   2.0.0+57295d51
  */
 
 (function() {
@@ -2993,7 +2993,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   }
 
   function isVolatile(obj) {
-    return !(isObject(obj) && obj.isDescriptor && !obj._volatile);
+    return !(isObject(obj) && obj.isDescriptor && obj._volatile === false);
   }
 
   function Chains() {}
@@ -4729,7 +4729,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0
+    @version 2.0.0+57295d51
     @public
   */
 
@@ -4763,11 +4763,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0'
+    @default '2.0.0+57295d51'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0';
+  Ember.VERSION = '2.0.0+57295d51';
 
   /**
     The hash of environment variables used to control various configuration
