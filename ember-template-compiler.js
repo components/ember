@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ec912789
+ * @version   2.0.0-canary+6336d21f
  */
 
 (function() {
@@ -4249,7 +4249,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ec912789
+    @version 2.0.0-canary+6336d21f
     @public
   */
 
@@ -4283,11 +4283,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ec912789'
+    @default '2.0.0-canary+6336d21f'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ec912789';
+  Ember.VERSION = '2.0.0-canary+6336d21f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -6882,38 +6882,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   var REQUIRED;
   var a_slice = [].slice;
 
-  function superFunction() {
-    var func = this.__nextSuper;
-    var ret;
-
-    if (func) {
-      var length = arguments.length;
-      this.__nextSuper = null;
-      if (length === 0) {
-        ret = func.call(this);
-      } else if (length === 1) {
-        ret = func.call(this, arguments[0]);
-      } else if (length === 2) {
-        ret = func.call(this, arguments[0], arguments[1]);
-      } else {
-        ret = func.apply(this, arguments);
-      }
-      this.__nextSuper = func;
-      return ret;
-    }
-  }
-
-  // ensure we prime superFunction to mitigate
-  // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
-  var primer = {
-    __nextSuper: function (a, b, c, d) {}
-  };
-
-  superFunction.call(primer);
-  superFunction.call(primer, 1);
-  superFunction.call(primer, 1, 2);
-  superFunction.call(primer, 1, 2, 3);
-
   function mixinsMeta(obj) {
     return _emberMetalMeta.meta(obj, true).writableMixins();
   }
@@ -6989,10 +6957,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     return property;
   }
 
-  var sourceAvailable = (function () {
-    return this;
-  }).toString().indexOf('return this;') > -1;
-
   function giveMethodSuper(obj, key, method, values, descs) {
     var superMethod;
 
@@ -7011,21 +6975,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
       return method;
     }
 
-    var hasSuper;
-    if (sourceAvailable) {
-      hasSuper = method.__hasSuper;
-
-      if (hasSuper === undefined) {
-        hasSuper = method.toString().indexOf('_super') > -1;
-        method.__hasSuper = hasSuper;
-      }
-    }
-
-    if (sourceAvailable === false || hasSuper) {
-      return _emberMetalUtils.wrap(method, superMethod);
-    } else {
-      return method;
-    }
+    return _emberMetalUtils.wrap(method, superMethod);
   }
 
   function applyConcatenatedProperties(obj, key, value, values) {
@@ -7074,7 +7024,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     }
 
     if (hasFunction) {
-      newBase._super = superFunction;
+      newBase._super = function () {};
     }
 
     return newBase;
@@ -7087,7 +7037,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
       }
 
       // Wrap descriptor function to implement
-      // __nextSuper() if needed
+      // _super() if needed
       if (value._getter) {
         value = giveDescriptorSuper(meta, key, value, values, descs, base);
       }
@@ -7271,7 +7221,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var keys = [];
     var key, value, desc;
 
-    obj._super = superFunction;
+    obj._super = function () {};
 
     // Go through all mixins and hashes passed in, and:
     //
@@ -10762,13 +10712,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   };
 
   exports.GUID_DESC = GUID_DESC;
-  var undefinedDescriptor = {
-    configurable: true,
-    writable: true,
-    enumerable: false,
-    value: undefined
-  };
-
   var nullDescriptor = {
     configurable: true,
     writable: true,
@@ -10782,12 +10725,6 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   };
 
   exports.GUID_KEY_PROPERTY = GUID_KEY_PROPERTY;
-  var NEXT_SUPER_PROPERTY = {
-    name: '__nextSuper',
-    descriptor: undefinedDescriptor
-  };
-
-  exports.NEXT_SUPER_PROPERTY = NEXT_SUPER_PROPERTY;
   /**
     Generates a new guid, optionally saving the guid to the object that you
     pass in. You will rarely need to use this method. Instead you should
@@ -10908,6 +10845,10 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
   }
 
+  var sourceAvailable = (function () {
+    return this;
+  }).toString().indexOf('return this;') > -1;
+
   /**
     Wraps the passed function so that `this._super` will point to the superFunc
     when the function is invoked. This is the primitive we use to implement
@@ -10921,34 +10862,52 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     @return {Function} wrapped function.
   */
 
-  function wrap(func, superFunc) {
+  function wrap(func, _superFunc) {
+    var superFunc = _superFunc;
+    var hasSuper;
+    if (sourceAvailable) {
+      hasSuper = func.__hasSuper;
+
+      if (hasSuper === undefined) {
+        hasSuper = func.toString().indexOf('_super') > -1;
+        func.__hasSuper = hasSuper;
+      }
+
+      if (!hasSuper) {
+        return func;
+      }
+    }
+
+    if (superFunc.wrappedFunction === undefined) {
+      // terminate _super to prevent infinite recursion
+      superFunc = wrap(superFunc, function () {});
+    }
+
+    return _wrap(func, superFunc);
+  }
+
+  function _wrap(func, superFunc) {
     function superWrapper() {
       var ret;
-      var sup = this && this.__nextSuper;
-      var length = arguments.length;
-
-      if (this) {
-        this.__nextSuper = superFunc;
+      var orig = this._super;
+      this._super = superFunc;
+      switch (arguments.length) {
+        case 0:
+          ret = func.call(this);break;
+        case 1:
+          ret = func.call(this, arguments[0]);break;
+        case 2:
+          ret = func.call(this, arguments[0], arguments[1]);break;
+        case 3:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2]);break;
+        case 4:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3]);break;
+        case 5:
+          ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);break;
+        default:
+          ret = func.apply(this, arguments);break;
       }
-
-      if (length === 0) {
-        ret = func.call(this);
-      } else if (length === 1) {
-        ret = func.call(this, arguments[0]);
-      } else if (length === 2) {
-        ret = func.call(this, arguments[0], arguments[1]);
-      } else {
-        var args = new Array(length);
-        for (var i = 0; i < length; i++) {
-          args[i] = arguments[i];
-        }
-        ret = apply(this, func, args);
-      }
-
-      if (this) {
-        this.__nextSuper = sup;
-      }
-
+      this._super = orig;
       return ret;
     }
 
@@ -12449,7 +12408,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ec912789',
+        revision: 'Ember@2.0.0-canary+6336d21f',
         loc: program.loc,
         moduleName: options.moduleName
       };
