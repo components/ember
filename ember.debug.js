@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+b43e0e64
+ * @version   2.0.0-canary+2633dee6
  */
 
 (function() {
@@ -8830,7 +8830,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b43e0e64';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2633dee6';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9939,10 +9939,14 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
       var element = this.expectElement && this.renderNode.firstNode;
 
-      env.renderer.didCreateElement(component, element);
-      env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
+      // In environments like FastBoot, disable any hooks that would cause the component
+      // to access the DOM directly.
+      if (env.destinedForDOM) {
+        env.renderer.didCreateElement(component, element);
+        env.renderer.willInsertElement(component, element); // 2.0TODO remove legacy hook
 
-      env.lifecycleHooks.push({ type: 'didInsertElement', view: component });
+        env.lifecycleHooks.push({ type: 'didInsertElement', view: component });
+      }
     }, this);
   };
 
@@ -10186,9 +10190,13 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
       if (component) {
         var element = this.expectElement && this.renderNode.firstNode;
 
-        env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
-        env.renderer.willInsertElement(component, element);
-        env.lifecycleHooks.push({ type: 'didInsertElement', view: component });
+        // In environments like FastBoot, disable any hooks that would cause the component
+        // to access the DOM directly.
+        if (env.destinedForDOM) {
+          env.renderer.didCreateElement(component, element); // 2.0TODO: Remove legacy hooks.
+          env.renderer.willInsertElement(component, element);
+          env.lifecycleHooks.push({ type: 'didInsertElement', view: component });
+        }
       }
     }, this);
   };
@@ -10836,6 +10844,7 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
     this.hooks = _emberHtmlbarsEnv.default.hooks;
     this.helpers = _emberHtmlbarsEnv.default.helpers;
     this.useFragmentCache = _emberHtmlbarsEnv.default.useFragmentCache;
+    this.destinedForDOM = this.renderer._destinedForDOM;
   }
 
   RenderEnv.build = function (view) {
@@ -11955,11 +11964,19 @@ enifed('ember-metal-views', ['exports', 'ember-metal-views/renderer'], function 
 
   exports.Renderer = _emberMetalViewsRenderer.default;
 });
-enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-views/system/build-component-template'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberViewsSystemBuildComponentTemplate) {
+enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-views/system/build-component-template', 'ember-metal/environment'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberViewsSystemBuildComponentTemplate, _emberMetalEnvironment) {
   'use strict';
 
-  function Renderer(_helper) {
-    this._dom = _helper;
+  function Renderer(domHelper, destinedForDOM) {
+    this._dom = domHelper;
+
+    // This flag indicates whether the resulting rendered element will be
+    // inserted into the DOM. This should be set to `false` if the rendered
+    // element is going to be serialized to HTML without being inserted into
+    // the DOM (e.g., in FastBoot mode). By default, this flag is the same
+    // as whether we are running in an environment with DOM, but may be
+    // overridden.
+    this._destinedForDOM = destinedForDOM === undefined ? _emberMetalEnvironment.default.hasDOM : destinedForDOM;
   }
 
   Renderer.prototype.prerenderTopLevelView = function Renderer_prerenderTopLevelView(view, renderNode) {
@@ -14851,7 +14868,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+b43e0e64
+    @version 2.0.0-canary+2633dee6
     @public
   */
 
@@ -14885,11 +14902,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+b43e0e64'
+    @default '2.0.0-canary+2633dee6'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+b43e0e64';
+  Ember.VERSION = '2.0.0-canary+2633dee6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23106,7 +23123,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+b43e0e64';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2633dee6';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23607,7 +23624,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+b43e0e64';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2633dee6';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37244,7 +37261,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+b43e0e64',
+        revision: 'Ember@2.0.0-canary+2633dee6',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41852,7 +41869,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+b43e0e64';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2633dee6';
 
   /**
   @module ember
