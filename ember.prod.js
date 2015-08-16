@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ce89367c
+ * @version   2.0.0-canary+68dec3d5
  */
 
 (function() {
@@ -8366,7 +8366,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ce89367c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68dec3d5';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -11889,23 +11889,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
   _emberMetalCore.default.merge = _emberMetalMerge.default;
 
-  if (_emberMetalFeatures.default('ember-metal-stream')) {
-    _emberMetalCore.default.stream = {
-      Stream: _emberMetalStreamsStream.default,
-
-      isStream: _emberMetalStreamsUtils.isStream,
-      subscribe: _emberMetalStreamsUtils.subscribe,
-      unsubscribe: _emberMetalStreamsUtils.unsubscribe,
-      read: _emberMetalStreamsUtils.read,
-      readHash: _emberMetalStreamsUtils.readHash,
-      readArray: _emberMetalStreamsUtils.readArray,
-      scanArray: _emberMetalStreamsUtils.scanArray,
-      scanHash: _emberMetalStreamsUtils.scanHash,
-      concat: _emberMetalStreamsUtils.concat,
-      chain: _emberMetalStreamsUtils.chain
-    };
-  }
-
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
 
@@ -14360,7 +14343,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ce89367c
+    @version 2.0.0-canary+68dec3d5
     @public
   */
 
@@ -14394,11 +14377,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ce89367c'
+    @default '2.0.0-canary+68dec3d5'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ce89367c';
+  Ember.VERSION = '2.0.0-canary+68dec3d5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15158,7 +15141,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-metal-stream":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-debug-handlers":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -20271,7 +20254,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   /*
    Check whether an object is a stream or not
   
-   @public
+   @private
    @for Ember.stream
    @function isStream
    @param {Object|Stream} object object to check whether it is a stream
@@ -20305,7 +20288,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
    A method of unsubscribing from a stream which is safe for use with a non-stream
    object. If a non-stream object is passed, the function does nothing.
   
-   @public
+   @private
    @for Ember.stream
    @function unsubscribe
    @param {Object|Stream} object object or stream to potentially unsubscribe from
@@ -20323,7 +20306,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
    Retrieve the value of a stream, or in the case a non-stream object is passed,
    return the object itself.
   
-   @public
+   @private
    @for Ember.stream
    @function read
    @param {Object|Stream} object object to return the value of
@@ -20341,7 +20324,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   /*
    Map an array, replacing any streams with their values.
   
-   @public
+   @private
    @for Ember.stream
    @function readArray
    @param {Array} array The array to read values from
@@ -20364,7 +20347,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
    Map a hash, replacing any stream property values with the current value of that
    stream.
   
-   @public
+   @private
    @for Ember.stream
    @function readHash
    @param {Object} object The hash to read keys and values from
@@ -20385,7 +20368,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   /*
    Check whether an array contains any stream values
   
-   @public
+   @private
    @for Ember.stream
    @function scanArray
    @param {Array} array array given to a handlebars helper
@@ -20410,7 +20393,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   /*
    Check whether a hash has any stream property values
   
-   @public
+   @private
    @for Ember.stream
    @function scanHash
    @param {Object} hash "hash" argument given to a handlebars helper
@@ -20434,7 +20417,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
   /*
    Join an array, with any streams replaced by their current values
   
-   @public
+   @private
    @for Ember.stream
    @function concat
    @param {Array} array An array containing zero or more stream objects and
@@ -20585,7 +20568,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
    In the example, result is a stream if source is a stream, or a number of
    source was numeric.
   
-   @public
+   @private
    @for Ember.stream
    @function chain
    @param {Object|Stream} value A stream or non-stream object
@@ -22494,7 +22477,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+ce89367c';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+68dec3d5';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22990,7 +22973,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+ce89367c';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+68dec3d5';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36535,7 +36518,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+ce89367c',
+        revision: 'Ember@2.0.0-canary+68dec3d5',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39885,7 +39868,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+ce89367c';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+68dec3d5';
 
   /**
   @module ember
