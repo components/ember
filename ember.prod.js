@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7cee520e
+ * @version   2.0.0-canary+2a65aa87
  */
 
 (function() {
@@ -1518,16 +1518,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
 
   // Once registry / container reform is enabled, we no longer need to expose
   // Container#_registry, since Container itself will be fully private.
-  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
-    Object.defineProperty(Container.prototype, '_registry', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        return this.registry;
-      }
-    });
-  }
-
   exports.default = Container;
 });
 // Ember.assert
@@ -3599,23 +3589,18 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   }
 
   function assignAliases(applicationInstance) {
-    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-      Object.defineProperty(applicationInstance, 'container', {
-        configurable: true,
-        enumerable: false,
-        get: function () {
-          var instance = this;
-          return {
-            lookup: function () {
-                            return instance.lookup.apply(instance, arguments);
-            }
-          };
-        }
-      });
-    } else {
-      applicationInstance.container = applicationInstance.__container__;
-      applicationInstance.registry = applicationInstance.__registry__;
-    }
+    Object.defineProperty(applicationInstance, 'container', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        var instance = this;
+        return {
+          lookup: function () {
+                        return instance.lookup.apply(instance, arguments);
+          }
+        };
+      }
+    });
   }
 
   exports.default = ApplicationInstance;
@@ -4142,8 +4127,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       var App = this;
       this._runInitializer('initializers', function (name, initializer) {
                 if (initializer.initialize.length === 2) {
-          if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-                      }
+          
           initializer.initialize(App.__registry__, App);
         } else {
           initializer.initialize(App);
@@ -8366,7 +8350,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7cee520e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2a65aa87';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14341,7 +14325,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+7cee520e
+    @version 2.0.0-canary+2a65aa87
     @public
   */
 
@@ -14375,11 +14359,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+7cee520e'
+    @default '2.0.0-canary+2a65aa87'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+7cee520e';
+  Ember.VERSION = '2.0.0-canary+2a65aa87';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15139,7 +15123,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-registry-container-reform":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-application-visit":null,"ember-routing-core-outlet":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -22475,7 +22459,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+7cee520e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+2a65aa87';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22971,7 +22955,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+7cee520e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+2a65aa87';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -23209,21 +23193,13 @@ enifed('ember-routing/initializers/routing-service', ['exports', 'ember-runtime/
   'use strict';
 
   var initialize = undefined;
-  if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-    initialize = function (application) {
-      // Register the routing service...
-      application.register('service:-routing', _emberRoutingServicesRouting.default);
-      // Then inject the app router into it
-      application.inject('service:-routing', 'router', 'router:main');
-    };
-  } else {
-    initialize = function (registry, application) {
-      // Register the routing service...
-      registry.register('service:-routing', _emberRoutingServicesRouting.default);
-      // Then inject the app router into it
-      registry.injection('service:-routing', 'router', 'router:main');
-    };
-  }
+
+  initialize = function (application) {
+    // Register the routing service...
+    application.register('service:-routing', _emberRoutingServicesRouting.default);
+    // Then inject the app router into it
+    application.inject('service:-routing', 'router', 'router:main');
+  };
 
   _emberRuntimeSystemLazy_load.onLoad('Ember.Application', function (Application) {
     Application.initializer({
@@ -23232,6 +23208,10 @@ enifed('ember-routing/initializers/routing-service', ['exports', 'ember-runtime/
     });
   });
 });
+
+// Register the routing service...
+
+// Then inject the app router into it
 enifed('ember-routing/location/api', ['exports', 'ember-metal/core', 'ember-metal/environment', 'ember-routing/location/util'], function (exports, _emberMetalCore, _emberMetalEnvironment, _emberRoutingLocationUtil) {
   'use strict';
 
@@ -30315,11 +30295,11 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
     /**
      Given a fullName return the corresponding factory.
       @private
-     @method lookupFactory
+     @method _lookupFactory
      @param {String} fullName
      @return {any}
      */
-    lookupFactory: containerAlias('lookupFactory'),
+    _lookupFactory: containerAlias('lookupFactory'),
 
     /**
      @private
@@ -36516,7 +36496,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+7cee520e',
+        revision: 'Ember@2.0.0-canary+2a65aa87',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39866,7 +39846,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+7cee520e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+2a65aa87';
 
   /**
   @module ember

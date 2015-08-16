@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+7cee520e
+ * @version   2.0.0-canary+2a65aa87
  */
 
 (function() {
@@ -726,16 +726,6 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     container.lookup('apple:main');
     container.lookup('apple:main');
   });
-
-  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
-    QUnit.test('Container#_registry provides an alias to Container#registry while Container is pseudo-public', function () {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-
-      strictEqual(container.registry, registry, '#registry points to the parent registry');
-      strictEqual(container._registry, registry, '#_registry is an alias to #registry');
-    });
-  }
 });
 enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'container', 'container/tests/container_helper'], function (exports, _emberMetalCore, _container, _containerTestsContainer_helper) {
   'use strict';
@@ -1178,25 +1168,18 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     ok(appInstance.__container__, '#__container__ is accessible');
     ok(appInstance.__registry__, '#__registry__ is accessible');
 
-    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-      expect(6);
+    expect(6);
 
-      ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
+    ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
 
-      // stub `lookup` with a no-op to keep deprecation test simple
-      appInstance.__container__.lookup = function () {
-        ok(true, '#loookup alias is called correctly');
-      };
+    // stub `lookup` with a no-op to keep deprecation test simple
+    appInstance.__container__.lookup = function () {
+      ok(true, '#loookup alias is called correctly');
+    };
 
-      expectDeprecation(function () {
-        appInstance.container.lookup();
-      }, /Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead./);
-    } else {
-      expect(5);
-
-      strictEqual(appInstance.container, appInstance.__container__, '#container alias should be assigned');
-      strictEqual(appInstance.registry, appInstance.__registry__, '#registry alias should be assigned');
-    }
+    expectDeprecation(function () {
+      appInstance.container.lookup();
+    }, /Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead./);
   });
 
   QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
@@ -2137,44 +2120,23 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
-  if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-    QUnit.test('initializers are passed an App', function () {
-      var MyApplication = _emberApplicationSystemApplication.default.extend();
+  QUnit.test('initializers are passed an App', function () {
+    var MyApplication = _emberApplicationSystemApplication.default.extend();
 
-      MyApplication.initializer({
-        name: 'initializer',
-        initialize: function (App) {
-          ok(App instanceof _emberApplicationSystemApplication.default, 'initialize is passed an Application');
-        }
-      });
+    MyApplication.initializer({
+      name: 'initializer',
+      initialize: function (App) {
+        ok(App instanceof _emberApplicationSystemApplication.default, 'initialize is passed an Application');
+      }
+    });
 
-      _emberMetalRun_loop.default(function () {
-        app = MyApplication.create({
-          router: false,
-          rootElement: '#qunit-fixture'
-        });
+    _emberMetalRun_loop.default(function () {
+      app = MyApplication.create({
+        router: false,
+        rootElement: '#qunit-fixture'
       });
     });
-  } else {
-    QUnit.test('initializers are passed a registry and App', function () {
-      var MyApplication = _emberApplicationSystemApplication.default.extend();
-
-      MyApplication.initializer({
-        name: 'initializer',
-        initialize: function (registry, App) {
-          ok(registry instanceof _containerRegistry.default, 'initialize is passed a registry');
-          ok(App instanceof _emberApplicationSystemApplication.default, 'initialize is passed an Application');
-        }
-      });
-
-      _emberMetalRun_loop.default(function () {
-        app = MyApplication.create({
-          router: false,
-          rootElement: '#qunit-fixture'
-        });
-      });
-    });
-  }
+  });
 
   QUnit.test('initializers can be registered in a specified order', function () {
     var order = [];
@@ -2475,27 +2437,25 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
-  if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-    QUnit.test('initializers should throw a deprecation warning when receiving a second argument', function () {
-      expect(1);
+  QUnit.test('initializers should throw a deprecation warning when receiving a second argument', function () {
+    expect(1);
 
-      var MyApplication = _emberApplicationSystemApplication.default.extend();
+    var MyApplication = _emberApplicationSystemApplication.default.extend();
 
-      MyApplication.initializer({
-        name: 'deprecated',
-        initialize: function (registry, application) {}
-      });
-
-      expectDeprecation(function () {
-        _emberMetalRun_loop.default(function () {
-          app = MyApplication.create({
-            router: false,
-            rootElement: '#qunit-fixture'
-          });
-        });
-      }, /The `initialize` method for Application initializer 'deprecated' should take only one argument - `App`, an instance of an `Application`./);
+    MyApplication.initializer({
+      name: 'deprecated',
+      initialize: function (registry, application) {}
     });
-  }
+
+    expectDeprecation(function () {
+      _emberMetalRun_loop.default(function () {
+        app = MyApplication.create({
+          router: false,
+          rootElement: '#qunit-fixture'
+        });
+      });
+    }, /The `initialize` method for Application initializer 'deprecated' should take only one argument - `App`, an instance of an `Application`./);
+  });
 });
 enifed('ember-application/tests/system/instance_initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberViewsSystemJquery) {
   'use strict';
@@ -3500,27 +3460,15 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
       })
     };
 
-    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-      Application.initializer({
-        name: 'store',
-        initialize: function (application) {
-          application.unregister('store:main');
-          application.register('store:main', application.Store);
+    Application.initializer({
+      name: 'store',
+      initialize: function (application) {
+        application.unregister('store:main');
+        application.register('store:main', application.Store);
 
-          application.__container__.lookup('store:main');
-        }
-      });
-    } else {
-      Application.initializer({
-        name: 'store',
-        initialize: function (registry, application) {
-          registry.unregister('store:main');
-          registry.register('store:main', application.Store);
-
-          application.__container__.lookup('store:main');
-        }
-      });
-    }
+        application.__container__.lookup('store:main');
+      }
+    });
 
     _emberMetalRun_loop.default(function () {
       application = Application.create();
@@ -3668,11 +3616,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
         assert.strictEqual(_emberViewsViewsView.default.views['my-cool-app'], undefined, 'view was not registered globally');
 
         function lookup(fullName) {
-          if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-            return instance.lookup(fullName);
-          } else {
-            return instance.container.lookup(fullName);
-          }
+          return instance.lookup(fullName);
         }
 
         ok(lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
@@ -41059,7 +41003,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+7cee520e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+2a65aa87', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -51090,25 +51034,14 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-met
 
     var ApplicationSubclass = _emberMetalCore.default.Application.extend();
 
-    if (_emberMetalFeatures.default('ember-registry-container-reform')) {
-      ApplicationSubclass.initializer({
-        name: 'customize-things',
-        initialize: function (application) {
-          application.customEvents = {
-            wowza: 'wowza'
-          };
-        }
-      });
-    } else {
-      ApplicationSubclass.initializer({
-        name: 'customize-things',
-        initialize: function (registry, application) {
-          application.customEvents = {
-            wowza: 'wowza'
-          };
-        }
-      });
-    }
+    ApplicationSubclass.initializer({
+      name: 'customize-things',
+      initialize: function (application) {
+        application.customEvents = {
+          wowza: 'wowza'
+        };
+      }
+    });
 
     setupApp(ApplicationSubclass);
 
