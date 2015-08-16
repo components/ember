@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8190bfdb
+ * @version   2.0.0-canary+9af8d219
  */
 
 (function() {
@@ -4991,7 +4991,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
+enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -5001,8 +5001,6 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-metal/
       view.appendTo('#qunit-fixture');
     });
   }
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: boolean attribute', {
     teardown: function () {
@@ -5077,10 +5075,8 @@ enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-metal/
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<input>', 'attribute is not output');
     equal(view.element.firstChild.disabled, false, 'boolean property is set false');
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
+enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -5090,12 +5086,6 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
       view.appendTo('#qunit-fixture');
     });
   }
-
-  var isInlineIfEnabled = false;
-
-  isInlineIfEnabled = true;
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: class attribute', {
     teardown: function () {
@@ -5156,27 +5146,25 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
     strictEqual(view.element.firstChild.className, 'large blue round', 'classes are set');
   });
 
-  if (isInlineIfEnabled) {
-    QUnit.test('class attribute accepts nested helpers, and updates', function () {
-      view = _emberViewsViewsView.default.create({
-        context: {
-          size: 'large',
-          hasColor: true,
-          hasShape: false,
-          shape: 'round'
-        },
-        template: _emberTemplateCompilerSystemCompile.default('<div class=\'{{if true size}} {{if hasColor \'blue\'}} {{if hasShape shape \'no-shape\'}}\'></div>')
-      });
-      appendView(view);
-
-      strictEqual(view.element.firstChild.className, 'large blue no-shape', 'classes are set');
-
-      _emberMetalRun_loop.default(view, view.set, 'context.hasColor', false);
-      _emberMetalRun_loop.default(view, view.set, 'context.hasShape', true);
-
-      strictEqual(view.element.firstChild.className, 'large  round', 'classes are updated');
+  QUnit.test('class attribute accepts nested helpers, and updates', function () {
+    view = _emberViewsViewsView.default.create({
+      context: {
+        size: 'large',
+        hasColor: true,
+        hasShape: false,
+        shape: 'round'
+      },
+      template: _emberTemplateCompilerSystemCompile.default('<div class=\'{{if true size}} {{if hasColor \'blue\'}} {{if hasShape shape \'no-shape\'}}\'></div>')
     });
-  }
+    appendView(view);
+
+    strictEqual(view.element.firstChild.className, 'large blue no-shape', 'classes are set');
+
+    _emberMetalRun_loop.default(view, view.set, 'context.hasColor', false);
+    _emberMetalRun_loop.default(view, view.set, 'context.hasShape', true);
+
+    strictEqual(view.element.firstChild.className, 'large  round', 'classes are updated');
+  });
 
   QUnit.test('class attribute can accept multiple classes from a single value, and update', function () {
     view = _emberViewsViewsView.default.create({
@@ -5227,10 +5215,8 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-metal/fe
 
     strictEqual(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViewsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViewsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
   'use strict';
 
   var view, originalSetAttribute, setAttributeCalls, renderer;
@@ -5478,7 +5464,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-metal/fea
     deepEqual(setAttributeCalls, expected);
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
+enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -5488,8 +5474,6 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/fea
       view.appendTo('#qunit-fixture');
     });
   }
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: href attribute', {
     teardown: function () {
@@ -5508,10 +5492,8 @@ enifed('ember-htmlbars/tests/attr_nodes/href_test', ['exports', 'ember-metal/fea
 
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<a href="http://example.com"></a>', 'attribute is output');
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
   var view;
@@ -5528,8 +5510,6 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
 
     return input.maxLength === 0;
   }
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: property', {
     teardown: function () {
@@ -5581,10 +5561,8 @@ enifed('ember-htmlbars/tests/attr_nodes/property_test', ['exports', 'ember-metal
     _emberMetalCore.default.run(view, view.set, 'context.items', [4, 5]);
     ok(true, 'no legacy assertion prohibited setting an array');
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberMetalEnvironment) {
+enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-metal/environment'], function (exports, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberMetalEnvironment) {
   /* jshint scripturl:true */
 
   'use strict';
@@ -5597,9 +5575,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-meta
     }
   });
 
-  // jscs:disable validateIndentation
   // jscs:disable disallowTrailingWhitespace
-
   var badTags = [{ tag: 'a', attr: 'href',
     unquotedTemplate: _emberTemplateCompilerSystemCompile.default('<a href={{url}}></a>'),
     quotedTemplate: _emberTemplateCompilerSystemCompile.default('<a href=\'{{url}}\'></a>'),
@@ -5683,11 +5659,9 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-meta
       });
     })(); //jshint ignore:line
   }
-
   // jscs:enable disallowTrailingWhitespace
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberHtmlbarsMorphsAttrMorph) {
+enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberHtmlbarsMorphsAttrMorph) {
   /* globals EmberDev */
 
   'use strict';
@@ -5710,8 +5684,6 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
       _emberMetalCore.default.warn = originalWarn;
     }
   });
-
-  // jscs:disable validateIndentation
 
   if (!EmberDev.runningProdBuild) {
     QUnit.test('specifying `<div style={{userValue}}></div>` generates a warning', function () {
@@ -5758,10 +5730,8 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
 
     deepEqual(warnings, []);
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
+enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
 
   var view;
@@ -5771,8 +5741,6 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core
       view.appendTo('#qunit-fixture');
     });
   }
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: svg attribute', {
     teardown: function () {
@@ -5836,10 +5804,8 @@ enifed('ember-htmlbars/tests/attr_nodes/svg_test', ['exports', 'ember-metal/core
 
     _htmlbarsTestHelpers.equalInnerHTML(view.element, '<svg class="red tall"></svg>', 'attribute is output');
   });
-
-  // jscs:enable validateIndentation
 });
-enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
   var view;
@@ -5849,8 +5815,6 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
       view.appendTo('#qunit-fixture');
     });
   }
-
-  // jscs:disable validateIndentation
 
   QUnit.module('ember-htmlbars: value attribute', {
     teardown: function () {
@@ -5892,8 +5856,6 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-metal/fe
     equal(view.element.firstChild.tagName, 'INPUT', 'input element is created');
     equal(view.element.firstChild.value, '', 'property is set true');
   });
-
-  // jscs:enable validateIndentation
 });
 enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
   'use strict';
@@ -6823,7 +6785,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 });
-enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed) {
   'use strict';
 
   var view, registry, container;
@@ -7671,7 +7633,7 @@ enifed('ember-htmlbars/tests/helpers/debug_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.lookup
-enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-metal/features', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
   'use strict';
 
   var component;
@@ -8590,7 +8552,7 @@ enifed('ember-htmlbars/tests/helpers/each_test', ['exports', 'ember-metal/core',
   });
 });
 // Ember.lookup;
-enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-views/views/text_field'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponent_lookup, _emberViewsViewsText_field) {
+enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/component_lookup', 'ember-views/views/text_field'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponent_lookup, _emberViewsViewsText_field) {
   'use strict';
 
   var view, registry, container;
@@ -8963,7 +8925,7 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.get('context.source.banana'), 'some value');
   });
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var originalLookup = _emberMetalCore.default.lookup;
@@ -15252,7 +15214,7 @@ enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', '
     equal(view.$('i').length, 2, 'creates an element when value is updated');
   });
 });
-enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'ember-metal/features', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _emberMetalFeatures, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
   'use strict';
 
   var registry, container, component;
@@ -16534,7 +16496,7 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/co
     });
   }
 });
-enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'ember-metal/features', 'container/registry', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _emberMetalFeatures, _containerRegistry, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
+enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'container/registry', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _containerRegistry, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
   'use strict';
 
   var resolver, registry, container;
@@ -24585,7 +24547,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     equal(arr.length, 10, 'property should be accessible on arr');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword;
@@ -25058,7 +25020,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     });
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
   'use strict';
 
   var dispatcher, view, originalViewKeyword;
@@ -28008,7 +27970,7 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   });
 });
 // A
-enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features', 'ember-routing/system/router', 'ember-debug/handlers', 'ember-debug/warn'], function (exports, _emberMetalFeatures, _emberRoutingSystemRouter, _emberDebugHandlers, _emberDebugWarn) {
+enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/router', 'ember-debug/handlers', 'ember-debug/warn'], function (exports, _emberRoutingSystemRouter, _emberDebugHandlers, _emberDebugWarn) {
   /* globals EmberDev */
   'use strict';
 
@@ -28117,8 +28079,6 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features'
     ok(router.router.recognizer.names['bleep.bloop.blork'], 'parent name was used as base of nested routes');
   });
 
-  // jscs:disable validateIndentation
-
   QUnit.test('should add loading and error routes if _isRouterMapResult is true', function () {
     Router.map(function () {
       this.route('blork');
@@ -28144,8 +28104,6 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-metal/features'
     ok(!router.router.recognizer.names['blork_loading'], 'loading route was not added');
     ok(!router.router.recognizer.names['blork_error'], 'error route was not added');
   });
-
-  // jscs:enable validateIndentation
 });
 enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests/utils', 'container/registry', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-runtime/inject'], function (exports, _emberRuntimeTestsUtils, _containerRegistry, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberRuntimeInject) {
   'use strict';
@@ -40939,7 +40897,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0-canary+8190bfdb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.0-canary+9af8d219', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -51546,7 +51504,7 @@ enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/s
     });
   });
 });
-enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features'], function (exports, _ember, _emberMetalFeatures) {
+enifed('ember/tests/global-api-test', ['exports', 'ember'], function (exports, _ember) {
   /*globals Ember */
   'use strict';
 
@@ -51560,11 +51518,10 @@ enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features
 
   confirmExport('Ember.DefaultResolver');
   confirmExport('Ember.generateController');
-
   confirmExport('Ember.Helper');
   confirmExport('Ember.Helper.helper');
 });
-enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _ember, _emberMetalCore, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var App, registry, container, originalViewKeyword;
@@ -51688,10 +51645,6 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
     ok(serviceCalled, 'service was injected, method called');
   });
 });
-
-// Note: the reason we're not allowing undashed helpers is to avoid
-// a possible perf hit in hot code paths, i.e. _triageMustache.
-// We only presently perform container lookups if prop.indexOf('-') >= 0
 enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberTemplateCompiler, _emberViewsViewsView) {
   'use strict';
 
@@ -53116,37 +53069,13 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     equal(_emberMetalCore.default.$('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
   });
 });
-enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler) {
+enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler'], function (exports, _ember, _emberMetalCore, _emberTemplateCompiler) {
   'use strict';
 
   var Router, App, router, registry, container;
   var set = _emberMetalCore.default.set;
 
   var aboutDefer, otherDefer;
-
-  function basicEagerURLUpdateTest(setTagName) {
-    expect(6);
-
-    if (setTagName) {
-      _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('{{outlet}}{{link-to \'Index\' \'index\' id=\'index-link\'}}{{link-to \'About\' \'about\' id=\'about-link\' tagName=\'span\'}}');
-    }
-
-    bootApplication();
-    equal(updateCount, 0);
-    _emberMetalCore.default.run(_emberMetalCore.default.$('#about-link'), 'click');
-
-    // URL should be eagerly updated now
-    equal(updateCount, 1);
-    equal(router.get('location.path'), '/about');
-
-    // Resolve the promise.
-    _emberMetalCore.default.run(aboutDefer, 'resolve');
-    equal(router.get('location.path'), '/about');
-
-    // Shouldn't have called update url again.
-    equal(updateCount, 1);
-    equal(router.get('location.path'), '/about');
-  }
 
   function bootApplication() {
     router = container.lookup('router:main');
@@ -53337,19 +53266,6 @@ enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['
     assertHasClass('ember-transitioning-out', $index, false, $about, false, $other, false);
   });
 });
-
-// HistoryLocation is the only Location class that will cause rootURL to be
-// prepended to link-to href's right now
-
-// Don't actually touch the URL
-
-// href should have rootURL prepended
-
-// Actual path provided to Location class should NOT have rootURL
-
-// Shouldn't have called update url.
-
-// Shouldn't have called update url.
 enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler) {
   'use strict';
 
@@ -58954,7 +58870,7 @@ enifed('ember/tests/routing/router_map_test', ['exports', 'ember', 'ember-metal/
     equal(_emberMetalCore.default.$('#qunit-fixture').text(), 'Goodbye!', 'The goodbye template was rendered');
   });
 });
-enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberViewsViewsView) {
+enifed('ember/tests/routing/substates_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberTemplateCompiler, _emberViewsViewsView) {
   'use strict';
 
   var Router, App, templates, router, container, counter;

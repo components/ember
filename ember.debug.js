@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+8190bfdb
+ * @version   2.0.0-canary+9af8d219
  */
 
 (function() {
@@ -6246,9 +6246,7 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   _emberHtmlbarsHelpers.registerHelper('loc', _emberHtmlbarsHelpersLoc.default);
   _emberHtmlbarsHelpers.registerHelper('log', _emberHtmlbarsHelpersLog.default);
   _emberHtmlbarsHelpers.registerHelper('each', _emberHtmlbarsHelpersEach.default);
-
   _emberHtmlbarsHelpers.registerHelper('each-in', _emberHtmlbarsHelpersEachIn.default);
-
   _emberHtmlbarsHelpers.registerHelper('-normalize-class', _emberHtmlbarsHelpersNormalizeClass.default);
   _emberHtmlbarsHelpers.registerHelper('concat', _emberHtmlbarsHelpersConcat.default);
   _emberHtmlbarsHelpers.registerHelper('-join-classes', _emberHtmlbarsHelpersJoinClasses.default);
@@ -6289,7 +6287,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
 
   exports.default = EmberHandlebars;
 });
-enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/hooks/attributes', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalFeatures, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalMerge, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHooksAttributes, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
+enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/merge', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/hooks/attributes', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalMerge, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHooksAttributes, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
   'use strict';
 
   var emberHooks = _emberMetalMerge.default({}, _htmlbarsRuntime.hooks);
@@ -6336,13 +6334,13 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/features', 
   _emberHtmlbarsKeywords.registerKeyword('@mut', _emberHtmlbarsKeywordsMut.privateMut);
   _emberHtmlbarsKeywords.registerKeyword('each', _emberHtmlbarsKeywordsEach.default);
   _emberHtmlbarsKeywords.registerKeyword('readonly', _emberHtmlbarsKeywordsReadonly.default);
+  _emberHtmlbarsKeywords.registerKeyword('get', _emberHtmlbarsKeywordsGet.default);
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberHtmlbarsKeywords.registerKeyword('collection', _emberHtmlbarsKeywordsCollection.default);
     _emberHtmlbarsKeywords.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
   }
 
-  _emberHtmlbarsKeywords.registerKeyword('get', _emberHtmlbarsKeywordsGet.default);
   exports.default = {
     hooks: emberHooks,
     helpers: _emberHtmlbarsHelpers.default,
@@ -6709,7 +6707,7 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
           }
   }
 });
-enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'ember-views/streams/should_display'], function (exports, _emberMetalFeatures, _emberViewsStreamsShould_display) {
+enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should_display'], function (exports, _emberViewsStreamsShould_display) {
   /**
   @module ember
   @submodule ember-templates
@@ -6721,24 +6719,30 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
     The `{{each-in}}` helper loops over properties on an object. It is unbound,
     in that new (or removed) properties added to the target object will not be
     rendered.
-     For example, given a `user` object that looks like:
-     ```javascript
+  
+    For example, given a `user` object that looks like:
+  
+    ```javascript
     {
       "name": "Shelly Sails",
       "age": 42
     }
     ```
-     This template would display all properties on the `user`
+  
+    This template would display all properties on the `user`
     object in a list:
-     ```handlebars
+  
+    ```handlebars
     <ul>
     {{#each-in user as |key value|}}
       <li>{{key}}: {{value}}</li>
     {{/each-in}}
     </ul>
     ```
-     Outputting their name and age.
-     @method each-in
+  
+    Outputting their name and age.
+  
+    @method each-in
     @for Ember.Templates.helpers
     @public
   */
@@ -6756,6 +6760,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-metal/features', 'em
       blocks.inverse.yield();
     }
   };
+
   exports.default = eachInHelper;
 });
 enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_display', 'ember-htmlbars/utils/decode-each-key'], function (exports, _emberViewsStreamsShould_display, _emberHtmlbarsUtilsDecodeEachKey) {
@@ -8340,7 +8345,7 @@ enifed('ember-htmlbars/keywords/each', ['exports'], function (exports) {
     return false;
   }
 });
-enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/streams/utils', 'ember-metal/merge', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalStreamsUtils, _emberMetalMerge, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
+enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/streams/utils', 'ember-metal/merge', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalCore, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalStreamsUtils, _emberMetalMerge, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
   /**
   @module ember
   @submodule ember-templates
@@ -8369,32 +8374,42 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-met
   /**
     Dynamically look up a property on an object. The second argument to `{{get}}`
     should have a string value, although it can be bound.
-     For example, these two usages are equivilent:
-     ```handlebars
+  
+    For example, these two usages are equivilent:
+  
+    ```handlebars
     {{person.height}}
     {{get person "height"}}
     ```
-     If there were several facts about a person, the `{{get}}` helper can dynamically
+  
+    If there were several facts about a person, the `{{get}}` helper can dynamically
     pick one:
-     ```handlebars
+  
+    ```handlebars
     {{get person factName}}
     ```
-     For a more complex example, this template would allow the user to switch
+  
+    For a more complex example, this template would allow the user to switch
     between showing the user's height and weight with a click:
-     ```handlebars
+  
+    ```handlebars
     {{get person factName}}
     <button {{action (mut factName) "height"}}>Show height</button>
     <button {{action (mut factName) "weight"}}>Show weight</button>
     ```
-     The `{{get}}` helper can also respect mutable values itself. For example:
-     ```handlebars
+  
+    The `{{get}}` helper can also respect mutable values itself. For example:
+  
+    ```handlebars
     {{input value=(mut (get person factName)) type="text"}}
     <button {{action (mut factName) "height"}}>Show height</button>
     <button {{action (mut factName) "weight"}}>Show weight</button>
     ```
-     Would allow the user to swap what fact is being displayed, and also edit
+  
+    Would allow the user to swap what fact is being displayed, and also edit
     that fact via a two-way mutable binding.
-     @public
+  
+    @public
     @method get
     @for Ember.Templates.helpers
   */
@@ -8489,6 +8504,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/core', 'ember-met
       }
     }
   });
+
   exports.default = getKeyword;
 });
 enifed('ember-htmlbars/keywords/input', ['exports', 'ember-metal/core', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalAssign) {
@@ -8830,7 +8846,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8190bfdb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+9af8d219';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10597,7 +10613,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
 
   exports.default = bootstrap;
 });
-enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/features', 'ember-metal/dictionary'], function (exports, _emberMetalFeatures, _emberMetalDictionary) {
+enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/dictionary'], function (exports, _emberMetalDictionary) {
   'use strict';
 
   exports.default = discoverKnownHelpers;
@@ -14868,7 +14884,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+8190bfdb
+    @version 2.0.0-canary+9af8d219
     @public
   */
 
@@ -14902,11 +14918,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+8190bfdb'
+    @default '2.0.0-canary+9af8d219'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+8190bfdb';
+  Ember.VERSION = '2.0.0-canary+9af8d219';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22052,7 +22068,7 @@ enifed('ember-routing-htmlbars/helpers/query-params', ['exports', 'ember-metal/c
   }
 });
 // assert
-enifed('ember-routing-htmlbars/keywords/action', ['exports', 'ember-metal/features', 'htmlbars-runtime/hooks', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, _emberMetalFeatures, _htmlbarsRuntimeHooks, _emberRoutingHtmlbarsKeywordsClosureAction) {
+enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/hooks', 'ember-routing-htmlbars/keywords/closure-action'], function (exports, _htmlbarsRuntimeHooks, _emberRoutingHtmlbarsKeywordsClosureAction) {
   /**
   @module ember
   @submodule ember-templates
@@ -22395,14 +22411,8 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     return closureAction;
   }
 });
-enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-views/streams/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalUtils, _emberMetalRun_loop, _emberViewsStreamsUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/core', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-views/streams/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalCore, _emberMetalUtils, _emberMetalRun_loop, _emberViewsStreamsUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
   'use strict';
-
-  function assert(message, test) {
-    // This only exists to prevent defeatureify from error when attempting
-    // to transform the same source twice (tldr; you can't nest stripped statements)
-    _emberMetalCore.default.assert(message, test);
-  }
 
   exports.default = {
     setupState: function (state, env, scope, params, hash) {
@@ -22411,7 +22421,7 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
 
       var actionName = read(params[0]);
 
-      assert('You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).', typeof actionName === 'string' || typeof actionName === 'function');
+      _emberMetalCore.default.assert('You specified a quoteless path to the {{action}} helper ' + 'which did not resolve to an action name (a string). ' + 'Perhaps you meant to use a quoted actionName? (e.g. {{action \'save\'}}).', typeof actionName === 'string' || typeof actionName === 'function');
 
       var actionArgs = [];
       for (var i = 1, l = params.length; i < l; i++) {
@@ -22502,7 +22512,6 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
             actionName.apply(target, actionArgs);
             return;
           }
-
           if (target.send) {
             target.send.apply(target, [actionName].concat(actionArgs));
           } else {
@@ -23115,7 +23124,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-metal/featu
 
   exports.default = _emberMetalCore.default;
 });
-enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
+enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsTemplatesLinkTo) {
   /**
   @module ember
   @submodule ember-routing-views
@@ -23123,11 +23132,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+8190bfdb';
-
-  var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
-
-  linkComponentClassNameBindings = ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'];
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0-canary+9af8d219';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23256,7 +23261,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       @default ['active', 'loading', 'disabled']
       @public
     */
-    classNameBindings: linkComponentClassNameBindings,
+    classNameBindings: ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'],
 
     /**
       By default the `{{link-to}}` helper responds to the `click` event. You
@@ -23615,6 +23620,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
   exports.default = LinkComponent;
 });
 // FEATURES, Logger, assert
+
 // creates inject.service
 enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view', 'ember-htmlbars/templates/top-level-view'], function (exports, _emberViewsViewsView, _emberHtmlbarsTemplatesTopLevelView) {
   /**
@@ -23624,7 +23630,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+8190bfdb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0-canary+9af8d219';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -25062,8 +25068,10 @@ enifed("ember-routing/system/controller_for", ["exports"], function (exports) {
     return container.lookup("controller:" + controllerName, lookupOptions);
   }
 });
-enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalFeatures) {
+enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   'use strict';
+
+  // FEATURES, assert
 
   /**
   @module ember
@@ -25191,7 +25199,6 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/core', 'ember-metal/
     return dsl;
   };
 });
-// FEATURES, assert
 enifed('ember-routing/system/generate_controller', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
   'use strict';
 
@@ -27342,7 +27349,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
   exports.default = Route;
 });
 // FEATURES, A, deprecate, assert, Logger
-enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', './router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _router_state, _router4, _routerTransition) {
+enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', './router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _router_state, _router4, _routerTransition) {
   'use strict';
 
   function K() {
@@ -37261,7 +37268,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.0.0-canary+8190bfdb',
+        revision: 'Ember@2.0.0-canary+9af8d219',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41894,7 +41901,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+8190bfdb';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0-canary+9af8d219';
 
   /**
   @module ember
