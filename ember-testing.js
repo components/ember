@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+68dec3d5
+ * @version   2.0.0-canary+7cee520e
  */
 
 (function() {
@@ -329,10 +329,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
 
   _emberMetalCore.default.Debug = {};
 
-  if (_emberMetalFeatures.default('ember-debug-handlers')) {
-    _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
-    _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
-  }
+  _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
+
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
     it much clearer that it is only for local development purposes.
