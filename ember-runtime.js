@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+ea91d63b
+ * @version   2.0.0-canary+ce89367c
  */
 
 (function() {
@@ -4844,7 +4844,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+ea91d63b
+    @version 2.0.0-canary+ce89367c
     @public
   */
 
@@ -4878,11 +4878,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+ea91d63b'
+    @default '2.0.0-canary+ce89367c'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+ea91d63b';
+  Ember.VERSION = '2.0.0-canary+ce89367c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7035,14 +7035,14 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta
   var memberNames = Object.keys(members);
 
   function Meta(obj, parentMeta) {
-    this.cache = undefined;
-    this.watching = undefined;
-    this.mixins = undefined;
-    this.bindings = undefined;
-    this.values = undefined;
-    this.deps = undefined;
-    this.chainWatchers = undefined;
-    this.chains = undefined;
+    this._cache = undefined;
+    this._watching = undefined;
+    this._mixins = undefined;
+    this._bindings = undefined;
+    this._values = undefined;
+    this._deps = undefined;
+    this._chainWatchers = undefined;
+    this._chains = undefined;
     // used only internally
     this.source = obj;
 
