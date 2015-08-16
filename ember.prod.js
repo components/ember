@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0+535f74cc
+ * @version   2.0.0+3296a952
  */
 
 (function() {
@@ -4250,7 +4250,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     instanceInitializers: Object.create(null),
 
     /**
-      Initializer receives an object which has the following attributes:
+      The goal of initializers should be to register dependencies and injections.
+      This phase runs once. Because these initializers may load code, they are
+      allowed to defer application readiness and advance it. If you need to access
+      the container or store you should use an InstanceInitializer that will be run
+      after all initializers and therefore after all code is loaded and the app is
+      ready.
+       Initializer receives an object which has the following attributes:
       `name`, `before`, `after`, `initialize`. The only required attribute is
       `initialize`, all others are optional.
        * `name` allows you to specify under which name the initializer is registered.
@@ -4325,6 +4331,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        ```javascript
       Ember.Application.initializer({
         name: 'preload-data',
+        after: 'ember-data',   // ember-data must be loaded before we can access store
          initialize: function(container, application) {
           var store = container.lookup('store:main');
            store.pushPayload(preloadedData);
@@ -4343,7 +4350,62 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        @method initializer
       @param initializer {Object}
       @public
-     */
+    */
+
+    /**
+      InstanceInitializers run after all initializers have run. Because
+      instanceInitializers run after the app is fully set up. We have access
+      to the store, container, and other items. However, these initializers run
+      after code has loaded and are not allowed to defer readiness.
+       InstanceInitializer receives an object which has the following attributes:
+      `name`, `before`, `after`, `initialize`. The only required attribute is
+      `initialize`, all others are optional.
+       * `name` allows you to specify under which name the instanceInitializer is
+      registered. This must be a unique name, as trying to register two
+      instanceInitializer with the same name will result in an error.
+       ```javascript
+      Ember.Application.instanceInitializer({
+        name: 'namedinstanceInitializer',
+         initialize: function(application) {
+          Ember.debug('Running namedInitializer!');
+        }
+      });
+      ```
+       * `before` and `after` are used to ensure that this initializer is ran prior
+      or after the one identified by the value. This value can be a single string
+      or an array of strings, referencing the `name` of other initializers.
+       * See Ember.Application.initializer for discussion on the usage of before
+      and after.
+       Example instanceInitializer to preload data into the store.
+       ```javascript
+      Ember.Application.initializer({
+        name: 'preload-data',
+         initialize: function(application) {
+          var userConfig, userConfigEncoded, store;
+          // We have a HTML escaped JSON representation of the user's basic
+          // configuration generated server side and stored in the DOM of the main
+          // index.html file. This allows the app to have access to a set of data
+          // without making any additional remote calls. Good for basic data that is
+          // needed for immediate rendering of the page. Keep in mind, this data,
+          // like all local models and data can be manipulated by the user, so it
+          // should not be relied upon for security or authorization.
+          //
+          // Grab the encoded data from the meta tag
+          userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');
+          // Unescape the text, then parse the resulting JSON into a real object
+          userConfig = JSON.parse(unescape(userConfigEncoded));
+          // Lookup the store
+          store = application.container.lookup('service:store');
+          // Push the encoded JSON into the store
+          store.pushPayload(userConfig);
+        }
+      });
+      ```
+       @method instanceInitializer
+      @param instanceInitializer
+      @public
+    */
+
     initializer: buildInitializerMethod('initializers', 'initializer'),
 
     /**
@@ -8257,7 +8319,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0+535f74cc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0+3296a952';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14137,7 +14199,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0+535f74cc
+    @version 2.0.0+3296a952
     @public
   */
 
@@ -14171,11 +14233,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0+535f74cc'
+    @default '2.0.0+3296a952'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0+535f74cc';
+  Ember.VERSION = '2.0.0+3296a952';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22126,7 +22188,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0+535f74cc';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0+3296a952';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -22626,7 +22688,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0+535f74cc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0+3296a952';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35797,7 +35859,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0+535f74cc',
+        revision: 'Ember@2.0.0+3296a952',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39048,7 +39110,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0+535f74cc';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0+3296a952';
 
   /**
   @module ember
