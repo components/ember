@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+295fa60d
+ * @version   2.2.0-canary+6258271b
  */
 
 (function() {
@@ -1608,7 +1608,7 @@ enifed('ember-application/tests/system/dependency_injection/custom_resolver_test
     equal(_emberViewsSystemJquery.default('h1', application.rootElement).text(), 'Fallback');
   });
 });
-enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/views/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalLogger, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberViewsViewsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers) {
+enifed('ember-application/tests/system/dependency_injection/default_resolver_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-metal/logger', 'ember-runtime/controllers/controller', 'ember-routing/system/route', 'ember-views/components/component', 'ember-views/views/view', 'ember-runtime/system/service', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-application/system/application', 'ember-htmlbars/helper', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalLogger, _emberRuntimeControllersController, _emberRoutingSystemRoute, _emberViewsComponentsComponent, _emberViewsViewsView, _emberRuntimeSystemService, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberApplicationSystemApplication, _emberHtmlbarsHelper, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers) {
   'use strict';
 
   var registry, locator, application, originalLookup, originalLoggerInfo;
@@ -1831,7 +1831,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('assertion for routes without isRouteFactory property', function () {
-    application.FooRoute = _emberViewsViewsComponent.default.extend();
+    application.FooRoute = _emberViewsComponentsComponent.default.extend();
 
     expectAssertion(function () {
       registry.resolve('route:foo');
@@ -1876,7 +1876,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
   QUnit.test('no deprecation warning for component factories that extend from Ember.Component', function () {
     expectNoDeprecation();
-    application.FooView = _emberViewsViewsComponent.default.extend();
+    application.FooView = _emberViewsComponentsComponent.default.extend();
     registry.resolve('component:foo');
   });
 
@@ -5801,7 +5801,7 @@ enifed('ember-htmlbars/tests/attr_nodes/value_test', ['exports', 'ember-views/vi
     equal(view.element.firstChild.value, '', 'property is set true');
   });
 });
-enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
+enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
   'use strict';
 
   var component = undefined;
@@ -5824,7 +5824,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
   QUnit.test('reading the controller keyword fails assertion', function () {
     var text = 'a-prop';
     expectAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{controller.prop}}')
       }).create();
@@ -5849,7 +5849,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
   QUnit.test('reading the controller keyword works [LEGACY]', function () {
     var text = 'a-prop';
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{controller.prop}}')
       }).create();
@@ -5861,7 +5861,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
 
   QUnit.test('reading the controller keyword for hash [LEGACY]', function () {
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{if true \'hiho\' option=controller.prop}}')
       }).create();
@@ -5874,7 +5874,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
   QUnit.test('reading the controller keyword for param [LEGACY]', function () {
     var text = 'a-prop';
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{if controller.prop \'' + text + '\'}}')
       }).create();
@@ -5886,7 +5886,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
 
   QUnit.test('reading the controller keyword for param with block fails assertion [LEGACY]', function () {
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: true,
         layout: _emberTemplateCompilerSystemCompile.default('{{#each controller as |things|}}{{/each}}')
       }).create();
@@ -5896,7 +5896,7 @@ enifed('ember-htmlbars/tests/compat/controller_keyword_test', ['exports', 'ember
     ok(true, 'access keyword');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-views/views/view', 'ember-views/views/select', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberViewsViewsView, _emberViewsViewsSelect, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var component = undefined,
@@ -5932,7 +5932,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/
     registry.register('view:foo', ViewClass);
 
     expectAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'),
         container: container
       }).create();
@@ -5964,7 +5964,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/
     registry.register('view:foo', ViewClass);
 
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{view \'foo\'}}'),
         container: container
       }).create();
@@ -5982,7 +5982,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/
     registry.register('view:foo', ViewClass);
 
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{#view \'foo\'}}I am foo{{/view}}'),
         container: container
       }).create();
@@ -5997,7 +5997,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/
     registry.register('view:select', _emberViewsViewsSelect.default);
 
     ignoreAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('{{view \'select\'}}'),
         container: container
       }).create();
@@ -6008,7 +6008,7 @@ enifed('ember-htmlbars/tests/compat/view_helper_test', ['exports', 'ember-metal/
     assert.ok(!!component.$('select').length, 'still renders select');
   });
 });
-enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
+enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths) {
   'use strict';
 
   var component = undefined;
@@ -6029,7 +6029,7 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal
   QUnit.test('reading the view keyword fails assertion', function () {
     var text = 'a-prop';
     expectAssertion(function () {
-      component = _emberViewsViewsComponent.default.extend({
+      component = _emberViewsComponentsComponent.default.extend({
         prop: text,
         layout: _emberTemplateCompilerSystemCompile.default('{{view.prop}}')
       }).create();
@@ -6038,7 +6038,95 @@ enifed('ember-htmlbars/tests/compat/view_keyword_test', ['exports', 'ember-metal
     }, /Using `{{view}}` or any path based on it .*/);
   });
 });
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/core', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/glimmer-component/render-test', ['exports', 'container/registry', 'ember-views/views/view', 'ember-htmlbars/glimmer-component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-metal/features'], function (exports, _containerRegistry, _emberViewsViewsView, _emberHtmlbarsGlimmerComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberMetalFeatures) {
+  'use strict';
+
+  var view = undefined;
+
+  if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+    QUnit.module('A basic glimmer component', {
+      teardown: function () {
+        _emberRuntimeTestsUtils.runDestroy(view);
+      }
+    });
+
+    QUnit.test('it renders', function (assert) {
+      var component = undefined;
+
+      var MyComponent = _emberHtmlbarsGlimmerComponent.default.extend({
+        init: function () {
+          component = this;
+          this._super.apply(this, arguments);
+        },
+        layout: _emberTemplateCompilerSystemCompile.default('<my-component>{{yield}}</my-component>')
+      });
+
+      renderComponent('my-component', {
+        implementation: MyComponent,
+        yielded: 'Hello world'
+      });
+
+      ok(component instanceof _emberHtmlbarsGlimmerComponent.default, 'the component was instantiated correctly');
+      equal(view.childViews[0], component, 'the component was rendered and inserted into child views');
+      hasSelector(assert, 'my-component.ember-view[id=' + component.elementId + ']');
+    });
+  }
+
+  function renderComponent(tag, component) {
+    var params = component.params;
+    var hash = component.hash;
+    var yielded = component.yielded;
+    var implementation = component.implementation;
+
+    params = params || [];
+    hash = hash || {};
+    var stringParams = params.join(' ');
+    var stringHash = Object.keys(hash).map(function (key) {
+      return key + '=' + hash[key];
+    }).join(' ');
+
+    var registry = new _containerRegistry.default();
+    registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+    registry.register('component:' + tag, implementation);
+
+    view = _emberViewsViewsView.default.extend({
+      container: registry.container(),
+      template: _emberTemplateCompilerSystemCompile.default('<' + tag + ' ' + stringParams + ' ' + stringHash + '>' + yielded + '</' + tag + '>')
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+  }
+
+  function hasSelector(assert, selector) {
+    assert.ok(document.querySelector('#qunit-fixture ' + selector), selector + ' exists');
+  }
+
+  //testForComponent({
+  //name: 'my-component',
+  //params: [],
+  //hash: {},
+  //template: `
+  //<my-component>
+  //Hello world
+  //</my-component>
+  //`,
+  //component: MyComponent
+  //});
+});
+enifed("ember-htmlbars/tests/glimmer-component/test-helpers", ["exports"], function (exports) {
+  "use strict";
+
+  exports.moduleForGlimmerComponent = moduleForGlimmerComponent;
+
+  function moduleForGlimmerComponent(name, options) {
+    function beforeEach() {}
+
+    function afterEach() {}
+
+    QUnit.module("Glimmer Component - " + name, { beforeEach: beforeEach, afterEach: afterEach });
+  }
+});
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/core', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
   'use strict';
 
@@ -6067,7 +6155,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
   });
 
   QUnit.test('adds the attribute to the element', function () {
-    component = _emberViewsViewsComponent.default.create({
+    component = _emberViewsComponentsComponent.default.create({
       container: container,
 
       layout: _emberTemplateCompilerSystemCompile.default('<div style={{-html-safe "display: none;"}}></div>')
@@ -6080,7 +6168,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
 
   if (!EmberDev.runningProdBuild) {
     QUnit.test('no warnings are triggered from setting style attribute', function () {
-      component = _emberViewsViewsComponent.default.create({
+      component = _emberViewsComponentsComponent.default.create({
         container: container,
 
         layout: _emberTemplateCompilerSystemCompile.default('<div style={{-html-safe "display: none;"}}></div>')
@@ -6729,7 +6817,7 @@ enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/
     _emberRuntimeTestsUtils.runDestroy(view);
   });
 });
-enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/run_loop', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/computed'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalRun_loop, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalComputed) {
   'use strict';
 
   var view, registry, container;
@@ -6751,14 +6839,14 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
   });
 
   QUnit.test('component helper with bound properties are updating correctly in init of component', function () {
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
 
         equal(_emberMetalProperty_get.get(this, 'location'), 'Caracas', 'location is bound on init');
       }
     }));
-    registry.register('component:baz-qux', _emberViewsViewsComponent.default.extend({
+    registry.register('component:baz-qux', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
 
@@ -6821,7 +6909,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
   QUnit.test('component helper destroys underlying component when it is swapped out', function () {
     var currentComponent;
     var destroyCalls = 0;
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         currentComponent = 'foo-bar';
@@ -6830,7 +6918,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
         destroyCalls++;
       }
     }));
-    registry.register('component:baz-qux', _emberViewsViewsComponent.default.extend({
+    registry.register('component:baz-qux', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         currentComponent = 'baz-qux';
@@ -6868,7 +6956,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
 
   QUnit.test('component helper with actions', function () {
     registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       classNames: 'foo-bar',
       didInsertElement: function () {
         // trigger action on click in absence of app's EventDispatcher
@@ -6907,7 +6995,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
   QUnit.test('component helper maintains expected logical parentView', function () {
     registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie! {{yield}}'));
     var componentInstance;
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         componentInstance = this;
       }
@@ -7006,7 +7094,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
   });
 
   QUnit.test('component helper properly invalidates hash params inside an {{each}} invocation #11044', function () {
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       willRender: function () {
         // store internally available name to ensure that the name available in `this.attrs.name`
         // matches the template lookup name
@@ -7045,7 +7133,7 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-metal/c
     }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
   });
 });
-enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_loop', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
   'use strict';
 
   var component, registry, container;
@@ -7064,7 +7152,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_
   });
 
   QUnit.test('concats provided params', function () {
-    component = _emberViewsViewsComponent.default.create({
+    component = _emberViewsComponentsComponent.default.create({
       container: container,
 
       layout: _emberTemplateCompilerSystemCompile.default('{{concat "foo" " " "bar" " " "baz"}}')
@@ -7076,7 +7164,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_
   });
 
   QUnit.test('updates for bound params', function () {
-    component = _emberViewsViewsComponent.default.create({
+    component = _emberViewsComponentsComponent.default.create({
       container: container,
 
       firstParam: 'one',
@@ -7111,7 +7199,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_
     }
     registry.register('helper:x-eq', _emberHtmlbarsHelper.helper(eq));
 
-    component = _emberViewsViewsComponent.default.create({
+    component = _emberViewsComponentsComponent.default.create({
       container: container,
 
       firstParam: 'one',
@@ -7131,7 +7219,7 @@ enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_
     equal(component.$().text(), 'False');
   });
 });
-enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-metal/core', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup'], function (exports, _emberMetalCore, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup) {
+enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-metal/core', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup'], function (exports, _emberMetalCore, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup) {
   'use strict';
 
   var registry = undefined,
@@ -7158,7 +7246,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       return 'hello world';
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world}}')
     }).create();
@@ -7174,7 +7262,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world}}')
     }).create();
@@ -7201,7 +7289,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world}}')
     }).create();
@@ -7233,7 +7321,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world "whut"}}')
     }).create();
@@ -7253,7 +7341,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       return ++count;
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       name: 'bob',
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world name}}')
@@ -7282,7 +7370,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       name: 'bob',
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world name}}')
@@ -7304,7 +7392,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       hash = _hash;
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       name: 'bob',
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}')
@@ -7326,7 +7414,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:hello-world', HelloWorld);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       name: 'bob',
       layout: _emberTemplateCompilerSystemCompile.default('{{hello-world name "rich" last="sam"}}')
@@ -7346,7 +7434,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:join-words', JoinWords);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (join-words "overcomes" "by")\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}')
     }).create();
@@ -7359,7 +7447,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
   QUnit.test('dashed helper not usable with a block', function () {
     var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
     registry.register('helper:some-helper', SomeHelper);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{#some-helper}}{{/some-helper}}')
     }).create();
@@ -7372,7 +7460,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
   QUnit.test('dashed helper not usable within element', function () {
     var SomeHelper = _emberHtmlbarsHelper.helper(function () {});
     registry.register('helper:some-helper', SomeHelper);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('<div {{some-helper}}></div>')
     }).create();
@@ -7394,7 +7482,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
       }
     });
     registry.register('helper:some-helper', SomeHelper);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{some-helper}}')
     }).create();
@@ -7424,7 +7512,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
     });
     registry.register('helper:dynamic-segment', DynamicSegment);
     registry.register('helper:join-words', JoinWords);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}')
     }).create();
@@ -7464,7 +7552,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
     }));
     registry.register('helper:dynamic-segment', DynamicSegment);
     registry.register('helper:join-words', JoinWords);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{some-component first="Who"\n                   second=(dynamic-segment)\n                   third="force"\n                   fourth=(join-words (join-words "hath overcome but" "half"))\n                   fifth=(join-words "his" (join-words "foe"))}}')
     }).create();
@@ -7498,7 +7586,7 @@ enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-met
     });
     registry.register('helper:dynamic-segment', DynamicSegment);
     registry.register('helper:join-words', JoinWords);
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{join-words "Who"\n                   (dynamic-segment)\n                   "force"\n                   (join-words (join-words "hath overcome but" "half"))\n                   (join-words "his" (join-words "foe"))}}')
     }).create();
@@ -7577,7 +7665,7 @@ enifed('ember-htmlbars/tests/helpers/debug_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.lookup
-enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-runtime/tests/utils'], function (exports, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberRuntimeTestsUtils) {
   'use strict';
 
   var component;
@@ -7593,7 +7681,7 @@ enifed('ember-htmlbars/tests/helpers/each_in_test', ['exports', 'ember-views/vie
   function renderTemplate(_template, props) {
     var template = _emberTemplateCompilerSystemCompile.default(_template);
 
-    component = _emberViewsViewsComponent.default.create(props, {
+    component = _emberViewsComponentsComponent.default.create(props, {
       layout: template
     });
 
@@ -10499,7 +10587,7 @@ enifed('ember-htmlbars/tests/helpers/text_area_test', ['exports', 'ember-metal/r
     equal(textArea.$('textarea').val(), 'sit amet', 'The new contents are included');
   });
 });
-enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/views/view', 'ember-views/views/component', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/system/container', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberViewsViewsComponent, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/views/view', 'ember-views/components/component', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/system/container', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberViewsComponentsComponent, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils) {
   /*jshint newcap:false*/
   'use strict';
 
@@ -10598,7 +10686,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
 
     _emberRuntimeTestsUtils.runDestroy(view);
 
-    view = _emberViewsViewsComponent.default.create({
+    view = _emberViewsComponentsComponent.default.create({
       layout: _emberTemplateCompilerSystemCompile.default('<a href={{unbound name}}></a>'),
       name: 'bob'
     });
@@ -11086,7 +11174,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
     equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
   });
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/components/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsComponentsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   /*globals EmberDev */
   'use strict';
 
@@ -12371,7 +12459,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
   });
 
   QUnit.test('should have the correct action target', function () {
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
       container: container,
       layout: _emberTemplateCompilerSystemCompile.default('{{#x-middle}}{{view innerView dismiss="dismiss"}}{{/x-middle}}'),
       actions: {
@@ -12379,13 +12467,13 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
           ok(true, 'We handled the action in the right place');
         }
       },
-      innerView: _emberViewsViewsComponent.default.extend({
+      innerView: _emberViewsComponentsComponent.default.extend({
         container: container,
         elementId: 'x-inner'
       })
     }));
 
-    registry.register('component:x-middle', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-middle', _emberViewsComponentsComponent.default.extend({
       container: container,
       actions: {
         dismiss: function () {
@@ -12731,7 +12819,7 @@ enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core',
     equal(view.$().text(), 'No Thing bar', 'should render inverse template with context preserved');
   });
 });
-enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-views/views/component', 'ember-htmlbars/helpers', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberViewsViewsComponent, _emberHtmlbarsHelpers, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/computed', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-views/components/component', 'ember-htmlbars/helpers', 'ember-views/component_lookup', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalComputed, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberViewsComponentsComponent, _emberHtmlbarsHelpers, _emberViewsComponent_lookup, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   /*jshint newcap:false*/
   'use strict';
 
@@ -12853,7 +12941,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('yield uses the outer context', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       boundText: 'inner',
       layout: _emberTemplateCompilerSystemCompile.default('<p>{{boundText}}</p><p>{{yield}}</p>')
     });
@@ -12869,7 +12957,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('outer keyword doesn\'t mask inner component property', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       item: 'inner',
       layout: _emberTemplateCompilerSystemCompile.default('<p>{{item}}</p><p>{{yield}}</p>')
     });
@@ -12885,7 +12973,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('inner keyword doesn\'t mask yield property', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       boundText: 'inner',
       layout: _emberTemplateCompilerSystemCompile.default('{{#with boundText as |item|}}<p>{{item}}</p><p>{{yield}}</p>{{/with}}')
     });
@@ -12901,7 +12989,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('can bind a keyword to a component and use it in yield', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p>{{attrs.content}}</p><p>{{yield}}</p>')
     });
 
@@ -12922,7 +13010,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('yield view should be a virtual view', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       isParentComponent: true,
 
       layout: _emberTemplateCompilerSystemCompile.default('{{yield}}')
@@ -12932,7 +13020,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
       template: _emberTemplateCompilerSystemCompile.default('{{#view component}}{{view includedComponent}}{{/view}}'),
       controller: {
         component: component,
-        includedComponent: _emberViewsViewsComponent.default.extend({
+        includedComponent: _emberViewsComponentsComponent.default.extend({
           didInsertElement: function () {
             var parentView = this.get('parentView');
 
@@ -13000,13 +13088,13 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('yield with nested components (#3220)', function () {
-    var InnerComponent = _emberViewsViewsComponent.default.extend({
+    var InnerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{yield}}')
     });
 
     registry.register('component:inner-component', InnerComponent);
 
-    var OuterComponent = _emberViewsViewsComponent.default.extend({
+    var OuterComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{#inner-component}}<span>{{yield}}</span>{{/inner-component}}')
     });
 
@@ -13024,7 +13112,7 @@ enifed('ember-htmlbars/tests/helpers/yield_test', ['exports', 'ember-metal/core'
   });
 
   QUnit.test('view keyword works inside component yield', function () {
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p>{{yield}}</p>')
     });
 
@@ -13047,7 +13135,7 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['exports', 'ember-metal/fea
   var view, registry, container;
 
   if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-    QUnit.module('ember-htmlbars: component hook', {
+    QUnit.module('ember-htmlbars: dasherized components that are not in the container ("web components")', {
       setup: function () {
         registry = new _containerRegistry.default();
         container = registry.container();
@@ -13063,8 +13151,8 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['exports', 'ember-metal/fea
       }
     });
 
-    QUnit.test('component is looked up from the container', function () {
-      registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('yippie!'));
+    QUnit.test('non-component dasherized elements can be used as top-level elements', function () {
+      registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('<baz-bat>yippie!</baz-bat>'));
 
       view = _emberViewsViewsView.default.create({
         container: container,
@@ -13073,18 +13161,18 @@ enifed('ember-htmlbars/tests/hooks/component_test', ['exports', 'ember-metal/fea
 
       _emberRuntimeTestsUtils.runAppend(view);
 
-      equal(view.$().text(), 'yippie!', 'component was looked up and rendered');
+      equal(view.$('baz-bat').length, 1, 'regular element fallback occurred');
     });
 
-    QUnit.test('asserts if component is not found', function () {
+    QUnit.test('falls back to web component when invoked with angles', function () {
       view = _emberViewsViewsView.default.create({
         container: container,
         template: _emberTemplateCompilerSystemCompile.default('<foo-bar />')
       });
 
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(view);
-      }, /Could not find component named "foo-bar" \(no component or template with that name was found\)/);
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      equal(view.$('foo-bar').length, 1, 'regular element fallback occurred');
     });
   }
 });
@@ -13199,7 +13287,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 });
-enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView) {
   'use strict';
 
   var registry, container, view;
@@ -13237,7 +13325,7 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
   QUnit.test('should be able to lookup attrs without `attrs.` - component access', function () {
     var component;
 
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         component = this;
@@ -13257,7 +13345,7 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
   QUnit.test('should be able to modify a provided attr into local state #11571 / #11559', function () {
     var component;
 
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         component = this;
@@ -13283,7 +13371,7 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
   QUnit.test('should be able to access unspecified attr #12035', function () {
     var component;
 
-    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+    registry.register('component:foo-bar', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         component = this;
@@ -13484,7 +13572,7 @@ enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 
     equal(trim(view.$().text()), 'two way: down, string: down');
   });
 });
-enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'container/registry', 'ember-metal/run_loop', 'ember-views/component_lookup', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberMetalRun_loop, _emberViewsComponent_lookup, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   'use strict';
 
   var registry, container, view;
@@ -13575,7 +13663,7 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'contai
     registry.register('template:components/block-with-yield', _emberTemplateCompilerSystemCompile.default('{{danger}} {{yield danger}}'));
 
     var component;
-    registry.register('component:block-with-yield', _emberViewsViewsComponent.default.extend({
+    registry.register('component:block-with-yield', _emberViewsComponentsComponent.default.extend({
       init: function () {
         component = this;
         return this._super.apply(this, arguments);
@@ -13604,7 +13692,7 @@ enifed('ember-htmlbars/tests/integration/block_params_test', ['exports', 'contai
     assert.equal(view.$().text().trim(), '1');
   });
 });
-enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsComponent) {
+enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent) {
   'use strict';
 
   var registry, container, view;
@@ -13627,7 +13715,7 @@ enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports',
   });
 
   QUnit.test('passing undefined elementId results in a default elementId', function () {
-    registry.register('component:x-foo', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
       tagName: 'h1'
     }));
 
@@ -13641,7 +13729,7 @@ enifed('ember-htmlbars/tests/integration/component_element_id_test', ['exports',
     ok(/^ember/.test(foundId), 'Has a reasonable id attribute (found id=' + foundId + ').');
   });
 });
-enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop) {
+enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-runtime/tests/utils', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberRuntimeTestsUtils, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop) {
   'use strict';
 
   var registry, container, view;
@@ -13699,6 +13787,15 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout');
   });
 
+  QUnit.test('GlimmerComponent cannot be invoked with curly braces', function () {
+    registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
+    registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend());
+
+    expectAssertion(function () {
+      view = appendViewFor('{{non-block}}');
+    }, /cannot invoke the 'non-block' component with curly braces/);
+  });
+
   QUnit.test('block without properties', function () {
     expect(1);
 
@@ -13730,7 +13827,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('non-block with properties on attrs and component class', function () {
-    registry.register('component:non-block', _emberViewsViewsComponent.default.extend());
+    registry.register('component:non-block', _emberViewsComponentsComponent.default.extend());
     registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}}'));
 
     view = _emberViewsViewsView.default.extend({
@@ -13784,7 +13881,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     var willUpdate = 0;
     var didReceiveAttrs = 0;
 
-    registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
+    registry.register('component:non-block', _emberViewsComponentsComponent.default.extend({
       didReceiveAttrs: function () {
         didReceiveAttrs++;
       },
@@ -13887,7 +13984,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   QUnit.test('`template` specified in a component is overridden by block', function () {
     expect(1);
 
-    registry.register('component:with-block', _emberViewsViewsComponent.default.extend({
+    registry.register('component:with-block', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{yield}}'),
       template: _emberTemplateCompilerSystemCompile.default('Oh, noes!')
     }));
@@ -13963,7 +14060,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('static named positional parameters', function () {
-    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
       positionalParams: ['name', 'age']
     });
@@ -13981,7 +14078,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('dynamic named positional parameters', function () {
-    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
       positionalParams: ['name', 'age']
     });
@@ -14010,7 +14107,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('static arbitrary number of positional parameters', function () {
-    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
       positionalParams: 'names'
     });
@@ -14031,7 +14128,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('dynamic arbitrary number of positional parameters', function () {
-    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
       positionalParams: 'n'
     });
@@ -14075,7 +14172,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       moduleName: layoutModuleName
     });
     registry.register('template:components/sample-component', sampleComponentLayout);
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
+    registry.register('component:sample-component', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
       }
@@ -14093,7 +14190,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     expect(1);
 
     var templateModuleName = 'my-app-name/templates/application';
-    registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
+    registry.register('component:sample-component', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
       }
@@ -14110,7 +14207,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('{{component}} helper works with positional params', function () {
-    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
       positionalParams: ['name', 'age']
     });
@@ -14225,21 +14322,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   QUnit.test('components in template of a yielding component should have the proper parentView', function () {
     var outer, innerTemplate, innerLayout;
 
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         outer = this;
       }
     }));
 
-    registry.register('component:x-inner-in-template', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner-in-template', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         innerTemplate = this;
       }
     }));
 
-    registry.register('component:x-inner-in-layout', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner-in-layout', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         innerLayout = this;
@@ -14263,14 +14360,14 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   QUnit.test('newly-added sub-components get correct parentView', function () {
     var outer, inner;
 
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         outer = this;
       }
     }));
 
-    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         inner = this;
@@ -14298,21 +14395,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     var viewRegistry = {};
 
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         outer = this;
       }
     }));
 
-    registry.register('component:x-inner-in-template', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner-in-template', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         innerTemplate = this;
       }
     }));
 
-    registry.register('component:x-inner-in-layout', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner-in-layout', _emberViewsComponentsComponent.default.extend({
       init: function () {
         this._super.apply(this, arguments);
         innerLayout = this;
@@ -14339,21 +14436,21 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     var outer, middle;
 
-    registry.register('component:x-outer', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
       value: 1,
       grabReference: _emberMetalCore.default.on('init', function () {
         outer = this;
       })
     }));
 
-    registry.register('component:x-middle', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-middle', _emberViewsComponentsComponent.default.extend({
       value: null,
       grabReference: _emberMetalCore.default.on('init', function () {
         middle = this;
       })
     }));
 
-    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
       value: null,
       pushDataUp: _emberMetalCore.default.observer('value', function () {
         middle.set('value', this.get('value'));
@@ -14417,7 +14514,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   QUnit.test('specifying classNames results in correct class', function (assert) {
     expect(1);
 
-    registry.register('component:some-clicky-thing', _emberViewsViewsComponent.default.extend({
+    registry.register('component:some-clicky-thing', _emberViewsComponentsComponent.default.extend({
       tagName: 'button',
       classNames: ['foo', 'bar'],
       click: function () {
@@ -14440,7 +14537,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     expect(1);
 
     var clickyThing = undefined;
-    registry.register('component:some-clicky-thing', _emberViewsViewsComponent.default.extend({
+    registry.register('component:some-clicky-thing', _emberViewsComponentsComponent.default.extend({
       concatenatedProperties: ['blahzz'],
       blahzz: ['blark', 'pory'],
       init: function () {
@@ -14471,94 +14568,243 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     });
 
-    QUnit.test('non-block without properties replaced with a fragment when the content is just text', function () {
+    QUnit.test('legacy components cannot be invoked with angle brackets', function () {
+      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
+      registry.register('component:non-block', _emberViewsComponentsComponent.default.extend());
+
+      expectAssertion(function () {
+        view = appendViewFor('<non-block />');
+      }, /cannot invoke the 'non-block' component with angle brackets/);
+    });
+
+    QUnit.test('using a text-fragment in a GlimmerComponent layout gives an error', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout'));
 
-      view = appendViewFor('<non-block />');
-
-      equal(view.$().html(), 'In layout', 'Just the fragment was used');
+      expectAssertion(function () {
+        view = appendViewFor('<non-block />');
+      }, 'The <non-block> template must have a single top-level element because it is a GlimmerComponent.');
     });
 
-    QUnit.test('non-block without properties replaced with a fragment when the content is multiple elements', function () {
+    QUnit.test('having multiple top-level elements in a GlimmerComponent layout gives an error', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div>This is a</div><div>fragment</div>'));
 
-      view = appendViewFor('<non-block />');
-
-      equal(view.$().html(), '<div>This is a</div><div>fragment</div>', 'Just the fragment was used');
+      expectAssertion(function () {
+        view = appendViewFor('<non-block />');
+      }, 'The <non-block> template must have a single top-level element because it is a GlimmerComponent.');
     });
 
-    QUnit.skip('non-block without properties replaced with a div', function () {
-      // The whitespace is added intentionally to verify that the heuristic is not "a single node" but
-      // rather "a single non-whitespace, non-comment node"
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('  <div>In layout</div>  '));
+    QUnit.test('using a modifier in a GlimmerComponent layout gives an error', function () {
+      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div {{action "foo"}}></div>'));
 
-      view = appendViewFor('<non-block />');
-
-      equal(view.$().text(), '  In layout  ');
-      ok(view.$().html().match(/^  <div id="[^"]*" class="ember-view">In layout<\/div>  $/), 'The root element has gotten the default class and ids');
-      ok(view.$('div.ember-view[id]').length === 1, 'The div became an Ember view');
-
-      _emberMetalRun_loop.default(view, 'rerender');
-
-      equal(view.$().text(), '  In layout  ');
-      ok(view.$().html().match(/^  <div id="[^"]*" class="ember-view">In layout<\/div>  $/), 'The root element has gotten the default class and ids');
-      ok(view.$('div.ember-view[id]').length === 1, 'The non-block tag name was used');
+      expectAssertion(function () {
+        view = appendViewFor('<non-block />');
+      }, 'You cannot use {{action ...}} in the top-level element of the <non-block> template because it is a GlimmerComponent.');
     });
 
-    QUnit.skip('non-block without properties replaced with identity element', function () {
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block such="{{attrs.stability}}">In layout</non-block>'));
+    QUnit.test('using triple-curlies in a GlimmerComponent layout gives an error', function () {
+      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div style={{{bar}}}>This is a</div>'));
 
-      view = appendViewFor('<non-block stability={{view.stability}} />', {
-        stability: 'stability'
-      });
-
-      var node = view.$()[0];
-      equal(view.$().text(), 'In layout');
-      ok(view.$().html().match(/^<non-block id="[^"]*" such="stability" class="ember-view">In layout<\/non-block>$/), 'The root element has gotten the default class and ids');
-      ok(view.$('non-block.ember-view[id][such=stability]').length === 1, 'The non-block tag name was used');
-
-      _emberMetalRun_loop.default(function () {
-        return view.set('stability', 'stability!');
-      });
-
-      strictEqual(view.$()[0], node, 'the DOM node has remained stable');
-      equal(view.$().text(), 'In layout');
-      ok(view.$().html().match(/^<non-block id="[^"]*" such="stability!" class="ember-view">In layout<\/non-block>$/), 'The root element has gotten the default class and ids');
+      expectAssertion(function () {
+        view = appendViewFor('<non-block />');
+      }, 'You cannot use triple curlies (e.g. style={{{ ... }}}) in the top-level element of the <non-block> template because it is a GlimmerComponent.');
     });
 
-    QUnit.skip('non-block with class replaced with a div merges classes', function () {
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div class="inner-class" />'));
+    var styles = [{
+      name: 'a div',
+      tagName: 'div'
+    }, {
+      name: 'an identity element',
+      tagName: 'non-block'
+    }, {
+      name: 'a web component',
+      tagName: 'not-an-ember-component'
+    }];
 
-      view = appendViewFor('<non-block class="{{view.outer}}" />', {
-        outer: 'outer'
+    styles.forEach(function (style) {
+      QUnit.test('non-block without attributes replaced with ' + style.name, function () {
+        // The whitespace is added intentionally to verify that the heuristic is not "a single node" but
+        // rather "a single non-whitespace, non-comment node"
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('  <' + style.tagName + '>In layout</' + style.tagName + '>  '));
+
+        view = appendViewFor('<non-block />');
+
+        var node = view.element.firstElementChild;
+        equalsElement(node, style.tagName, { class: 'ember-view', id: regex(/^ember\d*$/) }, 'In layout');
+
+        _emberMetalRun_loop.default(view, 'rerender');
+
+        strictEqual(node, view.element.firstElementChild, 'The inner element has not changed');
+        equalsElement(node, style.tagName, { class: 'ember-view', id: regex(/^ember\d*$/) }, 'In layout');
       });
 
-      equal(view.$('div').attr('class'), 'inner-class outer ember-view', 'the classes are merged');
+      QUnit.test('non-block with attributes replaced with ' + style.name, function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('  <' + style.tagName + ' such="{{attrs.stability}}">In layout</' + style.tagName + '>  '));
 
-      _emberMetalRun_loop.default(function () {
-        return view.set('outer', 'new-outer');
+        view = appendViewFor('<non-block stability={{view.stability}} />', {
+          stability: 'stability'
+        });
+
+        var node = view.element.firstElementChild;
+        equalsElement(node, style.tagName, { such: 'stability', class: 'ember-view', id: regex(/^ember\d*$/) }, 'In layout');
+
+        _emberMetalRun_loop.default(function () {
+          return view.set('stability', 'changed!!!');
+        });
+
+        strictEqual(node, view.element.firstElementChild, 'The inner element has not changed');
+        equalsElement(node, style.tagName, { such: 'changed!!!', class: 'ember-view', id: regex(/^ember\d*$/) }, 'In layout');
       });
 
-      equal(view.$('div').attr('class'), 'inner-class new-outer ember-view', 'the classes are merged');
+      QUnit.test('non-block replaced with ' + style.name + ' (regression with single element in the root element)', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('  <' + style.tagName + ' such="{{attrs.stability}}"><p>In layout</p></' + style.tagName + '>  '));
+
+        view = appendViewFor('<non-block stability={{view.stability}} />', {
+          stability: 'stability'
+        });
+
+        var node = view.element.firstElementChild;
+        equalsElement(node, style.tagName, { such: 'stability', class: 'ember-view', id: regex(/^ember\d*$/) }, '<p>In layout</p>');
+
+        _emberMetalRun_loop.default(function () {
+          return view.set('stability', 'changed!!!');
+        });
+
+        strictEqual(node, view.element.firstElementChild, 'The inner element has not changed');
+        equalsElement(node, style.tagName, { such: 'changed!!!', class: 'ember-view', id: regex(/^ember\d*$/) }, '<p>In layout</p>');
+      });
+
+      QUnit.test('non-block with class replaced with ' + style.name + ' merges classes', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + ' class="inner-class" />'));
+
+        view = appendViewFor('<non-block class="{{view.outer}}" />', {
+          outer: 'outer'
+        });
+
+        equal(view.$(style.tagName).attr('class'), 'inner-class outer ember-view', 'the classes are merged');
+
+        _emberMetalRun_loop.default(function () {
+          return view.set('outer', 'new-outer');
+        });
+
+        equal(view.$(style.tagName).attr('class'), 'inner-class new-outer ember-view', 'the classes are merged');
+      });
+
+      QUnit.test('non-block with outer attributes replaced with ' + style.name + ' shadows inner attributes', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + ' data-static="static" data-dynamic="{{internal}}" />'));
+
+        view = appendViewFor('<non-block data-static="outer" data-dynamic="outer" />');
+
+        equal(view.$(style.tagName).attr('data-static'), 'outer', 'the outer attribute wins');
+        equal(view.$(style.tagName).attr('data-dynamic'), 'outer', 'the outer attribute wins');
+
+        var component = view.childViews[0]; // HAX
+
+        _emberMetalRun_loop.default(function () {
+          return component.set('internal', 'changed');
+        });
+
+        equal(view.$(style.tagName).attr('data-static'), 'outer', 'the outer attribute wins');
+        equal(view.$(style.tagName).attr('data-dynamic'), 'outer', 'the outer attribute wins');
+      });
+
+      // TODO: When un-skipping, fix this so it handles all styles
+      QUnit.skip('non-block recursive invocations with outer attributes replaced with a div shadows inner attributes', function () {
+        registry.register('template:components/non-block-wrapper', _emberTemplateCompilerSystemCompile.default('<non-block />'));
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<div data-static="static" data-dynamic="{{internal}}" />'));
+
+        view = appendViewFor('<non-block-wrapper data-static="outer" data-dynamic="outer" />');
+
+        equal(view.$('div').attr('data-static'), 'outer', 'the outer-most attribute wins');
+        equal(view.$('div').attr('data-dynamic'), 'outer', 'the outer-most attribute wins');
+
+        var component = view.childViews[0].childViews[0]; // HAX
+
+        _emberMetalRun_loop.default(function () {
+          return component.set('internal', 'changed');
+        });
+
+        equal(view.$('div').attr('data-static'), 'outer', 'the outer-most attribute wins');
+        equal(view.$('div').attr('data-dynamic'), 'outer', 'the outer-most attribute wins');
+      });
+
+      QUnit.test('non-block replaced with ' + style.name + ' should have correct scope', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + '>{{internal}}</' + style.tagName + '>'));
+
+        registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('internal', 'stuff');
+          }
+        }));
+
+        view = appendViewFor('<non-block />');
+
+        equal(view.$().text(), 'stuff');
+      });
+
+      QUnit.test('non-block replaced with ' + style.name + ' should have correct \'element\'', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + ' />'));
+
+        var component = undefined;
+
+        registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            component = this;
+          }
+        }));
+
+        view = appendViewFor('<non-block />');
+
+        equal(component.element, view.$(style.tagName)[0]);
+      });
+
+      QUnit.test('non-block replaced with ' + style.name + ' should have inner attributes', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + ' data-static="static" data-dynamic="{{internal}}" />'));
+
+        registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend({
+          init: function () {
+            this._super.apply(this, arguments);
+            this.set('internal', 'stuff');
+          }
+        }));
+
+        view = appendViewFor('<non-block />');
+
+        equal(view.$(style.tagName).attr('data-static'), 'static');
+        equal(view.$(style.tagName).attr('data-dynamic'), 'stuff');
+      });
+
+      QUnit.test('only text attributes are reflected on the underlying DOM element (' + style.name + ')', function () {
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + '>In layout</' + style.tagName + '>'));
+
+        view = appendViewFor('<non-block static-prop="static text" concat-prop="{{view.dynamic}} text" dynamic-prop={{view.dynamic}} />', {
+          dynamic: 'dynamic'
+        });
+
+        var el = view.$(style.tagName);
+        equal(el.length, 1, 'precond - the view was rendered');
+        equal(el.text(), 'In layout');
+        equal(el.attr('static-prop'), 'static text');
+        equal(el.attr('concat-prop'), 'dynamic text');
+        equal(el.attr('dynamic-prop'), undefined);
+      });
+
+      QUnit.skip('partials templates should not be treated like a component layout for ' + style.name, function () {
+        registry.register('template:_zomg', _emberTemplateCompilerSystemCompile.default('<p>In partial</p>'));
+        registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<' + style.tagName + '>{{partial "zomg"}}</' + style.tagName + '>'));
+
+        view = appendViewFor('<non-block />');
+
+        var el = view.$(style.tagName).find('p');
+        equal(el.length, 1, 'precond - the partial was rendered');
+        equal(el.text(), 'In partial');
+        strictEqual(el.attr('id'), undefined, 'the partial should not get an id');
+        strictEqual(el.attr('class'), undefined, 'the partial should not get a class');
+      });
     });
 
-    QUnit.skip('non-block with class replaced with a identity element merges classes', function () {
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block class="inner-class" />'));
-
-      view = appendViewFor('<non-block class="{{view.outer}}" />', {
-        outer: 'outer'
-      });
-
-      equal(view.$('non-block').attr('class'), 'inner-class outer ember-view', 'the classes are merged');
-
-      _emberMetalRun_loop.default(function () {
-        return view.set('outer', 'new-outer');
-      });
-
-      equal(view.$('non-block').attr('class'), 'inner-class new-outer ember-view', 'the classes are merged');
-    });
-
-    QUnit.skip('non-block rendering a fragment', function () {
+    QUnit.skip('[FRAGMENT] non-block rendering a fragment', function () {
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<p>{{attrs.first}}</p><p>{{attrs.second}}</p>'));
 
       view = appendViewFor('<non-block first={{view.first}} second={{view.second}} />', {
@@ -14584,31 +14830,18 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(view.$('with-block.ember-view').text(), 'In layout - In template', 'Both the layout and template are rendered');
     });
 
-    QUnit.test('non-block with properties on attrs', function () {
-      registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout</non-block>'));
-
-      view = appendViewFor('<non-block static-prop="static text" concat-prop="{{view.dynamic}} text" dynamic-prop={{view.dynamic}} />', {
-        dynamic: 'dynamic'
-      });
-
-      var el = view.$('non-block.ember-view');
-      ok(el, 'precond - the view was rendered');
-      equal(el.attr('static-prop'), 'static text');
-      equal(el.attr('concat-prop'), 'dynamic text');
-      equal(el.attr('dynamic-prop'), undefined);
-
-      //equal(jQuery('#qunit-fixture').text(), 'In layout - someProp: something here');
-    });
-
-    QUnit.skip('attributes are not installed on the top level', function () {
+    QUnit.test('attributes are not installed on the top level', function () {
       var component = undefined;
 
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout - {{attrs.text}} -- {{text}}</non-block>'));
-      registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
+      registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend({
+        // This is specifically attempting to trigger a 1.x-era heuristic that only copied
+        // attrs that were present as defined properties on the component.
         text: null,
         dynamic: null,
 
-        didInitAttrs: function () {
+        init: function () {
+          this._super.apply(this, arguments);
           component = this;
         }
       }));
@@ -14638,7 +14871,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     });
 
     QUnit.test('non-block with properties on attrs and component class', function () {
-      registry.register('component:non-block', _emberViewsViewsComponent.default.extend());
+      registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend());
       registry.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('<non-block>In layout - someProp: {{attrs.someProp}}</non-block>'));
 
       view = appendViewFor('<non-block someProp="something here" />');
@@ -14646,11 +14879,11 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
     });
 
-    QUnit.skip('rerendering component with attrs from parent', function () {
+    QUnit.test('rerendering component with attrs from parent', function () {
       var willUpdate = 0;
       var didReceiveAttrs = 0;
 
-      registry.register('component:non-block', _emberViewsViewsComponent.default.extend({
+      registry.register('component:non-block', _emberHtmlbarsGlimmerComponent.default.extend({
         didReceiveAttrs: function () {
           didReceiveAttrs++;
         },
@@ -14701,7 +14934,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         moduleName: layoutModuleName
       });
       registry.register('template:components/sample-component', sampleComponentLayout);
-      registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
+      registry.register('component:sample-component', _emberHtmlbarsGlimmerComponent.default.extend({
         didInsertElement: function () {
           equal(this._renderNode.lastResult.template.meta.moduleName, layoutModuleName);
         }
@@ -14719,7 +14952,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       expect(1);
 
       var templateModuleName = 'my-app-name/templates/application';
-      registry.register('component:sample-component', _emberViewsViewsComponent.default.extend({
+      registry.register('component:sample-component', _emberViewsComponentsComponent.default.extend({
         didInsertElement: function () {
           equal(this._renderNode.lastResult.template.meta.moduleName, templateModuleName);
         }
@@ -14733,6 +14966,18 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }).create();
 
       _emberRuntimeTestsUtils.runAppend(view);
+    });
+
+    QUnit.test('computed property alias on attrs', function () {
+      registry.register('template:components/computed-alias', _emberTemplateCompilerSystemCompile.default('<computed-alias>{{otherProp}}</computed-alias>'));
+
+      registry.register('component:computed-alias', _emberHtmlbarsGlimmerComponent.default.extend({
+        otherProp: _emberMetalCore.default.computed.alias('attrs.someProp')
+      }));
+
+      view = appendViewFor('<computed-alias someProp="value"></computed-alias>');
+
+      equal(view.$().text(), 'value');
     });
 
     QUnit.test('parameterized hasBlock default', function () {
@@ -14771,272 +15016,348 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       equal(view.$('#expect-yes').text(), 'Yes');
     });
   }
+
+  function regex(r) {
+    return {
+      match: function (v) {
+        return r.test(v);
+      }
+    };
+  }
+
+  function equalsElement(element, tagName, attributes, content) {
+    QUnit.push(element.tagName === tagName.toUpperCase(), element.tagName.toLowerCase(), tagName, 'expect tagName to be ' + tagName);
+
+    var expectedCount = 0;
+    for (var prop in attributes) {
+      expectedCount++;
+      var expected = attributes[prop];
+      if (typeof expected === 'string') {
+        QUnit.push(element.getAttribute(prop) === attributes[prop], element.getAttribute(prop), attributes[prop], 'The element should have ' + prop + '=' + attributes[prop]);
+      } else {
+        QUnit.push(attributes[prop].match(element.getAttribute(prop)), element.getAttribute(prop), attributes[prop], 'The element should have ' + prop + '=' + attributes[prop]);
+      }
+    }
+
+    var actualAttributes = {};
+    for (var i = 0, l = element.attributes.length; i < l; i++) {
+      actualAttributes[element.attributes[i].name] = element.attributes[i].value;
+    }
+
+    QUnit.push(element.attributes.length === expectedCount, actualAttributes, attributes, 'Expected ' + expectedCount + ' attributes');
+
+    QUnit.push(element.innerHTML === content, element.innerHTML, content, 'The element had \'' + content + '\' as its content');
+  }
 });
-enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view'], function (exports, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 'container/registry', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-metal/features'], function (exports, _containerRegistry, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsViewsView, _emberMetalFeatures) {
   'use strict';
 
   var registry, container, view;
   var hooks;
 
-  QUnit.module('component - lifecycle hooks', {
-    setup: function () {
-      registry = new _containerRegistry.default();
-      container = registry.container();
-      registry.optionsForType('component', { singleton: false });
-      registry.optionsForType('view', { singleton: false });
-      registry.optionsForType('template', { instantiate: false });
-      registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+  var styles = [{
+    name: 'curly',
+    class: _emberViewsComponentsComponent.default
+  }];
+
+  if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+    styles.push({
+      name: 'angle',
+      class: _emberHtmlbarsGlimmerComponent.default
+    });
+  }
+
+  styles.forEach(function (style) {
+    function invoke(name, hash) {
+      if (style.name === 'curly') {
+        var attrs = Object.keys(hash).map(function (k) {
+          return k + '=' + val(hash[k]);
+        }).join(' ');
+        return '{{' + name + ' ' + attrs + '}}';
+      } else if (style.name === 'angle') {
+        var attrs = Object.keys(hash).map(function (k) {
+          return k + '=' + val(hash[k]);
+        }).join(' ');
+        return '<' + name + ' ' + attrs + ' />';
+      }
+    }
+
+    function val(value) {
+      if (value.isString) {
+        return JSON.stringify(value.value);
+      }
+
+      if (style.name === 'curly') {
+        return '(readonly ' + value + ')';
+      } else {
+        return '{{' + value + '}}';
+      }
+    }
+
+    function string(val) {
+      return { isString: true, value: val };
+    }
+
+    QUnit.module('component - lifecycle hooks (' + style.name + ')', {
+      setup: function () {
+        registry = new _containerRegistry.default();
+        container = registry.container();
+        registry.optionsForType('component', { singleton: false });
+        registry.optionsForType('view', { singleton: false });
+        registry.optionsForType('template', { instantiate: false });
+        registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+
+        hooks = [];
+      },
+
+      teardown: function () {
+        _emberRuntimeTestsUtils.runDestroy(container);
+        _emberRuntimeTestsUtils.runDestroy(view);
+        registry = container = view = null;
+      }
+    });
+
+    function pushHook(view, type, arg) {
+      hooks.push(hook(view, type, arg));
+    }
+
+    function hook(view, type, arg) {
+      return { type: type, view: view, arg: arg };
+    }
+
+    QUnit.test('lifecycle hooks are invoked in a predictable order', function () {
+      var components = {};
+
+      function component(label) {
+        return style.class.extend({
+          init: function () {
+            this.label = label;
+            components[label] = this;
+            this._super.apply(this, arguments);
+          },
+
+          didInitAttrs: function (options) {
+            pushHook(label, 'didInitAttrs', options);
+          },
+
+          didUpdateAttrs: function (options) {
+            pushHook(label, 'didUpdateAttrs', options);
+          },
+
+          willUpdate: function (options) {
+            pushHook(label, 'willUpdate', options);
+          },
+
+          didReceiveAttrs: function (options) {
+            pushHook(label, 'didReceiveAttrs', options);
+          },
+
+          willRender: function () {
+            pushHook(label, 'willRender');
+          },
+
+          didRender: function () {
+            pushHook(label, 'didRender');
+          },
+
+          didInsertElement: function () {
+            pushHook(label, 'didInsertElement');
+          },
+
+          didUpdate: function (options) {
+            pushHook(label, 'didUpdate', options);
+          }
+        });
+      }
+
+      registry.register('component:the-top', component('top'));
+      registry.register('component:the-middle', component('middle'));
+      registry.register('component:the-bottom', component('bottom'));
+
+      registry.register('template:components/the-top', _emberTemplateCompilerSystemCompile.default('<div>Twitter: {{attrs.twitter}} ' + invoke('the-middle', { name: string('Tom Dale') }) + '</div>'));
+      registry.register('template:components/the-middle', _emberTemplateCompilerSystemCompile.default('<div>Name: {{attrs.name}} ' + invoke('the-bottom', { website: string('tomdale.net') }) + '</div>'));
+      registry.register('template:components/the-bottom', _emberTemplateCompilerSystemCompile.default('<div>Website: {{attrs.website}}</div>'));
+
+      view = _emberViewsViewsView.default.extend({
+        template: _emberTemplateCompilerSystemCompile.default(invoke('the-top', { twitter: 'view.twitter' })),
+        twitter: '@tomdale',
+        container: container
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      ok(component, 'The component was inserted');
+      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Twitter: @tomdale Name: Tom Dale Website: tomdale.net');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { name: 'Tom Dale' };
+      var bottomAttrs = { website: 'tomdale.net' };
+
+      deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
 
       hooks = [];
-    },
 
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      _emberRuntimeTestsUtils.runDestroy(view);
-      registry = container = view = null;
-    }
-  });
-
-  function pushHook(view, type, arg) {
-    hooks.push(hook(view, type, arg));
-  }
-
-  function hook(view, type, arg) {
-    return { type: type, view: view, arg: arg };
-  }
-
-  QUnit.test('lifecycle hooks are invoked in a predictable order', function () {
-    var components = {};
-
-    function component(label) {
-      return _emberViewsViewsComponent.default.extend({
-        init: function () {
-          this.label = label;
-          components[label] = this;
-          this._super.apply(this, arguments);
-        },
-
-        didInitAttrs: function (options) {
-          pushHook(label, 'didInitAttrs', options);
-        },
-
-        didUpdateAttrs: function (options) {
-          pushHook(label, 'didUpdateAttrs', options);
-        },
-
-        willUpdate: function (options) {
-          pushHook(label, 'willUpdate', options);
-        },
-
-        didReceiveAttrs: function (options) {
-          pushHook(label, 'didReceiveAttrs', options);
-        },
-
-        willRender: function () {
-          pushHook(label, 'willRender');
-        },
-
-        didRender: function () {
-          pushHook(label, 'didRender');
-        },
-
-        didInsertElement: function () {
-          pushHook(label, 'didInsertElement');
-        },
-
-        didUpdate: function (options) {
-          pushHook(label, 'didUpdate', options);
-        }
+      _emberMetalRun_loop.default(function () {
+        components.bottom.rerender();
       });
-    }
 
-    registry.register('component:the-top', component('top'));
-    registry.register('component:the-middle', component('middle'));
-    registry.register('component:the-bottom', component('bottom'));
+      deepEqual(hooks, [hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender')]);
 
-    registry.register('template:components/the-top', _emberTemplateCompilerSystemCompile.default('Twitter: {{attrs.twitter}} {{the-middle name="Tom Dale"}}'));
-    registry.register('template:components/the-middle', _emberTemplateCompilerSystemCompile.default('Name: {{attrs.name}} {{the-bottom website="tomdale.net"}}'));
-    registry.register('template:components/the-bottom', _emberTemplateCompilerSystemCompile.default('Website: {{attrs.website}}'));
+      hooks = [];
 
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{the-top twitter=(readonly view.twitter)}}'),
-      twitter: '@tomdale',
-      container: container
-    }).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    ok(component, 'The component was inserted');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Twitter: @tomdale Name: Tom Dale Website: tomdale.net');
-
-    var topAttrs = { twitter: '@tomdale' };
-    var middleAttrs = { name: 'Tom Dale' };
-    var bottomAttrs = { website: 'tomdale.net' };
-
-    deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
-
-    hooks = [];
-
-    _emberMetalRun_loop.default(function () {
-      components.bottom.rerender();
-    });
-
-    deepEqual(hooks, [hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender')]);
-
-    hooks = [];
-
-    _emberMetalRun_loop.default(function () {
-      components.middle.rerender();
-    });
-
-    bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
-
-    deepEqual(hooks, [hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender')]);
-
-    hooks = [];
-
-    _emberMetalRun_loop.default(function () {
-      components.top.rerender();
-    });
-
-    middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
-
-    deepEqual(hooks, [hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-
-    hooks = [];
-
-    _emberMetalRun_loop.default(function () {
-      view.set('twitter', '@hipstertomdale');
-    });
-
-    // Because the `twitter` attr is only used by the topmost component,
-    // and not passed down, we do not expect to see lifecycle hooks
-    // called for child components. If the `didReceiveAttrs` hook used
-    // the new attribute to rerender itself imperatively, that would result
-    // in lifecycle hooks being invoked for the child.
-
-    deepEqual(hooks, [hook('top', 'didUpdateAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'didReceiveAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-  });
-
-  QUnit.test('passing values through attrs causes lifecycle hooks to fire if the attribute values have changed', function () {
-    var components = {};
-
-    function component(label) {
-      return _emberViewsViewsComponent.default.extend({
-        init: function () {
-          this.label = label;
-          components[label] = this;
-          this._super.apply(this, arguments);
-        },
-
-        didInitAttrs: function (options) {
-          pushHook(label, 'didInitAttrs', options);
-        },
-
-        didUpdateAttrs: function (options) {
-          pushHook(label, 'didUpdateAttrs', options);
-        },
-
-        willUpdate: function (options) {
-          pushHook(label, 'willUpdate', options);
-        },
-
-        didReceiveAttrs: function (options) {
-          pushHook(label, 'didReceiveAttrs', options);
-        },
-
-        willRender: function () {
-          pushHook(label, 'willRender');
-        },
-
-        didRender: function () {
-          pushHook(label, 'didRender');
-        },
-
-        didInsertElement: function () {
-          pushHook(label, 'didInsertElement');
-        },
-
-        didUpdate: function (options) {
-          pushHook(label, 'didUpdate', options);
-        }
+      _emberMetalRun_loop.default(function () {
+        components.middle.rerender();
       });
-    }
 
-    registry.register('component:the-top', component('top'));
-    registry.register('component:the-middle', component('middle'));
-    registry.register('component:the-bottom', component('bottom'));
+      bottomAttrs = { oldAttrs: { website: 'tomdale.net' }, newAttrs: { website: 'tomdale.net' } };
 
-    registry.register('template:components/the-top', _emberTemplateCompilerSystemCompile.default('Top: {{the-middle twitterTop=(readonly attrs.twitter)}}'));
-    registry.register('template:components/the-middle', _emberTemplateCompilerSystemCompile.default('Middle: {{the-bottom twitterMiddle=(readonly attrs.twitterTop)}}'));
-    registry.register('template:components/the-bottom', _emberTemplateCompilerSystemCompile.default('Bottom: {{attrs.twitterMiddle}}'));
+      deepEqual(hooks, [hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender')]);
 
-    view = _emberViewsViewsView.default.extend({
-      template: _emberTemplateCompilerSystemCompile.default('{{the-top twitter=(readonly view.twitter)}}'),
-      twitter: '@tomdale',
-      container: container
-    }).create();
+      hooks = [];
 
-    _emberRuntimeTestsUtils.runAppend(view);
+      _emberMetalRun_loop.default(function () {
+        components.top.rerender();
+      });
 
-    ok(component, 'The component was inserted');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Top: Middle: Bottom: @tomdale');
+      middleAttrs = { oldAttrs: { name: 'Tom Dale' }, newAttrs: { name: 'Tom Dale' } };
 
-    var topAttrs = { twitter: '@tomdale' };
-    var middleAttrs = { twitterTop: '@tomdale' };
-    var bottomAttrs = { twitterMiddle: '@tomdale' };
+      deepEqual(hooks, [hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
 
-    deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+      hooks = [];
 
-    hooks = [];
+      _emberMetalRun_loop.default(function () {
+        view.set('twitter', '@hipstertomdale');
+      });
 
-    _emberMetalRun_loop.default(function () {
-      view.set('twitter', '@hipstertomdale');
+      // Because the `twitter` attr is only used by the topmost component,
+      // and not passed down, we do not expect to see lifecycle hooks
+      // called for child components. If the `didReceiveAttrs` hook used
+      // the new attribute to rerender itself imperatively, that would result
+      // in lifecycle hooks being invoked for the child.
+
+      deepEqual(hooks, [hook('top', 'didUpdateAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'didReceiveAttrs', { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } }), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
     });
 
-    // Because the `twitter` attr is used by the all of the components,
-    // the lifecycle hooks are invoked for all components.
+    QUnit.test('passing values through attrs causes lifecycle hooks to fire if the attribute values have changed', function () {
+      var components = {};
 
-    topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
-    middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
-    bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
+      function component(label) {
+        return style.class.extend({
+          init: function () {
+            this.label = label;
+            components[label] = this;
+            this._super.apply(this, arguments);
+          },
 
-    deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
+          didInitAttrs: function (options) {
+            pushHook(label, 'didInitAttrs', options);
+          },
 
-    hooks = [];
+          didUpdateAttrs: function (options) {
+            pushHook(label, 'didUpdateAttrs', options);
+          },
 
-    // In this case, because the attrs are passed down, all child components are invoked.
+          willUpdate: function (options) {
+            pushHook(label, 'willUpdate', options);
+          },
 
-    _emberMetalRun_loop.default(function () {
-      view.rerender();
-    });
+          didReceiveAttrs: function (options) {
+            pushHook(label, 'didReceiveAttrs', options);
+          },
 
-    topAttrs = { oldAttrs: { twitter: '@hipstertomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
-    middleAttrs = { oldAttrs: { twitterTop: '@hipstertomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
-    bottomAttrs = { oldAttrs: { twitterMiddle: '@hipstertomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
+          willRender: function () {
+            pushHook(label, 'willRender');
+          },
 
-    deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
-  });
+          didRender: function () {
+            pushHook(label, 'didRender');
+          },
 
-  QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
-    var component = _emberViewsViewsComponent.default.extend({
-      layout: _emberTemplateCompilerSystemCompile.default('{{handle}}'),
-      handle: '@wycats',
-      container: container,
+          didInsertElement: function () {
+            pushHook(label, 'didInsertElement');
+          },
 
-      didInsertElement: function () {
-        this.set('handle', '@tomdale');
+          didUpdate: function (options) {
+            pushHook(label, 'didUpdate', options);
+          }
+        });
       }
-    }).create();
 
-    expectDeprecation(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, /modified inside the didInsertElement hook/);
+      registry.register('component:the-top', component('top'));
+      registry.register('component:the-middle', component('middle'));
+      registry.register('component:the-bottom', component('bottom'));
 
-    assert.strictEqual(component.$().text(), '@tomdale');
+      registry.register('template:components/the-top', _emberTemplateCompilerSystemCompile.default('<div>Top: ' + invoke('the-middle', { twitterTop: 'attrs.twitter' }) + '</div>'));
+      registry.register('template:components/the-middle', _emberTemplateCompilerSystemCompile.default('<div>Middle: ' + invoke('the-bottom', { twitterMiddle: 'attrs.twitterTop' }) + '</div>'));
+      registry.register('template:components/the-bottom', _emberTemplateCompilerSystemCompile.default('<div>Bottom: {{attrs.twitterMiddle}}</div>'));
 
-    _emberMetalRun_loop.default(function () {
-      component.destroy();
+      view = _emberViewsViewsView.default.extend({
+        template: _emberTemplateCompilerSystemCompile.default(invoke('the-top', { twitter: 'view.twitter' })),
+        twitter: '@tomdale',
+        container: container
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      ok(component, 'The component was inserted');
+      equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Top: Middle: Bottom: @tomdale');
+
+      var topAttrs = { twitter: '@tomdale' };
+      var middleAttrs = { twitterTop: '@tomdale' };
+      var bottomAttrs = { twitterMiddle: '@tomdale' };
+
+      deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+
+      hooks = [];
+
+      _emberMetalRun_loop.default(function () {
+        view.set('twitter', '@hipstertomdale');
+      });
+
+      // Because the `twitter` attr is used by the all of the components,
+      // the lifecycle hooks are invoked for all components.
+
+      topAttrs = { oldAttrs: { twitter: '@tomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@tomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@tomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
+
+      deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
+
+      hooks = [];
+
+      // In this case, because the attrs are passed down, all child components are invoked.
+
+      _emberMetalRun_loop.default(function () {
+        view.rerender();
+      });
+
+      topAttrs = { oldAttrs: { twitter: '@hipstertomdale' }, newAttrs: { twitter: '@hipstertomdale' } };
+      middleAttrs = { oldAttrs: { twitterTop: '@hipstertomdale' }, newAttrs: { twitterTop: '@hipstertomdale' } };
+      bottomAttrs = { oldAttrs: { twitterMiddle: '@hipstertomdale' }, newAttrs: { twitterMiddle: '@hipstertomdale' } };
+
+      deepEqual(hooks, [hook('top', 'didUpdateAttrs', topAttrs), hook('top', 'didReceiveAttrs', topAttrs), hook('top', 'willUpdate'), hook('top', 'willRender'), hook('middle', 'didUpdateAttrs', middleAttrs), hook('middle', 'didReceiveAttrs', middleAttrs), hook('middle', 'willUpdate'), hook('middle', 'willRender'), hook('bottom', 'didUpdateAttrs', bottomAttrs), hook('bottom', 'didReceiveAttrs', bottomAttrs), hook('bottom', 'willUpdate'), hook('bottom', 'willRender'), hook('bottom', 'didUpdate'), hook('bottom', 'didRender'), hook('middle', 'didUpdate'), hook('middle', 'didRender'), hook('top', 'didUpdate'), hook('top', 'didRender')]);
+    });
+
+    QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
+      var component = style.class.extend({
+        layout: _emberTemplateCompilerSystemCompile.default('<div>{{debugger}}{{handle}}</div>'),
+        handle: '@wycats',
+        container: container,
+
+        didInsertElement: function () {
+          this.set('handle', '@tomdale');
+        }
+      }).create();
+
+      expectDeprecation(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, /modified inside the didInsertElement hook/);
+
+      assert.strictEqual(component.$().text(), '@tomdale');
+
+      _emberMetalRun_loop.default(function () {
+        component.destroy();
+      });
     });
   });
 
@@ -15158,7 +15479,7 @@ enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', '
     equal(view.$('i').length, 2, 'creates an element when value is updated');
   });
 });
-enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils) {
   'use strict';
 
   var registry, container, component;
@@ -15191,7 +15512,7 @@ enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'conta
       return first + ' ' + last;
     }));
 
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{fullname "Robert" "Jackson"}}'),
       container: container
     }).create();
@@ -15201,7 +15522,7 @@ enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'conta
     equal(component.$().text(), 'Robert Jackson');
   });
 });
-enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed) {
+enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-metal/computed'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberMetalComputed) {
   'use strict';
 
   var registry, container, view;
@@ -15229,11 +15550,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 
     var bottom;
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=value}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         bottom = this;
       }
@@ -15260,11 +15581,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   QUnit.test('a simple mutable binding using `mut` propagates properly', function (assert) {
     var bottom;
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         bottom = this;
       }
@@ -15291,11 +15612,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   QUnit.test('using a string value through middle tier does not trigger assertion', function (assert) {
     var bottom;
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut stuff=attrs.value}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.stuff}}</p>'),
       didInsertElement: function () {
         bottom = this;
@@ -15317,11 +15638,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   QUnit.test('a simple mutable binding using `mut` inserts into the DOM', function (assert) {
     var bottom;
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>'),
       didInsertElement: function () {
         bottom = this;
@@ -15350,7 +15671,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   QUnit.test('a simple mutable binding using `mut` can be converted into an immutable binding', function (assert) {
     var middle, bottom;
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       // no longer mutable
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(readonly attrs.value)}}'),
 
@@ -15359,7 +15680,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
       }
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>'),
 
       didInsertElement: function () {
@@ -15388,11 +15709,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   });
 
   QUnit.test('mutable bindings work inside of yielded content', function (assert) {
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{#bottom-mut}}{{attrs.model.name}}{{/bottom-mut}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{yield}}</p>')
     }));
 
@@ -15412,11 +15733,11 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
     var willRender = [];
     var didInsert = [];
 
-    registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:middle-mut', _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{bottom-mut setMe=(mut attrs.value)}}')
     }));
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       willRender: function () {
         willRender.push(this.attrs.setMe.value);
       },
@@ -15450,7 +15771,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
   QUnit.test('a mutable binding with a backing computed property and attribute present in the root of the component is updated when the upstream property invalidates #11023', function (assert) {
     var bottom;
 
-    registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+    registry.register('component:bottom-mut', _emberViewsComponentsComponent.default.extend({
       thingy: null,
 
       didInsertElement: function () {
@@ -15512,7 +15833,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
     var inner;
 
     registry.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model=attrs.nonexistent}}'));
-    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         inner = this;
       }
@@ -15534,7 +15855,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
     var inner;
 
     registry.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner model=attrs.x}}'));
-    registry.register('component:x-inner', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
       didInsertElement: function () {
         inner = this;
       }
@@ -15554,10 +15875,10 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
 
   // jscs:disable validateIndentation
   if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-    QUnit.skip('mutable bindings work as angle-bracket component attributes', function (assert) {
+    QUnit.test('mutable bindings work as angle-bracket component attributes', function (assert) {
       var middle;
 
-      registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+      registry.register('component:middle-mut', _emberHtmlbarsGlimmerComponent.default.extend({
         // no longer mutable
         layout: _emberTemplateCompilerSystemCompile.default('<bottom-mut setMe={{attrs.value}} />'),
 
@@ -15566,7 +15887,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
         }
       }));
 
-      registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+      registry.register('component:bottom-mut', _emberHtmlbarsGlimmerComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>')
       }));
 
@@ -15589,10 +15910,10 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
       assert.strictEqual(view.get('val'), 13, 'the set propagated back up');
     });
 
-    QUnit.skip('a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components', function (assert) {
+    QUnit.test('a simple mutable binding using `mut` can be converted into an immutable binding with angle-bracket components', function (assert) {
       var middle, bottom;
 
-      registry.register('component:middle-mut', _emberViewsViewsComponent.default.extend({
+      registry.register('component:middle-mut', _emberHtmlbarsGlimmerComponent.default.extend({
         // no longer mutable
         layout: _emberTemplateCompilerSystemCompile.default('<bottom-mut setMe={{attrs.value}} />'),
 
@@ -15601,7 +15922,7 @@ enifed('ember-htmlbars/tests/integration/mutable_binding_test', ['exports', 'emb
         }
       }));
 
-      registry.register('component:bottom-mut', _emberViewsViewsComponent.default.extend({
+      registry.register('component:bottom-mut', _emberHtmlbarsGlimmerComponent.default.extend({
         layout: _emberTemplateCompilerSystemCompile.default('<p class="bottom">{{attrs.setMe}}</p>'),
 
         didInsertElement: function () {
@@ -15980,7 +16301,7 @@ enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports
     equal(view.$().text(), '');
   });
 });
-enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/views/component'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsViewsComponent) {
+enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports', 'ember-views/views/view', 'ember-runtime/system/container', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component'], function (exports, _emberViewsViewsView, _emberRuntimeSystemContainer, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent) {
   'use strict';
 
   var registry, container, view;
@@ -16004,7 +16325,7 @@ enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports
 
   QUnit.test('a void element does not have childNodes', function () {
     var component;
-    registry.register('component:x-foo', _emberViewsViewsComponent.default.extend({
+    registry.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
       tagName: 'input',
 
       init: function () {
@@ -16023,7 +16344,7 @@ enifed('ember-htmlbars/tests/integration/void-element-component-test', ['exports
     deepEqual(component.element.childNodes.length, 0, 'no childNodes are added for `<input>`');
   });
 });
-enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['exports', 'ember-metal/run_loop', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['exports', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var component, originalViewKeyword;
@@ -16041,12 +16362,12 @@ enifed('ember-htmlbars/tests/integration/will-destroy-element-hook-test', ['expo
   QUnit.test('willDestroyElement is only called once when a component leaves scope', function (assert) {
     var innerChild, innerChildDestroyed;
 
-    component = _emberViewsViewsComponent.default.create({
+    component = _emberViewsComponentsComponent.default.create({
       switch: true,
 
       layout: _emberTemplateCompilerSystemCompile.default('\n     {{~#if switch~}}\n       {{~#view innerChild}}Truthy{{/view~}}\n     {{~/if~}}\n    '),
 
-      innerChild: _emberViewsViewsComponent.default.extend({
+      innerChild: _emberViewsComponentsComponent.default.extend({
         init: function () {
           this._super.apply(this, arguments);
           innerChild = this;
@@ -16179,7 +16500,7 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-vie
     equal(view.$('h1').text(), 'Brodele del Heeeyyyyyy', 'renders properties from parent context');
   });
 });
-enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var view, originalViewKeyword;
@@ -16253,7 +16574,7 @@ enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'em
   QUnit.test('does change the context if a component factory is used', function () {
     var controller = {
       someProp: 'controller context',
-      someView: _emberViewsViewsComponent.default.extend({
+      someView: _emberViewsComponentsComponent.default.extend({
         someProp: 'view local controller context',
         layout: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
       })
@@ -16272,7 +16593,7 @@ enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'em
   QUnit.test('does change the context if a component instance is used', function () {
     var controller = {
       someProp: 'controller context',
-      someView: _emberViewsViewsComponent.default.create({
+      someView: _emberViewsComponentsComponent.default.create({
         someProp: 'view local controller context',
         layout: _emberTemplateCompilerSystemCompile.default('{{someProp}}')
       })
@@ -16615,7 +16936,7 @@ enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-html
     }, 'Expected to find an Ember.Helper with the name helper:some-name, but found an object of type function instead.');
   });
 });
-enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-htmlbars/system/render-env', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberHtmlbarsSystemRenderEnv, _emberRuntimeTestsUtils, _emberMetalRun_loop) {
+enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/views/view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/system/render-env', 'ember-runtime/tests/utils', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsSystemRenderEnv, _emberRuntimeTestsUtils, _emberMetalRun_loop) {
   'use strict';
 
   var registry, container, view, components;
@@ -16650,7 +16971,7 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
   }
 
   function constructComponent(label) {
-    return _emberViewsViewsComponent.default.extend({
+    return _emberViewsComponentsComponent.default.extend({
       init: function () {
         this.label = label;
         components[label] = this;
@@ -24616,7 +24937,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     equal(arr.length, 10, 'property should be accessible on arr');
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/views/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsViewsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-views/components/component', 'ember-metal/computed', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberViewsComponentsComponent, _emberMetalComputed, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var innerComponent, outerComponent, originalViewKeyword;
@@ -24636,13 +24957,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   QUnit.test('action should be called', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       outerSubmit: function () {
@@ -24662,14 +24983,14 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var returnedValue = 'terrible tom';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         var actualReturnedValue = this.attrs.submit();
         assert.equal(actualReturnedValue, returnedValue, 'action can return to caller');
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       outerSubmit: function () {
@@ -24687,13 +25008,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   QUnit.test('action should be called on the correct scope', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action outerSubmit)}}'),
       innerComponent: innerComponent,
       isOuterComponent: true,
@@ -24717,13 +25038,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var third = 'matt';
     var fourth = 'wacky wycats';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(fourth);
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       third: third,
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (action outerSubmit "' + first + '") "' + second + '" third)}}\n      '),
       innerComponent: innerComponent,
@@ -24747,13 +25068,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var value = 'lazy leah';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit value)}}\n      '),
       innerComponent: innerComponent,
       value: '',
@@ -24778,13 +25099,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = [3, 5];
     var third = [4, 9];
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(second, third);
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerSubmit first)}}\n      '),
       innerComponent: innerComponent,
       value: '',
@@ -24810,13 +25131,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'trollin trek';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit(newValue);
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut))}}\n      '),
       innerComponent: innerComponent,
       outerMut: 'patient peter'
@@ -24835,13 +25156,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'trollin trek';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action (mut outerMut) \'' + newValue + '\')}}\n      '),
       innerComponent: innerComponent,
       outerMut: 'patient peter'
@@ -24862,14 +25183,14 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         var actualReturnedValue = this.attrs.submit(second);
         assert.equal(actualReturnedValue, returnValue, 'return value is present');
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
       innerComponent: innerComponent,
       actions: {
@@ -24891,9 +25212,9 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   QUnit.test('provides a helpful error if an action is not present', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsViewsComponent.default.create();
+    innerComponent = _emberViewsComponentsComponent.default.create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
       innerComponent: innerComponent,
       actions: {
@@ -24913,9 +25234,9 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   QUnit.test('provides a helpful error if actions hash is not present', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsViewsComponent.default.create();
+    innerComponent = _emberViewsComponentsComponent.default.create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'doesNotExist\')}}\n      '),
       innerComponent: innerComponent
     }).create();
@@ -24928,13 +25249,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
   QUnit.test('action can create closures over actions with target', function (assert) {
     assert.expect(1);
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' target=otherComponent)}}\n      '),
       innerComponent: innerComponent,
       otherComponent: _emberMetalComputed.computed(function () {
@@ -24960,7 +25281,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'yelping yehuda';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit({
           readProp: newValue
@@ -24968,7 +25289,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action \'outerAction\' value="readProp")}}\n      '),
       innerComponent: innerComponent,
       outerContent: {
@@ -24993,7 +25314,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'irate igor';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit({
           readProp: newValue
@@ -25001,7 +25322,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction value="readProp")}}\n      '),
       innerComponent: innerComponent,
       outerAction: function (actualNewValue) {
@@ -25021,13 +25342,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
 
     var newValue = 'kissing kris';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       fireAction: function () {
         this.attrs.submit();
       }
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=(action outerAction objectArgument value="readProp")}}\n      '),
       innerComponent: innerComponent,
       objectArgument: {
@@ -25052,7 +25373,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     var second = 'mild machty';
     var returnValue = 'butch brian';
 
-    innerComponent = _emberViewsViewsComponent.default.extend({
+    innerComponent = _emberViewsComponentsComponent.default.extend({
       middleComponent: middleComponent,
 
       fireAction: function () {
@@ -25061,13 +25382,13 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       }
     }).create();
 
-    var middleComponent = _emberViewsViewsComponent.default.extend({
+    var middleComponent = _emberViewsComponentsComponent.default.extend({
       innerComponent: innerComponent,
 
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view innerComponent submit=attrs.submit}}\n      ')
     }).create();
 
-    outerComponent = _emberViewsViewsComponent.default.extend({
+    outerComponent = _emberViewsComponentsComponent.default.extend({
       middleComponent: middleComponent,
 
       layout: _emberTemplateCompilerSystemCompile.default('\n        {{view middleComponent submit=(action \'outerAction\' \'' + first + '\')}}\n      '),
@@ -25089,7 +25410,7 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     });
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
   'use strict';
 
   var dispatcher, view, originalViewKeyword;
@@ -25180,7 +25501,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
   QUnit.test('Inside a yield, the target points at the original target', function () {
     var watted = false;
 
-    var component = _emberViewsViewsComponent.default.extend({
+    var component = _emberViewsComponentsComponent.default.extend({
       boundText: 'inner',
       truthy: true,
       obj: {},
@@ -41003,7 +41324,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+295fa60d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+6258271b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -42922,6 +43243,9 @@ enifed('ember-views/tests/compat/view_render_hook_test', ['exports', 'ember-runt
     }, 'Using a custom `.render` function is no longer supported.');
   });
 });
+enifed("ember-views/tests/glimmer-components/render-test", ["exports"], function (exports) {
+  "use strict";
+});
 enifed('ember-views/tests/mixins/view_target_action_support_test', ['exports', 'ember-runtime/system/object', 'ember-views/views/view', 'ember-views/mixins/view_target_action_support'], function (exports, _emberRuntimeSystemObject, _emberViewsViewsView, _emberViewsMixinsView_target_action_support) {
   'use strict';
 
@@ -44467,7 +44791,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.A
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/views/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsViewsComponent, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -44476,7 +44800,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.module('Ember.Component', {
     setup: function () {
-      component = _emberViewsViewsComponent.default.create();
+      component = _emberViewsComponentsComponent.default.create();
     },
     teardown: function () {
       _emberMetalRun_loop.default(function () {
@@ -44493,7 +44817,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
     expect(2);
 
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       actions: {
         foo: function () {
           ok(true, 'called foo action');
@@ -44516,7 +44840,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('Specifying both templateName and layoutName to a component is NOT deprecated', function () {
     expectNoDeprecation();
-    component = _emberViewsViewsComponent.default.extend({
+    component = _emberViewsComponentsComponent.default.extend({
       templateName: 'blah-blah',
       layoutName: 'hum-drum'
     }).create();
@@ -44527,7 +44851,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
   QUnit.test('Specifying a templateName on a component with a layoutName specified in a superclass is NOT deprecated', function () {
     expectNoDeprecation();
-    var Parent = _emberViewsViewsComponent.default.extend({
+    var Parent = _emberViewsComponentsComponent.default.extend({
       layoutName: 'hum-drum'
     });
 
@@ -44554,7 +44878,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         }
       });
 
-      component = _emberViewsViewsComponent.default.create({
+      component = _emberViewsComponentsComponent.default.create({
         parentView: _emberViewsViewsView.default.create({
           controller: controller
         })
@@ -44677,7 +45001,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     var registry = new _emberRuntimeSystemContainer.Registry();
     var container = registry.container();
 
-    registry.register('component:application', _emberViewsViewsComponent.default.extend({
+    registry.register('component:application', _emberViewsComponentsComponent.default.extend({
       profilerService: _emberRuntimeInject.default.service('profiler')
     }));
 
@@ -44694,7 +45018,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   QUnit.test('something', function () {
     expect(2);
 
-    var appComponent = _emberViewsViewsComponent.default.extend({
+    var appComponent = _emberViewsComponentsComponent.default.extend({
       actions: {
         foo: function (message) {
           equal('bar', message);
@@ -44719,7 +45043,7 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
       }
     };
 
-    var appComponent = _emberViewsViewsComponent.default.create({
+    var appComponent = _emberViewsComponentsComponent.default.create({
       target: target
     });
 
@@ -48112,7 +48436,7 @@ enifed('ember-views/tests/views/view/attribute_bindings_test', ['exports', 'embe
     equal(view.$().attr('id'), 'special-sauces-id', 'id properly used from attributeBindings');
   });
 });
-enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal/run_loop', 'ember-metal/core', 'ember-views/views/view', 'ember-views/views/component', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalCore, _emberViewsViewsView, _emberViewsViewsComponent, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal/run_loop', 'ember-metal/core', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalRun_loop, _emberMetalCore, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var originalViewKeyword;
@@ -48192,7 +48516,7 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
         lookup: function () {
           return {
             componentFor: function () {
-              return _emberViewsViewsComponent.default.extend();
+              return _emberViewsComponentsComponent.default.extend();
             },
 
             layoutFor: function () {
@@ -48229,7 +48553,7 @@ enifed('ember-views/tests/views/view/child_views_test', ['exports', 'ember-metal
         lookup: function () {
           return {
             componentFor: function () {
-              return _emberViewsViewsComponent.default.extend();
+              return _emberViewsComponentsComponent.default.extend();
             },
 
             layoutFor: function () {

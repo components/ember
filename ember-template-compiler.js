@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+295fa60d
+ * @version   2.2.0-canary+6258271b
  */
 
 (function() {
@@ -4222,7 +4222,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+295fa60d
+    @version 2.2.0-canary+6258271b
     @public
   */
 
@@ -4256,11 +4256,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+295fa60d'
+    @default '2.2.0-canary+6258271b'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+295fa60d';
+  Ember.VERSION = '2.2.0-canary+6258271b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12221,7 +12221,7 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     return segments;
   }
 });
-enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports'], function (exports) {
+enifed('ember-template-compiler/plugins/transform-top-level-components', ['exports', 'ember-metal/features'], function (exports, _emberMetalFeatures) {
   'use strict';
 
   function TransformTopLevelComponents() {
@@ -12235,14 +12235,40 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     @param {AST} The AST to be transformed.
   */
   TransformTopLevelComponents.prototype.transform = function TransformTopLevelComponents_transform(ast) {
-    hasSingleComponentNode(ast.body, function (component) {
-      component.tag = '@' + component.tag;
+    var b = this.syntax.builders;
+
+    hasSingleComponentNode(ast, function (component) {
+      if (component.type === 'ComponentNode') {
+        component.tag = '@' + component.tag;
+        component.isStatic = true;
+      }
+    }, function (element) {
+      var hasTripleCurlies = element.attributes.some(function (attr) {
+        return attr.value.escaped === false;
+      });
+
+      if (element.modifiers.length || hasTripleCurlies) {
+        return element;
+      } else {
+        // TODO: Properly copy loc from children
+        var program = b.program(element.children);
+        var component = b.component('@<' + element.tag + '>', element.attributes, program, element.loc);
+        component.isStatic = true;
+        return component;
+      }
     });
 
     return ast;
   };
 
-  function hasSingleComponentNode(body, callback) {
+  function hasSingleComponentNode(program, componentCallback, elementCallback) {
+    var loc = program.loc;
+    var body = program.body;
+
+    if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
+      return;
+    }
+
     var lastComponentNode = undefined;
     var lastIndex = undefined;
     var nodeCount = 0;
@@ -12271,7 +12297,10 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
     }
 
     if (lastComponentNode.type === 'ComponentNode') {
-      callback(lastComponentNode);
+      componentCallback(lastComponentNode);
+    } else if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+      var component = elementCallback(lastComponentNode);
+      body.splice(lastIndex, 1, component);
     }
   }
 
@@ -12387,8 +12416,8 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        topLevel: detectTopLevel(program),
-        revision: 'Ember@2.2.0-canary+295fa60d',
+        fragmentReason: fragmentReason(program),
+        revision: 'Ember@2.2.0-canary+6258271b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12397,17 +12426,18 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     return options;
   };
 
-  function detectTopLevel(program) {
+  function fragmentReason(program) {
     var loc = program.loc;
     var body = program.body;
 
     if (!loc || loc.start.line !== 1 || loc.start.column !== 0) {
-      return null;
+      return false;
     }
 
-    var lastComponentNode = undefined;
-    var lastIndex = undefined;
+    var candidate = undefined;
     var nodeCount = 0;
+
+    var problems = {};
 
     for (var i = 0, l = body.length; i < l; i++) {
       var curr = body[i];
@@ -12419,28 +12449,38 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
       // has multiple root elements if we've been here before
       if (nodeCount++ > 0) {
-        return false;
+        problems['multiple-nodes'] = true;
       }
 
       if (curr.type === 'ComponentNode' || curr.type === 'ElementNode') {
-        lastComponentNode = curr;
-        lastIndex = i;
+        candidate = curr;
+      } else {
+        problems['wrong-type'] = true;
       }
     }
 
-    if (!lastComponentNode) {
-      return null;
+    if (nodeCount === 0) {
+      return { name: 'missing-wrapper', problems: ['empty-body'] };
     }
 
-    if (lastComponentNode.type === 'ComponentNode') {
-      var tag = lastComponentNode.tag;
-      if (tag.charAt(0) !== '<') {
-        return null;
-      }
-      return tag.slice(1, -1);
+    var problemList = Object.keys(problems);
+    if (problemList.length) {
+      return { name: 'missing-wrapper', problems: problemList };
     }
 
-    return null;
+    if (candidate.type === 'ComponentNode') {
+      return false;
+    } else if (candidate.modifiers.length) {
+      return { name: 'modifiers', modifiers: candidate.modifiers.map(function (m) {
+          return m.path.original;
+        }) };
+    } else if (candidate.attributes.some(function (attr) {
+      return !attr.value.escaped;
+    })) {
+      return { name: 'triple-curlies' };
+    } else {
+      return false;
+    }
   }
 });
 enifed('ember-template-compiler/system/precompile', ['exports', 'ember-metal/core', 'ember-template-compiler/system/compile_options'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCompile_options) {
