@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+762b3468
+ * @version   2.1.0-beta.1+0f549ff5
  */
 
 (function() {
@@ -298,10 +298,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
     // Complain if they're using FEATURE flags in builds other than canary
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
-
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      featuresWereStripped = false;
-    }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
@@ -935,39 +931,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   */
   asyncHelper('click', click);
 
-  if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
-    /**
-      Checks a checkbox. Ensures the presence of the `checked` attribute
-       Example:
-       ```javascript
-      check('#remember-me').then(function() {
-        // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to check
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper('check', check);
-
-    /**
-      Unchecks a checkbox. Ensures the absence of the `checked` attribute
-       Example:
-       ```javascript
-      uncheck('#remember-me').then(function() {
-       // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to uncheck
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper('uncheck', uncheck);
-  }
   /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   
@@ -1178,6 +1141,36 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
   */
   asyncHelper('triggerEvent', triggerEvent);
 });
+
+/**
+  Checks a checkbox. Ensures the presence of the `checked` attribute
+   Example:
+   ```javascript
+  check('#remember-me').then(function() {
+    // assert something
+  });
+  ```
+   @method check
+  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+  element on the DOM to check
+  @return {RSVP.Promise}
+  @private
+*/
+
+/**
+  Unchecks a checkbox. Ensures the absence of the `checked` attribute
+   Example:
+   ```javascript
+  uncheck('#remember-me').then(function() {
+   // assert something
+  });
+  ```
+   @method check
+  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+  element on the DOM to uncheck
+  @return {RSVP.Promise}
+  @private
+*/
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
   'use strict';
 

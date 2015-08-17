@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0-canary+762b3468
+ * @version   2.1.0-beta.1+0f549ff5
  */
 
 (function() {
@@ -4827,7 +4827,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0-canary+762b3468
+    @version 2.1.0-beta.1+0f549ff5
     @public
   */
 
@@ -4861,11 +4861,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0-canary+762b3468'
+    @default '2.1.0-beta.1+0f549ff5'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0-canary+762b3468';
+  Ember.VERSION = '2.1.0-beta.1+0f549ff5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5629,7 +5629,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-testing-checkbox-helpers": null, "ember-application-visit": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
