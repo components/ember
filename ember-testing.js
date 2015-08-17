@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0
+ * @version   2.1.0-beta.1
  */
 
 (function() {
@@ -67,7 +67,7 @@ var mainContext = this;
       var reified = [];
       var length = deps.length;
 
-      for (var i=0; i<length; i++) {
+      for (var i = 0; i < length; i++) {
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
@@ -87,7 +87,7 @@ var mainContext = this;
       var parts = child.split('/');
       var parentBase = name.split('/').slice(0, -1);
 
-      for (var i=0, l=parts.length; i<l; i++) {
+      for (var i = 0, l = parts.length; i < l; i++) {
         var part = parts[i];
 
         if (part === '..') {
@@ -115,12 +115,12 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
-  /*global __fail__*/
-
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function'], function (exports, _emberMetalCore, _emberMetalAssert, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
+
+  _emberMetalCore.default.deprecate = _emberDebugDeprecate.default;
 
   /**
   @module ember
@@ -131,10 +131,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   @class Ember
   @public
   */
-
-  function isPlainFunction(test) {
-    return typeof test === 'function' && test.PrototypeMixin === undefined;
-  }
 
   /**
     Define an assertion that will throw an exception if the condition is not
@@ -157,10 +153,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
       its return value will be used as condition.
     @public
   */
-  _emberMetalCore.default.assert = function (desc, test) {
+  function assert(desc, test) {
     var throwAssertion;
 
-    if (isPlainFunction(test)) {
+    if (_emberDebugIsPlainFunction.default(test)) {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -169,26 +165,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     if (throwAssertion) {
       throw new _emberMetalError.default('Assertion Failed: ' + desc);
     }
-  };
-
-  /**
-    Display a warning with the provided message. Ember build tools will
-    remove any calls to `Ember.warn()` when doing a production build.
-  
-    @method warn
-    @param {String} message A warning to display.
-    @param {Boolean} test An optional boolean. If falsy, the warning
-      will be displayed.
-    @public
-  */
-  _emberMetalCore.default.warn = function (message, test) {
-    if (!test) {
-      _emberMetalLogger.default.warn('WARNING: ' + message);
-      if ('trace' in _emberMetalLogger.default) {
-        _emberMetalLogger.default.trace();
-      }
-    }
-  };
+  }
 
   /**
     Display a debug notice. Ember build tools will remove any calls to
@@ -202,90 +179,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @param {String} message A debug message to display.
     @public
   */
-  _emberMetalCore.default.debug = function (message) {
+  function debug(message) {
     _emberMetalLogger.default.debug('DEBUG: ' + message);
-  };
-
-  /**
-    Display a deprecation warning with the provided message and a stack trace
-    (Chrome and Firefox only). Ember build tools will remove any calls to
-    `Ember.deprecate()` when doing a production build.
-  
-    @method deprecate
-    @param {String} message A description of the deprecation.
-    @param {Boolean|Function} test An optional boolean. If falsy, the deprecation
-      will be displayed. If this is a function, it will be executed and its return
-      value will be used as condition.
-    @param {Object} options An optional object that can be used to pass
-      in a `url` to the transition guide on the emberjs.com website, and a unique
-      `id` for this deprecation. The `id` can be used by Ember debugging tools
-      to change the behavior (raise, log or silence) for that specific deprecation.
-      The `id` should be namespaced by dots, e.g. "view.helper.select".
-    @public
-  */
-  _emberMetalCore.default.deprecate = function (message, test, options) {
-    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
-      _emberDebugDeprecationManager.default.setDefaultLevel(_emberDebugDeprecationManager.deprecationLevels.RAISE);
-    }
-    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.SILENCE) {
-      return;
-    }
-
-    var noDeprecation;
-
-    if (isPlainFunction(test)) {
-      noDeprecation = test();
-    } else {
-      noDeprecation = test;
-    }
-
-    if (noDeprecation) {
-      return;
-    }
-
-    if (options && options.id) {
-      message = message + (' [deprecation id: ' + options.id + ']');
-    }
-
-    if (_emberDebugDeprecationManager.default.getLevel(options && options.id) === _emberDebugDeprecationManager.deprecationLevels.RAISE) {
-      throw new _emberMetalError.default(message);
-    }
-
-    var error;
-
-    // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
-    try {
-      __fail__.fail();
-    } catch (e) {
-      error = e;
-    }
-
-    if (arguments.length === 3) {
-      _emberMetalCore.default.assert('options argument to Ember.deprecate should be an object', options && typeof options === 'object');
-      if (options.url) {
-        message += ' See ' + options.url + ' for more details.';
-      }
-    }
-
-    if (_emberMetalCore.default.LOG_STACKTRACE_ON_DEPRECATION && error.stack) {
-      var stack;
-      var stackStr = '';
-
-      if (error['arguments']) {
-        // Chrome
-        stack = error.stack.replace(/^\s+at\s+/gm, '').replace(/^([^\(]+?)([\n$])/gm, '{anonymous}($1)$2').replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}($1)').split('\n');
-        stack.shift();
-      } else {
-        // Firefox
-        stack = error.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^\(/gm, '{anonymous}(').split('\n');
-      }
-
-      stackStr = '\n    ' + stack.slice(2).join('\n    ');
-      message = message + stackStr;
-    }
-
-    _emberMetalLogger.default.warn('DEPRECATION: ' + message);
-  };
+  }
 
   /**
     Alias an old, deprecated method with its new counterpart.
@@ -307,7 +203,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @return {Function} a new function that wrapped the original function with a deprecation warning
     @private
   */
-  _emberMetalCore.default.deprecateFunc = function () {
+  function deprecateFunc() {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -342,7 +238,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
       if (typeof _ret2 === 'object') return _ret2.v;
     }
-  };
+  }
 
   /**
     Run a function meant for debugging. Ember build tools will remove any calls to
@@ -363,9 +259,16 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     @since 1.5.0
     @public
   */
-  _emberMetalCore.default.runInDebug = function (func) {
+  function runInDebug(func) {
     func();
-  };
+  }
+
+  _emberMetalAssert.registerDebugFunction('assert', assert);
+  _emberMetalAssert.registerDebugFunction('warn', _emberDebugWarn.default);
+  _emberMetalAssert.registerDebugFunction('debug', debug);
+  _emberMetalAssert.registerDebugFunction('deprecate', _emberDebugDeprecate.default);
+  _emberMetalAssert.registerDebugFunction('deprecateFunc', deprecateFunc);
+  _emberMetalAssert.registerDebugFunction('runInDebug', runInDebug);
 
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
@@ -380,12 +283,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetalCore.default.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES);
-      _emberMetalCore.default.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES);
+      _emberMetalCore.default.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalCore.default.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       for (var key in FEATURES) {
         if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
-          _emberMetalCore.default.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
+          _emberMetalCore.default.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
         }
       }
     }
@@ -420,12 +323,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     }
   }
 
-  _emberMetalCore.default.Debug = {
-    _addDeprecationLevel: function (id, level) {
-      _emberDebugDeprecationManager.default.setLevel(id, level);
-    },
-    _deprecationLevels: _emberDebugDeprecationManager.deprecationLevels
-  };
+  _emberMetalCore.default.Debug = {};
+
+  _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
   /*
     We are transitioning away from `ember.js` to `ember.debug.js` to make
@@ -441,33 +342,214 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
-enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
+  /*global __fail__*/
+
   'use strict';
 
-  var deprecationLevels = {
-    RAISE: _emberMetalUtils.symbol('RAISE'),
-    LOG: _emberMetalUtils.symbol('LOG'),
-    SILENCE: _emberMetalUtils.symbol('SILENCE')
-  };
+  var _slice = Array.prototype.slice;
+  exports.registerHandler = registerHandler;
+  exports.default = deprecate;
 
-  exports.deprecationLevels = deprecationLevels;
-  exports.default = {
-    defaultLevel: deprecationLevels.LOG,
-    individualLevels: _emberMetalDictionary.default(null),
-    setDefaultLevel: function (level) {
-      this.defaultLevel = level;
-    },
-    setLevel: function (id, level) {
-      this.individualLevels[id] = level;
-    },
-    getLevel: function (id) {
-      var level = this.individualLevels[id];
-      if (!level) {
-        level = this.defaultLevel;
-      }
-      return level;
+  function registerHandler(handler) {
+    _emberDebugHandlers.registerHandler('deprecate', handler);
+  }
+
+  function formatMessage(_message, options) {
+    var message = _message;
+
+    if (options && options.id) {
+      message = message + (' [deprecation id: ' + options.id + ']');
     }
-  };
+
+    if (options && options.url) {
+      message += ' See ' + options.url + ' for more details.';
+    }
+
+    return message;
+  }
+
+  registerHandler(function logDeprecationToConsole(message, options) {
+    var updatedMessage = formatMessage(message, options);
+
+    _emberMetalLogger.default.warn('DEPRECATION: ' + updatedMessage);
+  });
+
+  registerHandler(function logDeprecationStackTrace(message, options, next) {
+    if (_emberMetalCore.default.LOG_STACKTRACE_ON_DEPRECATION) {
+      var stackStr = '';
+      var error = undefined,
+          stack = undefined;
+
+      // When using new Error, we can't do the arguments check for Chrome. Alternatives are welcome
+      try {
+        __fail__.fail();
+      } catch (e) {
+        error = e;
+      }
+
+      if (error.stack) {
+        if (error['arguments']) {
+          // Chrome
+          stack = error.stack.replace(/^\s+at\s+/gm, '').replace(/^([^\(]+?)([\n$])/gm, '{anonymous}($1)$2').replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}($1)').split('\n');
+          stack.shift();
+        } else {
+          // Firefox
+          stack = error.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^\(/gm, '{anonymous}(').split('\n');
+        }
+
+        stackStr = '\n    ' + stack.slice(2).join('\n    ');
+      }
+
+      var updatedMessage = formatMessage(message, options);
+
+      _emberMetalLogger.default.warn('DEPRECATION: ' + updatedMessage + stackStr);
+    } else {
+      next.apply(undefined, arguments);
+    }
+  });
+
+  registerHandler(function raiseOnDeprecation(message, options, next) {
+    if (_emberMetalCore.default.ENV.RAISE_ON_DEPRECATION) {
+      var updatedMessage = formatMessage(message);
+
+      throw new _emberMetalError.default(updatedMessage);
+    } else {
+      next.apply(undefined, arguments);
+    }
+  });
+
+  var missingOptionsDeprecation = 'When calling `Ember.deprecate` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include `id` and `until` properties.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.deprecate` you must provide `id` in options.';
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  var missingOptionsUntilDeprecation = 'When calling `Ember.deprecate` you must provide `until` in options.';
+
+  exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
+  /**
+    Display a deprecation warning with the provided message and a stack trace
+    (Chrome and Firefox only). Ember build tools will remove any calls to
+    `Ember.deprecate()` when doing a production build.
+  
+    @method deprecate
+    @param {String} message A description of the deprecation.
+    @param {Boolean|Function} test A boolean. If falsy, the deprecation
+      will be displayed. If this is a function, it will be executed and its return
+      value will be used as condition.
+    @param {Object} options An object that can be used to pass
+      in a `url` to the transition guide on the emberjs.com website, and a unique
+      `id` for this deprecation. The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log or silence) for that specific deprecation.
+      The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @public
+  */
+
+  function deprecate(message, test, options) {
+    if (!options || !options.id && !options.until) {
+      deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.deprecate-options-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.id) {
+      deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.deprecate-id-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.until) {
+      deprecate(missingOptionsUntilDeprecation, options && options.until, { id: 'ember-debug.deprecate-until-missing', until: '3.0.0' });
+    }
+
+    _emberDebugHandlers.invoke.apply(undefined, ['deprecate'].concat(_slice.call(arguments)));
+  }
+});
+enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function'], function (exports, _emberDebugIsPlainFunction) {
+  'use strict';
+
+  exports.registerHandler = registerHandler;
+  exports.invoke = invoke;
+  var HANDLERS = {};
+
+  exports.HANDLERS = HANDLERS;
+  function normalizeTest(test) {
+    return _emberDebugIsPlainFunction.default(test) ? test() : test;
+  }
+
+  function registerHandler(type, callback) {
+    var nextHandler = HANDLERS[type] || function () {};
+
+    HANDLERS[type] = function (message, options) {
+      callback(message, options, nextHandler);
+    };
+  }
+
+  function invoke(type, message, test, options) {
+    if (normalizeTest(test)) {
+      return;
+    }
+
+    var handlerForType = HANDLERS[type];
+
+    if (!handlerForType) {
+      return;
+    }
+
+    if (handlerForType) {
+      handlerForType(message, options);
+    }
+  }
+});
+enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = isPlainFunction;
+
+  function isPlainFunction(test) {
+    return typeof test === 'function' && test.PrototypeMixin === undefined;
+  }
+});
+enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalLogger, _emberDebugHandlers) {
+  'use strict';
+
+  var _slice = Array.prototype.slice;
+  exports.registerHandler = registerHandler;
+  exports.default = warn;
+
+  function registerHandler(handler) {
+    _emberDebugHandlers.registerHandler('warn', handler);
+  }
+
+  registerHandler(function logWarning(message, options) {
+    _emberMetalLogger.default.warn('WARNING: ' + message);
+    if ('trace' in _emberMetalLogger.default) {
+      _emberMetalLogger.default.trace();
+    }
+  });
+
+  var missingOptionsDeprecation = 'When calling `Ember.warn` you ' + 'must provide an `options` hash as the third parameter.  ' + '`options` should include an `id` property.';
+  exports.missingOptionsDeprecation = missingOptionsDeprecation;
+  var missingOptionsIdDeprecation = 'When calling `Ember.warn` you must provide `id` in options.';
+
+  exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
+  /**
+    Display a warning with the provided message. Ember build tools will
+    remove any calls to `Ember.warn()` when doing a production build.
+  
+    @method warn
+    @param {String} message A warning to display.
+    @param {Boolean} test An optional boolean. If falsy, the warning
+      will be displayed.
+    @public
+  */
+
+  function warn(message, test, options) {
+    if (!options) {
+      _emberMetalCore.default.deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.warn-options-missing', until: '3.0.0' });
+    }
+
+    if (options && !options.id) {
+      _emberMetalCore.default.deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.warn-id-missing', until: '3.0.0' });
+    }
+
+    _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
+  }
 });
 enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
   'use strict';
@@ -1099,7 +1181,7 @@ enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load
       Application.initializer({
         name: name,
 
-        initialize: function (registry, application) {
+        initialize: function (application) {
           if (application.testing) {
             application.deferReadiness();
           }
