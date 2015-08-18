@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6258271b
+ * @version   2.2.0-canary+eeed334b
  */
 
 (function() {
@@ -4820,7 +4820,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+6258271b
+    @version 2.2.0-canary+eeed334b
     @public
   */
 
@@ -4854,11 +4854,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+6258271b'
+    @default '2.2.0-canary+eeed334b'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+6258271b';
+  Ember.VERSION = '2.2.0-canary+eeed334b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7459,6 +7459,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
   @submodule ember-metal
   */
 
+  function ROOT() {}
+  ROOT.__hasSuper = false;
+
   var REQUIRED;
   var a_slice = [].slice;
 
@@ -7604,7 +7607,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     }
 
     if (hasFunction) {
-      newBase._super = function () {};
+      newBase._super = ROOT;
     }
 
     return newBase;
@@ -7801,7 +7804,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     var keys = [];
     var key, value, desc;
 
-    obj._super = function () {};
+    obj._super = ROOT;
 
     // Go through all mixins and hashes passed in, and:
     //
@@ -11441,9 +11444,31 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
   }
 
-  var sourceAvailable = (function () {
-    return this;
-  }).toString().indexOf('return this;') > -1;
+  var checkHasSuper = (function () {
+    var sourceAvailable = (function () {
+      return this;
+    }).toString().indexOf('return this;') > -1;
+
+    if (sourceAvailable) {
+      return function checkHasSuper(func) {
+        return func.toString().indexOf('_super') > -1;
+      };
+    }
+
+    return function checkHasSuper() {
+      return true;
+    };
+  })();
+
+  function ROOT() {}
+  ROOT.__hasSuper = false;
+
+  function hasSuper(func) {
+    if (func.__hasSuper === undefined) {
+      func.__hasSuper = checkHasSuper(func);
+    }
+    return func.__hasSuper;
+  }
 
   /**
     Wraps the passed function so that `this._super` will point to the superFunc
@@ -11458,36 +11483,24 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     @return {Function} wrapped function.
   */
 
-  function wrap(func, _superFunc) {
-    var superFunc = _superFunc;
-    var hasSuper;
-    if (sourceAvailable) {
-      hasSuper = func.__hasSuper;
-
-      if (hasSuper === undefined) {
-        hasSuper = func.toString().indexOf('_super') > -1;
-        func.__hasSuper = hasSuper;
-      }
-
-      if (!hasSuper) {
-        return func;
-      }
+  function wrap(func, superFunc) {
+    if (!hasSuper(func)) {
+      return func;
     }
-
-    if (superFunc.wrappedFunction === undefined) {
-      // terminate _super to prevent infinite recursion
-      superFunc = wrap(superFunc, function () {});
+    // ensure an unwrapped super that calls _super is wrapped with a terminal _super
+    if (!superFunc.wrappedFunction && hasSuper(superFunc)) {
+      return _wrap(func, _wrap(superFunc, ROOT));
     }
-
     return _wrap(func, superFunc);
   }
 
   function _wrap(func, superFunc) {
     function superWrapper() {
-      var ret;
       var orig = this._super;
+      var length = arguments.length;
+      var ret = undefined;
       this._super = superFunc;
-      switch (arguments.length) {
+      switch (length) {
         case 0:
           ret = func.call(this);break;
         case 1:
@@ -11501,7 +11514,14 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
         case 5:
           ret = func.call(this, arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);break;
         default:
-          ret = func.apply(this, arguments);break;
+          // v8 bug potentially incorrectly deopts this function: https://code.google.com/p/v8/issues/detail?id=3709
+          // we may want to keep this around till this ages out on mobile
+          var args = new Array(length);
+          for (var x = 0; x < length; x++) {
+            args[x] = arguments[x];
+          }
+          ret = func.apply(this, args);
+          break;
       }
       this._super = orig;
       return ret;
