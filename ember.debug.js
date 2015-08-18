@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+eeed334b
+ * @version   2.2.0-canary+dfba5245
  */
 
 (function() {
@@ -8907,7 +8907,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeed334b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dfba5245';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14966,7 +14966,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+eeed334b
+    @version 2.2.0-canary+dfba5245
     @public
   */
 
@@ -15000,11 +15000,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+eeed334b'
+    @default '2.2.0-canary+dfba5245'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+eeed334b';
+  Ember.VERSION = '2.2.0-canary+dfba5245';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23238,7 +23238,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+eeed334b';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+dfba5245';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23736,7 +23736,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeed334b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dfba5245';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -34407,7 +34407,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
         for (var i = 0, l = props.length; i < l; i++) {
           var properties = props[i];
 
-          _emberMetal.default.assert('Ember.Object.create no longer supports mixing in other definitions, use .extend & .create seperately instead.', !(properties instanceof _emberMetalMixin.Mixin));
+          _emberMetal.default.assert('Ember.Object.create no longer supports mixing in other ' + 'definitions, use .extend & .create seperately instead.', !(properties instanceof _emberMetalMixin.Mixin));
 
           if (typeof properties !== 'object' && properties !== undefined) {
             throw new _emberMetalError.default('Ember.Object.create only accepts objects.');
@@ -34430,8 +34430,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
             var possibleDesc = this[keyName];
             var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-            _emberMetal.default.assert('Ember.Object.create no longer supports defining computed properties. Define computed properties using extend() or reopen() before calling create().', !(value instanceof _emberMetalComputed.ComputedProperty));
-            _emberMetal.default.assert('Ember.Object.create no longer supports defining methods that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
+            _emberMetal.default.assert('Ember.Object.create no longer supports defining computed ' + 'properties. Define computed properties using extend() or reopen() ' + 'before calling create().', !(value instanceof _emberMetalComputed.ComputedProperty));
+            _emberMetal.default.assert('Ember.Object.create no longer supports defining methods ' + 'that call _super.', !(typeof value === 'function' && value.toString().indexOf('._super') !== -1));
             _emberMetal.default.assert('`actions` must be provided at extend time, not at create ' + 'time, when Ember.ActionHandler is used (i.e. views, ' + 'controllers & routes).', !(keyName === 'actions' && _emberRuntimeMixinsAction_handler.default.detect(this)));
 
             if (concatenatedProperties && concatenatedProperties.length > 0 && concatenatedProperties.indexOf(keyName) >= 0) {
@@ -34769,14 +34769,16 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       });
       ```
        This defines a new subclass of Ember.Object: `App.Person`. It contains one method: `say()`.
-       You can also create a subclass from any existing class by calling its `extend()`  method. For example, you might want to create a subclass of Ember's built-in `Ember.View` class:
+       You can also create a subclass from any existing class by calling its `extend()` method.
+      For example, you might want to create a subclass of Ember's built-in `Ember.View` class:
        ```javascript
       App.PersonView = Ember.View.extend({
         tagName: 'li',
         classNameBindings: ['isAdministrator']
       });
       ```
-       When defining a subclass, you can override methods but still access the implementation of your parent class by calling the special `_super()` method:
+       When defining a subclass, you can override methods but still access the
+      implementation of your parent class by calling the special `_super()` method:
        ```javascript
       App.Person = Ember.Object.extend({
         say: function(thing) {
@@ -34789,7 +34791,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
           this._super(thing + ", sir!");
         },
         march: function(numberOfHours) {
-          alert(this.get('name') + ' marches for ' + numberOfHours + ' hours.')
+          alert(this.get('name') + ' marches for ' + numberOfHours + ' hours.');
         }
       });
        var yehuda = App.Soldier.create({
@@ -34797,7 +34799,9 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       });
        yehuda.say("Yes");  // alerts "Yehuda Katz says: Yes, sir!"
       ```
-       The `create()` on line #17 creates an *instance* of the `App.Soldier` class. The `extend()` on line #8 creates a *subclass* of `App.Person`. Any instance of the `App.Person` class will *not* have the `march()` method.
+       The `create()` on line #17 creates an *instance* of the `App.Soldier` class.
+      The `extend()` on line #8 creates a *subclass* of `App.Person`. Any instance
+      of the `App.Person` class will *not* have the `march()` method.
        You can also pass `Mixin` classes to add additional properties to the subclass.
        ```javascript
       App.Person = Ember.Object.extend({
@@ -34930,8 +34934,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
        MyObject.canBuild; // false
       o = MyObject.create();
       ```
-       In other words, this creates static properties and functions for the class. These are only available on the class
-      and not on any instance of that class.
+       In other words, this creates static properties and functions for the class.
+      These are only available on the class and not on any instance of that class.
        ```javascript
       App.Person = Ember.Object.extend({
         name : "",
@@ -35014,7 +35018,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       var possibleDesc = proto[key];
       var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
 
-      _emberMetal.default.assert('metaForProperty() could not find a computed property with key \'' + key + '\'.', !!desc && desc instanceof _emberMetalComputed.ComputedProperty);
+      _emberMetal.default.assert('metaForProperty() could not find a computed property ' + 'with key \'' + key + '\'.', !!desc && desc instanceof _emberMetalComputed.ComputedProperty);
       return desc._meta || {};
     },
 
@@ -37399,7 +37403,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+eeed334b',
+        revision: 'Ember@2.2.0-canary+dfba5245',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42764,7 +42768,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+eeed334b';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+dfba5245';
 
   /**
   @module ember
