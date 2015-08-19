@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+981e3edc
+ * @version   2.2.0-canary+d6b41ed6
  */
 
 (function() {
@@ -3509,8 +3509,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
   @submodule ember-metal
   */
 
-  var metaFor = _emberMetalMeta.meta;
-
   function UNDEFINED() {}
 
   // ..........................................................
@@ -3806,7 +3804,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
       return this._getter.call(obj, keyName);
     }
 
-    var meta = metaFor(obj);
+    var meta = _emberMetalMeta.meta(obj);
     var cache = meta.writableCache();
 
     var result = cache[keyName];
@@ -3924,7 +3922,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
 
   ComputedPropertyPrototype._set = function computedPropertySet(obj, keyName, value) {
     // cache requires own meta
-    var meta = metaFor(obj);
+    var meta = _emberMetalMeta.meta(obj);
     // either there is a writable cache or we need one to update
     var cache = meta.writableCache();
     var hadCachedValue = false;
@@ -3974,7 +3972,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     if (this._volatile) {
       return;
     }
-    var meta = metaFor(obj);
+    var meta = _emberMetalMeta.meta(obj);
     var cache = meta.readableCache();
     if (cache && cache[keyName] !== undefined) {
       _emberMetalDependent_keys.removeDependentKeys(this, obj, keyName, meta);
@@ -4820,7 +4818,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+981e3edc
+    @version 2.2.0-canary+d6b41ed6
     @public
   */
 
@@ -4854,11 +4852,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+981e3edc'
+    @default '2.2.0-canary+d6b41ed6'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+981e3edc';
+  Ember.VERSION = '2.2.0-canary+d6b41ed6';
 
   /**
     The hash of environment variables used to control various configuration
