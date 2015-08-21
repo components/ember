@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+182ab2d9
+ * @version   2.2.0-canary+b4f664f2
  */
 
 (function() {
@@ -8427,7 +8427,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+182ab2d9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4f664f2';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10952,56 +10952,6 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
 
   exports.default = _emberTemplateCompilerSystemTemplate.default((function () {
     var child0 = (function () {
-      var child0 = (function () {
-        return {
-          meta: {},
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
-            dom.insertBoundary(fragment, 0);
-            dom.insertBoundary(fragment, null);
-            return morphs;
-          },
-          statements: [["content", "linkTitle", ["loc", [null, [1, 38], [1, 51]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
-      var child1 = (function () {
-        return {
-          meta: {},
-          isEmpty: false,
-          arity: 0,
-          cachedFragment: null,
-          hasRendered: false,
-          buildFragment: function buildFragment(dom) {
-            var el0 = dom.createDocumentFragment();
-            var el1 = dom.createComment("");
-            dom.appendChild(el0, el1);
-            return el0;
-          },
-          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var morphs = new Array(1);
-            morphs[0] = dom.createUnsafeMorphAt(fragment, 0, 0, contextualElement);
-            dom.insertBoundary(fragment, 0);
-            dom.insertBoundary(fragment, null);
-            return morphs;
-          },
-          statements: [["content", "linkTitle", ["loc", [null, [1, 59], [1, 74]]]]],
-          locals: [],
-          templates: []
-        };
-      })();
       return {
         meta: {},
         isEmpty: false,
@@ -11021,9 +10971,9 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["block", "if", [["get", "attrs.escaped", ["loc", [null, [1, 23], [1, 36]]]]], [], 0, 1, ["loc", [null, [1, 17], [1, 81]]]]],
+        statements: [["content", "linkTitle", ["loc", [null, [1, 17], [1, 30]]]]],
         locals: [],
-        templates: [child0, child1]
+        templates: []
       };
     })();
     var child1 = (function () {
@@ -11046,7 +10996,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["content", "yield", ["loc", [null, [1, 89], [1, 98]]]]],
+        statements: [["content", "yield", ["loc", [null, [1, 38], [1, 47]]]]],
         locals: [],
         templates: []
       };
@@ -11070,7 +11020,7 @@ enifed("ember-htmlbars/templates/link-to", ["exports", "ember-template-compiler/
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "if", [["get", "linkTitle", ["loc", [null, [1, 6], [1, 15]]]]], [], 0, 1, ["loc", [null, [1, 0], [1, 105]]]]],
+      statements: [["block", "if", [["get", "linkTitle", ["loc", [null, [1, 6], [1, 15]]]]], [], 0, 1, ["loc", [null, [1, 0], [1, 54]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -14416,7 +14366,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+182ab2d9
+    @version 2.2.0-canary+b4f664f2
     @public
   */
 
@@ -14450,11 +14400,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+182ab2d9'
+    @default '2.2.0-canary+b4f664f2'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+182ab2d9';
+  Ember.VERSION = '2.2.0-canary+b4f664f2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22334,8 +22284,6 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
       // TODO: Remove once `hasBlock` is working again
       attrs.hasBlock = !!template;
 
-      attrs.escaped = !morph.parseTextAsHTML;
-
       env.hooks.component(morph, env, scope, '-link-to', params, attrs, { default: template }, visitor);
     },
 
@@ -22574,7 +22522,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+182ab2d9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b4f664f2';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23070,7 +23018,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+182ab2d9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4f664f2';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -35623,7 +35571,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-unescaped-inline-link-to', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
   'use strict';
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -35634,6 +35582,7 @@ enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-com
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformTopLevelComponents.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo.default);
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
@@ -36547,6 +36496,36 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
   exports.default = TransformTopLevelComponents;
 });
+enifed('ember-template-compiler/plugins/transform-unescaped-inline-link-to', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformUnescapedInlineLinkTo;
+
+  function TransformUnescapedInlineLinkTo(options) {
+    this.options = options;
+    this.syntax = null;
+  }
+
+  TransformUnescapedInlineLinkTo.prototype.transform = function TransformUnescapedInlineLinkTo_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      node.escaped = true;
+      node.params[0] = b.sexpr(b.string('-html-safe'), [node.params[0]]);
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'MustacheStatement' && node.path.original === 'link-to' && !node.escaped;
+  }
+});
 enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
   'use strict';
 
@@ -36623,7 +36602,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+182ab2d9',
+        revision: 'Ember@2.2.0-canary+b4f664f2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40727,7 +40706,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+182ab2d9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b4f664f2';
 
   /**
   @module ember

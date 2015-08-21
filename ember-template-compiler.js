@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+182ab2d9
+ * @version   2.2.0-canary+b4f664f2
  */
 
 (function() {
@@ -4220,7 +4220,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+182ab2d9
+    @version 2.2.0-canary+b4f664f2
     @public
   */
 
@@ -4254,11 +4254,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+182ab2d9'
+    @default '2.2.0-canary+b4f664f2'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+182ab2d9';
+  Ember.VERSION = '2.2.0-canary+b4f664f2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11385,7 +11385,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-top-level-components', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/transform-unescaped-inline-link-to', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformTopLevelComponents, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
   'use strict';
 
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
@@ -11396,6 +11396,7 @@ enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-com
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default);
   _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformTopLevelComponents.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformUnescapedInlineLinkTo.default);
 
   if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
@@ -12331,6 +12332,36 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
   exports.default = TransformTopLevelComponents;
 });
+enifed('ember-template-compiler/plugins/transform-unescaped-inline-link-to', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = TransformUnescapedInlineLinkTo;
+
+  function TransformUnescapedInlineLinkTo(options) {
+    this.options = options;
+    this.syntax = null;
+  }
+
+  TransformUnescapedInlineLinkTo.prototype.transform = function TransformUnescapedInlineLinkTo_transform(ast) {
+    var b = this.syntax.builders;
+    var walker = new this.syntax.Walker();
+
+    walker.visit(ast, function (node) {
+      if (!validate(node)) {
+        return;
+      }
+
+      node.escaped = true;
+      node.params[0] = b.sexpr(b.string('-html-safe'), [node.params[0]]);
+    });
+
+    return ast;
+  };
+
+  function validate(node) {
+    return node.type === 'MustacheStatement' && node.path.original === 'link-to' && !node.escaped;
+  }
+});
 enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
   'use strict';
 
@@ -12407,7 +12438,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+182ab2d9',
+        revision: 'Ember@2.2.0-canary+b4f664f2',
         loc: program.loc,
         moduleName: options.moduleName
       };
