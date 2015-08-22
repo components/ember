@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6272afab
+ * @version   2.2.0-canary+12d23bc5
  */
 
 (function() {
@@ -41383,7 +41383,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+6272afab', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+12d23bc5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -49449,6 +49449,37 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
     ok(view.$('#foo').length, 'has element with child elementId');
   });
 });
+enifed('ember-views/tests/views/view/current_state_deprecation_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _emberMetalRun_loop) {
+  'use strict';
+
+  var view;
+
+  QUnit.module('views/view/current_state_deprecation', {
+    setup: function () {
+      view = _emberViewsViewsView.default.create();
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(view, 'destroy');
+    }
+  });
+
+  QUnit.test('deprecates when calling currentState', function () {
+    expect(2);
+
+    view = _emberViewsViewsView.default.create();
+
+    expectDeprecation(function () {
+      equal(view.currentState, view._currentState);
+    }, 'Usage of `currentState` is deprecated, use `_currentState` instead.');
+  });
+
+  QUnit.test('doesn\'t deprecate when calling _currentState', function () {
+    expect(1);
+
+    view = _emberViewsViewsView.default.create();
+    ok(view._currentState, '_currentState can be used without deprecation');
+  });
+});
 enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
@@ -50716,7 +50747,7 @@ enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/
       view.replaceIn('#menu');
     });
 
-    equal(view.currentState, view._states.inDOM, 'the view is in the inDOM state');
+    equal(view._currentState, view._states.inDOM, 'the view is in the inDOM state');
   });
 
   QUnit.module('EmberView - replaceIn() in a view hierarchy', {
@@ -51281,7 +51312,7 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-me
       view.rerender();
     });
 
-    equal(view.currentState, view._states.inDOM, 'the view is still in the inDOM state');
+    equal(view._currentState, view._states.inDOM, 'the view is still in the inDOM state');
 
     _emberMetalRun_loop.default(function () {
       view.destroy();
