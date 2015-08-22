@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0
+ * @version   2.0.1
  */
 
 (function() {
@@ -4264,7 +4264,13 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     instanceInitializers: Object.create(null),
 
     /**
-      Initializer receives an object which has the following attributes:
+      The goal of initializers should be to register dependencies and injections.
+      This phase runs once. Because these initializers may load code, they are
+      allowed to defer application readiness and advance it. If you need to access
+      the container or store you should use an InstanceInitializer that will be run
+      after all initializers and therefore after all code is loaded and the app is
+      ready.
+       Initializer receives an object which has the following attributes:
       `name`, `before`, `after`, `initialize`. The only required attribute is
       `initialize`, all others are optional.
        * `name` allows you to specify under which name the initializer is registered.
@@ -4339,6 +4345,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        ```javascript
       Ember.Application.initializer({
         name: 'preload-data',
+        after: 'ember-data',   // ember-data must be loaded before we can access store
          initialize: function(container, application) {
           var store = container.lookup('store:main');
            store.pushPayload(preloadedData);
@@ -4357,7 +4364,62 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
        @method initializer
       @param initializer {Object}
       @public
-     */
+    */
+
+    /**
+      InstanceInitializers run after all initializers have run. Because
+      instanceInitializers run after the app is fully set up. We have access
+      to the store, container, and other items. However, these initializers run
+      after code has loaded and are not allowed to defer readiness.
+       InstanceInitializer receives an object which has the following attributes:
+      `name`, `before`, `after`, `initialize`. The only required attribute is
+      `initialize`, all others are optional.
+       * `name` allows you to specify under which name the instanceInitializer is
+      registered. This must be a unique name, as trying to register two
+      instanceInitializer with the same name will result in an error.
+       ```javascript
+      Ember.Application.instanceInitializer({
+        name: 'namedinstanceInitializer',
+         initialize: function(application) {
+          Ember.debug('Running namedInitializer!');
+        }
+      });
+      ```
+       * `before` and `after` are used to ensure that this initializer is ran prior
+      or after the one identified by the value. This value can be a single string
+      or an array of strings, referencing the `name` of other initializers.
+       * See Ember.Application.initializer for discussion on the usage of before
+      and after.
+       Example instanceInitializer to preload data into the store.
+       ```javascript
+      Ember.Application.initializer({
+        name: 'preload-data',
+         initialize: function(application) {
+          var userConfig, userConfigEncoded, store;
+          // We have a HTML escaped JSON representation of the user's basic
+          // configuration generated server side and stored in the DOM of the main
+          // index.html file. This allows the app to have access to a set of data
+          // without making any additional remote calls. Good for basic data that is
+          // needed for immediate rendering of the page. Keep in mind, this data,
+          // like all local models and data can be manipulated by the user, so it
+          // should not be relied upon for security or authorization.
+          //
+          // Grab the encoded data from the meta tag
+          userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');
+          // Unescape the text, then parse the resulting JSON into a real object
+          userConfig = JSON.parse(unescape(userConfigEncoded));
+          // Lookup the store
+          store = application.container.lookup('service:store');
+          // Push the encoded JSON into the store
+          store.pushPayload(userConfig);
+        }
+      });
+      ```
+       @method instanceInitializer
+      @param instanceInitializer
+      @public
+    */
+
     initializer: buildInitializerMethod('initializers', 'initializer'),
 
     /**
@@ -8647,7 +8709,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -11907,6 +11969,8 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
   }; // set attrs the first time
 
   Renderer.prototype.componentInitAttrs = function (component, attrs) {
+    // for attrs-proxy support
+    component.trigger('_internalDidReceiveAttrs');
     component.trigger('didInitAttrs', { attrs: attrs });
     component.trigger('didReceiveAttrs', { newAttrs: attrs });
   }; // set attrs the first time
@@ -11947,6 +12011,8 @@ enifed('ember-metal-views/renderer', ['exports', 'ember-metal/run_loop', 'ember-
       _emberMetalProperty_set.set(component, 'attrs', newAttrs);
     }
 
+    // for attrs-proxy support
+    component.trigger('_internalDidReceiveAttrs');
     component.trigger('didUpdateAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
     component.trigger('didReceiveAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
   };
@@ -12835,7 +12901,7 @@ enifed('ember-metal/chains', ['exports', 'ember-metal/core', 'ember-metal/proper
   }
 
   function isVolatile(obj) {
-    return !(isObject(obj) && obj.isDescriptor && !obj._volatile);
+    return !(isObject(obj) && obj.isDescriptor && obj._volatile === false);
   }
 
   function Chains() {}
@@ -14571,7 +14637,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.0
+    @version 2.0.1
     @public
   */
 
@@ -14605,11 +14671,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.0'
+    @default '2.0.1'
     @static
     @public
   */
-  Ember.VERSION = '2.0.0';
+  Ember.VERSION = '2.0.1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22444,8 +22510,80 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/strea
 });
 // assert
 enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalError, _emberMetalStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
   'use strict';
 
+  /**
+    Calling ``{{render}}`` from within a template will insert another
+    template that matches the provided name. The inserted template will
+    access its properties on its own controller (rather than the controller
+    of the parent template).
+    If a view class with the same name exists, the view class also will be used.
+    Note: A given controller may only be used *once* in your app in this manner.
+    A singleton instance of the controller will be created for you.
+    Example:
+  
+    ```javascript
+    App.NavigationController = Ember.Controller.extend({
+      who: "world"
+    });
+    ```
+  
+    ```handlebars
+    <!-- navigation.hbs -->
+    Hello, {{who}}.
+    ```
+  
+    ```handlebars
+    <!-- application.hbs -->
+    <h1>My great app</h1>
+    {{render "navigation"}}
+    ```
+  
+    ```html
+    <h1>My great app</h1>
+    <div class='ember-view'>
+      Hello, world.
+    </div>
+    ```
+  
+    Optionally you may provide a second argument: a property path
+    that will be bound to the `model` property of the controller.
+    If a `model` property path is specified, then a new instance of the
+    controller will be created and `{{render}}` can be used multiple times
+    with the same name.
+  
+    For example if you had this `author` template.
+  
+    ```handlebars
+    <div class="author">
+      Written by {{firstName}} {{lastName}}.
+      Total Posts: {{postCount}}
+    </div>
+    ```
+  
+    You could render it inside the `post` template using the `render` helper.
+  
+    ```handlebars
+    <div class="post">
+      <h1>{{title}}</h1>
+      <div>{{body}}</div>
+      {{render "author" author}}
+    </div>
+    ```
+  
+    @method render
+    @for Ember.Templates.helpers
+    @param {String} name
+    @param {Object?} context
+    @param {Hash} options
+    @return {String} HTML string
+    @public
+  */
   exports.default = {
     willRender: function (renderNode, env) {
       if (env.view.ownerView._outlets) {
@@ -22676,7 +22814,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.0';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.1';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23178,7 +23316,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -25619,7 +25757,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        // if you just want to transition the query parameters without changing the route
       this.transitionTo({queryParams: {sort: 'date'}});
       ```
-       See also 'replaceWith'.
+       See also [replaceWith](#method_replaceWith).
        Simple Transition Example
        ```javascript
       App.Router.map(function() {
@@ -25715,7 +25853,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       @param {...Object} models the model(s) to be used while transitioning
       to the route.
       @since 1.2.0
-      @private
+      @public
      */
     intermediateTransitionTo: function () {
       var router = this.router;
@@ -26997,6 +27135,20 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       Handles updating the paths and notifying any listeners of the URL
       change.
        Triggers the router level `didTransition` hook.
+       For example, to notify google analytics when the route changes,
+      you could use this hook.  (Note: requires also including GA scripts, etc.)
+       ```javascript
+      var Router = Ember.Router.extend({
+        location: config.locationType,
+         didTransition: function() {
+          this._super(...arguments);
+           return ga('send', 'pageview', {
+              'page': this.get('url'),
+              'title': this.get('url')
+            });
+        }
+      });
+      ```
        @method didTransition
       @public
       @since 1.2.0
@@ -28406,7 +28558,13 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return _emberMetalComputed.computed(dependentKey + '.[]', function () {
       var _this = this;
 
-      return _emberMetalProperty_get.get(this, dependentKey).reduce(function (previousValue, currentValue, index, array) {
+      var arr = _emberMetalProperty_get.get(this, dependentKey);
+
+      if (arr === null || typeof arr !== 'object') {
+        return initialValue;
+      }
+
+      return arr.reduce(function (previousValue, currentValue, index, array) {
         return callback.call(_this, previousValue, currentValue, index, array);
       }, initialValue);
     }).readOnly();
@@ -32355,9 +32513,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
   
     ```javascript
     Ember.Object.extend({
-      valueObserver: function() {
+      valueObserver: Ember.observer('value', function() {
         // Executes whenever the "value" property changes
-      }.observes('value')
+      })
     });
     ```
   
@@ -36440,7 +36598,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.0',
+        revision: 'Ember@2.0.1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37878,7 +38036,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
       this._isDispatchingAttrs = false;
     }),
 
-    didReceiveAttrs: function () {
+    _internalDidReceiveAttrs: function () {
       this._super();
       this._isDispatchingAttrs = true;
       this._propagateAttrsToThis();
@@ -40971,7 +41129,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.0';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.1';
 
   /**
   @module ember
