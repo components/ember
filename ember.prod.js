@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2
+ * @version   2.1.0-beta.2+ba2c2457
  */
 
 (function() {
@@ -3479,8 +3479,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       // appended to the rootElement, in the case of apps, to the fixture harness
       // in tests, or rendered to a string in the case of FastBoot.
       this.register('-application-instance:main', this, { instantiate: false });
-
-      assignAliases(this);
     },
 
     router: _emberMetalComputed.computed(function () {
@@ -3588,21 +3586,26 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     return !!applicationInstance.application.__registry__.resolver.moduleBasedResolver;
   }
 
-  function assignAliases(applicationInstance) {
-    Object.defineProperty(applicationInstance, 'container', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        var instance = this;
-        return {
-          lookup: function () {
-                        return instance.lookup.apply(instance, arguments);
-          }
-        };
-      }
-    });
-  }
+  Object.defineProperty(ApplicationInstance.prototype, 'container', {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      var instance = this;
+      return {
+        lookup: function () {
+                    return instance.lookup.apply(instance, arguments);
+        }
+      };
+    }
+  });
 
+  Object.defineProperty(ApplicationInstance.prototype, 'registry', {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'ApplicationInstance');
+    }
+  });
   exports.default = ApplicationInstance;
 });
 // Ember.deprecate
@@ -4213,6 +4216,14 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     initializer: function (options) {
       this.constructor.initializer(options);
+    }
+  });
+
+  Object.defineProperty(Application.prototype, 'registry', {
+    configurable: true,
+    enumerable: false,
+    get: function () {
+      return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'Application');
     }
   });
 
@@ -8384,7 +8395,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+ba2c2457';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14306,7 +14317,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2
+    @version 2.1.0-beta.2+ba2c2457
     @public
   */
 
@@ -14340,11 +14351,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2'
+    @default '2.1.0-beta.2+ba2c2457'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2';
+  Ember.VERSION = '2.1.0-beta.2+ba2c2457';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22517,7 +22528,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.2';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.2+ba2c2457';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23016,7 +23027,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+ba2c2457';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32836,9 +32847,10 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     };
   }
 });
-enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalMixin) {
   'use strict';
 
+  exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -33041,6 +33053,34 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/mixin'], 
       var _registry__;
 
       return (_registry__ = this.__registry__)[name].apply(_registry__, arguments);
+    };
+  }
+
+  function buildFakeRegistryWithDeprecations(instance, typeForMessage) {
+    var fakeRegistry = {};
+    var registryProps = {
+      resolve: 'resolveRegistration',
+      register: 'register',
+      unregister: 'unregister',
+      has: 'hasRegistration',
+      option: 'registerOption',
+      options: 'registerOptions',
+      getOptions: 'registeredOptions',
+      optionsForType: 'registerOptionsForType',
+      getOptionsForType: 'registeredOptionsForType',
+      injection: 'inject'
+    };
+
+    for (var deprecatedProperty in registryProps) {
+      fakeRegistry[deprecatedProperty] = buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, registryProps[deprecatedProperty]);
+    }
+
+    return fakeRegistry;
+  }
+
+  function buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, nonDeprecatedProperty) {
+    return function () {
+            return instance[nonDeprecatedProperty].apply(instance, arguments);
     };
   }
 });
@@ -36542,7 +36582,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.2',
+        revision: 'Ember@2.1.0-beta.2+ba2c2457',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39936,7 +39976,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.2';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.2+ba2c2457';
 
   /**
   @module ember
