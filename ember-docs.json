@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.13.8"
+        "version": "1.13.9"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.8
+ * @version   1.13.9
  */
 
 (function() {
@@ -9591,7 +9591,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.8';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -10529,7 +10529,7 @@ enifed("ember-htmlbars/node-managers/component-node-manager", ["exports", "ember
     // If the component specifies its template via the `layout` or `template`
     // properties instead of using the template looked up in the container, get
     // them now that we have the component instance.
-    var result = extractComponentTemplates(component, templates);
+    var result = extractComponentTemplates(component, templates, layout);
     layout = result.layout || layout;
     templates = result.templates || templates;
 
@@ -10587,7 +10587,7 @@ enifed("ember-htmlbars/node-managers/component-node-manager", ["exports", "ember
     }
   }
 
-  function extractComponentTemplates(component, _templates) {
+  function extractComponentTemplates(component, _templates, _layout) {
     // Even though we looked up a layout from the container earlier, the
     // component may specify a `layout` property that overrides that.
     // The component may also provide a `template` property we should
@@ -10609,11 +10609,17 @@ enifed("ember-htmlbars/node-managers/component-node-manager", ["exports", "ember
       layout = componentLayout;
       templates = extractLegacyTemplate(_templates, componentTemplate);
     } else if (componentTemplate) {
-      // If the component has a `template` but no `layout`, use the template
-      // as the layout.
-      layout = componentTemplate;
+      if (_layout) {
+        // If the component has no `layout`, but one was found during
+        // `lookupComponent` in calling `create` function, use that
+        layout = _layout;
+      } else {
+        // If the component has a `template` but no `layout`, use the template
+        // as the layout.
+        layout = componentTemplate;
+        _emberMetalCore["default"].deprecate("Using deprecated `template` property on a Component.");
+      }
       templates = _templates;
-      _emberMetalCore["default"].deprecate("Using deprecated `template` property on a Component.");
     }
 
     return { layout: layout, templates: templates };
@@ -12963,6 +12969,8 @@ enifed("ember-metal-views/renderer", ["exports", "ember-metal/run_loop", "ember-
   }; // set attrs the first time
 
   Renderer.prototype.componentInitAttrs = function (component, attrs) {
+    // for attrs-proxy support
+    component.trigger('_internalDidReceiveAttrs');
     component.trigger('didInitAttrs', { attrs: attrs });
     component.trigger('didReceiveAttrs', { newAttrs: attrs });
   }; // set attrs the first time
@@ -13003,6 +13011,8 @@ enifed("ember-metal-views/renderer", ["exports", "ember-metal/run_loop", "ember-
       _emberMetalProperty_set.set(component, 'attrs', newAttrs);
     }
 
+    // for attrs-proxy support
+    component.trigger('_internalDidReceiveAttrs');
     component.trigger('didUpdateAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
     component.trigger('didReceiveAttrs', { oldAttrs: oldAttrs, newAttrs: newAttrs });
   };
@@ -15912,7 +15922,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.8
+    @version 1.13.9
     @public
   */
 
@@ -15946,11 +15956,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.8'
+    @default '1.13.9'
     @static
     @public
   */
-  Ember.VERSION = '1.13.8';
+  Ember.VERSION = '1.13.9';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24970,7 +24980,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.8';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.9';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -25509,7 +25519,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.8';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -42507,7 +42517,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.8',
+        revision: 'Ember@1.13.9',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43928,7 +43938,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
       this._isDispatchingAttrs = false;
     }),
 
-    didReceiveAttrs: function () {
+    _internalDidReceiveAttrs: function () {
       this._super();
       this._isDispatchingAttrs = true;
       this._propagateAttrsToThis();
@@ -47734,7 +47744,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.8';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.9';
 
   /**
   @module ember
