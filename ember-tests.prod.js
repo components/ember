@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+5a55bb5a
+ * @version   2.2.0-canary+6272afab
  */
 
 (function() {
@@ -30610,6 +30610,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     equal(obj.get('total'), 6, 'sums the values');
   });
 
+  QUnit.test('if the dependentKey is neither an array nor object, it will return `0`', function () {
+    _emberMetalProperty_set.set(obj, 'array', null);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', undefined);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', 'not an array');
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+  });
+
   QUnit.test('updates when array is modified', function () {
     obj.get('array').pushObject(1);
 
@@ -41210,7 +41221,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+5a55bb5a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+6272afab', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

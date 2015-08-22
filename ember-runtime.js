@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+5a55bb5a
+ * @version   2.2.0-canary+6272afab
  */
 
 (function() {
@@ -4818,7 +4818,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+5a55bb5a
+    @version 2.2.0-canary+6272afab
     @public
   */
 
@@ -4852,11 +4852,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+5a55bb5a'
+    @default '2.2.0-canary+6272afab'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+5a55bb5a';
+  Ember.VERSION = '2.2.0-canary+6272afab';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12232,7 +12232,13 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return _emberMetalComputed.computed(dependentKey + '.[]', function () {
       var _this = this;
 
-      return _emberMetalProperty_get.get(this, dependentKey).reduce(function (previousValue, currentValue, index, array) {
+      var arr = _emberMetalProperty_get.get(this, dependentKey);
+
+      if (arr === null || typeof arr !== 'object') {
+        return initialValue;
+      }
+
+      return arr.reduce(function (previousValue, currentValue, index, array) {
         return callback.call(_this, previousValue, currentValue, index, array);
       }, initialValue);
     }).readOnly();
