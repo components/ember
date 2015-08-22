@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.0+f833aaee
+ * @version   2.0.1
  */
 
 (function() {
@@ -12720,7 +12720,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 });
-enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberMetalRun_loop) {
   'use strict';
 
   var registry, container, view;
@@ -12825,6 +12825,42 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
 
     // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
     equal(component.get('woot'), 'yes', 'component found attr');
+  });
+
+  QUnit.test('should not need to call _super in `didReceiveAttrs` (GH #11992)', function () {
+    expect(12);
+    var firstValue = 'first';
+    var secondValue = 'second';
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+      didReceiveAttrs: function () {
+        var rootFirst = this.get('first');
+        var rootSecond = this.get('second');
+        var attrFirst = this.getAttr('first');
+        var attrSecond = this.getAttr('second');
+
+        equal(rootFirst, attrFirst, 'root property matches attrs value');
+        equal(rootSecond, attrSecond, 'root property matches attrs value');
+
+        equal(rootFirst, firstValue, 'matches known value');
+        equal(rootSecond, secondValue, 'matches known value');
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      first: firstValue,
+      second: secondValue,
+      template: _emberTemplateCompilerSystemCompile.default('{{foo-bar first=view.first second=view.second}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    firstValue = 'asdf';
+    _emberMetalRun_loop.default(view, 'set', 'first', firstValue);
+
+    secondValue = 'jkl;';
+    _emberMetalRun_loop.default(view, 'set', 'second', secondValue);
   });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -29486,6 +29522,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     equal(obj.get('total'), 6, 'sums the values');
   });
 
+  QUnit.test('if the dependentKey is neither an array nor object, it will return `0`', function () {
+    _emberMetalProperty_set.set(obj, 'array', null);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', undefined);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', 'not an array');
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+  });
+
   QUnit.test('updates when array is modified', function () {
     obj.get('array').pushObject(1);
 
@@ -40140,7 +40187,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.0+f833aaee', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
