@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+c8b7e2ed
+ * @version   2.2.0-canary+849bec13
  */
 
 (function() {
@@ -26485,6 +26485,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
 
   registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
   registry.register('component:-link-to', _emberRoutingViewsViewsLink.default);
+  registry.register('component:custom-link-to', _emberRoutingViewsViewsLink.default.extend());
 
   QUnit.module('ember-routing-htmlbars: link-to helper', {
     setup: function () {
@@ -26599,6 +26600,18 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
     equal(view.$().text(), 'Text');
+  });
+
+  QUnit.test('able to safely extend the built-in component and use the normal path', function () {
+    view = _emberViewsViewsView.default.create({
+      title: 'my custom link-to component',
+      template: _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title}}'),
+      container: container
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 });
 enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils) {
@@ -41383,7 +41396,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+c8b7e2ed', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+849bec13', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
