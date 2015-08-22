@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+849bec13
+ * @version   2.2.0-canary+12a3ea2a
  */
 
 (function() {
@@ -1168,11 +1168,11 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     ok(appInstance.__container__, '#__container__ is accessible');
     ok(appInstance.__registry__, '#__registry__ is accessible');
 
-    expect(6);
+    expect(9);
 
     ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
 
-    // stub `lookup` with a no-op to keep deprecation test simple
+    // stub with a no-op to keep deprecation test simple
     appInstance.__container__.lookup = function () {
       ok(true, '#loookup alias is called correctly');
     };
@@ -1180,6 +1180,15 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     expectDeprecation(function () {
       appInstance.container.lookup();
     }, /Using `ApplicationInstance.container.lookup` is deprecated. Please use `ApplicationInstance.lookup` instead./);
+
+    ok(typeof appInstance.registry.register === 'function', '#registry.register is available as a function');
+    appInstance.__registry__.register = function () {
+      ok(true, '#register alias is called correctly');
+    };
+
+    expectDeprecation(function () {
+      appInstance.registry.register();
+    }, /Using `ApplicationInstance.registry.register` is deprecated. Please use `ApplicationInstance.register` instead./);
   });
 
   QUnit.test('customEvents added to the application before setupEventDispatcher', function (assert) {
@@ -1239,7 +1248,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     appInstance.setupEventDispatcher();
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalFeatures) {
   /*globals EmberDev */
 
   'use strict';
@@ -1326,6 +1335,20 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     _emberMetalCore.default.BOOTED = false;
     app.Foo = _emberRuntimeSystemObject.default.extend();
     equal(app.Foo.toString(), 'TestApp.Foo', 'Classes pick up their parent namespace');
+  });
+
+  QUnit.test('includes deprecated access to `application.registry`', function () {
+    expect(3);
+
+    ok(typeof application.registry.register === 'function', '#registry.register is available as a function');
+
+    application.__registry__.register = function () {
+      ok(true, '#register alias is called correctly');
+    };
+
+    expectDeprecation(function () {
+      application.registry.register();
+    }, /Using `Application.registry.register` is deprecated. Please use `Application.register` instead./);
   });
 
   QUnit.module('Ember.Application initialization', {
@@ -41234,7 +41257,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+849bec13', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+12a3ea2a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

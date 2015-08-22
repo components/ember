@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+849bec13
+ * @version   2.2.0-canary+12a3ea2a
  */
 
 (function() {
@@ -4818,7 +4818,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+849bec13
+    @version 2.2.0-canary+12a3ea2a
     @public
   */
 
@@ -4852,11 +4852,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+849bec13'
+    @default '2.2.0-canary+12a3ea2a'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+849bec13';
+  Ember.VERSION = '2.2.0-canary+12a3ea2a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16851,9 +16851,10 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     };
   }
 });
-enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/mixin'], function (exports, _emberMetalMixin) {
+enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalMixin) {
   'use strict';
 
+  exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -17056,6 +17057,35 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/mixin'], 
       var _registry__;
 
       return (_registry__ = this.__registry__)[name].apply(_registry__, arguments);
+    };
+  }
+
+  function buildFakeRegistryWithDeprecations(instance, typeForMessage) {
+    var fakeRegistry = {};
+    var registryProps = {
+      resolve: 'resolveRegistration',
+      register: 'register',
+      unregister: 'unregister',
+      has: 'hasRegistration',
+      option: 'registerOption',
+      options: 'registerOptions',
+      getOptions: 'registeredOptions',
+      optionsForType: 'registerOptionsForType',
+      getOptionsForType: 'registeredOptionsForType',
+      injection: 'inject'
+    };
+
+    for (var deprecatedProperty in registryProps) {
+      fakeRegistry[deprecatedProperty] = buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, registryProps[deprecatedProperty]);
+    }
+
+    return fakeRegistry;
+  }
+
+  function buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, nonDeprecatedProperty) {
+    return function () {
+      _emberMetalCore.default.deprecate('Using `' + typeForMessage + '.registry.' + deprecatedProperty + '` is deprecated. Please use `' + typeForMessage + '.' + nonDeprecatedProperty + '` instead.', false, { id: 'ember-application.app-instance-registry', until: '3.0.0' });
+      return instance[nonDeprecatedProperty].apply(instance, arguments);
     };
   }
 });
