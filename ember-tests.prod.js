@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.1+4660c97d
+ * @version   2.1.0-beta.1+4f3a1f9f
  */
 
 (function() {
@@ -1568,6 +1568,81 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     equal(_emberRuntimeSystemLazy_load._loaded.application, undefined);
   });
 });
+enifed('ember-application/tests/system/dependency_injection_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberApplicationSystemApplication) {
+  'use strict';
+
+  var EmberApplication = _emberApplicationSystemApplication.default;
+
+  var originalLookup = _emberMetalCore.default.lookup;
+  var registry, locator, lookup, application, originalModelInjections;
+
+  QUnit.module('Ember.Application Dependency Injection', {
+    setup: function () {
+      originalModelInjections = _emberMetalCore.default.MODEL_FACTORY_INJECTIONS;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = true;
+
+      application = _emberMetalRun_loop.default(EmberApplication, 'create');
+
+      application.Person = _emberRuntimeSystemObject.default.extend({});
+      application.Orange = _emberRuntimeSystemObject.default.extend({});
+      application.Email = _emberRuntimeSystemObject.default.extend({});
+      application.User = _emberRuntimeSystemObject.default.extend({});
+      application.PostIndexController = _emberRuntimeSystemObject.default.extend({});
+
+      application.register('model:person', application.Person, { singleton: false });
+      application.register('model:user', application.User, { singleton: false });
+      application.register('fruit:favorite', application.Orange);
+      application.register('communication:main', application.Email, { singleton: false });
+      application.register('controller:postIndex', application.PostIndexController, { singleton: true });
+
+      registry = application.__registry__;
+      locator = application.__container__;
+
+      lookup = _emberMetalCore.default.lookup = {};
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(application, 'destroy');
+      application = locator = null;
+      _emberMetalCore.default.lookup = originalLookup;
+      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = originalModelInjections;
+    }
+  });
+
+  QUnit.test('container lookup is normalized', function () {
+    var dotNotationController = locator.lookup('controller:post.index');
+    var camelCaseController = locator.lookup('controller:postIndex');
+
+    ok(dotNotationController instanceof application.PostIndexController);
+    ok(camelCaseController instanceof application.PostIndexController);
+
+    equal(dotNotationController, camelCaseController);
+  });
+
+  QUnit.test('registered entities can be looked up later', function () {
+    equal(registry.resolve('model:person'), application.Person);
+    equal(registry.resolve('model:user'), application.User);
+    equal(registry.resolve('fruit:favorite'), application.Orange);
+    equal(registry.resolve('communication:main'), application.Email);
+    equal(registry.resolve('controller:postIndex'), application.PostIndexController);
+
+    equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
+    ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
+  });
+
+  QUnit.test('injections', function () {
+    application.inject('model', 'fruit', 'fruit:favorite');
+    application.inject('model:user', 'communication', 'communication:main');
+
+    var user = locator.lookup('model:user');
+    var person = locator.lookup('model:person');
+    var fruit = locator.lookup('fruit:favorite');
+
+    equal(user.get('fruit'), fruit);
+    equal(person.get('fruit'), fruit);
+
+    ok(application.Email.detectInstance(user.get('communication')));
+  });
+});
 enifed('ember-application/tests/system/dependency_injection/custom_resolver_test', ['exports', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-template-compiler/system/compile'], function (exports, _emberViewsSystemJquery, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
@@ -2012,81 +2087,6 @@ enifed('ember-application/tests/system/dependency_injection/to_string_test', ['e
   });
 });
 // lookup, etc
-enifed('ember-application/tests/system/dependency_injection_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberApplicationSystemApplication) {
-  'use strict';
-
-  var EmberApplication = _emberApplicationSystemApplication.default;
-
-  var originalLookup = _emberMetalCore.default.lookup;
-  var registry, locator, lookup, application, originalModelInjections;
-
-  QUnit.module('Ember.Application Dependency Injection', {
-    setup: function () {
-      originalModelInjections = _emberMetalCore.default.MODEL_FACTORY_INJECTIONS;
-      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = true;
-
-      application = _emberMetalRun_loop.default(EmberApplication, 'create');
-
-      application.Person = _emberRuntimeSystemObject.default.extend({});
-      application.Orange = _emberRuntimeSystemObject.default.extend({});
-      application.Email = _emberRuntimeSystemObject.default.extend({});
-      application.User = _emberRuntimeSystemObject.default.extend({});
-      application.PostIndexController = _emberRuntimeSystemObject.default.extend({});
-
-      application.register('model:person', application.Person, { singleton: false });
-      application.register('model:user', application.User, { singleton: false });
-      application.register('fruit:favorite', application.Orange);
-      application.register('communication:main', application.Email, { singleton: false });
-      application.register('controller:postIndex', application.PostIndexController, { singleton: true });
-
-      registry = application.__registry__;
-      locator = application.__container__;
-
-      lookup = _emberMetalCore.default.lookup = {};
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(application, 'destroy');
-      application = locator = null;
-      _emberMetalCore.default.lookup = originalLookup;
-      _emberMetalCore.default.MODEL_FACTORY_INJECTIONS = originalModelInjections;
-    }
-  });
-
-  QUnit.test('container lookup is normalized', function () {
-    var dotNotationController = locator.lookup('controller:post.index');
-    var camelCaseController = locator.lookup('controller:postIndex');
-
-    ok(dotNotationController instanceof application.PostIndexController);
-    ok(camelCaseController instanceof application.PostIndexController);
-
-    equal(dotNotationController, camelCaseController);
-  });
-
-  QUnit.test('registered entities can be looked up later', function () {
-    equal(registry.resolve('model:person'), application.Person);
-    equal(registry.resolve('model:user'), application.User);
-    equal(registry.resolve('fruit:favorite'), application.Orange);
-    equal(registry.resolve('communication:main'), application.Email);
-    equal(registry.resolve('controller:postIndex'), application.PostIndexController);
-
-    equal(locator.lookup('fruit:favorite'), locator.lookup('fruit:favorite'), 'singleton lookup worked');
-    ok(locator.lookup('model:user') !== locator.lookup('model:user'), 'non-singleton lookup worked');
-  });
-
-  QUnit.test('injections', function () {
-    application.inject('model', 'fruit', 'fruit:favorite');
-    application.inject('model:user', 'communication', 'communication:main');
-
-    var user = locator.lookup('model:user');
-    var person = locator.lookup('model:person');
-    var fruit = locator.lookup('fruit:favorite');
-
-    equal(user.get('fruit'), fruit);
-    equal(person.get('fruit'), fruit);
-
-    ok(application.Email.detectInstance(user.get('communication')));
-  });
-});
 enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry, _emberMetalFeatures) {
   'use strict';
 
@@ -13055,7 +13055,7 @@ enifed('ember-htmlbars/tests/integration/attribute_bindings_test', ['exports', '
     equal(view.$('.falsey').length, 1, 'inverse block rendered properly');
   });
 });
-enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView) {
+enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/component', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsComponent, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberMetalRun_loop) {
   'use strict';
 
   var registry, container, view;
@@ -13160,6 +13160,42 @@ enifed('ember-htmlbars/tests/integration/attrs_lookup_test', ['exports', 'contai
 
     // equal(view.$().text(), 'FIRST ATTR', 'template lookup uses local state');
     equal(component.get('woot'), 'yes', 'component found attr');
+  });
+
+  QUnit.test('should not need to call _super in `didReceiveAttrs` (GH #11992)', function () {
+    expect(12);
+    var firstValue = 'first';
+    var secondValue = 'second';
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+      didReceiveAttrs: function () {
+        var rootFirst = this.get('first');
+        var rootSecond = this.get('second');
+        var attrFirst = this.getAttr('first');
+        var attrSecond = this.getAttr('second');
+
+        equal(rootFirst, attrFirst, 'root property matches attrs value');
+        equal(rootSecond, attrSecond, 'root property matches attrs value');
+
+        equal(rootFirst, firstValue, 'matches known value');
+        equal(rootSecond, secondValue, 'matches known value');
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      first: firstValue,
+      second: secondValue,
+      template: _emberTemplateCompilerSystemCompile.default('{{foo-bar first=view.first second=view.second}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    firstValue = 'asdf';
+    _emberMetalRun_loop.default(view, 'set', 'first', firstValue);
+
+    secondValue = 'jkl;';
+    _emberMetalRun_loop.default(view, 'set', 'second', secondValue);
   });
 });
 enifed('ember-htmlbars/tests/integration/binding_integration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-metal/binding', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-views/views/container_view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-htmlbars/helpers', 'ember-metal/property_set', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberMetalBinding, _emberRuntimeSystemObject, _emberMetalComputed, _emberViewsViewsContainer_view, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberHtmlbarsHelpers, _emberMetalProperty_set, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -23333,6 +23369,24 @@ enifed('ember-metal/tests/streams/stream-test', ['exports', 'ember-metal/streams
     equal(_emberMetalProperty_get.get(stream.value(), 'message'), 'bar');
   });
 });
+enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
+  'use strict';
+
+  QUnit.module('Ember Metal Utils');
+
+  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
+    // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
+    // for it's existence (where a simple `if (Symbol)` would ReferenceError)
+    var Symbol = Symbol || null;
+
+    if (Symbol) {
+      var symbol = Symbol('test');
+      equal(_emberMetalUtils.inspect(symbol), 'Symbol(test)');
+    } else {
+      expect(0);
+    }
+  });
+});
 enifed('ember-metal/tests/utils/can_invoke_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
   'use strict';
 
@@ -23499,24 +23553,6 @@ enifed('ember-metal/tests/utils/try_invoke_test', ['exports', 'ember-metal/utils
 
   QUnit.test('should return what the method returns when asked to perform a method that takes arguments and exists on the object', function () {
     equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
-  });
-});
-enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  QUnit.module('Ember Metal Utils');
-
-  QUnit.test('inspect outputs the toString() representation of Symbols', function () {
-    // Symbol is not defined on pre-ES2015 runtimes, so this let's us safely test
-    // for it's existence (where a simple `if (Symbol)` would ReferenceError)
-    var Symbol = Symbol || null;
-
-    if (Symbol) {
-      var symbol = Symbol('test');
-      equal(_emberMetalUtils.inspect(symbol), 'Symbol(test)');
-    } else {
-      expect(0);
-    }
   });
 });
 enifed('ember-metal/tests/watching/is_watching_test', ['exports', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/watching'], function (exports, _emberMetalComputed, _emberMetalProperty_get, _emberMetalProperties, _emberMetalMixin, _emberMetalObserver, _emberMetalWatching) {
@@ -25467,6 +25503,7 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
 
   registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
   registry.register('component:-link-to', _emberRoutingViewsViewsLink.default);
+  registry.register('component:custom-link-to', _emberRoutingViewsViewsLink.default.extend());
 
   QUnit.module('ember-routing-htmlbars: link-to helper', {
     setup: function () {
@@ -25540,6 +25577,18 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     equal(view.$('b').length, 0, 'no <b> were found');
   });
 
+  QUnit.test('escaped inline form with (-html-safe) does not escape link title', function () {
+    view = _emberViewsViewsView.default.create({
+      title: '<b>blah</b>',
+      template: _emberTemplateCompilerSystemCompile.default('{{link-to (-html-safe view.title)}}'),
+      container: container
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('b').length, 1, '<b> was found');
+  });
+
   QUnit.test('unescaped inline form (triple curlies) does not escape link title', function () {
     view = _emberViewsViewsView.default.create({
       title: '<b>blah</b>',
@@ -25569,6 +25618,18 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
     }, /Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated./);
 
     equal(view.$().text(), 'Text');
+  });
+
+  QUnit.test('able to safely extend the built-in component and use the normal path', function () {
+    view = _emberViewsViewsView.default.create({
+      title: 'my custom link-to component',
+      template: _emberTemplateCompilerSystemCompile.default('{{custom-link-to view.title}}'),
+      container: container
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'my custom link-to component', 'rendered a custom-link-to component');
   });
 });
 enifed('ember-routing-htmlbars/tests/helpers/outlet_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/controllers/controller', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-routing-htmlbars/tests/utils'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeControllersController, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberRoutingHtmlbarsTestsUtils) {
@@ -29705,6 +29766,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     equal(obj.get('total'), 6, 'sums the values');
   });
 
+  QUnit.test('if the dependentKey is neither an array nor object, it will return `0`', function () {
+    _emberMetalProperty_set.set(obj, 'array', null);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', undefined);
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+
+    _emberMetalProperty_set.set(obj, 'array', 'not an array');
+    equal(_emberMetalProperty_get.get(obj, 'total'), 0, 'returns 0');
+  });
+
   QUnit.test('updates when array is modified', function () {
     obj.get('array').pushObject(1);
 
@@ -30015,6 +30087,45 @@ enifed('ember-runtime/tests/core/copy_test', ['exports', 'ember-runtime/copy'], 
     equal(_emberRuntimeCopy.default(obj).foo, 'bar', 'bar should still be bar');
   });
 });
+enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-metal/core', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
+  'use strict';
+
+  QUnit.module('Ember Type Checking');
+
+  var global = undefined;
+
+  QUnit.test('Ember.isArray', function () {
+    var numarray = [1, 2, 3];
+    var number = 23;
+    var strarray = ['Hello', 'Hi'];
+    var string = 'Hello';
+    var object = {};
+    var length = { length: 12 };
+    var fn = function () {};
+    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A() });
+
+    equal(_emberRuntimeUtils.isArray(numarray), true, '[1,2,3]');
+    equal(_emberRuntimeUtils.isArray(number), false, '23');
+    equal(_emberRuntimeUtils.isArray(strarray), true, '["Hello", "Hi"]');
+    equal(_emberRuntimeUtils.isArray(string), false, '"Hello"');
+    equal(_emberRuntimeUtils.isArray(object), false, '{}');
+    equal(_emberRuntimeUtils.isArray(length), true, '{ length: 12 }');
+    equal(_emberRuntimeUtils.isArray(global), false, 'global');
+    equal(_emberRuntimeUtils.isArray(fn), false, 'function() {}');
+    equal(_emberRuntimeUtils.isArray(arrayProxy), true, '[]');
+  });
+});
+enifed('ember-runtime/tests/core/is_empty_test', ['exports', 'ember-metal/core', 'ember-metal/is_empty', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberMetalIs_empty, _emberRuntimeSystemArray_proxy) {
+  'use strict';
+
+  QUnit.module('Ember.isEmpty');
+
+  QUnit.test('Ember.isEmpty', function () {
+    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A() });
+
+    equal(true, _emberMetalIs_empty.default(arrayProxy), 'for an ArrayProxy that has empty content');
+  });
+});
 enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/is-equal'], function (exports, _emberRuntimeIsEqual) {
   'use strict';
 
@@ -30057,45 +30168,6 @@ enifed('ember-runtime/tests/core/isEqual_test', ['exports', 'ember-runtime/is-eq
         return false;
       } };
     equal(_emberRuntimeIsEqual.default(obj, obj), false, 'should return false because isEqual returns false');
-  });
-});
-enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-metal/core', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
-  'use strict';
-
-  QUnit.module('Ember Type Checking');
-
-  var global = undefined;
-
-  QUnit.test('Ember.isArray', function () {
-    var numarray = [1, 2, 3];
-    var number = 23;
-    var strarray = ['Hello', 'Hi'];
-    var string = 'Hello';
-    var object = {};
-    var length = { length: 12 };
-    var fn = function () {};
-    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A() });
-
-    equal(_emberRuntimeUtils.isArray(numarray), true, '[1,2,3]');
-    equal(_emberRuntimeUtils.isArray(number), false, '23');
-    equal(_emberRuntimeUtils.isArray(strarray), true, '["Hello", "Hi"]');
-    equal(_emberRuntimeUtils.isArray(string), false, '"Hello"');
-    equal(_emberRuntimeUtils.isArray(object), false, '{}');
-    equal(_emberRuntimeUtils.isArray(length), true, '{ length: 12 }');
-    equal(_emberRuntimeUtils.isArray(global), false, 'global');
-    equal(_emberRuntimeUtils.isArray(fn), false, 'function() {}');
-    equal(_emberRuntimeUtils.isArray(arrayProxy), true, '[]');
-  });
-});
-enifed('ember-runtime/tests/core/is_empty_test', ['exports', 'ember-metal/core', 'ember-metal/is_empty', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberMetalIs_empty, _emberRuntimeSystemArray_proxy) {
-  'use strict';
-
-  QUnit.module('Ember.isEmpty');
-
-  QUnit.test('Ember.isEmpty', function () {
-    var arrayProxy = _emberRuntimeSystemArray_proxy.default.create({ content: _emberMetalCore.default.A() });
-
-    equal(true, _emberMetalIs_empty.default(arrayProxy), 'for an ArrayProxy that has empty content');
   });
 });
 enifed('ember-runtime/tests/core/type_of_test', ['exports', 'ember-runtime/utils', 'ember-runtime/system/object'], function (exports, _emberRuntimeUtils, _emberRuntimeSystemObject) {
@@ -38079,6 +38151,203 @@ enifed('ember-runtime/tests/system/native_array/suite_test', ['exports', 'ember-
 
   }).run();
 });
+enifed('ember-runtime/tests/system/object_proxy_test', ['exports', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/watching', 'ember-metal/tests/props_helper', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalObserver, _emberMetalComputed, _emberMetalWatching, _emberMetalTestsProps_helper, _emberRuntimeSystemObject_proxy) {
+  'use strict';
+
+  QUnit.module('ObjectProxy');
+
+  _emberMetalTestsProps_helper.testBoth('should not proxy properties passed to create', function (get, set) {
+    var Proxy = _emberRuntimeSystemObject_proxy.default.extend({
+      cp: _emberMetalComputed.computed({
+        get: function (key) {
+          return this._cp;
+        },
+        set: function (key, value) {
+          this._cp = value;
+          return this._cp;
+        }
+      })
+    });
+    var proxy = Proxy.create({
+      prop: 'Foo',
+      cp: 'Bar'
+    });
+
+    equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
+    equal(proxy._cp, 'Bar', 'should use CP setter');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('should proxy properties to content', function (get, set) {
+    var content = {
+      firstName: 'Tom',
+      lastName: 'Dale',
+      unknownProperty: function (key) {
+        return key + ' unknown';
+      }
+    };
+    var proxy = _emberRuntimeSystemObject_proxy.default.create();
+
+    equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
+    expectAssertion(function () {
+      set(proxy, 'firstName', 'Foo');
+    }, /Cannot delegate set\('firstName', Foo\) to the 'content'/i);
+
+    set(proxy, 'content', content);
+
+    equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
+    equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
+    equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
+
+    set(proxy, 'lastName', 'Huda');
+
+    equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
+    equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
+
+    set(proxy, 'content', { firstName: 'Yehuda', lastName: 'Katz' });
+
+    equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
+    equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('should work with watched properties', function (get, set) {
+    var content1 = { firstName: 'Tom', lastName: 'Dale' };
+    var content2 = { firstName: 'Yehuda', lastName: 'Katz' };
+    var count = 0;
+    var Proxy, proxy, last;
+
+    Proxy = _emberRuntimeSystemObject_proxy.default.extend({
+      fullName: _emberMetalComputed.computed(function () {
+        var firstName = this.get('firstName');
+        var lastName = this.get('lastName');
+
+        if (firstName && lastName) {
+          return firstName + ' ' + lastName;
+        }
+        return firstName || lastName;
+      }).property('firstName', 'lastName')
+    });
+
+    proxy = Proxy.create();
+
+    _emberMetalObserver.addObserver(proxy, 'fullName', function () {
+      last = get(proxy, 'fullName');
+      count++;
+    });
+
+    // proxy without content returns undefined
+    equal(get(proxy, 'fullName'), undefined);
+
+    // setting content causes all watched properties to change
+    set(proxy, 'content', content1);
+    // both dependent keys changed
+    equal(count, 2);
+    equal(last, 'Tom Dale');
+
+    // setting property in content causes proxy property to change
+    set(content1, 'lastName', 'Huda');
+    equal(count, 3);
+    equal(last, 'Tom Huda');
+
+    // replacing content causes all watched properties to change
+    set(proxy, 'content', content2);
+    // both dependent keys changed
+    equal(count, 5);
+    equal(last, 'Yehuda Katz');
+    // content1 is no longer watched
+    ok(!_emberMetalWatching.isWatching(content1, 'firstName'), 'not watching firstName');
+    ok(!_emberMetalWatching.isWatching(content1, 'lastName'), 'not watching lastName');
+
+    // setting property in new content
+    set(content2, 'firstName', 'Tomhuda');
+    equal(last, 'Tomhuda Katz');
+    equal(count, 6);
+
+    // setting property in proxy syncs with new content
+    set(proxy, 'lastName', 'Katzdale');
+    equal(count, 7);
+    equal(last, 'Tomhuda Katzdale');
+    equal(get(content2, 'firstName'), 'Tomhuda');
+    equal(get(content2, 'lastName'), 'Katzdale');
+  });
+
+  QUnit.test('set and get should work with paths', function () {
+    var content = { foo: { bar: 'baz' } };
+    var proxy = _emberRuntimeSystemObject_proxy.default.create({ content: content });
+    var count = 0;
+
+    proxy.set('foo.bar', 'hello');
+    equal(proxy.get('foo.bar'), 'hello');
+    equal(proxy.get('content.foo.bar'), 'hello');
+
+    proxy.addObserver('foo.bar', function () {
+      count++;
+    });
+
+    proxy.set('foo.bar', 'bye');
+
+    equal(count, 1);
+    equal(proxy.get('foo.bar'), 'bye');
+    equal(proxy.get('content.foo.bar'), 'bye');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('should transition between watched and unwatched strategies', function (get, set) {
+    var content = { foo: 'foo' };
+    var proxy = _emberRuntimeSystemObject_proxy.default.create({ content: content });
+    var count = 0;
+
+    function observer() {
+      count++;
+    }
+
+    equal(get(proxy, 'foo'), 'foo');
+
+    set(content, 'foo', 'bar');
+
+    equal(get(proxy, 'foo'), 'bar');
+
+    set(proxy, 'foo', 'foo');
+
+    equal(get(content, 'foo'), 'foo');
+    equal(get(proxy, 'foo'), 'foo');
+
+    _emberMetalObserver.addObserver(proxy, 'foo', observer);
+
+    equal(count, 0);
+    equal(get(proxy, 'foo'), 'foo');
+
+    set(content, 'foo', 'bar');
+
+    equal(count, 1);
+    equal(get(proxy, 'foo'), 'bar');
+
+    set(proxy, 'foo', 'foo');
+
+    equal(count, 2);
+    equal(get(content, 'foo'), 'foo');
+    equal(get(proxy, 'foo'), 'foo');
+
+    _emberMetalObserver.removeObserver(proxy, 'foo', observer);
+
+    set(content, 'foo', 'bar');
+
+    equal(get(proxy, 'foo'), 'bar');
+
+    set(proxy, 'foo', 'foo');
+
+    equal(get(content, 'foo'), 'foo');
+    equal(get(proxy, 'foo'), 'foo');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('setting `undefined` to a proxied content property should override its existing value', function (get, set) {
+    var proxyObject = _emberRuntimeSystemObject_proxy.default.create({
+      content: {
+        prop: 'emberjs'
+      }
+    });
+    set(proxyObject, 'prop', undefined);
+    equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
+  });
+});
 enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-metal/alias', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/mixin', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalAlias, _emberMetalComputed, _emberMetalProperty_get, _emberMetalMixin, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -38581,6 +38850,37 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
 // MANDATORY_SETTER moves value to meta.values
 // a destroyed object removes meta but leaves the accessor
 // that looks it up
+enifed('ember-runtime/tests/system/object/detect_test', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
+  'use strict';
+
+  QUnit.module('system/object/detect');
+
+  QUnit.test('detect detects classes correctly', function () {
+    var A = _emberRuntimeSystemObject.default.extend();
+    var B = A.extend();
+    var C = A.extend();
+
+    ok(_emberRuntimeSystemObject.default.detect(_emberRuntimeSystemObject.default), 'EmberObject is an EmberObject class');
+    ok(_emberRuntimeSystemObject.default.detect(A), 'A is an EmberObject class');
+    ok(_emberRuntimeSystemObject.default.detect(B), 'B is an EmberObject class');
+    ok(_emberRuntimeSystemObject.default.detect(C), 'C is an EmberObject class');
+
+    ok(!A.detect(_emberRuntimeSystemObject.default), 'EmberObject is not an A class');
+    ok(A.detect(A), 'A is an A class');
+    ok(A.detect(B), 'B is an A class');
+    ok(A.detect(C), 'C is an A class');
+
+    ok(!B.detect(_emberRuntimeSystemObject.default), 'EmberObject is not a B class');
+    ok(!B.detect(A), 'A is not a B class');
+    ok(B.detect(B), 'B is a B class');
+    ok(!B.detect(C), 'C is not a B class');
+
+    ok(!C.detect(_emberRuntimeSystemObject.default), 'EmberObject is not a C class');
+    ok(!C.detect(A), 'A is not a C class');
+    ok(!C.detect(B), 'B is not a C class');
+    ok(C.detect(C), 'C is a C class');
+  });
+});
 enifed('ember-runtime/tests/system/object/detectInstance_test', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -38615,37 +38915,6 @@ enifed('ember-runtime/tests/system/object/detectInstance_test', ['exports', 'emb
     ok(!C.detectInstance(a), 'a is not an instance of C');
     ok(!C.detectInstance(b), 'b is not an instance of C');
     ok(C.detectInstance(c), 'c is an instance of C');
-  });
-});
-enifed('ember-runtime/tests/system/object/detect_test', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
-  'use strict';
-
-  QUnit.module('system/object/detect');
-
-  QUnit.test('detect detects classes correctly', function () {
-    var A = _emberRuntimeSystemObject.default.extend();
-    var B = A.extend();
-    var C = A.extend();
-
-    ok(_emberRuntimeSystemObject.default.detect(_emberRuntimeSystemObject.default), 'EmberObject is an EmberObject class');
-    ok(_emberRuntimeSystemObject.default.detect(A), 'A is an EmberObject class');
-    ok(_emberRuntimeSystemObject.default.detect(B), 'B is an EmberObject class');
-    ok(_emberRuntimeSystemObject.default.detect(C), 'C is an EmberObject class');
-
-    ok(!A.detect(_emberRuntimeSystemObject.default), 'EmberObject is not an A class');
-    ok(A.detect(A), 'A is an A class');
-    ok(A.detect(B), 'B is an A class');
-    ok(A.detect(C), 'C is an A class');
-
-    ok(!B.detect(_emberRuntimeSystemObject.default), 'EmberObject is not a B class');
-    ok(!B.detect(A), 'A is not a B class');
-    ok(B.detect(B), 'B is a B class');
-    ok(!B.detect(C), 'C is not a B class');
-
-    ok(!C.detect(_emberRuntimeSystemObject.default), 'EmberObject is not a C class');
-    ok(!C.detect(A), 'A is not a C class');
-    ok(!C.detect(B), 'B is not a C class');
-    ok(C.detect(C), 'C is a C class');
   });
 });
 enifed('ember-runtime/tests/system/object/events_test', ['exports', 'ember-runtime/system/object', 'ember-runtime/mixins/evented'], function (exports, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented) {
@@ -39111,39 +39380,6 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
     equal(changed, true, 'child should have been notified of change to path');
   });
 });
-enifed('ember-runtime/tests/system/object/reopenClass_test', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject) {
-  'use strict';
-
-  QUnit.module('system/object/reopenClass');
-
-  QUnit.test('adds new properties to subclass', function () {
-    var Subclass = _emberRuntimeSystemObject.default.extend();
-    Subclass.reopenClass({
-      foo: function () {
-        return 'FOO';
-      },
-      bar: 'BAR'
-    });
-
-    equal(Subclass.foo(), 'FOO', 'Adds method');
-    equal(_emberMetalProperty_get.get(Subclass, 'bar'), 'BAR', 'Adds property');
-  });
-
-  QUnit.test('class properties inherited by subclasses', function () {
-    var Subclass = _emberRuntimeSystemObject.default.extend();
-    Subclass.reopenClass({
-      foo: function () {
-        return 'FOO';
-      },
-      bar: 'BAR'
-    });
-
-    var SubSub = Subclass.extend();
-
-    equal(SubSub.foo(), 'FOO', 'Adds method');
-    equal(_emberMetalProperty_get.get(SubSub, 'bar'), 'BAR', 'Adds property');
-  });
-});
 enifed('ember-runtime/tests/system/object/reopen_test', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -39187,6 +39423,39 @@ enifed('ember-runtime/tests/system/object/reopen_test', ['exports', 'ember-metal
     });
 
     equal(Subclass.create().get('trololol'), true, 'reopen works');
+  });
+});
+enifed('ember-runtime/tests/system/object/reopenClass_test', ['exports', 'ember-metal/property_get', 'ember-runtime/system/object'], function (exports, _emberMetalProperty_get, _emberRuntimeSystemObject) {
+  'use strict';
+
+  QUnit.module('system/object/reopenClass');
+
+  QUnit.test('adds new properties to subclass', function () {
+    var Subclass = _emberRuntimeSystemObject.default.extend();
+    Subclass.reopenClass({
+      foo: function () {
+        return 'FOO';
+      },
+      bar: 'BAR'
+    });
+
+    equal(Subclass.foo(), 'FOO', 'Adds method');
+    equal(_emberMetalProperty_get.get(Subclass, 'bar'), 'BAR', 'Adds property');
+  });
+
+  QUnit.test('class properties inherited by subclasses', function () {
+    var Subclass = _emberRuntimeSystemObject.default.extend();
+    Subclass.reopenClass({
+      foo: function () {
+        return 'FOO';
+      },
+      bar: 'BAR'
+    });
+
+    var SubSub = Subclass.extend();
+
+    equal(SubSub.foo(), 'FOO', 'Adds method');
+    equal(_emberMetalProperty_get.get(SubSub, 'bar'), 'BAR', 'Adds property');
   });
 });
 enifed('ember-runtime/tests/system/object/strict-mode-test', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
@@ -39352,203 +39621,6 @@ enifed('ember-runtime/tests/system/object/toString_test', ['exports', 'ember-met
 
     equal(bar.toString(), '<Bar:' + _emberMetalUtils.guidFor(bar) + '>', 'does not include toStringExtension part');
     equal(foo.toString(), '<Foo:' + _emberMetalUtils.guidFor(foo) + ':fooey>', 'Includes toStringExtension result');
-  });
-});
-enifed('ember-runtime/tests/system/object_proxy_test', ['exports', 'ember-metal/observer', 'ember-metal/computed', 'ember-metal/watching', 'ember-metal/tests/props_helper', 'ember-runtime/system/object_proxy'], function (exports, _emberMetalObserver, _emberMetalComputed, _emberMetalWatching, _emberMetalTestsProps_helper, _emberRuntimeSystemObject_proxy) {
-  'use strict';
-
-  QUnit.module('ObjectProxy');
-
-  _emberMetalTestsProps_helper.testBoth('should not proxy properties passed to create', function (get, set) {
-    var Proxy = _emberRuntimeSystemObject_proxy.default.extend({
-      cp: _emberMetalComputed.computed({
-        get: function (key) {
-          return this._cp;
-        },
-        set: function (key, value) {
-          this._cp = value;
-          return this._cp;
-        }
-      })
-    });
-    var proxy = Proxy.create({
-      prop: 'Foo',
-      cp: 'Bar'
-    });
-
-    equal(get(proxy, 'prop'), 'Foo', 'should not have tried to proxy set');
-    equal(proxy._cp, 'Bar', 'should use CP setter');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('should proxy properties to content', function (get, set) {
-    var content = {
-      firstName: 'Tom',
-      lastName: 'Dale',
-      unknownProperty: function (key) {
-        return key + ' unknown';
-      }
-    };
-    var proxy = _emberRuntimeSystemObject_proxy.default.create();
-
-    equal(get(proxy, 'firstName'), undefined, 'get on proxy without content should return undefined');
-    expectAssertion(function () {
-      set(proxy, 'firstName', 'Foo');
-    }, /Cannot delegate set\('firstName', Foo\) to the 'content'/i);
-
-    set(proxy, 'content', content);
-
-    equal(get(proxy, 'firstName'), 'Tom', 'get on proxy with content should forward to content');
-    equal(get(proxy, 'lastName'), 'Dale', 'get on proxy with content should forward to content');
-    equal(get(proxy, 'foo'), 'foo unknown', 'get on proxy with content should forward to content');
-
-    set(proxy, 'lastName', 'Huda');
-
-    equal(get(content, 'lastName'), 'Huda', 'content should have new value from set on proxy');
-    equal(get(proxy, 'lastName'), 'Huda', 'proxy should have new value from set on proxy');
-
-    set(proxy, 'content', { firstName: 'Yehuda', lastName: 'Katz' });
-
-    equal(get(proxy, 'firstName'), 'Yehuda', 'proxy should reflect updated content');
-    equal(get(proxy, 'lastName'), 'Katz', 'proxy should reflect updated content');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('should work with watched properties', function (get, set) {
-    var content1 = { firstName: 'Tom', lastName: 'Dale' };
-    var content2 = { firstName: 'Yehuda', lastName: 'Katz' };
-    var count = 0;
-    var Proxy, proxy, last;
-
-    Proxy = _emberRuntimeSystemObject_proxy.default.extend({
-      fullName: _emberMetalComputed.computed(function () {
-        var firstName = this.get('firstName');
-        var lastName = this.get('lastName');
-
-        if (firstName && lastName) {
-          return firstName + ' ' + lastName;
-        }
-        return firstName || lastName;
-      }).property('firstName', 'lastName')
-    });
-
-    proxy = Proxy.create();
-
-    _emberMetalObserver.addObserver(proxy, 'fullName', function () {
-      last = get(proxy, 'fullName');
-      count++;
-    });
-
-    // proxy without content returns undefined
-    equal(get(proxy, 'fullName'), undefined);
-
-    // setting content causes all watched properties to change
-    set(proxy, 'content', content1);
-    // both dependent keys changed
-    equal(count, 2);
-    equal(last, 'Tom Dale');
-
-    // setting property in content causes proxy property to change
-    set(content1, 'lastName', 'Huda');
-    equal(count, 3);
-    equal(last, 'Tom Huda');
-
-    // replacing content causes all watched properties to change
-    set(proxy, 'content', content2);
-    // both dependent keys changed
-    equal(count, 5);
-    equal(last, 'Yehuda Katz');
-    // content1 is no longer watched
-    ok(!_emberMetalWatching.isWatching(content1, 'firstName'), 'not watching firstName');
-    ok(!_emberMetalWatching.isWatching(content1, 'lastName'), 'not watching lastName');
-
-    // setting property in new content
-    set(content2, 'firstName', 'Tomhuda');
-    equal(last, 'Tomhuda Katz');
-    equal(count, 6);
-
-    // setting property in proxy syncs with new content
-    set(proxy, 'lastName', 'Katzdale');
-    equal(count, 7);
-    equal(last, 'Tomhuda Katzdale');
-    equal(get(content2, 'firstName'), 'Tomhuda');
-    equal(get(content2, 'lastName'), 'Katzdale');
-  });
-
-  QUnit.test('set and get should work with paths', function () {
-    var content = { foo: { bar: 'baz' } };
-    var proxy = _emberRuntimeSystemObject_proxy.default.create({ content: content });
-    var count = 0;
-
-    proxy.set('foo.bar', 'hello');
-    equal(proxy.get('foo.bar'), 'hello');
-    equal(proxy.get('content.foo.bar'), 'hello');
-
-    proxy.addObserver('foo.bar', function () {
-      count++;
-    });
-
-    proxy.set('foo.bar', 'bye');
-
-    equal(count, 1);
-    equal(proxy.get('foo.bar'), 'bye');
-    equal(proxy.get('content.foo.bar'), 'bye');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('should transition between watched and unwatched strategies', function (get, set) {
-    var content = { foo: 'foo' };
-    var proxy = _emberRuntimeSystemObject_proxy.default.create({ content: content });
-    var count = 0;
-
-    function observer() {
-      count++;
-    }
-
-    equal(get(proxy, 'foo'), 'foo');
-
-    set(content, 'foo', 'bar');
-
-    equal(get(proxy, 'foo'), 'bar');
-
-    set(proxy, 'foo', 'foo');
-
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
-
-    _emberMetalObserver.addObserver(proxy, 'foo', observer);
-
-    equal(count, 0);
-    equal(get(proxy, 'foo'), 'foo');
-
-    set(content, 'foo', 'bar');
-
-    equal(count, 1);
-    equal(get(proxy, 'foo'), 'bar');
-
-    set(proxy, 'foo', 'foo');
-
-    equal(count, 2);
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
-
-    _emberMetalObserver.removeObserver(proxy, 'foo', observer);
-
-    set(content, 'foo', 'bar');
-
-    equal(get(proxy, 'foo'), 'bar');
-
-    set(proxy, 'foo', 'foo');
-
-    equal(get(content, 'foo'), 'foo');
-    equal(get(proxy, 'foo'), 'foo');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('setting `undefined` to a proxied content property should override its existing value', function (get, set) {
-    var proxyObject = _emberRuntimeSystemObject_proxy.default.create({
-      content: {
-        prop: 'emberjs'
-      }
-    });
-    set(proxyObject, 'prop', undefined);
-    equal(get(proxyObject, 'prop'), undefined, 'sets the `undefined` value to the proxied content');
   });
 });
 enifed('ember-runtime/tests/system/string/camelize_test', ['exports', 'ember-metal/core', 'ember-runtime/system/string'], function (exports, _emberMetalCore, _emberRuntimeSystemString) {
@@ -40100,6 +40172,45 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {
   "use strict";
 });
+enifed('ember-template-compiler/tests/plugins_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile) {
+  'use strict';
+
+  var originalASTPlugins;
+
+  QUnit.module('ember-htmlbars: Ember.HTMLBars.registerASTPlugin', {
+    setup: function () {
+      originalASTPlugins = _emberTemplateCompilerPlugins.default.ast.slice();
+    },
+
+    teardown: function () {
+      _emberTemplateCompilerPlugins.default.ast = originalASTPlugins;
+    }
+  });
+
+  QUnit.test('registering a plugin adds it to htmlbars-compiler options', function () {
+    expect(2);
+
+    function TestPlugin() {
+      ok(true, 'TestPlugin instantiated');
+    }
+
+    TestPlugin.prototype.transform = function (ast) {
+      ok(true, 'transform was called');
+
+      return ast;
+    };
+
+    _emberTemplateCompilerPlugins.registerPlugin('ast', TestPlugin);
+
+    _emberTemplateCompilerSystemCompile.default('some random template');
+  });
+
+  QUnit.test('registering an unknown type throws an error', function () {
+    throws(function () {
+      _emberTemplateCompilerPlugins.registerPlugin('asdf', 'whatever');
+    }, /Attempting to register "whatever" as "asdf" which is not a valid HTMLBars plugin type./);
+  });
+});
 enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
   'use strict';
 
@@ -40190,45 +40301,6 @@ enifed('ember-template-compiler/tests/plugins/transform-input-on-test', ['export
     }, 'Using \'{{input on="asdf" ...}}\' without specifying an action (\'foo/bar/baz\' @ L1:C0) will do nothing.');
   });
 });
-enifed('ember-template-compiler/tests/plugins_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile) {
-  'use strict';
-
-  var originalASTPlugins;
-
-  QUnit.module('ember-htmlbars: Ember.HTMLBars.registerASTPlugin', {
-    setup: function () {
-      originalASTPlugins = _emberTemplateCompilerPlugins.default.ast.slice();
-    },
-
-    teardown: function () {
-      _emberTemplateCompilerPlugins.default.ast = originalASTPlugins;
-    }
-  });
-
-  QUnit.test('registering a plugin adds it to htmlbars-compiler options', function () {
-    expect(2);
-
-    function TestPlugin() {
-      ok(true, 'TestPlugin instantiated');
-    }
-
-    TestPlugin.prototype.transform = function (ast) {
-      ok(true, 'transform was called');
-
-      return ast;
-    };
-
-    _emberTemplateCompilerPlugins.registerPlugin('ast', TestPlugin);
-
-    _emberTemplateCompilerSystemCompile.default('some random template');
-  });
-
-  QUnit.test('registering an unknown type throws an error', function () {
-    throws(function () {
-      _emberTemplateCompilerPlugins.registerPlugin('asdf', 'whatever');
-    }, /Attempting to register "whatever" as "asdf" which is not a valid HTMLBars plugin type./);
-  });
-});
 enifed('ember-template-compiler/tests/system/compile_options_test', ['exports', 'ember-template-compiler/plugins', 'ember-template-compiler/system/compile_options'], function (exports, _emberTemplateCompilerPlugins, _emberTemplateCompilerSystemCompile_options) {
   'use strict';
 
@@ -40305,7 +40377,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0-beta.1+4660c97d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0-beta.1+4f3a1f9f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -40729,6 +40801,56 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
 // ensure the initializer is setup
 
 //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
+enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal/run_loop', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberApplicationSystemApplication) {
+  'use strict';
+
+  var App, originalAdapter;
+
+  QUnit.module('ember-testing Adapters', {
+    setup: function () {
+      originalAdapter = _emberTestingTest.default.adapter;
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(App, App.destroy);
+      App.removeTestHelpers();
+      App = null;
+
+      _emberTestingTest.default.adapter = originalAdapter;
+    }
+  });
+
+  QUnit.test('Setting a test adapter manually', function () {
+    expect(1);
+    var CustomAdapter;
+
+    CustomAdapter = _emberTestingAdaptersAdapter.default.extend({
+      asyncStart: function () {
+        ok(true, 'Correct adapter was used');
+      }
+    });
+
+    _emberMetalRun_loop.default(function () {
+      App = _emberApplicationSystemApplication.default.create();
+      _emberTestingTest.default.adapter = CustomAdapter.create();
+      App.setupForTesting();
+    });
+
+    _emberTestingTest.default.adapter.asyncStart();
+  });
+
+  QUnit.test('QUnitAdapter is used by default', function () {
+    expect(1);
+
+    _emberTestingTest.default.adapter = null;
+
+    _emberMetalRun_loop.default(function () {
+      App = _emberApplicationSystemApplication.default.create();
+      App.setupForTesting();
+    });
+
+    ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default);
+  });
+});
 enifed('ember-testing/tests/adapters/adapter_test', ['exports', 'ember-metal/run_loop', 'ember-testing/adapters/adapter'], function (exports, _emberMetalRun_loop, _emberTestingAdaptersAdapter) {
   'use strict';
 
@@ -40814,56 +40936,6 @@ enifed('ember-testing/tests/adapters/qunit_test', ['exports', 'ember-metal/run_l
     } finally {
       window.ok = originalOk;
     }
-  });
-});
-enifed('ember-testing/tests/adapters_test', ['exports', 'ember-metal/run_loop', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberApplicationSystemApplication) {
-  'use strict';
-
-  var App, originalAdapter;
-
-  QUnit.module('ember-testing Adapters', {
-    setup: function () {
-      originalAdapter = _emberTestingTest.default.adapter;
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(App, App.destroy);
-      App.removeTestHelpers();
-      App = null;
-
-      _emberTestingTest.default.adapter = originalAdapter;
-    }
-  });
-
-  QUnit.test('Setting a test adapter manually', function () {
-    expect(1);
-    var CustomAdapter;
-
-    CustomAdapter = _emberTestingAdaptersAdapter.default.extend({
-      asyncStart: function () {
-        ok(true, 'Correct adapter was used');
-      }
-    });
-
-    _emberMetalRun_loop.default(function () {
-      App = _emberApplicationSystemApplication.default.create();
-      _emberTestingTest.default.adapter = CustomAdapter.create();
-      App.setupForTesting();
-    });
-
-    _emberTestingTest.default.adapter.asyncStart();
-  });
-
-  QUnit.test('QUnitAdapter is used by default', function () {
-    expect(1);
-
-    _emberTestingTest.default.adapter = null;
-
-    _emberMetalRun_loop.default(function () {
-      App = _emberApplicationSystemApplication.default.create();
-      App.setupForTesting();
-    });
-
-    ok(_emberTestingTest.default.adapter instanceof _emberTestingAdaptersQunit.default);
   });
 });
 enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/run_loop', 'ember-testing/test', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberTestingTest, _emberApplicationSystemApplication) {
@@ -46335,6 +46407,180 @@ enifed('ember-views/tests/views/text_field_test', ['exports', 'ember-metal/run_l
     equal(view.element.type, 'text');
   });
 });
+enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalComputed, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+  'use strict';
+
+  var view, originalViewKeyword;
+
+  QUnit.module('Ember.View', {
+    setup: function () {
+      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(function () {
+        view.destroy();
+      });
+      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+    }
+  });
+
+  QUnit.test('should add ember-view to views', function () {
+    view = _emberViewsViewsView.default.create();
+
+    _emberMetalRun_loop.default(function () {
+      view.createElement();
+    });
+
+    ok(view.$().hasClass('ember-view'), 'the view has ember-view');
+  });
+
+  QUnit.test('should not add role attribute unless one is specified', function () {
+    view = _emberViewsViewsView.default.create();
+
+    _emberMetalRun_loop.default(function () {
+      view.createElement();
+    });
+
+    ok(view.$().attr('role') === undefined, 'does not have a role attribute');
+  });
+
+  QUnit.test('should allow tagName to be a computed property [DEPRECATED]', function () {
+    view = _emberViewsViewsView.default.extend({
+      tagName: _emberMetalComputed.computed(function () {
+        return 'span';
+      })
+    }).create();
+
+    expectDeprecation(function () {
+      _emberMetalRun_loop.default(function () {
+        view.createElement();
+      });
+    }, /using a computed property to define tagName will not be permitted/);
+
+    equal(view.element.tagName, 'SPAN', 'the view has was created with the correct element');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('tagName', 'div');
+    });
+
+    equal(view.element.tagName, 'SPAN', 'the tagName cannot be changed after initial render');
+  });
+
+  QUnit.test('should re-render if the context is changed', function () {
+    view = _emberViewsViewsView.default.create({
+      elementId: 'template-context-test',
+      context: { foo: 'bar' },
+      template: _emberTemplateCompiler.compile('{{foo}}')
+    });
+
+    _emberMetalRun_loop.default(function () {
+      view.appendTo('#qunit-fixture');
+    });
+
+    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bar', 'precond - renders the view with the initial value');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context', {
+        foo: 'bang baz'
+      });
+    });
+
+    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bang baz', 're-renders the view with the updated context');
+  });
+
+  QUnit.test('renders a contained view with omitted start tag and tagless parent view context', function () {
+    view = _emberViewsViewsView.default.create({
+      tagName: 'table',
+      template: _emberTemplateCompiler.compile('{{view view.pivot}}'),
+      pivot: _emberViewsViewsView.default.extend({
+        tagName: '',
+        template: _emberTemplateCompiler.compile('{{view view.row}}'),
+        row: _emberViewsViewsView.default.extend({
+          tagName: 'tr'
+        })
+      })
+    });
+
+    _emberMetalRun_loop.default(view, view.append);
+
+    equal(view.element.tagName, 'TABLE', 'container view is table');
+    ok(view.$('tr').length, 'inner view is tr');
+
+    _emberMetalRun_loop.default(view, view.rerender);
+
+    equal(view.element.tagName, 'TABLE', 'container view is table');
+    ok(view.$('tr').length, 'inner view is tr');
+  });
+
+  QUnit.test('propagates dependent-key invalidated sets upstream', function () {
+    view = _emberViewsViewsView.default.create({
+      parentProp: 'parent-value',
+      template: _emberTemplateCompiler.compile('{{view view.childView childProp=view.parentProp}}'),
+      childView: _emberViewsViewsView.default.create({
+        template: _emberTemplateCompiler.compile('child template'),
+        childProp: 'old-value'
+      })
+    });
+
+    _emberMetalRun_loop.default(view, view.append);
+
+    equal(view.get('parentProp'), 'parent-value', 'precond - parent value is there');
+    var childView = view.get('childView');
+
+    _emberMetalRun_loop.default(function () {
+      childView.set('childProp', 'new-value');
+    });
+
+    equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
+  });
+
+  QUnit.test('propagates dependent-key invalidated bindings upstream', function () {
+    view = _emberViewsViewsView.default.create({
+      parentProp: 'parent-value',
+      template: _emberTemplateCompiler.compile('{{view view.childView childProp=view.parentProp}}'),
+      childView: _emberViewsViewsView.default.extend({
+        template: _emberTemplateCompiler.compile('child template'),
+        childProp: _emberMetalCore.default.computed('dependencyProp', {
+          get: function (key) {
+            return this.get('dependencyProp');
+          },
+          set: function (key, value) {
+            // Avoid getting stomped by the template attrs
+            return this.get('dependencyProp');
+          }
+        }),
+        dependencyProp: 'old-value'
+      }).create()
+    });
+
+    _emberMetalRun_loop.default(view, view.append);
+
+    equal(view.get('parentProp'), 'parent-value', 'precond - parent value is there');
+    var childView = view.get('childView');
+    _emberMetalRun_loop.default(function () {
+      return childView.set('dependencyProp', 'new-value');
+    });
+    equal(childView.get('childProp'), 'new-value', 'pre-cond - new value is propagated to CP');
+    equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
+  });
+
+  QUnit.module('DeprecatedView');
+
+  QUnit.test('calling reopen on DeprecatedView delegates to View', function () {
+    expect(2);
+    var originalReopen = _emberViewsViewsView.default.reopen;
+    var obj = {};
+
+    _emberViewsViewsView.default.reopen = function (arg) {
+      ok(arg === obj);
+    };
+
+    expectNoDeprecation();
+    _emberViewsViewsView.DeprecatedView.reopen(obj);
+
+    _emberViewsViewsView.default.reopen = originalReopen;
+  });
+});
 enifed('ember-views/tests/views/view/actions_test', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-runtime/controllers/controller', 'ember-runtime/system/object', 'ember-views/views/view'], function (exports, _emberMetalRun_loop, _emberMetalMixin, _emberRuntimeControllersController, _emberRuntimeSystemObject, _emberViewsViewsView) {
   'use strict';
 
@@ -48101,6 +48347,37 @@ enifed('ember-views/tests/views/view/create_element_test', ['exports', 'ember-me
     ok(view.$('#foo').length, 'has element with child elementId');
   });
 });
+enifed('ember-views/tests/views/view/current_state_deprecation_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop'], function (exports, _emberViewsViewsView, _emberMetalRun_loop) {
+  'use strict';
+
+  var view;
+
+  QUnit.module('views/view/current_state_deprecation', {
+    setup: function () {
+      view = _emberViewsViewsView.default.create();
+    },
+    teardown: function () {
+      _emberMetalRun_loop.default(view, 'destroy');
+    }
+  });
+
+  QUnit.test('deprecates when calling currentState', function () {
+    expect(2);
+
+    view = _emberViewsViewsView.default.create();
+
+    expectDeprecation(function () {
+      equal(view.currentState, view._currentState);
+    }, 'Usage of `currentState` is deprecated, use `_currentState` instead.');
+  });
+
+  QUnit.test('doesn\'t deprecate when calling _currentState', function () {
+    expect(1);
+
+    view = _emberViewsViewsView.default.create();
+    ok(view._currentState, '_currentState can be used without deprecation');
+  });
+});
 enifed('ember-views/tests/views/view/destroy_element_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
@@ -49368,7 +49645,7 @@ enifed('ember-views/tests/views/view/replace_in_test', ['exports', 'ember-metal/
       view.replaceIn('#menu');
     });
 
-    equal(view.currentState, view._states.inDOM, 'the view is in the inDOM state');
+    equal(view._currentState, view._states.inDOM, 'the view is in the inDOM state');
   });
 
   QUnit.module('EmberView - replaceIn() in a view hierarchy', {
@@ -49933,185 +50210,11 @@ enifed('ember-views/tests/views/view/view_lifecycle_test', ['exports', 'ember-me
       view.rerender();
     });
 
-    equal(view.currentState, view._states.inDOM, 'the view is still in the inDOM state');
+    equal(view._currentState, view._states.inDOM, 'the view is still in the inDOM state');
 
     _emberMetalRun_loop.default(function () {
       view.destroy();
     });
-  });
-});
-enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/core', 'ember-metal/computed', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalComputed, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsView, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
-  'use strict';
-
-  var view, originalViewKeyword;
-
-  QUnit.module('Ember.View', {
-    setup: function () {
-      originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
-    },
-    teardown: function () {
-      _emberMetalRun_loop.default(function () {
-        view.destroy();
-      });
-      _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
-    }
-  });
-
-  QUnit.test('should add ember-view to views', function () {
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$().hasClass('ember-view'), 'the view has ember-view');
-  });
-
-  QUnit.test('should not add role attribute unless one is specified', function () {
-    view = _emberViewsViewsView.default.create();
-
-    _emberMetalRun_loop.default(function () {
-      view.createElement();
-    });
-
-    ok(view.$().attr('role') === undefined, 'does not have a role attribute');
-  });
-
-  QUnit.test('should allow tagName to be a computed property [DEPRECATED]', function () {
-    view = _emberViewsViewsView.default.extend({
-      tagName: _emberMetalComputed.computed(function () {
-        return 'span';
-      })
-    }).create();
-
-    expectDeprecation(function () {
-      _emberMetalRun_loop.default(function () {
-        view.createElement();
-      });
-    }, /using a computed property to define tagName will not be permitted/);
-
-    equal(view.element.tagName, 'SPAN', 'the view has was created with the correct element');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('tagName', 'div');
-    });
-
-    equal(view.element.tagName, 'SPAN', 'the tagName cannot be changed after initial render');
-  });
-
-  QUnit.test('should re-render if the context is changed', function () {
-    view = _emberViewsViewsView.default.create({
-      elementId: 'template-context-test',
-      context: { foo: 'bar' },
-      template: _emberTemplateCompiler.compile('{{foo}}')
-    });
-
-    _emberMetalRun_loop.default(function () {
-      view.appendTo('#qunit-fixture');
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bar', 'precond - renders the view with the initial value');
-
-    _emberMetalRun_loop.default(function () {
-      view.set('context', {
-        foo: 'bang baz'
-      });
-    });
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #template-context-test').text(), 'bang baz', 're-renders the view with the updated context');
-  });
-
-  QUnit.test('renders a contained view with omitted start tag and tagless parent view context', function () {
-    view = _emberViewsViewsView.default.create({
-      tagName: 'table',
-      template: _emberTemplateCompiler.compile('{{view view.pivot}}'),
-      pivot: _emberViewsViewsView.default.extend({
-        tagName: '',
-        template: _emberTemplateCompiler.compile('{{view view.row}}'),
-        row: _emberViewsViewsView.default.extend({
-          tagName: 'tr'
-        })
-      })
-    });
-
-    _emberMetalRun_loop.default(view, view.append);
-
-    equal(view.element.tagName, 'TABLE', 'container view is table');
-    ok(view.$('tr').length, 'inner view is tr');
-
-    _emberMetalRun_loop.default(view, view.rerender);
-
-    equal(view.element.tagName, 'TABLE', 'container view is table');
-    ok(view.$('tr').length, 'inner view is tr');
-  });
-
-  QUnit.test('propagates dependent-key invalidated sets upstream', function () {
-    view = _emberViewsViewsView.default.create({
-      parentProp: 'parent-value',
-      template: _emberTemplateCompiler.compile('{{view view.childView childProp=view.parentProp}}'),
-      childView: _emberViewsViewsView.default.create({
-        template: _emberTemplateCompiler.compile('child template'),
-        childProp: 'old-value'
-      })
-    });
-
-    _emberMetalRun_loop.default(view, view.append);
-
-    equal(view.get('parentProp'), 'parent-value', 'precond - parent value is there');
-    var childView = view.get('childView');
-
-    _emberMetalRun_loop.default(function () {
-      childView.set('childProp', 'new-value');
-    });
-
-    equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
-  });
-
-  QUnit.test('propagates dependent-key invalidated bindings upstream', function () {
-    view = _emberViewsViewsView.default.create({
-      parentProp: 'parent-value',
-      template: _emberTemplateCompiler.compile('{{view view.childView childProp=view.parentProp}}'),
-      childView: _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompiler.compile('child template'),
-        childProp: _emberMetalCore.default.computed('dependencyProp', {
-          get: function (key) {
-            return this.get('dependencyProp');
-          },
-          set: function (key, value) {
-            // Avoid getting stomped by the template attrs
-            return this.get('dependencyProp');
-          }
-        }),
-        dependencyProp: 'old-value'
-      }).create()
-    });
-
-    _emberMetalRun_loop.default(view, view.append);
-
-    equal(view.get('parentProp'), 'parent-value', 'precond - parent value is there');
-    var childView = view.get('childView');
-    _emberMetalRun_loop.default(function () {
-      return childView.set('dependencyProp', 'new-value');
-    });
-    equal(childView.get('childProp'), 'new-value', 'pre-cond - new value is propagated to CP');
-    equal(view.get('parentProp'), 'new-value', 'new value is propagated across template');
-  });
-
-  QUnit.module('DeprecatedView');
-
-  QUnit.test('calling reopen on DeprecatedView delegates to View', function () {
-    expect(2);
-    var originalReopen = _emberViewsViewsView.default.reopen;
-    var obj = {};
-
-    _emberViewsViewsView.default.reopen = function (arg) {
-      ok(arg === obj);
-    };
-
-    expectNoDeprecation();
-    _emberViewsViewsView.DeprecatedView.reopen(obj);
-
-    _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
 enifed('ember/tests/application_lifecycle_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures) {
