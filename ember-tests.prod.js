@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+02cfcdbb
+ * @version   2.2.0-canary+3e15e677
  */
 
 (function() {
@@ -14571,13 +14571,15 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('specifying classNames results in correct class', function (assert) {
-    expect(1);
+    expect(3);
 
+    var clickyThing = undefined;
     registry.register('component:some-clicky-thing', _emberViewsComponentsComponent.default.extend({
       tagName: 'button',
       classNames: ['foo', 'bar'],
-      click: function () {
-        assert.ok(true, 'click was fired!');
+      init: function () {
+        this._super.apply(this, arguments);
+        clickyThing = this;
       }
     }));
 
@@ -14590,6 +14592,12 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     var button = view.$('button');
     ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
+
+    var expectedClassNames = ['ember-view', 'foo', 'bar', 'baz'];
+    assert.deepEqual(clickyThing.get('classNames'), expectedClassNames, 'classNames are properly combined');
+
+    var buttonClassNames = button.attr('class');
+    assert.deepEqual(buttonClassNames.split(' '), expectedClassNames, 'all classes are set 1:1 in DOM');
   });
 
   QUnit.test('specifying custom concatenatedProperties avoids clobbering', function (assert) {
@@ -41232,7 +41240,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+02cfcdbb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+3e15e677', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
