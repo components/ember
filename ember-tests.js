@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+21e7e654
+ * @version   2.2.0-canary+69f48633
  */
 
 (function() {
@@ -15399,7 +15399,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
 
     QUnit.test('changing a component\'s displayed properties inside didInsertElement() is deprecated', function (assert) {
       var component = style.class.extend({
-        layout: _emberTemplateCompilerSystemCompile.default('<div>{{debugger}}{{handle}}</div>'),
+        layout: _emberTemplateCompilerSystemCompile.default('<div>{{handle}}</div>'),
         handle: '@wycats',
         container: container,
 
@@ -41394,7 +41394,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+21e7e654', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+69f48633', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
