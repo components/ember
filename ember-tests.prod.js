@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+faf3018c
+ * @version   2.2.0-canary+b3b6e474
  */
 
 (function() {
@@ -18231,6 +18231,28 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-metal/core', 'ember
 
   QUnit.test('computed property should be an instance of descriptor', function () {
     ok(_emberMetalComputed.computed(function () {}) instanceof _emberMetalProperties.Descriptor);
+  });
+
+  QUnit.test('computed properties assert the presence of a getter or setter function', function () {
+    expectAssertion(function () {
+      _emberMetalComputed.computed('nogetternorsetter', {});
+    }, 'Computed properties must receive a getter or a setter, you passed none.');
+  });
+
+  QUnit.test('computed properties check for the presence of a function or configuration object', function () {
+    expectAssertion(function () {
+      _emberMetalComputed.computed('nolastargument');
+    }, 'Ember.computed expects a function or an object as last argument.');
+  });
+
+  QUnit.test('computed properties defined with an object only allow `get` and `set` keys', function () {
+    expectAssertion(function () {
+      _emberMetalComputed.computed({
+        get: function () {},
+        set: function () {},
+        other: function () {}
+      });
+    }, 'Config object pased to a Ember.computed can only contain `get` or `set` keys.');
   });
 
   QUnit.test('defining computed property should invoke property on get', function () {
@@ -41210,7 +41232,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+faf3018c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+b3b6e474', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
