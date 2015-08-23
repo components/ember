@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+2186f303
+ * @version   2.2.0-canary+faf3018c
  */
 
 (function() {
@@ -22678,53 +22678,6 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(count, 1, 'should have invoked observer');
   });
 
-  _emberMetalTestsProps_helper.testBoth('before observer watching multiple properties via brace expansion should fire when properties change', function (get, set) {
-    var obj = {};
-    var count = 0;
-
-    _emberMetalMixin.mixin(obj, {
-      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
-        count++;
-      })
-    });
-
-    set(obj, 'foo', 'foo');
-    equal(count, 1, 'observer specified via brace expansion invoked on property change');
-
-    set(obj, 'bar', 'bar');
-    equal(count, 2, 'observer specified via brace expansion invoked on property change');
-
-    set(obj, 'baz', 'baz');
-    equal(count, 2, 'observer not invoked on unspecified property');
-  });
-
-  _emberMetalTestsProps_helper.testBoth('before observer watching multiple properties via brace expansion should fire when dependent property changes', function (get, set) {
-    var obj = { baz: 'Initial' };
-    var count = 0;
-
-    _emberMetalProperties.defineProperty(obj, 'foo', _emberMetalComputed.computed(function () {
-      return get(this, 'bar').toLowerCase();
-    }).property('bar'));
-
-    _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalComputed.computed(function () {
-      return get(this, 'baz').toUpperCase();
-    }).property('baz'));
-
-    _emberMetalMixin.mixin(obj, {
-      fooAndBarWatcher: _emberMetalMixin._beforeObserver('{foo,bar}', function () {
-        count++;
-      })
-    });
-
-    get(obj, 'foo');
-    set(obj, 'baz', 'Baz');
-    // fire once for foo, once for bar
-    equal(count, 2, 'observer specified via brace expansion invoked on dependent property change');
-
-    set(obj, 'quux', 'Quux');
-    equal(count, 2, 'observer not fired on unspecified property');
-  });
-
   _emberMetalTestsProps_helper.testBoth('_addBeforeObserver should propagate through prototype', function (get, set) {
     var obj = { foo: 'foo', count: 0 };
     var obj2;
@@ -41419,7 +41372,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+2186f303', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+faf3018c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
