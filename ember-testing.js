@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+aa88bc3c
+ * @version   2.2.0-canary+64daead1
  */
 
 (function() {
@@ -119,8 +119,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
-
-  _emberMetalCore.default.deprecate = _emberDebugDeprecate.default;
 
   /**
   @module ember
@@ -263,12 +261,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
     func();
   }
 
-  _emberMetalAssert.registerDebugFunction('assert', assert);
-  _emberMetalAssert.registerDebugFunction('warn', _emberDebugWarn.default);
-  _emberMetalAssert.registerDebugFunction('debug', debug);
-  _emberMetalAssert.registerDebugFunction('deprecate', _emberDebugDeprecate.default);
-  _emberMetalAssert.registerDebugFunction('deprecateFunc', deprecateFunc);
-  _emberMetalAssert.registerDebugFunction('runInDebug', runInDebug);
+  _emberMetalAssert.setDebugFunction('assert', assert);
+  _emberMetalAssert.setDebugFunction('warn', _emberDebugWarn.default);
+  _emberMetalAssert.setDebugFunction('debug', debug);
+  _emberMetalAssert.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+  _emberMetalAssert.setDebugFunction('deprecateFunc', deprecateFunc);
+  _emberMetalAssert.setDebugFunction('runInDebug', runInDebug);
 
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or

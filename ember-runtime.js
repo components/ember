@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+aa88bc3c
+ * @version   2.2.0-canary+64daead1
  */
 
 (function() {
@@ -2487,7 +2487,8 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/property_get', 'ember-metal
 enifed("ember-metal/assert", ["exports"], function (exports) {
   "use strict";
 
-  exports.registerDebugFunction = registerDebugFunction;
+  exports.getDebugFunction = getDebugFunction;
+  exports.setDebugFunction = setDebugFunction;
   exports.assert = assert;
   exports.warn = warn;
   exports.debug = debug;
@@ -2511,7 +2512,11 @@ enifed("ember-metal/assert", ["exports"], function (exports) {
 
   exports.debugFunctions = debugFunctions;
 
-  function registerDebugFunction(name, fn) {
+  function getDebugFunction(name) {
+    return debugFunctions[name];
+  }
+
+  function setDebugFunction(name, fn) {
     debugFunctions[name] = fn;
   }
 
@@ -4829,7 +4834,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+aa88bc3c
+    @version 2.2.0-canary+64daead1
     @public
   */
 
@@ -4863,11 +4868,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+aa88bc3c'
+    @default '2.2.0-canary+64daead1'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+aa88bc3c';
+  Ember.VERSION = '2.2.0-canary+64daead1';
 
   /**
     The hash of environment variables used to control various configuration

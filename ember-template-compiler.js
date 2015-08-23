@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+aa88bc3c
+ * @version   2.2.0-canary+64daead1
  */
 
 (function() {
@@ -1165,8 +1165,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
-  _emberMetalCore.default.deprecate = _emberDebugDeprecate.default;
-
   /**
   @module ember
   @submodule ember-debug
@@ -1308,12 +1306,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
     func();
   }
 
-  _emberMetalAssert.registerDebugFunction('assert', assert);
-  _emberMetalAssert.registerDebugFunction('warn', _emberDebugWarn.default);
-  _emberMetalAssert.registerDebugFunction('debug', debug);
-  _emberMetalAssert.registerDebugFunction('deprecate', _emberDebugDeprecate.default);
-  _emberMetalAssert.registerDebugFunction('deprecateFunc', deprecateFunc);
-  _emberMetalAssert.registerDebugFunction('runInDebug', runInDebug);
+  _emberMetalAssert.setDebugFunction('assert', assert);
+  _emberMetalAssert.setDebugFunction('warn', _emberDebugWarn.default);
+  _emberMetalAssert.setDebugFunction('debug', debug);
+  _emberMetalAssert.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+  _emberMetalAssert.setDebugFunction('deprecateFunc', deprecateFunc);
+  _emberMetalAssert.setDebugFunction('runInDebug', runInDebug);
 
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
@@ -1889,7 +1887,8 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/property_get', 'ember-metal
 enifed("ember-metal/assert", ["exports"], function (exports) {
   "use strict";
 
-  exports.registerDebugFunction = registerDebugFunction;
+  exports.getDebugFunction = getDebugFunction;
+  exports.setDebugFunction = setDebugFunction;
   exports.assert = assert;
   exports.warn = warn;
   exports.debug = debug;
@@ -1913,7 +1912,11 @@ enifed("ember-metal/assert", ["exports"], function (exports) {
 
   exports.debugFunctions = debugFunctions;
 
-  function registerDebugFunction(name, fn) {
+  function getDebugFunction(name) {
+    return debugFunctions[name];
+  }
+
+  function setDebugFunction(name, fn) {
     debugFunctions[name] = fn;
   }
 
@@ -4231,7 +4234,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+aa88bc3c
+    @version 2.2.0-canary+64daead1
     @public
   */
 
@@ -4265,11 +4268,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+aa88bc3c'
+    @default '2.2.0-canary+64daead1'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+aa88bc3c';
+  Ember.VERSION = '2.2.0-canary+64daead1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12369,7 +12372,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+aa88bc3c',
+        revision: 'Ember@2.2.0-canary+64daead1',
         loc: program.loc,
         moduleName: options.moduleName
       };

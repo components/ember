@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+aa88bc3c
+ * @version   2.2.0-canary+64daead1
  */
 
 (function() {
@@ -4165,17 +4165,17 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
   });
 });
-enifed("ember-dev/test-helper/assertion", ["exports", "./method-call-expectation", "./utils"], function (exports, _methodCallExpectation, _utils) {
+enifed('ember-dev/test-helper/assertion', ['exports', './method-call-expectation'], function (exports, _methodCallExpectation) {
   /* globals QUnit */
 
-  "use strict";
+  'use strict';
 
   function AssertExpectation(Ember, message) {
     _methodCallExpectation.default.call(this, Ember, 'assert');
     this.expectedMessage = message;
   }
   AssertExpectation.Error = function () {};
-  AssertExpectation.prototype = _utils.o_create(_methodCallExpectation.default.prototype);
+  AssertExpectation.prototype = Object.create(_methodCallExpectation.default.prototype);
   AssertExpectation.prototype.handleCall = function (message, test) {
     var noAssertion = typeof test === 'function' ? test() : test;
 
@@ -4286,11 +4286,12 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './method-call-expectati
     },
 
     stubEmber: function () {
-      if (!this._previousEmberDeprecate && this._previousEmberDeprecate !== this.env.Ember.deprecate) {
-        this._previousEmberDeprecate = this.env.Ember.deprecate;
+      if (!this._previousEmberDeprecate) {
+        this._previousEmberDeprecate = this.env.getDebugFunction('deprecate');
       }
+
       var assertion = this;
-      this.env.Ember.deprecate = function (msg, test) {
+      this.env.setDebugFunction('deprecate', function (msg, test) {
         var resultOfTest = typeof test === 'function' ? test() : test;
         var shouldDeprecate = !resultOfTest;
 
@@ -4298,7 +4299,7 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './method-call-expectati
         if (shouldDeprecate) {
           assertion.actuals.push([msg, resultOfTest]);
         }
-      };
+      });
     },
 
     inject: function () {
@@ -4437,7 +4438,7 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './method-call-expectati
 
     restore: function () {
       if (this._previousEmberDeprecate) {
-        this.env.Ember.deprecate = this._previousEmberDeprecate;
+        this.env.setDebugFunction('deprecate', this._previousEmberDeprecate);
         this._previousEmberDeprecate = null;
       }
       window.expectNoDeprecation = null;
@@ -4653,16 +4654,12 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
     };
   }
 
-  function buildCompositeAssert(klasses) {
-    var Composite = function (emberKlass, runningProdBuild) {
-      this.asserts = [];
-      for (var i = 0, l = klasses.length; i < l; i++) {
-        this.asserts.push(new klasses[i]({
-          Ember: emberKlass,
-          runningProdBuild: runningProdBuild
-        }));
-      }
-    };
+  function buildCompositeAssert(assertClasses) {
+    function Composite(env) {
+      this.asserts = assertClasses.map(function (Assert) {
+        return new Assert(env);
+      });
+    }
 
     Composite.prototype = {
       reset: callForEach('asserts', 'reset'),
@@ -4673,21 +4670,6 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
 
     return Composite;
   }
-
-  var o_create = Object.create || (function () {
-    function F() {}
-
-    return function (o) {
-      if (arguments.length !== 1) {
-        throw new Error('Object.create implementation only accepts one parameter.');
-      }
-      F.prototype = o;
-      return new F();
-    };
-  })();
-
-  var o_create;
-  exports.o_create = o_create;
 });
 enifed('ember-extension-support/tests/container_debug_adapter_test', ['exports', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-extension-support', 'ember-application/system/application'], function (exports, _emberMetalRun_loop, _emberRuntimeControllersController, _emberExtensionSupport, _emberApplicationSystemApplication) {
   'use strict';
@@ -41240,7 +41222,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+aa88bc3c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+64daead1', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
