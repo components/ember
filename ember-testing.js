@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+64daead1
+ * @version   2.2.0-canary+c3dee6ee
  */
 
 (function() {
@@ -115,7 +115,7 @@ var mainContext = this;
   }
 })();
 
-enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function'], function (exports, _emberMetalCore, _emberMetalAssert, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction) {
+enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-metal/environment', 'ember-debug/deprecate', 'ember-debug/warn', 'ember-debug/is-plain-function'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberMetalEnvironment, _emberDebugDeprecate, _emberDebugWarn, _emberDebugIsPlainFunction) {
   'use strict';
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
@@ -261,12 +261,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/assert', 'emb
     func();
   }
 
-  _emberMetalAssert.setDebugFunction('assert', assert);
-  _emberMetalAssert.setDebugFunction('warn', _emberDebugWarn.default);
-  _emberMetalAssert.setDebugFunction('debug', debug);
-  _emberMetalAssert.setDebugFunction('deprecate', _emberDebugDeprecate.default);
-  _emberMetalAssert.setDebugFunction('deprecateFunc', deprecateFunc);
-  _emberMetalAssert.setDebugFunction('runInDebug', runInDebug);
+  _emberMetalDebug.setDebugFunction('assert', assert);
+  _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
+  _emberMetalDebug.setDebugFunction('debug', debug);
+  _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+  _emberMetalDebug.setDebugFunction('deprecateFunc', deprecateFunc);
+  _emberMetalDebug.setDebugFunction('runInDebug', runInDebug);
 
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
