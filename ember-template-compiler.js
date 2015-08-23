@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+ba2c2457
+ * @version   2.1.0-beta.2+46772f50
  */
 
 (function() {
@@ -3695,9 +3695,20 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     if (typeof config === 'function') {
       this._getter = config;
     } else {
+      _emberMetalCore.default.assert('Ember.computed expects a function or an object as last argument.', typeof config === 'object' && !Array.isArray(config));
+      _emberMetalCore.default.assert('Config object pased to a Ember.computed can only contain `get` or `set` keys.', (function () {
+        var keys = Object.keys(config);
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i] !== 'get' && keys[i] !== 'set') {
+            return false;
+          }
+        }
+        return true;
+      })());
       this._getter = config.get;
       this._setter = config.set;
     }
+    _emberMetalCore.default.assert('Computed properties must receive a getter or a setter, you passed none.', !!this._getter || !!this._setter);
     this._dependentKeys = undefined;
     this._suspended = undefined;
     this._meta = undefined;
@@ -4218,7 +4229,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2+ba2c2457
+    @version 2.1.0-beta.2+46772f50
     @public
   */
 
@@ -4252,11 +4263,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2+ba2c2457'
+    @default '2.1.0-beta.2+46772f50'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2+ba2c2457';
+  Ember.VERSION = '2.1.0-beta.2+46772f50';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12391,7 +12402,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.2+ba2c2457',
+        revision: 'Ember@2.1.0-beta.2+46772f50',
         loc: program.loc,
         moduleName: options.moduleName
       };
