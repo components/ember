@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b3b6e474
+ * @version   2.2.0-canary+21e7e654
  */
 
 (function() {
@@ -3619,7 +3619,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   exports.default = ApplicationInstance;
 });
 // Ember.deprecate
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/empty_object', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/views/link', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEmpty_object, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsViewsLink, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment) {
+enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/empty_object', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEmpty_object, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment) {
   /**
   @module ember
   @submodule ember-application
@@ -4529,7 +4529,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.register('component:-text-area', _emberViewsViewsText_area.default);
       registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
       registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
-      registry.register('component:-link-to', _emberRoutingViewsViewsLink.default);
+      registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
 
       // Register the routing service...
       registry.register('service:-routing', _emberRoutingServicesRouting.default);
@@ -8918,7 +8918,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b3b6e474';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+21e7e654';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9880,10 +9880,19 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper'], function (expor
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-views/system/link-to', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsCompatAttrsProxy, _emberViewsSystemLinkTo, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.createComponent = createComponent;
+
+  // These symbols will be used to limit link-to's public API surface area.
+  var HAS_BLOCK = _emberMetalUtils.symbol('HAS_BLOCK');
+
+  exports.HAS_BLOCK = HAS_BLOCK;
+  // In theory this should come through the env, but it should
+  // be safe to import this until we make the hook system public
+  // and it gets actively used in addons or other downstream
+  // libraries.
 
   function ComponentNodeManager(component, isAngleBracket, scope, renderNode, attrs, block, expectElement) {
     this.component = component;
@@ -9916,7 +9925,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     var createOptions = (_createOptions = {
       parentView: parentView
-    }, _createOptions[_emberViewsSystemLinkTo.HAS_BLOCK] = !!templates.default, _createOptions);
+    }, _createOptions[HAS_BLOCK] = !!templates.default, _createOptions);
 
     configureTagName(attrs, tagName, component, isAngleBracket, createOptions);
 
@@ -10229,11 +10238,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return env.childWithView(this.emberView);
   }
 });
-
-// In theory this should come through the env, but it should
-// be safe to import this until we make the hook system public
-// and it gets actively used in addons or other downstream
-// libraries.
 enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-metal/merge', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-views/views/view', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/system/instrumentation-support', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalMerge, _emberMetalCore, _emberViewsSystemBuildComponentTemplate, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberViewsViewsView, _emberViewsCompatAttrsProxy, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsSystemInstrumentationSupport, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
@@ -14944,7 +14948,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.2.0-canary+b3b6e474
+    @version 2.2.0-canary+21e7e654
     @public
   */
 
@@ -14978,11 +14982,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+b3b6e474'
+    @default '2.2.0-canary+21e7e654'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+b3b6e474';
+  Ember.VERSION = '2.2.0-canary+21e7e654';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22029,7 +22033,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-routing-htmlbars', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-routing-htmlbars/helpers/query-params', 'ember-routing-htmlbars/keywords/action', 'ember-routing-htmlbars/keywords/element-action', 'ember-routing-htmlbars/keywords/link-to', 'ember-routing-htmlbars/keywords/render'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberRoutingHtmlbarsHelpersQueryParams, _emberRoutingHtmlbarsKeywordsAction, _emberRoutingHtmlbarsKeywordsElementAction, _emberRoutingHtmlbarsKeywordsLinkTo, _emberRoutingHtmlbarsKeywordsRender) {
+enifed('ember-routing-htmlbars', ['exports', 'ember-metal/core', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-routing-htmlbars/helpers/query-params', 'ember-routing-htmlbars/keywords/action', 'ember-routing-htmlbars/keywords/element-action', 'ember-routing-htmlbars/keywords/render'], function (exports, _emberMetalCore, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberRoutingHtmlbarsHelpersQueryParams, _emberRoutingHtmlbarsKeywordsAction, _emberRoutingHtmlbarsKeywordsElementAction, _emberRoutingHtmlbarsKeywordsRender) {
   /**
   @module ember
   @submodule ember-routing-htmlbars
@@ -22041,7 +22045,6 @@ enifed('ember-routing-htmlbars', ['exports', 'ember-metal/core', 'ember-htmlbars
 
   _emberHtmlbarsKeywords.registerKeyword('action', _emberRoutingHtmlbarsKeywordsAction.default);
   _emberHtmlbarsKeywords.registerKeyword('@element_action', _emberRoutingHtmlbarsKeywordsElementAction.default);
-  _emberHtmlbarsKeywords.registerKeyword('link-to', _emberRoutingHtmlbarsKeywordsLinkTo.default);
   _emberHtmlbarsKeywords.registerKeyword('render', _emberRoutingHtmlbarsKeywordsRender.default);
 
   exports.default = _emberMetalCore.default;
@@ -22570,13 +22573,309 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
   }
 });
 // assert
-enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/core', 'ember-views/system/link-to'], function (exports, _emberMetalCore, _emberViewsSystemLinkTo) {
+enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-metal/error', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEmpty_object, _emberMetalError, _emberMetalStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
   /**
   @module ember
-  @submodule ember-routing-htmlbars
+  @submodule ember-templates
   */
 
   'use strict';
+
+  /**
+    Calling ``{{render}}`` from within a template will insert another
+    template that matches the provided name. The inserted template will
+    access its properties on its own controller (rather than the controller
+    of the parent template).
+    If a view class with the same name exists, the view class also will be used.
+    Note: A given controller may only be used *once* in your app in this manner.
+    A singleton instance of the controller will be created for you.
+    Example:
+  
+    ```javascript
+    App.NavigationController = Ember.Controller.extend({
+      who: "world"
+    });
+    ```
+  
+    ```handlebars
+    <!-- navigation.hbs -->
+    Hello, {{who}}.
+    ```
+  
+    ```handlebars
+    <!-- application.hbs -->
+    <h1>My great app</h1>
+    {{render "navigation"}}
+    ```
+  
+    ```html
+    <h1>My great app</h1>
+    <div class='ember-view'>
+      Hello, world.
+    </div>
+    ```
+  
+    Optionally you may provide a second argument: a property path
+    that will be bound to the `model` property of the controller.
+    If a `model` property path is specified, then a new instance of the
+    controller will be created and `{{render}}` can be used multiple times
+    with the same name.
+  
+    For example if you had this `author` template.
+  
+    ```handlebars
+    <div class="author">
+      Written by {{firstName}} {{lastName}}.
+      Total Posts: {{postCount}}
+    </div>
+    ```
+  
+    You could render it inside the `post` template using the `render` helper.
+  
+    ```handlebars
+    <div class="post">
+      <h1>{{title}}</h1>
+      <div>{{body}}</div>
+      {{render "author" author}}
+    </div>
+    ```
+  
+    @method render
+    @for Ember.Templates.helpers
+    @param {String} name
+    @param {Object?} context
+    @param {Hash} options
+    @return {String} HTML string
+    @public
+  */
+  exports.default = {
+    willRender: function (renderNode, env) {
+      if (env.view.ownerView._outlets) {
+        // We make sure we will get dirtied when outlet state changes.
+        env.view.ownerView._outlets.push(renderNode);
+      }
+    },
+
+    setupState: function (prevState, env, scope, params, hash) {
+      var name = params[0];
+
+      _emberMetalCore.default.assert('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', typeof name === 'string');
+
+      return {
+        parentView: env.view,
+        manager: prevState.manager,
+        controller: prevState.controller,
+        childOutletState: childOutletState(name, env)
+      };
+    },
+
+    childEnv: function (state, env) {
+      return env.childWithOutletState(state.childOutletState);
+    },
+
+    isStable: function (lastState, nextState) {
+      return isStable(lastState.childOutletState, nextState.childOutletState);
+    },
+
+    isEmpty: function (state) {
+      return false;
+    },
+
+    render: function (node, env, scope, params, hash, template, inverse, visitor) {
+      var state = node.state;
+      var name = params[0];
+      var context = params[1];
+
+      var container = env.container;
+
+      // The render keyword presumes it can work without a router. This is really
+      // only to satisfy the test:
+      //
+      //     {{view}} should not override class bindings defined on a child view"
+      //
+      var router = container.lookup('router:main');
+
+      _emberMetalCore.default.assert('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', params.length < 2 || _emberMetalStreamsUtils.isStream(params[1]));
+
+      if (params.length === 1) {
+        // use the singleton controller
+        _emberMetalCore.default.assert('You can only use the {{render}} helper once without a model object as ' + 'its second argument, as in {{render "post" post}}.', !router || !router._lookupActiveComponentNode(name));
+      } else if (params.length !== 2) {
+        throw new _emberMetalError.default('You must pass a templateName to render');
+      }
+
+      var templateName = 'template:' + name;
+      _emberMetalCore.default.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as either a template or a view.', container.registry.has('view:' + name) || container.registry.has(templateName) || !!template);
+
+      var view = container.lookup('view:' + name);
+      if (!view) {
+        view = container.lookup('view:default');
+      }
+      var viewHasTemplateSpecified = view && !!_emberMetalProperty_get.get(view, 'template');
+      if (!template && !viewHasTemplateSpecified) {
+        template = container.lookup(templateName);
+      }
+
+      if (view) {
+        view.ownerView = env.view.ownerView;
+      }
+
+      // provide controller override
+      var controllerName;
+      var controllerFullName;
+
+      if (hash.controller) {
+        controllerName = hash.controller;
+        controllerFullName = 'controller:' + controllerName;
+        delete hash.controller;
+
+        _emberMetalCore.default.assert('The controller name you supplied \'' + controllerName + '\' ' + 'did not resolve to a controller.', container.registry.has(controllerFullName));
+      } else {
+        controllerName = name;
+        controllerFullName = 'controller:' + controllerName;
+      }
+
+      var parentController = _emberMetalStreamsUtils.read(scope.locals.controller);
+      var controller;
+
+      // choose name
+      if (params.length > 1) {
+        var factory = container.lookupFactory(controllerFullName) || _emberRoutingSystemGenerate_controller.generateControllerFactory(container, controllerName);
+
+        controller = factory.create({
+          model: _emberMetalStreamsUtils.read(context),
+          parentController: parentController,
+          target: parentController
+        });
+
+        node.addDestruction(controller);
+      } else {
+        controller = container.lookup(controllerFullName) || _emberRoutingSystemGenerate_controller.default(container, controllerName);
+
+        controller.setProperties({
+          target: parentController,
+          parentController: parentController
+        });
+      }
+
+      if (view) {
+        view.set('controller', controller);
+      }
+      state.controller = controller;
+
+      hash.viewName = _emberRuntimeSystemString.camelize(name);
+
+      // var state = node.state;
+      // var parentView = scope.view;
+      if (template && template.raw) {
+        template = template.raw;
+      }
+
+      var options = {
+        layout: null,
+        self: controller
+      };
+
+      if (view) {
+        options.component = view;
+      }
+
+      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(node, env, hash, options, state.parentView, null, null, template);
+      state.manager = nodeManager;
+
+      if (router && params.length === 1) {
+        router._connectActiveComponentNode(name, nodeManager);
+      }
+
+      nodeManager.render(env, hash, visitor);
+    },
+
+    rerender: function (node, env, scope, params, hash, template, inverse, visitor) {
+      var model = _emberMetalStreamsUtils.read(params[1]);
+      node.state.controller.set('model', model);
+    }
+  };
+
+  function childOutletState(name, env) {
+    var topLevel = env.view.ownerView;
+    if (!topLevel || !topLevel.outletState) {
+      return;
+    }
+
+    var outletState = topLevel.outletState;
+    if (!outletState.main) {
+      return;
+    }
+
+    var selectedOutletState = outletState.main.outlets['__ember_orphans__'];
+    if (!selectedOutletState) {
+      return;
+    }
+    var matched = selectedOutletState.outlets[name];
+    if (matched) {
+      var childState = new _emberMetalEmpty_object.default();
+      childState[matched.render.outlet] = matched;
+      matched.wasUsed = true;
+      return childState;
+    }
+  }
+
+  function isStable(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    for (var outletName in a) {
+      if (!isStableOutlet(a[outletName], b[outletName])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function isStableOutlet(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    a = a.render;
+    b = b.render;
+    for (var key in a) {
+      if (a.hasOwnProperty(key)) {
+        // name is only here for logging & debugging. If two different
+        // names result in otherwise identical states, they're still
+        // identical.
+        if (a[key] !== b[key] && key !== 'name') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+});
+// assert
+enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-views/components/link-to', 'ember-routing-views/views/outlet'], function (exports, _emberMetalCore, _emberRoutingViewsComponentsLinkTo, _emberRoutingViewsViewsOutlet) {
+  /**
+  @module ember
+  @submodule ember-routing-views
+  */
+
+  'use strict';
+
+  _emberMetalCore.default.LinkComponent = _emberRoutingViewsComponentsLinkTo.default;
+  _emberMetalCore.default.OutletView = _emberRoutingViewsViewsOutlet.OutletView;
+
+  exports.default = _emberMetalCore.default;
+});
+enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
 
   /**
     The `{{link-to}}` helper renders a link to the supplied
@@ -22880,313 +23179,7 @@ enifed('ember-routing-htmlbars/keywords/link-to', ['exports', 'ember-metal/core'
     @see {Ember.LinkComponent}
     @public
   */
-  exports.default = {
-    link: function (state, params, hash) {
-      _emberMetalCore.default.assert('You must provide one or more parameters to the link-to helper.', params.length);
-    },
 
-    render: function (morph, env, scope, params, hash, template, inverse, visitor) {
-      _emberMetalCore.default.runInDebug(function () {
-        // Used for deprecations (to tell the user what view the deprecated syntax was used in).
-        // Until: 3.0.0
-        hash[_emberViewsSystemLinkTo.RELATED_VIEW] = env.view;
-      });
-
-      env.hooks.component(morph, env, scope, '-link-to', params, hash, { default: template }, visitor);
-    },
-
-    rerender: function (morph, env, scope, params, hash, template, inverse, visitor) {
-      this.render(morph, env, scope, params, hash, template, inverse, visitor);
-    }
-  };
-});
-// assert
-enifed('ember-routing-htmlbars/keywords/render', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/empty_object', 'ember-metal/error', 'ember-metal/streams/utils', 'ember-runtime/system/string', 'ember-routing/system/generate_controller', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalEmpty_object, _emberMetalError, _emberMetalStreamsUtils, _emberRuntimeSystemString, _emberRoutingSystemGenerate_controller, _emberHtmlbarsNodeManagersViewNodeManager) {
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  'use strict';
-
-  /**
-    Calling ``{{render}}`` from within a template will insert another
-    template that matches the provided name. The inserted template will
-    access its properties on its own controller (rather than the controller
-    of the parent template).
-    If a view class with the same name exists, the view class also will be used.
-    Note: A given controller may only be used *once* in your app in this manner.
-    A singleton instance of the controller will be created for you.
-    Example:
-  
-    ```javascript
-    App.NavigationController = Ember.Controller.extend({
-      who: "world"
-    });
-    ```
-  
-    ```handlebars
-    <!-- navigation.hbs -->
-    Hello, {{who}}.
-    ```
-  
-    ```handlebars
-    <!-- application.hbs -->
-    <h1>My great app</h1>
-    {{render "navigation"}}
-    ```
-  
-    ```html
-    <h1>My great app</h1>
-    <div class='ember-view'>
-      Hello, world.
-    </div>
-    ```
-  
-    Optionally you may provide a second argument: a property path
-    that will be bound to the `model` property of the controller.
-    If a `model` property path is specified, then a new instance of the
-    controller will be created and `{{render}}` can be used multiple times
-    with the same name.
-  
-    For example if you had this `author` template.
-  
-    ```handlebars
-    <div class="author">
-      Written by {{firstName}} {{lastName}}.
-      Total Posts: {{postCount}}
-    </div>
-    ```
-  
-    You could render it inside the `post` template using the `render` helper.
-  
-    ```handlebars
-    <div class="post">
-      <h1>{{title}}</h1>
-      <div>{{body}}</div>
-      {{render "author" author}}
-    </div>
-    ```
-  
-    @method render
-    @for Ember.Templates.helpers
-    @param {String} name
-    @param {Object?} context
-    @param {Hash} options
-    @return {String} HTML string
-    @public
-  */
-  exports.default = {
-    willRender: function (renderNode, env) {
-      if (env.view.ownerView._outlets) {
-        // We make sure we will get dirtied when outlet state changes.
-        env.view.ownerView._outlets.push(renderNode);
-      }
-    },
-
-    setupState: function (prevState, env, scope, params, hash) {
-      var name = params[0];
-
-      _emberMetalCore.default.assert('The first argument of {{render}} must be quoted, e.g. {{render "sidebar"}}.', typeof name === 'string');
-
-      return {
-        parentView: env.view,
-        manager: prevState.manager,
-        controller: prevState.controller,
-        childOutletState: childOutletState(name, env)
-      };
-    },
-
-    childEnv: function (state, env) {
-      return env.childWithOutletState(state.childOutletState);
-    },
-
-    isStable: function (lastState, nextState) {
-      return isStable(lastState.childOutletState, nextState.childOutletState);
-    },
-
-    isEmpty: function (state) {
-      return false;
-    },
-
-    render: function (node, env, scope, params, hash, template, inverse, visitor) {
-      var state = node.state;
-      var name = params[0];
-      var context = params[1];
-
-      var container = env.container;
-
-      // The render keyword presumes it can work without a router. This is really
-      // only to satisfy the test:
-      //
-      //     {{view}} should not override class bindings defined on a child view"
-      //
-      var router = container.lookup('router:main');
-
-      _emberMetalCore.default.assert('The second argument of {{render}} must be a path, e.g. {{render "post" post}}.', params.length < 2 || _emberMetalStreamsUtils.isStream(params[1]));
-
-      if (params.length === 1) {
-        // use the singleton controller
-        _emberMetalCore.default.assert('You can only use the {{render}} helper once without a model object as ' + 'its second argument, as in {{render "post" post}}.', !router || !router._lookupActiveComponentNode(name));
-      } else if (params.length !== 2) {
-        throw new _emberMetalError.default('You must pass a templateName to render');
-      }
-
-      var templateName = 'template:' + name;
-      _emberMetalCore.default.assert('You used `{{render \'' + name + '\'}}`, but \'' + name + '\' can not be ' + 'found as either a template or a view.', container.registry.has('view:' + name) || container.registry.has(templateName) || !!template);
-
-      var view = container.lookup('view:' + name);
-      if (!view) {
-        view = container.lookup('view:default');
-      }
-      var viewHasTemplateSpecified = view && !!_emberMetalProperty_get.get(view, 'template');
-      if (!template && !viewHasTemplateSpecified) {
-        template = container.lookup(templateName);
-      }
-
-      if (view) {
-        view.ownerView = env.view.ownerView;
-      }
-
-      // provide controller override
-      var controllerName;
-      var controllerFullName;
-
-      if (hash.controller) {
-        controllerName = hash.controller;
-        controllerFullName = 'controller:' + controllerName;
-        delete hash.controller;
-
-        _emberMetalCore.default.assert('The controller name you supplied \'' + controllerName + '\' ' + 'did not resolve to a controller.', container.registry.has(controllerFullName));
-      } else {
-        controllerName = name;
-        controllerFullName = 'controller:' + controllerName;
-      }
-
-      var parentController = _emberMetalStreamsUtils.read(scope.locals.controller);
-      var controller;
-
-      // choose name
-      if (params.length > 1) {
-        var factory = container.lookupFactory(controllerFullName) || _emberRoutingSystemGenerate_controller.generateControllerFactory(container, controllerName);
-
-        controller = factory.create({
-          model: _emberMetalStreamsUtils.read(context),
-          parentController: parentController,
-          target: parentController
-        });
-
-        node.addDestruction(controller);
-      } else {
-        controller = container.lookup(controllerFullName) || _emberRoutingSystemGenerate_controller.default(container, controllerName);
-
-        controller.setProperties({
-          target: parentController,
-          parentController: parentController
-        });
-      }
-
-      if (view) {
-        view.set('controller', controller);
-      }
-      state.controller = controller;
-
-      hash.viewName = _emberRuntimeSystemString.camelize(name);
-
-      // var state = node.state;
-      // var parentView = scope.view;
-      if (template && template.raw) {
-        template = template.raw;
-      }
-
-      var options = {
-        layout: null,
-        self: controller
-      };
-
-      if (view) {
-        options.component = view;
-      }
-
-      var nodeManager = _emberHtmlbarsNodeManagersViewNodeManager.default.create(node, env, hash, options, state.parentView, null, null, template);
-      state.manager = nodeManager;
-
-      if (router && params.length === 1) {
-        router._connectActiveComponentNode(name, nodeManager);
-      }
-
-      nodeManager.render(env, hash, visitor);
-    },
-
-    rerender: function (node, env, scope, params, hash, template, inverse, visitor) {
-      var model = _emberMetalStreamsUtils.read(params[1]);
-      node.state.controller.set('model', model);
-    }
-  };
-
-  function childOutletState(name, env) {
-    var topLevel = env.view.ownerView;
-    if (!topLevel || !topLevel.outletState) {
-      return;
-    }
-
-    var outletState = topLevel.outletState;
-    if (!outletState.main) {
-      return;
-    }
-
-    var selectedOutletState = outletState.main.outlets['__ember_orphans__'];
-    if (!selectedOutletState) {
-      return;
-    }
-    var matched = selectedOutletState.outlets[name];
-    if (matched) {
-      var childState = new _emberMetalEmpty_object.default();
-      childState[matched.render.outlet] = matched;
-      matched.wasUsed = true;
-      return childState;
-    }
-  }
-
-  function isStable(a, b) {
-    if (!a && !b) {
-      return true;
-    }
-    if (!a || !b) {
-      return false;
-    }
-    for (var outletName in a) {
-      if (!isStableOutlet(a[outletName], b[outletName])) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  function isStableOutlet(a, b) {
-    if (!a && !b) {
-      return true;
-    }
-    if (!a || !b) {
-      return false;
-    }
-    a = a.render;
-    b = b.render;
-    for (var key in a) {
-      if (a.hasOwnProperty(key)) {
-        // name is only here for logging & debugging. If two different
-        // names result in otherwise identical states, they're still
-        // identical.
-        if (a[key] !== b[key] && key !== 'name') {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-});
-// assert
-enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-views/views/link', 'ember-routing-views/views/outlet'], function (exports, _emberMetalCore, _emberRoutingViewsViewsLink, _emberRoutingViewsViewsOutlet) {
   /**
   @module ember
   @submodule ember-routing-views
@@ -23194,20 +23187,7 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-vie
 
   'use strict';
 
-  _emberMetalCore.default.LinkComponent = _emberRoutingViewsViewsLink.default;
-  _emberMetalCore.default.OutletView = _emberRoutingViewsViewsOutlet.OutletView;
-
-  exports.default = _emberMetalCore.default;
-});
-enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/components/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-views/system/link-to', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsComponentsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberViewsSystemLinkTo, _emberHtmlbarsTemplatesLinkTo) {
-  /**
-  @module ember
-  @submodule ember-routing-views
-  */
-
-  'use strict';
-
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b3b6e474';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+21e7e654';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23550,7 +23530,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
       }
-      var onlyQueryParamsSupplied = this[_emberViewsSystemLinkTo.HAS_BLOCK] ? params.length === 0 : params.length === 1;
+      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
       if (onlyQueryParamsSupplied) {
         var appController = this.container.lookup('controller:application');
         if (appController) {
@@ -23600,7 +23580,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         this.set('disabled', attrs.disabledWhen);
       }
 
-      if (!this[_emberViewsSystemLinkTo.HAS_BLOCK]) {
+      if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
         this.set('linkTitle', params.shift());
       }
 
@@ -23612,7 +23592,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
         var value = params[i];
 
         while (_emberRuntimeMixinsController.default.detect(value)) {
-          _emberMetalCore.default.deprecate('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (attrs[_emberViewsSystemLinkTo.RELATED_VIEW] ? 'Please update `' + attrs[_emberViewsSystemLinkTo.RELATED_VIEW] + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' });
+          _emberMetalCore.default.deprecate('Providing `{{link-to}}` with a param that is wrapped in a controller is deprecated. ' + (this.parentView ? 'Please update `' + this.parentView + '` to use `{{link-to "post" someController.model}}` instead.' : ''), false, { id: 'ember-routing-views.controller-wrapped-param', until: '3.0.0' });
           value = value.get('model');
         }
 
@@ -23708,7 +23688,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b3b6e474';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+21e7e654';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37422,7 +37402,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+b3b6e474',
+        revision: 'Ember@2.2.0-canary+21e7e654',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42186,15 +42166,6 @@ enifed('ember-views/system/jquery', ['exports', 'ember-metal/core', 'ember-metal
 // Ember.assert
 
 // ES6TODO: the functions on EnumerableUtils need their own exports
-enifed('ember-views/system/link-to', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
-  'use strict';
-
-  // These symbols will be used to limit link-to's public API surface area.
-  var HAS_BLOCK = _emberMetalUtils.symbol('HAS_BLOCK');
-  exports.HAS_BLOCK = HAS_BLOCK;
-  var RELATED_VIEW = _emberMetalUtils.symbol('RELATED_VIEW');
-  exports.RELATED_VIEW = RELATED_VIEW;
-});
 enifed('ember-views/system/lookup_partial', ['exports', 'ember-metal/core', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalError) {
   'use strict';
 
@@ -42831,7 +42802,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b3b6e474';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+21e7e654';
 
   /**
   @module ember

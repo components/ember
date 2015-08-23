@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b3b6e474
+ * @version   2.2.0-canary+21e7e654
  */
 
 (function() {
@@ -26328,7 +26328,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
   });
 });
 // A, FEATURES, assert
-enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-routing-views/views/link'], function (exports, _emberRoutingHtmlbars, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberRoutingViewsViewsLink) {
+enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-routing-views/components/link-to'], function (exports, _emberRoutingHtmlbars, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberRoutingViewsComponentsLinkTo) {
   'use strict';
 
   var view;
@@ -26357,8 +26357,8 @@ enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-r
   }));
 
   registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
-  registry.register('component:-link-to', _emberRoutingViewsViewsLink.default);
-  registry.register('component:custom-link-to', _emberRoutingViewsViewsLink.default.extend());
+  registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
+  registry.register('component:custom-link-to', _emberRoutingViewsComponentsLinkTo.default.extend());
 
   QUnit.module('ember-routing-htmlbars: link-to helper', {
     setup: function () {
@@ -41232,7 +41232,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+b3b6e474', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+21e7e654', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
