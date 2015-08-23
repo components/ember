@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+c3dee6ee
+ * @version   2.2.0-canary+fe9d4eb6
  */
 
 (function() {
@@ -1184,7 +1184,7 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalFeatures) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures) {
   'use strict';
 
   /**
@@ -1269,7 +1269,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookup: function (fullName, options) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
       return lookup(this, this.registry.normalize(fullName), options);
     },
 
@@ -1281,7 +1281,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
      @return {any}
      */
     lookupFactory: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.registry.validateFullName(fullName));
       return factoryFor(this, this.registry.normalize(fullName));
     },
 
@@ -1522,8 +1522,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/dicti
   // Container#_registry, since Container itself will be fully private.
   exports.default = Container;
 });
-// Ember.assert
-enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictionary', 'ember-metal/assign', './container'], function (exports, _emberMetalCore, _emberMetalDictionary, _emberMetalAssign, _container) {
+enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/assign', './container'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalAssign, _container) {
   'use strict';
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
@@ -1667,7 +1666,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @param {Object} options
      */
     register: function (fullName, factory, options) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       if (factory === undefined) {
         throw new TypeError('Attempting to register an unknown factory: `' + fullName + '`');
@@ -1698,7 +1697,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @param {String} fullName
      */
     unregister: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       var normalizedName = this.normalize(fullName);
 
@@ -1735,7 +1734,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @return {Function} fullName's factory
      */
     resolve: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
       var factory = resolve(this, this.normalize(fullName));
       if (factory === undefined && this.fallback) {
         factory = this.fallback.resolve(fullName);
@@ -1800,7 +1799,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @return {Boolean}
      */
     has: function (fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
       return has(this, this.normalize(fullName));
     },
 
@@ -1903,7 +1902,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
      @param {String} fullName
      */
     typeInjection: function (type, property, fullName) {
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       var fullNameType = fullName.split(':')[0];
       if (fullNameType === type) {
@@ -1959,7 +1958,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
         return this.typeInjection(fullName, property, normalizedInjectionName);
       }
 
-      _emberMetalCore.default.assert('fullName must be a proper full name', this.validateFullName(fullName));
+      _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
       var normalizedName = this.normalize(fullName);
 
       var injections = this._injections[normalizedName] || (this._injections[normalizedName] = []);
@@ -2114,7 +2113,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
 
       for (var key in hash) {
         if (hash.hasOwnProperty(key)) {
-          _emberMetalCore.default.assert('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
+          _emberMetalDebug.assert('Expected a proper full name, given \'' + hash[key] + '\'', this.validateFullName(hash[key]));
 
           injections.push({
             property: key,
@@ -2185,7 +2184,6 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
 
   exports.default = Registry;
 });
-// Ember.assert
 enifed("dag-map", ["exports"], function (exports) {
   "use strict";
 
@@ -8916,7 +8914,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c3dee6ee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14891,7 +14889,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+c3dee6ee
+    @version 2.2.0-canary+fe9d4eb6
     @public
   */
 
@@ -14925,11 +14923,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+c3dee6ee'
+    @default '2.2.0-canary+fe9d4eb6'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+c3dee6ee';
+  Ember.VERSION = '2.2.0-canary+fe9d4eb6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23190,7 +23188,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+c3dee6ee';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23691,7 +23689,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c3dee6ee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37406,7 +37404,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+c3dee6ee',
+        revision: 'Ember@2.2.0-canary+fe9d4eb6',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42841,7 +42839,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+c3dee6ee';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
 
   /**
   @module ember
