@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+1b580ef9
+ * @version   2.2.0-canary+bdf81956
  */
 
 (function() {
@@ -17441,9 +17441,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
   QUnit.module('mandatory-setters');
 
   function hasMandatorySetter(object, property) {
-    var meta = _emberMetalMeta.meta(object);
-    var values = meta.readableValues();
-    return values && property in values;
+    return _emberMetalMeta.meta(object).hasInValues(property);
   }
 
   QUnit.test('does not assert if property is not being watched', function () {
@@ -17538,7 +17536,6 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
         return 'custom-object';
       }
     };
-    var meta = _emberMetalMeta.meta(obj);
 
     Object.defineProperty(obj, 'someProp', {
       configurable: false,
@@ -17547,7 +17544,7 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     });
 
     _emberMetalWatching.watch(obj, 'someProp');
-    ok(!('someProp' in meta.readableValues()), 'blastix');
+    ok(!hasMandatorySetter(obj, 'someProp'), 'blastix');
   });
 
   QUnit.test('sets up mandatory-setter if property comes from prototype', function () {
@@ -17562,9 +17559,8 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     var obj2 = Object.create(obj);
 
     _emberMetalWatching.watch(obj2, 'someProp');
-    var meta = _emberMetalMeta.meta(obj2);
 
-    ok('someProp' in meta.readableValues(), 'mandatory setter has been setup');
+    ok(hasMandatorySetter(obj2, 'someProp'), 'mandatory setter has been setup');
 
     expectAssertion(function () {
       obj2.someProp = 'foo-bar';
@@ -17877,9 +17873,9 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalAlias.default('foo.faz'));
     var m = _emberMetalMeta.meta(obj);
     _emberMetalObserver.addObserver(obj, 'bar', incrementCount);
-    equal(m.readableDeps('foo.faz').bar, 1);
+    equal(m.peekDeps('foo.faz', 'bar'), 1);
     _emberMetalObserver.removeObserver(obj, 'bar', incrementCount);
-    equal(m.readableDeps('foo.faz').bar, 0);
+    equal(m.peekDeps('foo.faz', 'bar'), 0);
   });
 
   QUnit.test('old dependent keys should not trigger property changes', function () {
@@ -41390,7 +41386,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+1b580ef9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+bdf81956', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
