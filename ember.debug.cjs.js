@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+fe9d4eb6
+ * @version   2.2.0-canary+c2c1079c
  */
 
 (function() {
@@ -8914,7 +8914,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c2c1079c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14889,7 +14889,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+fe9d4eb6
+    @version 2.2.0-canary+c2c1079c
     @public
   */
 
@@ -14923,11 +14923,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+fe9d4eb6'
+    @default '2.2.0-canary+c2c1079c'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+fe9d4eb6';
+  Ember.VERSION = '2.2.0-canary+c2c1079c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23188,7 +23188,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+c2c1079c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23689,7 +23689,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c2c1079c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -30342,7 +30342,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
   });
 });
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDeprecate_property) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get) {
   /**
   @module ember
   @submodule ember-runtime
@@ -30512,14 +30512,37 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
         _emberMetalCore.default.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
         (_target = target).send.apply(_target, arguments);
       }
+    },
+
+    willMergeMixin: function (props) {
+      _emberMetalCore.default.assert('Specifying `_actions` and `actions` in the same mixin is not supported.', !props.actions || !props._actions);
+
+      if (props._actions) {
+        _emberMetalCore.default.deprecate('Specifying actions in `_actions` is deprecated, please use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
+
+        props.actions = props._actions;
+        delete props._actions;
+      }
     }
   });
 
   exports.default = ActionHandler;
 
   function deprecateUnderscoreActions(factory) {
-    _emberMetalDeprecate_property.deprecateProperty(factory.prototype, '_actions', 'actions', {
-      id: 'ember-runtime.action-handler-_actions', until: '3.0.0'
+    function deprecate() {
+      _emberMetalCore.default.deprecate('Usage of `_actions` is deprecated, use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
+    }
+
+    Object.defineProperty(factory.prototype, '_actions', {
+      configurable: true,
+      enumerable: false,
+      set: function (value) {
+        _emberMetalCore.default.assert('You cannot set `_actions` on ' + this + ', please use `actions` instead.');
+      },
+      get: function () {
+        deprecate();
+        return _emberMetalProperty_get.get(this, 'actions');
+      }
     });
   }
 });
@@ -37404,7 +37427,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+fe9d4eb6',
+        revision: 'Ember@2.2.0-canary+c2c1079c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42839,7 +42862,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+fe9d4eb6';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+c2c1079c';
 
   /**
   @module ember
