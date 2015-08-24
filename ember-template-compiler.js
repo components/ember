@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.9
+ * @version   1.13.9+e4935b1c
  */
 
 (function() {
@@ -3299,7 +3299,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.9
+    @version 1.13.9+e4935b1c
     @public
   */
 
@@ -3333,11 +3333,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.9'
+    @default '1.13.9+e4935b1c'
     @static
     @public
   */
-  Ember.VERSION = '1.13.9';
+  Ember.VERSION = '1.13.9+e4935b1c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -3681,6 +3681,29 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
     delete dict['_dict'];
     return dict;
   }
+});
+enifed("ember-metal/empty_object", ["exports", "ember-metal/platform/create"], function (exports, _emberMetalPlatformCreate) {
+  "use strict";
+
+  // This exists because `Object.create(null)` is absurdly slow compared
+  // to `new EmptyObject()`. In either case, you want a null prototype
+  // when you're treating the object instances as arbitrary dictionaries
+  // and don't want your keys colliding with build-in methods on the
+  // default object prototype.
+
+  var proto = _emberMetalPlatformCreate["default"](null, {
+    // without this, we will always still end up with (new
+    // EmptyObject()).constructor === Object
+    constructor: {
+      value: undefined,
+      enumerable: false,
+      writable: true
+    }
+  });
+
+  function EmptyObject() {}
+  EmptyObject.prototype = proto;
+  exports["default"] = EmptyObject;
 });
 enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-metal/array'], function (exports, _emberMetalCore, _emberMetalArray) {
   'use strict';
@@ -12640,7 +12663,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.9',
+        revision: 'Ember@1.13.9+e4935b1c',
         loc: program.loc,
         moduleName: options.moduleName
       };
