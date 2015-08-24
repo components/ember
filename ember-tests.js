@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+1dbbcc5a
+ * @version   2.0.1+c27d56dc
  */
 
 (function() {
@@ -13991,6 +13991,29 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     var button = view.$('button');
     ok(button.is('.foo.bar.baz.ember-view'), 'the element has the correct classes: ' + button.attr('class'));
+  });
+
+  QUnit.test('specifying custom concatenatedProperties avoids clobbering', function (assert) {
+    expect(1);
+
+    var clickyThing = undefined;
+    registry.register('component:some-clicky-thing', _emberViewsViewsComponent.default.extend({
+      concatenatedProperties: ['blahzz'],
+      blahzz: ['blark', 'pory'],
+      init: function () {
+        this._super.apply(this, arguments);
+        clickyThing = this;
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing blahzz="baz"}}Click Me{{/some-clicky-thing}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    assert.deepEqual(clickyThing.get('blahzz'), ['blark', 'pory', 'baz'], 'property is properly combined');
   });
 
   // jscs:disable validateIndentation
@@ -40220,7 +40243,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.1+1dbbcc5a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.1+c27d56dc', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

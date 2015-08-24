@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+1dbbcc5a
+ * @version   2.0.1+c27d56dc
  */
 
 (function() {
@@ -4059,7 +4059,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.1+1dbbcc5a
+    @version 2.0.1+c27d56dc
     @public
   */
 
@@ -4093,11 +4093,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.1+1dbbcc5a'
+    @default '2.0.1+c27d56dc'
     @static
     @public
   */
-  Ember.VERSION = '2.0.1+1dbbcc5a';
+  Ember.VERSION = '2.0.1+c27d56dc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4383,6 +4383,29 @@ enifed('ember-metal/dictionary', ['exports'], function (exports) {
     delete dict['_dict'];
     return dict;
   }
+});
+enifed("ember-metal/empty_object", ["exports"], function (exports) {
+  // This exists because `Object.create(null)` is absurdly slow compared
+  // to `new EmptyObject()`. In either case, you want a null prototype
+  // when you're treating the object instances as arbitrary dictionaries
+  // and don't want your keys colliding with build-in methods on the
+  // default object prototype.
+
+  "use strict";
+
+  var proto = Object.create(null, {
+    // without this, we will always still end up with (new
+    // EmptyObject()).constructor === Object
+    constructor: {
+      value: undefined,
+      enumerable: false,
+      writable: true
+    }
+  });
+
+  function EmptyObject() {}
+  EmptyObject.prototype = proto;
+  exports.default = EmptyObject;
 });
 enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
   'use strict';
@@ -12015,7 +12038,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.1+1dbbcc5a',
+        revision: 'Ember@2.0.1+c27d56dc',
         loc: program.loc,
         moduleName: options.moduleName
       };
