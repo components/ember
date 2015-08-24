@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1
+ * @version   2.0.1+1dbbcc5a
  */
 
 (function() {
@@ -27415,6 +27415,39 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     }, 'Usage of `_actions` is deprecated, use `actions` instead.');
   });
 
+  QUnit.test('actions in both `_actions` and `actions` results in an assertion', function () {
+    expectAssertion(function () {
+      _emberRoutingSystemRoute.default.extend({
+        _actions: {},
+        actions: {}
+      }).create();
+    }, 'Specifying `_actions` and `actions` in the same mixin is not supported.');
+  });
+
+  QUnit.test('actions added via `_actions` can be used [DEPRECATED]', function () {
+    expect(3);
+
+    var route = undefined;
+    expectDeprecation(function () {
+      route = _emberRoutingSystemRoute.default.extend({
+        _actions: {
+          bar: function () {
+            ok(true, 'called bar action');
+          }
+        }
+      }, {
+        actions: {
+          foo: function () {
+            ok(true, 'called foo action');
+          }
+        }
+      }).create();
+    }, 'Specifying actions in `_actions` is deprecated, please use `actions` instead.');
+
+    route.send('foo');
+    route.send('bar');
+  });
+
   QUnit.module('Ember.Route serialize', {
     setup: setup,
     teardown: teardown
@@ -40024,7 +40057,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.1+1dbbcc5a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

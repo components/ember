@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1
+ * @version   2.0.1+1dbbcc5a
  */
 
 (function() {
@@ -8709,7 +8709,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+1dbbcc5a';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14637,7 +14637,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.1
+    @version 2.0.1+1dbbcc5a
     @public
   */
 
@@ -14671,11 +14671,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.1'
+    @default '2.0.1+1dbbcc5a'
     @static
     @public
   */
-  Ember.VERSION = '2.0.1';
+  Ember.VERSION = '2.0.1+1dbbcc5a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22814,7 +22814,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.1+1dbbcc5a';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23316,7 +23316,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+1dbbcc5a';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -26488,13 +26488,14 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     },
 
     /**
-      Returns the model of a parent (or any ancestor) route
+      Returns the resolved model of a parent (or any ancestor) route
       in a route hierarchy.  During a transition, all routes
       must resolve a model object, and if a route
       needs access to a parent route's model in order to
       resolve a model (or just reuse the model from a parent),
       it can call `this.modelFor(theNameOfParentRoute)` to
-      retrieve it.
+      retrieve it. If the ancestor route's model was a promise,
+      its resolved result is returned.
        Example
        ```javascript
       App.Router.map(function() {
@@ -27011,10 +27012,11 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
       The `location` property determines the type of URL's that your
       application will use.
        The following location types are currently available:
-       * `auto`
-      * `hash`
-      * `history`
-      * `none`
+       * `history` - use the browser's history API to make the URLs look just like any standard URL
+      * `hash` - use `#` to separate the server part of the URL from the Ember part: `/blog/#/posts/new`
+      * `none` - do not store the Ember URL in the actual browser URL (mainly used for testing)
+      * `auto` - use the best option based on browser capabilites: `history` if possible, then `hash` if possible, otherwise `none`
+       Note: If using ember-cli, this value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`
        @property location
       @default 'hash'
       @see {Ember.Location}
@@ -29925,7 +29927,7 @@ enifed('ember-runtime/mixins/-proxy', ['exports', 'ember-metal/core', 'ember-met
   });
 });
 // Ember.assert
-enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/deprecate_property'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get, _emberMetalDeprecate_property) {
+enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalProperty_get) {
   /**
   @module ember
   @submodule ember-runtime
@@ -30095,14 +30097,37 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/core', 'e
         _emberMetalCore.default.assert('The `target` for ' + this + ' (' + target + ') does not have a `send` method', typeof target.send === 'function');
         (_target = target).send.apply(_target, arguments);
       }
+    },
+
+    willMergeMixin: function (props) {
+      _emberMetalCore.default.assert('Specifying `_actions` and `actions` in the same mixin is not supported.', !props.actions || !props._actions);
+
+      if (props._actions) {
+        _emberMetalCore.default.deprecate('Specifying actions in `_actions` is deprecated, please use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
+
+        props.actions = props._actions;
+        delete props._actions;
+      }
     }
   });
 
   exports.default = ActionHandler;
 
   function deprecateUnderscoreActions(factory) {
-    _emberMetalDeprecate_property.deprecateProperty(factory.prototype, '_actions', 'actions', {
-      id: 'ember-runtime.action-handler-_actions', until: '3.0.0'
+    function deprecate() {
+      _emberMetalCore.default.deprecate('Usage of `_actions` is deprecated, use `actions` instead.', false, { id: 'ember-runtime.action-handler-_actions', until: '3.0.0' });
+    }
+
+    Object.defineProperty(factory.prototype, '_actions', {
+      configurable: true,
+      enumerable: false,
+      set: function (value) {
+        _emberMetalCore.default.assert('You cannot set `_actions` on ' + this + ', please use `actions` instead.');
+      },
+      get: function () {
+        deprecate();
+        return _emberMetalProperty_get.get(this, 'actions');
+      }
     });
   }
 });
@@ -30659,7 +30684,7 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
       consumer of actions for the controller.
        @property target
       @default null
-      @private
+      @public
     */
     target: null,
 
@@ -36598,7 +36623,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.1',
+        revision: 'Ember@2.0.1+1dbbcc5a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41117,6 +41142,45 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
       @property hasBlockParams
       @returns Boolean
     */
+
+    /**
+      Enables components to take a list of parameters as arguments
+       For example a component that takes two parameters with the names
+      `name` and `age`:
+       ```javascript
+      let MyComponent = Ember.Component.extend;
+      MyComponent.reopenClass({
+        positionalParams: ['name', 'age']
+      });
+      ```
+       It can then be invoked like this:
+       ```hbs
+      {{my-component "John" 38}}
+      ```
+       The parameters can be refered to just like named parameters:
+       ```hbs
+      Name: {{attrs.name}}, Age: {{attrs.age}}.
+      ```
+       Using a string instead of an array allows for an arbitrary number of
+      parameters:
+       ```javascript
+      let MyComponent = Ember.Component.extend;
+      MyComponent.reopenClass({
+        positionalParams: 'names'
+      });
+      ```
+       It can then be invoked like this:
+       ```hbs
+      {{my-component "John" "Michael" "Scott"}}
+      ```
+       The parameters can then be refered to by enumerating over the list:
+       ```hbs
+      {{#each attrs.names as |name|}}{{name}}{{/each}}
+      ```
+       @static
+      @public
+      @property positionalParams
+    */
   });
 
   Component.reopenClass({
@@ -41129,7 +41193,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.1+1dbbcc5a';
 
   /**
   @module ember
