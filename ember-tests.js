@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+bdf81956
+ * @version   2.2.0-canary+915aa55c
  */
 
 (function() {
@@ -5583,7 +5583,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
   }
   // jscs:enable disallowTrailingWhitespace
 });
-enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberHtmlbarsMorphsAttrMorph) {
+enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/debug', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-htmlbars/utils/string', 'ember-runtime/tests/utils', 'ember-htmlbars/morphs/attr-morph'], function (exports, _emberMetalDebug, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberHtmlbarsUtilsString, _emberRuntimeTestsUtils, _emberHtmlbarsMorphsAttrMorph) {
   /* globals EmberDev */
 
   'use strict';
@@ -5593,17 +5593,17 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/co
   QUnit.module('ember-htmlbars: style attribute', {
     setup: function () {
       warnings = [];
-      originalWarn = _emberMetalCore.default.warn;
-      _emberMetalCore.default.warn = function (message, test) {
+      originalWarn = _emberMetalDebug.getDebugFunction('warn');
+      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
         if (!test) {
           warnings.push(message);
         }
-      };
+      });
     },
 
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(view);
-      _emberMetalCore.default.warn = originalWarn;
+      _emberMetalDebug.setDebugFunction('warn', originalWarn);
     }
   });
 
@@ -6104,8 +6104,9 @@ enifed("ember-htmlbars/tests/glimmer-component/test-helpers", ["exports"], funct
     QUnit.module("Glimmer Component - " + name, { beforeEach: beforeEach, afterEach: afterEach });
   }
 });
-enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/core', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/debug', 'ember-runtime/system/container', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalDebug, _emberRuntimeSystemContainer, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   /* globals EmberDev */
+
   'use strict';
 
   var component, registry, container, warnings, originalWarn;
@@ -6117,18 +6118,18 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
       registry.optionsForType('helper', { instantiate: false });
 
       warnings = [];
-      originalWarn = _emberMetalCore.default.warn;
-      _emberMetalCore.default.warn = function (message, test) {
+      originalWarn = _emberMetalDebug.getDebugFunction('warn');
+      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
         if (!test) {
           warnings.push(message);
         }
-      };
+      });
     },
 
     teardown: function () {
       _emberRuntimeTestsUtils.runDestroy(container);
       _emberRuntimeTestsUtils.runDestroy(component);
-      _emberMetalCore.default.warn = originalWarn;
+      _emberMetalDebug.setDebugFunction('warn', originalWarn);
     }
   });
 
@@ -11152,7 +11153,7 @@ enifed('ember-htmlbars/tests/helpers/unbound_test', ['exports', 'ember-views/vie
     equal(view.$('li.is-cool').length, 2, 'correct number of cool people');
   });
 });
-enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-views/components/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberViewsComponentsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-views/views/view', 'ember-views/components/component', 'container/registry', 'ember-views/component_lookup', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-views/views/text_field', 'ember-runtime/system/object', 'ember-views/views/container_view', 'htmlbars-util/safe-string', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-metal/observer', 'ember-runtime/controllers/controller', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberViewsViewsView, _emberViewsComponentsComponent, _containerRegistry, _emberViewsComponent_lookup, _emberMetalRun_loop, _emberViewsSystemJquery, _emberViewsViewsText_field, _emberRuntimeSystemObject, _emberViewsViewsContainer_view, _htmlbarsUtilSafeString, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberMetalObserver, _emberRuntimeControllersController, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   /*globals EmberDev */
   'use strict';
 
@@ -11348,13 +11349,12 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
 
     expect(2);
 
-    var oldWarn = _emberMetalCore.default.warn;
-
-    _emberMetalCore.default.warn = function (msg, disableWarning) {
+    var oldWarn = _emberMetalDebug.getDebugFunction('warn');
+    _emberMetalDebug.setDebugFunction('warn', function (msg, disableWarning) {
       if (!disableWarning) {
         ok(msg.match(/You're attempting to render a view by passing borfBinding.+, but this syntax is ambiguous./));
       }
-    };
+    });
 
     var compiled = undefined;
     expectDeprecation(function () {
@@ -11370,7 +11370,7 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
 
     equal(_emberViewsSystemJquery.default('#lol').text(), 'nerd', 'awkward mixed syntax treated like binding');
 
-    _emberMetalCore.default.warn = oldWarn;
+    _emberMetalDebug.setDebugFunction('warn', oldWarn);
   });
 
   QUnit.test('"Binding"-suffixed bindings are runloop-synchronized [DEPRECATED]', function () {
@@ -20064,7 +20064,7 @@ enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'e
     deepEqual(Object.keys(beer), ['type']);
   });
 });
-enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalLibraries) {
+enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
   /* globals EmberDev */
   'use strict';
 
@@ -20125,19 +20125,20 @@ enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/core', 'embe
 
     expect(1);
 
-    var oldWarn = _emberMetalCore.default.warn;
+    var originalWarn = _emberMetalDebug.getDebugFunction('warn');
+
     libs.register('magic', 1.23);
 
-    _emberMetalCore.default.warn = function (msg, test) {
+    _emberMetalDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
         equal(msg, 'Library "magic" is already registered with Ember.');
       }
-    };
+    });
 
     // Should warn us
     libs.register('magic', 2.23);
 
-    _emberMetalCore.default.warn = oldWarn;
+    _emberMetalDebug.setDebugFunction('warn', originalWarn);
   });
 
   QUnit.test('libraries can be de-registered', function () {
@@ -40174,7 +40175,7 @@ enifed('ember-runtime/tests/system/object/extend_test', ['exports', 'ember-metal
     deepEqual(_emberMetalProperty_get.get(yetAnother.constructor, 'things'), ['foo', 'baz'], 'subclass should have base class\' and its own');
   });
 });
-enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-metal/core', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalMixin, _emberMetalRun_loop, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-metal/mixin', 'ember-metal/run_loop', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalMixin, _emberMetalRun_loop, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
   'use strict';
 
   QUnit.module('EmberObject observer');
@@ -40278,13 +40279,9 @@ enifed('ember-runtime/tests/system/object/observer_test', ['exports', 'ember-met
       obj.destroy();
     });
 
-    if (_emberMetalCore.default.assert) {
-      expectAssertion(function () {
-        set(obj, 'bar', 'BAZ');
-      }, 'calling set on destroyed object');
-    } else {
+    expectAssertion(function () {
       set(obj, 'bar', 'BAZ');
-    }
+    }, 'calling set on destroyed object');
 
     equal(get(obj, 'count'), 0, 'should not invoke observer after change');
   });
@@ -41386,7 +41383,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+bdf81956', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+915aa55c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -49833,7 +49830,7 @@ enifed('ember-views/tests/views/view/inject_test', ['exports', 'ember-runtime/sy
     equal(profilerService, appView.get('profilerService'), 'service.profiler is injected');
   });
 });
-enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var View, view, parentBecameVisible, childBecameVisible, grandchildBecameVisible;
@@ -49845,12 +49842,12 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
     setup: function () {
       originalViewKeyword = _emberHtmlbarsTestsUtils.registerKeyword('view', _emberHtmlbarsKeywordsView.default);
       warnings = [];
-      originalWarn = _emberMetalCore.default.warn;
-      _emberMetalCore.default.warn = function (message, test) {
+      originalWarn = _emberMetalDebug.getDebugFunction('warn');
+      _emberMetalDebug.setDebugFunction('warn', function (message, test) {
         if (!test) {
           warnings.push(message);
         }
-      };
+      });
     },
 
     teardown: function () {
@@ -49860,6 +49857,7 @@ enifed('ember-views/tests/views/view/is_visible_test', ['exports', 'ember-metal/
         });
       }
       _emberHtmlbarsTestsUtils.resetKeyword('view', originalViewKeyword);
+      _emberMetalDebug.setDebugFunction('warn', originalWarn);
     }
   });
 
