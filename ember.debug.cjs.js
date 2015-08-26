@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6e77b73f
+ * @version   2.2.0-canary+312617d0
  */
 
 (function() {
@@ -5175,7 +5175,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
       its return value will be used as condition.
     @public
   */
-  function assert(desc, test) {
+  _emberMetalDebug.setDebugFunction('assert', function assert(desc, test) {
     var throwAssertion;
 
     if (_emberDebugIsPlainFunction.default(test)) {
@@ -5187,7 +5187,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     if (throwAssertion) {
       throw new _emberMetalError.default('Assertion Failed: ' + desc);
     }
-  }
+  });
 
   /**
     Display a debug notice. Ember build tools will remove any calls to
@@ -5201,9 +5201,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @param {String} message A debug message to display.
     @public
   */
-  function debug(message) {
+  _emberMetalDebug.setDebugFunction('debug', function debug(message) {
     _emberMetalLogger.default.debug('DEBUG: ' + message);
-  }
+  });
 
   /**
     Alias an old, deprecated method with its new counterpart.
@@ -5225,7 +5225,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @return {Function} a new function that wrapped the original function with a deprecation warning
     @private
   */
-  function deprecateFunc() {
+  _emberMetalDebug.setDebugFunction('deprecateFunc', function deprecateFunc() {
     for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -5238,7 +5238,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
         return {
           v: function () {
-            _emberMetalCore.default.deprecate(message, false, options);
+            _emberMetalDebug.deprecate(message, false, options);
             return func.apply(this, arguments);
           }
         };
@@ -5252,7 +5252,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
         return {
           v: function () {
-            _emberMetalCore.default.deprecate(message);
+            _emberMetalDebug.deprecate(message);
             return func.apply(this, arguments);
           }
         };
@@ -5260,7 +5260,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
       if (typeof _ret2 === 'object') return _ret2.v;
     }
-  }
+  });
 
   /**
     Run a function meant for debugging. Ember build tools will remove any calls to
@@ -5281,17 +5281,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @since 1.5.0
     @public
   */
-  function runInDebug(func) {
+  _emberMetalDebug.setDebugFunction('runInDebug', function runInDebug(func) {
     func();
-  }
+  });
 
-  _emberMetalDebug.setDebugFunction('assert', assert);
-  _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
-  _emberMetalDebug.setDebugFunction('debug', debug);
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
-  _emberMetalDebug.setDebugFunction('deprecateFunc', deprecateFunc);
-  _emberMetalDebug.setDebugFunction('runInDebug', runInDebug);
-
+  _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
     any specific FEATURES flag is truthy.
@@ -5305,12 +5300,12 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetalCore.default.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
-      _emberMetalCore.default.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalDebug.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
+      _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       for (var key in FEATURES) {
         if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
-          _emberMetalCore.default.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
+          _emberMetalDebug.warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key], { id: 'ember-debug.feature-flag-with-features-stripped' });
         }
       }
     }
@@ -5343,7 +5338,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
             downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
           }
 
-          _emberMetalCore.default.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
+          _emberMetalDebug.debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
         }
       }, false);
     }
@@ -5365,7 +5360,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   var runningNonEmberDebugJS = false;
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
   if (runningNonEmberDebugJS) {
-    _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
+    _emberMetalDebug.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
 enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalError, _emberMetalLogger, _emberDebugHandlers) {
@@ -5531,7 +5526,7 @@ enifed('ember-debug/is-plain-function', ['exports'], function (exports) {
     return typeof test === 'function' && test.PrototypeMixin === undefined;
   }
 });
-enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-debug/handlers'], function (exports, _emberMetalCore, _emberMetalLogger, _emberDebugHandlers) {
+enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-debug/handlers'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberDebugHandlers) {
   'use strict';
 
   var _slice = Array.prototype.slice;
@@ -5567,11 +5562,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
 
   function warn(message, test, options) {
     if (!options) {
-      _emberMetalCore.default.deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.warn-options-missing', until: '3.0.0' });
+      _emberMetalDebug.deprecate(missingOptionsDeprecation, false, { id: 'ember-debug.warn-options-missing', until: '3.0.0' });
     }
 
     if (options && !options.id) {
-      _emberMetalCore.default.deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.warn-id-missing', until: '3.0.0' });
+      _emberMetalDebug.deprecate(missingOptionsIdDeprecation, false, { id: 'ember-debug.warn-id-missing', until: '3.0.0' });
     }
 
     _emberDebugHandlers.invoke.apply(undefined, ['warn'].concat(_slice.call(arguments)));
@@ -8910,7 +8905,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+6e77b73f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+312617d0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14875,7 +14870,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+6e77b73f
+    @version 2.2.0-canary+312617d0
     @public
   */
 
@@ -14909,11 +14904,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+6e77b73f'
+    @default '2.2.0-canary+312617d0'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+6e77b73f';
+  Ember.VERSION = '2.2.0-canary+312617d0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23182,7 +23177,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+6e77b73f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+312617d0';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23681,7 +23676,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+6e77b73f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+312617d0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37403,7 +37398,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+6e77b73f',
+        revision: 'Ember@2.2.0-canary+312617d0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42837,7 +42832,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+6e77b73f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+312617d0';
 
   /**
   @module ember

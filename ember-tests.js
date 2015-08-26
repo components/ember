@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6e77b73f
+ * @version   2.2.0-canary+312617d0
  */
 
 (function() {
@@ -4084,7 +4084,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-deb
     _emberMetalCore.default.warn('foo', false, {});
   });
 });
-enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-debug'], function (exports, _emberMetalCore, _emberDebug) {
+enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
   'use strict';
 
   var oldWarn, oldRunInDebug, origEnvFeatures, origEnableAll, origEnableOptional;
@@ -4093,15 +4093,15 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     var featuresWereStripped = true;
     var FEATURES = _emberMetalCore.default.ENV.FEATURES;
 
-    _emberMetalCore.default.warn = function (msg, test) {
+    _emberMetalDebug.setDebugFunction('warn', function (msg, test) {
       if (!test) {
         equal(msg, expectedMsg);
       }
-    };
+    });
 
-    _emberMetalCore.default.runInDebug = function (func) {
+    _emberMetalDebug.setDebugFunction('runInDebug', function (func) {
       func();
-    };
+    });
 
     // Should trigger our 1 warning
     _emberDebug._warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped);
@@ -4113,16 +4113,16 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
 
   QUnit.module('ember-debug - _warnIfUsingStrippedFeatureFlags', {
     setup: function () {
-      oldWarn = _emberMetalCore.default.warn;
-      oldRunInDebug = _emberMetalCore.default.runInDebug;
+      oldWarn = _emberMetalDebug.getDebugFunction('warn');
+      oldRunInDebug = _emberMetalDebug.getDebugFunction('runInDebug');
       origEnvFeatures = _emberMetalCore.default.ENV.FEATURES;
       origEnableAll = _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
     },
 
     teardown: function () {
-      _emberMetalCore.default.warn = oldWarn;
-      _emberMetalCore.default.runInDebug = oldRunInDebug;
+      _emberMetalDebug.setDebugFunction('warn', oldWarn);
+      _emberMetalDebug.setDebugFunction('runInDebug', oldRunInDebug);
       _emberMetalCore.default.ENV.FEATURES = origEnvFeatures;
       _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = origEnableAll;
       _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
@@ -41383,7 +41383,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+6e77b73f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+312617d0', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
