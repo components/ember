@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+312617d0
+ * @version   2.2.0-canary+a09587ba
  */
 
 (function() {
@@ -4770,7 +4770,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+312617d0
+    @version 2.2.0-canary+a09587ba
     @public
   */
 
@@ -4804,11 +4804,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+312617d0'
+    @default '2.2.0-canary+a09587ba'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+312617d0';
+  Ember.VERSION = '2.2.0-canary+a09587ba';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12769,6 +12769,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
       var items = itemsKey === '@this' ? this : _emberMetalProperty_get.get(this, itemsKey);
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
+
+      if (items === null || typeof items !== 'object') {
+        return _emberMetalCore.default.A();
+      }
 
       // TODO: Ideally we'd only do this if things have changed
       if (cp._sortPropObservers) {

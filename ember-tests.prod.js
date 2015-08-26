@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+312617d0
+ * @version   2.2.0-canary+a09587ba
  */
 
 (function() {
@@ -29336,7 +29336,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils) {
   'use strict';
 
   var obj;
@@ -30233,6 +30233,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     obj.set('sortProps', ['relatedObj.firstName']);
 
     deepEqual(obj.get('sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
+  });
+
+  QUnit.test('if the dependentKey is neither an array nor object, it will return an empty array', function () {
+    _emberMetalProperty_set.set(obj, 'items', null);
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
+
+    _emberMetalProperty_set.set(obj, 'array', undefined);
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
+
+    _emberMetalProperty_set.set(obj, 'array', 'not an array');
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
   });
 
   function sortByLnameFname(a, b) {
@@ -41223,7 +41234,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+312617d0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+a09587ba', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
