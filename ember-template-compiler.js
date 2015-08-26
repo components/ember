@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+f447f2f0
+ * @version   2.2.0-canary+6e77b73f
  */
 
 (function() {
@@ -4172,7 +4172,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+f447f2f0
+    @version 2.2.0-canary+6e77b73f
     @public
   */
 
@@ -4206,11 +4206,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+f447f2f0'
+    @default '2.2.0-canary+6e77b73f'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+f447f2f0';
+  Ember.VERSION = '2.2.0-canary+6e77b73f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11426,7 +11426,7 @@ enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
 
   exports.default = plugins;
 });
-enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
   function AssertNoViewAndControllerPaths(options) {
@@ -11481,7 +11481,7 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
   }
 
   function assertPath(moduleName, node, path) {
-    _emberMetalCore.default.assert('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been removed in Ember 2.0', function assertPath_test() {
+    _emberMetalDebug.assert('Using `{{' + (path && path.type === 'PathExpression' && path.parts[0]) + '}}` or any path based on it ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc) + 'has been removed in Ember 2.0', function assertPath_test() {
       var noAssertion = true;
 
       var viewKeyword = path && path.type === 'PathExpression' && path.parts && path.parts[0];
@@ -11504,7 +11504,7 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
 
   exports.default = AssertNoViewAndControllerPaths;
 });
-enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
   function AssertNoViewHelper(options) {
@@ -11542,7 +11542,7 @@ enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'emb
     if (!paramValue) {
       return;
     } else {
-      _emberMetalCore.default.assert('Using the `{{view "string"}}` helper is removed in 2.0. ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc), _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'view.helper', until: '2.0.0' });
+      _emberMetalDebug.assert('Using the `{{view "string"}}` helper is removed in 2.0. ' + _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc), _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT, { id: 'view.helper', until: '2.0.0' });
     }
   }
 
@@ -11749,7 +11749,7 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
 
   exports.default = TransformEachInToHash;
 });
-enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-each-into-collection', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
   exports.default = TransformEachIntoCollection;
@@ -11772,7 +11772,7 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
 
       var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, legacyHashKey.loc);
 
-      _emberMetalCore.default.deprecate('Using \'' + legacyHashKey.key + '\' with \'{{each}}\' ' + moduleInfo + 'is deprecated.  Please refactor to a component.', false, { id: 'ember-template-compiler.transform-each-into-collection', until: '2.0.0' });
+      _emberMetalDebug.deprecate('Using \'' + legacyHashKey.key + '\' with \'{{each}}\' ' + moduleInfo + 'is deprecated.  Please refactor to a component.', false, { id: 'ember-template-compiler.transform-each-into-collection', until: '2.0.0' });
 
       var list = node.params.shift();
       node.path = b.path('collection');
@@ -11812,7 +11812,7 @@ enifed('ember-template-compiler/plugins/transform-each-into-collection', ['expor
     return false;
   }
 });
-enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
   /**
@@ -11864,7 +11864,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
         var moduleInfo = _emberTemplateCompilerSystemCalculateLocationDisplay.default(moduleName, node.loc);
 
         if (normalizedOn && normalizedOn.value.type !== 'StringLiteral') {
-          _emberMetalCore.default.deprecate('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
+          _emberMetalDebug.deprecate('Using a dynamic value for \'#{normalizedOn.key}=\' with the \'{{input}}\' helper ' + moduleInfo + 'is deprecated.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.dynamic-value', until: '3.0.0' });
 
           normalizedOn.key = 'onEvent';
           return; // exit early, as we cannot transform further
@@ -11874,7 +11874,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
         removeFromHash(node.hash, action);
 
         if (!action) {
-          _emberMetalCore.default.deprecate('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
+          _emberMetalDebug.deprecate('Using \'{{input ' + normalizedOn.key + '="' + normalizedOn.value.value + '" ...}}\' without specifying an action ' + moduleInfo + 'will do nothing.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.no-action', until: '3.0.0' });
 
           return; // exit early, if no action was available there is nothing to do
         }
@@ -11888,7 +11888,7 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
 
         var expected = (normalizedOn ? normalizedOn.value.value : 'enter') + '="' + action.value.original + '"';
 
-        _emberMetalCore.default.deprecate('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
+        _emberMetalDebug.deprecate('Using \'{{input ' + specifiedOn + 'action="' + action.value.original + '"}}\' ' + moduleInfo + 'is deprecated. Please use \'{{input ' + expected + '}}\' instead.', false, { id: 'ember-template-compiler.transform-input-on-to-onEvent.normalized-on', until: '3.0.0' });
         if (!normalizedOn) {
           normalizedOn = b.pair('onEvent', b.string('enter'));
         }
@@ -11983,7 +11983,7 @@ enifed('ember-template-compiler/plugins/transform-item-class', ['exports'], func
     }
   }
 });
-enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
+enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
   exports.default = TransformOldBindingSyntax;
@@ -12013,12 +12013,12 @@ enifed('ember-template-compiler/plugins/transform-old-binding-syntax', ['exports
           return;
         }
 
-        _emberMetalCore.default.assert('Setting \'attributeBindings\' via template helpers is not allowed ' + sourceInformation, key !== 'attributeBindings');
+        _emberMetalDebug.assert('Setting \'attributeBindings\' via template helpers is not allowed ' + sourceInformation, key !== 'attributeBindings');
 
         if (key.substr(-7) === 'Binding') {
           var newKey = key.slice(0, -7);
 
-          _emberMetalCore.default.deprecate('You\'re using legacy binding syntax: ' + key + '=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with ' + newKey + '=' + value.original, false, { id: 'ember-template-compiler.transform-old-binding-syntax', until: '3.0.0' });
+          _emberMetalDebug.deprecate('You\'re using legacy binding syntax: ' + key + '=' + exprToString(value) + ' ' + sourceInformation + '. Please replace with ' + newKey + '=' + value.original, false, { id: 'ember-template-compiler.transform-old-binding-syntax', until: '3.0.0' });
 
           pair.key = newKey;
           if (value.type === 'StringLiteral') {
@@ -12381,7 +12381,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+f447f2f0',
+        revision: 'Ember@2.2.0-canary+6e77b73f',
         loc: program.loc,
         moduleName: options.moduleName
       };

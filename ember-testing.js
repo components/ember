@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+f447f2f0
+ * @version   2.2.0-canary+6e77b73f
  */
 
 (function() {
@@ -652,7 +652,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
     }
   });
 });
-enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
   'use strict';
 
   /**
@@ -743,7 +743,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     var $el = app.testHelpers.findWithAssert(selector, context);
     var type = $el.prop('type');
 
-    _emberMetalCore.default.assert('To check \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
+    _emberMetalDebug.assert('To check \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
 
     if (!$el.prop('checked')) {
       app.testHelpers.click(selector, context);
@@ -756,7 +756,7 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/core', 'ember-metal/fea
     var $el = app.testHelpers.findWithAssert(selector, context);
     var type = $el.prop('type');
 
-    _emberMetalCore.default.assert('To uncheck \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
+    _emberMetalDebug.assert('To uncheck \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
 
     if ($el.prop('checked')) {
       app.testHelpers.click(selector, context);
@@ -1252,7 +1252,7 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
 });
 
 // import Test from "ember-testing/test";  // ES6TODO: fix when cycles are supported
-enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberViewsSystemJquery, _emberMetalEnvironment) {
+enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/system/jquery', 'ember-metal/environment'], function (exports, _emberMetalDebug, _emberViewsSystemJquery, _emberMetalEnvironment) {
   'use strict';
 
   /**
@@ -1299,7 +1299,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/core', 'ember-views/sys
 
       // Try again to verify that the patch took effect or blow up.
       testCheckboxClick(function () {
-        _emberMetalCore.default.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
+        _emberMetalDebug.warn('clicked checkboxes should be checked! the jQuery patch didn\'t work', this.checked, { id: 'ember-testing.test-checkbox-click' });
       });
     });
   }
