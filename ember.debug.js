@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a09587ba
+ * @version   2.2.0-canary+311ae509
  */
 
 (function() {
@@ -8905,7 +8905,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a09587ba';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+311ae509';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9936,14 +9936,11 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // now that we have the component instance.
     layout = _emberMetalProperty_get.get(component, 'layout') || layout;
 
-    // TODO: Remove this hack when defeatureify is removed.
-    var _assert = _emberMetalDebug.assert;
-
     _emberMetalDebug.runInDebug(function () {
       if (isAngleBracket) {
-        _assert('You cannot invoke the \'' + tagName + '\' component with angle brackets, because it\'s a subclass of Component. Please upgrade to GlimmerComponent. Alternatively, you can invoke as \'{{' + tagName + '}}\'.', component.isGlimmerComponent);
+        _emberMetalDebug.assert('You cannot invoke the \'' + tagName + '\' component with angle brackets, because it\'s a subclass of Component. Please upgrade to GlimmerComponent. Alternatively, you can invoke as \'{{' + tagName + '}}\'.', component.isGlimmerComponent);
       } else {
-        _assert('You cannot invoke the \'' + tagName + '\' component with curly braces, because it\'s a subclass of GlimmerComponent. Please invoke it as \'<' + tagName + '>\' instead.', !component.isGlimmerComponent);
+        _emberMetalDebug.assert('You cannot invoke the \'' + tagName + '\' component with curly braces, because it\'s a subclass of GlimmerComponent. Please invoke it as \'<' + tagName + '>\' instead.', !component.isGlimmerComponent);
       }
 
       if (!layout) {
@@ -9954,16 +9951,16 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       if (isAngleBracket && fragmentReason) {
         switch (fragmentReason.name) {
           case 'missing-wrapper':
-            _assert('The <' + tagName + '> template must have a single top-level element because it is a GlimmerComponent.');
+            _emberMetalDebug.assert('The <' + tagName + '> template must have a single top-level element because it is a GlimmerComponent.');
             break;
           case 'modifiers':
             var modifiers = fragmentReason.modifiers.map(function (m) {
               return '{{' + m + ' ...}}';
             });
-            _assert('You cannot use ' + modifiers.join(', ') + ' in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
+            _emberMetalDebug.assert('You cannot use ' + modifiers.join(', ') + ' in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
             break;
           case 'triple-curlies':
-            _assert('You cannot use triple curlies (e.g. style={{{ ... }}}) in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
+            _emberMetalDebug.assert('You cannot use triple curlies (e.g. style={{{ ... }}}) in the top-level element of the <' + tagName + '> template because it is a GlimmerComponent.');
             break;
         }
       }
@@ -14847,7 +14844,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   exports.computed = computed;
   exports.cacheFor = cacheFor;
 });
-enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
+enifed('ember-metal/core', ['exports'], function (exports) {
   /*globals Ember:true,ENV,EmberENV */
 
   /**
@@ -14870,7 +14867,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
   
     @class Ember
     @static
-    @version 2.2.0-canary+a09587ba
+    @version 2.2.0-canary+311ae509
     @public
   */
 
@@ -14899,16 +14896,26 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
     return 'Ember';
   };
 
+  // The debug functions are exported to globals with `require` to
+  // prevent babel-plugin-filter-imports from removing them.
+  var debugModule = Ember.__loader.require('ember-metal/debug');
+  Ember.assert = debugModule.assert;
+  Ember.warn = debugModule.warn;
+  Ember.debug = debugModule.debug;
+  Ember.deprecate = debugModule.deprecate;
+  Ember.deprecateFunc = debugModule.deprecateFunc;
+  Ember.runInDebug = debugModule.runInDebug;
+
   /**
     The semantic version.
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+a09587ba'
+    @default '2.2.0-canary+311ae509'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+a09587ba';
+  Ember.VERSION = '2.2.0-canary+311ae509';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14924,7 +14931,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
 
   if (Ember.ENV) {
     // do nothing if Ember.ENV is already setup
-    _emberMetalDebug.assert('Ember.ENV should be an object.', 'object' !== typeof Ember.ENV);
+    Ember.assert('Ember.ENV should be an object.', 'object' !== typeof Ember.ENV);
   } else if ('undefined' !== typeof EmberENV) {
     Ember.ENV = EmberENV;
   } else if ('undefined' !== typeof ENV) {
@@ -15016,13 +15023,6 @@ enifed('ember-metal/core', ['exports', 'ember-metal/debug'], function (exports, 
 
   Ember.K = K;
   //TODO: ES6 GLOBAL TODO
-
-  Ember.assert = _emberMetalDebug.assert;
-  Ember.warn = _emberMetalDebug.warn;
-  Ember.debug = _emberMetalDebug.debug;
-  Ember.deprecate = _emberMetalDebug.deprecate;
-  Ember.deprecateFunc = _emberMetalDebug.deprecateFunc;
-  Ember.runInDebug = _emberMetalDebug.runInDebug;
 
   exports.default = Ember;
 });
@@ -17729,12 +17729,9 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
     var baseValue = values[key] || obj[key];
 
     _emberMetalDebug.runInDebug(function () {
-      // TODO: Remove this hack when defeatureify is removed.
-      var _assert = _emberMetalDebug.assert;
-
       if (Array.isArray(value)) {
         // use conditional to avoid stringifying every time
-        _assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', false);
+        _emberMetalDebug.assert('You passed in `' + JSON.stringify(value) + '` as the value for `' + key + '` but `' + key + '` cannot be an Array', false);
       }
     });
 
@@ -23177,7 +23174,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+a09587ba';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+311ae509';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23676,7 +23673,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a09587ba';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+311ae509';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37402,7 +37399,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+a09587ba',
+        revision: 'Ember@2.2.0-canary+311ae509',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42836,7 +42833,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+a09587ba';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+311ae509';
 
   /**
   @module ember
