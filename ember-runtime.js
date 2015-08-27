@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+311ae509
+ * @version   2.2.0-canary+43d6745f
  */
 
 (function() {
@@ -4770,7 +4770,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+311ae509
+    @version 2.2.0-canary+43d6745f
     @public
   */
 
@@ -4814,11 +4814,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+311ae509'
+    @default '2.2.0-canary+43d6745f'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+311ae509';
+  Ember.VERSION = '2.2.0-canary+43d6745f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4935,6 +4935,7 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   exports.getDebugFunction = getDebugFunction;
   exports.setDebugFunction = setDebugFunction;
   exports.assert = assert;
+  exports.info = info;
   exports.warn = warn;
   exports.debug = debug;
   exports.deprecate = deprecate;
@@ -4942,6 +4943,7 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   exports.runInDebug = runInDebug;
   var debugFunctions = {
     assert: function () {},
+    info: function () {},
     warn: function () {},
     debug: function () {},
     deprecate: function () {},
@@ -4967,6 +4969,10 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
 
   function assert() {
     return debugFunctions.assert.apply(undefined, arguments);
+  }
+
+  function info() {
+    return debugFunctions.info.apply(undefined, arguments);
   }
 
   function warn() {
