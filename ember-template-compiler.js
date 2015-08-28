@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+5351b945
+ * @version   2.2.0-canary+dadb1dbc
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var enifed, requireModule, require, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -40,7 +40,7 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       return internalRequire(name, null);
     }
 
@@ -84,12 +84,12 @@ var mainContext = this;
 
     Ember.__loader = {
       define: enifed,
-      require: eriuqer,
+      require: require,
       registry: registry
     };
   } else {
     enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
@@ -4155,7 +4155,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+5351b945
+    @version 2.2.0-canary+dadb1dbc
     @public
   */
 
@@ -4199,11 +4199,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+5351b945'
+    @default '2.2.0-canary+dadb1dbc'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+5351b945';
+  Ember.VERSION = '2.2.0-canary+dadb1dbc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12363,7 +12363,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+5351b945',
+        revision: 'Ember@2.2.0-canary+dadb1dbc',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -19613,8 +19613,8 @@ enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], func
   'use strict';
 
   (function (root, factory) {
-    if (typeof enifed === 'function' && enifed.amd) {
-      enifed([], factory);
+    if (typeof define === 'function' && define.amd) {
+      define([], factory);
     } else if (typeof exports === 'object') {
       module.exports = factory();
     } else {

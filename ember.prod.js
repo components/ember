@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+5351b945
+ * @version   2.2.0-canary+dadb1dbc
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var enifed, requireModule, require, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -40,7 +40,7 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       return internalRequire(name, null);
     }
 
@@ -84,12 +84,12 @@ var mainContext = this;
 
     Ember.__loader = {
       define: enifed,
-      require: eriuqer,
+      require: require,
       registry: registry
     };
   } else {
     enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
@@ -2339,8 +2339,8 @@ enifed('dag-map.umd', ['exports', 'dag-map'], function (exports, _dagMap) {
   'use strict';
 
   /* global define:true module:true window: true */
-  if (typeof enifed === 'function' && enifed.amd) {
-    enifed(function () {
+  if (typeof define === 'function' && define.amd) {
+    define(function () {
       return _dagMap.default;
     });
   } else if (typeof module !== 'undefined' && module.exports) {
@@ -8394,7 +8394,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+5351b945';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14269,7 +14269,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+5351b945
+    @version 2.2.0-canary+dadb1dbc
     @public
   */
 
@@ -14313,11 +14313,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+5351b945'
+    @default '2.2.0-canary+dadb1dbc'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+5351b945';
+  Ember.VERSION = '2.2.0-canary+dadb1dbc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22453,7 +22453,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+5351b945';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22949,7 +22949,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+5351b945';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36554,7 +36554,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+5351b945',
+        revision: 'Ember@2.2.0-canary+dadb1dbc',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37750,7 +37750,7 @@ enifed('ember-views/mixins/template_rendering_support', ['exports', 'ember-metal
 
     renderBlock: function (block, renderNode) {
       if (_renderView === undefined) {
-        _renderView = eriuqer('ember-htmlbars/system/render-view');
+        _renderView = require('ember-htmlbars/system/render-view');
       }
 
       return _renderView.renderHTMLBarsBlock(this, block, renderNode);
@@ -40032,8 +40032,8 @@ enifed('ember-views/system/jquery', ['exports', 'ember-metal/core', 'ember-metal
   if (_emberMetalEnvironment.default.hasDOM) {
     // mainContext is set in `package/loader/lib/main.js` to the `this` context before entering strict mode
     jQuery = _emberMetalCore.default.imports && _emberMetalCore.default.imports.jQuery || mainContext && mainContext.jQuery; //jshint ignore:line
-    if (!jQuery && typeof eriuqer === 'function') {
-      jQuery = eriuqer('jquery');
+    if (!jQuery && typeof require === 'function') {
+      jQuery = require('jquery');
     }
 
     if (jQuery) {
@@ -40677,7 +40677,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+5351b945';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
 
   /**
   @module ember
@@ -46022,8 +46022,8 @@ enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], func
   'use strict';
 
   (function (root, factory) {
-    if (typeof enifed === 'function' && enifed.amd) {
-      enifed([], factory);
+    if (typeof define === 'function' && define.amd) {
+      define([], factory);
     } else if (typeof exports === 'object') {
       module.exports = factory();
     } else {
@@ -48867,8 +48867,8 @@ enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsv
   };
 
   /* global define:true module:true window: true */
-  if (typeof enifed === 'function' && enifed['amd']) {
-    enifed(function () {
+  if (typeof define === 'function' && define['amd']) {
+    define(function () {
       return RSVP;
     });
   } else if (typeof module !== 'undefined' && module['exports']) {
@@ -49337,7 +49337,7 @@ enifed('rsvp/asap', ['exports'], function (exports) {
 
   function attemptVertex() {
     try {
-      var r = eriuqer;
+      var r = require;
       var vertx = r('vertx');
       vertxNext = vertx.runOnLoop || vertx.runOnContext;
       return useVertxTimer();
@@ -49354,7 +49354,7 @@ enifed('rsvp/asap', ['exports'], function (exports) {
     scheduleFlush = useMutationObserver();
   } else if (isWorker) {
     scheduleFlush = useMessageChannel();
-  } else if (browserWindow === undefined && typeof eriuqer === 'function') {
+  } else if (browserWindow === undefined && typeof require === 'function') {
     scheduleFlush = attemptVertex();
   } else {
     scheduleFlush = useSetTimeout();

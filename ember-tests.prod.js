@@ -5,11 +5,11 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+5351b945
+ * @version   2.2.0-canary+dadb1dbc
  */
 
 (function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
+var enifed, requireModule, require, requirejs, Ember;
 var mainContext = this;
 
 (function() {
@@ -40,7 +40,7 @@ var mainContext = this;
       registry[name] = value;
     };
 
-    requirejs = eriuqer = requireModule = function(name) {
+    requirejs = require = requireModule = function(name) {
       return internalRequire(name, null);
     }
 
@@ -84,12 +84,12 @@ var mainContext = this;
 
     Ember.__loader = {
       define: enifed,
-      require: eriuqer,
+      require: require,
       registry: registry
     };
   } else {
     enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    requirejs = require = requireModule = Ember.__loader.require;
   }
 })();
 
@@ -41228,7 +41228,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+5351b945', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+dadb1dbc', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
