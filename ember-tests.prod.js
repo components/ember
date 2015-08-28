@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ebd892c9
+ * @version   2.2.0-canary+066d32c6
  */
 
 (function() {
@@ -71,7 +71,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
-          reified.push(internalRequire(resolve(deps[i], name), name));
+          reified.push(internalRequire(deps[i], name));
         }
       }
 
@@ -79,28 +79,6 @@ var mainContext = this;
 
       return exports;
     };
-
-    function resolve(child, name) {
-      if (child.charAt(0) !== '.') {
-        return child;
-      }
-      var parts = child.split('/');
-      var parentBase = name.split('/').slice(0, -1);
-
-      for (var i = 0, l = parts.length; i < l; i++) {
-        var part = parts[i];
-
-        if (part === '..') {
-          parentBase.pop();
-        } else if (part === '.') {
-          continue;
-        } else {
-          parentBase.push(part);
-        }
-      }
-
-      return parentBase.join('/');
-    }
 
     requirejs._eak_seen = registry;
 
@@ -4179,7 +4157,7 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
     confirmWarns('FEATURE["fred"] is set as enabled, but FEATURE flags are only available in canary builds.');
   });
 });
-enifed('ember-dev/test-helper/assertion', ['exports', './utils'], function (exports, _utils) {
+enifed('ember-dev/test-helper/assertion', ['exports', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperUtils) {
   /* globals QUnit */
 
   'use strict';
@@ -4229,9 +4207,9 @@ enifed('ember-dev/test-helper/assertion', ['exports', './utils'], function (expo
         // The try-catch statement is used to "exit" `func` as soon as
         // the first useful assertion has been produced.
         try {
-          _utils.callWithStub(_this.env, 'assert', func, function (message, test) {
+          _emberDevTestHelperUtils.callWithStub(_this.env, 'assert', func, function (message, test) {
             sawCall = true;
-            if (_utils.checkTest(test)) {
+            if (_emberDevTestHelperUtils.checkTest(test)) {
               return;
             }
             actualMessage = message;
@@ -4247,7 +4225,7 @@ enifed('ember-dev/test-helper/assertion', ['exports', './utils'], function (expo
       };
 
       var ignoreAssertion = function (func) {
-        _utils.callWithStub(_this.env, 'assert', func);
+        _emberDevTestHelperUtils.callWithStub(_this.env, 'assert', func);
       };
 
       window.expectAssertion = expectAssertion;
@@ -4280,7 +4258,7 @@ enifed('ember-dev/test-helper/assertion', ['exports', './utils'], function (expo
     }
   }
 });
-enifed('ember-dev/test-helper/deprecation', ['exports', './utils'], function (exports, _utils) {
+enifed('ember-dev/test-helper/deprecation', ['exports', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperUtils) {
   /* globals QUnit */
 
   'use strict';
@@ -4308,7 +4286,7 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './utils'], function (ex
       }
 
       this.env.setDebugFunction('deprecate', function (message, test) {
-        var resultOfTest = _utils.checkTest(test);
+        var resultOfTest = _emberDevTestHelperUtils.checkTest(test);
         var shouldDeprecate = !resultOfTest;
 
         _this.actuals = _this.actuals || [];
@@ -4375,7 +4353,7 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './utils'], function (ex
       };
 
       var ignoreDeprecation = function (func) {
-        _utils.callWithStub(_this2.env, 'deprecate', func);
+        _emberDevTestHelperUtils.callWithStub(_this2.env, 'deprecate', func);
       };
 
       window.expectNoDeprecation = expectNoDeprecation;
@@ -4467,10 +4445,10 @@ enifed('ember-dev/test-helper/deprecation', ['exports', './utils'], function (ex
 
   exports.default = DeprecationAssert;
 });
-enifed("ember-dev/test-helper/index", ["exports", "./deprecation", "./remaining-view", "./remaining-template", "./assertion", "./run-loop", "./utils"], function (exports, _deprecation, _remainingView, _remainingTemplate, _assertion, _runLoop, _utils) {
+enifed("ember-dev/test-helper/index", ["exports", "ember-dev/test-helper/deprecation", "ember-dev/test-helper/remaining-view", "ember-dev/test-helper/remaining-template", "ember-dev/test-helper/assertion", "ember-dev/test-helper/run-loop", "ember-dev/test-helper/utils"], function (exports, _emberDevTestHelperDeprecation, _emberDevTestHelperRemainingView, _emberDevTestHelperRemainingTemplate, _emberDevTestHelperAssertion, _emberDevTestHelperRunLoop, _emberDevTestHelperUtils) {
   "use strict";
 
-  var EmberDevTestHelperAssert = _utils.buildCompositeAssert([_deprecation.default, _remainingView.default, _remainingTemplate.default, _assertion.default, _runLoop.default]);
+  var EmberDevTestHelperAssert = _emberDevTestHelperUtils.buildCompositeAssert([_emberDevTestHelperDeprecation.default, _emberDevTestHelperRemainingView.default, _emberDevTestHelperRemainingTemplate.default, _emberDevTestHelperAssertion.default, _emberDevTestHelperRunLoop.default]);
 
   exports.default = EmberDevTestHelperAssert;
 });
@@ -41250,7 +41228,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+ebd892c9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+066d32c6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

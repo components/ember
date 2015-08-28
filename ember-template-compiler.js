@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ebd892c9
+ * @version   2.2.0-canary+066d32c6
  */
 
 (function() {
@@ -71,7 +71,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
-          reified.push(internalRequire(resolve(deps[i], name), name));
+          reified.push(internalRequire(deps[i], name));
         }
       }
 
@@ -79,28 +79,6 @@ var mainContext = this;
 
       return exports;
     };
-
-    function resolve(child, name) {
-      if (child.charAt(0) !== '.') {
-        return child;
-      }
-      var parts = child.split('/');
-      var parentBase = name.split('/').slice(0, -1);
-
-      for (var i = 0, l = parts.length; i < l; i++) {
-        var part = parts[i];
-
-        if (part === '..') {
-          parentBase.pop();
-        } else if (part === '.') {
-          continue;
-        } else {
-          parentBase.push(part);
-        }
-      }
-
-      return parentBase.join('/');
-    }
 
     requirejs._eak_seen = registry;
 
@@ -115,7 +93,7 @@ var mainContext = this;
   }
 })();
 
-enifed('backburner', ['exports', './backburner/utils', './backburner/platform', './backburner/binary-search', './backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
+enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
 
   exports.default = Backburner;
@@ -774,7 +752,7 @@ enifed("backburner/binary-search", ["exports"], function (exports) {
     return time >= timers[start] ? start + 2 : start;
   }
 });
-enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], function (exports, _utils, _queue) {
+enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
   'use strict';
 
   exports.default = DeferredActionQueues;
@@ -785,8 +763,8 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
 
     this.options = options;
 
-    _utils.each(queueNames, function (queueName) {
-      queues[queueName] = new _queue.default(queueName, options[queueName], options);
+    _backburnerUtils.each(queueNames, function (queueName) {
+      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
     });
   }
 
@@ -871,7 +849,7 @@ enifed('backburner/platform', ['exports'], function (exports) {
 
   exports.default = platform;
 });
-enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
+enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
   'use strict';
 
   exports.default = Queue;
@@ -1021,7 +999,7 @@ enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
         args = queueItems[i + 2];
         errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
 
-        if (_utils.isString(method)) {
+        if (_backburnerUtils.isString(method)) {
           method = target[method];
         }
 
@@ -4177,7 +4155,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+ebd892c9
+    @version 2.2.0-canary+066d32c6
     @public
   */
 
@@ -4221,11 +4199,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+ebd892c9'
+    @default '2.2.0-canary+066d32c6'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+ebd892c9';
+  Ember.VERSION = '2.2.0-canary+066d32c6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4403,13 +4381,12 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   }
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember
@@ -4621,10 +4598,14 @@ enifed('ember-metal/error', ['exports', 'ember-metal/core'], function (exports, 
   EmberError.prototype = Object.create(Error.prototype);
 });
 enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalMeta, _emberMetalMeta_listeners) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
+  /**
+  @module ember
+  @submodule ember-metal
+  */
   exports.accumulateListeners = accumulateListeners;
   exports.addListener = addListener;
   exports.removeListener = removeListener;
@@ -4635,12 +4616,6 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
   exports.on = on;
-  'REMOVE_USE_STRICT: true';
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   /*
     The event system uses a series of nested hashes to store listeners on an
@@ -6566,12 +6541,11 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
   }
 });
 enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-metal/empty_object'], function (exports, _emberMetalMeta_listeners, _emberMetalEmpty_object) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
   exports.meta = meta;
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember-metal
@@ -6908,22 +6882,21 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
   }
 });
 enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/merge', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalMerge, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
+  /**
+  @module ember
+  @submodule ember-metal
+  */
+
   exports.mixin = mixin;
   exports.default = Mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
   exports._immediateObserver = _immediateObserver;
-  'REMOVE_USE_STRICT: true';
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   function ROOT() {}
   ROOT.__hasSuper = false;
@@ -10142,7 +10115,7 @@ enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/merge'], funct
 
   exports.default = Subscriber;
 });
-enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream'], function (exports, _emberMetalDebug, _stream) {
+enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream'], function (exports, _emberMetalDebug, _emberMetalStreamsStream) {
   'use strict';
 
   exports.isStream = isStream;
@@ -10347,7 +10320,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
     var hasStream = scanArray(array);
     if (hasStream) {
       var i, l;
-      var stream = new _stream.default(function () {
+      var stream = new _emberMetalStreamsStream.default(function () {
         return concat(readArray(array), separator);
       }, function () {
         var labels = labelsFor(array);
@@ -10411,7 +10384,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
   }
 
   function or(first, second) {
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       return first.value() || second.value();
     }, function () {
       return labelFor(first) + ' || ' + labelFor(second);
@@ -10433,7 +10406,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
   function zip(streams, callback, label) {
     _emberMetalDebug.assert('Must call zip with a label', !!label);
 
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       var array = readArray(streams);
       return callback ? callback(array) : array;
     }, function () {
@@ -10450,7 +10423,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
   function zipHash(object, callback, label) {
     _emberMetalDebug.assert('Must call zipHash with a label', !!label);
 
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       var hash = readHash(object);
       return callback ? callback(hash) : hash;
     }, function () {
@@ -10500,7 +10473,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
   function chain(value, fn, label) {
     _emberMetalDebug.assert('Must call chain with a label', !!label);
     if (isStream(value)) {
-      var stream = new _stream.default(fn, function () {
+      var stream = new _emberMetalStreamsStream.default(fn, function () {
         return label + '(' + labelFor(value) + ')';
       });
       stream.addDependency(value);
@@ -10520,11 +10493,9 @@ enifed("ember-metal/symbol", ["exports"], function (exports) {
   "use strict";
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember-metal
@@ -12392,7 +12363,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+ebd892c9',
+        revision: 'Ember@2.2.0-canary+066d32c6',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12553,14 +12524,14 @@ enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/
     return templateSpec;
   };
 });
-enifed("htmlbars-compiler", ["exports", "./htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
+enifed("htmlbars-compiler", ["exports", "htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
   "use strict";
 
   exports.compile = _htmlbarsCompilerCompiler.compile;
   exports.compileSpec = _htmlbarsCompilerCompiler.compileSpec;
   exports.template = _htmlbarsCompilerCompiler.template;
 });
-enifed("htmlbars-compiler/compiler", ["exports", "../htmlbars-syntax/parser", "./template-compiler", "../htmlbars-runtime/hooks", "../htmlbars-runtime/render"], function (exports, _htmlbarsSyntaxParser, _templateCompiler, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender) {
+enifed("htmlbars-compiler/compiler", ["exports", "htmlbars-syntax/parser", "htmlbars-compiler/template-compiler", "htmlbars-runtime/hooks", "htmlbars-runtime/render"], function (exports, _htmlbarsSyntaxParser, _htmlbarsCompilerTemplateCompiler, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender) {
   /*jshint evil:true*/
   "use strict";
 
@@ -12586,7 +12557,7 @@ enifed("htmlbars-compiler/compiler", ["exports", "../htmlbars-syntax/parser", ".
 
   function compileSpec(string, options) {
     var ast = _htmlbarsSyntaxParser.preprocess(string, options);
-    var compiler = new _templateCompiler.default(options);
+    var compiler = new _htmlbarsCompilerTemplateCompiler.default(options);
     var program = compiler.compile(ast);
     return program;
   }
@@ -12637,7 +12608,7 @@ enifed("htmlbars-compiler/compiler", ["exports", "../htmlbars-syntax/parser", ".
     return _htmlbarsRuntimeHooks.wrap(template(compileSpec(string, options)), _htmlbarsRuntimeRender.default);
   }
 });
-enifed("htmlbars-compiler/fragment-javascript-compiler", ["exports", "./utils", "../htmlbars-util/quoting"], function (exports, _utils, _htmlbarsUtilQuoting) {
+enifed("htmlbars-compiler/fragment-javascript-compiler", ["exports", "htmlbars-compiler/utils", "htmlbars-util/quoting"], function (exports, _htmlbarsCompilerUtils, _htmlbarsUtilQuoting) {
   "use strict";
 
   var svgNamespace = "http://www.w3.org/2000/svg",
@@ -12660,7 +12631,7 @@ enifed("htmlbars-compiler/fragment-javascript-compiler", ["exports", "./utils", 
     this.domNamespace = null;
 
     this.source.push('function buildFragment(dom) {\n');
-    _utils.processOpcodes(this, opcodes);
+    _htmlbarsCompilerUtils.processOpcodes(this, opcodes);
     this.source.push(this.indent + '}');
 
     return this.source.join('');
@@ -12736,7 +12707,7 @@ enifed("htmlbars-compiler/fragment-javascript-compiler", ["exports", "./utils", 
     }
   };
 });
-enifed("htmlbars-compiler/fragment-opcode-compiler", ["exports", "./template-visitor", "./utils", "../htmlbars-util", "../htmlbars-util/array-utils"], function (exports, _templateVisitor, _utils, _htmlbarsUtil, _htmlbarsUtilArrayUtils) {
+enifed("htmlbars-compiler/fragment-opcode-compiler", ["exports", "htmlbars-compiler/template-visitor", "htmlbars-compiler/utils", "htmlbars-util", "htmlbars-util/array-utils"], function (exports, _htmlbarsCompilerTemplateVisitor, _htmlbarsCompilerUtils, _htmlbarsUtil, _htmlbarsUtilArrayUtils) {
   "use strict";
 
   function FragmentOpcodeCompiler() {
@@ -12746,10 +12717,10 @@ enifed("htmlbars-compiler/fragment-opcode-compiler", ["exports", "./template-vis
   exports.default = FragmentOpcodeCompiler;
 
   FragmentOpcodeCompiler.prototype.compile = function (ast) {
-    var templateVisitor = new _templateVisitor.default();
+    var templateVisitor = new _htmlbarsCompilerTemplateVisitor.default();
     templateVisitor.visit(ast);
 
-    _utils.processOpcodes(this, templateVisitor.actions);
+    _htmlbarsCompilerUtils.processOpcodes(this, templateVisitor.actions);
 
     return this.opcodes;
   };
@@ -12814,7 +12785,7 @@ enifed("htmlbars-compiler/fragment-opcode-compiler", ["exports", "./template-vis
     this.opcode('setNamespace', [namespace]);
   };
 });
-enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "./utils", "../htmlbars-util/quoting"], function (exports, _utils, _htmlbarsUtilQuoting) {
+enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "htmlbars-compiler/utils", "htmlbars-util/quoting"], function (exports, _htmlbarsCompilerUtils, _htmlbarsUtilQuoting) {
   "use strict";
 
   function HydrationJavaScriptCompiler() {
@@ -12851,7 +12822,7 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "./utils",
     this.hasOpenBoundary = false;
     this.hasCloseBoundary = false;
 
-    _utils.processOpcodes(this, opcodes);
+    _htmlbarsCompilerUtils.processOpcodes(this, opcodes);
 
     if (this.hasOpenBoundary) {
       this.source.unshift(this.indent + "  dom.insertBoundary(fragment, 0);\n");
@@ -13064,7 +13035,7 @@ enifed("htmlbars-compiler/hydration-javascript-compiler", ["exports", "./utils",
     return this.parents[this.parents.length - 1];
   };
 });
-enifed("htmlbars-compiler/hydration-opcode-compiler", ["exports", "./template-visitor", "./utils", "../htmlbars-util", "../htmlbars-util/array-utils", "../htmlbars-syntax/utils"], function (exports, _templateVisitor, _utils, _htmlbarsUtil, _htmlbarsUtilArrayUtils, _htmlbarsSyntaxUtils) {
+enifed("htmlbars-compiler/hydration-opcode-compiler", ["exports", "htmlbars-compiler/template-visitor", "htmlbars-compiler/utils", "htmlbars-util", "htmlbars-util/array-utils", "htmlbars-syntax/utils"], function (exports, _htmlbarsCompilerTemplateVisitor, _htmlbarsCompilerUtils, _htmlbarsUtil, _htmlbarsUtilArrayUtils, _htmlbarsSyntaxUtils) {
   "use strict";
 
   function detectIsElementChecked(element) {
@@ -13090,10 +13061,10 @@ enifed("htmlbars-compiler/hydration-opcode-compiler", ["exports", "./template-vi
   exports.default = HydrationOpcodeCompiler;
 
   HydrationOpcodeCompiler.prototype.compile = function (ast) {
-    var templateVisitor = new _templateVisitor.default();
+    var templateVisitor = new _htmlbarsCompilerTemplateVisitor.default();
     templateVisitor.visit(ast);
 
-    _utils.processOpcodes(this, templateVisitor.actions);
+    _htmlbarsCompilerUtils.processOpcodes(this, templateVisitor.actions);
 
     return this.opcodes;
   };
@@ -13415,16 +13386,16 @@ enifed("htmlbars-compiler/hydration-opcode-compiler", ["exports", "./template-vi
     morphs.length = 0;
   }
 });
-enifed('htmlbars-compiler/template-compiler', ['exports', './fragment-opcode-compiler', './fragment-javascript-compiler', './hydration-opcode-compiler', './hydration-javascript-compiler', './template-visitor', './utils', '../htmlbars-util/quoting', '../htmlbars-util/array-utils'], function (exports, _fragmentOpcodeCompiler, _fragmentJavascriptCompiler, _hydrationOpcodeCompiler, _hydrationJavascriptCompiler, _templateVisitor, _utils, _htmlbarsUtilQuoting, _htmlbarsUtilArrayUtils) {
+enifed('htmlbars-compiler/template-compiler', ['exports', 'htmlbars-compiler/fragment-opcode-compiler', 'htmlbars-compiler/fragment-javascript-compiler', 'htmlbars-compiler/hydration-opcode-compiler', 'htmlbars-compiler/hydration-javascript-compiler', 'htmlbars-compiler/template-visitor', 'htmlbars-compiler/utils', 'htmlbars-util/quoting', 'htmlbars-util/array-utils'], function (exports, _htmlbarsCompilerFragmentOpcodeCompiler, _htmlbarsCompilerFragmentJavascriptCompiler, _htmlbarsCompilerHydrationOpcodeCompiler, _htmlbarsCompilerHydrationJavascriptCompiler, _htmlbarsCompilerTemplateVisitor, _htmlbarsCompilerUtils, _htmlbarsUtilQuoting, _htmlbarsUtilArrayUtils) {
   'use strict';
 
   function TemplateCompiler(options) {
     this.options = options || {};
     this.consumerBuildMeta = this.options.buildMeta || function () {};
-    this.fragmentOpcodeCompiler = new _fragmentOpcodeCompiler.default();
-    this.fragmentCompiler = new _fragmentJavascriptCompiler.default();
-    this.hydrationOpcodeCompiler = new _hydrationOpcodeCompiler.default();
-    this.hydrationCompiler = new _hydrationJavascriptCompiler.default();
+    this.fragmentOpcodeCompiler = new _htmlbarsCompilerFragmentOpcodeCompiler.default();
+    this.fragmentCompiler = new _htmlbarsCompilerFragmentJavascriptCompiler.default();
+    this.hydrationOpcodeCompiler = new _htmlbarsCompilerHydrationOpcodeCompiler.default();
+    this.hydrationCompiler = new _htmlbarsCompilerHydrationJavascriptCompiler.default();
     this.templates = [];
     this.childTemplates = [];
   }
@@ -13432,10 +13403,10 @@ enifed('htmlbars-compiler/template-compiler', ['exports', './fragment-opcode-com
   exports.default = TemplateCompiler;
 
   TemplateCompiler.prototype.compile = function (ast) {
-    var templateVisitor = new _templateVisitor.default();
+    var templateVisitor = new _htmlbarsCompilerTemplateVisitor.default();
     templateVisitor.visit(ast);
 
-    _utils.processOpcodes(this, templateVisitor.actions);
+    _htmlbarsCompilerUtils.processOpcodes(this, templateVisitor.actions);
 
     return this.templates.pop();
   };
@@ -13816,15 +13787,15 @@ enifed("htmlbars-compiler/utils", ["exports"], function (exports) {
     }
   }
 });
-enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeHooks2) {
+enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
 
   var internal = {
     blockFor: _htmlbarsUtilTemplateUtils.blockFor,
     manualElement: _htmlbarsRuntimeRender.manualElement,
-    hostBlock: _htmlbarsRuntimeHooks2.hostBlock,
-    continueBlock: _htmlbarsRuntimeHooks2.continueBlock,
-    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks2.hostYieldWithShadowTemplate,
+    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
+    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
+    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
     visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
     validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
     clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
@@ -13926,7 +13897,7 @@ enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
     return env.hooks.concat(env, parts);
   }
 });
-enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-list", "../htmlbars-util/object-utils", "../htmlbars-util/morph-utils", "../htmlbars-util/template-utils"], function (exports, _render, _morphRangeMorphList, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-range/morph-list", "htmlbars-util/object-utils", "htmlbars-util/morph-utils", "htmlbars-util/template-utils"], function (exports, _htmlbarsRuntimeRender, _morphRangeMorphList, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   "use strict";
 
   exports.wrap = wrap;
@@ -14056,7 +14027,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         options.self = self;
         options.blockArguments = blockArguments;
 
-        return _render.default(template, env, scope, options);
+        return _htmlbarsRuntimeRender.default(template, env, scope, options);
       }
     };
   }
@@ -14124,7 +14095,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morph.lastYielded = { self: self, template: template, shadowTemplate: null };
 
       // Render the template that was selected by the helper
-      _render.default(template, env, scope, { renderNode: morph, self: self, blockArguments: blockArguments });
+      _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: morph, self: self, blockArguments: blockArguments });
     };
   }
 
@@ -14227,7 +14198,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         handledMorphs[foundMorph.key] = foundMorph;
         yieldTemplate(template, env, parentScope, foundMorph, renderState, visitor)(blockArguments, self);
       } else {
-        var childMorph = _render.createChildMorph(env.dom, morph);
+        var childMorph = _htmlbarsRuntimeRender.createChildMorph(env.dom, morph);
         childMorph.key = key;
         morphMap[key] = handledMorphs[key] = childMorph;
         morphList.insertBeforeMorph(childMorph, currentMorph);
@@ -14267,7 +14238,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morph.lastYielded = { self: self, template: template, shadowTemplate: shadowTemplate };
 
       // Render the shadow template with the block available
-      _render.default(shadowTemplate.raw, env, shadowScope, { renderNode: morph, self: self, blockArguments: blockArguments });
+      _htmlbarsRuntimeRender.default(shadowTemplate.raw, env, shadowScope, { renderNode: morph, self: self, blockArguments: blockArguments });
     };
 
     function blockToYield(env, blockArguments, self, renderNode, shadowParent, visitor) {
@@ -14282,7 +14253,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
           scope = env.hooks.createChildScope(parentScope);
         }
 
-        _render.default(template, env, scope, { renderNode: renderNode, self: self, blockArguments: blockArguments });
+        _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: renderNode, self: self, blockArguments: blockArguments });
       }
     }
   }
@@ -15049,7 +15020,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     for (var name in attrs) {
       element.setAttribute(name, env.hooks.getValue(attrs[name]));
     }
-    var fragment = _render.default(template, env, scope, {}).fragment;
+    var fragment = _htmlbarsRuntimeRender.default(template, env, scope, {}).fragment;
     element.appendChild(fragment);
     morph.setNode(element);
   }
@@ -15117,7 +15088,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     keyword: keyword
   };
 });
-enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (exports, _morphRange) {
+enifed("htmlbars-runtime/morph", ["exports", "morph-range"], function (exports, _morphRange) {
   "use strict";
 
   var guid = 1;
@@ -15167,7 +15138,7 @@ enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (export
 
   exports.default = HTMLBarsMorph;
 });
-enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-utils", "./expression-visitor"], function (exports, _htmlbarsUtilMorphUtils, _expressionVisitor) {
+enifed("htmlbars-runtime/node-visitor", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/expression-visitor"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeExpressionVisitor) {
   "use strict";
 
   /**
@@ -15195,8 +15166,8 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-util
       params = morph.linkedParams.params;
       hash = morph.linkedParams.hash;
     } else {
-      params = params && _expressionVisitor.acceptParams(params, env, scope);
-      hash = hash && _expressionVisitor.acceptHash(hash, env, scope);
+      params = params && _htmlbarsRuntimeExpressionVisitor.acceptParams(params, env, scope);
+      hash = hash && _htmlbarsRuntimeExpressionVisitor.acceptHash(hash, env, scope);
     }
 
     _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, path, params, hash);
@@ -15364,7 +15335,7 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-util
     return env.hooks.keywords[path] !== undefined || env.hooks.hasHelper(env, scope, path);
   }
 });
-enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", "../htmlbars-util/morph-utils", "./node-visitor", "./morph", "../htmlbars-util/template-utils", "../htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _nodeVisitor, _morph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
+enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "htmlbars-util/morph-utils", "htmlbars-runtime/node-visitor", "htmlbars-runtime/morph", "htmlbars-util/template-utils", "htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeNodeVisitor, _htmlbarsRuntimeMorph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
   "use strict";
 
   exports.default = render;
@@ -15578,7 +15549,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
-    this.populateNodes(_nodeVisitor.AlwaysDirtyVisitor);
+    this.populateNodes(_htmlbarsRuntimeNodeVisitor.AlwaysDirtyVisitor);
 
     if (this.shouldSetContent && this.root.setContent) {
       this.root.setContent(this.fragment);
@@ -15592,11 +15563,11 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   };
 
   RenderResult.prototype.revalidate = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.default);
+    this.revalidateWith(env, scope, self, blockArguments, _htmlbarsRuntimeNodeVisitor.default);
   };
 
   RenderResult.prototype.rerender = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.AlwaysDirtyVisitor);
+    this.revalidateWith(env, scope, self, blockArguments, _htmlbarsRuntimeNodeVisitor.AlwaysDirtyVisitor);
   };
 
   RenderResult.prototype.revalidateWith = function (env, scope, self, blockArguments, visitor) {
@@ -15699,7 +15670,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   }
 
   function createChildMorph(dom, parentMorph, contextualElement) {
-    var morph = _morph.default.empty(dom, contextualElement || parentMorph.contextualElement);
+    var morph = _htmlbarsRuntimeMorph.default.empty(dom, contextualElement || parentMorph.contextualElement);
     initializeNode(morph, parentMorph.ownerNode);
     return morph;
   }
@@ -15726,7 +15697,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return fragment;
   }
 });
-enifed("htmlbars-syntax", ["exports", "./htmlbars-syntax/builders", "./htmlbars-syntax/parser", "./htmlbars-syntax/generation/print", "./htmlbars-syntax/traversal/traverse", "./htmlbars-syntax/traversal/walker"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser, _htmlbarsSyntaxGenerationPrint, _htmlbarsSyntaxTraversalTraverse, _htmlbarsSyntaxTraversalWalker) {
+enifed("htmlbars-syntax", ["exports", "htmlbars-syntax/builders", "htmlbars-syntax/parser", "htmlbars-syntax/generation/print", "htmlbars-syntax/traversal/traverse", "htmlbars-syntax/traversal/walker"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser, _htmlbarsSyntaxGenerationPrint, _htmlbarsSyntaxTraversalTraverse, _htmlbarsSyntaxTraversalWalker) {
   "use strict";
 
   exports.builders = _htmlbarsSyntaxBuilders.default;
@@ -16359,14 +16330,14 @@ enifed('htmlbars-syntax/handlebars/compiler/ast', ['exports'], function (exports
   // must modify the object to operate properly.
   exports.default = AST;
 });
-enifed('htmlbars-syntax/handlebars/compiler/base', ['exports', './parser', './ast', './whitespace-control', './helpers', '../utils'], function (exports, _parser, _ast, _whitespaceControl, _helpers, _utils) {
+enifed('htmlbars-syntax/handlebars/compiler/base', ['exports', 'htmlbars-syntax/handlebars/compiler/parser', 'htmlbars-syntax/handlebars/compiler/ast', 'htmlbars-syntax/handlebars/compiler/whitespace-control', 'htmlbars-syntax/handlebars/compiler/helpers', 'htmlbars-syntax/handlebars/utils'], function (exports, _htmlbarsSyntaxHandlebarsCompilerParser, _htmlbarsSyntaxHandlebarsCompilerAst, _htmlbarsSyntaxHandlebarsCompilerWhitespaceControl, _htmlbarsSyntaxHandlebarsCompilerHelpers, _htmlbarsSyntaxHandlebarsUtils) {
   'use strict';
 
   exports.parse = parse;
-  exports.parser = _parser.default;
+  exports.parser = _htmlbarsSyntaxHandlebarsCompilerParser.default;
 
   var yy = {};
-  _utils.extend(yy, _helpers, _ast.default);
+  _htmlbarsSyntaxHandlebarsUtils.extend(yy, _htmlbarsSyntaxHandlebarsCompilerHelpers, _htmlbarsSyntaxHandlebarsCompilerAst.default);
 
   function parse(input, options) {
     // Just return if an already-compiled AST was passed in.
@@ -16374,18 +16345,18 @@ enifed('htmlbars-syntax/handlebars/compiler/base', ['exports', './parser', './as
       return input;
     }
 
-    _parser.default.yy = yy;
+    _htmlbarsSyntaxHandlebarsCompilerParser.default.yy = yy;
 
     // Altering the shared object here, but this is ok as parser is a sync operation
     yy.locInfo = function (locInfo) {
       return new yy.SourceLocation(options && options.srcName, locInfo);
     };
 
-    var strip = new _whitespaceControl.default();
-    return strip.accept(_parser.default.parse(input));
+    var strip = new _htmlbarsSyntaxHandlebarsCompilerWhitespaceControl.default();
+    return strip.accept(_htmlbarsSyntaxHandlebarsCompilerParser.default.parse(input));
   }
 });
-enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'], function (exports, _exception) {
+enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', 'htmlbars-syntax/handlebars/exception'], function (exports, _htmlbarsSyntaxHandlebarsException) {
   'use strict';
 
   exports.SourceLocation = SourceLocation;
@@ -16446,7 +16417,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
 
       if (!isLiteral && (part === '..' || part === '.' || part === 'this')) {
         if (dig.length > 0) {
-          throw new _exception.default('Invalid path: ' + original, { loc: locInfo });
+          throw new _htmlbarsSyntaxHandlebarsException.default('Invalid path: ' + original, { loc: locInfo });
         } else if (part === '..') {
           depth++;
           depthString += '../';
@@ -16471,7 +16442,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
     if (openRawBlock.path.original !== close) {
       var errorNode = { loc: openRawBlock.path.loc };
 
-      throw new _exception.default(openRawBlock.path.original + " doesn't match " + close, errorNode);
+      throw new _htmlbarsSyntaxHandlebarsException.default(openRawBlock.path.original + " doesn't match " + close, errorNode);
     }
 
     locInfo = this.locInfo(locInfo);
@@ -16485,7 +16456,7 @@ enifed('htmlbars-syntax/handlebars/compiler/helpers', ['exports', '../exception'
     if (close && close.path && openBlock.path.original !== close.path.original) {
       var errorNode = { loc: openBlock.path.loc };
 
-      throw new _exception.default(openBlock.path.original + ' doesn\'t match ' + close.path.original, errorNode);
+      throw new _htmlbarsSyntaxHandlebarsException.default(openBlock.path.original + ' doesn\'t match ' + close.path.original, errorNode);
     }
 
     program.blockParams = openBlock.blockParams;
@@ -17185,7 +17156,7 @@ enifed("htmlbars-syntax/handlebars/compiler/parser", ["exports"], function (expo
         return new Parser();
     })();exports.default = handlebars;
 });
-enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception', './ast'], function (exports, _exception, _ast) {
+enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', 'htmlbars-syntax/handlebars/exception', 'htmlbars-syntax/handlebars/compiler/ast'], function (exports, _htmlbarsSyntaxHandlebarsException, _htmlbarsSyntaxHandlebarsCompilerAst) {
   'use strict';
 
   function Visitor() {
@@ -17201,8 +17172,8 @@ enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception'
       var value = this.accept(node[name]);
       if (this.mutating) {
         // Hacky sanity check:
-        if (value && (!value.type || !_ast.default[value.type])) {
-          throw new _exception.default('Unexpected node type "' + value.type + '" found when accepting ' + name + ' on ' + node.type);
+        if (value && (!value.type || !_htmlbarsSyntaxHandlebarsCompilerAst.default[value.type])) {
+          throw new _htmlbarsSyntaxHandlebarsException.default('Unexpected node type "' + value.type + '" found when accepting ' + name + ' on ' + node.type);
         }
         node[name] = value;
       }
@@ -17214,7 +17185,7 @@ enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception'
       this.acceptKey(node, name);
 
       if (!node[name]) {
-        throw new _exception.default(node.type + ' requires ' + name);
+        throw new _htmlbarsSyntaxHandlebarsException.default(node.type + ' requires ' + name);
       }
     },
 
@@ -17305,11 +17276,11 @@ enifed('htmlbars-syntax/handlebars/compiler/visitor', ['exports', '../exception'
 
   exports.default = Visitor;
 });
-enifed('htmlbars-syntax/handlebars/compiler/whitespace-control', ['exports', './visitor'], function (exports, _visitor) {
+enifed('htmlbars-syntax/handlebars/compiler/whitespace-control', ['exports', 'htmlbars-syntax/handlebars/compiler/visitor'], function (exports, _htmlbarsSyntaxHandlebarsCompilerVisitor) {
   'use strict';
 
   function WhitespaceControl() {}
-  WhitespaceControl.prototype = new _visitor.default();
+  WhitespaceControl.prototype = new _htmlbarsSyntaxHandlebarsCompilerVisitor.default();
 
   WhitespaceControl.prototype.Program = function (program) {
     var isRoot = !this.isRootSeen;
@@ -17677,14 +17648,14 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
     return (contextPath ? contextPath + '.' : '') + id;
   }
 });
-enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../htmlbars-syntax", "../simple-html-tokenizer/evented-tokenizer", "../simple-html-tokenizer/entity-parser", "../simple-html-tokenizer/char-refs/full", "./parser/handlebars-node-visitors", "./parser/tokenizer-event-handlers"], function (exports, _handlebarsCompilerBase, _htmlbarsSyntax, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerEntityParser, _simpleHtmlTokenizerCharRefsFull, _parserHandlebarsNodeVisitors, _parserTokenizerEventHandlers) {
+enifed("htmlbars-syntax/parser", ["exports", "htmlbars-syntax/handlebars/compiler/base", "htmlbars-syntax", "simple-html-tokenizer/evented-tokenizer", "simple-html-tokenizer/entity-parser", "simple-html-tokenizer/char-refs/full", "htmlbars-syntax/parser/handlebars-node-visitors", "htmlbars-syntax/parser/tokenizer-event-handlers"], function (exports, _htmlbarsSyntaxHandlebarsCompilerBase, _htmlbarsSyntax, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerEntityParser, _simpleHtmlTokenizerCharRefsFull, _htmlbarsSyntaxParserHandlebarsNodeVisitors, _htmlbarsSyntaxParserTokenizerEventHandlers) {
   "use strict";
 
   exports.preprocess = preprocess;
   exports.Parser = Parser;
 
   function preprocess(html, options) {
-    var ast = typeof html === 'object' ? html : _handlebarsCompilerBase.parse(html);
+    var ast = typeof html === 'object' ? html : _htmlbarsSyntaxHandlebarsCompilerBase.parse(html);
     var combined = new Parser(html, options).acceptNode(ast);
 
     if (options && options.plugins && options.plugins.ast) {
@@ -17717,12 +17688,12 @@ enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../h
     }
   }
 
-  for (var key in _parserHandlebarsNodeVisitors.default) {
-    Parser.prototype[key] = _parserHandlebarsNodeVisitors.default[key];
+  for (var key in _htmlbarsSyntaxParserHandlebarsNodeVisitors.default) {
+    Parser.prototype[key] = _htmlbarsSyntaxParserHandlebarsNodeVisitors.default[key];
   }
 
-  for (var key in _parserTokenizerEventHandlers.default) {
-    Parser.prototype[key] = _parserTokenizerEventHandlers.default[key];
+  for (var key in _htmlbarsSyntaxParserTokenizerEventHandlers.default) {
+    Parser.prototype[key] = _htmlbarsSyntaxParserTokenizerEventHandlers.default[key];
   }
 
   Parser.prototype.acceptNode = function (node) {
@@ -17766,14 +17737,14 @@ enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../h
     return string.join('\n');
   };
 });
-enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builders", "../utils"], function (exports, _builders, _utils) {
+enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "htmlbars-syntax/builders", "htmlbars-syntax/utils"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxUtils) {
   "use strict";
 
   exports.default = {
 
     Program: function (program) {
       var body = [];
-      var node = _builders.default.program(body, program.blockParams, program.loc);
+      var node = _htmlbarsSyntaxBuilders.default.program(body, program.blockParams, program.loc);
       var i,
           l = program.body.length;
 
@@ -17814,9 +17785,9 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
       var program = block.program ? this.acceptNode(block.program) : null;
       var inverse = block.inverse ? this.acceptNode(block.inverse) : null;
 
-      var node = _builders.default.block(block.path, block.params, block.hash, program, inverse, block.loc);
+      var node = _htmlbarsSyntaxBuilders.default.block(block.path, block.params, block.hash, program, inverse, block.loc);
       var parentProgram = this.currentElement();
-      _utils.appendChild(parentProgram, node);
+      _htmlbarsSyntaxUtils.appendChild(parentProgram, node);
     },
 
     MustacheStatement: function (rawMustache) {
@@ -17827,7 +17798,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
       var escaped = rawMustache.escaped;
       var loc = rawMustache.loc;
 
-      var mustache = _builders.default.mustache(path, params, hash, !escaped, loc);
+      var mustache = _htmlbarsSyntaxBuilders.default.mustache(path, params, hash, !escaped, loc);
 
       if (tokenizer.state === 'comment') {
         this.appendToCommentData('{{' + this.sourceForMustache(mustache) + '}}');
@@ -17871,7 +17842,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
         // TODO: Only append child when the tokenizer state makes
         // sense to do so, otherwise throw an error.
         default:
-          _utils.appendChild(this.currentElement(), mustache);
+          _htmlbarsSyntaxUtils.appendChild(this.currentElement(), mustache);
       }
 
       return mustache;
@@ -17893,7 +17864,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
     },
 
     PartialStatement: function (partial) {
-      _utils.appendChild(this.currentElement(), partial);
+      _htmlbarsSyntaxUtils.appendChild(this.currentElement(), partial);
       return partial;
     },
 
@@ -17952,7 +17923,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
     if (node.hash) {
       compiler.acceptNode(node.hash);
     } else {
-      node.hash = _builders.default.hash();
+      node.hash = _htmlbarsSyntaxBuilders.default.hash();
     }
 
     return node;
@@ -17964,7 +17935,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
     var hash = mustache.hash;
     var loc = mustache.loc;
 
-    var modifier = _builders.default.elementModifier(path, params, hash, loc);
+    var modifier = _htmlbarsSyntaxBuilders.default.elementModifier(path, params, hash, loc);
     element.modifiers.push(modifier);
   }
 
@@ -17973,7 +17944,7 @@ enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builde
     attribute.parts.push(part);
   }
 });
-enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htmlbars-util/void-tag-names", "../builders", "../utils"], function (exports, _htmlbarsUtilVoidTagNames, _builders, _utils) {
+enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "htmlbars-util/void-tag-names", "htmlbars-syntax/builders", "htmlbars-syntax/utils"], function (exports, _htmlbarsUtilVoidTagNames, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxUtils) {
   "use strict";
 
   exports.default = {
@@ -17984,7 +17955,7 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
     // Comment
 
     beginComment: function () {
-      this.currentNode = _builders.default.comment("");
+      this.currentNode = _htmlbarsSyntaxBuilders.default.comment("");
     },
 
     appendToCommentData: function (char) {
@@ -17992,13 +17963,13 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
     },
 
     finishComment: function () {
-      _utils.appendChild(this.currentElement(), this.currentNode);
+      _htmlbarsSyntaxUtils.appendChild(this.currentElement(), this.currentNode);
     },
 
     // Data
 
     beginData: function () {
-      this.currentNode = _builders.default.text();
+      this.currentNode = _htmlbarsSyntaxBuilders.default.text();
     },
 
     appendToData: function (char) {
@@ -18006,7 +17977,7 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
     },
 
     finishData: function () {
-      _utils.appendChild(this.currentElement(), this.currentNode);
+      _htmlbarsSyntaxUtils.appendChild(this.currentElement(), this.currentNode);
     },
 
     // Tags - basic
@@ -18041,7 +18012,7 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
       var column = _tokenizer.column;
 
       var tag = this.currentNode;
-      tag.loc = _builders.default.loc(tagLine, tagColumn, line, column);
+      tag.loc = _htmlbarsSyntaxBuilders.default.loc(tagLine, tagColumn, line, column);
 
       if (tag.type === 'StartTag') {
         this.finishStartTag();
@@ -18060,8 +18031,8 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
       var attributes = _currentNode.attributes;
       var modifiers = _currentNode.modifiers;
 
-      var loc = _builders.default.loc(this.tokenizer.tagLine, this.tokenizer.tagColumn);
-      var element = _builders.default.element(name, attributes, modifiers, [], loc);
+      var loc = _htmlbarsSyntaxBuilders.default.loc(this.tokenizer.tagLine, this.tokenizer.tagColumn);
+      var element = _htmlbarsSyntaxBuilders.default.element(name, attributes, modifiers, [], loc);
       this.elementStack.push(element);
     },
 
@@ -18078,12 +18049,12 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
       element.loc.end.column = this.tokenizer.column;
 
       if (disableComponentGeneration || element.tag.indexOf("-") === -1) {
-        _utils.appendChild(parent, element);
+        _htmlbarsSyntaxUtils.appendChild(parent, element);
       } else {
-        var program = _builders.default.program(element.children);
-        _utils.parseComponentBlockParams(element, program);
-        var component = _builders.default.component(element.tag, element.attributes, program, element.loc);
-        _utils.appendChild(parent, component);
+        var program = _htmlbarsSyntaxBuilders.default.program(element.children);
+        _htmlbarsSyntaxUtils.parseComponentBlockParams(element, program);
+        var component = _htmlbarsSyntaxBuilders.default.component(element.tag, element.attributes, program, element.loc);
+        _htmlbarsSyntaxUtils.appendChild(parent, component);
       }
     },
 
@@ -18140,7 +18111,7 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
 
       var value = assembleAttributeValue(parts, isQuoted, isDynamic, this.tokenizer.line);
 
-      this.currentNode.attributes.push(_builders.default.attr(name, value));
+      this.currentNode.attributes.push(_htmlbarsSyntaxBuilders.default.attr(name, value));
     }
   };
 
@@ -18156,7 +18127,7 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
         }
       }
     } else {
-      return _builders.default.text(parts.length > 0 ? parts[0] : "");
+      return _htmlbarsSyntaxBuilders.default.text(parts.length > 0 ? parts[0] : "");
     }
   }
 
@@ -18165,17 +18136,17 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
       var part = parts[i];
 
       if (typeof part === 'string') {
-        parts[i] = _builders.default.string(parts[i]);
+        parts[i] = _htmlbarsSyntaxBuilders.default.string(parts[i]);
       } else {
         if (part.type === 'MustacheStatement') {
-          parts[i] = _utils.unwrapMustache(part);
+          parts[i] = _htmlbarsSyntaxUtils.unwrapMustache(part);
         } else {
           throw new Error("Unsupported node in quoted attribute value: " + part.type);
         }
       }
     }
 
-    return _builders.default.concat(parts);
+    return _htmlbarsSyntaxBuilders.default.concat(parts);
   }
 
   function validateEndTag(tag, element, selfClosing) {
@@ -18232,7 +18203,7 @@ enifed("htmlbars-syntax/traversal/errors", ["exports"], function (exports) {
     return new TraversalError("Replacing and removing in key handlers is not yet supported.", node, null, key);
   }
 });
-enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys', './errors'], function (exports, _typesVisitorKeys, _errors) {
+enifed('htmlbars-syntax/traversal/traverse', ['exports', 'htmlbars-syntax/types/visitor-keys', 'htmlbars-syntax/traversal/errors'], function (exports, _htmlbarsSyntaxTypesVisitorKeys, _htmlbarsSyntaxTraversalErrors) {
   'use strict';
 
   exports.default = traverse;
@@ -18247,7 +18218,7 @@ enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys'
     }
 
     if (result === undefined) {
-      var keys = _typesVisitorKeys.default[node.type];
+      var keys = _htmlbarsSyntaxTypesVisitorKeys.default[node.type];
 
       for (var i = 0; i < keys.length; i++) {
         visitKey(visitor, handler, node, keys[i]);
@@ -18273,7 +18244,7 @@ enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys'
     if (keyHandler && keyHandler.enter) {
       result = keyHandler.enter.call(null, node, key);
       if (result !== undefined) {
-        throw _errors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
+        throw _htmlbarsSyntaxTraversalErrors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
       }
     }
 
@@ -18289,7 +18260,7 @@ enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys'
     if (keyHandler && keyHandler.exit) {
       result = keyHandler.exit.call(null, node, key);
       if (result !== undefined) {
-        throw _errors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
+        throw _htmlbarsSyntaxTraversalErrors.cannotReplaceOrRemoveInKeyHandlerYet(node, key);
       }
     }
   }
@@ -18305,15 +18276,15 @@ enifed('htmlbars-syntax/traversal/traverse', ['exports', '../types/visitor-keys'
 
   function assignKey(node, key, result) {
     if (result === null) {
-      throw _errors.cannotRemoveNode(node[key], node, key);
+      throw _htmlbarsSyntaxTraversalErrors.cannotRemoveNode(node[key], node, key);
     } else if (Array.isArray(result)) {
       if (result.length === 1) {
         node[key] = result[0];
       } else {
         if (result.length === 0) {
-          throw _errors.cannotRemoveNode(node[key], node, key);
+          throw _htmlbarsSyntaxTraversalErrors.cannotRemoveNode(node[key], node, key);
         } else {
-          throw _errors.cannotReplaceNode(node[key], node, key);
+          throw _htmlbarsSyntaxTraversalErrors.cannotReplaceNode(node[key], node, key);
         }
       }
     } else {
@@ -18469,7 +18440,7 @@ enifed('htmlbars-syntax/types/visitor-keys', ['exports'], function (exports) {
     HashPair: ['value']
   };
 });
-enifed('htmlbars-syntax/utils', ['exports', '../htmlbars-util/array-utils'], function (exports, _htmlbarsUtilArrayUtils) {
+enifed('htmlbars-syntax/utils', ['exports', 'htmlbars-util/array-utils'], function (exports, _htmlbarsUtilArrayUtils) {
   'use strict';
 
   exports.parseComponentBlockParams = parseComponentBlockParams;
@@ -18549,7 +18520,7 @@ enifed('htmlbars-syntax/utils', ['exports', '../htmlbars-util/array-utils'], fun
     }
   }
 });
-enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
+enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
   "use strict";
 
   exports.equalInnerHTML = equalInnerHTML;
@@ -18676,7 +18647,7 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
     }
   }
 });
-enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-util/handlebars/utils', './htmlbars-util/namespaces', './htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
+enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
   'use strict';
 
   exports.SafeString = _htmlbarsUtilSafeString.default;
@@ -19075,12 +19046,12 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
     return str;
   }
 });
-enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
+enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-string'], function (exports, _htmlbarsUtilHandlebarsSafeString) {
   'use strict';
 
-  exports.default = _handlebarsSafeString.default;
+  exports.default = _htmlbarsUtilHandlebarsSafeString.default;
 });
-enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
   "use strict";
 
   exports.RenderState = RenderState;
@@ -19271,7 +19242,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     morph.morphList = null;
   }
 });
-enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (exports, _arrayUtils) {
+enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"], function (exports, _htmlbarsUtilArrayUtils) {
   "use strict";
 
   // The HTML elements in this list are speced by
@@ -19281,13 +19252,13 @@ enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (e
   var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
   var voidMap = {};
 
-  _arrayUtils.forEach(voidTagNames.split(" "), function (tagName) {
+  _htmlbarsUtilArrayUtils.forEach(voidTagNames.split(" "), function (tagName) {
     voidMap[tagName] = true;
   });
 
   exports.default = voidMap;
 });
-enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _morphRangeUtils) {
+enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
   // constructor just initializes the fields
@@ -19551,7 +19522,7 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
 
   exports.default = Morph;
 });
-enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _utils) {
+enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
   function MorphList() {
@@ -19599,11 +19570,11 @@ enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _uti
       var parentNode = mountedMorph.firstNode.parentNode;
       var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
 
-      _utils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
+      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
 
       // was not in list mode replace current content
       if (!this.firstChildMorph) {
-        _utils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
       }
     }
 
@@ -19638,7 +19609,7 @@ enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _uti
 
   exports.default = MorphList;
 });
-enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (exports, _morphList) {
+enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
   'use strict';
 
   (function (root, factory) {
@@ -19650,7 +19621,7 @@ enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (expo
       root.MorphList = factory();
     }
   })(undefined, function () {
-    return _morphList.default;
+    return _morphRangeMorphList.default;
   });
 });
 enifed("morph-range/utils", ["exports"], function (exports) {
@@ -19690,7 +19661,7 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 });
-enifed('simple-html-tokenizer', ['exports', './simple-html-tokenizer/evented-tokenizer', './simple-html-tokenizer/tokenizer', './simple-html-tokenizer/tokenize', './simple-html-tokenizer/generator', './simple-html-tokenizer/generate', './simple-html-tokenizer/tokens'], function (exports, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerTokenizer, _simpleHtmlTokenizerTokenize, _simpleHtmlTokenizerGenerator, _simpleHtmlTokenizerGenerate, _simpleHtmlTokenizerTokens) {
+enifed('simple-html-tokenizer', ['exports', 'simple-html-tokenizer/evented-tokenizer', 'simple-html-tokenizer/tokenizer', 'simple-html-tokenizer/tokenize', 'simple-html-tokenizer/generator', 'simple-html-tokenizer/generate', 'simple-html-tokenizer/tokens'], function (exports, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerTokenizer, _simpleHtmlTokenizerTokenize, _simpleHtmlTokenizerGenerator, _simpleHtmlTokenizerGenerate, _simpleHtmlTokenizerTokens) {
   /*jshint boss:true*/
   'use strict';
 
@@ -21880,7 +21851,7 @@ enifed('simple-html-tokenizer/entity-parser', ['exports'], function (exports) {
 
   exports.default = EntityParser;
 });
-enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], function (exports, _utils) {
+enifed('simple-html-tokenizer/evented-tokenizer', ['exports', 'simple-html-tokenizer/utils'], function (exports, _simpleHtmlTokenizerUtils) {
   'use strict';
 
   function EventedTokenizer(delegate, entityParser) {
@@ -21921,7 +21892,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
     },
 
     tokenizePart: function (input) {
-      this.input += _utils.preprocessInput(input);
+      this.input += _simpleHtmlTokenizerUtils.preprocessInput(input);
 
       while (this.index < this.input.length) {
         this.states[this.state].call(this);
@@ -22005,7 +21976,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
           this.state = 'markupDeclaration';
         } else if (char === "/") {
           this.state = 'endTagOpen';
-        } else if (_utils.isAlpha(char)) {
+        } else if (_simpleHtmlTokenizerUtils.isAlpha(char)) {
           this.state = 'tagName';
           this.delegate.beginStartTag();
           this.delegate.appendToTagName(char.toLowerCase());
@@ -22086,7 +22057,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       tagName: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           this.state = 'beforeAttributeName';
         } else if (char === "/") {
           this.state = 'selfClosingStartTag';
@@ -22101,7 +22072,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       beforeAttributeName: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           return;
         } else if (char === "/") {
           this.state = 'selfClosingStartTag';
@@ -22118,7 +22089,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       attributeName: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           this.state = 'afterAttributeName';
         } else if (char === "/") {
           this.state = 'selfClosingStartTag';
@@ -22137,7 +22108,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       afterAttributeName: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           return;
         } else if (char === "/") {
           this.state = 'selfClosingStartTag';
@@ -22160,7 +22131,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       beforeAttributeValue: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {} else if (char === '"') {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {} else if (char === '"') {
           this.state = 'attributeValueDoubleQuoted';
           this.delegate.beginAttributeValue(true);
         } else if (char === "'") {
@@ -22207,7 +22178,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       attributeValueUnquoted: function () {
         var char = this.consume();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           this.delegate.finishAttributeValue();
           this.state = 'beforeAttributeName';
         } else if (char === "&") {
@@ -22224,7 +22195,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       afterAttributeValueQuoted: function () {
         var char = this.peek();
 
-        if (_utils.isSpace(char)) {
+        if (_simpleHtmlTokenizerUtils.isSpace(char)) {
           this.consume();
           this.state = 'beforeAttributeName';
         } else if (char === "/") {
@@ -22255,7 +22226,7 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
       endTagOpen: function () {
         var char = this.consume();
 
-        if (_utils.isAlpha(char)) {
+        if (_simpleHtmlTokenizerUtils.isAlpha(char)) {
           this.state = 'tagName';
           this.delegate.beginEndTag();
           this.delegate.appendToTagName(char.toLowerCase());
@@ -22266,13 +22237,13 @@ enifed('simple-html-tokenizer/evented-tokenizer', ['exports', './utils'], functi
 
   exports.default = EventedTokenizer;
 });
-enifed('simple-html-tokenizer/generate', ['exports', './generator'], function (exports, _generator) {
+enifed('simple-html-tokenizer/generate', ['exports', 'simple-html-tokenizer/generator'], function (exports, _simpleHtmlTokenizerGenerator) {
   'use strict';
 
   exports.default = generate;
 
   function generate(tokens) {
-    var generator = new _generator.default();
+    var generator = new _simpleHtmlTokenizerGenerator.default();
     return generator.generate(tokens);
   }
 });
@@ -22375,21 +22346,21 @@ enifed("simple-html-tokenizer/generator", ["exports"], function (exports) {
 
   exports.default = Generator;
 });
-enifed('simple-html-tokenizer/tokenize', ['exports', './tokenizer', './entity-parser', './char-refs/full'], function (exports, _tokenizer, _entityParser, _charRefsFull) {
+enifed('simple-html-tokenizer/tokenize', ['exports', 'simple-html-tokenizer/tokenizer', 'simple-html-tokenizer/entity-parser', 'simple-html-tokenizer/char-refs/full'], function (exports, _simpleHtmlTokenizerTokenizer, _simpleHtmlTokenizerEntityParser, _simpleHtmlTokenizerCharRefsFull) {
   'use strict';
 
   exports.default = tokenize;
 
   function tokenize(input) {
-    var tokenizer = new _tokenizer.default(new _entityParser.default(_charRefsFull.default));
+    var tokenizer = new _simpleHtmlTokenizerTokenizer.default(new _simpleHtmlTokenizerEntityParser.default(_simpleHtmlTokenizerCharRefsFull.default));
     return tokenizer.tokenize(input);
   }
 });
-enifed('simple-html-tokenizer/tokenizer', ['exports', './evented-tokenizer', './tokens'], function (exports, _eventedTokenizer, _tokens) {
+enifed('simple-html-tokenizer/tokenizer', ['exports', 'simple-html-tokenizer/evented-tokenizer', 'simple-html-tokenizer/tokens'], function (exports, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerTokens) {
   'use strict';
 
   function Tokenizer(entityParser) {
-    this.tokenizer = new _eventedTokenizer.default(this, entityParser);
+    this.tokenizer = new _simpleHtmlTokenizerEventedTokenizer.default(this, entityParser);
 
     this.token = null;
     this.startLine = -1;
@@ -22442,7 +22413,7 @@ enifed('simple-html-tokenizer/tokenizer', ['exports', './evented-tokenizer', './
     // Data
 
     beginData: function () {
-      this.token = new _tokens.Chars();
+      this.token = new _simpleHtmlTokenizerTokens.Chars();
       this.tokens.push(this.token);
     },
 
@@ -22457,7 +22428,7 @@ enifed('simple-html-tokenizer/tokenizer', ['exports', './evented-tokenizer', './
     // Comment
 
     beginComment: function () {
-      this.token = new _tokens.Comment();
+      this.token = new _simpleHtmlTokenizerTokens.Comment();
       this.tokens.push(this.token);
     },
 
@@ -22472,12 +22443,12 @@ enifed('simple-html-tokenizer/tokenizer', ['exports', './evented-tokenizer', './
     // Tags - basic
 
     beginStartTag: function () {
-      this.token = new _tokens.StartTag();
+      this.token = new _simpleHtmlTokenizerTokens.StartTag();
       this.tokens.push(this.token);
     },
 
     beginEndTag: function () {
-      this.token = new _tokens.EndTag();
+      this.token = new _simpleHtmlTokenizerTokens.EndTag();
       this.tokens.push(this.token);
     },
 

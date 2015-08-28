@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ebd892c9
+ * @version   2.2.0-canary+066d32c6
  */
 
 (function() {
@@ -71,7 +71,7 @@ var mainContext = this;
         if (deps[i] === 'exports') {
           reified.push(exports);
         } else {
-          reified.push(internalRequire(resolve(deps[i], name), name));
+          reified.push(internalRequire(deps[i], name));
         }
       }
 
@@ -79,28 +79,6 @@ var mainContext = this;
 
       return exports;
     };
-
-    function resolve(child, name) {
-      if (child.charAt(0) !== '.') {
-        return child;
-      }
-      var parts = child.split('/');
-      var parentBase = name.split('/').slice(0, -1);
-
-      for (var i = 0, l = parts.length; i < l; i++) {
-        var part = parts[i];
-
-        if (part === '..') {
-          parentBase.pop();
-        } else if (part === '.') {
-          continue;
-        } else {
-          parentBase.push(part);
-        }
-      }
-
-      return parentBase.join('/');
-    }
 
     requirejs._eak_seen = registry;
 
@@ -115,7 +93,7 @@ var mainContext = this;
   }
 })();
 
-enifed('backburner', ['exports', './backburner/utils', './backburner/platform', './backburner/binary-search', './backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
+enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'backburner/binary-search', 'backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
 
   exports.default = Backburner;
@@ -774,7 +752,7 @@ enifed("backburner/binary-search", ["exports"], function (exports) {
     return time >= timers[start] ? start + 2 : start;
   }
 });
-enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], function (exports, _utils, _queue) {
+enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'backburner/queue'], function (exports, _backburnerUtils, _backburnerQueue) {
   'use strict';
 
   exports.default = DeferredActionQueues;
@@ -785,8 +763,8 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
 
     this.options = options;
 
-    _utils.each(queueNames, function (queueName) {
-      queues[queueName] = new _queue.default(queueName, options[queueName], options);
+    _backburnerUtils.each(queueNames, function (queueName) {
+      queues[queueName] = new _backburnerQueue.default(queueName, options[queueName], options);
     });
   }
 
@@ -871,7 +849,7 @@ enifed('backburner/platform', ['exports'], function (exports) {
 
   exports.default = platform;
 });
-enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
+enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _backburnerUtils) {
   'use strict';
 
   exports.default = Queue;
@@ -1021,7 +999,7 @@ enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
         args = queueItems[i + 2];
         errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
 
-        if (_utils.isString(method)) {
+        if (_backburnerUtils.isString(method)) {
           method = target[method];
         }
 
@@ -1520,7 +1498,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
   // Container#_registry, since Container itself will be fully private.
   exports.default = Container;
 });
-enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/assign', './container'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalAssign, _container) {
+enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/assign', 'container/container'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalAssign, _containerContainer) {
   'use strict';
 
   var VALID_FULL_NAME_REGEXP = /^[^:]+.+:[^:]+$/;
@@ -1645,7 +1623,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {Container} created container
      */
     container: function (options) {
-      return new _container.default(this, options);
+      return new _containerContainer.default(this, options);
     },
 
     /**
@@ -2357,7 +2335,7 @@ enifed("dag-map", ["exports"], function (exports) {
 
   exports.default = DAG;
 });
-enifed('dag-map.umd', ['exports', './dag-map'], function (exports, _dagMap) {
+enifed('dag-map.umd', ['exports', 'dag-map'], function (exports, _dagMap) {
   'use strict';
 
   /* global define:true module:true window: true */
@@ -2371,7 +2349,7 @@ enifed('dag-map.umd', ['exports', './dag-map'], function (exports, _dagMap) {
     undefined['DAG'] = _dagMap.default;
   }
 });
-enifed("dom-helper", ["exports", "./htmlbars-runtime/morph", "./morph-attr", "./dom-helper/build-html-dom", "./dom-helper/classes", "./dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
+enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
   "use strict";
 
   var doc = typeof document === 'undefined' ? false : document;
@@ -8416,7 +8394,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ebd892c9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+066d32c6';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14291,7 +14269,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+ebd892c9
+    @version 2.2.0-canary+066d32c6
     @public
   */
 
@@ -14335,11 +14313,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+ebd892c9'
+    @default '2.2.0-canary+066d32c6'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+ebd892c9';
+  Ember.VERSION = '2.2.0-canary+066d32c6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14517,13 +14495,12 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   }
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
   exports.addDependentKeys = addDependentKeys;
   exports.removeDependentKeys = removeDependentKeys;
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember
@@ -14733,10 +14710,14 @@ enifed('ember-metal/error', ['exports', 'ember-metal/core'], function (exports, 
   EmberError.prototype = Object.create(Error.prototype);
 });
 enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/meta_listeners'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalMeta, _emberMetalMeta_listeners) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
+  /**
+  @module ember
+  @submodule ember-metal
+  */
   exports.accumulateListeners = accumulateListeners;
   exports.addListener = addListener;
   exports.removeListener = removeListener;
@@ -14747,12 +14728,6 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
   exports.hasListeners = hasListeners;
   exports.listenersFor = listenersFor;
   exports.on = on;
-  'REMOVE_USE_STRICT: true';
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   /*
     The event system uses a series of nested hashes to store listeners on an
@@ -16671,12 +16646,11 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
   }
 });
 enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-metal/empty_object'], function (exports, _emberMetalMeta_listeners, _emberMetalEmpty_object) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
   exports.meta = meta;
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember-metal
@@ -17013,22 +16987,21 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
   }
 });
 enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/merge', 'ember-metal/empty_object', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/expand_properties', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/binding', 'ember-metal/observer', 'ember-metal/events', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalMerge, _emberMetalEmpty_object, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalMeta, _emberMetalExpand_properties, _emberMetalProperties, _emberMetalComputed, _emberMetalBinding, _emberMetalObserver, _emberMetalEvents, _emberMetalStreamsUtils) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
+
+  /**
+  @module ember
+  @submodule ember-metal
+  */
+
   exports.mixin = mixin;
   exports.default = Mixin;
   exports.required = required;
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
   exports._immediateObserver = _immediateObserver;
-  'REMOVE_USE_STRICT: true';
-
-  /**
-  @module ember
-  @submodule ember-metal
-  */
 
   function ROOT() {}
   ROOT.__hasSuper = false;
@@ -20190,7 +20163,7 @@ enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/merge'], funct
 
   exports.default = Subscriber;
 });
-enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream'], function (exports, _emberMetalDebug, _stream) {
+enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream'], function (exports, _emberMetalDebug, _emberMetalStreamsStream) {
   'use strict';
 
   exports.isStream = isStream;
@@ -20395,7 +20368,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
     var hasStream = scanArray(array);
     if (hasStream) {
       var i, l;
-      var stream = new _stream.default(function () {
+      var stream = new _emberMetalStreamsStream.default(function () {
         return concat(readArray(array), separator);
       }, function () {
         var labels = labelsFor(array);
@@ -20459,7 +20432,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
   }
 
   function or(first, second) {
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       return first.value() || second.value();
     }, function () {
       return labelFor(first) + ' || ' + labelFor(second);
@@ -20479,7 +20452,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
 
   function zip(streams, callback, label) {
 
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       var array = readArray(streams);
       return callback ? callback(array) : array;
     }, function () {
@@ -20495,7 +20468,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
 
   function zipHash(object, callback, label) {
 
-    var stream = new _stream.default(function () {
+    var stream = new _emberMetalStreamsStream.default(function () {
       var hash = readHash(object);
       return callback ? callback(hash) : hash;
     }, function () {
@@ -20544,7 +20517,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', './stream']
 
   function chain(value, fn, label) {
     if (isStream(value)) {
-      var stream = new _stream.default(fn, function () {
+      var stream = new _emberMetalStreamsStream.default(fn, function () {
         return label + '(' + labelFor(value) + ')';
       });
       stream.addDependency(value);
@@ -20564,11 +20537,9 @@ enifed("ember-metal/symbol", ["exports"], function (exports) {
   "use strict";
 });
 enifed('ember-metal/utils', ['exports'], function (exports) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
-  'REMOVE_USE_STRICT: true';
 
   /**
   @module ember-metal
@@ -22482,7 +22453,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+ebd892c9';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+066d32c6';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22978,7 +22949,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ebd892c9';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+066d32c6';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -26701,7 +26672,7 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 
 
   exports.default = RouterState;
 });
-enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', './router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _router_state, _router4, _routerTransition) {
+enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/merge', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'router', 'router/transition'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalMerge, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _router4, _routerTransition) {
   'use strict';
 
   function K() {
@@ -27356,7 +27327,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
         return;
       }
 
-      this.set('targetState', _router_state.default.create({
+      this.set('targetState', _emberRoutingSystemRouter_state.default.create({
         emberRouter: this,
         routerJs: this.router,
         routerJsState: this.router.activeTransition.state
@@ -27686,7 +27657,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/core', 'ember-met
   });
 
   function didBeginTransition(transition, router) {
-    var routerState = _router_state.default.create({
+    var routerState = _emberRoutingSystemRouter_state.default.create({
       emberRouter: router,
       routerJs: router.router,
       routerJsState: transition.state
@@ -33578,11 +33549,9 @@ enifed('ember-runtime/system/container', ['exports', 'ember-metal/property_set',
   exports.Container = _containerContainer.default;
 });
 enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/merge', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/chains', 'ember-metal/events', 'ember-metal/mixin', 'ember-metal/error', 'ember-runtime/mixins/action_handler', 'ember-metal/properties', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/injected_property', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-metal/core', 'ember-runtime/inject'], function (exports, _emberMetal, _emberMetalDebug, _emberMetalFeatures, _emberMetalMerge, _emberMetalProperty_get, _emberMetalUtils, _emberMetalMeta, _emberMetalChains, _emberMetalEvents, _emberMetalMixin, _emberMetalError, _emberRuntimeMixinsAction_handler, _emberMetalProperties, _emberMetalBinding, _emberMetalComputed, _emberMetalInjected_property, _emberMetalRun_loop, _emberMetalWatching, _emberMetalCore, _emberRuntimeInject) {
+  'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
-  //
-  
-  'REMOVE_USE_STRICT: true';
 
   /**
     @module ember
@@ -36585,7 +36554,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+ebd892c9',
+        revision: 'Ember@2.2.0-canary+066d32c6',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40708,7 +40677,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+ebd892c9';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+066d32c6';
 
   /**
   @module ember
@@ -42994,15 +42963,15 @@ enifed('ember', ['exports', 'ember-metal', 'ember-runtime', 'ember-views', 'embe
   @module ember
   */
 });
-enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeHooks2) {
+enifed('htmlbars-runtime', ['exports', 'htmlbars-runtime/hooks', 'htmlbars-runtime/render', 'htmlbars-util/morph-utils', 'htmlbars-util/template-utils'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   'use strict';
 
   var internal = {
     blockFor: _htmlbarsUtilTemplateUtils.blockFor,
     manualElement: _htmlbarsRuntimeRender.manualElement,
-    hostBlock: _htmlbarsRuntimeHooks2.hostBlock,
-    continueBlock: _htmlbarsRuntimeHooks2.continueBlock,
-    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks2.hostYieldWithShadowTemplate,
+    hostBlock: _htmlbarsRuntimeHooks.hostBlock,
+    continueBlock: _htmlbarsRuntimeHooks.continueBlock,
+    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks.hostYieldWithShadowTemplate,
     visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
     validateChildMorphs: _htmlbarsUtilMorphUtils.validateChildMorphs,
     clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
@@ -43104,7 +43073,7 @@ enifed('htmlbars-runtime/expression-visitor', ['exports'], function (exports) {
     return env.hooks.concat(env, parts);
   }
 });
-enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-list", "../htmlbars-util/object-utils", "../htmlbars-util/morph-utils", "../htmlbars-util/template-utils"], function (exports, _render, _morphRangeMorphList, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
+enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-range/morph-list", "htmlbars-util/object-utils", "htmlbars-util/morph-utils", "htmlbars-util/template-utils"], function (exports, _htmlbarsRuntimeRender, _morphRangeMorphList, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils) {
   "use strict";
 
   exports.wrap = wrap;
@@ -43234,7 +43203,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         options.self = self;
         options.blockArguments = blockArguments;
 
-        return _render.default(template, env, scope, options);
+        return _htmlbarsRuntimeRender.default(template, env, scope, options);
       }
     };
   }
@@ -43302,7 +43271,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morph.lastYielded = { self: self, template: template, shadowTemplate: null };
 
       // Render the template that was selected by the helper
-      _render.default(template, env, scope, { renderNode: morph, self: self, blockArguments: blockArguments });
+      _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: morph, self: self, blockArguments: blockArguments });
     };
   }
 
@@ -43405,7 +43374,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
         handledMorphs[foundMorph.key] = foundMorph;
         yieldTemplate(template, env, parentScope, foundMorph, renderState, visitor)(blockArguments, self);
       } else {
-        var childMorph = _render.createChildMorph(env.dom, morph);
+        var childMorph = _htmlbarsRuntimeRender.createChildMorph(env.dom, morph);
         childMorph.key = key;
         morphMap[key] = handledMorphs[key] = childMorph;
         morphList.insertBeforeMorph(childMorph, currentMorph);
@@ -43445,7 +43414,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       morph.lastYielded = { self: self, template: template, shadowTemplate: shadowTemplate };
 
       // Render the shadow template with the block available
-      _render.default(shadowTemplate.raw, env, shadowScope, { renderNode: morph, self: self, blockArguments: blockArguments });
+      _htmlbarsRuntimeRender.default(shadowTemplate.raw, env, shadowScope, { renderNode: morph, self: self, blockArguments: blockArguments });
     };
 
     function blockToYield(env, blockArguments, self, renderNode, shadowParent, visitor) {
@@ -43460,7 +43429,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
           scope = env.hooks.createChildScope(parentScope);
         }
 
-        _render.default(template, env, scope, { renderNode: renderNode, self: self, blockArguments: blockArguments });
+        _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: renderNode, self: self, blockArguments: blockArguments });
       }
     }
   }
@@ -44227,7 +44196,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     for (var name in attrs) {
       element.setAttribute(name, env.hooks.getValue(attrs[name]));
     }
-    var fragment = _render.default(template, env, scope, {}).fragment;
+    var fragment = _htmlbarsRuntimeRender.default(template, env, scope, {}).fragment;
     element.appendChild(fragment);
     morph.setNode(element);
   }
@@ -44295,7 +44264,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     keyword: keyword
   };
 });
-enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (exports, _morphRange) {
+enifed("htmlbars-runtime/morph", ["exports", "morph-range"], function (exports, _morphRange) {
   "use strict";
 
   var guid = 1;
@@ -44345,7 +44314,7 @@ enifed("htmlbars-runtime/morph", ["exports", "../morph-range"], function (export
 
   exports.default = HTMLBarsMorph;
 });
-enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-utils", "./expression-visitor"], function (exports, _htmlbarsUtilMorphUtils, _expressionVisitor) {
+enifed("htmlbars-runtime/node-visitor", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/expression-visitor"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeExpressionVisitor) {
   "use strict";
 
   /**
@@ -44373,8 +44342,8 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-util
       params = morph.linkedParams.params;
       hash = morph.linkedParams.hash;
     } else {
-      params = params && _expressionVisitor.acceptParams(params, env, scope);
-      hash = hash && _expressionVisitor.acceptHash(hash, env, scope);
+      params = params && _htmlbarsRuntimeExpressionVisitor.acceptParams(params, env, scope);
+      hash = hash && _htmlbarsRuntimeExpressionVisitor.acceptHash(hash, env, scope);
     }
 
     _htmlbarsUtilMorphUtils.linkParams(env, scope, morph, path, params, hash);
@@ -44542,7 +44511,7 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "../htmlbars-util/morph-util
     return env.hooks.keywords[path] !== undefined || env.hooks.hasHelper(env, scope, path);
   }
 });
-enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", "../htmlbars-util/morph-utils", "./node-visitor", "./morph", "../htmlbars-util/template-utils", "../htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _nodeVisitor, _morph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
+enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "htmlbars-util/morph-utils", "htmlbars-runtime/node-visitor", "htmlbars-runtime/morph", "htmlbars-util/template-utils", "htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeNodeVisitor, _htmlbarsRuntimeMorph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
   "use strict";
 
   exports.default = render;
@@ -44756,7 +44725,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   RenderResult.prototype.render = function () {
     this.root.lastResult = this;
     this.root.rendered = true;
-    this.populateNodes(_nodeVisitor.AlwaysDirtyVisitor);
+    this.populateNodes(_htmlbarsRuntimeNodeVisitor.AlwaysDirtyVisitor);
 
     if (this.shouldSetContent && this.root.setContent) {
       this.root.setContent(this.fragment);
@@ -44770,11 +44739,11 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   };
 
   RenderResult.prototype.revalidate = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.default);
+    this.revalidateWith(env, scope, self, blockArguments, _htmlbarsRuntimeNodeVisitor.default);
   };
 
   RenderResult.prototype.rerender = function (env, self, blockArguments, scope) {
-    this.revalidateWith(env, scope, self, blockArguments, _nodeVisitor.AlwaysDirtyVisitor);
+    this.revalidateWith(env, scope, self, blockArguments, _htmlbarsRuntimeNodeVisitor.AlwaysDirtyVisitor);
   };
 
   RenderResult.prototype.revalidateWith = function (env, scope, self, blockArguments, visitor) {
@@ -44877,7 +44846,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
   }
 
   function createChildMorph(dom, parentMorph, contextualElement) {
-    var morph = _morph.default.empty(dom, contextualElement || parentMorph.contextualElement);
+    var morph = _htmlbarsRuntimeMorph.default.empty(dom, contextualElement || parentMorph.contextualElement);
     initializeNode(morph, parentMorph.ownerNode);
     return morph;
   }
@@ -44904,7 +44873,7 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return fragment;
   }
 });
-enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-util/handlebars/utils', './htmlbars-util/namespaces', './htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
+enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/handlebars/utils', 'htmlbars-util/namespaces', 'htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
   'use strict';
 
   exports.SafeString = _htmlbarsUtilSafeString.default;
@@ -45303,12 +45272,12 @@ enifed("htmlbars-util/quoting", ["exports"], function (exports) {
     return str;
   }
 });
-enifed('htmlbars-util/safe-string', ['exports', './handlebars/safe-string'], function (exports, _handlebarsSafeString) {
+enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-string'], function (exports, _htmlbarsUtilHandlebarsSafeString) {
   'use strict';
 
-  exports.default = _handlebarsSafeString.default;
+  exports.default = _htmlbarsUtilHandlebarsSafeString.default;
 });
-enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
   "use strict";
 
   exports.RenderState = RenderState;
@@ -45499,7 +45468,7 @@ enifed("htmlbars-util/template-utils", ["exports", "../htmlbars-util/morph-utils
     morph.morphList = null;
   }
 });
-enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (exports, _arrayUtils) {
+enifed("htmlbars-util/void-tag-names", ["exports", "htmlbars-util/array-utils"], function (exports, _htmlbarsUtilArrayUtils) {
   "use strict";
 
   // The HTML elements in this list are speced by
@@ -45509,13 +45478,13 @@ enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (e
   var voidTagNames = "area base br col command embed hr img input keygen link meta param source track wbr";
   var voidMap = {};
 
-  _arrayUtils.forEach(voidTagNames.split(" "), function (tagName) {
+  _htmlbarsUtilArrayUtils.forEach(voidTagNames.split(" "), function (tagName) {
     voidMap[tagName] = true;
   });
 
   exports.default = voidMap;
 });
-enifed("morph-attr", ["exports", "./morph-attr/sanitize-attribute-value", "./dom-helper/prop", "./dom-helper/build-html-dom", "./htmlbars-util"], function (exports, _morphAttrSanitizeAttributeValue, _domHelperProp, _domHelperBuildHtmlDom, _htmlbarsUtil) {
+enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-helper/prop", "dom-helper/build-html-dom", "htmlbars-util"], function (exports, _morphAttrSanitizeAttributeValue, _domHelperProp, _domHelperBuildHtmlDom, _htmlbarsUtil) {
   "use strict";
 
   function getProperty() {
@@ -45698,7 +45667,7 @@ enifed('morph-attr/sanitize-attribute-value', ['exports'], function (exports) {
     return value;
   }
 });
-enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _morphRangeUtils) {
+enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
   // constructor just initializes the fields
@@ -45962,7 +45931,7 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
 
   exports.default = Morph;
 });
-enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _utils) {
+enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
   function MorphList() {
@@ -46010,11 +45979,11 @@ enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _uti
       var parentNode = mountedMorph.firstNode.parentNode;
       var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
 
-      _utils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
+      _morphRangeUtils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
 
       // was not in list mode replace current content
       if (!this.firstChildMorph) {
-        _utils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+        _morphRangeUtils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
       }
     }
 
@@ -46049,7 +46018,7 @@ enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _uti
 
   exports.default = MorphList;
 });
-enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (exports, _morphList) {
+enifed('morph-range/morph-list.umd', ['exports', 'morph-range/morph-list'], function (exports, _morphRangeMorphList) {
   'use strict';
 
   (function (root, factory) {
@@ -46061,7 +46030,7 @@ enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (expo
       root.MorphList = factory();
     }
   })(undefined, function () {
-    return _morphList.default;
+    return _morphRangeMorphList.default;
   });
 });
 enifed("morph-range/utils", ["exports"], function (exports) {
@@ -46101,7 +46070,7 @@ enifed("morph-range/utils", ["exports"], function (exports) {
     } while (node);
   }
 });
-enifed('route-recognizer', ['exports', './route-recognizer/dsl'], function (exports, _routeRecognizerDsl) {
+enifed('route-recognizer', ['exports', 'route-recognizer/dsl'], function (exports, _routeRecognizerDsl) {
   'use strict';
 
   var specials = ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\'];
@@ -46808,17 +46777,17 @@ enifed("route-recognizer/dsl", ["exports"], function (exports) {
     }, this);
   };
 });
-enifed('router', ['exports', './router/router'], function (exports, _routerRouter) {
+enifed('router', ['exports', 'router/router'], function (exports, _routerRouter) {
   'use strict';
 
   exports.default = _routerRouter.default;
 });
-enifed('router/handler-info', ['exports', './utils', 'rsvp/promise'], function (exports, _utils, _rsvpPromise) {
+enifed('router/handler-info', ['exports', 'router/utils', 'rsvp/promise'], function (exports, _routerUtils, _rsvpPromise) {
   'use strict';
 
   function HandlerInfo(_props) {
     var props = _props || {};
-    _utils.merge(this, props);
+    _routerUtils.merge(this, props);
     this.initialize(props);
   }
 
@@ -46840,7 +46809,7 @@ enifed('router/handler-info', ['exports', './utils', 'rsvp/promise'], function (
     },
 
     promiseLabel: function (label) {
-      return _utils.promiseLabel("'" + this.name + "' " + label);
+      return _routerUtils.promiseLabel("'" + this.name + "' " + label);
     },
 
     getUnresolved: function () {
@@ -46852,11 +46821,11 @@ enifed('router/handler-info', ['exports', './utils', 'rsvp/promise'], function (
     },
 
     resolve: function (shouldContinue, payload) {
-      var checkForAbort = _utils.bind(this, this.checkForAbort, shouldContinue),
-          beforeModel = _utils.bind(this, this.runBeforeModelHook, payload),
-          model = _utils.bind(this, this.getModel, payload),
-          afterModel = _utils.bind(this, this.runAfterModelHook, payload),
-          becomeResolved = _utils.bind(this, this.becomeResolved, payload);
+      var checkForAbort = _routerUtils.bind(this, this.checkForAbort, shouldContinue),
+          beforeModel = _routerUtils.bind(this, this.runBeforeModelHook, payload),
+          model = _routerUtils.bind(this, this.getModel, payload),
+          afterModel = _routerUtils.bind(this, this.runAfterModelHook, payload),
+          becomeResolved = _routerUtils.bind(this, this.becomeResolved, payload);
 
       return _rsvpPromise.default.resolve(undefined, this.promiseLabel("Start handler")).then(checkForAbort, null, this.promiseLabel("Check for abort")).then(beforeModel, null, this.promiseLabel("Before model")).then(checkForAbort, null, this.promiseLabel("Check if aborted during 'beforeModel' hook")).then(model, null, this.promiseLabel("Model")).then(checkForAbort, null, this.promiseLabel("Check if aborted in 'model' hook")).then(afterModel, null, this.promiseLabel("After model")).then(checkForAbort, null, this.promiseLabel("Check if aborted in 'afterModel' hook")).then(becomeResolved, null, this.promiseLabel("Become resolved"));
     },
@@ -46891,7 +46860,7 @@ enifed('router/handler-info', ['exports', './utils', 'rsvp/promise'], function (
       }
       args.push(payload);
 
-      var result = _utils.applyHook(this.handler, hookName, args);
+      var result = _routerUtils.applyHook(this.handler, hookName, args);
 
       if (result && result.isTransition) {
         result = null;
@@ -46991,10 +46960,10 @@ enifed('router/handler-info/factory', ['exports', 'router/handler-info/resolved-
 
   exports.default = handlerInfoFactory;
 });
-enifed('router/handler-info/resolved-handler-info', ['exports', '../handler-info', 'router/utils', 'rsvp/promise'], function (exports, _handlerInfo, _routerUtils, _rsvpPromise) {
+enifed('router/handler-info/resolved-handler-info', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
   'use strict';
 
-  var ResolvedHandlerInfo = _routerUtils.subclass(_handlerInfo.default, {
+  var ResolvedHandlerInfo = _routerUtils.subclass(_routerHandlerInfo.default, {
     resolve: function (shouldContinue, payload) {
       // A ResolvedHandlerInfo just resolved with itself.
       if (payload && payload.resolvedModels) {
@@ -47016,10 +46985,10 @@ enifed('router/handler-info/resolved-handler-info', ['exports', '../handler-info
 
   exports.default = ResolvedHandlerInfo;
 });
-enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', '../handler-info', 'router/utils', 'rsvp/promise'], function (exports, _handlerInfo, _routerUtils, _rsvpPromise) {
+enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
   'use strict';
 
-  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_handlerInfo.default, {
+  var UnresolvedHandlerInfoByObject = _routerUtils.subclass(_routerHandlerInfo.default, {
     getModel: function (payload) {
       this.log(payload, this.name + ": resolving provided model");
       return _rsvpPromise.default.resolve(this.context);
@@ -47070,11 +47039,11 @@ enifed('router/handler-info/unresolved-handler-info-by-object', ['exports', '../
 
   exports.default = UnresolvedHandlerInfoByObject;
 });
-enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', '../handler-info', 'router/utils'], function (exports, _handlerInfo, _routerUtils) {
+enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', 'router/handler-info', 'router/utils'], function (exports, _routerHandlerInfo, _routerUtils) {
   'use strict';
 
   // Generated by URL transitions and non-dynamic route segments in named Transitions.
-  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_handlerInfo.default, {
+  var UnresolvedHandlerInfoByParam = _routerUtils.subclass(_routerHandlerInfo.default, {
     initialize: function (props) {
       this.params = props.params || {};
     },
@@ -47096,7 +47065,7 @@ enifed('router/handler-info/unresolved-handler-info-by-param', ['exports', '../h
 
   exports.default = UnresolvedHandlerInfoByParam;
 });
-enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils', './transition-state', './transition', './transition-intent/named-transition-intent', './transition-intent/url-transition-intent', './handler-info'], function (exports, _routeRecognizer, _rsvpPromise, _utils, _transitionState, _transition, _transitionIntentNamedTransitionIntent, _transitionIntentUrlTransitionIntent, _handlerInfo) {
+enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', 'router/utils', 'router/transition-state', 'router/transition', 'router/transition-intent/named-transition-intent', 'router/transition-intent/url-transition-intent', 'router/handler-info'], function (exports, _routeRecognizer, _rsvpPromise, _routerUtils, _routerTransitionState, _routerTransition, _routerTransitionIntentNamedTransitionIntent, _routerTransitionIntentUrlTransitionIntent, _routerHandlerInfo) {
   'use strict';
 
   var pop = Array.prototype.pop;
@@ -47122,7 +47091,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     var newTransition;
 
     var newState = intent.applyToState(oldState, this.recognizer, this.getHandler, isIntermediate);
-    var queryParamChangelist = _utils.getChangelist(oldState.queryParams, newState.queryParams);
+    var queryParamChangelist = _routerUtils.getChangelist(oldState.queryParams, newState.queryParams);
 
     if (handlerInfosEqual(newState.handlerInfos, oldState.handlerInfos)) {
 
@@ -47135,7 +47104,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       }
 
       // No-op. No need to create a new transition.
-      return this.activeTransition || new _transition.Transition(this);
+      return this.activeTransition || new _routerTransition.Transition(this);
     }
 
     if (isIntermediate) {
@@ -47144,7 +47113,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     }
 
     // Create a new transition to the destination route.
-    newTransition = new _transition.Transition(this, intent, newState);
+    newTransition = new _routerTransition.Transition(this, intent, newState);
 
     // Abort and usurp any previously active transition.
     if (this.activeTransition) {
@@ -47157,7 +47126,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     // after the transition has been finalized.
     newTransition.promise = newTransition.promise.then(function (result) {
       return finalizeTransition(newTransition, result.state);
-    }, null, _utils.promiseLabel("Settle transition promise when transition is finalized"));
+    }, null, _routerUtils.promiseLabel("Settle transition promise when transition is finalized"));
 
     if (!wasTransitioning) {
       notifyExistingHandlers(this, newState, newTransition);
@@ -47212,7 +47181,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
         // perform a URL update at the end. This gives
         // the user the ability to set the url update
         // method (default is replaceState).
-        var newTransition = new _transition.Transition(this);
+        var newTransition = new _routerTransition.Transition(this);
         newTransition.queryParamsOnly = true;
 
         oldState.queryParams = finalizeQueryParamChange(this, newState.handlerInfos, newState.queryParams, newTransition);
@@ -47223,7 +47192,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
             router.didTransition(router.currentHandlerInfos);
           }
           return result;
-        }, null, _utils.promiseLabel("Transition complete"));
+        }, null, _routerUtils.promiseLabel("Transition complete"));
         return newTransition;
       }
     },
@@ -47235,7 +47204,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       try {
         return getTransitionByIntent.apply(this, arguments);
       } catch (e) {
-        return new _transition.Transition(this, intent, null, e);
+        return new _routerTransition.Transition(this, intent, null, e);
       }
     },
 
@@ -47246,13 +47215,13 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     */
     reset: function () {
       if (this.state) {
-        _utils.forEach(this.state.handlerInfos.slice().reverse(), function (handlerInfo) {
+        _routerUtils.forEach(this.state.handlerInfos.slice().reverse(), function (handlerInfo) {
           var handler = handlerInfo.handler;
-          _utils.callHook(handler, 'exit');
+          _routerUtils.callHook(handler, 'exit');
         });
       }
 
-      this.state = new _transitionState.default();
+      this.state = new _routerTransitionState.default();
       this.currentHandlerInfos = null;
     },
 
@@ -47270,7 +47239,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     handleURL: function (url) {
       // Perform a URL-based transition, but don't change
       // the URL afterward, since it already happened.
-      var args = _utils.slice.call(arguments);
+      var args = _routerUtils.slice.call(arguments);
       if (url.charAt(0) !== '/') {
         args[0] = '/' + url;
       }
@@ -47318,8 +47287,8 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
         params[handlerInfo.name] = handlerInfo.params || {};
       }
 
-      _utils.log(this, "Starting a refresh transition");
-      var intent = new _transitionIntentNamedTransitionIntent.default({
+      _routerUtils.log(this, "Starting a refresh transition");
+      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
         name: handlerInfos[handlerInfos.length - 1].name,
         pivotHandler: pivotHandler || handlerInfos[0].handler,
         contexts: [], // TODO collect contexts...?
@@ -47349,20 +47318,20 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     */
     generate: function (handlerName) {
 
-      var partitionedArgs = _utils.extractQueryParams(_utils.slice.call(arguments, 1)),
+      var partitionedArgs = _routerUtils.extractQueryParams(_routerUtils.slice.call(arguments, 1)),
           suppliedParams = partitionedArgs[0],
           queryParams = partitionedArgs[1];
 
       // Construct a TransitionIntent with the provided params
       // and apply it to the present state of the router.
-      var intent = new _transitionIntentNamedTransitionIntent.default({ name: handlerName, contexts: suppliedParams });
+      var intent = new _routerTransitionIntentNamedTransitionIntent.default({ name: handlerName, contexts: suppliedParams });
       var state = intent.applyToState(this.state, this.recognizer, this.getHandler);
       var params = {};
 
       for (var i = 0, len = state.handlerInfos.length; i < len; ++i) {
         var handlerInfo = state.handlerInfos[i];
         var handlerParams = handlerInfo.serialize();
-        _utils.merge(params, handlerParams);
+        _routerUtils.merge(params, handlerParams);
       }
       params.queryParams = queryParams;
 
@@ -47370,7 +47339,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     },
 
     applyIntent: function (handlerName, contexts) {
-      var intent = new _transitionIntentNamedTransitionIntent.default({
+      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
         name: handlerName,
         contexts: contexts
       });
@@ -47410,11 +47379,11 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
         return false;
       }
 
-      var testState = new _transitionState.default();
+      var testState = new _routerTransitionState.default();
       testState.handlerInfos = targetHandlerInfos.slice(0, index + 1);
       recogHandlers = recogHandlers.slice(0, index + 1);
 
-      var intent = new _transitionIntentNamedTransitionIntent.default({
+      var intent = new _routerTransitionIntentNamedTransitionIntent.default({
         name: targetHandler,
         contexts: contexts
       });
@@ -47428,7 +47397,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
 
       // Get a hash of QPs that will still be active on new route
       var activeQPsOnNewHandler = {};
-      _utils.merge(activeQPsOnNewHandler, queryParams);
+      _routerUtils.merge(activeQPsOnNewHandler, queryParams);
 
       var activeQueryParams = state.queryParams;
       for (var key in activeQueryParams) {
@@ -47437,17 +47406,17 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
         }
       }
 
-      return handlersEqual && !_utils.getChangelist(activeQPsOnNewHandler, queryParams);
+      return handlersEqual && !_routerUtils.getChangelist(activeQPsOnNewHandler, queryParams);
     },
 
     isActive: function (handlerName) {
-      var partitionedArgs = _utils.extractQueryParams(_utils.slice.call(arguments, 1));
+      var partitionedArgs = _routerUtils.extractQueryParams(_routerUtils.slice.call(arguments, 1));
       return this.isActiveIntent(handlerName, partitionedArgs[0], partitionedArgs[1]);
     },
 
     trigger: function (name) {
-      var args = _utils.slice.call(arguments);
-      _utils.trigger(this, this.currentHandlerInfos, false, args);
+      var args = _routerUtils.slice.call(arguments);
+      _routerUtils.trigger(this, this.currentHandlerInfos, false, args);
     },
 
     /**
@@ -47470,7 +47439,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       // changed query params given that no activeTransition
       // is guaranteed to have occurred.
       router._changedQueryParams = queryParamChangelist.all;
-      _utils.trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
+      _routerUtils.trigger(router, newState.handlerInfos, true, ['queryParamsDidChange', queryParamChangelist.changed, queryParamChangelist.all, queryParamChangelist.removed]);
       router._changedQueryParams = null;
     }
   }
@@ -47524,8 +47493,8 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       handler = partition.exited[i].handler;
       delete handler.context;
 
-      _utils.callHook(handler, 'reset', true, transition);
-      _utils.callHook(handler, 'exit', transition);
+      _routerUtils.callHook(handler, 'reset', true, transition);
+      _routerUtils.callHook(handler, 'exit', transition);
     }
 
     var oldState = router.oldState = router.state;
@@ -47535,7 +47504,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     try {
       for (i = 0, l = partition.reset.length; i < l; i++) {
         handler = partition.reset[i].handler;
-        _utils.callHook(handler, 'reset', false, transition);
+        _routerUtils.callHook(handler, 'reset', false, transition);
       }
 
       for (i = 0, l = partition.updatedContext.length; i < l; i++) {
@@ -47566,18 +47535,18 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
         context = handlerInfo.context;
 
     if (enter) {
-      _utils.callHook(handler, 'enter', transition);
+      _routerUtils.callHook(handler, 'enter', transition);
     }
     if (transition && transition.isAborted) {
-      throw new _transition.TransitionAborted();
+      throw new _routerTransition.TransitionAborted();
     }
 
     handler.context = context;
-    _utils.callHook(handler, 'contextDidChange');
+    _routerUtils.callHook(handler, 'contextDidChange');
 
-    _utils.callHook(handler, 'setup', context, transition);
+    _routerUtils.callHook(handler, 'setup', context, transition);
     if (transition && transition.isAborted) {
-      throw new _transition.TransitionAborted();
+      throw new _routerTransition.TransitionAborted();
     }
 
     currentHandlerInfos.push(handlerInfo);
@@ -47687,7 +47656,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
 
     for (var i = handlerInfos.length - 1; i >= 0; --i) {
       var handlerInfo = handlerInfos[i];
-      _utils.merge(params, handlerInfo.params);
+      _routerUtils.merge(params, handlerInfo.params);
       if (handlerInfo.handler.inaccessibleByURL) {
         urlMethod = null;
       }
@@ -47714,7 +47683,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
   function finalizeTransition(transition, newState) {
 
     try {
-      _utils.log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
+      _routerUtils.log(transition.router, transition.sequence, "Resolved all models on destination route; finalizing transition.");
 
       var router = transition.router,
           handlerInfos = newState.handlerInfos,
@@ -47727,7 +47696,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       if (transition.isAborted) {
         // TODO: cleaner way? distinguish b/w targetHandlerInfos?
         router.state.handlerInfos = router.currentHandlerInfos;
-        return _rsvpPromise.default.reject(_transition.logAbort(transition));
+        return _rsvpPromise.default.reject(_routerTransition.logAbort(transition));
       }
 
       updateURL(transition, newState, transition.intent.url);
@@ -47735,18 +47704,18 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       transition.isActive = false;
       router.activeTransition = null;
 
-      _utils.trigger(router, router.currentHandlerInfos, true, ['didTransition']);
+      _routerUtils.trigger(router, router.currentHandlerInfos, true, ['didTransition']);
 
       if (router.didTransition) {
         router.didTransition(router.currentHandlerInfos);
       }
 
-      _utils.log(router, transition.sequence, "TRANSITION COMPLETE.");
+      _routerUtils.log(router, transition.sequence, "TRANSITION COMPLETE.");
 
       // Resolve with the final handler.
       return handlerInfos[handlerInfos.length - 1].handler;
     } catch (e) {
-      if (!(e instanceof _transition.TransitionAborted)) {
+      if (!(e instanceof _routerTransition.TransitionAborted)) {
         //var erroneousHandler = handlerInfos.pop();
         var infos = transition.state.handlerInfos;
         transition.trigger(true, 'error', e, transition, infos[infos.length - 1].handler);
@@ -47781,26 +47750,26 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     var intent;
     if (args.length === 0) {
 
-      _utils.log(router, "Updating query params");
+      _routerUtils.log(router, "Updating query params");
 
       // A query param update is really just a transition
       // into the route you're already on.
       var handlerInfos = router.state.handlerInfos;
-      intent = new _transitionIntentNamedTransitionIntent.default({
+      intent = new _routerTransitionIntentNamedTransitionIntent.default({
         name: handlerInfos[handlerInfos.length - 1].name,
         contexts: [],
         queryParams: queryParams
       });
     } else if (name.charAt(0) === '/') {
 
-      _utils.log(router, "Attempting URL transition to " + name);
-      intent = new _transitionIntentUrlTransitionIntent.default({ url: name });
+      _routerUtils.log(router, "Attempting URL transition to " + name);
+      intent = new _routerTransitionIntentUrlTransitionIntent.default({ url: name });
     } else {
 
-      _utils.log(router, "Attempting transition to " + name);
-      intent = new _transitionIntentNamedTransitionIntent.default({
+      _routerUtils.log(router, "Attempting transition to " + name);
+      intent = new _routerTransitionIntentNamedTransitionIntent.default({
         name: args[0],
-        contexts: _utils.slice.call(args, 1),
+        contexts: _routerUtils.slice.call(args, 1),
         queryParams: queryParams
       });
     }
@@ -47837,7 +47806,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
     }
 
     var finalQueryParamsArray = [];
-    _utils.trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
+    _routerUtils.trigger(router, resolvedHandlers, true, ['finalizeQueryParamChange', newQueryParams, finalQueryParamsArray, transition]);
 
     if (transition) {
       transition._visibleQueryParams = {};
@@ -47892,7 +47861,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
       };
     }
 
-    _utils.trigger(router, oldHandlers, true, ['willTransition', newTransition]);
+    _routerUtils.trigger(router, oldHandlers, true, ['willTransition', newTransition]);
 
     if (router.willTransition) {
       router.willTransition(oldHandlers, newState.handlerInfos, newTransition);
@@ -47901,7 +47870,7 @@ enifed('router/router', ['exports', 'route-recognizer', 'rsvp/promise', './utils
 
   exports.default = Router;
 });
-enifed('router/transition-intent', ['exports', './utils'], function (exports, _utils) {
+enifed('router/transition-intent', ['exports', 'router/utils'], function (exports, _routerUtils) {
   'use strict';
 
   function TransitionIntent(props) {
@@ -47918,10 +47887,10 @@ enifed('router/transition-intent', ['exports', './utils'], function (exports, _u
 
   exports.default = TransitionIntent;
 });
-enifed('router/transition-intent/named-transition-intent', ['exports', '../transition-intent', '../transition-state', '../handler-info/factory', '../utils'], function (exports, _transitionIntent, _transitionState, _handlerInfoFactory, _utils) {
+enifed('router/transition-intent/named-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils) {
   'use strict';
 
-  exports.default = _utils.subclass(_transitionIntent.default, {
+  exports.default = _routerUtils.subclass(_routerTransitionIntent.default, {
     name: null,
     pivotHandler: null,
     contexts: null,
@@ -47936,7 +47905,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
 
     applyToState: function (oldState, recognizer, getHandler, isIntermediate) {
 
-      var partitionedArgs = _utils.extractQueryParams([this.name].concat(this.contexts)),
+      var partitionedArgs = _routerUtils.extractQueryParams([this.name].concat(this.contexts)),
           pureArgs = partitionedArgs[0],
           queryParams = partitionedArgs[1],
           handlers = recognizer.handlersFor(pureArgs[0]);
@@ -47949,7 +47918,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
     applyToHandlers: function (oldState, handlers, getHandler, targetRouteName, isIntermediate, checkingIfActive) {
 
       var i, len;
-      var newState = new _transitionState.default();
+      var newState = new _routerTransitionState.default();
       var objects = this.contexts.slice(0);
 
       var invalidateIndex = handlers.length;
@@ -48024,7 +47993,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
         this.invalidateChildren(newState.handlerInfos, invalidateIndex);
       }
 
-      _utils.merge(newState.queryParams, this.queryParams || {});
+      _routerUtils.merge(newState.queryParams, this.queryParams || {});
 
       return newState;
     },
@@ -48044,7 +48013,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
 
         // Use the objects provided for this transition.
         objectToUse = objects[objects.length - 1];
-        if (_utils.isParam(objectToUse)) {
+        if (_routerUtils.isParam(objectToUse)) {
           return this.createParamHandlerInfo(name, handler, names, objects, oldHandlerInfo);
         } else {
           objects.pop();
@@ -48068,7 +48037,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
         }
       }
 
-      return _handlerInfoFactory.default('object', {
+      return _routerHandlerInfoFactory.default('object', {
         name: name,
         handler: handler,
         context: objectToUse,
@@ -48088,7 +48057,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
 
         var peek = objects[objects.length - 1];
         var paramName = names[numNames];
-        if (_utils.isParam(peek)) {
+        if (_routerUtils.isParam(peek)) {
           params[paramName] = "" + objects.pop();
         } else {
           // If we're here, this means only some of the params
@@ -48102,7 +48071,7 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
         }
       }
 
-      return _handlerInfoFactory.default('param', {
+      return _routerHandlerInfoFactory.default('param', {
         name: name,
         handler: handler,
         params: params
@@ -48110,10 +48079,10 @@ enifed('router/transition-intent/named-transition-intent', ['exports', '../trans
     }
   });
 });
-enifed('router/transition-intent/url-transition-intent', ['exports', '../transition-intent', '../transition-state', '../handler-info/factory', '../utils', './../unrecognized-url-error'], function (exports, _transitionIntent, _transitionState, _handlerInfoFactory, _utils, _unrecognizedUrlError) {
+enifed('router/transition-intent/url-transition-intent', ['exports', 'router/transition-intent', 'router/transition-state', 'router/handler-info/factory', 'router/utils', 'router/unrecognized-url-error'], function (exports, _routerTransitionIntent, _routerTransitionState, _routerHandlerInfoFactory, _routerUtils, _routerUnrecognizedUrlError) {
   'use strict';
 
-  exports.default = _utils.subclass(_transitionIntent.default, {
+  exports.default = _routerUtils.subclass(_routerTransitionIntent.default, {
     url: null,
 
     initialize: function (props) {
@@ -48121,7 +48090,7 @@ enifed('router/transition-intent/url-transition-intent', ['exports', '../transit
     },
 
     applyToState: function (oldState, recognizer, getHandler) {
-      var newState = new _transitionState.default();
+      var newState = new _routerTransitionState.default();
 
       var results = recognizer.recognize(this.url),
           queryParams = {},
@@ -48129,7 +48098,7 @@ enifed('router/transition-intent/url-transition-intent', ['exports', '../transit
           len;
 
       if (!results) {
-        throw new _unrecognizedUrlError.default(this.url);
+        throw new _routerUnrecognizedUrlError.default(this.url);
       }
 
       var statesDiffer = false;
@@ -48140,10 +48109,10 @@ enifed('router/transition-intent/url-transition-intent', ['exports', '../transit
         var handler = getHandler(name);
 
         if (handler.inaccessibleByURL) {
-          throw new _unrecognizedUrlError.default(this.url);
+          throw new _routerUnrecognizedUrlError.default(this.url);
         }
 
-        var newHandlerInfo = _handlerInfoFactory.default('param', {
+        var newHandlerInfo = _routerHandlerInfoFactory.default('param', {
           name: name,
           handler: handler,
           params: result.params
@@ -48158,13 +48127,13 @@ enifed('router/transition-intent/url-transition-intent', ['exports', '../transit
         }
       }
 
-      _utils.merge(newState.queryParams, results.queryParams);
+      _routerUtils.merge(newState.queryParams, results.queryParams);
 
       return newState;
     }
   });
 });
-enifed('router/transition-state', ['exports', './handler-info', './utils', 'rsvp/promise'], function (exports, _handlerInfo, _utils, _rsvpPromise) {
+enifed('router/transition-state', ['exports', 'router/handler-info', 'router/utils', 'rsvp/promise'], function (exports, _routerHandlerInfo, _routerUtils, _rsvpPromise) {
   'use strict';
 
   function TransitionState(other) {
@@ -48180,13 +48149,13 @@ enifed('router/transition-state', ['exports', './handler-info', './utils', 'rsvp
 
     promiseLabel: function (label) {
       var targetName = '';
-      _utils.forEach(this.handlerInfos, function (handlerInfo) {
+      _routerUtils.forEach(this.handlerInfos, function (handlerInfo) {
         if (targetName !== '') {
           targetName += '.';
         }
         targetName += handlerInfo.name;
       });
-      return _utils.promiseLabel("'" + targetName + "': " + label);
+      return _routerUtils.promiseLabel("'" + targetName + "': " + label);
     },
 
     resolve: function (shouldContinue, payload) {
@@ -48194,7 +48163,7 @@ enifed('router/transition-state', ['exports', './handler-info', './utils', 'rsvp
       // First, calculate params for this state. This is useful
       // information to provide to the various route hooks.
       var params = this.params;
-      _utils.forEach(this.handlerInfos, function (handlerInfo) {
+      _routerUtils.forEach(this.handlerInfos, function (handlerInfo) {
         params[handlerInfo.name] = handlerInfo.params || {};
       });
 
@@ -48243,7 +48212,7 @@ enifed('router/transition-state', ['exports', './handler-info', './utils', 'rsvp
           // routes don't re-run the model hooks for this
           // already-resolved route.
           var handler = resolvedHandlerInfo.handler;
-          _utils.callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
+          _routerUtils.callHook(handler, 'redirect', resolvedHandlerInfo.context, payload);
         }
 
         // Proceed after ensuring that the redirect hook
@@ -48270,7 +48239,7 @@ enifed('router/transition-state', ['exports', './handler-info', './utils', 'rsvp
 
   exports.default = TransitionState;
 });
-enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './utils'], function (exports, _rsvpPromise, _handlerInfo, _utils) {
+enifed('router/transition', ['exports', 'rsvp/promise', 'router/handler-info', 'router/utils'], function (exports, _rsvpPromise, _routerHandlerInfo, _routerUtils) {
   'use strict';
 
   /**
@@ -48326,7 +48295,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
           transition.abort();
           return _rsvpPromise.default.reject(result.error);
         }
-      }, _utils.promiseLabel('Handle Abort'));
+      }, _routerUtils.promiseLabel('Handle Abort'));
     } else {
       this.promise = _rsvpPromise.default.resolve(this.state);
       this.params = {};
@@ -48334,7 +48303,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
 
     function checkForAbort() {
       if (transition.isAborted) {
-        return _rsvpPromise.default.reject(undefined, _utils.promiseLabel("Transition aborted - reject"));
+        return _rsvpPromise.default.reject(undefined, _routerUtils.promiseLabel("Transition aborted - reject"));
       }
     }
   }
@@ -48444,7 +48413,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
       if (this.isAborted) {
         return this;
       }
-      _utils.log(this.router, this.sequence, this.targetName + ": transition was aborted");
+      _routerUtils.log(this.router, this.sequence, this.targetName + ": transition was aborted");
       this.intent.preTransitionState = this.router.state;
       this.isAborted = true;
       this.isActive = false;
@@ -48495,14 +48464,14 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
       @param {String} name the name of the event to fire
      */
     trigger: function (ignoreFailure) {
-      var args = _utils.slice.call(arguments);
+      var args = _routerUtils.slice.call(arguments);
       if (typeof ignoreFailure === 'boolean') {
         args.shift();
       } else {
         // Throw errors on unhandled trigger events by default
         ignoreFailure = false;
       }
-      _utils.trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
+      _routerUtils.trigger(this.router, this.state.handlerInfos.slice(0, this.resolveIndex + 1), ignoreFailure, args);
     },
 
     /**
@@ -48533,7 +48502,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
       @private
      */
     log: function (message) {
-      _utils.log(this.router, this.sequence, message);
+      _routerUtils.log(this.router, this.sequence, message);
     }
   };
 
@@ -48546,7 +48515,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
     Logs and returns a TransitionAborted error.
    */
   function logAbort(transition) {
-    _utils.log(transition.router, transition.sequence, "detected abort.");
+    _routerUtils.log(transition.router, transition.sequence, "detected abort.");
     return new TransitionAborted();
   }
 
@@ -48559,7 +48528,7 @@ enifed('router/transition', ['exports', 'rsvp/promise', './handler-info', './uti
   exports.logAbort = logAbort;
   exports.TransitionAborted = TransitionAborted;
 });
-enifed("router/unrecognized-url-error", ["exports", "./utils"], function (exports, _utils) {
+enifed("router/unrecognized-url-error", ["exports", "router/utils"], function (exports, _routerUtils) {
   "use strict";
 
   /**
@@ -48572,7 +48541,7 @@ enifed("router/unrecognized-url-error", ["exports", "./utils"], function (export
     Error.call(this);
   }
 
-  UnrecognizedURLError.prototype = _utils.oCreate(Error.prototype);
+  UnrecognizedURLError.prototype = _routerUtils.oCreate(Error.prototype);
 
   exports.default = UnrecognizedURLError;
 });
@@ -48821,7 +48790,7 @@ enifed('router/utils', ['exports'], function (exports) {
   exports.resolveHook = resolveHook;
   exports.applyHook = applyHook;
 });
-enifed('rsvp', ['exports', './rsvp/promise', './rsvp/events', './rsvp/node', './rsvp/all', './rsvp/all-settled', './rsvp/race', './rsvp/hash', './rsvp/hash-settled', './rsvp/rethrow', './rsvp/defer', './rsvp/config', './rsvp/map', './rsvp/resolve', './rsvp/reject', './rsvp/filter', './rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
+enifed('rsvp', ['exports', 'rsvp/promise', 'rsvp/events', 'rsvp/node', 'rsvp/all', 'rsvp/all-settled', 'rsvp/race', 'rsvp/hash', 'rsvp/hash-settled', 'rsvp/rethrow', 'rsvp/defer', 'rsvp/config', 'rsvp/map', 'rsvp/resolve', 'rsvp/reject', 'rsvp/filter', 'rsvp/asap'], function (exports, _rsvpPromise, _rsvpEvents, _rsvpNode, _rsvpAll, _rsvpAllSettled, _rsvpRace, _rsvpHash, _rsvpHashSettled, _rsvpRethrow, _rsvpDefer, _rsvpConfig, _rsvpMap, _rsvpResolve, _rsvpReject, _rsvpFilter, _rsvpAsap) {
   'use strict';
 
   // defaults
@@ -48873,7 +48842,7 @@ enifed('rsvp', ['exports', './rsvp/promise', './rsvp/events', './rsvp/node', './
   exports.map = _rsvpMap.default;
   exports.filter = _rsvpFilter.default;
 });
-enifed('rsvp.umd', ['exports', './rsvp/platform', './rsvp'], function (exports, _rsvpPlatform, _rsvp) {
+enifed('rsvp.umd', ['exports', 'rsvp/platform', 'rsvp'], function (exports, _rsvpPlatform, _rsvp) {
   'use strict';
 
   var RSVP = {
@@ -48908,7 +48877,7 @@ enifed('rsvp.umd', ['exports', './rsvp/platform', './rsvp'], function (exports, 
     _rsvpPlatform.default['RSVP'] = RSVP;
   }
 });
-enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], function (exports, _utils, _instrument, _config) {
+enifed('rsvp/-internal', ['exports', 'rsvp/utils', 'rsvp/instrument', 'rsvp/config'], function (exports, _rsvpUtils, _rsvpInstrument, _rsvpConfig) {
   'use strict';
 
   function withOwnPromise() {
@@ -48941,7 +48910,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   }
 
   function handleForeignThenable(promise, thenable, then) {
-    _config.config.async(function (promise) {
+    _rsvpConfig.config.async(function (promise) {
       var sealed = false;
       var error = tryThen(then, thenable, function (value) {
         if (sealed) {
@@ -48998,7 +48967,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
         reject(promise, GET_THEN_ERROR.error);
       } else if (then === undefined) {
         fulfill(promise, maybeThenable);
-      } else if (_utils.isFunction(then)) {
+      } else if (_rsvpUtils.isFunction(then)) {
         handleForeignThenable(promise, maybeThenable, then);
       } else {
         fulfill(promise, maybeThenable);
@@ -49009,7 +48978,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   function resolve(promise, value) {
     if (promise === value) {
       fulfill(promise, value);
-    } else if (_utils.objectOrFunction(value)) {
+    } else if (_rsvpUtils.objectOrFunction(value)) {
       handleMaybeThenable(promise, value);
     } else {
       fulfill(promise, value);
@@ -49033,11 +49002,11 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     promise._state = FULFILLED;
 
     if (promise._subscribers.length === 0) {
-      if (_config.config.instrument) {
-        _instrument.default('fulfilled', promise);
+      if (_rsvpConfig.config.instrument) {
+        _rsvpInstrument.default('fulfilled', promise);
       }
     } else {
-      _config.config.async(publish, promise);
+      _rsvpConfig.config.async(publish, promise);
     }
   }
 
@@ -49047,7 +49016,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     }
     promise._state = REJECTED;
     promise._result = reason;
-    _config.config.async(publishRejection, promise);
+    _rsvpConfig.config.async(publishRejection, promise);
   }
 
   function subscribe(parent, child, onFulfillment, onRejection) {
@@ -49061,7 +49030,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     subscribers[length + REJECTED] = onRejection;
 
     if (length === 0 && parent._state) {
-      _config.config.async(publish, parent);
+      _rsvpConfig.config.async(publish, parent);
     }
   }
 
@@ -49069,8 +49038,8 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
     var subscribers = promise._subscribers;
     var settled = promise._state;
 
-    if (_config.config.instrument) {
-      _instrument.default(settled === FULFILLED ? 'fulfilled' : 'rejected', promise);
+    if (_rsvpConfig.config.instrument) {
+      _rsvpInstrument.default(settled === FULFILLED ? 'fulfilled' : 'rejected', promise);
     }
 
     if (subscribers.length === 0) {
@@ -49111,7 +49080,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   }
 
   function invokeCallback(settled, promise, callback, detail) {
-    var hasCallback = _utils.isFunction(callback),
+    var hasCallback = _rsvpUtils.isFunction(callback),
         value,
         error,
         succeeded,
@@ -49184,7 +49153,7 @@ enifed('rsvp/-internal', ['exports', './utils', './instrument', './config'], fun
   exports.REJECTED = REJECTED;
   exports.PENDING = PENDING;
 });
-enifed('rsvp/all-settled', ['exports', './enumerator', './promise', './utils'], function (exports, _enumerator, _promise, _utils) {
+enifed('rsvp/all-settled', ['exports', 'rsvp/enumerator', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpPromise, _rsvpUtils) {
   'use strict';
 
   exports.default = allSettled;
@@ -49193,9 +49162,9 @@ enifed('rsvp/all-settled', ['exports', './enumerator', './promise', './utils'], 
     this._superConstructor(Constructor, entries, false, /* don't abort on reject */label);
   }
 
-  AllSettled.prototype = _utils.o_create(_enumerator.default.prototype);
-  AllSettled.prototype._superConstructor = _enumerator.default;
-  AllSettled.prototype._makeResult = _enumerator.makeSettledResult;
+  AllSettled.prototype = _rsvpUtils.o_create(_rsvpEnumerator.default.prototype);
+  AllSettled.prototype._superConstructor = _rsvpEnumerator.default;
+  AllSettled.prototype._makeResult = _rsvpEnumerator.makeSettledResult;
   AllSettled.prototype._validationError = function () {
     return new Error('allSettled must be called with an array');
   };
@@ -49253,10 +49222,10 @@ enifed('rsvp/all-settled', ['exports', './enumerator', './promise', './utils'], 
   */
 
   function allSettled(entries, label) {
-    return new AllSettled(_promise.default, entries, label).promise;
+    return new AllSettled(_rsvpPromise.default, entries, label).promise;
   }
 });
-enifed("rsvp/all", ["exports", "./promise"], function (exports, _promise) {
+enifed("rsvp/all", ["exports", "rsvp/promise"], function (exports, _rsvpPromise) {
   "use strict";
 
   exports.default = all;
@@ -49273,7 +49242,7 @@ enifed("rsvp/all", ["exports", "./promise"], function (exports, _promise) {
   */
 
   function all(array, label) {
-    return _promise.default.all(array, label);
+    return _rsvpPromise.default.all(array, label);
   }
 });
 enifed('rsvp/asap', ['exports'], function (exports) {
@@ -49391,14 +49360,14 @@ enifed('rsvp/asap', ['exports'], function (exports) {
     scheduleFlush = useSetTimeout();
   }
 });
-enifed('rsvp/config', ['exports', './events'], function (exports, _events) {
+enifed('rsvp/config', ['exports', 'rsvp/events'], function (exports, _rsvpEvents) {
   'use strict';
 
   var config = {
     instrument: false
   };
 
-  _events.default['mixin'](config);
+  _rsvpEvents.default['mixin'](config);
 
   function configure(name, value) {
     if (name === 'onerror') {
@@ -49419,7 +49388,7 @@ enifed('rsvp/config', ['exports', './events'], function (exports, _events) {
   exports.config = config;
   exports.configure = configure;
 });
-enifed('rsvp/defer', ['exports', './promise'], function (exports, _promise) {
+enifed('rsvp/defer', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
   exports.default = defer;
@@ -49460,7 +49429,7 @@ enifed('rsvp/defer', ['exports', './promise'], function (exports, _promise) {
   function defer(label) {
     var deferred = {};
 
-    deferred['promise'] = new _promise.default(function (resolve, reject) {
+    deferred['promise'] = new _rsvpPromise.default(function (resolve, reject) {
       deferred['resolve'] = resolve;
       deferred['reject'] = reject;
     }, label);
@@ -49468,13 +49437,13 @@ enifed('rsvp/defer', ['exports', './promise'], function (exports, _promise) {
     return deferred;
   }
 });
-enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (exports, _utils, _internal) {
+enifed('rsvp/enumerator', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
   'use strict';
 
   exports.makeSettledResult = makeSettledResult;
 
   function makeSettledResult(state, position, value) {
-    if (state === _internal.FULFILLED) {
+    if (state === _rsvpInternal.FULFILLED) {
       return {
         state: 'fulfilled',
         value: value
@@ -49491,7 +49460,7 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
     var enumerator = this;
 
     enumerator._instanceConstructor = Constructor;
-    enumerator.promise = new Constructor(_internal.noop, label);
+    enumerator.promise = new Constructor(_rsvpInternal.noop, label);
     enumerator._abortOnReject = abortOnReject;
 
     if (enumerator._validateInput(input)) {
@@ -49502,23 +49471,23 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
       enumerator._init();
 
       if (enumerator.length === 0) {
-        _internal.fulfill(enumerator.promise, enumerator._result);
+        _rsvpInternal.fulfill(enumerator.promise, enumerator._result);
       } else {
         enumerator.length = enumerator.length || 0;
         enumerator._enumerate();
         if (enumerator._remaining === 0) {
-          _internal.fulfill(enumerator.promise, enumerator._result);
+          _rsvpInternal.fulfill(enumerator.promise, enumerator._result);
         }
       }
     } else {
-      _internal.reject(enumerator.promise, enumerator._validationError());
+      _rsvpInternal.reject(enumerator.promise, enumerator._validationError());
     }
   }
 
   exports.default = Enumerator;
 
   Enumerator.prototype._validateInput = function (input) {
-    return _utils.isArray(input);
+    return _rsvpUtils.isArray(input);
   };
 
   Enumerator.prototype._validationError = function () {
@@ -49535,7 +49504,7 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
     var promise = enumerator.promise;
     var input = enumerator._input;
 
-    for (var i = 0; promise._state === _internal.PENDING && i < length; i++) {
+    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
       enumerator._eachEntry(input[i], i);
     }
   };
@@ -49543,8 +49512,8 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
   Enumerator.prototype._eachEntry = function (entry, i) {
     var enumerator = this;
     var c = enumerator._instanceConstructor;
-    if (_utils.isMaybeThenable(entry)) {
-      if (entry.constructor === c && entry._state !== _internal.PENDING) {
+    if (_rsvpUtils.isMaybeThenable(entry)) {
+      if (entry.constructor === c && entry._state !== _rsvpInternal.PENDING) {
         entry._onError = null;
         enumerator._settledAt(entry._state, i, entry._result);
       } else {
@@ -49552,7 +49521,7 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
       }
     } else {
       enumerator._remaining--;
-      enumerator._result[i] = enumerator._makeResult(_internal.FULFILLED, i, entry);
+      enumerator._result[i] = enumerator._makeResult(_rsvpInternal.FULFILLED, i, entry);
     }
   };
 
@@ -49560,18 +49529,18 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
     var enumerator = this;
     var promise = enumerator.promise;
 
-    if (promise._state === _internal.PENDING) {
+    if (promise._state === _rsvpInternal.PENDING) {
       enumerator._remaining--;
 
-      if (enumerator._abortOnReject && state === _internal.REJECTED) {
-        _internal.reject(promise, value);
+      if (enumerator._abortOnReject && state === _rsvpInternal.REJECTED) {
+        _rsvpInternal.reject(promise, value);
       } else {
         enumerator._result[i] = enumerator._makeResult(state, i, value);
       }
     }
 
     if (enumerator._remaining === 0) {
-      _internal.fulfill(promise, enumerator._result);
+      _rsvpInternal.fulfill(promise, enumerator._result);
     }
   };
 
@@ -49582,10 +49551,10 @@ enifed('rsvp/enumerator', ['exports', './utils', './-internal'], function (expor
   Enumerator.prototype._willSettleAt = function (promise, i) {
     var enumerator = this;
 
-    _internal.subscribe(promise, undefined, function (value) {
-      enumerator._settledAt(_internal.FULFILLED, i, value);
+    _rsvpInternal.subscribe(promise, undefined, function (value) {
+      enumerator._settledAt(_rsvpInternal.FULFILLED, i, value);
     }, function (reason) {
-      enumerator._settledAt(_internal.REJECTED, i, reason);
+      enumerator._settledAt(_rsvpInternal.REJECTED, i, reason);
     });
   };
 });
@@ -49779,7 +49748,7 @@ enifed('rsvp/events', ['exports'], function (exports) {
     }
   };
 });
-enifed('rsvp/filter', ['exports', './promise', './utils'], function (exports, _promise, _utils) {
+enifed('rsvp/filter', ['exports', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpUtils) {
   'use strict';
 
   exports.default = filter;
@@ -49871,8 +49840,8 @@ enifed('rsvp/filter', ['exports', './promise', './utils'], function (exports, _p
   */
 
   function filter(promises, filterFn, label) {
-    return _promise.default.all(promises, label).then(function (values) {
-      if (!_utils.isFunction(filterFn)) {
+    return _rsvpPromise.default.all(promises, label).then(function (values) {
+      if (!_rsvpUtils.isFunction(filterFn)) {
         throw new TypeError("You must pass a function as filter's second argument.");
       }
 
@@ -49883,7 +49852,7 @@ enifed('rsvp/filter', ['exports', './promise', './utils'], function (exports, _p
         filtered[i] = filterFn(values[i]);
       }
 
-      return _promise.default.all(filtered, label).then(function (filtered) {
+      return _rsvpPromise.default.all(filtered, label).then(function (filtered) {
         var results = new Array(length);
         var newLength = 0;
 
@@ -49901,7 +49870,7 @@ enifed('rsvp/filter', ['exports', './promise', './utils'], function (exports, _p
     });
   }
 });
-enifed('rsvp/hash-settled', ['exports', './promise', './enumerator', './promise-hash', './utils'], function (exports, _promise, _enumerator, _promiseHash, _utils) {
+enifed('rsvp/hash-settled', ['exports', 'rsvp/promise', 'rsvp/enumerator', 'rsvp/promise-hash', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpEnumerator, _rsvpPromiseHash, _rsvpUtils) {
   'use strict';
 
   exports.default = hashSettled;
@@ -49910,9 +49879,9 @@ enifed('rsvp/hash-settled', ['exports', './promise', './enumerator', './promise-
     this._superConstructor(Constructor, object, false, label);
   }
 
-  HashSettled.prototype = _utils.o_create(_promiseHash.default.prototype);
-  HashSettled.prototype._superConstructor = _enumerator.default;
-  HashSettled.prototype._makeResult = _enumerator.makeSettledResult;
+  HashSettled.prototype = _rsvpUtils.o_create(_rsvpPromiseHash.default.prototype);
+  HashSettled.prototype._superConstructor = _rsvpEnumerator.default;
+  HashSettled.prototype._makeResult = _rsvpEnumerator.makeSettledResult;
 
   HashSettled.prototype._validationError = function () {
     return new Error('hashSettled must be called with an object');
@@ -50021,10 +49990,10 @@ enifed('rsvp/hash-settled', ['exports', './promise', './enumerator', './promise-
   */
 
   function hashSettled(object, label) {
-    return new HashSettled(_promise.default, object, label).promise;
+    return new HashSettled(_rsvpPromise.default, object, label).promise;
   }
 });
-enifed('rsvp/hash', ['exports', './promise', './promise-hash'], function (exports, _promise, _promiseHash) {
+enifed('rsvp/hash', ['exports', 'rsvp/promise', 'rsvp/promise-hash'], function (exports, _rsvpPromise, _rsvpPromiseHash) {
   'use strict';
 
   exports.default = hash;
@@ -50119,10 +50088,10 @@ enifed('rsvp/hash', ['exports', './promise', './promise-hash'], function (export
   */
 
   function hash(object, label) {
-    return new _promiseHash.default(_promise.default, object, label).promise;
+    return new _rsvpPromiseHash.default(_rsvpPromise.default, object, label).promise;
   }
 });
-enifed('rsvp/instrument', ['exports', './config', './utils'], function (exports, _config, _utils) {
+enifed('rsvp/instrument', ['exports', 'rsvp/config', 'rsvp/utils'], function (exports, _rsvpConfig, _rsvpUtils) {
   'use strict';
 
   exports.default = instrument;
@@ -50143,7 +50112,7 @@ enifed('rsvp/instrument', ['exports', './config', './utils'], function (exports,
           payload.stack = payload.error.stack;
         }
 
-        _config.config['trigger'](entry.name, entry.payload);
+        _rsvpConfig.config['trigger'](entry.name, entry.payload);
       }
       queue.length = 0;
     }, 50);
@@ -50159,14 +50128,14 @@ enifed('rsvp/instrument', ['exports', './config', './utils'], function (exports,
         detail: promise._result,
         childId: child && child._id,
         label: promise._label,
-        timeStamp: _utils.now(),
-        error: _config.config["instrument-with-stack"] ? new Error(promise._label) : null
+        timeStamp: _rsvpUtils.now(),
+        error: _rsvpConfig.config["instrument-with-stack"] ? new Error(promise._label) : null
       } })) {
       scheduleFlush();
     }
   }
 });
-enifed('rsvp/map', ['exports', './promise', './utils'], function (exports, _promise, _utils) {
+enifed('rsvp/map', ['exports', 'rsvp/promise', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpUtils) {
   'use strict';
 
   exports.default = map;
@@ -50251,8 +50220,8 @@ enifed('rsvp/map', ['exports', './promise', './utils'], function (exports, _prom
   */
 
   function map(promises, mapFn, label) {
-    return _promise.default.all(promises, label).then(function (values) {
-      if (!_utils.isFunction(mapFn)) {
+    return _rsvpPromise.default.all(promises, label).then(function (values) {
+      if (!_rsvpUtils.isFunction(mapFn)) {
         throw new TypeError("You must pass a function as map's second argument.");
       }
 
@@ -50263,11 +50232,11 @@ enifed('rsvp/map', ['exports', './promise', './utils'], function (exports, _prom
         results[i] = mapFn(values[i]);
       }
 
-      return _promise.default.all(results, label);
+      return _rsvpPromise.default.all(results, label);
     });
   }
 });
-enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function (exports, _promise, _internal, _utils) {
+enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpPromise, _rsvpInternal, _rsvpUtils) {
   'use strict';
 
   exports.default = denodeify;
@@ -50479,8 +50448,8 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
           // TODO: clean this up
           promiseInput = needsPromiseInput(arg);
           if (promiseInput === GET_THEN_ERROR) {
-            var p = new _promise.default(_internal.noop);
-            _internal.reject(p, GET_THEN_ERROR.value);
+            var p = new _rsvpPromise.default(_rsvpInternal.noop);
+            _rsvpInternal.reject(p, GET_THEN_ERROR.value);
             return p;
           } else if (promiseInput && promiseInput !== true) {
             arg = wrapThenable(promiseInput, arg);
@@ -50489,10 +50458,10 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
         args[i] = arg;
       }
 
-      var promise = new _promise.default(_internal.noop);
+      var promise = new _rsvpPromise.default(_rsvpInternal.noop);
 
       args[l] = function (err, val) {
-        if (err) _internal.reject(promise, err);else if (options === undefined) _internal.resolve(promise, val);else if (options === true) _internal.resolve(promise, arrayResult(arguments));else if (_utils.isArray(options)) _internal.resolve(promise, makeObject(arguments, options));else _internal.resolve(promise, val);
+        if (err) _rsvpInternal.reject(promise, err);else if (options === undefined) _rsvpInternal.resolve(promise, val);else if (options === true) _rsvpInternal.resolve(promise, arrayResult(arguments));else if (_rsvpUtils.isArray(options)) _rsvpInternal.resolve(promise, makeObject(arguments, options));else _rsvpInternal.resolve(promise, val);
       };
 
       if (promiseInput) {
@@ -50510,16 +50479,16 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
   function handleValueInput(promise, args, nodeFunc, self) {
     var result = tryApply(nodeFunc, self, args);
     if (result === ERROR) {
-      _internal.reject(promise, result.value);
+      _rsvpInternal.reject(promise, result.value);
     }
     return promise;
   }
 
   function handlePromiseInput(promise, args, nodeFunc, self) {
-    return _promise.default.all(args).then(function (args) {
+    return _rsvpPromise.default.all(args).then(function (args) {
       var result = tryApply(nodeFunc, self, args);
       if (result === ERROR) {
-        _internal.reject(promise, result.value);
+        _rsvpInternal.reject(promise, result.value);
       }
       return promise;
     });
@@ -50527,7 +50496,7 @@ enifed('rsvp/node', ['exports', './promise', './-internal', './utils'], function
 
   function needsPromiseInput(arg) {
     if (arg && typeof arg === 'object') {
-      if (arg.constructor === _promise.default) {
+      if (arg.constructor === _rsvpPromise.default) {
         return true;
       } else {
         return getThen(arg);
@@ -50555,7 +50524,7 @@ enifed('rsvp/platform', ['exports'], function (exports) {
 
   exports.default = platform;
 });
-enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'], function (exports, _enumerator, _internal, _utils) {
+enifed('rsvp/promise-hash', ['exports', 'rsvp/enumerator', 'rsvp/-internal', 'rsvp/utils'], function (exports, _rsvpEnumerator, _rsvpInternal, _rsvpUtils) {
   'use strict';
 
   function PromiseHash(Constructor, object, label) {
@@ -50564,8 +50533,8 @@ enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'
 
   exports.default = PromiseHash;
 
-  PromiseHash.prototype = _utils.o_create(_enumerator.default.prototype);
-  PromiseHash.prototype._superConstructor = _enumerator.default;
+  PromiseHash.prototype = _rsvpUtils.o_create(_rsvpEnumerator.default.prototype);
+  PromiseHash.prototype._superConstructor = _rsvpEnumerator.default;
   PromiseHash.prototype._init = function () {
     this._result = {};
   };
@@ -50585,7 +50554,7 @@ enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'
     var results = [];
 
     for (var key in input) {
-      if (promise._state === _internal.PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
+      if (promise._state === _rsvpInternal.PENDING && Object.prototype.hasOwnProperty.call(input, key)) {
         results.push({
           position: key,
           entry: input[key]
@@ -50597,18 +50566,18 @@ enifed('rsvp/promise-hash', ['exports', './enumerator', './-internal', './utils'
     enumerator._remaining = length;
     var result;
 
-    for (var i = 0; promise._state === _internal.PENDING && i < length; i++) {
+    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
       result = results[i];
       enumerator._eachEntry(result.entry, result.position);
     }
   };
 });
-enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-internal', './promise/all', './promise/race', './promise/resolve', './promise/reject'], function (exports, _config, _instrument, _utils, _internal, _promiseAll, _promiseRace, _promiseResolve, _promiseReject) {
+enifed('rsvp/promise', ['exports', 'rsvp/config', 'rsvp/instrument', 'rsvp/utils', 'rsvp/-internal', 'rsvp/promise/all', 'rsvp/promise/race', 'rsvp/promise/resolve', 'rsvp/promise/reject'], function (exports, _rsvpConfig, _rsvpInstrument, _rsvpUtils, _rsvpInternal, _rsvpPromiseAll, _rsvpPromiseRace, _rsvpPromiseResolve, _rsvpPromiseReject) {
   'use strict';
 
   exports.default = Promise;
 
-  var guidKey = 'rsvp_' + _utils.now() + '-';
+  var guidKey = 'rsvp_' + _rsvpUtils.now() + '-';
   var counter = 0;
 
   function needsResolver() {
@@ -50733,12 +50702,12 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
     promise._result = undefined;
     promise._subscribers = [];
 
-    if (_config.config.instrument) {
-      _instrument.default('created', promise);
+    if (_rsvpConfig.config.instrument) {
+      _rsvpInstrument.default('created', promise);
     }
 
-    if (_internal.noop !== resolver) {
-      if (!_utils.isFunction(resolver)) {
+    if (_rsvpInternal.noop !== resolver) {
+      if (!_rsvpUtils.isFunction(resolver)) {
         needsResolver();
       }
 
@@ -50746,15 +50715,15 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
         needsNew();
       }
 
-      _internal.initializePromise(promise, resolver);
+      _rsvpInternal.initializePromise(promise, resolver);
     }
   }
 
-  Promise.cast = _promiseResolve.default; // deprecated
-  Promise.all = _promiseAll.default;
-  Promise.race = _promiseRace.default;
-  Promise.resolve = _promiseResolve.default;
-  Promise.reject = _promiseReject.default;
+  Promise.cast = _rsvpPromiseResolve.default; // deprecated
+  Promise.all = _rsvpPromiseAll.default;
+  Promise.race = _rsvpPromiseRace.default;
+  Promise.resolve = _rsvpPromiseResolve.default;
+  Promise.reject = _rsvpPromiseReject.default;
 
   Promise.prototype = {
     constructor: Promise,
@@ -50763,9 +50732,9 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
 
     _onError: function (reason) {
       var promise = this;
-      _config.config.after(function () {
+      _rsvpConfig.config.after(function () {
         if (promise._onError) {
-          _config.config['trigger']('error', reason);
+          _rsvpConfig.config['trigger']('error', reason);
         }
       });
     },
@@ -50968,29 +50937,29 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
       var parent = this;
       var state = parent._state;
 
-      if (state === _internal.FULFILLED && !onFulfillment || state === _internal.REJECTED && !onRejection) {
-        if (_config.config.instrument) {
-          _instrument.default('chained', parent, parent);
+      if (state === _rsvpInternal.FULFILLED && !onFulfillment || state === _rsvpInternal.REJECTED && !onRejection) {
+        if (_rsvpConfig.config.instrument) {
+          _rsvpInstrument.default('chained', parent, parent);
         }
         return parent;
       }
 
       parent._onError = null;
 
-      var child = new parent.constructor(_internal.noop, label);
+      var child = new parent.constructor(_rsvpInternal.noop, label);
       var result = parent._result;
 
-      if (_config.config.instrument) {
-        _instrument.default('chained', parent, child);
+      if (_rsvpConfig.config.instrument) {
+        _rsvpInstrument.default('chained', parent, child);
       }
 
       if (state) {
         var callback = arguments[state - 1];
-        _config.config.async(function () {
-          _internal.invokeCallback(state, child, callback, result);
+        _rsvpConfig.config.async(function () {
+          _rsvpInternal.invokeCallback(state, child, callback, result);
         });
       } else {
-        _internal.subscribe(parent, child, onFulfillment, onRejection);
+        _rsvpInternal.subscribe(parent, child, onFulfillment, onRejection);
       }
 
       return child;
@@ -51084,7 +51053,7 @@ enifed('rsvp/promise', ['exports', './config', './instrument', './utils', './-in
     }
   };
 });
-enifed('rsvp/promise/all', ['exports', '../enumerator'], function (exports, _enumerator) {
+enifed('rsvp/promise/all', ['exports', 'rsvp/enumerator'], function (exports, _rsvpEnumerator) {
   'use strict';
 
   exports.default = all;
@@ -51138,10 +51107,10 @@ enifed('rsvp/promise/all', ['exports', '../enumerator'], function (exports, _enu
   */
 
   function all(entries, label) {
-    return new _enumerator.default(this, entries, true, /* abort on reject */label).promise;
+    return new _rsvpEnumerator.default(this, entries, true, /* abort on reject */label).promise;
   }
 });
-enifed('rsvp/promise/race', ['exports', '../utils', '../-internal'], function (exports, _utils, _internal) {
+enifed('rsvp/promise/race', ['exports', 'rsvp/utils', 'rsvp/-internal'], function (exports, _rsvpUtils, _rsvpInternal) {
   'use strict';
 
   exports.default = race;
@@ -51217,31 +51186,31 @@ enifed('rsvp/promise/race', ['exports', '../utils', '../-internal'], function (e
     /*jshint validthis:true */
     var Constructor = this;
 
-    var promise = new Constructor(_internal.noop, label);
+    var promise = new Constructor(_rsvpInternal.noop, label);
 
-    if (!_utils.isArray(entries)) {
-      _internal.reject(promise, new TypeError('You must pass an array to race.'));
+    if (!_rsvpUtils.isArray(entries)) {
+      _rsvpInternal.reject(promise, new TypeError('You must pass an array to race.'));
       return promise;
     }
 
     var length = entries.length;
 
     function onFulfillment(value) {
-      _internal.resolve(promise, value);
+      _rsvpInternal.resolve(promise, value);
     }
 
     function onRejection(reason) {
-      _internal.reject(promise, reason);
+      _rsvpInternal.reject(promise, reason);
     }
 
-    for (var i = 0; promise._state === _internal.PENDING && i < length; i++) {
-      _internal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
+    for (var i = 0; promise._state === _rsvpInternal.PENDING && i < length; i++) {
+      _rsvpInternal.subscribe(Constructor.resolve(entries[i]), undefined, onFulfillment, onRejection);
     }
 
     return promise;
   }
 });
-enifed('rsvp/promise/reject', ['exports', '../-internal'], function (exports, _internal) {
+enifed('rsvp/promise/reject', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
   'use strict';
 
   exports.default = reject;
@@ -51285,12 +51254,12 @@ enifed('rsvp/promise/reject', ['exports', '../-internal'], function (exports, _i
   function reject(reason, label) {
     /*jshint validthis:true */
     var Constructor = this;
-    var promise = new Constructor(_internal.noop, label);
-    _internal.reject(promise, reason);
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.reject(promise, reason);
     return promise;
   }
 });
-enifed('rsvp/promise/resolve', ['exports', '../-internal'], function (exports, _internal) {
+enifed('rsvp/promise/resolve', ['exports', 'rsvp/-internal'], function (exports, _rsvpInternal) {
   'use strict';
 
   exports.default = resolve;
@@ -51336,12 +51305,12 @@ enifed('rsvp/promise/resolve', ['exports', '../-internal'], function (exports, _
       return object;
     }
 
-    var promise = new Constructor(_internal.noop, label);
-    _internal.resolve(promise, object);
+    var promise = new Constructor(_rsvpInternal.noop, label);
+    _rsvpInternal.resolve(promise, object);
     return promise;
   }
 });
-enifed('rsvp/race', ['exports', './promise'], function (exports, _promise) {
+enifed('rsvp/race', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
   exports.default = race;
@@ -51358,10 +51327,10 @@ enifed('rsvp/race', ['exports', './promise'], function (exports, _promise) {
    */
 
   function race(array, label) {
-    return _promise.default.race(array, label);
+    return _rsvpPromise.default.race(array, label);
   }
 });
-enifed('rsvp/reject', ['exports', './promise'], function (exports, _promise) {
+enifed('rsvp/reject', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
   exports.default = reject;
@@ -51379,10 +51348,10 @@ enifed('rsvp/reject', ['exports', './promise'], function (exports, _promise) {
   */
 
   function reject(reason, label) {
-    return _promise.default.reject(reason, label);
+    return _rsvpPromise.default.reject(reason, label);
   }
 });
-enifed('rsvp/resolve', ['exports', './promise'], function (exports, _promise) {
+enifed('rsvp/resolve', ['exports', 'rsvp/promise'], function (exports, _rsvpPromise) {
   'use strict';
 
   exports.default = resolve;
@@ -51401,7 +51370,7 @@ enifed('rsvp/resolve', ['exports', './promise'], function (exports, _promise) {
   */
 
   function resolve(value, label) {
-    return _promise.default.resolve(value, label);
+    return _rsvpPromise.default.resolve(value, label);
   }
 });
 enifed("rsvp/rethrow", ["exports"], function (exports) {
