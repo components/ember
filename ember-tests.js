@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+dadb1dbc
+ * @version   2.2.0-canary+7d76ff78
  */
 
 (function() {
@@ -16776,53 +16776,6 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/co
       ok(view.get('isCorrect'), 'ensure a non-generated component');
     });
   }
-});
-enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'container/registry', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _containerRegistry, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
-  'use strict';
-
-  var resolver, registry, container;
-
-  QUnit.module('ember-htmlbars: discover-known-helpers', {
-    setup: function () {
-      resolver = function () {};
-
-      registry = new _containerRegistry.default({ resolver: resolver });
-      container = registry.container();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      registry = container = null;
-    }
-  });
-
-  QUnit.test('returns an empty hash when no helpers are known', function () {
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-
-    deepEqual(result, {}, 'no helpers were known');
-  });
-
-  QUnit.test('includes helpers in the registry', function () {
-    registry.register('helper:t', _emberHtmlbarsHelper.default);
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-    var helpers = Object.keys(result);
-
-    deepEqual(helpers, ['t'], 'helpers from the registry were known');
-  });
-
-  QUnit.test('includes resolved helpers', function () {
-    resolver.knownForType = function () {
-      return {
-        'helper:f': true
-      };
-    };
-
-    registry.register('helper:t', _emberHtmlbarsHelper.default);
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-    var helpers = Object.keys(result);
-
-    deepEqual(helpers, ['t', 'f'], 'helpers from the registry were known');
-  });
 });
 enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'container/registry', 'ember-htmlbars/helper'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberHtmlbarsHelper) {
   'use strict';
@@ -41388,7 +41341,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+dadb1dbc', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+7d76ff78', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

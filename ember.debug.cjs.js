@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+dadb1dbc
+ * @version   2.2.0-canary+7d76ff78
  */
 
 (function() {
@@ -7681,7 +7681,7 @@ enifed('ember-htmlbars/hooks/has-helper', ['exports', 'ember-htmlbars/system/loo
     }
 
     var container = env.container;
-    if (_emberHtmlbarsSystemLookupHelper.validateLazyHelperName(helperName, container, env.hooks.keywords, env.knownHelpers)) {
+    if (_emberHtmlbarsSystemLookupHelper.validateLazyHelperName(helperName, container, env.hooks.keywords)) {
       var containerName = 'helper:' + helperName;
       if (container.registry.has(containerName)) {
         return true;
@@ -8894,7 +8894,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+7d76ff78';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10705,32 +10705,6 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-metal/core', 'ember
 
   exports.default = bootstrap;
 });
-enifed('ember-htmlbars/system/discover-known-helpers', ['exports', 'ember-metal/dictionary'], function (exports, _emberMetalDictionary) {
-  'use strict';
-
-  exports.default = discoverKnownHelpers;
-
-  function discoverKnownHelpers(container) {
-    var registry = container && container.registry;
-    var helpers = _emberMetalDictionary.default(null);
-
-    if (!registry) {
-      return helpers;
-    }
-
-    var known = registry.knownForType('helper');
-    var knownContainerKeys = Object.keys(known);
-
-    for (var index = 0, _length = knownContainerKeys.length; index < _length; index++) {
-      var fullName = knownContainerKeys[index];
-      var _name = fullName.slice(7); // remove `helper:` from fullName
-
-      helpers[_name] = true;
-    }
-
-    return helpers;
-  }
-});
 enifed('ember-htmlbars/system/dom-helper', ['exports', 'dom-helper', 'ember-htmlbars/morphs/morph', 'ember-htmlbars/morphs/attr-morph'], function (exports, _domHelper, _emberHtmlbarsMorphsMorph, _emberHtmlbarsMorphsAttrMorph) {
   'use strict';
 
@@ -10823,14 +10797,8 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
 
   exports.CONTAINS_DASH_CACHE = CONTAINS_DASH_CACHE;
 
-  function validateLazyHelperName(helperName, container, keywords, knownHelpers) {
-    if (!container || helperName in keywords) {
-      return false;
-    }
-
-    if (knownHelpers[helperName] || CONTAINS_DASH_CACHE.get(helperName)) {
-      return true;
-    }
+  function validateLazyHelperName(helperName, container, keywords) {
+    return container && !(helperName in keywords);
   }
 
   /**
@@ -10853,7 +10821,7 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
 
     if (!helper) {
       var container = env.container;
-      if (validateLazyHelperName(name, container, env.hooks.keywords, env.knownHelpers)) {
+      if (validateLazyHelperName(name, container, env.hooks.keywords)) {
         var helperName = 'helper:' + name;
         if (container.registry.has(helperName)) {
           helper = container.lookupFactory(helperName);
@@ -10931,7 +10899,7 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/debug
     return _emberHtmlbarsHelper.helper(fn);
   }
 });
-enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _emberHtmlbarsEnv, _emberHtmlbarsSystemDiscoverKnownHelpers) {
+enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env'], function (exports, _emberHtmlbarsEnv) {
   'use strict';
 
   exports.default = RenderEnv;
@@ -10947,7 +10915,6 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
     this.container = options.container;
     this.renderer = options.renderer;
     this.dom = options.dom;
-    this.knownHelpers = options.knownHelpers || _emberHtmlbarsSystemDiscoverKnownHelpers.default(options.container);
 
     this.hooks = _emberHtmlbarsEnv.default.hooks;
     this.helpers = _emberHtmlbarsEnv.default.helpers;
@@ -10975,8 +10942,7 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
       lifecycleHooks: this.lifecycleHooks,
       renderedViews: this.renderedViews,
       renderedNodes: this.renderedNodes,
-      hasParentOutlet: this.hasParentOutlet,
-      knownHelpers: this.knownHelpers
+      hasParentOutlet: this.hasParentOutlet
     });
   };
 
@@ -10992,8 +10958,7 @@ enifed('ember-htmlbars/system/render-env', ['exports', 'ember-htmlbars/env', 'em
       lifecycleHooks: this.lifecycleHooks,
       renderedViews: this.renderedViews,
       renderedNodes: this.renderedNodes,
-      hasParentOutlet: hasParentOutlet,
-      knownHelpers: this.knownHelpers
+      hasParentOutlet: hasParentOutlet
     });
   };
 });
@@ -14856,7 +14821,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+dadb1dbc
+    @version 2.2.0-canary+7d76ff78
     @public
   */
 
@@ -14900,11 +14865,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+dadb1dbc'
+    @default '2.2.0-canary+7d76ff78'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+dadb1dbc';
+  Ember.VERSION = '2.2.0-canary+7d76ff78';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23162,7 +23127,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+7d76ff78';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23661,7 +23626,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+7d76ff78';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37384,7 +37349,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+dadb1dbc',
+        revision: 'Ember@2.2.0-canary+7d76ff78',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42818,7 +42783,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+dadb1dbc';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+7d76ff78';
 
   /**
   @module ember
