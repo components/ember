@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+3e3427e5
+ * @version   2.2.0-canary+c0c72266
  */
 
 (function() {
@@ -20020,7 +20020,7 @@ enifed('ember-metal/tests/main_test', ['exports', 'ember-metal'], function (expo
     }, 'Ember.keys is deprecated in favor of Object.keys');
   });
 
-  QUnit.test('Ember.keys is deprecated', function () {
+  QUnit.test('Ember.create is deprecated', function () {
     expectDeprecation(function () {
       _emberMetal.default.create(null);
     }, 'Ember.create is deprecated in favor of Object.create');
@@ -41196,7 +41196,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+3e3427e5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+c0c72266', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
