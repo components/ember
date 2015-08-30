@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+7d76ff78
+ * @version   2.2.0-canary+f60b3a6e
  */
 
 (function() {
@@ -24919,6 +24919,21 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     });
   });
 
+  QUnit.test('an error is triggered when bound action function is undefined', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberViewsComponentsComponent.default.extend({}).create();
+
+    outerComponent = _emberViewsComponentsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
+      innerComponent: innerComponent
+    }).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+    }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
+  });
+
   QUnit.test('action value is returned', function (assert) {
     assert.expect(1);
 
@@ -41341,7 +41356,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+7d76ff78', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+f60b3a6e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
