@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+bc843269
+ * @version   2.2.0-canary+0f6e7d81
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+bc843269
+    @version 2.2.0-canary+0f6e7d81
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+bc843269'
+    @default '2.2.0-canary+0f6e7d81'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+bc843269';
+  Ember.VERSION = '2.2.0-canary+0f6e7d81';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10937,7 +10937,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        subscribe(array[i], stream.notify, stream);
+        stream.addDependency(array[i]);
       }
 
       // used by angle bracket components to detect an attribute was provided

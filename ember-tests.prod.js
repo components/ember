@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+bc843269
+ * @version   2.2.0-canary+0f6e7d81
  */
 
 (function() {
@@ -23858,6 +23858,66 @@ enifed('ember-metal/tests/set_properties_test', ['exports', 'ember-metal/set_pro
     }, 'Set an additional, previously unset property');
   });
 });
+enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+  'use strict';
+
+  function hasSubscribers(stream) {
+    // this uses the private internal property `subscriberHead`
+    // for the purposes of ensuring that subscription is cleared
+    // after deactivation.  Adding a util helper to the `Stream` code
+    // just for the test seems dubious, as does accessing the private
+    // property directly in the test.
+    return stream && !!stream.subscriberHead;
+  }
+
+  QUnit.module('Stream - concat');
+
+  QUnit.test('returns string if no streams were in the array', function (assert) {
+    var result = _emberMetalStreamsUtils.concat(['foo', 'bar', 'baz'], ' ');
+
+    assert.equal(result, 'foo bar baz');
+  });
+
+  QUnit.test('returns a stream if a stream is in the array', function (assert) {
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return 'bar';
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+
+    assert.ok(result.isStream, 'a stream is returned');
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
+  });
+
+  QUnit.test('returns updated value upon input dirtied', function (assert) {
+    var value = 'bar';
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return value;
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
+
+    value = 'qux';
+    stream.notify();
+
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo qux baz');
+  });
+
+  QUnit.test('removes dependencies when unsubscribeDependencies is called', function (assert) {
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return 'bar';
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(hasSubscribers(stream), true, 'subscribers are present from the concat stream');
+
+    result.maybeDeactivate();
+
+    assert.equal(hasSubscribers(stream), false, 'subscribers are removed after concat stream is deactivated');
+  });
+});
 enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/watching', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/property_set'], function (exports, _emberMetalWatching, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalProperty_set) {
   'use strict';
 
@@ -41196,7 +41256,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+bc843269', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+0f6e7d81', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
