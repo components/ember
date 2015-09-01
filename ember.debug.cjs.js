@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+c27d56dc
+ * @version   2.0.1+27f80aad
  */
 
 (function() {
@@ -8709,7 +8709,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+c27d56dc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+27f80aad';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14637,7 +14637,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.1+c27d56dc
+    @version 2.0.1+27f80aad
     @public
   */
 
@@ -14671,11 +14671,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.1+c27d56dc'
+    @default '2.0.1+27f80aad'
     @static
     @public
   */
-  Ember.VERSION = '2.0.1+c27d56dc';
+  Ember.VERSION = '2.0.1+27f80aad';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17777,7 +17777,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @method aliasMethod
     @for Ember
     @param {String} methodName name of the method to alias
-    @private
+    @public
   */
 
   function aliasMethod(methodName) {
@@ -20589,7 +20589,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        subscribe(array[i], stream.notify, stream);
+        stream.addDependency(array[i]);
       }
 
       // used by angle bracket components to detect an attribute was provided
@@ -22837,7 +22837,7 @@ enifed('ember-routing-views/views/link', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.1+c27d56dc';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.0.1+27f80aad';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
 
@@ -23339,7 +23339,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+c27d56dc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.0.1+27f80aad';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -29179,6 +29179,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
       var items = itemsKey === '@this' ? this : _emberMetalProperty_get.get(this, itemsKey);
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
+
+      if (items === null || typeof items !== 'object') {
+        return _emberMetalCore.default.A();
+      }
 
       // TODO: Ideally we'd only do this if things have changed
       if (cp._sortPropObservers) {
@@ -36646,7 +36650,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.1+c27d56dc',
+        revision: 'Ember@2.0.1+27f80aad',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41241,7 +41245,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.1+c27d56dc';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.0.1+27f80aad';
 
   /**
   @module ember
