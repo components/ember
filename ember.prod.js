@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+0f6e7d81
+ * @version   2.2.0-canary+46153b47
  */
 
 (function() {
@@ -6685,7 +6685,7 @@ enifed("ember-htmlbars/hooks/bind-scope", ["exports"], function (exports) {
 
   function bindScope(env, scope) {}
 });
-enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-metal/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-htmlbars/utils/new-stream'], function (exports, _emberHtmlbarsUtilsNewStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -6704,38 +6704,30 @@ enifed('ember-htmlbars/hooks/bind-self', ['exports', 'ember-metal/streams/proxy-
 
       self = self.self;
 
-      newStream(scope.locals, 'controller', controller || self);
+      _emberHtmlbarsUtilsNewStream.default(scope.locals, 'controller', controller || self);
     }
 
     if (self && self.isView) {
-      newStream(scope.locals, 'view', self, null);
-      newStream(scope.locals, 'controller', scope.locals.view.getKey('controller'));
+      _emberHtmlbarsUtilsNewStream.default(scope.locals, 'view', self, null);
+      _emberHtmlbarsUtilsNewStream.default(scope.locals, 'controller', scope.locals.view.getKey('controller'));
 
       if (self.isGlimmerComponent) {
-        newStream(scope, 'self', self, null, true);
+        _emberHtmlbarsUtilsNewStream.default(scope, 'self', self, null, true);
       } else {
-        newStream(scope, 'self', scope.locals.view.getKey('context'), null, true);
+        _emberHtmlbarsUtilsNewStream.default(scope, 'self', scope.locals.view.getKey('context'), null, true);
       }
 
       return;
     }
 
-    newStream(scope, 'self', self, null, true);
+    _emberHtmlbarsUtilsNewStream.default(scope, 'self', self, null, true);
 
     if (!scope.locals.controller) {
       scope.locals.controller = scope.self;
     }
   }
-
-  function newStream(scope, key, newValue, renderNode, isSelf) {
-    var stream = new _emberMetalStreamsProxyStream.default(newValue, isSelf ? '' : key);
-    if (renderNode) {
-      _emberHtmlbarsUtilsSubscribe.default(renderNode, scope, stream);
-    }
-    scope[key] = stream;
-  }
 });
-enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-htmlbars/utils/new-stream'], function (exports, _emberHtmlbarsUtilsNewStream) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -6759,14 +6751,14 @@ enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/stream
 
     var view = options.view;
     if (view && !view.isComponent) {
-      newStream(shadowScope.locals, 'view', view, null);
+      _emberHtmlbarsUtilsNewStream.default(shadowScope.locals, 'view', view, null);
 
       if (!didOverrideController) {
-        newStream(shadowScope.locals, 'controller', shadowScope.locals.view.getKey('controller'));
+        _emberHtmlbarsUtilsNewStream.default(shadowScope.locals, 'controller', shadowScope.locals.view.getKey('controller'));
       }
 
       if (view.isView) {
-        newStream(shadowScope, 'self', shadowScope.locals.view.getKey('context'), null, true);
+        _emberHtmlbarsUtilsNewStream.default(shadowScope, 'self', shadowScope.locals.view.getKey('context'), null, true);
       }
     }
 
@@ -6781,14 +6773,6 @@ enifed('ember-htmlbars/hooks/bind-shadow-scope', ['exports', 'ember-metal/stream
     }
 
     return shadowScope;
-  }
-
-  function newStream(scope, key, newValue, renderNode, isSelf) {
-    var stream = new _emberMetalStreamsProxyStream.default(newValue, isSelf ? '' : key);
-    if (renderNode) {
-      _emberHtmlbarsUtilsSubscribe.default(renderNode, scope, stream);
-    }
-    scope[key] = stream;
   }
 });
 enifed('ember-htmlbars/hooks/classify', ['exports', 'ember-htmlbars/utils/is-component'], function (exports, _emberHtmlbarsUtilsIsComponent) {
@@ -8394,7 +8378,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0f6e7d81';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+46153b47';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -11302,6 +11286,19 @@ enifed('ember-htmlbars/utils/lookup-component', ['exports'], function (exports) 
       component: componentLookup.componentFor(tagName, container),
       layout: componentLookup.layoutFor(tagName, container)
     };
+  }
+});
+enifed('ember-htmlbars/utils/new-stream', ['exports', 'ember-metal/streams/proxy-stream', 'ember-htmlbars/utils/subscribe'], function (exports, _emberMetalStreamsProxyStream, _emberHtmlbarsUtilsSubscribe) {
+  'use strict';
+
+  exports.default = newStream;
+
+  function newStream(scope, key, newValue, renderNode, isSelf) {
+    var stream = new _emberMetalStreamsProxyStream.default(newValue, isSelf ? '' : key);
+    if (renderNode) {
+      _emberHtmlbarsUtilsSubscribe.default(renderNode, scope, stream);
+    }
+    scope[key] = stream;
   }
 });
 enifed("ember-htmlbars/utils/normalize-self", ["exports"], function (exports) {
@@ -14234,7 +14231,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+0f6e7d81
+    @version 2.2.0-canary+46153b47
     @public
   */
 
@@ -14278,11 +14275,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+0f6e7d81'
+    @default '2.2.0-canary+46153b47'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+0f6e7d81';
+  Ember.VERSION = '2.2.0-canary+46153b47';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22422,7 +22419,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+0f6e7d81';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+46153b47';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22918,7 +22915,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0f6e7d81';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+46153b47';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36500,7 +36497,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+0f6e7d81',
+        revision: 'Ember@2.2.0-canary+46153b47',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40623,7 +40620,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+0f6e7d81';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+46153b47';
 
   /**
   @module ember
