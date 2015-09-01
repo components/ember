@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+64ba479f
+ * @version   2.1.0-beta.2+77a8abb6
  */
 
 (function() {
@@ -4831,7 +4831,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2+64ba479f
+    @version 2.1.0-beta.2+77a8abb6
     @public
   */
 
@@ -4865,11 +4865,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2+64ba479f'
+    @default '2.1.0-beta.2+77a8abb6'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2+64ba479f';
+  Ember.VERSION = '2.1.0-beta.2+77a8abb6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8193,7 +8193,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/merge',
     @method aliasMethod
     @for Ember
     @param {String} methodName name of the method to alias
-    @private
+    @public
   */
 
   function aliasMethod(methodName) {
@@ -11019,7 +11019,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/core', './stream'],
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        subscribe(array[i], stream.notify, stream);
+        stream.addDependency(array[i]);
       }
 
       // used by angle bracket components to detect an attribute was provided
@@ -12834,6 +12834,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
 
       var items = itemsKey === '@this' ? this : _emberMetalProperty_get.get(this, itemsKey);
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
+
+      if (items === null || typeof items !== 'object') {
+        return _emberMetalCore.default.A();
+      }
 
       // TODO: Ideally we'd only do this if things have changed
       if (cp._sortPropObservers) {

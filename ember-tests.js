@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+64ba479f
+ * @version   2.1.0-beta.2+77a8abb6
  */
 
 (function() {
@@ -15985,53 +15985,6 @@ enifed('ember-htmlbars/tests/system/bootstrap_test', ['exports', 'ember-metal/co
     });
   }
 });
-enifed('ember-htmlbars/tests/system/discover-known-helpers-test', ['exports', 'container/registry', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'ember-htmlbars/system/discover-known-helpers'], function (exports, _containerRegistry, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _emberHtmlbarsSystemDiscoverKnownHelpers) {
-  'use strict';
-
-  var resolver, registry, container;
-
-  QUnit.module('ember-htmlbars: discover-known-helpers', {
-    setup: function () {
-      resolver = function () {};
-
-      registry = new _containerRegistry.default({ resolver: resolver });
-      container = registry.container();
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(container);
-      registry = container = null;
-    }
-  });
-
-  QUnit.test('returns an empty hash when no helpers are known', function () {
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-
-    deepEqual(result, {}, 'no helpers were known');
-  });
-
-  QUnit.test('includes helpers in the registry', function () {
-    registry.register('helper:t', _emberHtmlbarsHelper.default);
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-    var helpers = Object.keys(result);
-
-    deepEqual(helpers, ['t'], 'helpers from the registry were known');
-  });
-
-  QUnit.test('includes resolved helpers', function () {
-    resolver.knownForType = function () {
-      return {
-        'helper:f': true
-      };
-    };
-
-    registry.register('helper:t', _emberHtmlbarsHelper.default);
-    var result = _emberHtmlbarsSystemDiscoverKnownHelpers.default(container);
-    var helpers = Object.keys(result);
-
-    deepEqual(helpers, ['t', 'f'], 'helpers from the registry were known');
-  });
-});
 enifed('ember-htmlbars/tests/system/lookup-helper_test', ['exports', 'ember-htmlbars/system/lookup-helper', 'ember-views/component_lookup', 'container/registry', 'ember-htmlbars/helper'], function (exports, _emberHtmlbarsSystemLookupHelper, _emberViewsComponent_lookup, _containerRegistry, _emberHtmlbarsHelper) {
   'use strict';
 
@@ -23272,6 +23225,66 @@ enifed('ember-metal/tests/set_properties_test', ['exports', 'ember-metal/set_pro
     }, 'Set an additional, previously unset property');
   });
 });
+enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+  'use strict';
+
+  function hasSubscribers(stream) {
+    // this uses the private internal property `subscriberHead`
+    // for the purposes of ensuring that subscription is cleared
+    // after deactivation.  Adding a util helper to the `Stream` code
+    // just for the test seems dubious, as does accessing the private
+    // property directly in the test.
+    return stream && !!stream.subscriberHead;
+  }
+
+  QUnit.module('Stream - concat');
+
+  QUnit.test('returns string if no streams were in the array', function (assert) {
+    var result = _emberMetalStreamsUtils.concat(['foo', 'bar', 'baz'], ' ');
+
+    assert.equal(result, 'foo bar baz');
+  });
+
+  QUnit.test('returns a stream if a stream is in the array', function (assert) {
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return 'bar';
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+
+    assert.ok(result.isStream, 'a stream is returned');
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
+  });
+
+  QUnit.test('returns updated value upon input dirtied', function (assert) {
+    var value = 'bar';
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return value;
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo bar baz');
+
+    value = 'qux';
+    stream.notify();
+
+    assert.equal(_emberMetalStreamsUtils.read(result), 'foo qux baz');
+  });
+
+  QUnit.test('removes dependencies when unsubscribeDependencies is called', function (assert) {
+    var stream = new _emberMetalStreamsStream.default(function () {
+      return 'bar';
+    });
+    var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
+    result.activate();
+
+    assert.equal(hasSubscribers(stream), true, 'subscribers are present from the concat stream');
+
+    result.maybeDeactivate();
+
+    assert.equal(hasSubscribers(stream), false, 'subscribers are removed after concat stream is deactivated');
+  });
+});
 enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/watching', 'ember-metal/streams/stream', 'ember-metal/streams/key-stream', 'ember-metal/property_set'], function (exports, _emberMetalWatching, _emberMetalStreamsStream, _emberMetalStreamsKeyStream, _emberMetalProperty_set) {
   'use strict';
 
@@ -24208,6 +24221,21 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     _emberMetalRun_loop.default(function () {
       innerComponent.fireAction();
     });
+  });
+
+  QUnit.test('an error is triggered when bound action function is undefined', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberViewsViewsComponent.default.extend({}).create();
+
+    outerComponent = _emberViewsViewsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action somethingThatIsUndefined)}}'),
+      innerComponent: innerComponent
+    }).create();
+
+    throws(function () {
+      _emberRuntimeTestsUtils.runAppend(outerComponent);
+    }, /An action could not be made for `somethingThatIsUndefined` in .*\. Please confirm that you are using either a quoted action name \(i\.e\. `\(action 'somethingThatIsUndefined'\)`\) or a function available in .*\./);
   });
 
   QUnit.test('action value is returned', function (assert) {
@@ -28697,7 +28725,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
     equal(get(obj, 'quz'), null);
   });
 });
-enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros) {
+enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/set_properties', 'ember-runtime/system/object_proxy', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/utils'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalSet_properties, _emberRuntimeSystemObject_proxy, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeUtils) {
   'use strict';
 
   var obj;
@@ -29594,6 +29622,17 @@ enifed('ember-runtime/tests/computed/reduce_computed_macros_test', ['exports', '
     obj.set('sortProps', ['relatedObj.firstName']);
 
     deepEqual(obj.get('sortedPeople'), [cersei, jaime, sansa], 'array is sorted correctly');
+  });
+
+  QUnit.test('if the dependentKey is neither an array nor object, it will return an empty array', function () {
+    _emberMetalProperty_set.set(obj, 'items', null);
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
+
+    _emberMetalProperty_set.set(obj, 'array', undefined);
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
+
+    _emberMetalProperty_set.set(obj, 'array', 'not an array');
+    ok(_emberRuntimeUtils.isArray(obj.get('sortedItems')), 'returns an empty arrays');
   });
 
   function sortByLnameFname(a, b) {
@@ -40625,7 +40664,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0-beta.2+64ba479f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0-beta.2+77a8abb6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
