@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+62830c14
+ * @version   2.2.0-canary+6d66c6bc
  */
 
 (function() {
@@ -4155,7 +4155,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+62830c14
+    @version 2.2.0-canary+6d66c6bc
     @public
   */
 
@@ -4199,11 +4199,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+62830c14'
+    @default '2.2.0-canary+6d66c6bc'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+62830c14';
+  Ember.VERSION = '2.2.0-canary+6d66c6bc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12370,7 +12370,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+62830c14',
+        revision: 'Ember@2.2.0-canary+6d66c6bc',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13909,7 +13909,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
 
   exports.wrap = wrap;
   exports.wrapForHelper = wrapForHelper;
-  exports.hostYieldWithShadowTemplate = hostYieldWithShadowTemplate;
   exports.createScope = createScope;
   exports.createFreshScope = createFreshScope;
   exports.bindShadowScope = bindShadowScope;
@@ -13936,6 +13935,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
   exports.subexpr = subexpr;
   exports.get = get;
   exports.getRoot = getRoot;
+  exports.getBlock = getBlock;
   exports.getChild = getChild;
   exports.getValue = getValue;
   exports.getCellOrValue = getCellOrValue;
@@ -14041,9 +14041,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
 
   function wrapForHelper(template, env, scope, morph, renderState, visitor) {
     if (!template) {
-      return {
-        yieldIn: yieldInShadowTemplate(null, env, scope, morph, renderState, visitor)
-      };
+      return {};
     }
 
     var yieldArgs = yieldTemplate(template, env, scope, morph, renderState, visitor);
@@ -14053,7 +14051,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       arity: template.arity,
       yield: yieldArgs,
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
-      yieldIn: yieldInShadowTemplate(template, env, scope, morph, renderState, visitor),
       raw: template,
 
       render: function (self, blockArguments) {
@@ -14220,55 +14217,6 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
   function isStableTemplate(template, lastYielded) {
     return !lastYielded.shadowTemplate && template === lastYielded.template;
   }
-
-  function yieldInShadowTemplate(template, env, parentScope, morph, renderState, visitor) {
-    var hostYield = hostYieldWithShadowTemplate(template, env, parentScope, morph, renderState, visitor);
-
-    return function (shadowTemplate, self) {
-      hostYield(shadowTemplate, env, self, []);
-    };
-  }
-
-  function hostYieldWithShadowTemplate(template, env, parentScope, morph, renderState, visitor) {
-    return function (shadowTemplate, env, self, blockArguments) {
-      renderState.morphToClear = null;
-
-      if (morph.lastYielded && isStableShadowRoot(template, shadowTemplate, morph.lastYielded)) {
-        return morph.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
-      }
-
-      var shadowScope = env.hooks.createFreshScope();
-      env.hooks.bindShadowScope(env, parentScope, shadowScope, renderState.shadowOptions);
-      blockToYield.arity = template.arity;
-      env.hooks.bindBlock(env, shadowScope, blockToYield);
-
-      morph.lastYielded = { self: self, template: template, shadowTemplate: shadowTemplate };
-
-      // Render the shadow template with the block available
-      _htmlbarsRuntimeRender.default(shadowTemplate.raw, env, shadowScope, { renderNode: morph, self: self, blockArguments: blockArguments });
-    };
-
-    function blockToYield(env, blockArguments, self, renderNode, shadowParent, visitor) {
-      if (renderNode.lastResult) {
-        renderNode.lastResult.revalidateWith(env, undefined, undefined, blockArguments, visitor);
-      } else {
-        var scope = parentScope;
-
-        // Since a yielded template shares a `self` with its original context,
-        // we only need to create a new scope if the template has block parameters
-        if (template.arity) {
-          scope = env.hooks.createChildScope(parentScope);
-        }
-
-        _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: renderNode, self: self, blockArguments: blockArguments });
-      }
-    }
-  }
-
-  function isStableShadowRoot(template, shadowTemplate, lastYielded) {
-    return template === lastYielded.template && shadowTemplate === lastYielded.shadowTemplate;
-  }
-
   function optionsFor(template, inverse, env, scope, morph, visitor) {
     // If there was a template yielded last time, set morphToClear so it will be cleared
     // if no template is yielded on this render.
@@ -14781,20 +14729,23 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       // scopes; it should not be provided to user code.
 
       var to = env.hooks.getValue(hash.to) || 'default';
-      if (scope.blocks[to]) {
-        scope.blocks[to](env, params, hash.self, morph, scope, visitor);
+      var block = env.hooks.getBlock(scope, to);
+
+      if (block) {
+        block.invoke(env, params, hash.self, morph, scope, visitor);
       }
       return true;
     },
 
     hasBlock: function (morph, env, scope, params) {
       var name = env.hooks.getValue(params[0]) || 'default';
-      return !!scope.blocks[name];
+      return !!env.hooks.getBlock(scope, name);
     },
 
     hasBlockParams: function (morph, env, scope, params) {
       var name = env.hooks.getValue(params[0]) || 'default';
-      return !!(scope.blocks[name] && scope.blocks[name].arity);
+      var block = env.hooks.getBlock(scope, name);
+      return !!(block && block.arity);
     }
 
   };
@@ -14994,6 +14945,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
     }
   }
 
+  function getBlock(scope, key) {
+    return scope.blocks[key];
+  }
+
   function getChild(value, key) {
     return value[key];
   }
@@ -15060,6 +15015,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
     createFreshScope: createFreshScope,
     getChild: getChild,
     getRoot: getRoot,
+    getBlock: getBlock,
     getValue: getValue,
     getCellOrValue: getCellOrValue,
     keywords: keywords,
@@ -15386,11 +15342,6 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
 
     this.bindScope();
 
-    if (options.attributes !== undefined) {
-      nodes.push({ state: {} });
-      this.statements.push(['attributes', attachAttributes(options.attributes)]);
-    }
-
     if (options.self !== undefined) {
       this.bindSelf(options.self);
     }
@@ -15630,8 +15581,6 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
           visitor.attribute(statement, morph, env, scope);break;
         case 'component':
           visitor.component(statement, morph, env, scope, template, visitor);break;
-        case 'attributes':
-          visitor.attributes(statement, morph, env, scope, this.fragment, visitor);break;
       }
 
       if (env.hooks.didRenderNode) {
@@ -18884,7 +18833,12 @@ enifed("htmlbars-util/morph-utils", ["exports"], function (exports) {
           current = current.nextMorph;
         }
       } else if (node.morphList) {
-        nodes.push(node.morphList);
+        var current = node.morphList.firstChildMorph;
+
+        while (current) {
+          nodes.push(current);
+          current = current.nextMorph;
+        }
       }
     }
   }
@@ -19092,44 +19046,54 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils"],
     this.shadowOptions = null;
   }
 
-  function blockFor(render, template, blockOptions) {
-    var block = function (env, blockArguments, self, renderNode, parentScope, visitor) {
-      if (renderNode.lastResult) {
-        renderNode.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
-      } else {
+  function Block(render, template, blockOptions) {
+    this.render = render;
+    this.template = template;
+    this.blockOptions = blockOptions;
+    this.arity = template.arity;
+  }
+
+  Block.prototype.invoke = function (env, blockArguments, self, renderNode, parentScope, visitor) {
+    var _this = this;
+
+    if (renderNode.lastResult) {
+      renderNode.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
+    } else {
+      (function () {
         var options = { renderState: new RenderState(renderNode) };
+        var render = _this.render;
+        var template = _this.template;
+        var scope = _this.blockOptions.scope;
 
-        var scope = blockOptions.scope;
         var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
-        var attributes = blockOptions.attributes;
 
-        env.hooks.bindShadowScope(env, parentScope, shadowScope, blockOptions.options);
+        env.hooks.bindShadowScope(env, parentScope, shadowScope, _this.blockOptions.options);
 
         if (self !== undefined) {
           env.hooks.bindSelf(env, shadowScope, self);
-        } else if (blockOptions.self !== undefined) {
-          env.hooks.bindSelf(env, shadowScope, blockOptions.self);
+        } else if (_this.blockOptions.self !== undefined) {
+          env.hooks.bindSelf(env, shadowScope, _this.blockOptions.self);
         }
 
-        bindBlocks(env, shadowScope, blockOptions.yieldTo);
+        bindBlocks(env, shadowScope, _this.blockOptions.yieldTo);
 
         renderAndCleanup(renderNode, env, options, null, function () {
           options.renderState.morphToClear = null;
-          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments, attributes: attributes });
+          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments });
         });
-      }
-    };
+      })();
+    }
+  };
 
-    block.arity = template.arity;
-
-    return block;
+  function blockFor(render, template, blockOptions) {
+    return new Block(render, template, blockOptions);
   }
 
   function bindBlocks(env, shadowScope, blocks) {
     if (!blocks) {
       return;
     }
-    if (typeof blocks === 'function') {
+    if (blocks instanceof Block) {
       env.hooks.bindBlock(env, shadowScope, blocks);
     } else {
       for (var name in blocks) {
