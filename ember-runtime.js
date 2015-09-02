@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+9302e0b7
+ * @version   2.2.0-canary+ea1f42cd
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+9302e0b7
+    @version 2.2.0-canary+ea1f42cd
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+9302e0b7'
+    @default '2.2.0-canary+ea1f42cd'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+9302e0b7';
+  Ember.VERSION = '2.2.0-canary+ea1f42cd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11680,10 +11680,6 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
       }
     };
   }
-
-  // This is super annoying, but required until
-  // https://github.com/babel/babel/issues/906 is resolved
-  ; // jshint ignore:line
 
   function unwatchKey(obj, keyName, meta) {
     var m = meta || _emberMetalMeta.meta(obj);
