@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6d66c6bc
+ * @version   2.2.0-canary+e7620254
  */
 
 (function() {
@@ -31443,6 +31443,30 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     }
   });
 
+  QUnit.test('rejections can be serialized to JSON', function (assert) {
+    expect(2);
+
+    var wasEmberTesting = _emberMetalCore.default.testing;
+    var wasOnError = _emberMetalCore.default.onerror;
+
+    try {
+      _emberMetalCore.default.testing = false;
+      _emberMetalCore.default.onerror = function (error) {
+        assert.equal(error.message, 'a fail');
+        assert.ok(JSON.stringify(error), 'Error can be serialized');
+      };
+
+      var jqXHR = {
+        errorThrown: new Error('a fail')
+      };
+
+      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+    } finally {
+      _emberMetalCore.default.onerror = wasOnError;
+      _emberMetalCore.default.testing = wasEmberTesting;
+    }
+  });
+
   var wasTesting;
   var reason = 'i failed';
   QUnit.module('Ember.test: rejection assertions', {
@@ -41291,7 +41315,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+6d66c6bc', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+e7620254', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
