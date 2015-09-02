@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6640ab13
+ * @version   2.2.0-canary+fc00ef3d
  */
 
 (function() {
@@ -8870,7 +8870,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+6640ab13';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fc00ef3d';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14810,7 +14810,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+6640ab13
+    @version 2.2.0-canary+fc00ef3d
     @public
   */
 
@@ -14854,11 +14854,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+6640ab13'
+    @default '2.2.0-canary+fc00ef3d'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+6640ab13';
+  Ember.VERSION = '2.2.0-canary+fc00ef3d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15055,7 +15055,7 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
   function addDependentKeys(desc, obj, keyName, meta) {
     // the descriptor has a list of dependent keys, so
     // add all of its dependent keys.
-    var idx, len, depKey;
+    var idx, len, depKey, keys;
     var depKeys = desc._dependentKeys;
     if (!depKeys) {
       return;
@@ -15063,8 +15063,10 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
 
     for (idx = 0, len = depKeys.length; idx < len; idx++) {
       depKey = depKeys[idx];
+      // Lookup keys meta for depKey
+      keys = meta.writableDeps(depKey);
       // Increment the number of times depKey depends on keyName.
-      meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) + 1);
+      keys[keyName] = (keys[keyName] || 0) + 1;
       // Watch the depKey
       _emberMetalWatching.watch(obj, depKey, meta);
     }
@@ -15074,15 +15076,17 @@ enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], functi
     // the descriptor has a list of dependent keys, so
     // remove all of its dependent keys.
     var depKeys = desc._dependentKeys;
-    var idx, len, depKey;
+    var idx, len, depKey, keys;
     if (!depKeys) {
       return;
     }
 
     for (idx = 0, len = depKeys.length; idx < len; idx++) {
       depKey = depKeys[idx];
+      // Lookup keys meta for depKey
+      keys = meta.writableDeps(depKey);
       // Decrement the number of times depKey depends on keyName.
-      meta.writeDeps(depKey, keyName, (meta.peekDeps(depKey, keyName) || 0) - 1);
+      keys[keyName] = (keys[keyName] || 0) - 1;
       // Unwatch the depKey
       _emberMetalWatching.unwatch(obj, depKey, meta);
     }
@@ -17195,7 +17199,7 @@ enifed('ember-metal/meta_listeners', ['exports'], function (exports) {
     destination.push(target, method, source[index + 3]);
   }
 });
-enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-metal/empty_object'], function (exports, _emberMetalMeta_listeners, _emberMetalEmpty_object) {
+enifed('ember-metal/meta', ['exports', 'ember-metal/features', 'ember-metal/meta_listeners', 'ember-metal/empty_object'], function (exports, _emberMetalFeatures, _emberMetalMeta_listeners, _emberMetalEmpty_object) {
   'no use strict';
   // Remove "use strict"; from transpiled module until
   // https://bugs.webkit.org/show_bug.cgi?id=138038 is fixed
@@ -17218,11 +17222,11 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
    The following methods will get generated metaprogrammatically, and
    I'm including them here for greppability:
   
-   writableCache, readableCache, writeWatching,
-   peekWatching, clearWatching, writeMixins,
-   peekMixins, clearMixins, writeBindings,
-   peekBindings, clearBindings, writeValues,
-   peekValues, clearValues, writeDeps, forEachInDeps
+   writableCache, readableCache, writableWatching, readableWatching,
+   peekWatching, clearWatching, writableMixins, readableMixins,
+   peekMixins, clearMixins, writableBindings, readableBindings,
+   peekBindings, clearBindings, writableValues, readableValues,
+   peekValues, clearValues, writableDeps, readableDeps, getAllDeps
    writableChainWatchers, readableChainWatchers, writableChains,
    readableChains
   
@@ -17299,44 +17303,37 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
     var key = memberProperty(name);
     var capitalized = capitalize(name);
 
-    Meta.prototype['write' + capitalized] = function (subkey, value) {
-      var map = this._getOrCreateOwnMap(key);
-      map[subkey] = value;
+    Meta.prototype['writable' + capitalized] = function () {
+      return this._getOrCreateInheritedMap(key);
+    };
+
+    Meta.prototype['readable' + capitalized] = function () {
+      return this._getInherited(key);
     };
 
     Meta.prototype['peek' + capitalized] = function (subkey) {
-      return this._findInherited(key, subkey);
-    };
-
-    Meta.prototype['forEach' + capitalized] = function (fn) {
-      var pointer = this;
-      var seen = new _emberMetalEmpty_object.default();
-      while (pointer !== undefined) {
-        var map = pointer[key];
-        if (map) {
-          for (var _key in map) {
-            if (!seen[_key]) {
-              seen[_key] = true;
-              fn(_key, map[_key]);
-            }
-          }
-        }
-        pointer = pointer.parent;
+      var map = this._getInherited(key);
+      if (map) {
+        return map[subkey];
       }
     };
 
     Meta.prototype['clear' + capitalized] = function () {
       this[key] = new _emberMetalEmpty_object.default();
     };
-
-    Meta.prototype['deleteFrom' + capitalized] = function (subkey) {
-      delete this._getOrCreateOwnMap(key)[subkey];
-    };
-
-    Meta.prototype['hasIn' + capitalized] = function (subkey) {
-      return this._findInherited(key, subkey) !== undefined;
-    };
   }
+
+  Meta.prototype._getOrCreateInheritedMap = function (key) {
+    var ret = this[key];
+    if (!ret) {
+      if (this.parent) {
+        ret = this[key] = Object.create(this.parent._getOrCreateInheritedMap(key));
+      } else {
+        ret = this[key] = new _emberMetalEmpty_object.default();
+      }
+    }
+    return ret;
+  };
 
   Meta.prototype._getInherited = function (key) {
     var pointer = this;
@@ -17348,80 +17345,34 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
     }
   };
 
-  Meta.prototype._findInherited = function (key, subkey) {
-    var pointer = this;
-    while (pointer !== undefined) {
-      var map = pointer[key];
-      if (map) {
-        var value = map[subkey];
-        if (value !== undefined) {
-          return value;
-        }
-      }
-      pointer = pointer.parent;
-    }
-  };
-
   // Implements a member that provides a lazily created map of maps,
   // with inheritance at both levels.
   function inheritedMapOfMaps(name, Meta) {
     var key = memberProperty(name);
     var capitalized = capitalize(name);
 
-    Meta.prototype['write' + capitalized] = function (subkey, itemkey, value) {
-      var outerMap = this._getOrCreateOwnMap(key);
+    Meta.prototype['writable' + capitalized] = function (subkey) {
+      var outerMap = this._getOrCreateInheritedMap(key);
       var innerMap = outerMap[subkey];
       if (!innerMap) {
         innerMap = outerMap[subkey] = new _emberMetalEmpty_object.default();
+      } else if (!Object.hasOwnProperty.call(outerMap, subkey)) {
+        innerMap = outerMap[subkey] = Object.create(innerMap);
       }
-      innerMap[itemkey] = value;
+      return innerMap;
     };
 
-    Meta.prototype['peek' + capitalized] = function (subkey, itemkey) {
-      var pointer = this;
-      while (pointer !== undefined) {
-        var map = pointer[key];
-        if (map) {
-          var value = map[subkey];
-          if (value) {
-            if (value[itemkey] !== undefined) {
-              return value[itemkey];
-            }
-          }
-        }
-        pointer = pointer.parent;
-      }
-    };
-
-    Meta.prototype['has' + capitalized] = function (subkey) {
+    Meta.prototype['readable' + capitalized] = function (subkey) {
       var map = this._getInherited(key);
-      return map && !!map[subkey];
+      if (map) {
+        return map[subkey];
+      }
     };
 
-    Meta.prototype['forEachIn' + capitalized] = function (subkey, fn) {
-      return this._forEachIn(key, subkey, fn);
+    Meta.prototype['getAll' + capitalized] = function () {
+      return this._getInherited(key);
     };
   }
-
-  Meta.prototype._forEachIn = function (key, subkey, fn) {
-    var pointer = this;
-    var seen = new _emberMetalEmpty_object.default();
-    while (pointer !== undefined) {
-      var map = pointer[key];
-      if (map) {
-        var innerMap = map[subkey];
-        if (innerMap) {
-          for (var innerKey in innerMap) {
-            if (!seen[innerKey]) {
-              seen[innerKey] = true;
-              fn(innerKey, innerMap[innerKey]);
-            }
-          }
-        }
-      }
-      pointer = pointer.parent;
-    }
-  };
 
   // Implements a member that provides a non-heritable, lazily-created
   // object using the method you provide.
@@ -17491,6 +17442,9 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
   var EMPTY_META = new Meta(null);
 
   exports.EMPTY_META = EMPTY_META;
+
+  EMPTY_META.writableValues();
+
   /**
     Retrieves the meta hash for an object. If `writable` is true ensures the
     hash is writable for this object as well.
@@ -17522,6 +17476,8 @@ enifed('ember-metal/meta', ['exports', 'ember-metal/meta_listeners', 'ember-meta
 
     if (!ret) {
       ret = new Meta(obj);
+
+      ret.writableValues();
     } else {
       ret = new Meta(obj, ret);
     }
@@ -17559,6 +17515,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
   var REQUIRED;
   var a_slice = [].slice;
 
+  function mixinsMeta(obj) {
+    return _emberMetalMeta.meta(obj, true).writableMixins();
+  }
+
   function isMethod(obj) {
     return 'function' === typeof obj && obj.isMethod !== false && obj !== Boolean && obj !== Object && obj !== Number && obj !== Array && obj !== Date && obj !== String;
   }
@@ -17570,10 +17530,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
 
     if (mixin instanceof Mixin) {
       guid = _emberMetalUtils.guidFor(mixin);
-      if (mixinsMeta.peekMixins(guid)) {
+      if (mixinsMeta[guid]) {
         return CONTINUE;
       }
-      mixinsMeta.writeMixins(guid, mixin);
+      mixinsMeta[guid] = mixin;
       return mixin.properties;
     } else {
       return mixin; // apply anonymous mixin properties
@@ -17786,7 +17746,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
 
   function detectBinding(obj, key, value, m) {
     if (IS_BINDING.test(key)) {
-      m.writeBindings(key, value);
+      m.writableBindings()[key] = value;
     }
   }
 
@@ -17817,25 +17777,30 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
 
   function connectBindings(obj, m) {
     // TODO Mixin.apply(instance) should disconnect binding if exists
-    m.forEachBindings(function (key, binding) {
-      if (binding) {
-        var to = key.slice(0, -7); // strip Binding off end
-        if (_emberMetalStreamsUtils.isStream(binding)) {
-          connectStreamBinding(obj, to, binding);
-          return;
-        } else if (binding instanceof _emberMetalBinding.Binding) {
-          binding = binding.copy(); // copy prototypes' instance
-          binding.to(to);
-        } else {
-          // binding is string path
-          binding = new _emberMetalBinding.Binding(to, binding);
+    var bindings = m.readableBindings();
+    var key, binding, to;
+    if (bindings) {
+      for (key in bindings) {
+        binding = bindings[key];
+        if (binding) {
+          to = key.slice(0, -7); // strip Binding off end
+          if (_emberMetalStreamsUtils.isStream(binding)) {
+            connectStreamBinding(obj, to, binding);
+            continue;
+          } else if (binding instanceof _emberMetalBinding.Binding) {
+            binding = binding.copy(); // copy prototypes' instance
+            binding.to(to);
+          } else {
+            // binding is string path
+            binding = new _emberMetalBinding.Binding(to, binding);
+          }
+          binding.connect(obj);
+          obj[key] = binding;
         }
-        binding.connect(obj);
-        obj[key] = binding;
       }
-    });
-    // mark as applied
-    m.clearBindings();
+      // mark as applied
+      m.clearBindings();
+    }
   }
 
   function finishPartial(obj, m) {
@@ -17901,7 +17866,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
     // * Set up _super wrapping if necessary
     // * Set up computed property descriptors
     // * Copying `toString` in broken browsers
-    mergeMixins(mixins, _emberMetalMeta.meta(obj), descs, values, obj, keys);
+    mergeMixins(mixins, mixinsMeta(obj), descs, values, obj, keys);
 
     for (var i = 0, l = keys.length; i < l; i++) {
       key = keys[i];
@@ -18206,17 +18171,21 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/debug',
   // TODO: Make Ember.mixin
   Mixin.mixins = function (obj) {
     var m = obj['__ember_meta__'];
+    var mixins = m && m.readableMixins();
     var ret = [];
-    if (!m) {
+
+    if (!mixins) {
       return ret;
     }
 
-    m.forEachMixins(function (key, currentMixin) {
+    for (var key in mixins) {
+      var currentMixin = mixins[key];
+
       // skip primitive mixins since these are always anonymous
       if (!currentMixin.properties) {
         ret.push(currentMixin);
       }
-    });
+    }
 
     return ret;
   };
@@ -18772,7 +18741,7 @@ enifed('ember-metal/properties', ['exports', 'ember-metal/debug', 'ember-metal/f
         value = data;
 
         if (watching) {
-          meta.writeValues(keyName, data);
+          meta.writableValues()[keyName] = data;
           Object.defineProperty(obj, keyName, {
             configurable: true,
             enumerable: true,
@@ -18899,7 +18868,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       return;
     }
 
-    if (m && m.hasDeps(keyName)) {
+    if (m && m.readableDeps(keyName)) {
       dependentKeysDidChange(obj, keyName, m);
     }
 
@@ -18914,7 +18883,8 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       return;
     }
 
-    if (meta && meta.hasDeps(depKey)) {
+    var deps;
+    if (meta && (deps = meta.readableDeps(depKey))) {
       var seen = WILL_SEEN;
       var top = !seen;
 
@@ -18922,7 +18892,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
         seen = WILL_SEEN = {};
       }
 
-      iterDeps(propertyWillChange, obj, depKey, seen, meta);
+      iterDeps(propertyWillChange, obj, deps, depKey, seen, meta);
 
       if (top) {
         WILL_SEEN = null;
@@ -18936,7 +18906,8 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
       return;
     }
 
-    if (meta && meta.hasDeps(depKey)) {
+    var deps;
+    if (meta && (deps = meta.readableDeps(depKey))) {
       var seen = DID_SEEN;
       var top = !seen;
 
@@ -18944,7 +18915,7 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
         seen = DID_SEEN = {};
       }
 
-      iterDeps(propertyDidChange, obj, depKey, seen, meta);
+      iterDeps(propertyDidChange, obj, deps, depKey, seen, meta);
 
       if (top) {
         DID_SEEN = null;
@@ -18952,8 +18923,18 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
     }
   }
 
-  function iterDeps(method, obj, depKey, seen, meta) {
-    var possibleDesc, desc;
+  function keysOf(obj) {
+    var keys = [];
+
+    for (var key in obj) {
+      keys.push(key);
+    }
+
+    return keys;
+  }
+
+  function iterDeps(method, obj, deps, depKey, seen, meta) {
+    var keys, key, i, possibleDesc, desc;
     var guid = _emberMetalUtils.guidFor(obj);
     var current = seen[guid];
 
@@ -18967,20 +18948,25 @@ enifed('ember-metal/property_events', ['exports', 'ember-metal/utils', 'ember-me
 
     current[depKey] = true;
 
-    meta.forEachInDeps(depKey, function (key, value) {
-      if (!value) {
-        return;
+    if (deps) {
+      keys = keysOf(deps);
+      for (i = 0; i < keys.length; i++) {
+        key = keys[i];
+
+        if (!deps[key]) {
+          continue;
+        }
+
+        possibleDesc = obj[key];
+        desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
+
+        if (desc && desc._suspended === obj) {
+          continue;
+        }
+
+        method(obj, key);
       }
-
-      possibleDesc = obj[key];
-      desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
-
-      if (desc && desc._suspended === obj) {
-        return;
-      }
-
-      method(obj, key);
-    });
+    }
   }
 
   function chainsWillChange(obj, keyName, m) {
@@ -19322,7 +19308,7 @@ enifed('ember-metal/property_set', ['exports', 'ember-metal/debug', 'ember-metal
           if (currentValue === undefined && !(keyName in obj) || !Object.prototype.propertyIsEnumerable.call(obj, keyName)) {
             _emberMetalProperties.defineProperty(obj, keyName, null, value); // setup mandatory setter
           } else {
-              meta.writeValues(keyName, value);
+              meta.writableValues()[keyName] = value;
             }
 
           _emberMetalProperty_events.propertyDidChange(obj, keyName);
@@ -21678,10 +21664,11 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
     }
 
     var m = meta || _emberMetalMeta.meta(obj);
+    var watching = m.writableWatching();
 
     // activate watching first time
-    if (!m.peekWatching(keyName)) {
-      m.writeWatching(keyName, 1);
+    if (!watching[keyName]) {
+      watching[keyName] = 1;
 
       var possibleDesc = obj[keyName];
       var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
@@ -21695,7 +21682,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
 
       handleMandatorySetter(m, obj, keyName);
     } else {
-      m.writeWatching(keyName, (m.peekWatching(keyName) || 0) + 1);
+      watching[keyName] = (watching[keyName] || 0) + 1;
     }
   }
 
@@ -21713,7 +21700,7 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
 
     // this x in Y deopts, so keeping it in this function is better;
     if (configurable && isWritable && hasValue && keyName in obj) {
-      m.writeValues(keyName, obj[keyName]);
+      m.writableValues()[keyName] = obj[keyName];
       Object.defineProperty(obj, keyName, {
         configurable: true,
         enumerable: Object.prototype.propertyIsEnumerable.call(obj, keyName),
@@ -21725,9 +21712,10 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
 
   function unwatchKey(obj, keyName, meta) {
     var m = meta || _emberMetalMeta.meta(obj);
-    var count = m.peekWatching(keyName);
-    if (count === 1) {
-      m.writeWatching(keyName, 0);
+    var watching = m.writableWatching();
+
+    if (watching[keyName] === 1) {
+      watching[keyName] = 0;
 
       var possibleDesc = obj[keyName];
       var desc = possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor ? possibleDesc : undefined;
@@ -21751,13 +21739,13 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
               enumerable: true,
               value: val
             });
-            m.deleteFromValues(keyName);
+            delete m.writableValues()[keyName];
           },
           get: _emberMetalProperties.DEFAULT_GETTER_FUNCTION(keyName)
         });
       }
-    } else if (count > 1) {
-      m.writeWatching(keyName, count - 1);
+    } else if (watching[keyName] > 1) {
+      watching[keyName]--;
     }
   }
 });
@@ -21785,25 +21773,26 @@ enifed('ember-metal/watch_path', ['exports', 'ember-metal/meta', 'ember-metal/ch
     }
 
     var m = meta || _emberMetalMeta.meta(obj);
-    var counter = m.peekWatching(keyPath) || 0;
-    if (!counter) {
+    var watching = m.writableWatching();
+
+    if (!watching[keyPath]) {
       // activate watching first time
-      m.writeWatching(keyPath, 1);
+      watching[keyPath] = 1;
       chainsFor(obj, m).add(keyPath);
     } else {
-      m.writeWatching(keyPath, counter + 1);
+      watching[keyPath] = (watching[keyPath] || 0) + 1;
     }
   }
 
   function unwatchPath(obj, keyPath, meta) {
     var m = meta || _emberMetalMeta.meta(obj);
-    var counter = m.peekWatching(keyPath) || 0;
+    var watching = m.writableWatching();
 
-    if (counter === 1) {
-      m.writeWatching(keyPath, 0);
+    if (watching[keyPath] === 1) {
+      watching[keyPath] = 0;
       chainsFor(obj, m).remove(keyPath);
-    } else if (counter > 1) {
-      m.writeWatching(keyPath, counter - 1);
+    } else if (watching[keyPath] > 1) {
+      watching[keyPath]--;
     }
   }
 });
@@ -23068,7 +23057,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+6640ab13';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+fc00ef3d';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23567,7 +23556,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+6640ab13';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+fc00ef3d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -34298,7 +34287,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
             var value = properties[keyName];
 
             if (_emberMetalMixin.IS_BINDING.test(keyName)) {
-              m.writeBindings(keyName, value);
+              m.writableBindings()[keyName] = value;
             }
 
             var possibleDesc = this[keyName];
@@ -37270,7 +37259,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+6640ab13',
+        revision: 'Ember@2.2.0-canary+fc00ef3d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42704,7 +42693,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+6640ab13';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+fc00ef3d';
 
   /**
   @module ember

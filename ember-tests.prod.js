@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6640ab13
+ * @version   2.2.0-canary+fc00ef3d
  */
 
 (function() {
@@ -17423,7 +17423,9 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
   QUnit.module('mandatory-setters');
 
   function hasMandatorySetter(object, property) {
-    return _emberMetalMeta.meta(object).hasInValues(property);
+    var meta = _emberMetalMeta.meta(object);
+    var values = meta.readableValues();
+    return values && property in values;
   }
 });
 enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
@@ -17732,9 +17734,9 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     _emberMetalProperties.defineProperty(obj, 'bar', _emberMetalAlias.default('foo.faz'));
     var m = _emberMetalMeta.meta(obj);
     _emberMetalObserver.addObserver(obj, 'bar', incrementCount);
-    equal(m.peekDeps('foo.faz', 'bar'), 1);
+    equal(m.readableDeps('foo.faz').bar, 1);
     _emberMetalObserver.removeObserver(obj, 'bar', incrementCount);
-    equal(m.peekDeps('foo.faz', 'bar'), 0);
+    equal(m.readableDeps('foo.faz').bar, 0);
   });
 
   QUnit.test('old dependent keys should not trigger property changes', function () {
@@ -38634,6 +38636,24 @@ enifed('ember-runtime/tests/system/array_proxy/content_change_test', ['exports',
     equal(proxy.get('length'), 0, 'length updates');
   });
 
+  QUnit.test('should update length for null content when there is a computed property watching length', function () {
+    var proxy = _emberRuntimeSystemArray_proxy.default.extend({
+      isEmpty: _emberMetalCore.default.computed.not('length')
+    }).create({
+      content: _emberMetalCore.default.A([1, 2, 3])
+    });
+
+    equal(proxy.get('length'), 3, 'precond - length is 3');
+
+    // Consume computed property that depends on length
+    proxy.get('isEmpty');
+
+    // update content
+    proxy.set('content', null);
+
+    equal(proxy.get('length'), 0, 'length updates');
+  });
+
   QUnit.test('The `arrangedContentWillChange` method is invoked before `content` is changed.', function () {
     var callCount = 0;
     var expectedLength;
@@ -41315,7 +41335,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+6640ab13', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+fc00ef3d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
