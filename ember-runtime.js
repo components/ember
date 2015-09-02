@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+4fbc27d8
+ * @version   2.2.0-canary+62830c14
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+4fbc27d8
+    @version 2.2.0-canary+62830c14
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+4fbc27d8'
+    @default '2.2.0-canary+62830c14'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+4fbc27d8';
+  Ember.VERSION = '2.2.0-canary+62830c14';
 
   /**
     The hash of environment variables used to control various configuration
