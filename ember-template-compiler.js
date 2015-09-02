@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.9+b76bcf4c
+ * @version   1.13.9+ae5130a1
  */
 
 (function() {
@@ -3299,7 +3299,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.9+b76bcf4c
+    @version 1.13.9+ae5130a1
     @public
   */
 
@@ -3333,11 +3333,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.9+b76bcf4c'
+    @default '1.13.9+ae5130a1'
     @static
     @public
   */
-  Ember.VERSION = '1.13.9+b76bcf4c';
+  Ember.VERSION = '1.13.9+ae5130a1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12663,7 +12663,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.9+b76bcf4c',
+        revision: 'Ember@1.13.9+ae5130a1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -18693,7 +18693,12 @@ enifed("htmlbars-util/morph-utils", ["exports"], function (exports) {
           current = current.nextMorph;
         }
       } else if (node.morphList) {
-        nodes.push(node.morphList);
+        var current = node.morphList.firstChildMorph;
+
+        while (current) {
+          nodes.push(current);
+          current = current.nextMorph;
+        }
       }
     }
   }

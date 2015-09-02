@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.9+b76bcf4c
+ * @version   1.13.9+ae5130a1
  */
 
 (function() {
@@ -9591,7 +9591,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9+b76bcf4c';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9+ae5130a1';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -15922,7 +15922,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.9+b76bcf4c
+    @version 1.13.9+ae5130a1
     @public
   */
 
@@ -15956,11 +15956,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.9+b76bcf4c'
+    @default '1.13.9+ae5130a1'
     @static
     @public
   */
-  Ember.VERSION = '1.13.9+b76bcf4c';
+  Ember.VERSION = '1.13.9+ae5130a1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25003,7 +25003,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.9+b76bcf4c';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.9+ae5130a1';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -25542,7 +25542,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9+b76bcf4c';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9+ae5130a1';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -42540,7 +42540,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.9+b76bcf4c',
+        revision: 'Ember@1.13.9+ae5130a1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -47792,7 +47792,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.9+b76bcf4c';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.9+ae5130a1';
 
   /**
   @module ember
@@ -53037,7 +53037,12 @@ enifed("htmlbars-util/morph-utils", ["exports"], function (exports) {
           current = current.nextMorph;
         }
       } else if (node.morphList) {
-        nodes.push(node.morphList);
+        var current = node.morphList.firstChildMorph;
+
+        while (current) {
+          nodes.push(current);
+          current = current.nextMorph;
+        }
       }
     }
   }
