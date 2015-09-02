@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+27f80aad
+ * @version   2.0.1+17738bce
  */
 
 (function() {
@@ -8432,7 +8432,7 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.get('context.source.banana'), 'some value');
   });
 });
-enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-views/views/component', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberViewsViewsComponent, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup) {
   'use strict';
 
   var originalLookup = _emberMetalCore.default.lookup;
@@ -8448,7 +8448,10 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
       registry = new _emberRuntimeSystemContainer.Registry();
       container = registry.container();
       registry.optionsForType('template', { instantiate: false });
+      registry.optionsForType('view', { singleton: false });
+      registry.optionsForType('component', { singleton: false });
       registry.register('view:toplevel', _emberViewsViewsView.default.extend());
+      registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
     },
 
     teardown: function () {
@@ -9320,6 +9323,37 @@ enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/c
     });
 
     equal(view.$().text(), 'falsy');
+  });
+
+  QUnit.test('using `if` with an `{{each}}` destroys components when transitioning to and from inverse (GH #12267)', function () {
+    var destroyedChildrenCount = 0;
+
+    registry.register('component:foo-bar', _emberViewsViewsComponent.default.extend({
+      willDestroy: function () {
+        destroyedChildrenCount++;
+      }
+    }));
+    registry.register('template:components/foo-bar', _emberTemplateCompilerSystemCompile.default('{{number}}'));
+
+    view = _emberViewsViewsView.default.create({
+      container: container,
+      test: true,
+      list: _emberRuntimeSystemNative_array.A([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+
+      template: _emberTemplateCompilerSystemCompile.default('\n      {{~#if view.test~}}\n        {{~#each view.list as |number|~}}\n          {{~foo-bar number=number~}}\n        {{~/each~}}\n      {{~else~}}\n        Nothing Here!\n      {{~/if~}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '12345678910');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('test', false);
+    });
+
+    equal(view.$().text(), 'Nothing Here!');
+
+    equal(destroyedChildrenCount, 10, 'the children were properly destroyed');
   });
 });
 enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'container/registry', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher) {
@@ -40314,7 +40348,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.1+27f80aad', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.1+17738bce', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
