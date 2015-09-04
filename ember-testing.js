@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a3fb7a1d
+ * @version   2.2.0-canary+eeb8ee90
  */
 
 (function() {
@@ -247,6 +247,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   */
   _emberMetalDebug.setDebugFunction('runInDebug', function runInDebug(func) {
     func();
+  });
+
+  _emberMetalDebug.setDebugFunction('debugSeal', function debugSeal(obj) {
+    Object.seal(obj);
   });
 
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);

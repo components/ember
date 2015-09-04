@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a3fb7a1d
+ * @version   2.2.0-canary+eeb8ee90
  */
 
 (function() {
@@ -1292,6 +1292,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   */
   _emberMetalDebug.setDebugFunction('runInDebug', function runInDebug(func) {
     func();
+  });
+
+  _emberMetalDebug.setDebugFunction('debugSeal', function debugSeal(obj) {
+    Object.seal(obj);
   });
 
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
@@ -4155,7 +4159,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+a3fb7a1d
+    @version 2.2.0-canary+eeb8ee90
     @public
   */
 
@@ -4199,11 +4203,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+a3fb7a1d'
+    @default '2.2.0-canary+eeb8ee90'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+a3fb7a1d';
+  Ember.VERSION = '2.2.0-canary+eeb8ee90';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4326,6 +4330,7 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
   exports.deprecate = deprecate;
   exports.deprecateFunc = deprecateFunc;
   exports.runInDebug = runInDebug;
+  exports.debugSeal = debugSeal;
   var debugFunctions = {
     assert: function () {},
     info: function () {},
@@ -4339,7 +4344,8 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
 
       return args[args.length - 1];
     },
-    runInDebug: function () {}
+    runInDebug: function () {},
+    debugSeal: function () {}
   };
 
   exports.debugFunctions = debugFunctions;
@@ -4378,6 +4384,10 @@ enifed("ember-metal/debug", ["exports"], function (exports) {
 
   function runInDebug() {
     return debugFunctions.runInDebug.apply(undefined, arguments);
+  }
+
+  function debugSeal() {
+    return debugFunctions.debugSeal.apply(undefined, arguments);
   }
 });
 enifed('ember-metal/dependent_keys', ['exports', 'ember-metal/watching'], function (exports, _emberMetalWatching) {
@@ -9609,31 +9619,24 @@ enifed('ember-metal/streams/dependency', ['exports', 'ember-metal/debug', 'ember
 
   exports.default = Dependency;
 });
-enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/debug', 'ember-metal/merge', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalMerge, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
   'use strict';
 
-  function KeyStream(source, key) {
-    _emberMetalDebug.assert('KeyStream error: source must be a stream', _emberMetalStreamsUtils.isStream(source)); // TODO: This isn't necessary.
-    _emberMetalDebug.assert('KeyStream error: key must be a non-empty string', typeof key === 'string' && key.length > 0);
-    _emberMetalDebug.assert('KeyStream error: key must not have a \'.\'', key.indexOf('.') === -1);
+  var KeyStream = _emberMetalStreamsStream.default.extend({
+    init: function (source, key) {
+      _emberMetalDebug.assert('KeyStream error: source must be a stream', _emberMetalStreamsUtils.isStream(source)); // TODO: This isn't necessary.
+      _emberMetalDebug.assert('KeyStream error: key must be a non-empty string', typeof key === 'string' && key.length > 0);
+      _emberMetalDebug.assert('KeyStream error: key must not have a \'.\'', key.indexOf('.') === -1);
 
-    // used to get the original path for debugging and legacy purposes
-    var label = labelFor(source, key);
+      var label = labelFor(source, key);
 
-    this.init(label);
-    this.path = label;
-    this.sourceDep = this.addMutableDependency(source);
-    this.observedObject = null;
-    this.key = key;
-  }
+      this.path = label;
+      this.observedObject = null;
+      this.key = key;
+      this.sourceDep = this.addMutableDependency(source);
+      this.label = label;
+    },
 
-  function labelFor(source, key) {
-    return source.label ? source.label + '.' + key : key;
-  }
-
-  KeyStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
-
-  _emberMetalMerge.default(KeyStream.prototype, {
     compute: function () {
       var object = this.sourceDep.getValue();
       if (object) {
@@ -9684,19 +9687,21 @@ enifed('ember-metal/streams/key-stream', ['exports', 'ember-metal/debug', 'ember
     }
   });
 
-  exports.default = KeyStream;
-});
-enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-metal/merge', 'ember-metal/streams/stream', 'ember-runtime/system/object'], function (exports, _emberMetalMerge, _emberMetalStreamsStream, _emberRuntimeSystemObject) {
-  'use strict';
-
-  function ProxyStream(source, label) {
-    this.init(label);
-    this.sourceDep = this.addMutableDependency(source);
+  function labelFor(source, key) {
+    return source.label ? source.label + '.' + key : key;
   }
 
-  ProxyStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
+  exports.default = KeyStream;
+});
+enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-runtime/system/object', 'ember-metal/streams/stream'], function (exports, _emberRuntimeSystemObject, _emberMetalStreamsStream) {
+  'use strict';
 
-  _emberMetalMerge.default(ProxyStream.prototype, {
+  var ProxyStream = _emberMetalStreamsStream.default.extend({
+    init: function (source, label) {
+      this.label = label;
+      this.sourceDep = this.addMutableDependency(source);
+    },
+
     compute: function () {
       return this.sourceDep.getValue();
     },
@@ -9716,10 +9721,14 @@ enifed('ember-metal/streams/proxy-stream', ['exports', 'ember-metal/merge', 'emb
     }
   });
 
+  ProxyStream.extend = _emberMetalStreamsStream.default.extend;
+
   exports.default = ProxyStream;
 });
-enifed('ember-metal/streams/stream', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency) {
+enifed('ember-metal/streams/stream', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/debug', 'ember-metal/path_cache', 'ember-metal/observer', 'ember-metal/streams/utils', 'ember-metal/empty_object', 'ember-metal/streams/subscriber', 'ember-metal/streams/dependency'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalDebug, _emberMetalPath_cache, _emberMetalObserver, _emberMetalStreamsUtils, _emberMetalEmpty_object, _emberMetalStreamsSubscriber, _emberMetalStreamsDependency) {
   'use strict';
+
+  exports.wrap = wrap;
 
   /**
     @module ember-metal
@@ -9731,18 +9740,17 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/core', 'ember-meta
     @namespace Ember.stream
     @constructor
   */
-  function Stream(fn, label) {
-    this.init(label);
-    this.compute = fn;
+  function BasicStream(label) {
+    this._init(label);
   }
 
   var KeyStream;
   var ProxyMixin;
 
-  Stream.prototype = {
+  BasicStream.prototype = {
     isStream: true,
 
-    init: function (label) {
+    _init: function (label) {
       this.label = makeLabel(label);
       this.isActive = false;
       this.isDirty = true;
@@ -10014,19 +10022,44 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/core', 'ember-meta
           }
         }
 
-        this.dependencies = null;
         return true;
       }
     }
   };
 
-  Stream.wrap = function (value, Kind, param) {
+  BasicStream.extend = function (object) {
+    var Child = function () {
+      this._init();
+      this.init.apply(this, arguments);
+
+      _emberMetalDebug.debugSeal(this);
+    };
+
+    Child.prototype = Object.create(this.prototype);
+
+    _emberMetalMerge.default(Child.prototype, object);
+    Child.extend = BasicStream.extend;
+    return Child;
+  };
+
+  var Stream = BasicStream.extend({
+    init: function (fn, label) {
+      this._compute = fn;
+      this.label = label;
+    },
+
+    compute: function () {
+      return this._compute();
+    }
+  });
+
+  function wrap(value, Kind, param) {
     if (_emberMetalStreamsUtils.isStream(value)) {
       return value;
     } else {
       return new Kind(value, param);
     }
-  };
+  }
 
   function makeLabel(label) {
     if (label === undefined) {
@@ -10036,7 +10069,8 @@ enifed('ember-metal/streams/stream', ['exports', 'ember-metal/core', 'ember-meta
     }
   }
 
-  exports.default = Stream;
+  exports.default = BasicStream;
+  exports.Stream = Stream;
 });
 enifed('ember-metal/streams/subscriber', ['exports', 'ember-metal/merge'], function (exports, _emberMetalMerge) {
   'use strict';
@@ -10266,6 +10300,26 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
     return containsStream;
   }
 
+  var ConcatStream = _emberMetalStreamsStream.default.extend({
+    init: function (array, separator) {
+      this.array = array;
+      this.separator = separator;
+
+      // used by angle bracket components to detect an attribute was provided
+      // as a string literal
+      this.isConcat = true;
+    },
+
+    label: function () {
+      var labels = labelsFor(this.array);
+      return 'concat([' + labels.join(', ') + ']; separator=' + inspect(this.separator) + ')';
+    },
+
+    compute: function () {
+      return concat(readArray(this.array), this.separator);
+    }
+  });
+
   /*
    Join an array, with any streams replaced by their current values
   
@@ -10285,21 +10339,12 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
     // subscribing to streams until the value() is called.
     var hasStream = scanArray(array);
     if (hasStream) {
-      var i, l;
-      var stream = new _emberMetalStreamsStream.default(function () {
-        return concat(readArray(array), separator);
-      }, function () {
-        var labels = labelsFor(array);
-        return 'concat([' + labels.join(', ') + ']; separator=' + inspect(separator) + ')';
-      });
+      var stream = new ConcatStream(array, separator);
 
-      for (i = 0, l = array.length; i < l; i++) {
-        stream.addDependency(array[i]);
+      for (var i = 0, l = array.length; i < l; i++) {
+        addDependency(stream, array[i]);
       }
 
-      // used by angle bracket components to detect an attribute was provided
-      // as a string literal
-      stream.isConcat = true;
       return stream;
     } else {
       return array.join(separator);
@@ -10350,7 +10395,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   function or(first, second) {
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       return first.value() || second.value();
     }, function () {
       return labelFor(first) + ' || ' + labelFor(second);
@@ -10372,7 +10417,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   function zip(streams, callback, label) {
     _emberMetalDebug.assert('Must call zip with a label', !!label);
 
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       var array = readArray(streams);
       return callback ? callback(array) : array;
     }, function () {
@@ -10389,7 +10434,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   function zipHash(object, callback, label) {
     _emberMetalDebug.assert('Must call zipHash with a label', !!label);
 
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       var hash = readHash(object);
       return callback ? callback(hash) : hash;
     }, function () {
@@ -10439,7 +10484,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   function chain(value, fn, label) {
     _emberMetalDebug.assert('Must call chain with a label', !!label);
     if (isStream(value)) {
-      var stream = new _emberMetalStreamsStream.default(fn, function () {
+      var stream = new _emberMetalStreamsStream.Stream(fn, function () {
         return label + '(' + labelFor(value) + ')';
       });
       stream.addDependency(value);
@@ -12325,7 +12370,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+a3fb7a1d',
+        revision: 'Ember@2.2.0-canary+eeb8ee90',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -13985,11 +14030,10 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       render: function (self, env, options, blockArguments) {
         var scope = env.hooks.createFreshScope();
 
-        options = options || {};
-        options.self = self;
-        options.blockArguments = blockArguments;
+        var contextualElement = options && options.contextualElement;
+        var renderOptions = new _htmlbarsRuntimeRender.RenderOptions(null, self, blockArguments, contextualElement);
 
-        return _htmlbarsRuntimeRender.default(template, env, scope, options);
+        return _htmlbarsRuntimeRender.default(template, env, scope, renderOptions);
       }
     };
   }
@@ -14054,7 +14098,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       morph.lastYielded = { self: self, template: template, shadowTemplate: null };
 
       // Render the template that was selected by the helper
-      _htmlbarsRuntimeRender.default(template, env, scope, { renderNode: morph, self: self, blockArguments: blockArguments });
+      var renderOptions = new _htmlbarsRuntimeRender.RenderOptions(morph, self, blockArguments);
+      _htmlbarsRuntimeRender.default(template, env, scope, renderOptions);
     };
   }
 
@@ -14484,13 +14529,13 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
 
     var lastState, newState;
     if (keyword.setupState) {
-      lastState = _htmlbarsUtilObjectUtils.shallowCopy(morph.state);
-      newState = morph.state = keyword.setupState(lastState, env, scope, params, hash);
+      lastState = _htmlbarsUtilObjectUtils.shallowCopy(morph.getState());
+      newState = morph.setState(keyword.setupState(lastState, env, scope, params, hash));
     }
 
     if (keyword.childEnv) {
       // Build the child environment...
-      env = keyword.childEnv(morph.state, env);
+      env = keyword.childEnv(morph.getState(), env);
 
       // ..then save off the child env builder on the render node. If the render
       // node tree is re-rendered and this node is not dirty, the child env
@@ -14502,7 +14547,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
     var firstTime = !morph.rendered;
 
     if (keyword.isEmpty) {
-      var isEmpty = keyword.isEmpty(morph.state, env, scope, params, hash);
+      var isEmpty = keyword.isEmpty(morph.getState(), env, scope, params, hash);
 
       if (isEmpty) {
         if (!firstTime) {
@@ -15014,7 +15059,7 @@ enifed("htmlbars-runtime/morph", ["exports", "morph-range"], function (exports, 
   function HTMLBarsMorph(domHelper, contextualElement) {
     this.super$constructor(domHelper, contextualElement);
 
-    this.state = {};
+    this._state = undefined;
     this.ownerNode = null;
     this.isDirty = false;
     this.isSubtreeDirty = false;
@@ -15030,6 +15075,7 @@ enifed("htmlbars-runtime/morph", ["exports", "morph-range"], function (exports, 
     this.childNodes = null;
     this.rendered = false;
     this.guid = "range" + guid++;
+    this.seen = false;
   }
 
   HTMLBarsMorph.empty = function (domHelper, contextualElement) {
@@ -15053,6 +15099,20 @@ enifed("htmlbars-runtime/morph", ["exports", "morph-range"], function (exports, 
   var prototype = HTMLBarsMorph.prototype = Object.create(_morphRange.default.prototype);
   prototype.constructor = HTMLBarsMorph;
   prototype.super$constructor = _morphRange.default;
+
+  prototype.getState = function () {
+    if (!this._state) {
+      this._state = {};
+    }
+
+    return this._state;
+  };
+
+  prototype.setState = function (newState) {
+    /*jshint -W093 */
+
+    return this._state = newState;
+  };
 
   exports.default = HTMLBarsMorph;
 });
@@ -15243,7 +15303,7 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "htmlbars-util/morph-utils",
       callback(visitor);
     } else {
       if (morph.buildChildEnv) {
-        env = morph.buildChildEnv(morph.state, env);
+        env = morph.buildChildEnv(morph.getState(), env);
       }
       _htmlbarsUtilMorphUtils.validateChildMorphs(env, morph, visitor);
     }
@@ -15253,10 +15313,11 @@ enifed("htmlbars-runtime/node-visitor", ["exports", "htmlbars-util/morph-utils",
     return env.hooks.keywords[path] !== undefined || env.hooks.hasHelper(env, scope, path);
   }
 });
-enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "htmlbars-util/morph-utils", "htmlbars-runtime/node-visitor", "htmlbars-runtime/morph", "htmlbars-util/template-utils", "htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilArrayUtils, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeNodeVisitor, _htmlbarsRuntimeMorph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
+enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/node-visitor", "htmlbars-runtime/morph", "htmlbars-util/template-utils", "htmlbars-util/void-tag-names"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeNodeVisitor, _htmlbarsRuntimeMorph, _htmlbarsUtilTemplateUtils, _htmlbarsUtilVoidTagNames) {
   "use strict";
 
   exports.default = render;
+  exports.RenderOptions = RenderOptions;
   exports.manualElement = manualElement;
   exports.attachAttributes = attachAttributes;
   exports.createChildMorph = createChildMorph;
@@ -15284,6 +15345,13 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
     return renderResult;
   }
 
+  function RenderOptions(renderNode, self, blockArguments, contextualElement) {
+    this.renderNode = renderNode || null;
+    this.self = self;
+    this.blockArguments = blockArguments || null;
+    this.contextualElement = contextualElement || null;
+  }
+
   function RenderResult(env, scope, options, rootNode, ownerNode, nodes, fragment, template, shouldSetContent) {
     this.root = rootNode;
     this.fragment = fragment;
@@ -15294,8 +15362,6 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
     this.env = env;
     this.scope = scope;
     this.shouldSetContent = shouldSetContent;
-
-    this.bindScope();
 
     if (options.self !== undefined) {
       this.bindSelf(options.self);
@@ -15321,7 +15387,7 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
     } else {
       rootNode = dom.createMorph(null, fragment.firstChild, fragment.lastChild, contextualElement);
       ownerNode = rootNode;
-      initializeNode(rootNode, ownerNode);
+      rootNode.ownerNode = ownerNode;
       shouldSetContent = false;
     }
 
@@ -15454,9 +15520,11 @@ enifed("htmlbars-runtime/render", ["exports", "htmlbars-util/array-utils", "html
   }
 
   RenderResult.prototype.initializeNodes = function (ownerNode) {
-    _htmlbarsUtilArrayUtils.forEach(this.root.childNodes, function (node) {
-      initializeNode(node, ownerNode);
-    });
+    var childNodes = this.root.childNodes;
+
+    for (var i = 0, l = childNodes.length; i < l; i++) {
+      childNodes[i].ownerNode = ownerNode;
+    }
   };
 
   RenderResult.prototype.render = function () {
@@ -18866,7 +18934,11 @@ enifed('htmlbars-util/namespaces', ['exports'], function (exports) {
     xml: 'http://www.w3.org/XML/1998/namespace'
   };
 
-  function getAttrNamespace(attrName) {
+  function getAttrNamespace(attrName, detectedNamespace) {
+    if (detectedNamespace) {
+      return detectedNamespace;
+    }
+
     var namespace;
 
     var colonIndex = attrName.indexOf(':');
@@ -18967,7 +19039,7 @@ enifed('htmlbars-util/safe-string', ['exports', 'htmlbars-util/handlebars/safe-s
 
   exports.default = _htmlbarsUtilHandlebarsSafeString.default;
 });
-enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilMorphUtils) {
+enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", "htmlbars-runtime/render"], function (exports, _htmlbarsUtilMorphUtils, _htmlbarsRuntimeRender) {
   "use strict";
 
   exports.RenderState = RenderState;
@@ -19008,36 +19080,37 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils"],
     this.arity = template.arity;
   }
 
-  Block.prototype.invoke = function (env, blockArguments, self, renderNode, parentScope, visitor) {
-    var _this = this;
-
+  Block.prototype.invoke = function (env, blockArguments, _self, renderNode, parentScope, visitor) {
     if (renderNode.lastResult) {
-      renderNode.lastResult.revalidateWith(env, undefined, self, blockArguments, visitor);
+      renderNode.lastResult.revalidateWith(env, undefined, _self, blockArguments, visitor);
     } else {
-      (function () {
-        var options = { renderState: new RenderState(renderNode) };
-        var render = _this.render;
-        var template = _this.template;
-        var scope = _this.blockOptions.scope;
-
-        var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
-
-        env.hooks.bindShadowScope(env, parentScope, shadowScope, _this.blockOptions.options);
-
-        if (self !== undefined) {
-          env.hooks.bindSelf(env, shadowScope, self);
-        } else if (_this.blockOptions.self !== undefined) {
-          env.hooks.bindSelf(env, shadowScope, _this.blockOptions.self);
-        }
-
-        bindBlocks(env, shadowScope, _this.blockOptions.yieldTo);
-
-        renderAndCleanup(renderNode, env, options, null, function () {
-          options.renderState.morphToClear = null;
-          render(template, env, shadowScope, { renderNode: renderNode, blockArguments: blockArguments });
-        });
-      })();
+      this._firstRender(env, blockArguments, _self, renderNode, parentScope);
     }
+  };
+
+  Block.prototype._firstRender = function (env, blockArguments, _self, renderNode, parentScope) {
+    var options = { renderState: new RenderState(renderNode) };
+    var render = this.render;
+    var template = this.template;
+    var scope = this.blockOptions.scope;
+
+    var shadowScope = scope ? env.hooks.createChildScope(scope) : env.hooks.createFreshScope();
+
+    env.hooks.bindShadowScope(env, parentScope, shadowScope, this.blockOptions.options);
+
+    if (_self !== undefined) {
+      env.hooks.bindSelf(env, shadowScope, _self);
+    } else if (this.blockOptions.self !== undefined) {
+      env.hooks.bindSelf(env, shadowScope, this.blockOptions.self);
+    }
+
+    bindBlocks(env, shadowScope, this.blockOptions.yieldTo);
+
+    renderAndCleanup(renderNode, env, options, null, function () {
+      options.renderState.morphToClear = null;
+      var renderOptions = new _htmlbarsRuntimeRender.RenderOptions(renderNode, undefined, blockArguments);
+      render(template, env, shadowScope, renderOptions);
+    });
   };
 
   function blockFor(render, template, blockOptions) {

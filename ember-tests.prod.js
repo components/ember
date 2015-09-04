@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a3fb7a1d
+ * @version   2.2.0-canary+eeb8ee90
  */
 
 (function() {
@@ -23914,7 +23914,7 @@ enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams
   });
 
   QUnit.test('returns a stream if a stream is in the array', function (assert) {
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       return 'bar';
     });
     var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
@@ -23925,7 +23925,7 @@ enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams
 
   QUnit.test('returns updated value upon input dirtied', function (assert) {
     var value = 'bar';
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       return value;
     });
     var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
@@ -23940,7 +23940,7 @@ enifed('ember-metal/tests/streams/concat_test', ['exports', 'ember-metal/streams
   });
 
   QUnit.test('removes dependencies when unsubscribeDependencies is called', function (assert) {
-    var stream = new _emberMetalStreamsStream.default(function () {
+    var stream = new _emberMetalStreamsStream.Stream(function () {
       return 'bar';
     });
     var result = _emberMetalStreamsUtils.concat(['foo', stream, 'baz'], ' ');
@@ -23967,7 +23967,7 @@ enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/wat
       count = 0;
       object = { name: 'mmun' };
 
-      source = new _emberMetalStreamsStream.default(function () {
+      source = new _emberMetalStreamsStream.Stream(function () {
         return object;
       });
     },
@@ -24046,7 +24046,7 @@ enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/wat
     equal(nameStream.value(), 'mmun', 'Stream value is correct');
 
     object = { name: 'wycats' };
-    nameStream.setSource(new _emberMetalStreamsStream.default(function () {
+    nameStream.setSource(new _emberMetalStreamsStream.Stream(function () {
       return object;
     }));
 
@@ -24066,7 +24066,7 @@ enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/wat
     equal(count, 0, 'Subscribers called correct number of times');
     equal(nameStream.value(), 'mmun', 'Stream value is correct');
 
-    nameStream.setSource(new _emberMetalStreamsStream.default(function () {
+    nameStream.setSource(new _emberMetalStreamsStream.Stream(function () {
       return object;
     }));
 
@@ -24146,23 +24146,28 @@ enifed('ember-metal/tests/streams/key-stream-test', ['exports', 'ember-metal/wat
 enifed('ember-metal/tests/streams/proxy-stream-test', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/proxy-stream'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsProxyStream) {
   'use strict';
 
-  var source, value;
+  var source;
 
   QUnit.module('ProxyStream', {
     setup: function () {
-      value = 'zlurp';
+      var Source = _emberMetalStreamsStream.default.extend({
+        init: function (val) {
+          this.val = val;
+        },
 
-      source = new _emberMetalStreamsStream.default(function () {
-        return value;
+        compute: function () {
+          return this.val;
+        },
+
+        setValue: function (value) {
+          this.val = value;
+          this.notify();
+        }
       });
 
-      source.setValue = function (_value) {
-        value = _value;
-        this.notify();
-      };
+      source = new Source('zlurp');
     },
     teardown: function () {
-      value = undefined;
       source = undefined;
     }
   });
@@ -24176,7 +24181,7 @@ enifed('ember-metal/tests/streams/proxy-stream-test', ['exports', 'ember-metal/s
   });
 
   QUnit.test('supports a non-stream argument', function () {
-    var stream = new _emberMetalStreamsProxyStream.default(value);
+    var stream = new _emberMetalStreamsProxyStream.default('zlurp');
     equal(stream.value(), 'zlurp');
 
     stream.setValue('blorg');
@@ -24197,7 +24202,7 @@ enifed('ember-metal/tests/streams/stream-test', ['exports', 'ember-metal/streams
       count = 0;
       value = 'zlurp';
 
-      stream = new _emberMetalStreamsStream.default(function () {
+      stream = new _emberMetalStreamsStream.Stream(function () {
         return value;
       });
     },
@@ -25413,7 +25418,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref3) {
       var node = _ref3.node;
 
-      registeredTarget = node.state.target;
+      registeredTarget = node.getState().target;
     };
 
     view = _emberViewsViewsView.default.create({
@@ -25463,7 +25468,7 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction = function (_ref4) {
       var node = _ref4.node;
 
-      registeredTarget = node.state.target;
+      registeredTarget = node.getState().target;
     };
 
     var anotherTarget = _emberViewsViewsView.default.create();
@@ -41333,7 +41338,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+a3fb7a1d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+eeb8ee90', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
