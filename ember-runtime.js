@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+17738bce
+ * @version   2.0.1+6fe8c01e
  */
 
 (function() {
@@ -4729,7 +4729,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.1+17738bce
+    @version 2.0.1+6fe8c01e
     @public
   */
 
@@ -4763,11 +4763,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.1+17738bce'
+    @default '2.0.1+6fe8c01e'
     @static
     @public
   */
-  Ember.VERSION = '2.0.1+17738bce';
+  Ember.VERSION = '2.0.1+6fe8c01e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11810,7 +11810,7 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/core', 'ember-
   _emberMetal.default.Observable = _emberRuntimeMixinsObservable.default;
 
   _emberMetal.default.typeOf = _emberRuntimeUtils.typeOf;
-  _emberMetal.default.isArray = Array.isArray;
+  _emberMetal.default.isArray = _emberRuntimeUtils.isArray;
 
   // ES6TODO: this seems a less than ideal way/place to add properties to Ember.computed
   var EmComputed = _emberMetal.default.computed;

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+17738bce
+ * @version   2.0.1+6fe8c01e
  */
 
 (function() {
@@ -40185,7 +40185,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.0.1+17738bce', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.0.1+6fe8c01e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -50745,15 +50745,19 @@ enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/s
     });
   });
 });
-enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features'], function (exports, _ember, _emberMetalFeatures) {
+enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features', 'ember-runtime/utils'], function (exports, _ember, _emberMetalFeatures, _emberRuntimeUtils) {
   /*globals Ember */
   'use strict';
 
   QUnit.module('Global API Tests');
 
-  function confirmExport(property) {
+  function confirmExport(property, internal) {
     QUnit.test('confirm ' + property + ' is exported', function () {
-      ok(Ember.get(window, property) + ' is exported propertly');
+      var theExport = Ember.get(window, property);
+      ok(theExport + ' is exported');
+      if (internal !== undefined) {
+        equal(theExport, internal, theExport + ' is exported properly');
+      }
     });
   }
 
@@ -50762,6 +50766,8 @@ enifed('ember/tests/global-api-test', ['exports', 'ember', 'ember-metal/features
 
   confirmExport('Ember.Helper');
   confirmExport('Ember.Helper.helper');
+
+  confirmExport('Ember.isArray', _emberRuntimeUtils.isArray);
 });
 enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'ember-metal/core', 'ember-metal/features', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-htmlbars/helper', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _ember, _emberMetalCore, _emberMetalFeatures, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberHtmlbarsHelper, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
