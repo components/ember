@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+eeb8ee90
+ * @version   2.2.0-canary+a01c357c
  */
 
 (function() {
@@ -9113,7 +9113,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeb8ee90';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a01c357c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10110,7 +10110,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
   exports.default = ComponentNodeManager;
 
-  ComponentNodeManager.create = function (renderNode, env, options) {
+  ComponentNodeManager.create = function ComponentNodeManager_create(renderNode, env, options) {
     var _createOptions;
 
     var tagName = options.tagName;
@@ -10249,10 +10249,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
   }
 
-  ComponentNodeManager.prototype.render = function (_env, visitor) {
+  ComponentNodeManager.prototype.render = function ComponentNodeManager_render(_env, visitor) {
     var component = this.component;
 
-    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function () {
+    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ComponentNodeManager_render_instrument() {
       var env = _env.childWithView(component);
 
       env.renderer.componentWillRender(component);
@@ -10300,10 +10300,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }
   }
 
-  ComponentNodeManager.prototype.rerender = function (_env, attrs, visitor) {
+  ComponentNodeManager.prototype.rerender = function ComponentNodeManager_rerender(_env, attrs, visitor) {
     var component = this.component;
 
-    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function () {
+    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ComponentNodeManager_rerender_instrument() {
       var env = _env.childWithView(component);
 
       var snapshot = takeSnapshot(attrs);
@@ -10333,7 +10333,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     }, this);
   };
 
-  ComponentNodeManager.prototype.destroy = function () {
+  ComponentNodeManager.prototype.destroy = function ComponentNodeManager_destroy() {
     var component = this.component;
 
     // Clear component's render node. Normally this gets cleared
@@ -10445,7 +10445,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
 
   exports.default = ViewNodeManager;
 
-  ViewNodeManager.create = function (renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
+  ViewNodeManager.create = function ViewNodeManager_create(renderNode, env, attrs, found, parentView, path, contentScope, contentTemplate) {
     _emberMetalDebug.assert('HTMLBars error: Could not find component named "' + path + '" (no component or template with that name was found)', function () {
       if (path) {
         return found.component || found.layout;
@@ -10507,10 +10507,10 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     return new ViewNodeManager(component, contentScope, renderNode, results.block, results.createdElement);
   };
 
-  ViewNodeManager.prototype.render = function (env, attrs, visitor) {
+  ViewNodeManager.prototype.render = function ViewNodeManager_render(env, attrs, visitor) {
     var component = this.component;
 
-    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function () {
+    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ViewNodeManager_render_instrument() {
       var newEnv = env;
       if (component) {
         newEnv = env.childWithView(component);
@@ -10539,10 +10539,10 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     }, this);
   };
 
-  ViewNodeManager.prototype.rerender = function (env, attrs, visitor) {
+  ViewNodeManager.prototype.rerender = function ViewNodeManager_rerender(env, attrs, visitor) {
     var component = this.component;
 
-    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function () {
+    return _emberHtmlbarsSystemInstrumentationSupport.instrument(component, function ViewNodeManager_rerender_instrument() {
       var newEnv = env;
       if (component) {
         newEnv = env.childWithView(component);
@@ -10573,7 +10573,7 @@ enifed('ember-htmlbars/node-managers/view-node-manager', ['exports', 'ember-meta
     }, this);
   };
 
-  ViewNodeManager.prototype.destroy = function () {
+  ViewNodeManager.prototype.destroy = function ViewNodeManager_destroy() {
     if (this.component) {
       this.component.destroy();
       this.component = null;
@@ -15067,7 +15067,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+eeb8ee90
+    @version 2.2.0-canary+a01c357c
     @public
   */
 
@@ -15111,11 +15111,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+eeb8ee90'
+    @default '2.2.0-canary+a01c357c'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+eeb8ee90';
+  Ember.VERSION = '2.2.0-canary+a01c357c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23379,7 +23379,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+eeb8ee90';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+a01c357c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23878,7 +23878,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeb8ee90';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a01c357c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37581,7 +37581,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+eeb8ee90',
+        revision: 'Ember@2.2.0-canary+a01c357c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42944,7 +42944,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+eeb8ee90';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+a01c357c';
 
   /**
   @module ember
