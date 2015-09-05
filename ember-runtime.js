@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+c0708b76
+ * @version   2.2.0-canary+1bed4a5a
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+c0708b76
+    @version 2.2.0-canary+1bed4a5a
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+c0708b76'
+    @default '2.2.0-canary+1bed4a5a'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+c0708b76';
+  Ember.VERSION = '2.2.0-canary+1bed4a5a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16208,8 +16208,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/debug', 'embe
   
     ```javascript
     Ember.Object.extend({
-      valueObserver: Ember.observer('value', function() {
+      valueObserver: Ember.observer('value', function(sender, key, value, rev) {
         // Executes whenever the "value" property changes
+        // See the addObserver method for more information about the callback arguments
       })
     });
     ```
