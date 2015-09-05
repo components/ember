@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+f0bd8edc
+ * @version   2.2.0-canary+db23f439
  */
 
 (function() {
@@ -8610,7 +8610,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+f0bd8edc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+db23f439';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9562,7 +9562,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.createComponent = createComponent;
@@ -9792,18 +9792,15 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     component.destroy();
   };
 
-  function createComponent(_component, isAngleBracket, _props, renderNode, env) {
+  function createComponent(_component, isAngleBracket, props, renderNode, env) {
     var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
-
-    var props = _emberMetalAssign.default({}, _props);
-
-    var snapshot = takeSnapshot(attrs);
-    props.attrs = snapshot;
 
     if (!isAngleBracket) {
 
-      mergeBindings(props, snapshot);
+      snapshotAndUpdateTarget(attrs, props);
     } else {
+      props.attrs = takeSnapshot(attrs);
+
       props._isAngleBracket = true;
     }
 
@@ -9849,11 +9846,13 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return hash;
   }
 
-  function mergeBindings(target, attrs) {
-    for (var prop in attrs) {
-      if (!attrs.hasOwnProperty(prop)) {
-        continue;
-      }
+  function snapshotAndUpdateTarget(rawAttrs, target) {
+    var attrs = {};
+
+    for (var prop in rawAttrs) {
+      var value = _emberHtmlbarsHooksGetCellOrValue.default(rawAttrs[prop]);
+      attrs[prop] = value;
+
       // when `attrs` is an actual value being set in the
       // attrs hash (`{{foo-bar attrs="blah"}}`) we cannot
       // set `"blah"` to the root of the target because
@@ -9861,16 +9860,15 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       if (prop === 'attrs') {
         continue;
       }
-      var value = attrs[prop];
 
       if (value && value[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
-        target[prop] = value.value;
-      } else {
-        target[prop] = value;
+        value = value.value;
       }
+
+      target[prop] = value;
     }
 
-    return target;
+    return target.attrs = attrs;
   }
 
   function buildChildEnv(state, env) {
@@ -14478,7 +14476,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+f0bd8edc
+    @version 2.2.0-canary+db23f439
     @public
   */
 
@@ -14522,11 +14520,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+f0bd8edc'
+    @default '2.2.0-canary+db23f439'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+f0bd8edc';
+  Ember.VERSION = '2.2.0-canary+db23f439';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22666,7 +22664,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+f0bd8edc';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+db23f439';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23162,7 +23160,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+f0bd8edc';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+db23f439';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36747,7 +36745,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+f0bd8edc',
+        revision: 'Ember@2.2.0-canary+db23f439',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40799,7 +40797,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+f0bd8edc';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+db23f439';
 
   /**
   @module ember
