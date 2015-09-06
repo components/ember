@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.9
+ * @version   1.13.10
  */
 
 (function() {
@@ -9174,7 +9174,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -15444,7 +15444,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.9
+    @version 1.13.10
     @public
   */
 
@@ -15478,11 +15478,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.9'
+    @default '1.13.10'
     @static
     @public
   */
-  Ember.VERSION = '1.13.9';
+  Ember.VERSION = '1.13.10';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15824,6 +15824,29 @@ enifed('ember-metal/dictionary', ['exports', 'ember-metal/platform/create'], fun
     delete dict['_dict'];
     return dict;
   }
+});
+enifed("ember-metal/empty_object", ["exports", "ember-metal/platform/create"], function (exports, _emberMetalPlatformCreate) {
+  "use strict";
+
+  // This exists because `Object.create(null)` is absurdly slow compared
+  // to `new EmptyObject()`. In either case, you want a null prototype
+  // when you're treating the object instances as arbitrary dictionaries
+  // and don't want your keys colliding with build-in methods on the
+  // default object prototype.
+
+  var proto = _emberMetalPlatformCreate["default"](null, {
+    // without this, we will always still end up with (new
+    // EmptyObject()).constructor === Object
+    constructor: {
+      value: undefined,
+      enumerable: false,
+      writable: true
+    }
+  });
+
+  function EmptyObject() {}
+  EmptyObject.prototype = proto;
+  exports["default"] = EmptyObject;
 });
 enifed('ember-metal/enumerable_utils', ['exports', 'ember-metal/core', 'ember-metal/array'], function (exports, _emberMetalCore, _emberMetalArray) {
   'use strict';
@@ -21922,7 +21945,7 @@ enifed('ember-metal/streams/utils', ['exports', './stream'], function (exports, 
       });
 
       for (i = 0, l = array.length; i < l; i++) {
-        subscribe(array[i], stream.notify, stream);
+        stream.addDependency(array[i]);
       }
 
       // used by angle bracket components to detect an attribute was provided
@@ -24352,7 +24375,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.9';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.10';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -24884,7 +24907,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.9';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -41752,7 +41775,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.9',
+        revision: 'Ember@1.13.10',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41905,7 +41928,7 @@ enifed("ember-views", ["exports", "ember-runtime", "ember-views/system/jquery", 
   exports["default"] = _emberRuntime["default"];
 });
 // for the side effect of extending Ember.run.queues
-enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/property_events', 'ember-metal/events'], function (exports, _emberMetalMixin, _emberMetalUtils, _emberMetalProperty_events, _emberMetalEvents) {
+enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember-metal/utils', 'ember-metal/property_events', 'ember-metal/events', 'ember-metal/empty_object'], function (exports, _emberMetalMixin, _emberMetalUtils, _emberMetalProperty_events, _emberMetalEvents, _emberMetalEmpty_object) {
   'use strict';
 
   exports.deprecation = deprecation;
@@ -41921,8 +41944,37 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
     return val && val[MUTABLE_CELL];
   }
 
+  function setupAvoidPropagating(instance) {
+    // This caches the list of properties to avoid setting onto the component instance
+    // inside `_propagateAttrsToThis`.  We cache them so that every instantiated component
+    // does not have to pay the calculation penalty.
+    var constructor = instance.constructor;
+    if (!constructor.__avoidPropagating) {
+      constructor.__avoidPropagating = new _emberMetalEmpty_object["default"]();
+      var i = undefined,
+          l = undefined;
+      for (i = 0, l = instance.concatenatedProperties.length; i < l; i++) {
+        var prop = instance.concatenatedProperties[i];
+
+        constructor.__avoidPropagating[prop] = true;
+      }
+
+      for (i = 0, l = instance.mergedProperties.length; i < l; i++) {
+        var prop = instance.mergedProperties[i];
+
+        constructor.__avoidPropagating[prop] = true;
+      }
+    }
+  }
+
   var AttrsProxyMixin = {
     attrs: null,
+
+    init: function () {
+      this._super.apply(this, arguments);
+
+      setupAvoidPropagating(this);
+    },
 
     getAttr: function (key) {
       var attrs = this.attrs;
@@ -41952,11 +42004,7 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
       var attrs = this.attrs;
 
       for (var prop in attrs) {
-        if (prop !== 'attrs' &&
-        // These list of properties are concatenated and merged properties of
-        // Ember.View / Ember.Component. Setting them here results in them being
-        // completely stomped and not handled properly, BAIL OUT!
-        prop !== 'actions' && prop !== 'classNames' && prop !== 'classNameBindings' && prop !== 'attributeBindings') {
+        if (prop !== 'attrs' && !this.constructor.__avoidPropagating[prop]) {
           this.set(prop, this.getAttr(prop));
         }
       }
@@ -45721,7 +45769,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.9';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.10';
 
   /**
   @module ember
@@ -50917,7 +50965,12 @@ enifed("htmlbars-util/morph-utils", ["exports"], function (exports) {
           current = current.nextMorph;
         }
       } else if (node.morphList) {
-        nodes.push(node.morphList);
+        var current = node.morphList.firstChildMorph;
+
+        while (current) {
+          nodes.push(current);
+          current = current.nextMorph;
+        }
       }
     }
   }
