@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+b315146e
+ * @version   2.1.0-beta.3
  */
 
 (function() {
@@ -8870,7 +8870,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+b315146e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.3';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14793,7 +14793,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2+b315146e
+    @version 2.1.0-beta.3
     @public
   */
 
@@ -14827,11 +14827,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2+b315146e'
+    @default '2.1.0-beta.3'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2+b315146e';
+  Ember.VERSION = '2.1.0-beta.3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23049,7 +23049,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.2+b315146e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.3';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23544,7 +23544,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+b315146e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.3';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37202,7 +37202,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.2+b315146e',
+        revision: 'Ember@2.1.0-beta.3',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41918,7 +41918,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.2+b315146e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.3';
 
   /**
   @module ember
