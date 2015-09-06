@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+72cacb02
+ * @version   2.1.0-beta.2+5dbb5d2c
  */
 
 (function() {
@@ -4229,7 +4229,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2+72cacb02
+    @version 2.1.0-beta.2+5dbb5d2c
     @public
   */
 
@@ -4263,11 +4263,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2+72cacb02'
+    @default '2.1.0-beta.2+5dbb5d2c'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2+72cacb02';
+  Ember.VERSION = '2.1.0-beta.2+5dbb5d2c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9580,61 +9580,6 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/streams/conditional', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
-  'use strict';
-
-  exports.default = conditional;
-
-  function conditional(test, consequent, alternate) {
-    if (_emberMetalStreamsUtils.isStream(test)) {
-      return new ConditionalStream(test, consequent, alternate);
-    } else {
-      if (test) {
-        return consequent;
-      } else {
-        return alternate;
-      }
-    }
-  }
-
-  function ConditionalStream(test, consequent, alternate) {
-    this.init();
-
-    this.oldTestResult = undefined;
-    this.test = test;
-    this.consequent = consequent;
-    this.alternate = alternate;
-  }
-
-  ConditionalStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
-
-  ConditionalStream.prototype.compute = function () {
-    var oldTestResult = this.oldTestResult;
-    var newTestResult = !!_emberMetalStreamsUtils.read(this.test);
-
-    if (newTestResult !== oldTestResult) {
-      switch (oldTestResult) {
-        case true:
-          _emberMetalStreamsUtils.unsubscribe(this.consequent, this.notify, this);break;
-        case false:
-          _emberMetalStreamsUtils.unsubscribe(this.alternate, this.notify, this);break;
-        case undefined:
-          _emberMetalStreamsUtils.subscribe(this.test, this.notify, this);
-      }
-
-      switch (newTestResult) {
-        case true:
-          _emberMetalStreamsUtils.subscribe(this.consequent, this.notify, this);break;
-        case false:
-          _emberMetalStreamsUtils.subscribe(this.alternate, this.notify, this);
-      }
-
-      this.oldTestResult = newTestResult;
-    }
-
-    return newTestResult ? _emberMetalStreamsUtils.read(this.consequent) : _emberMetalStreamsUtils.read(this.alternate);
-  };
-});
 enifed('ember-metal/streams/dependency', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalStreamsUtils) {
   'use strict';
 
@@ -12402,7 +12347,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.2+72cacb02',
+        revision: 'Ember@2.1.0-beta.2+5dbb5d2c',
         loc: program.loc,
         moduleName: options.moduleName
       };

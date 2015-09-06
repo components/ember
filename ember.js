@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+72cacb02
+ * @version   2.1.0-beta.2+5dbb5d2c
  */
 
 (function() {
@@ -8870,7 +8870,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+72cacb02';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+5dbb5d2c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9828,7 +9828,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper'], function (expor
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-metal/assign', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberMetalAssign, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsViewsComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/core', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/views/component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalCore, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsViewsComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.createComponent = createComponent;
@@ -9906,7 +9906,9 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // If the component specifies its layout via the `layout` property
     // instead of using the template looked up in the container, get it
     // now that we have the component instance.
-    layout = _emberMetalProperty_get.get(component, 'layout') || layout;
+    if (!layout) {
+      layout = _emberMetalProperty_get.get(component, 'layout');
+    }
 
     var results = _emberViewsSystemBuildComponentTemplate.default({ layout: layout, component: component, isAngleBracket: isAngleBracket }, attrs, { templates: templates, scope: parentScope });
 
@@ -10038,10 +10040,8 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     component.destroy();
   };
 
-  function createComponent(_component, isAngleBracket, _props, renderNode, env) {
+  function createComponent(_component, isAngleBracket, props, renderNode, env) {
     var attrs = arguments.length <= 5 || arguments[5] === undefined ? {} : arguments[5];
-
-    var props = _emberMetalAssign.default({}, _props);
 
     if (!isAngleBracket) {
       var proto = _component.proto();
@@ -10051,8 +10051,10 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       var snapshot = takeSnapshot(attrs);
       props.attrs = snapshot;
 
-      mergeBindings(props, shadowedAttrs(proto, snapshot));
+      snapshotAndUpdateTarget(attrs, props);
     } else {
+      props.attrs = takeSnapshot(attrs);
+
       props._isAngleBracket = true;
     }
 
@@ -10105,11 +10107,13 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     return hash;
   }
 
-  function mergeBindings(target, attrs) {
-    for (var prop in attrs) {
-      if (!attrs.hasOwnProperty(prop)) {
-        continue;
-      }
+  function snapshotAndUpdateTarget(rawAttrs, target) {
+    var attrs = {};
+
+    for (var prop in rawAttrs) {
+      var value = _emberHtmlbarsHooksGetCellOrValue.default(rawAttrs[prop]);
+      attrs[prop] = value;
+
       // when `attrs` is an actual value being set in the
       // attrs hash (`{{foo-bar attrs="blah"}}`) we cannot
       // set `"blah"` to the root of the target because
@@ -10118,16 +10122,15 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
         _emberMetalCore.default.warn('Invoking a component with a hash attribute named `attrs` is not supported. Please refactor usage of ' + target + ' to avoid passing `attrs` as a hash parameter.', false, { id: 'ember-htmlbars.component-unsupported-attrs' });
         continue;
       }
-      var value = attrs[prop];
 
       if (value && value[_emberViewsCompatAttrsProxy.MUTABLE_CELL]) {
-        target[prop] = value.value;
-      } else {
-        target[prop] = value;
+        value = value.value;
       }
+
+      target[prop] = value;
     }
 
-    return target;
+    return target.attrs = attrs;
   }
 
   function buildChildEnv(state, env) {
@@ -14809,7 +14812,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.2+72cacb02
+    @version 2.1.0-beta.2+5dbb5d2c
     @public
   */
 
@@ -14843,11 +14846,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.2+72cacb02'
+    @default '2.1.0-beta.2+5dbb5d2c'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.2+72cacb02';
+  Ember.VERSION = '2.1.0-beta.2+5dbb5d2c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20160,61 +20163,6 @@ enifed('ember-metal/set_properties', ['exports', 'ember-metal/property_events', 
     return properties;
   }
 });
-enifed('ember-metal/streams/conditional', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
-  'use strict';
-
-  exports.default = conditional;
-
-  function conditional(test, consequent, alternate) {
-    if (_emberMetalStreamsUtils.isStream(test)) {
-      return new ConditionalStream(test, consequent, alternate);
-    } else {
-      if (test) {
-        return consequent;
-      } else {
-        return alternate;
-      }
-    }
-  }
-
-  function ConditionalStream(test, consequent, alternate) {
-    this.init();
-
-    this.oldTestResult = undefined;
-    this.test = test;
-    this.consequent = consequent;
-    this.alternate = alternate;
-  }
-
-  ConditionalStream.prototype = Object.create(_emberMetalStreamsStream.default.prototype);
-
-  ConditionalStream.prototype.compute = function () {
-    var oldTestResult = this.oldTestResult;
-    var newTestResult = !!_emberMetalStreamsUtils.read(this.test);
-
-    if (newTestResult !== oldTestResult) {
-      switch (oldTestResult) {
-        case true:
-          _emberMetalStreamsUtils.unsubscribe(this.consequent, this.notify, this);break;
-        case false:
-          _emberMetalStreamsUtils.unsubscribe(this.alternate, this.notify, this);break;
-        case undefined:
-          _emberMetalStreamsUtils.subscribe(this.test, this.notify, this);
-      }
-
-      switch (newTestResult) {
-        case true:
-          _emberMetalStreamsUtils.subscribe(this.consequent, this.notify, this);break;
-        case false:
-          _emberMetalStreamsUtils.subscribe(this.alternate, this.notify, this);
-      }
-
-      this.oldTestResult = newTestResult;
-    }
-
-    return newTestResult ? _emberMetalStreamsUtils.read(this.consequent) : _emberMetalStreamsUtils.read(this.alternate);
-  };
-});
 enifed('ember-metal/streams/dependency', ['exports', 'ember-metal/core', 'ember-metal/merge', 'ember-metal/streams/utils'], function (exports, _emberMetalCore, _emberMetalMerge, _emberMetalStreamsUtils) {
   'use strict';
 
@@ -22803,14 +22751,14 @@ enifed('ember-routing-views', ['exports', 'ember-metal/core', 'ember-routing-vie
 
   exports.default = _emberMetalCore.default;
 });
-enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo) {
+enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-views/system/utils', 'ember-views/views/component', 'ember-runtime/inject', 'ember-runtime/system/service', 'ember-runtime/mixins/controller', 'ember-htmlbars/node-managers/component-node-manager', 'ember-htmlbars/templates/link-to'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalComputed, _emberMetalComputed_macros, _emberViewsSystemUtils, _emberViewsViewsComponent, _emberRuntimeInject, _emberRuntimeSystemService, _emberRuntimeMixinsController, _emberHtmlbarsNodeManagersComponentNodeManager, _emberHtmlbarsTemplatesLinkTo) {
   /**
   @module ember
   @submodule ember-templates
   */
 
   /**
-    The `{{link-to}}` helper renders a link to the supplied
+    The `{{link-to}}` component renders a link to the supplied
     `routeName` passing an optionally supplied model to the
     route as its `model` context of the route. The block
     for `{{link-to}}` becomes the innerHTML of the rendered
@@ -22822,9 +22770,9 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     {{/link-to}}
     ```
   
-    You can also use an inline form of `{{link-to}}` helper by
+    You can also use an inline form of `{{link-to}}` component by
     passing the link text as the first argument
-    to the helper:
+    to the component:
   
     ```handlebars
     {{link-to 'Great Hamster Photos' 'photoGallery'}}
@@ -22858,9 +22806,10 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     To override this option for your entire application, see
     "Overriding Application-wide Defaults".
   
-    ### Disabling the `link-to` helper
+    ### Disabling the `link-to` component
     By default `{{link-to}}` is enabled.
-    any passed value to `disabled` helper property will disable the `link-to` helper.
+    any passed value to the `disabled` component property will disable
+    the `link-to` component.
   
     static use: the `disabled` option:
   
@@ -22879,7 +22828,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     ```
   
     any passed value to `disabled` will disable it except `undefined`.
-    to ensure that only `true` disable the `link-to` helper you can
+    to ensure that only `true` disable the `link-to` component you can
     override the global behaviour of `Ember.LinkComponent`.
   
     ```javascript
@@ -23051,7 +23000,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
   
     ### Allowing Default Action
   
-   By default the `{{link-to}}` helper prevents the default browser action
+   By default the `{{link-to}}` component prevents the default browser action
    by calling `preventDefault()` as this sort of action bubbling is normally
    handled internally and we do not want to take the browser to a new URL (for
    example).
@@ -23066,8 +23015,8 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     ```
   
     ### Overriding attributes
-    You can override any given property of the Ember.LinkComponent
-    that is generated by the `{{link-to}}` helper by passing
+    You can override any given property of the `Ember.LinkComponent`
+    that is generated by the `{{link-to}}` component by passing
     key/value pairs, like so:
   
     ```handlebars
@@ -23081,9 +23030,9 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     check out inherited properties of `LinkComponent`.
   
     ### Overriding Application-wide Defaults
-    ``{{link-to}}`` creates an instance of Ember.LinkComponent
+    ``{{link-to}}`` creates an instance of `Ember.LinkComponent`
     for rendering. To override options for your entire
-    application, reopen Ember.LinkComponent and supply the
+    application, reopen `Ember.LinkComponent` and supply the
     desired values:
   
     ``` javascript
@@ -23119,25 +23068,25 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.2+72cacb02';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.2+5dbb5d2c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
     transition of the application's instance of `Ember.Router` to
     a supplied route by name.
   
-    Instances of `LinkComponent` will most likely be created through
-    the `link-to` Handlebars helper, but properties of this class
-    can be overridden to customize application-wide behavior.
+    `Ember.LinkComponent` components are invoked with {{#link-to}}. Properties
+    of this class can be overridden with `reopen` to customize application-wide
+    behavior.
   
     @class LinkComponent
     @namespace Ember
     @extends Ember.Component
-    @see {Handlebars.helpers.link-to}
+    @see {Ember.Templates.helpers.link-to}
     @private
   **/
   var LinkComponent = _emberViewsViewsComponent.default.extend({
-    defaultLayout: _emberHtmlbarsTemplatesLinkTo.default,
+    layout: _emberHtmlbarsTemplatesLinkTo.default,
 
     tagName: 'a',
 
@@ -23149,7 +23098,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     currentWhen: _emberMetalComputed_macros.deprecatingAlias('current-when', { id: 'ember-routing-view.deprecated-current-when', until: '3.0.0' }),
 
     /**
-      Used to determine when this LinkComponent is active.
+      Used to determine when this `LinkComponent` is active.
        @property currentWhen
       @public
     */
@@ -23230,7 +23179,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     replace: false,
 
     /**
-      By default the `{{link-to}}` helper will bind to the `href` and
+      By default the `{{link-to}}` component will bind to the `href` and
       `title` attributes. It's discouraged that you override these defaults,
       however you can push onto the array if needed.
        @property attributeBindings
@@ -23241,8 +23190,8 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     attributeBindings: ['href', 'title', 'rel', 'tabindex', 'target'],
 
     /**
-      By default the `{{link-to}}` helper will bind to the `active`, `loading`, and
-      `disabled` classes. It is discouraged to override these directly.
+      By default the `{{link-to}}` component will bind to the `active`, `loading`,
+      and `disabled` classes. It is discouraged to override these directly.
        @property classNameBindings
       @type Array
       @default ['active', 'loading', 'disabled']
@@ -23251,7 +23200,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     classNameBindings: ['active', 'loading', 'disabled', 'transitioningIn', 'transitioningOut'],
 
     /**
-      By default the `{{link-to}}` helper responds to the `click` event. You
+      By default the `{{link-to}}` component responds to the `click` event. You
       can override this globally by setting this property to your custom
       event name.
        This is particularly useful on mobile when one wants to avoid the 300ms
@@ -23276,7 +23225,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     */
 
     /**
-      An overridable method called when LinkComponent objects are instantiated.
+      An overridable method called when `LinkComponent` objects are instantiated.
        Example:
        ```javascript
       App.MyLinkComponent = Ember.LinkComponent.extend({
@@ -23324,6 +23273,29 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
       }
     }),
 
+    _computeActive: function (routerState) {
+      if (_emberMetalProperty_get.get(this, 'loading')) {
+        return false;
+      }
+
+      var routing = _emberMetalProperty_get.get(this, '_routing');
+      var models = _emberMetalProperty_get.get(this, 'models');
+      var resolvedQueryParams = _emberMetalProperty_get.get(this, 'resolvedQueryParams');
+
+      var currentWhen = _emberMetalProperty_get.get(this, 'current-when');
+      var isCurrentWhenSpecified = !!currentWhen;
+      currentWhen = currentWhen || _emberMetalProperty_get.get(this, 'qualifiedRouteName');
+      currentWhen = currentWhen.split(' ');
+
+      for (var i = 0, len = currentWhen.length; i < len; i++) {
+        if (routing.isActiveForRoute(models, resolvedQueryParams, currentWhen[i], routerState, isCurrentWhenSpecified)) {
+          return _emberMetalProperty_get.get(this, 'activeClass');
+        }
+      }
+
+      return false;
+    },
+
     /**
       Accessed as a classname binding to apply the `LinkComponent`'s `activeClass`
       CSS `class` to the element when the link is active.
@@ -23335,26 +23307,26 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
        @property active
       @private
     */
-    active: _emberMetalComputed.computed('attrs.params', '_routing.currentState', function computeLinkComponentActive() {
+    active: _emberMetalComputed.computed('attrs.params', '_routing.currentState', function computeLinkToComponentActive() {
       var currentState = _emberMetalProperty_get.get(this, '_routing.currentState');
       if (!currentState) {
         return false;
       }
 
-      return computeActive(this, currentState);
+      return this._computeActive(currentState);
     }),
 
-    willBeActive: _emberMetalComputed.computed('_routing.targetState', function () {
+    willBeActive: _emberMetalComputed.computed('_routing.targetState', function computeLinkToComponentWillBeActive() {
       var routing = _emberMetalProperty_get.get(this, '_routing');
       var targetState = _emberMetalProperty_get.get(routing, 'targetState');
       if (_emberMetalProperty_get.get(routing, 'currentState') === targetState) {
         return;
       }
 
-      return !!computeActive(this, targetState);
+      return !!this._computeActive(targetState);
     }),
 
-    transitioningIn: _emberMetalComputed.computed('active', 'willBeActive', function () {
+    transitioningIn: _emberMetalComputed.computed('active', 'willBeActive', function computeLinkToComponentTransitioningIn() {
       var willBeActive = _emberMetalProperty_get.get(this, 'willBeActive');
       if (typeof willBeActive === 'undefined') {
         return false;
@@ -23363,7 +23335,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
       return !_emberMetalProperty_get.get(this, 'active') && willBeActive && 'ember-transitioning-in';
     }),
 
-    transitioningOut: _emberMetalComputed.computed('active', 'willBeActive', function () {
+    transitioningOut: _emberMetalComputed.computed('active', 'willBeActive', function computeLinkToComponentTransitioningOut() {
       var willBeActive = _emberMetalProperty_get.get(this, 'willBeActive');
       if (typeof willBeActive === 'undefined') {
         return false;
@@ -23410,15 +23382,47 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
       }
 
       var routing = _emberMetalProperty_get.get(this, '_routing');
-      var targetRouteName = this._computeRouteNameWithQueryParams(_emberMetalProperty_get.get(this, 'targetRouteName'));
+      var qualifiedRouteName = _emberMetalProperty_get.get(this, 'qualifiedRouteName');
       var models = _emberMetalProperty_get.get(this, 'models');
       var queryParamValues = _emberMetalProperty_get.get(this, 'queryParams.values');
       var shouldReplace = _emberMetalProperty_get.get(this, 'attrs.replace');
 
-      routing.transitionTo(targetRouteName, models, queryParamValues, shouldReplace);
+      routing.transitionTo(qualifiedRouteName, models, queryParamValues, shouldReplace);
     },
 
     queryParams: null,
+
+    qualifiedRouteName: _emberMetalComputed.computed('targetRouteName', '_routing.currentState', function computeLinkToComponentQualifiedRouteName() {
+      var params = this.attrs.params.slice();
+      var lastParam = params[params.length - 1];
+      if (lastParam && lastParam.isQueryParams) {
+        params.pop();
+      }
+      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
+      if (onlyQueryParamsSupplied) {
+        return _emberMetalProperty_get.get(this, '_routing.currentRouteName');
+      }
+      return _emberMetalProperty_get.get(this, 'targetRouteName');
+    }),
+
+    resolvedQueryParams: _emberMetalComputed.computed('queryParams', function computeLinkToComponentResolvedQueryParams() {
+      var resolvedQueryParams = {};
+      var queryParams = _emberMetalProperty_get.get(this, 'queryParams');
+
+      if (!queryParams) {
+        return resolvedQueryParams;
+      }
+
+      var values = queryParams.values;
+      for (var key in values) {
+        if (!values.hasOwnProperty(key)) {
+          continue;
+        }
+        resolvedQueryParams[key] = values[key];
+      }
+
+      return resolvedQueryParams;
+    }),
 
     /**
       Sets the element's `href` attribute to the url for
@@ -23428,49 +23432,42 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
        @property href
       @private
     */
-    href: _emberMetalComputed.computed('models', 'targetRouteName', '_routing.currentState', function computeLinkComponentHref() {
+    href: _emberMetalComputed.computed('models', 'qualifiedRouteName', function computeLinkToComponentHref() {
       if (_emberMetalProperty_get.get(this, 'tagName') !== 'a') {
         return;
       }
 
-      var targetRouteName = _emberMetalProperty_get.get(this, 'targetRouteName');
+      var qualifiedRouteName = _emberMetalProperty_get.get(this, 'qualifiedRouteName');
       var models = _emberMetalProperty_get.get(this, 'models');
 
       if (_emberMetalProperty_get.get(this, 'loading')) {
         return _emberMetalProperty_get.get(this, 'loadingHref');
       }
 
-      targetRouteName = this._computeRouteNameWithQueryParams(targetRouteName);
-
       var routing = _emberMetalProperty_get.get(this, '_routing');
       var queryParams = _emberMetalProperty_get.get(this, 'queryParams.values');
-      return routing.generateURL(targetRouteName, models, queryParams);
+      return routing.generateURL(qualifiedRouteName, models, queryParams);
     }),
 
-    loading: _emberMetalComputed.computed('models', 'targetRouteName', function () {
-      var targetRouteName = _emberMetalProperty_get.get(this, 'targetRouteName');
-      var models = _emberMetalProperty_get.get(this, 'models');
+    loading: _emberMetalComputed.computed('_modelsAreLoaded', 'qualifiedRouteName', function computeLinkToComponentLoading() {
+      var qualifiedRouteName = _emberMetalProperty_get.get(this, 'qualifiedRouteName');
+      var modelsAreLoaded = _emberMetalProperty_get.get(this, '_modelsAreLoaded');
 
-      if (!modelsAreLoaded(models) || targetRouteName == null) {
+      if (!modelsAreLoaded || qualifiedRouteName == null) {
         return _emberMetalProperty_get.get(this, 'loadingClass');
       }
     }),
 
-    _computeRouteNameWithQueryParams: function (route) {
-      var params = this.attrs.params.slice();
-      var lastParam = params[params.length - 1];
-      if (lastParam && lastParam.isQueryParams) {
-        params.pop();
-      }
-      var onlyQueryParamsSupplied = this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK] ? params.length === 0 : params.length === 1;
-      if (onlyQueryParamsSupplied) {
-        var appController = this.container.lookup('controller:application');
-        if (appController) {
-          return _emberMetalProperty_get.get(appController, 'currentRouteName');
+    _modelsAreLoaded: _emberMetalComputed.computed('models', function computeLinkToComponentModelsAreLoaded() {
+      var models = _emberMetalProperty_get.get(this, 'models');
+      for (var i = 0, l = models.length; i < l; i++) {
+        if (models[i] == null) {
+          return false;
         }
       }
-      return route;
-    },
+
+      return true;
+    }),
 
     /**
       The default href value to use while a link-to is loading.
@@ -23483,22 +23480,14 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     loadingHref: '#',
 
     willRender: function () {
-      var queryParams;
+      var queryParams = undefined;
 
       var attrs = this.attrs;
 
       // Do not mutate params in place
       var params = attrs.params.slice();
 
-      _emberMetalCore.default.assert('You must provide one or more parameters to the link-to helper.', params.length);
-
-      var lastParam = params[params.length - 1];
-
-      if (lastParam && lastParam.isQueryParams) {
-        queryParams = params.pop();
-      } else {
-        queryParams = {};
-      }
+      _emberMetalCore.default.assert('You must provide one or more parameters to the link-to component.', params.length);
 
       if (attrs.disabledClass) {
         this.set('disabledClass', attrs.disabledClass);
@@ -23512,15 +23501,33 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
         this.set('disabled', attrs.disabledWhen);
       }
 
+      if (attrs.loadingClass) {
+        this.set('loadingClass', attrs.loadingClass);
+      }
+
+      // Process the positional arguments, in order.
+      // 1. Inline link title comes first, if present.
       if (!this[_emberHtmlbarsNodeManagersComponentNodeManager.HAS_BLOCK]) {
         this.set('linkTitle', params.shift());
       }
 
-      if (attrs.loadingClass) {
-        _emberMetalProperty_set.set(this, 'loadingClass', attrs.loadingClass);
-      }
+      // 2. `targetRouteName` is now always at index 0.
+      this.set('targetRouteName', params[0]);
 
-      for (var i = 0; i < params.length; i++) {
+      // 3. The last argument (if still remaining) is the `queryParams` object.
+      var lastParam = params[params.length - 1];
+
+      if (lastParam && lastParam.isQueryParams) {
+        queryParams = params.pop();
+      } else {
+        queryParams = {};
+      }
+      this.set('queryParams', queryParams);
+
+      // 4. Any remaining indices (excepting `targetRouteName` at 0) are `models`.
+      var models = [];
+
+      for (var i = 1; i < params.length; i++) {
         var value = params[i];
 
         while (_emberRuntimeMixinsController.default.detect(value)) {
@@ -23528,80 +23535,16 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
           value = value.get('model');
         }
 
-        params[i] = value;
+        models.push(value);
       }
 
-      var targetRouteName = undefined;
-      var models = [];
-      targetRouteName = this._computeRouteNameWithQueryParams(params[0]);
-
-      for (var i = 1; i < params.length; i++) {
-        models.push(params[i]);
-      }
-
-      var resolvedQueryParams = getResolvedQueryParams(queryParams, targetRouteName);
-
-      this.set('targetRouteName', targetRouteName);
       this.set('models', models);
-      this.set('queryParams', queryParams);
-      this.set('resolvedQueryParams', resolvedQueryParams);
     }
   });
 
   LinkComponent.toString = function () {
     return 'LinkComponent';
   };
-
-  function computeActive(view, routerState) {
-    if (_emberMetalProperty_get.get(view, 'loading')) {
-      return false;
-    }
-
-    var currentWhen = _emberMetalProperty_get.get(view, 'current-when');
-    var isCurrentWhenSpecified = !!currentWhen;
-    currentWhen = currentWhen || _emberMetalProperty_get.get(view, 'targetRouteName');
-    currentWhen = currentWhen.split(' ');
-    for (var i = 0, len = currentWhen.length; i < len; i++) {
-      if (isActiveForRoute(view, currentWhen[i], isCurrentWhenSpecified, routerState)) {
-        return _emberMetalProperty_get.get(view, 'activeClass');
-      }
-    }
-
-    return false;
-  }
-
-  function modelsAreLoaded(models) {
-    for (var i = 0, l = models.length; i < l; i++) {
-      if (models[i] == null) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  function isActiveForRoute(view, routeName, isCurrentWhenSpecified, routerState) {
-    var service = _emberMetalProperty_get.get(view, '_routing');
-    return service.isActiveForRoute(_emberMetalProperty_get.get(view, 'models'), _emberMetalProperty_get.get(view, 'resolvedQueryParams'), routeName, routerState, isCurrentWhenSpecified);
-  }
-
-  function getResolvedQueryParams(queryParamsObject, targetRouteName) {
-    var resolvedQueryParams = {};
-
-    if (!queryParamsObject) {
-      return resolvedQueryParams;
-    }
-
-    var values = queryParamsObject.values;
-    for (var key in values) {
-      if (!values.hasOwnProperty(key)) {
-        continue;
-      }
-      resolvedQueryParams[key] = values[key];
-    }
-
-    return resolvedQueryParams;
-  }
 
   LinkComponent.reopenClass({
     positionalParams: 'params'
@@ -23620,7 +23563,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+72cacb02';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.2+5dbb5d2c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -29858,18 +29801,21 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/lo
     });
   });
 
-  function onerrorDefault(e) {
+  function onerrorDefault(reason) {
     var error;
 
-    if (e && e.errorThrown) {
+    if (reason && reason.errorThrown) {
       // jqXHR provides this
-      error = e.errorThrown;
+      error = reason.errorThrown;
       if (typeof error === 'string') {
         error = new Error(error);
       }
-      error.__reason_with_error_thrown__ = e;
+      Object.defineProperty(error, '__reason_with_error_thrown__', {
+        value: reason,
+        enumerable: false
+      });
     } else {
-      error = e;
+      error = reason;
     }
 
     if (error && error.name === "UnrecognizedURLError") {
@@ -32908,8 +32854,9 @@ enifed('ember-runtime/mixins/observable', ['exports', 'ember-metal/core', 'ember
   
     ```javascript
     Ember.Object.extend({
-      valueObserver: Ember.observer('value', function() {
+      valueObserver: Ember.observer('value', function(sender, key, value, rev) {
         // Executes whenever the "value" property changes
+        // See the addObserver method for more information about the callback arguments
       })
     });
     ```
@@ -37274,7 +37221,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.2+72cacb02',
+        revision: 'Ember@2.1.0-beta.2+5dbb5d2c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41716,9 +41663,26 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
       this._super.apply(this, arguments);
       _emberMetalProperty_set.set(this, 'controller', this);
       _emberMetalProperty_set.set(this, 'context', this);
+
+      if (!this.layout && this.layoutName && this.container) {
+        var layoutName = _emberMetalProperty_get.get(this, 'layoutName');
+
+        this.layout = this.templateForName(layoutName);
+      }
+
+      // If a `defaultLayout` was specified move it to the `layout` prop.
+      // `layout` is no longer a CP, so this just ensures that the `defaultLayout`
+      // logic is supported with a deprecation
+      if (this.defaultLayout && !this.layout) {
+        _emberMetalCore.default.deprecate('Specifying `defaultLayout` to ' + this + ' is deprecated. Please use `layout` instead.', false, { id: 'ember-views.component.defaultLayout', until: '3.0.0' });
+
+        this.layout = this.defaultLayout;
+      }
     },
 
     template: null,
+    layoutName: null,
+    layout: null,
 
     /**
       If the component is currently inserted into the DOM of a parent view, this
@@ -41970,11 +41934,10 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 
   exports.default = Component;
 });
-// Ember.assert, Ember.Handlebars
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.2+72cacb02';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.2+5dbb5d2c';
 
   /**
   @module ember

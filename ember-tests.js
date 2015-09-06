@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.2+72cacb02
+ * @version   2.1.0-beta.2+5dbb5d2c
  */
 
 (function() {
@@ -30809,6 +30809,30 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     }
   });
 
+  QUnit.test('rejections can be serialized to JSON', function (assert) {
+    expect(2);
+
+    var wasEmberTesting = _emberMetalCore.default.testing;
+    var wasOnError = _emberMetalCore.default.onerror;
+
+    try {
+      _emberMetalCore.default.testing = false;
+      _emberMetalCore.default.onerror = function (error) {
+        assert.equal(error.message, 'a fail');
+        assert.ok(JSON.stringify(error), 'Error can be serialized');
+      };
+
+      var jqXHR = {
+        errorThrown: new Error('a fail')
+      };
+
+      _emberMetalRun_loop.default(_emberRuntimeExtRsvp.default, 'reject', jqXHR);
+    } finally {
+      _emberMetalCore.default.onerror = wasOnError;
+      _emberMetalCore.default.testing = wasEmberTesting;
+    }
+  });
+
   var wasTesting;
   var reason = 'i failed';
   QUnit.module('Ember.test: rejection assertions', {
@@ -40698,7 +40722,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0-beta.2+72cacb02', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0-beta.2+5dbb5d2c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44125,6 +44149,14 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
 
     equal(_emberMetalProperty_get.get(component, 'templateName'), 'blah-blah');
     equal(_emberMetalProperty_get.get(component, 'layoutName'), 'hum-drum');
+  });
+
+  QUnit.test('Specifying a defaultLayout to a component is deprecated', function () {
+    expectDeprecation(function () {
+      _emberViewsViewsComponent.default.extend({
+        defaultLayout: 'hum-drum'
+      }).create();
+    }, /Specifying `defaultLayout` to .+ is deprecated\./);
   });
 
   QUnit.test('Specifying a templateName on a component with a layoutName specified in a superclass is NOT deprecated', function () {
@@ -50863,7 +50895,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
     equal(_emberMetalCore.default.$('#wrapper').text(), 'machty hello  world', 'The component is composed correctly');
   });
 
-  QUnit.test('Assigning templateName to a component should setup the template as a layout', function () {
+  QUnit.test('Assigning layoutName to a component should setup the template as a layout', function () {
     expect(1);
 
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
@@ -50879,6 +50911,70 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember', 'ember-me
         layoutName: 'foo-bar-baz'
       }));
     });
+
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+  });
+
+  QUnit.test('Assigning layoutName and layout to a component should use the `layout` value', function () {
+    expect(1);
+
+    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['foo-bar-baz'] = _emberTemplateCompilerSystemCompile.default('No way!');
+
+    boot(function () {
+      registry.register('controller:application', _emberMetalCore.default.Controller.extend({
+        'text': 'outer'
+      }));
+
+      registry.register('component:my-component', _emberMetalCore.default.Component.extend({
+        text: 'inner',
+        layoutName: 'foo-bar-baz',
+        layout: _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}')
+      }));
+    });
+
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+  });
+
+  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if no layout was found [DEPRECATED]', function () {
+    expect(2);
+
+    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+
+    expectDeprecation(function () {
+      boot(function () {
+        registry.register('controller:application', _emberMetalCore.default.Controller.extend({
+          'text': 'outer'
+        }));
+
+        registry.register('component:my-component', _emberMetalCore.default.Component.extend({
+          text: 'inner',
+          defaultLayout: _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}')
+        }));
+      });
+    }, /Specifying `defaultLayout` to .+ is deprecated\./);
+
+    equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
+  });
+
+  QUnit.test('Assigning defaultLayout to a component should set it up as a layout if layout was found [DEPRECATED]', function () {
+    expect(2);
+
+    _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('<div id=\'wrapper\'>{{#my-component}}{{text}}{{/my-component}}</div>');
+    _emberMetalCore.default.TEMPLATES['components/my-component'] = _emberTemplateCompilerSystemCompile.default('{{text}}-{{yield}}');
+
+    expectDeprecation(function () {
+      boot(function () {
+        registry.register('controller:application', _emberMetalCore.default.Controller.extend({
+          'text': 'outer'
+        }));
+
+        registry.register('component:my-component', _emberMetalCore.default.Component.extend({
+          text: 'inner',
+          defaultLayout: _emberTemplateCompilerSystemCompile.default('should not see this!')
+        }));
+      });
+    }, /Specifying `defaultLayout` to .+ is deprecated\./);
 
     equal(_emberMetalCore.default.$('#wrapper').text(), 'inner-outer', 'The component is composed correctly');
   });
