@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+40e2b67b
+ * @version   2.2.0-canary+0ff1f46e
  */
 
 (function() {
@@ -8610,7 +8610,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+40e2b67b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14478,7 +14478,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+40e2b67b
+    @version 2.2.0-canary+0ff1f46e
     @public
   */
 
@@ -14522,11 +14522,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+40e2b67b'
+    @default '2.2.0-canary+0ff1f46e'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+40e2b67b';
+  Ember.VERSION = '2.2.0-canary+0ff1f46e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22667,7 +22667,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+40e2b67b';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23157,7 +23157,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+40e2b67b';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -33750,6 +33750,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
 
+  var _Mixin$create;
+
+  var POST_INIT = _emberMetalUtils.symbol('POST_INIT');
+  exports.POST_INIT = POST_INIT;
   var schedule = _emberMetalRun_loop.default.schedule;
   var applyMixin = _emberMetalMixin.Mixin._apply;
   var finishPartial = _emberMetalMixin.Mixin.finishPartial;
@@ -33866,6 +33870,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
         this.init.apply(this, args);
       }
 
+      this[POST_INIT]();
+
       m.proto = proto;
       _emberMetalChains.finishChains(this);
       _emberMetalEvents.sendEvent(this, 'init');
@@ -33912,7 +33918,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   CoreObject.toString = function () {
     return 'Ember.CoreObject';
   };
-  CoreObject.PrototypeMixin = _emberMetalMixin.Mixin.create({
+  CoreObject.PrototypeMixin = _emberMetalMixin.Mixin.create((_Mixin$create = {
     reopen: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -33945,180 +33951,40 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
        @method init
       @public
     */
-    init: function () {},
-    __defineNonEnumerable: function (property) {
-      Object.defineProperty(this, property.name, property.descriptor);
-      //this[property.name] = property.descriptor.value;
-    },
+    init: function () {}
 
-    /**
-      Defines the properties that will be concatenated from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by combining the superclass' property
-      value with the subclass' value. An example of this in use within Ember
-      is the `classNames` property of `Ember.View`.
-       Here is some sample code showing the difference between a concatenated
-      property and a normal one:
-       ```javascript
-      App.BarView = Ember.View.extend({
-        someNonConcatenatedProperty: ['bar'],
-        classNames: ['bar']
-      });
-       App.FooBarView = App.BarView.extend({
-        someNonConcatenatedProperty: ['foo'],
-        classNames: ['foo']
-      });
-       var fooBarView = App.FooBarView.create();
-      fooBarView.get('someNonConcatenatedProperty'); // ['foo']
-      fooBarView.get('classNames'); // ['ember-view', 'bar', 'foo']
-      ```
-       This behavior extends to object creation as well. Continuing the
-      above example:
-       ```javascript
-      var view = App.FooBarView.create({
-        someNonConcatenatedProperty: ['baz'],
-        classNames: ['baz']
-      })
-      view.get('someNonConcatenatedProperty'); // ['baz']
-      view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
-      ```
-      Adding a single property that is not an array will just add it in the array:
-       ```javascript
-      var view = App.FooBarView.create({
-        classNames: 'baz'
-      })
-      view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
-      ```
-       Using the `concatenatedProperties` property, we can tell Ember to mix the
-      content of the properties.
-       In `Ember.View` the `classNameBindings` and `attributeBindings` properties
-      are also concatenated, in addition to `classNames`.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual concatenated property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property concatenatedProperties
-      @type Array
-      @default null
-      @public
-    */
-    concatenatedProperties: null,
-
-    /**
-      Destroyed object property flag.
-       if this property is `true` the observers and bindings were already
-      removed by the effect of calling the `destroy()` method.
-       @property isDestroyed
-      @default false
-      @public
-    */
-    isDestroyed: false,
-
-    /**
-      Destruction scheduled flag. The `destroy()` method has been called.
-       The object stays intact until the end of the run loop at which point
-      the `isDestroyed` flag is set.
-       @property isDestroying
-      @default false
-      @public
-    */
-    isDestroying: false,
-
-    /**
-      Destroys an object by setting the `isDestroyed` flag and removing its
-      metadata, which effectively destroys observers and bindings.
-       If you try to set a property on a destroyed object, an exception will be
-      raised.
-       Note that destruction is scheduled for the end of the run loop and does not
-      happen immediately.  It will set an isDestroying flag immediately.
-       @method destroy
-      @return {Ember.Object} receiver
-      @public
-    */
-    destroy: function () {
-      if (this.isDestroying) {
-        return;
-      }
-      this.isDestroying = true;
-
-      schedule('actions', this, this.willDestroy);
-      schedule('destroy', this, this._scheduledDestroy);
-      return this;
-    },
-
-    /**
-      Override to implement teardown.
-       @method willDestroy
-      @public
-    */
-    willDestroy: _emberMetalCore.K,
-
-    /**
-      Invoked by the run loop to actually destroy the object. This is
-      scheduled for execution by the `destroy` method.
-       @private
-      @method _scheduledDestroy
-    */
-    _scheduledDestroy: function () {
-      if (this.isDestroyed) {
-        return;
-      }
-      _emberMetalWatching.destroy(this);
-      this.isDestroyed = true;
-    },
-
-    bind: function (to, from) {
-      if (!(from instanceof _emberMetalBinding.Binding)) {
-        from = _emberMetalBinding.Binding.from(from);
-      }
-      from.to(to).connect(this);
-      return from;
-    },
-
-    /**
-      Returns a string representation which attempts to provide more information
-      than Javascript's `toString` typically does, in a generic way for all Ember
-      objects.
-       ```javascript
-      App.Person = Em.Object.extend()
-      person = App.Person.create()
-      person.toString() //=> "<App.Person:ember1024>"
-      ```
-       If the object's class is not defined on an Ember namespace, it will
-      indicate it is a subclass of the registered superclass:
-      ```javascript
-      Student = App.Person.extend()
-      student = Student.create()
-      student.toString() //=> "<(subclass of App.Person):ember1025>"
-      ```
-       If the method `toStringExtension` is defined, its return value will be
-      included in the output.
-       ```javascript
-      App.Teacher = App.Person.extend({
-        toStringExtension: function() {
-          return this.get('fullName');
-        }
-      });
-      teacher = App.Teacher.create()
-      teacher.toString(); //=> "<App.Teacher:ember1026:Tom Dale>"
-      ```
-       @method toString
-      @return {String} string representation
-      @public
-    */
-    toString: function () {
-      var hasToStringExtension = typeof this.toStringExtension === 'function';
-      var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-      var ret = '<' + this.constructor.toString() + ':' + _emberMetalUtils.guidFor(this) + extension + '>';
-
-      this.toString = makeToString(ret);
-      return ret;
+  }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
+    Object.defineProperty(this, property.name, property.descriptor);
+    //this[property.name] = property.descriptor.value;
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
+    if (this.isDestroying) {
+      return;
     }
-  });
+    this.isDestroying = true;
+
+    schedule('actions', this, this.willDestroy);
+    schedule('destroy', this, this._scheduledDestroy);
+    return this;
+  }, _Mixin$create.willDestroy = _emberMetalCore.K, _Mixin$create._scheduledDestroy = function () {
+    if (this.isDestroyed) {
+      return;
+    }
+    _emberMetalWatching.destroy(this);
+    this.isDestroyed = true;
+  }, _Mixin$create.bind = function (to, from) {
+    if (!(from instanceof _emberMetalBinding.Binding)) {
+      from = _emberMetalBinding.Binding.from(from);
+    }
+    from.to(to).connect(this);
+    return from;
+  }, _Mixin$create.toString = function () {
+    var hasToStringExtension = typeof this.toStringExtension === 'function';
+    var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
+    var ret = '<' + this.constructor.toString() + ':' + _emberMetalUtils.guidFor(this) + extension + '>';
+
+    this.toString = makeToString(ret);
+    return ret;
+  }, _Mixin$create));
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
 
@@ -34498,6 +34364,137 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 // NOTE: this object should never be included directly. Instead use `Ember.Object`.
 // We only define this separately so that `Ember.Set` can depend on it.
 // setup mandatory setter
+
+/**
+  Defines the properties that will be concatenated from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by combining the superclass' property
+  value with the subclass' value. An example of this in use within Ember
+  is the `classNames` property of `Ember.View`.
+   Here is some sample code showing the difference between a concatenated
+  property and a normal one:
+   ```javascript
+  App.BarView = Ember.View.extend({
+    someNonConcatenatedProperty: ['bar'],
+    classNames: ['bar']
+  });
+   App.FooBarView = App.BarView.extend({
+    someNonConcatenatedProperty: ['foo'],
+    classNames: ['foo']
+  });
+   var fooBarView = App.FooBarView.create();
+  fooBarView.get('someNonConcatenatedProperty'); // ['foo']
+  fooBarView.get('classNames'); // ['ember-view', 'bar', 'foo']
+  ```
+   This behavior extends to object creation as well. Continuing the
+  above example:
+   ```javascript
+  var view = App.FooBarView.create({
+    someNonConcatenatedProperty: ['baz'],
+    classNames: ['baz']
+  })
+  view.get('someNonConcatenatedProperty'); // ['baz']
+  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  ```
+  Adding a single property that is not an array will just add it in the array:
+   ```javascript
+  var view = App.FooBarView.create({
+    classNames: 'baz'
+  })
+  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  ```
+   Using the `concatenatedProperties` property, we can tell Ember to mix the
+  content of the properties.
+   In `Ember.View` the `classNameBindings` and `attributeBindings` properties
+  are also concatenated, in addition to `classNames`.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual concatenated property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Destroyed object property flag.
+   if this property is `true` the observers and bindings were already
+  removed by the effect of calling the `destroy()` method.
+   @property isDestroyed
+  @default false
+  @public
+*/
+
+/**
+  Destruction scheduled flag. The `destroy()` method has been called.
+   The object stays intact until the end of the run loop at which point
+  the `isDestroyed` flag is set.
+   @property isDestroying
+  @default false
+  @public
+*/
+
+/**
+  Destroys an object by setting the `isDestroyed` flag and removing its
+  metadata, which effectively destroys observers and bindings.
+   If you try to set a property on a destroyed object, an exception will be
+  raised.
+   Note that destruction is scheduled for the end of the run loop and does not
+  happen immediately.  It will set an isDestroying flag immediately.
+   @method destroy
+  @return {Ember.Object} receiver
+  @public
+*/
+
+/**
+  Override to implement teardown.
+   @method willDestroy
+  @public
+*/
+
+/**
+  Invoked by the run loop to actually destroy the object. This is
+  scheduled for execution by the `destroy` method.
+   @private
+  @method _scheduledDestroy
+*/
+
+/**
+  Returns a string representation which attempts to provide more information
+  than Javascript's `toString` typically does, in a generic way for all Ember
+  objects.
+   ```javascript
+  App.Person = Em.Object.extend()
+  person = App.Person.create()
+  person.toString() //=> "<App.Person:ember1024>"
+  ```
+   If the object's class is not defined on an Ember namespace, it will
+  indicate it is a subclass of the registered superclass:
+  ```javascript
+  Student = App.Person.extend()
+  student = Student.create()
+  student.toString() //=> "<(subclass of App.Person):ember1025>"
+  ```
+   If the method `toStringExtension` is defined, its return value will be
+  included in the output.
+   ```javascript
+  App.Teacher = App.Person.extend({
+    toStringExtension: function() {
+      return this.get('fullName');
+    }
+  });
+  teacher = App.Teacher.create()
+  teacher.toString(); //=> "<App.Teacher:ember1026:Tom Dale>"
+  ```
+   @method toString
+  @return {String} string representation
+  @public
+*/
 
 /**
   Provides lookup-time type validation for injected properties.
@@ -36743,7 +36740,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+40e2b67b',
+        revision: 'Ember@2.2.0-canary+0ff1f46e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -38469,14 +38466,16 @@ enifed('ember-views/mixins/view_state_support', ['exports', 'ember-metal/debug',
 
   exports.default = ViewStateSupport;
 });
-enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberViewsSystemJquery) {
+enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-metal/utils', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/core_object', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalObserver, _emberMetalUtils, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemCore_object, _emberViewsSystemJquery) {
   'use strict';
+
+  var _Mixin$create;
 
   function K() {
     return this;
   }
 
-  exports.default = _emberMetalMixin.Mixin.create({
+  exports.default = _emberMetalMixin.Mixin.create((_Mixin$create = {
     concatenatedProperties: ['attributeBindings'],
 
     /**
@@ -39017,151 +39016,145 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       this.scheduledRevalidation = false;
 
       this._super.apply(this, arguments);
-      this.renderer.componentInitAttrs(this, this.attrs || {});
-    },
-
-    __defineNonEnumerable: function (property) {
-      this[property.name] = property.descriptor.value;
-    },
-
-    revalidate: function () {
-      this.renderer.revalidateTopLevelView(this);
-      this.scheduledRevalidation = false;
-    },
-
-    scheduleRevalidate: function (node, label, manualRerender) {
-      if (node && !this._dispatching && this.env.renderedNodes.has(node)) {
-        if (manualRerender) {} else {}
-        _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
-        return;
-      }
-
-      if (!this.scheduledRevalidation || this._dispatching) {
-        this.scheduledRevalidation = true;
-        _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
-      }
-    },
-
-    templateRenderer: null,
-
-    /**
-      Removes the view from its `parentView`, if one is found. Otherwise
-      does nothing.
-       @method removeFromParent
-      @return {Ember.View} receiver
-      @private
-    */
-    removeFromParent: function () {
-      var parent = this.parentView;
-
-      // Remove DOM element from parent
-      this.remove();
-
-      if (parent) {
-        parent.removeChild(this);
-      }
-      return this;
-    },
-
-    /**
-      You must call `destroy` on a view to destroy the view (and all of its
-      child views). This will remove the view from any parent node, then make
-      sure that the DOM element managed by the view can be released by the
-      memory manager.
-       @method destroy
-      @private
-    */
-    destroy: function () {
-      // get parentView before calling super because it'll be destroyed
-      var parentView = this.parentView;
-      var viewName = this.viewName;
-
-      if (!this._super.apply(this, arguments)) {
-        return;
-      }
-
-      // remove from non-virtual parent view if viewName was specified
-      if (viewName && parentView) {
-        parentView.set(viewName, null);
-      }
-
-      // Destroy HTMLbars template
-      if (this.lastResult) {
-        this.lastResult.destroy();
-      }
-
-      return this;
-    },
-
-    // .......................................................
-    // EVENT HANDLING
-    //
-
-    /**
-      Handle events from `Ember.EventDispatcher`
-       @method handleEvent
-      @param eventName {String}
-      @param evt {Event}
-      @private
-    */
-    handleEvent: function (eventName, evt) {
-      return this._currentState.handleEvent(this, eventName, evt);
-    },
-
-    /**
-      Registers the view in the view registry, keyed on the view's `elementId`.
-      This is used by the EventDispatcher to locate the view in response to
-      events.
-       This method should only be called once the view has been inserted into the
-      DOM.
-       @method _register
-      @private
-    */
-    _register: function () {
-      this._viewRegistry[this.elementId] = this;
-    },
-
-    /**
-      Removes the view from the view registry. This should be called when the
-      view is removed from DOM.
-       @method _unregister
-      @private
-    */
-    _unregister: function () {
-      delete this._viewRegistry[this.elementId];
-    },
-
-    registerObserver: function (root, path, target, observer) {
-      if (!observer && 'function' === typeof target) {
-        observer = target;
-        target = null;
-      }
-
-      if (!root || typeof root !== 'object') {
-        return;
-      }
-
-      var scheduledObserver = this._wrapAsScheduled(observer);
-
-      _emberMetalObserver.addObserver(root, path, target, scheduledObserver);
-
-      this.one('willClearRender', function () {
-        _emberMetalObserver.removeObserver(root, path, target, scheduledObserver);
-      });
-    },
-
-    _wrapAsScheduled: function (fn) {
-      var view = this;
-      var stateCheckedFn = function () {
-        view._currentState.invokeObserver(this, fn);
-      };
-      var scheduledFn = function () {
-        _emberMetalRun_loop.default.scheduleOnce('render', this, stateCheckedFn);
-      };
-      return scheduledFn;
     }
-  });
+
+  }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
+    this._super.apply(this, arguments);
+    this.renderer.componentInitAttrs(this, this.attrs || {});
+  }, _Mixin$create.__defineNonEnumerable = function (property) {
+    this[property.name] = property.descriptor.value;
+  }, _Mixin$create.revalidate = function () {
+    this.renderer.revalidateTopLevelView(this);
+    this.scheduledRevalidation = false;
+  }, _Mixin$create.scheduleRevalidate = function (node, label, manualRerender) {
+    if (node && !this._dispatching && this.env.renderedNodes.has(node)) {
+      if (manualRerender) {} else {}
+      _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
+      return;
+    }
+
+    if (!this.scheduledRevalidation || this._dispatching) {
+      this.scheduledRevalidation = true;
+      _emberMetalRun_loop.default.scheduleOnce('render', this, this.revalidate);
+    }
+  }, _Mixin$create.templateRenderer = null, _Mixin$create.removeFromParent = function () {
+    var parent = this.parentView;
+
+    // Remove DOM element from parent
+    this.remove();
+
+    if (parent) {
+      parent.removeChild(this);
+    }
+    return this;
+  }, _Mixin$create.destroy = function () {
+    // get parentView before calling super because it'll be destroyed
+    var parentView = this.parentView;
+    var viewName = this.viewName;
+
+    if (!this._super.apply(this, arguments)) {
+      return;
+    }
+
+    // remove from non-virtual parent view if viewName was specified
+    if (viewName && parentView) {
+      parentView.set(viewName, null);
+    }
+
+    // Destroy HTMLbars template
+    if (this.lastResult) {
+      this.lastResult.destroy();
+    }
+
+    return this;
+  }, _Mixin$create.handleEvent = function (eventName, evt) {
+    return this._currentState.handleEvent(this, eventName, evt);
+  }, _Mixin$create._register = function () {
+    this._viewRegistry[this.elementId] = this;
+  }, _Mixin$create._unregister = function () {
+    delete this._viewRegistry[this.elementId];
+  }, _Mixin$create.registerObserver = function (root, path, target, observer) {
+    if (!observer && 'function' === typeof target) {
+      observer = target;
+      target = null;
+    }
+
+    if (!root || typeof root !== 'object') {
+      return;
+    }
+
+    var scheduledObserver = this._wrapAsScheduled(observer);
+
+    _emberMetalObserver.addObserver(root, path, target, scheduledObserver);
+
+    this.one('willClearRender', function () {
+      _emberMetalObserver.removeObserver(root, path, target, scheduledObserver);
+    });
+  }, _Mixin$create._wrapAsScheduled = function (fn) {
+    var view = this;
+    var stateCheckedFn = function () {
+      view._currentState.invokeObserver(this, fn);
+    };
+    var scheduledFn = function () {
+      _emberMetalRun_loop.default.scheduleOnce('render', this, stateCheckedFn);
+    };
+    return scheduledFn;
+  }, _Mixin$create));
 });
+/*
+ This is a special hook implemented in CoreObject, that allows Views/Components
+ to have a way to ensure that `init` fires before `didInitAttrs` / `didReceiveAttrs`
+ (so that `this._super` in init does not trigger `didReceiveAttrs` before the classes
+ own `init` is finished).
+  @method __postInitInitialization
+ @private
+ */
+
+/**
+  Removes the view from its `parentView`, if one is found. Otherwise
+  does nothing.
+   @method removeFromParent
+  @return {Ember.View} receiver
+  @private
+*/
+
+/**
+  You must call `destroy` on a view to destroy the view (and all of its
+  child views). This will remove the view from any parent node, then make
+  sure that the DOM element managed by the view can be released by the
+  memory manager.
+   @method destroy
+  @private
+*/
+
+// .......................................................
+// EVENT HANDLING
+//
+
+/**
+  Handle events from `Ember.EventDispatcher`
+   @method handleEvent
+  @param eventName {String}
+  @param evt {Event}
+  @private
+*/
+
+/**
+  Registers the view in the view registry, keyed on the view's `elementId`.
+  This is used by the EventDispatcher to locate the view in response to
+  events.
+   This method should only be called once the view has been inserted into the
+  DOM.
+   @method _register
+  @private
+*/
+
+/**
+  Removes the view from the view registry. This should be called when the
+  view is removed from DOM.
+   @method _unregister
+  @private
+*/
 enifed('ember-views/mixins/view_target_action_support', ['exports', 'ember-metal/mixin', 'ember-runtime/mixins/target_action_support', 'ember-metal/alias'], function (exports, _emberMetalMixin, _emberRuntimeMixinsTarget_action_support, _emberMetalAlias) {
   'use strict';
 
@@ -40811,7 +40804,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+40e2b67b';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
 
   /**
   @module ember

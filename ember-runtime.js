@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+40e2b67b
+ * @version   2.2.0-canary+0ff1f46e
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+40e2b67b
+    @version 2.2.0-canary+0ff1f46e
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+40e2b67b'
+    @default '2.2.0-canary+0ff1f46e'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+40e2b67b';
+  Ember.VERSION = '2.2.0-canary+0ff1f46e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17572,6 +17572,10 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   // using ember-metal/lib/main here to ensure that ember-debug is setup
   // if present
 
+  var _Mixin$create;
+
+  var POST_INIT = _emberMetalUtils.symbol('POST_INIT');
+  exports.POST_INIT = POST_INIT;
   var schedule = _emberMetalRun_loop.default.schedule;
   var applyMixin = _emberMetalMixin.Mixin._apply;
   var finishPartial = _emberMetalMixin.Mixin.finishPartial;
@@ -17698,6 +17702,8 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
         this.init.apply(this, args);
       }
 
+      this[POST_INIT]();
+
       m.proto = proto;
       _emberMetalChains.finishChains(this);
       _emberMetalEvents.sendEvent(this, 'init');
@@ -17744,7 +17750,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   CoreObject.toString = function () {
     return 'Ember.CoreObject';
   };
-  CoreObject.PrototypeMixin = _emberMetalMixin.Mixin.create({
+  CoreObject.PrototypeMixin = _emberMetalMixin.Mixin.create((_Mixin$create = {
     reopen: function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -17777,180 +17783,40 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
        @method init
       @public
     */
-    init: function () {},
-    __defineNonEnumerable: function (property) {
-      Object.defineProperty(this, property.name, property.descriptor);
-      //this[property.name] = property.descriptor.value;
-    },
+    init: function () {}
 
-    /**
-      Defines the properties that will be concatenated from the superclass
-      (instead of overridden).
-       By default, when you extend an Ember class a property defined in
-      the subclass overrides a property with the same name that is defined
-      in the superclass. However, there are some cases where it is preferable
-      to build up a property's value by combining the superclass' property
-      value with the subclass' value. An example of this in use within Ember
-      is the `classNames` property of `Ember.View`.
-       Here is some sample code showing the difference between a concatenated
-      property and a normal one:
-       ```javascript
-      App.BarView = Ember.View.extend({
-        someNonConcatenatedProperty: ['bar'],
-        classNames: ['bar']
-      });
-       App.FooBarView = App.BarView.extend({
-        someNonConcatenatedProperty: ['foo'],
-        classNames: ['foo']
-      });
-       var fooBarView = App.FooBarView.create();
-      fooBarView.get('someNonConcatenatedProperty'); // ['foo']
-      fooBarView.get('classNames'); // ['ember-view', 'bar', 'foo']
-      ```
-       This behavior extends to object creation as well. Continuing the
-      above example:
-       ```javascript
-      var view = App.FooBarView.create({
-        someNonConcatenatedProperty: ['baz'],
-        classNames: ['baz']
-      })
-      view.get('someNonConcatenatedProperty'); // ['baz']
-      view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
-      ```
-      Adding a single property that is not an array will just add it in the array:
-       ```javascript
-      var view = App.FooBarView.create({
-        classNames: 'baz'
-      })
-      view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
-      ```
-       Using the `concatenatedProperties` property, we can tell Ember to mix the
-      content of the properties.
-       In `Ember.View` the `classNameBindings` and `attributeBindings` properties
-      are also concatenated, in addition to `classNames`.
-       This feature is available for you to use throughout the Ember object model,
-      although typical app developers are likely to use it infrequently. Since
-      it changes expectations about behavior of properties, you should properly
-      document its usage in each individual concatenated property (to not
-      mislead your users to think they can override the property in a subclass).
-       @property concatenatedProperties
-      @type Array
-      @default null
-      @public
-    */
-    concatenatedProperties: null,
-
-    /**
-      Destroyed object property flag.
-       if this property is `true` the observers and bindings were already
-      removed by the effect of calling the `destroy()` method.
-       @property isDestroyed
-      @default false
-      @public
-    */
-    isDestroyed: false,
-
-    /**
-      Destruction scheduled flag. The `destroy()` method has been called.
-       The object stays intact until the end of the run loop at which point
-      the `isDestroyed` flag is set.
-       @property isDestroying
-      @default false
-      @public
-    */
-    isDestroying: false,
-
-    /**
-      Destroys an object by setting the `isDestroyed` flag and removing its
-      metadata, which effectively destroys observers and bindings.
-       If you try to set a property on a destroyed object, an exception will be
-      raised.
-       Note that destruction is scheduled for the end of the run loop and does not
-      happen immediately.  It will set an isDestroying flag immediately.
-       @method destroy
-      @return {Ember.Object} receiver
-      @public
-    */
-    destroy: function () {
-      if (this.isDestroying) {
-        return;
-      }
-      this.isDestroying = true;
-
-      schedule('actions', this, this.willDestroy);
-      schedule('destroy', this, this._scheduledDestroy);
-      return this;
-    },
-
-    /**
-      Override to implement teardown.
-       @method willDestroy
-      @public
-    */
-    willDestroy: _emberMetalCore.K,
-
-    /**
-      Invoked by the run loop to actually destroy the object. This is
-      scheduled for execution by the `destroy` method.
-       @private
-      @method _scheduledDestroy
-    */
-    _scheduledDestroy: function () {
-      if (this.isDestroyed) {
-        return;
-      }
-      _emberMetalWatching.destroy(this);
-      this.isDestroyed = true;
-    },
-
-    bind: function (to, from) {
-      if (!(from instanceof _emberMetalBinding.Binding)) {
-        from = _emberMetalBinding.Binding.from(from);
-      }
-      from.to(to).connect(this);
-      return from;
-    },
-
-    /**
-      Returns a string representation which attempts to provide more information
-      than Javascript's `toString` typically does, in a generic way for all Ember
-      objects.
-       ```javascript
-      App.Person = Em.Object.extend()
-      person = App.Person.create()
-      person.toString() //=> "<App.Person:ember1024>"
-      ```
-       If the object's class is not defined on an Ember namespace, it will
-      indicate it is a subclass of the registered superclass:
-      ```javascript
-      Student = App.Person.extend()
-      student = Student.create()
-      student.toString() //=> "<(subclass of App.Person):ember1025>"
-      ```
-       If the method `toStringExtension` is defined, its return value will be
-      included in the output.
-       ```javascript
-      App.Teacher = App.Person.extend({
-        toStringExtension: function() {
-          return this.get('fullName');
-        }
-      });
-      teacher = App.Teacher.create()
-      teacher.toString(); //=> "<App.Teacher:ember1026:Tom Dale>"
-      ```
-       @method toString
-      @return {String} string representation
-      @public
-    */
-    toString: function () {
-      var hasToStringExtension = typeof this.toStringExtension === 'function';
-      var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
-      var ret = '<' + this.constructor.toString() + ':' + _emberMetalUtils.guidFor(this) + extension + '>';
-
-      this.toString = makeToString(ret);
-      return ret;
+  }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
+    Object.defineProperty(this, property.name, property.descriptor);
+    //this[property.name] = property.descriptor.value;
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
+    if (this.isDestroying) {
+      return;
     }
-  });
+    this.isDestroying = true;
+
+    schedule('actions', this, this.willDestroy);
+    schedule('destroy', this, this._scheduledDestroy);
+    return this;
+  }, _Mixin$create.willDestroy = _emberMetalCore.K, _Mixin$create._scheduledDestroy = function () {
+    if (this.isDestroyed) {
+      return;
+    }
+    _emberMetalWatching.destroy(this);
+    this.isDestroyed = true;
+  }, _Mixin$create.bind = function (to, from) {
+    if (!(from instanceof _emberMetalBinding.Binding)) {
+      from = _emberMetalBinding.Binding.from(from);
+    }
+    from.to(to).connect(this);
+    return from;
+  }, _Mixin$create.toString = function () {
+    var hasToStringExtension = typeof this.toStringExtension === 'function';
+    var extension = hasToStringExtension ? ':' + this.toStringExtension() : '';
+    var ret = '<' + this.constructor.toString() + ':' + _emberMetalUtils.guidFor(this) + extension + '>';
+
+    this.toString = makeToString(ret);
+    return ret;
+  }, _Mixin$create));
 
   CoreObject.PrototypeMixin.ownerConstructor = CoreObject;
 
@@ -18341,6 +18207,137 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
 // NOTE: this object should never be included directly. Instead use `Ember.Object`.
 // We only define this separately so that `Ember.Set` can depend on it.
+
+/**
+  Defines the properties that will be concatenated from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by combining the superclass' property
+  value with the subclass' value. An example of this in use within Ember
+  is the `classNames` property of `Ember.View`.
+   Here is some sample code showing the difference between a concatenated
+  property and a normal one:
+   ```javascript
+  App.BarView = Ember.View.extend({
+    someNonConcatenatedProperty: ['bar'],
+    classNames: ['bar']
+  });
+   App.FooBarView = App.BarView.extend({
+    someNonConcatenatedProperty: ['foo'],
+    classNames: ['foo']
+  });
+   var fooBarView = App.FooBarView.create();
+  fooBarView.get('someNonConcatenatedProperty'); // ['foo']
+  fooBarView.get('classNames'); // ['ember-view', 'bar', 'foo']
+  ```
+   This behavior extends to object creation as well. Continuing the
+  above example:
+   ```javascript
+  var view = App.FooBarView.create({
+    someNonConcatenatedProperty: ['baz'],
+    classNames: ['baz']
+  })
+  view.get('someNonConcatenatedProperty'); // ['baz']
+  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  ```
+  Adding a single property that is not an array will just add it in the array:
+   ```javascript
+  var view = App.FooBarView.create({
+    classNames: 'baz'
+  })
+  view.get('classNames'); // ['ember-view', 'bar', 'foo', 'baz']
+  ```
+   Using the `concatenatedProperties` property, we can tell Ember to mix the
+  content of the properties.
+   In `Ember.View` the `classNameBindings` and `attributeBindings` properties
+  are also concatenated, in addition to `classNames`.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual concatenated property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Destroyed object property flag.
+   if this property is `true` the observers and bindings were already
+  removed by the effect of calling the `destroy()` method.
+   @property isDestroyed
+  @default false
+  @public
+*/
+
+/**
+  Destruction scheduled flag. The `destroy()` method has been called.
+   The object stays intact until the end of the run loop at which point
+  the `isDestroyed` flag is set.
+   @property isDestroying
+  @default false
+  @public
+*/
+
+/**
+  Destroys an object by setting the `isDestroyed` flag and removing its
+  metadata, which effectively destroys observers and bindings.
+   If you try to set a property on a destroyed object, an exception will be
+  raised.
+   Note that destruction is scheduled for the end of the run loop and does not
+  happen immediately.  It will set an isDestroying flag immediately.
+   @method destroy
+  @return {Ember.Object} receiver
+  @public
+*/
+
+/**
+  Override to implement teardown.
+   @method willDestroy
+  @public
+*/
+
+/**
+  Invoked by the run loop to actually destroy the object. This is
+  scheduled for execution by the `destroy` method.
+   @private
+  @method _scheduledDestroy
+*/
+
+/**
+  Returns a string representation which attempts to provide more information
+  than Javascript's `toString` typically does, in a generic way for all Ember
+  objects.
+   ```javascript
+  App.Person = Em.Object.extend()
+  person = App.Person.create()
+  person.toString() //=> "<App.Person:ember1024>"
+  ```
+   If the object's class is not defined on an Ember namespace, it will
+  indicate it is a subclass of the registered superclass:
+  ```javascript
+  Student = App.Person.extend()
+  student = Student.create()
+  student.toString() //=> "<(subclass of App.Person):ember1025>"
+  ```
+   If the method `toStringExtension` is defined, its return value will be
+  included in the output.
+   ```javascript
+  App.Teacher = App.Person.extend({
+    toStringExtension: function() {
+      return this.get('fullName');
+    }
+  });
+  teacher = App.Teacher.create()
+  teacher.toString(); //=> "<App.Teacher:ember1026:Tom Dale>"
+  ```
+   @method toString
+  @return {String} string representation
+  @public
+*/
 enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/observer', 'ember-metal/property_events', 'ember-metal/empty_object'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalObserver, _emberMetalProperty_events, _emberMetalEmpty_object) {
   'use strict';
 

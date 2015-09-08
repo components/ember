@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+40e2b67b
+ * @version   2.2.0-canary+0ff1f46e
  */
 
 (function() {
@@ -15119,7 +15119,9 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
   }
 
   styles.forEach(function (style) {
-    function invoke(name, hash) {
+    function invoke(name) {
+      var hash = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       if (style.name === 'curly') {
         var attrs = Object.keys(hash).map(function (k) {
           return k + '=' + val(hash[k]);
@@ -15185,6 +15187,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
             this.label = label;
             components[label] = this;
             this._super.apply(this, arguments);
+            pushHook(label, 'init');
           },
 
           didInitAttrs: function (options) {
@@ -15244,7 +15247,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       var middleAttrs = { name: 'Tom Dale' };
       var bottomAttrs = { website: 'tomdale.net' };
 
-      deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+      deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
 
       hooks = [];
 
@@ -15298,6 +15301,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
             this.label = label;
             components[label] = this;
             this._super.apply(this, arguments);
+            pushHook(label, 'init');
           },
 
           didInitAttrs: function (options) {
@@ -15357,7 +15361,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       var middleAttrs = { twitterTop: '@tomdale' };
       var bottomAttrs = { twitterMiddle: '@tomdale' };
 
-      deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+      deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
 
       hooks = [];
 
@@ -15409,6 +15413,30 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
       _emberMetalRun_loop.default(function () {
         component.destroy();
       });
+    });
+
+    QUnit.test('properties set during `init` are availabe in `didReceiveAttrs`', function (assert) {
+      assert.expect(1);
+
+      registry.register('component:the-thing', style.class.extend({
+        init: function () {
+          this._super.apply(this, arguments);
+          this.propertySetInInit = 'init fired!';
+        },
+
+        didReceiveAttrs: function () {
+          this._super.apply(this, arguments);
+
+          assert.equal(this.propertySetInInit, 'init fired!', 'init has already finished before didReceiveAttrs');
+        }
+      }));
+
+      view = _emberViewsViewsView.default.extend({
+        template: _emberTemplateCompilerSystemCompile.default(invoke('the-thing')),
+        container: container
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(view);
     });
   });
 
@@ -41338,7 +41366,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+40e2b67b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+0ff1f46e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
