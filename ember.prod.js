@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+0ff1f46e
+ * @version   2.2.0-canary+2bca1680
  */
 
 (function() {
@@ -6857,10 +6857,18 @@ enifed("ember-htmlbars/hooks/cleanup-render-node", ["exports"], function (export
     }
   }
 });
-enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent) {
+enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember-htmlbars/node-managers/component-node-manager', 'ember-views/system/build-component-template', 'ember-htmlbars/utils/lookup-component', 'ember-metal/cache'], function (exports, _emberMetalDebug, _emberHtmlbarsNodeManagersComponentNodeManager, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsUtilsLookupComponent, _emberMetalCache) {
   'use strict';
 
   exports.default = componentHook;
+
+  var IS_ANGLE_CACHE = new _emberMetalCache.default(1000, function (key) {
+    return key.match(/^(@?)<(.*)>$/);
+  });
+
+  var CONTAINS_DASH = new _emberMetalCache.default(1000, function (key) {
+    return key.indexOf('-') !== -1;
+  });
 
   function componentHook(renderNode, env, scope, _tagName, params, attrs, templates, visitor) {
     var state = renderNode.getState();
@@ -6876,7 +6884,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
     var isTopLevel = false;
     var isDasherized = false;
 
-    var angles = tagName.match(/^(@?)<(.*)>$/);
+    var angles = IS_ANGLE_CACHE.get(tagName);
 
     if (angles) {
       tagName = angles[2];
@@ -6884,7 +6892,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
       isTopLevel = !!angles[1];
     }
 
-    if (tagName.indexOf('-') !== -1) {
+    if (CONTAINS_DASH.get(tagName)) {
       isDasherized = true;
     }
 
@@ -8610,7 +8618,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+2bca1680';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -12687,13 +12695,13 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/debug
   exports.isGlobalPath = _emberMetalPath_cache.isGlobal;
 });
 // Ember.Logger, Ember.LOG_BINDINGS
-enifed('ember-metal/cache', ['exports', 'ember-metal/dictionary'], function (exports, _emberMetalDictionary) {
+enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   'use strict';
 
   exports.default = Cache;
 
   function Cache(limit, func) {
-    this.store = _emberMetalDictionary.default(null);
+    this.store = new _emberMetalEmpty_object.default();
     this.size = 0;
     this.misses = 0;
     this.hits = 0;
@@ -12735,7 +12743,7 @@ enifed('ember-metal/cache', ['exports', 'ember-metal/dictionary'], function (exp
     },
 
     purge: function () {
-      this.store = _emberMetalDictionary.default(null);
+      this.store = new _emberMetalEmpty_object.default();
       this.size = 0;
       this.hits = 0;
       this.misses = 0;
@@ -14478,7 +14486,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+0ff1f46e
+    @version 2.2.0-canary+2bca1680
     @public
   */
 
@@ -14522,11 +14530,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+0ff1f46e'
+    @default '2.2.0-canary+2bca1680'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+0ff1f46e';
+  Ember.VERSION = '2.2.0-canary+2bca1680';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22667,7 +22675,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+2bca1680';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23157,7 +23165,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+2bca1680';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36740,7 +36748,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+0ff1f46e',
+        revision: 'Ember@2.2.0-canary+2bca1680',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40804,7 +40812,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+0ff1f46e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+2bca1680';
 
   /**
   @module ember
