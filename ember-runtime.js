@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+60ab0226
+ * @version   2.2.0-canary+29f69a17
  */
 
 (function() {
@@ -4748,7 +4748,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+60ab0226
+    @version 2.2.0-canary+29f69a17
     @public
   */
 
@@ -4792,11 +4792,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+60ab0226'
+    @default '2.2.0-canary+29f69a17'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+60ab0226';
+  Ember.VERSION = '2.2.0-canary+29f69a17';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11305,7 +11305,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   
     You can also use this method on DOM Element objects.
   
-    @private
+    @public
     @method guidFor
     @for Ember
     @param {Object} obj any object, string, number, Element, or primitive
