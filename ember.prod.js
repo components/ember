@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+eeca01ae
+ * @version   2.2.0-canary+60ab0226
  */
 
 (function() {
@@ -8618,7 +8618,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeca01ae';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+60ab0226';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14486,7 +14486,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+eeca01ae
+    @version 2.2.0-canary+60ab0226
     @public
   */
 
@@ -14530,11 +14530,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+eeca01ae'
+    @default '2.2.0-canary+60ab0226'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+eeca01ae';
+  Ember.VERSION = '2.2.0-canary+60ab0226';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22675,7 +22675,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+eeca01ae';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+60ab0226';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23165,7 +23165,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+eeca01ae';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+60ab0226';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36748,7 +36748,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+eeca01ae',
+        revision: 'Ember@2.2.0-canary+60ab0226',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40131,7 +40131,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', '
     },
 
     _bubbleEvent: function (view, evt, eventName) {
-      return _emberMetalRun_loop.default.join(view, view.handleEvent, eventName, evt);
+      return view.handleEvent(eventName, evt);
     },
 
     destroy: function () {
@@ -40812,7 +40812,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+eeca01ae';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+60ab0226';
 
   /**
   @module ember
@@ -42054,7 +42054,7 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/merge', '
 
   exports.default = destroying;
 });
-enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/merge', 'ember-views/system/jquery', 'ember-metal/property_get', 'htmlbars-runtime'], function (exports, _emberViewsViewsStatesDefault, _emberMetalMerge, _emberViewsSystemJquery, _emberMetalProperty_get, _htmlbarsRuntime) {
+enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/merge', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-metal/property_get', 'htmlbars-runtime'], function (exports, _emberViewsViewsStatesDefault, _emberMetalMerge, _emberViewsSystemJquery, _emberMetalRun_loop, _emberMetalProperty_get, _htmlbarsRuntime) {
   'use strict';
 
   var hasElement = Object.create(_emberViewsViewsStatesDefault.default);
@@ -42112,7 +42112,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
       if (view.has(eventName)) {
         // Handler should be able to re-dispatch events, so we don't
         // preventDefault or stopPropagation.
-        return view.trigger(eventName, evt);
+        return _emberMetalRun_loop.default.join(view, view.trigger, eventName, evt);
       } else {
         return true; // continue event propagation
       }
