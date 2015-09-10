@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a0acb068
+ * @version   2.2.0-canary+c665584b
  */
 
 (function() {
@@ -9121,7 +9121,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a0acb068';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c665584b';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15079,7 +15079,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+a0acb068
+    @version 2.2.0-canary+c665584b
     @public
   */
 
@@ -15123,11 +15123,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+a0acb068'
+    @default '2.2.0-canary+c665584b'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+a0acb068';
+  Ember.VERSION = '2.2.0-canary+c665584b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23392,7 +23392,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+a0acb068';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+c665584b';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23885,7 +23885,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a0acb068';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+c665584b';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37586,7 +37586,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+a0acb068',
+        revision: 'Ember@2.2.0-canary+c665584b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41719,7 +41719,7 @@ enifed("ember-views/system/action_manager", ["exports"], function (exports) {
 
   exports.default = ActionManager;
 });
-enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/assign', 'ember-metal/path_cache', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalAssign, _emberMetalPath_cache, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberMetalStreamsUtils) {
+enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/assign', 'htmlbars-runtime', 'ember-htmlbars/hooks/get-value', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalAssign, _htmlbarsRuntime, _emberHtmlbarsHooksGetValue, _emberMetalStreamsUtils) {
   'use strict';
 
   exports.default = buildComponentTemplate;
@@ -41882,6 +41882,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
   function normalizeComponentAttributes(component, isAngleBracket, attrs) {
     var normalized = {};
     var attributeBindings = component.attributeBindings;
+    var streamBasePath = component.isComponent ? '' : 'view.';
     var i, l;
 
     if (attrs.id && _emberHtmlbarsHooksGetValue.default(attrs.id)) {
@@ -41901,7 +41902,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
         if (colonIndex !== -1) {
           var attrProperty = attr.substring(0, colonIndex);
           attrName = attr.substring(colonIndex + 1);
-          expression = ['get', 'view.' + attrProperty];
+          expression = ['get', '' + streamBasePath + attrProperty];
         } else if (attrs[attr]) {
           // TODO: For compatibility with 1.x, we probably need to `set`
           // the component's attribute here if it is a CP, but we also
@@ -41911,7 +41912,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
           expression = ['value', attrs[attr]];
         } else {
           attrName = attr;
-          expression = ['get', 'view.' + attr];
+          expression = ['get', '' + streamBasePath + attr];
         }
 
         _emberMetalDebug.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
@@ -41937,7 +41938,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
       component.tagName = attrs.tagName;
     }
 
-    var normalizedClass = normalizeClass(component, attrs);
+    var normalizedClass = normalizeClass(component, attrs, streamBasePath);
 
     if (normalizedClass) {
       normalized.class = normalizedClass;
@@ -41957,7 +41958,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
     return normalized;
   }
 
-  function normalizeClass(component, attrs) {
+  function normalizeClass(component, attrs, streamBasePath) {
     var i, l;
     var normalizedClass = [];
     var classNames = _emberMetalProperty_get.get(component, 'classNames');
@@ -41972,7 +41973,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
     }
 
     if (attrs.classBinding) {
-      normalizeClasses(attrs.classBinding.split(' '), normalizedClass);
+      normalizeClasses(attrs.classBinding.split(' '), normalizedClass, streamBasePath);
     }
 
     if (classNames) {
@@ -41982,7 +41983,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
     }
 
     if (classNameBindings) {
-      normalizeClasses(classNameBindings, normalizedClass);
+      normalizeClasses(classNameBindings, normalizedClass, streamBasePath);
     }
 
     if (normalizeClass.length) {
@@ -41990,7 +41991,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
     }
   }
 
-  function normalizeClasses(classes, output) {
+  function normalizeClasses(classes, output, streamBasePath) {
     var i, l;
 
     for (i = 0, l = classes.length; i < l; i++) {
@@ -42009,8 +42010,7 @@ enifed('ember-views/system/build-component-template', ['exports', 'ember-metal/d
         continue;
       }
 
-      // 2.0TODO: Remove deprecated global path
-      var prop = _emberMetalPath_cache.isGlobal(propName) ? propName : 'view.' + propName;
+      var prop = '' + streamBasePath + propName;
 
       output.push(['subexpr', '-normalize-class', [
       // params
@@ -42962,7 +42962,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+a0acb068';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+c665584b';
 
   /**
   @module ember
