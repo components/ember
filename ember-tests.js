@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+29f69a17
+ * @version   2.2.0-canary+a0acb068
  */
 
 (function() {
@@ -31160,6 +31160,13 @@ enifed('ember-runtime/tests/core/copy_test', ['exports', 'ember-runtime/copy'], 
 
     equal(_emberRuntimeCopy.default(obj).foo, 'bar', 'bar should still be bar');
   });
+
+  QUnit.test('Ember.copy Array', function () {
+    var array = [1, null, new Date(2015, 9, 9), 'four'];
+    var arrayCopy = _emberRuntimeCopy.default(array);
+
+    deepEqual(array, arrayCopy, 'array content cloned successfully in new array');
+  });
 });
 enifed('ember-runtime/tests/core/is_array_test', ['exports', 'ember-metal/core', 'ember-runtime/utils', 'ember-runtime/system/array_proxy'], function (exports, _emberMetalCore, _emberRuntimeUtils, _emberRuntimeSystemArray_proxy) {
   'use strict';
@@ -41526,7 +41533,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+29f69a17', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+a0acb068', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
