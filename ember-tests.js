@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+c665584b
+ * @version   2.2.0-canary+c5774e31
  */
 
 (function() {
@@ -8609,6 +8609,33 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple\'}}');
   });
 
+  QUnit.test('should be able to get an object value with nested static key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow' }, banana: 'yellow' }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors "apple.gala"}}] [{{if true (get colors "apple.gala")}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+    });
+
+    equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple.gala', 'yellow-redish');
+    });
+
+    equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
+  });
+
   QUnit.test('should be able to get an object value with a bound/dynamic key', function () {
     var context = {
       colors: { apple: 'red', banana: 'yellow' },
@@ -8647,6 +8674,61 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     });
 
     equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors key}}  (key = \'apple\')');
+  });
+
+  QUnit.test('should be able to get an object value with nested dynamic key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' },
+      key: 'apple.gala'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.key', 'apple.mcintosh');
+    });
+
+    equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple.mcintosh\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.key', 'banana');
+    });
+
+    equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\' for {{get colors \'banana\'}}');
+  });
+
+  QUnit.test('should be able to get an object value with subexpression returning nested key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+    });
+
+    equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple.gala', 'yellow-redish');
+    });
+
+    equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
   });
 
   QUnit.test('should be able to get an object value with a GetStream key', function () {
@@ -8896,6 +8978,41 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
 
     equal(view.$('#get-input').val(), 'some value');
     equal(view.get('context.source.banana'), 'some value');
+  });
+
+  QUnit.test('get helper value should be updatable using {{input}} and (mut) - dynamic nested key', function () {
+    var context = {
+      source: _emberMetalCore.default.Object.create({
+        apple: {
+          mcintosh: 'mcintosh'
+        }
+      }),
+      key: 'apple.mcintosh'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#get-input').val(), 'mcintosh');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.source.apple.mcintosh', 'red');
+    });
+
+    equal(view.$('#get-input').val(), 'red');
+
+    _emberMetalRun_loop.default(function () {
+      view.$('#get-input').val('some value');
+      view.childViews[0]._elementValueDidChange();
+    });
+
+    equal(view.$('#get-input').val(), 'some value');
+    equal(view.get('context.source.apple.mcintosh'), 'some value');
   });
 
   QUnit.test('get helper value should be updatable using {{input}} and (mut) - static key', function () {
@@ -41533,7 +41650,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+c665584b', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+c5774e31', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
