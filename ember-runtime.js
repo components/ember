@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ae297e6d
+ * @version   2.2.0-canary+57a8f43e
  */
 
 (function() {
@@ -4129,36 +4129,35 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
   //
 
   /**
-    A computed property transforms an object's function into a property.
+    A computed property transforms an object literal with object's accessor function(s) into a property.
   
     By default the function backing the computed property will only be called
     once and the result will be cached. You can specify various properties
     that your computed property depends on. This will force the cached
     result to be recomputed if the dependencies are modified.
   
-    In the following example we declare a computed property (by calling
-    `.property()` on the fullName function) and setup the property
-    dependencies (depending on firstName and lastName). The fullName function
+    In the following example we declare a computed property - `fullName` - by calling
+    `.Ember.computed()` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function
     will be called once (regardless of how many times it is accessed) as long
-    as its dependencies have not changed. Once firstName or lastName are updated
-    any future calls (or anything bound) to fullName will incorporate the new
+    as its dependencies have not changed. Once `firstName` or `lastName` are updated
+    any future calls (or anything bound) to `fullName` will incorporate the new
     values.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function() {
-        var firstName = this.get('firstName');
-        var lastName = this.get('lastName');
+      fullName: Ember.computed('firstName', 'lastName', function() {
+        let firstName = this.get('firstName'),
+            lastName  = this.get('lastName');
   
-       return firstName + ' ' + lastName;
-      }.property('firstName', 'lastName')
+        return firstName + ' ' + lastName;
+      })
     });
   
-    var tom = Person.create({
+    let tom = Person.create({
       firstName: 'Tom',
       lastName: 'Dale'
     });
@@ -4166,43 +4165,68 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     tom.get('fullName') // 'Tom Dale'
     ```
   
-    You can also define what Ember should do when setting a computed property.
-    If you try to set a computed property, it will be invoked with the key and
-    value you want to set it to. You can also accept the previous value as the
-    third parameter.
+    You can also define what Ember should do when setting a computed property by providing additional function (`set`) in hash argument.
+    If you try to set a computed property, it will try to invoke setter accessor function with the key and
+    value you want to set it to as arguments.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function(key, value, oldValue) {
-        // getter
-        if (arguments.length === 1) {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
+      fullName: Ember.computed('firstName', 'lastName', {
+        get(key) {
+          let firstName = this.get('firstName'),
+              lastName  = this.get('lastName');
   
           return firstName + ' ' + lastName;
+        },
+        set(key, value) {
+          let [firstName, lastName] = value.split(' ');
   
-        // setter
-        } else {
-          var name = value.split(' ');
-  
-          this.set('firstName', name[0]);
-          this.set('lastName', name[1]);
+          this.set('firstName', firstName);
+          this.set('lastName', lastName);
   
           return value;
         }
-      }.property('firstName', 'lastName')
+      })
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('fullName', 'Peter Wagenet');
     person.get('firstName'); // 'Peter'
     person.get('lastName');  // 'Wagenet'
     ```
+  
+    You can overwrite computed property with normal property (no longer computed), that won't change if dependencies change, if you set computed property and it won't have setter accessor function defined.
+  
+    You can also mark computed property as `.readOnly()` and block all attempts to set it.
+  
+    ```javascript
+    let Person = Ember.Object.extend({
+      // these will be supplied by `create`
+      firstName: null,
+      lastName: null,
+  
+      fullName: Ember.computed('firstName', 'lastName', {
+        get(key) {
+          let firstName = this.get('firstName');
+          let lastName  = this.get('lastName');
+  
+          return firstName + ' ' + lastName;
+        }
+      }).readOnly()
+    });
+  
+    let person = Person.create();
+    person.set('fullName', 'Peter Wagenet'); // Uncaught Error: Cannot set read-only property "fullName" on object: <(...):emberXXX>
+    ```
+  
+    Additional resources:
+    - [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)
+    - [New computed syntax explained in "Ember 1.12 released" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
   
     @class ComputedProperty
     @namespace Ember
@@ -4251,10 +4275,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     invalidation and notification when cached value is invalidated.
   
     ```javascript
-    var outsideService = Ember.Object.extend({
-      value: function() {
+    let outsideService = Ember.Object.extend({
+      value: Ember.computed(function() {
         return OutsideService.getValue();
-      }.property().volatile()
+      }).volatile()
     }).create();
     ```
   
@@ -4273,13 +4297,13 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     mode the computed property will throw an error when set.
   
     ```javascript
-    var Person = Ember.Object.extend({
-      guid: function() {
+    let Person = Ember.Object.extend({
+      guid: Ember.computed(function() {
         return 'guid-guid-guid';
-      }.property().readOnly()
+      }).readOnly()
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('guid', 'new-guid'); // will throw an exception
     ```
@@ -4300,8 +4324,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     arguments containing key paths that this computed property depends on.
   
     ```javascript
-    var President = Ember.Object.extend({
-      fullName: computed(function() {
+    let President = Ember.Object.extend({
+      fullName: Ember.computed(function() {
         return this.get('firstName') + ' ' + this.get('lastName');
   
         // Tell Ember that this computed property depends on firstName
@@ -4309,7 +4333,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
       }).property('firstName', 'lastName')
     });
   
-    var president = President.create({
+    let president = President.create({
       firstName: 'Barack',
       lastName: 'Obama'
     });
@@ -4349,10 +4373,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     You can pass a hash of these values to a computed property like this:
   
     ```
-    person: function() {
-      var personId = this.get('personId');
+    person: Ember.computed(function() {
+      let personId = this.get('personId');
       return App.Person.create({ id: personId });
-    }.property().meta({ type: App.Person })
+    }).meta({ type: App.Person })
     ```
   
     The hash that you pass to the `meta()` function will be saved on the
@@ -4402,15 +4426,15 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     Otherwise, call the function passing the property name as an argument.
   
     ```javascript
-    var Person = Ember.Object.extend({
-      fullName: function(keyName) {
+    let Person = Ember.Object.extend({
+      fullName: Ember.computed('firstName', 'lastName', function(keyName) {
         // the keyName parameter is 'fullName' in this case.
         return this.get('firstName') + ' ' + this.get('lastName');
-      }.property('firstName', 'lastName')
+      })
     });
   
   
-    var tom = Person.create({
+    let tom = Person.create({
       firstName: 'Tom',
       lastName: 'Dale'
     });
@@ -4461,35 +4485,35 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     the value of the property to the value being set.
   
     Generally speaking if you intend for your computed property to be set
-    your backing function should accept either two or three arguments.
+    you should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function(key, value, oldValue) {
+      fullName: Ember.computed('firstName', 'lastName', {
         // getter
-        if (arguments.length === 1) {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
+        get() {
+          let firstName = this.get('firstName');
+          let lastName = this.get('lastName');
   
           return firstName + ' ' + lastName;
-  
+        },
         // setter
-        } else {
-          var name = value.split(' ');
+        set(key, value) {
+          let [firstName, lastName] = value.split(' ');
   
-          this.set('firstName', name[0]);
-          this.set('lastName', name[1]);
+          this.set('firstName', firstName);
+          this.set('lastName', lastName);
   
           return value;
         }
-      }.property('firstName', 'lastName')
+      })
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('fullName', 'Peter Wagenet');
     person.get('firstName'); // 'Peter'
@@ -4499,7 +4523,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     @method set
     @param {String} keyName The key being accessed.
     @param {Object} newValue The new value being assigned.
-    @param {String} oldValue The old value being replaced.
     @return {Object} The return value of the function backing the CP.
     @public
   */
@@ -4609,15 +4632,17 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     computed property function. You can use this helper to define properties
     with mixins or via `Ember.defineProperty()`.
   
-    The function you pass will be used to both get and set property values.
-    The function should accept two parameters, key and value. If value is not
-    undefined you should set the value first. In either case return the
+    If you pass function as argument - it will be used as getter.
+    You can pass hash with two functions - instead of single function - as argument to provide both getter and setter.
+  
+    The `get` function should accept two parameters, `key` and `value`. If `value` is not
+    undefined you should set the `value` first. In either case return the
     current value of the property.
   
     A computed property defined in this way might look like this:
   
     ```js
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       firstName: 'Betty',
       lastName: 'Jones',
   
@@ -4626,7 +4651,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
       })
     });
   
-    var client = Person.create();
+    let client = Person.create();
   
     client.get('fullName'); // 'Betty Jones'
   
@@ -4644,7 +4669,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     (if prototype extensions are enabled, which is the default behavior):
   
     ```js
-    fullName: function () {
+    fullName() {
       return this.get('firstName') + ' ' + this.get('lastName');
     }.property('firstName', 'lastName')
     ```
@@ -4748,7 +4773,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+ae297e6d
+    @version 2.2.0-canary+57a8f43e
     @public
   */
 
@@ -4792,11 +4817,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+ae297e6d'
+    @default '2.2.0-canary+57a8f43e'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+ae297e6d';
+  Ember.VERSION = '2.2.0-canary+57a8f43e';
 
   /**
     The hash of environment variables used to control various configuration
