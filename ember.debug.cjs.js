@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+57a8f43e
+ * @version   2.2.0-canary+b4c14261
  */
 
 (function() {
@@ -2162,33 +2162,10 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
   exports.default = Registry;
 });
-enifed("dag-map", ["exports"], function (exports) {
-  "use strict";
+enifed('dag-map', ['exports', 'vertex', 'visit'], function (exports, _vertex, _visit) {
+  'use strict';
 
-  function visit(vertex, fn, visited, path) {
-    var name = vertex.name;
-    var vertices = vertex.incoming;
-    var names = vertex.incomingNames;
-    var len = names.length;
-    var i;
-
-    if (!visited) {
-      visited = {};
-    }
-    if (!path) {
-      path = [];
-    }
-    if (visited.hasOwnProperty(name)) {
-      return;
-    }
-    path.push(name);
-    visited[name] = true;
-    for (i = 0; i < len; i++) {
-      visit(vertices[names[i]], fn, visited, path);
-    }
-    fn(vertex, path);
-    path.pop();
-  }
+  exports.default = DAG;
 
   /**
    * DAG stands for Directed acyclic graph.
@@ -2199,24 +2176,10 @@ enifed("dag-map", ["exports"], function (exports) {
    * @class DAG
    * @constructor
    */
+
   function DAG() {
     this.names = [];
     this.vertices = Object.create(null);
-  }
-
-  /**
-   * DAG Vertex
-   *
-   * @class Vertex
-   * @constructor
-   */
-
-  function Vertex(name) {
-    this.name = name;
-    this.incoming = {};
-    this.incomingNames = [];
-    this.hasOutgoing = false;
-    this.value = null;
   }
 
   /**
@@ -2233,7 +2196,7 @@ enifed("dag-map", ["exports"], function (exports) {
     if (this.vertices[name] !== undefined) {
       return this.vertices[name];
     }
-    var vertex = new Vertex(name);
+    var vertex = new _vertex.default(name);
     this.vertices[name] = vertex;
     this.names.push(name);
     return vertex;
@@ -2274,7 +2237,7 @@ enifed("dag-map", ["exports"], function (exports) {
         throw new Error("cycle detected: " + toName + " <- " + path.join(" <- "));
       }
     }
-    visit(from, checkCycle);
+    _visit.default(from, checkCycle);
     from.hasOutgoing = true;
     to.incoming[fromName] = from;
     to.incomingNames.push(fromName);
@@ -2297,7 +2260,7 @@ enifed("dag-map", ["exports"], function (exports) {
     for (i = 0; i < len; i++) {
       vertex = vertices[names[i]];
       if (!vertex.hasOutgoing) {
-        visit(vertex, fn, visited);
+        _visit.default(vertex, fn, visited);
       }
     }
   };
@@ -2341,10 +2304,8 @@ enifed("dag-map", ["exports"], function (exports) {
       }
     }
   };
-
-  exports.default = DAG;
 });
-enifed('dag-map.umd', ['exports', 'dag-map'], function (exports, _dagMap) {
+enifed('dag-map.umd', ['exports', 'dag-map/platform', 'dag-map'], function (exports, _dagMapPlatform, _dagMap) {
   'use strict';
 
   /* global define:true module:true window: true */
@@ -2354,9 +2315,27 @@ enifed('dag-map.umd', ['exports', 'dag-map'], function (exports, _dagMap) {
     });
   } else if (typeof module !== 'undefined' && module.exports) {
     module.exports = _dagMap.default;
-  } else if (typeof undefined !== 'undefined') {
-    undefined['DAG'] = _dagMap.default;
+  } else if (typeof _dagMapPlatform.default !== 'undefined') {
+    _dagMapPlatform.default['DAG'] = _dagMap.default;
   }
+});
+enifed('dag-map/platform', ['exports'], function (exports) {
+  'use strict';
+
+  var platform;
+
+  /* global self */
+  if (typeof self === 'object') {
+    platform = self;
+
+    /* global global */
+  } else if (typeof global === 'object') {
+      platform = global;
+    } else {
+      throw new Error('no global: `self` or `global` found');
+    }
+
+  exports.default = platform;
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
   "use strict";
@@ -9118,7 +9097,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+57a8f43e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15101,7 +15080,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+57a8f43e
+    @version 2.2.0-canary+b4c14261
     @public
   */
 
@@ -15145,11 +15124,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+57a8f43e'
+    @default '2.2.0-canary+b4c14261'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+57a8f43e';
+  Ember.VERSION = '2.2.0-canary+b4c14261';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23414,7 +23393,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+57a8f43e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23907,7 +23886,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+57a8f43e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37608,7 +37587,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+57a8f43e',
+        revision: 'Ember@2.2.0-canary+b4c14261',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42984,7 +42963,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+57a8f43e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
 
   /**
   @module ember
@@ -53865,6 +53844,56 @@ enifed('rsvp/utils', ['exports'], function (exports) {
     return new F();
   };
   exports.o_create = o_create;
+});
+enifed("vertex", ["exports"], function (exports) {
+  /**
+   * DAG Vertex
+   *
+   * @class Vertex
+   * @constructor
+   */
+
+  "use strict";
+
+  exports.default = Vertex;
+
+  function Vertex(name) {
+    this.name = name;
+    this.incoming = {};
+    this.incomingNames = [];
+    this.hasOutgoing = false;
+    this.value = null;
+  }
+});
+enifed("visit", ["exports"], function (exports) {
+  "use strict";
+
+  exports.default = visit;
+
+  function visit(vertex, fn, visited, path) {
+    var name = vertex.name;
+    var vertices = vertex.incoming;
+    var names = vertex.incomingNames;
+    var len = names.length;
+    var i;
+
+    if (!visited) {
+      visited = {};
+    }
+    if (!path) {
+      path = [];
+    }
+    if (visited.hasOwnProperty(name)) {
+      return;
+    }
+    path.push(name);
+    visited[name] = true;
+    for (i = 0; i < len; i++) {
+      visit(vertices[names[i]], fn, visited, path);
+    }
+    fn(vertex, path);
+    path.pop();
+  }
 });
 requireModule("ember");
 
