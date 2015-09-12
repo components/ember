@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.1+efe7782e
+ * @version   2.0.2+a7f49eab
  */
 
 (function() {
@@ -129,12 +129,22 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     this.instanceStack = [];
     this._debouncees = [];
     this._throttlers = [];
-    this._timers = [];
     this._eventCallbacks = {
       end: [],
       begin: []
     };
+
+    this._timerTimeoutId = undefined;
+    this._timers = [];
+
+    var _this = this;
+    this._boundRunExpiredTimers = function () {
+      _this._runExpiredTimers();
+    };
   }
+
+  // ms of delay before we conclude a timeout was lost
+  var TIMEOUT_STALLED_THRESHOLD = 1000;
 
   Backburner.prototype = {
     begin: function () {
@@ -291,39 +301,60 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
       }
     },
 
+    /*
+      Join the passed method with an existing queue and execute immediately,
+      if there isn't one use `Backburner#run`.
+        The join method is like the run method except that it will schedule into
+      an existing queue if one already exists. In either case, the join method will
+      immediately execute the passed in function and return its result.
+       @method join 
+      @param {Object} target
+      @param {Function} method The method to be executed 
+      @param {any} args The method arguments
+      @return method result
+    */
     join: function () /* target, method, args */{
-      if (this.currentInstance) {
-        var length = arguments.length;
-        var method, target;
-
-        if (length === 1) {
-          method = arguments[0];
-          target = null;
-        } else {
-          target = arguments[0];
-          method = arguments[1];
-        }
-
-        if (_backburnerUtils.isString(method)) {
-          method = target[method];
-        }
-
-        if (length === 1) {
-          return method();
-        } else if (length === 2) {
-          return method.call(target);
-        } else {
-          var args = new Array(length - 2);
-          for (var i = 0, l = length - 2; i < l; i++) {
-            args[i] = arguments[i + 2];
-          }
-          return method.apply(target, args);
-        }
-      } else {
+      if (!this.currentInstance) {
         return this.run.apply(this, arguments);
+      }
+
+      var length = arguments.length;
+      var method, target;
+
+      if (length === 1) {
+        method = arguments[0];
+        target = null;
+      } else {
+        target = arguments[0];
+        method = arguments[1];
+      }
+
+      if (_backburnerUtils.isString(method)) {
+        method = target[method];
+      }
+
+      if (length === 1) {
+        return method();
+      } else if (length === 2) {
+        return method.call(target);
+      } else {
+        var args = new Array(length - 2);
+        for (var i = 0, l = length - 2; i < l; i++) {
+          args[i] = arguments[i + 2];
+        }
+        return method.apply(target, args);
       }
     },
 
+    /*
+      Defer the passed function to run inside the specified queue.
+       @method defer 
+      @param {String} queueName 
+      @param {Object} target
+      @param {Function|String} method The method or method name to be executed 
+      @param {any} args The method arguments
+      @return method result
+    */
     defer: function (queueName /* , target, method, args */) {
       var length = arguments.length;
       var method, target, args;
@@ -466,12 +497,27 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
         }
       }
 
+      return this._setTimeout(fn, executeAt);
+    },
+
+    _setTimeout: function (fn, executeAt) {
+      if (this._timers.length === 0) {
+        this._timers.push(executeAt, fn);
+        this._installTimerTimeout();
+        return fn;
+      }
+
+      this._reinstallStalledTimerTimeout();
+
       // find position to insert
       var i = _backburnerBinarySearch.default(executeAt, this._timers);
 
       this._timers.splice(i, 0, executeAt, fn);
 
-      updateLaterTimer(this, executeAt, wait);
+      // we should be the new earliest timer if i == 0
+      if (i === 0) {
+        this._reinstallTimerTimeout();
+      }
 
       return fn;
     },
@@ -569,20 +615,13 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     },
 
     cancelTimers: function () {
-      var clearItems = function (item) {
-        clearTimeout(item[2]);
-      };
-
       _backburnerUtils.each(this._throttlers, clearItems);
       this._throttlers = [];
 
       _backburnerUtils.each(this._debouncees, clearItems);
       this._debouncees = [];
 
-      if (this._laterTimer) {
-        clearTimeout(this._laterTimer);
-        this._laterTimer = null;
-      }
+      this._clearTimerTimeout();
       this._timers = [];
 
       if (this._autorun) {
@@ -607,15 +646,7 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
           if (this._timers[i + 1] === timer) {
             this._timers.splice(i, 2); // remove the two elements
             if (i === 0) {
-              if (this._laterTimer) {
-                // Active timer? Then clear timer and reset for future timer
-                clearTimeout(this._laterTimer);
-                this._laterTimer = null;
-              }
-              if (this._timers.length > 0) {
-                // Update to next available timer when available
-                updateLaterTimer(this, this._timers[0], this._timers[0] - _backburnerUtils.now());
-              }
+              this._reinstallTimerTimeout();
             }
             return true;
           }
@@ -649,6 +680,67 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
       }
 
       return false;
+    },
+
+    _runExpiredTimers: function () {
+      this._timerTimeoutId = undefined;
+      this.run(this, this._scheduleExpiredTimers);
+    },
+
+    _scheduleExpiredTimers: function () {
+      var n = _backburnerUtils.now();
+      var timers = this._timers;
+      var i = 0;
+      var l = timers.length;
+      for (; i < l; i += 2) {
+        var executeAt = timers[i];
+        var fn = timers[i + 1];
+        if (executeAt <= n) {
+          this.schedule(this.options.defaultQueue, null, fn);
+        } else {
+          break;
+        }
+      }
+      timers.splice(0, i);
+      this._installTimerTimeout();
+    },
+
+    _reinstallStalledTimerTimeout: function () {
+      if (!this._timerTimeoutId) {
+        return;
+      }
+      // if we have a timer we should always have a this._timerTimeoutId
+      var minExpiresAt = this._timers[0];
+      var delay = _backburnerUtils.now() - minExpiresAt;
+      // threshold of a second before we assume that the currently
+      // installed timeout will not run, so we don't constantly reinstall
+      // timeouts that are delayed but good still
+      if (delay < TIMEOUT_STALLED_THRESHOLD) {
+        return;
+      }
+    },
+
+    _reinstallTimerTimeout: function () {
+      this._clearTimerTimeout();
+      this._installTimerTimeout();
+    },
+
+    _clearTimerTimeout: function () {
+      if (!this._timerTimeoutId) {
+        return;
+      }
+      clearTimeout(this._timerTimeoutId);
+      this._timerTimeoutId = undefined;
+    },
+
+    _installTimerTimeout: function () {
+      if (!this._timers.length) {
+        return;
+      }
+      var minExpiresAt = this._timers[0];
+      var n = _backburnerUtils.now();
+      var wait = Math.max(0, minExpiresAt - n);
+      this._timerTimeoutId = setTimeout(this._boundRunExpiredTimers, wait);
     }
   };
 
@@ -676,52 +768,6 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     });
   }
 
-  function updateLaterTimer(backburner, executeAt, wait) {
-    var n = _backburnerUtils.now();
-    if (!backburner._laterTimer || executeAt < backburner._laterTimerExpiresAt || backburner._laterTimerExpiresAt < n) {
-
-      if (backburner._laterTimer) {
-        // Clear when:
-        // - Already expired
-        // - New timer is earlier
-        clearTimeout(backburner._laterTimer);
-
-        if (backburner._laterTimerExpiresAt < n) {
-          // If timer was never triggered
-          // Calculate the left-over wait-time
-          wait = Math.max(0, executeAt - n);
-        }
-      }
-
-      backburner._laterTimer = _backburnerPlatform.default.setTimeout(function () {
-        backburner._laterTimer = null;
-        backburner._laterTimerExpiresAt = null;
-        executeTimers(backburner);
-      }, wait);
-
-      backburner._laterTimerExpiresAt = n + wait;
-    }
-  }
-
-  function executeTimers(backburner) {
-    var n = _backburnerUtils.now();
-    var fns, i, l;
-
-    backburner.run(function () {
-      i = _backburnerBinarySearch.default(n, backburner._timers);
-
-      fns = backburner._timers.splice(0, i);
-
-      for (i = 1, l = fns.length; i < l; i += 2) {
-        backburner.schedule(backburner.options.defaultQueue, null, fns[i]);
-      }
-    });
-
-    if (backburner._timers.length) {
-      updateLaterTimer(backburner, backburner._timers[0], backburner._timers[0] - n);
-    }
-  }
-
   function findDebouncee(target, method, debouncees) {
     return findItem(target, method, debouncees);
   }
@@ -743,6 +789,10 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     }
 
     return index;
+  }
+
+  function clearItems(item) {
+    clearTimeout(item[2]);
   }
 });
 enifed("backburner/binary-search", ["exports"], function (exports) {
@@ -821,10 +871,9 @@ enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], f
     flush: function () {
       var queues = this.queues;
       var queueNames = this.queueNames;
-      var queueName, queue, queueItems, priorQueueNameIndex;
+      var queueName, queue;
       var queueNameIndex = 0;
       var numberOfQueues = queueNames.length;
-      var options = this.options;
 
       while (queueNameIndex < numberOfQueues) {
         queueName = queueNames[queueNameIndex];
@@ -948,11 +997,6 @@ enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
     },
 
     pushUnique: function (target, method, args, stack) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
       var KEY = this.globalOptions.GUID_KEY;
 
       if (target && KEY) {
@@ -2751,36 +2795,35 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
   //
 
   /**
-    A computed property transforms an object's function into a property.
+    A computed property transforms an object literal with object's accessor function(s) into a property.
   
     By default the function backing the computed property will only be called
     once and the result will be cached. You can specify various properties
     that your computed property depends on. This will force the cached
     result to be recomputed if the dependencies are modified.
   
-    In the following example we declare a computed property (by calling
-    `.property()` on the fullName function) and setup the property
-    dependencies (depending on firstName and lastName). The fullName function
+    In the following example we declare a computed property - `fullName` - by calling
+    `.Ember.computed()` with property dependencies (`firstName` and `lastName`) as leading arguments and getter accessor function. The `fullName` getter function
     will be called once (regardless of how many times it is accessed) as long
-    as its dependencies have not changed. Once firstName or lastName are updated
-    any future calls (or anything bound) to fullName will incorporate the new
+    as its dependencies have not changed. Once `firstName` or `lastName` are updated
+    any future calls (or anything bound) to `fullName` will incorporate the new
     values.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function() {
-        var firstName = this.get('firstName');
-        var lastName = this.get('lastName');
+      fullName: Ember.computed('firstName', 'lastName', function() {
+        let firstName = this.get('firstName'),
+            lastName  = this.get('lastName');
   
-       return firstName + ' ' + lastName;
-      }.property('firstName', 'lastName')
+        return firstName + ' ' + lastName;
+      })
     });
   
-    var tom = Person.create({
+    let tom = Person.create({
       firstName: 'Tom',
       lastName: 'Dale'
     });
@@ -2788,43 +2831,68 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     tom.get('fullName') // 'Tom Dale'
     ```
   
-    You can also define what Ember should do when setting a computed property.
-    If you try to set a computed property, it will be invoked with the key and
-    value you want to set it to. You can also accept the previous value as the
-    third parameter.
+    You can also define what Ember should do when setting a computed property by providing additional function (`set`) in hash argument.
+    If you try to set a computed property, it will try to invoke setter accessor function with the key and
+    value you want to set it to as arguments.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function(key, value, oldValue) {
-        // getter
-        if (arguments.length === 1) {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
+      fullName: Ember.computed('firstName', 'lastName', {
+        get(key) {
+          let firstName = this.get('firstName'),
+              lastName  = this.get('lastName');
   
           return firstName + ' ' + lastName;
+        },
+        set(key, value) {
+          let [firstName, lastName] = value.split(' ');
   
-        // setter
-        } else {
-          var name = value.split(' ');
-  
-          this.set('firstName', name[0]);
-          this.set('lastName', name[1]);
+          this.set('firstName', firstName);
+          this.set('lastName', lastName);
   
           return value;
         }
-      }.property('firstName', 'lastName')
+      })
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('fullName', 'Peter Wagenet');
     person.get('firstName'); // 'Peter'
     person.get('lastName');  // 'Wagenet'
     ```
+  
+    You can overwrite computed property with normal property (no longer computed), that won't change if dependencies change, if you set computed property and it won't have setter accessor function defined.
+  
+    You can also mark computed property as `.readOnly()` and block all attempts to set it.
+  
+    ```javascript
+    let Person = Ember.Object.extend({
+      // these will be supplied by `create`
+      firstName: null,
+      lastName: null,
+  
+      fullName: Ember.computed('firstName', 'lastName', {
+        get(key) {
+          let firstName = this.get('firstName');
+          let lastName  = this.get('lastName');
+  
+          return firstName + ' ' + lastName;
+        }
+      }).readOnly()
+    });
+  
+    let person = Person.create();
+    person.set('fullName', 'Peter Wagenet'); // Uncaught Error: Cannot set read-only property "fullName" on object: <(...):emberXXX>
+    ```
+  
+    Additional resources:
+    - [New CP syntax RFC](https://github.com/emberjs/rfcs/blob/master/text/0011-improved-cp-syntax.md)
+    - [New computed syntax explained in "Ember 1.12 released" ](http://emberjs.com/blog/2015/05/13/ember-1-12-released.html#toc_new-computed-syntax)
   
     @class ComputedProperty
     @namespace Ember
@@ -2862,10 +2930,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     invalidation and notification when cached value is invalidated.
   
     ```javascript
-    var outsideService = Ember.Object.extend({
-      value: function() {
+    let outsideService = Ember.Object.extend({
+      value: Ember.computed(function() {
         return OutsideService.getValue();
-      }.property().volatile()
+      }).volatile()
     }).create();
     ```
   
@@ -2884,13 +2952,13 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     mode the computed property will throw an error when set.
   
     ```javascript
-    var Person = Ember.Object.extend({
-      guid: function() {
+    let Person = Ember.Object.extend({
+      guid: Ember.computed(function() {
         return 'guid-guid-guid';
-      }.property().readOnly()
+      }).readOnly()
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('guid', 'new-guid'); // will throw an exception
     ```
@@ -2911,8 +2979,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     arguments containing key paths that this computed property depends on.
   
     ```javascript
-    var President = Ember.Object.extend({
-      fullName: computed(function() {
+    let President = Ember.Object.extend({
+      fullName: Ember.computed(function() {
         return this.get('firstName') + ' ' + this.get('lastName');
   
         // Tell Ember that this computed property depends on firstName
@@ -2920,7 +2988,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
       }).property('firstName', 'lastName')
     });
   
-    var president = President.create({
+    let president = President.create({
       firstName: 'Barack',
       lastName: 'Obama'
     });
@@ -2960,10 +3028,10 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     You can pass a hash of these values to a computed property like this:
   
     ```
-    person: function() {
-      var personId = this.get('personId');
+    person: Ember.computed(function() {
+      let personId = this.get('personId');
       return App.Person.create({ id: personId });
-    }.property().meta({ type: App.Person })
+    }).meta({ type: App.Person })
     ```
   
     The hash that you pass to the `meta()` function will be saved on the
@@ -3013,15 +3081,15 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     Otherwise, call the function passing the property name as an argument.
   
     ```javascript
-    var Person = Ember.Object.extend({
-      fullName: function(keyName) {
+    let Person = Ember.Object.extend({
+      fullName: Ember.computed('firstName', 'lastName', function(keyName) {
         // the keyName parameter is 'fullName' in this case.
         return this.get('firstName') + ' ' + this.get('lastName');
-      }.property('firstName', 'lastName')
+      })
     });
   
   
-    var tom = Person.create({
+    let tom = Person.create({
       firstName: 'Tom',
       lastName: 'Dale'
     });
@@ -3075,35 +3143,35 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     the value of the property to the value being set.
   
     Generally speaking if you intend for your computed property to be set
-    your backing function should accept either two or three arguments.
+    you should pass `set(key, value)` function in hash as argument to `Ember.computed()` along with `get(key)` function.
   
     ```javascript
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       // these will be supplied by `create`
       firstName: null,
       lastName: null,
   
-      fullName: function(key, value, oldValue) {
+      fullName: Ember.computed('firstName', 'lastName', {
         // getter
-        if (arguments.length === 1) {
-          var firstName = this.get('firstName');
-          var lastName = this.get('lastName');
+        get() {
+          let firstName = this.get('firstName');
+          let lastName = this.get('lastName');
   
           return firstName + ' ' + lastName;
-  
+        },
         // setter
-        } else {
-          var name = value.split(' ');
+        set(key, value) {
+          let [firstName, lastName] = value.split(' ');
   
-          this.set('firstName', name[0]);
-          this.set('lastName', name[1]);
+          this.set('firstName', firstName);
+          this.set('lastName', lastName);
   
           return value;
         }
-      }.property('firstName', 'lastName')
+      })
     });
   
-    var person = Person.create();
+    let person = Person.create();
   
     person.set('fullName', 'Peter Wagenet');
     person.get('firstName'); // 'Peter'
@@ -3113,7 +3181,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     @method set
     @param {String} keyName The key being accessed.
     @param {Object} newValue The new value being assigned.
-    @param {String} oldValue The old value being replaced.
     @return {Object} The return value of the function backing the CP.
     @public
   */
@@ -3226,15 +3293,17 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     computed property function. You can use this helper to define properties
     with mixins or via `Ember.defineProperty()`.
   
-    The function you pass will be used to both get and set property values.
-    The function should accept two parameters, key and value. If value is not
-    undefined you should set the value first. In either case return the
+    If you pass function as argument - it will be used as getter.
+    You can pass hash with two functions - instead of single function - as argument to provide both getter and setter.
+  
+    The `get` function should accept two parameters, `key` and `value`. If `value` is not
+    undefined you should set the `value` first. In either case return the
     current value of the property.
   
     A computed property defined in this way might look like this:
   
     ```js
-    var Person = Ember.Object.extend({
+    let Person = Ember.Object.extend({
       firstName: 'Betty',
       lastName: 'Jones',
   
@@ -3243,7 +3312,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
       })
     });
   
-    var client = Person.create();
+    let client = Person.create();
   
     client.get('fullName'); // 'Betty Jones'
   
@@ -3261,7 +3330,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/core', 'ember-metal/prop
     (if prototype extensions are enabled, which is the default behavior):
   
     ```js
-    fullName: function () {
+    fullName() {
       return this.get('firstName') + ' ' + this.get('lastName');
     }.property('firstName', 'lastName')
     ```
@@ -4059,7 +4128,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.1+efe7782e
+    @version 2.0.2+a7f49eab
     @public
   */
 
@@ -4093,11 +4162,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.1+efe7782e'
+    @default '2.0.2+a7f49eab'
     @static
     @public
   */
-  Ember.VERSION = '2.0.1+efe7782e';
+  Ember.VERSION = '2.0.2+a7f49eab';
 
   /**
     The hash of environment variables used to control various configuration
@@ -10400,7 +10469,7 @@ enifed('ember-metal/utils', ['exports', 'ember-metal/features'], function (expor
   
     You can also use this method on DOM Element objects.
   
-    @private
+    @public
     @method guidFor
     @for Ember
     @param {Object} obj any object, string, number, Element, or primitive
@@ -12038,7 +12107,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.1+efe7782e',
+        revision: 'Ember@2.0.2+a7f49eab',
         loc: program.loc,
         moduleName: options.moduleName
       };
