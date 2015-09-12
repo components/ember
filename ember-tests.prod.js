@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.3
+ * @version   2.1.0-beta.3+3b792d6b
  */
 
 (function() {
@@ -8468,6 +8468,33 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple\'}}');
   });
 
+  QUnit.test('should be able to get an object value with nested static key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow' }, banana: 'yellow' }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors "apple.gala"}}] [{{if true (get colors "apple.gala")}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+    });
+
+    equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple.gala', 'yellow-redish');
+    });
+
+    equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
+  });
+
   QUnit.test('should be able to get an object value with a bound/dynamic key', function () {
     var context = {
       colors: { apple: 'red', banana: 'yellow' },
@@ -8506,6 +8533,61 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
     });
 
     equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors key}}  (key = \'apple\')');
+  });
+
+  QUnit.test('should be able to get an object value with nested dynamic key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' },
+      key: 'apple.gala'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors key}}] [{{if true (get colors key)}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.key', 'apple.mcintosh');
+    });
+
+    equal(view.$().text(), '[red] [red]', 'should return \'red\' for {{get colors \'apple.mcintosh\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.key', 'banana');
+    });
+
+    equal(view.$().text(), '[yellow] [yellow]', 'should return \'yellow\' for {{get colors \'banana\'}}');
+  });
+
+  QUnit.test('should be able to get an object value with subexpression returning nested key', function () {
+    var context = {
+      colors: { apple: { gala: 'red and yellow', mcintosh: 'red' }, banana: 'yellow' }
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      template: _emberTemplateCompilerSystemCompile.default('[{{get colors (concat \'apple\' \'.\' \'gala\')}}] [{{if true (get colors (concat \'apple\' \'.\' \'gala\'))}}]')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), '[red and yellow] [red and yellow]', 'should return \'red and yellow\' for {{get colors "apple.gala"}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors', { apple: { gala: 'yellow and red striped' }, banana: 'purple' });
+    });
+
+    equal(view.$().text(), '[yellow and red striped] [yellow and red striped]', 'should return \'yellow and red striped\' for {{get colors \'apple.gala\'}}');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.colors.apple.gala', 'yellow-redish');
+    });
+
+    equal(view.$().text(), '[yellow-redish] [yellow-redish]', 'should return \'yellow-redish\' for {{get colors \'apple.gala\'}}');
   });
 
   QUnit.test('should be able to get an object value with a GetStream key', function () {
@@ -8755,6 +8837,41 @@ enifed('ember-htmlbars/tests/helpers/get_test', ['exports', 'ember-metal/core', 
 
     equal(view.$('#get-input').val(), 'some value');
     equal(view.get('context.source.banana'), 'some value');
+  });
+
+  QUnit.test('get helper value should be updatable using {{input}} and (mut) - dynamic nested key', function () {
+    var context = {
+      source: _emberMetalCore.default.Object.create({
+        apple: {
+          mcintosh: 'mcintosh'
+        }
+      }),
+      key: 'apple.mcintosh'
+    };
+
+    view = _emberViewsViewsView.default.create({
+      context: context,
+      container: container,
+      template: _emberTemplateCompilerSystemCompile.default('{{input type=\'text\' value=(mut (get source key)) id=\'get-input\'}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#get-input').val(), 'mcintosh');
+
+    _emberMetalRun_loop.default(function () {
+      view.set('context.source.apple.mcintosh', 'red');
+    });
+
+    equal(view.$('#get-input').val(), 'red');
+
+    _emberMetalRun_loop.default(function () {
+      view.$('#get-input').val('some value');
+      view.childViews[0]._elementValueDidChange();
+    });
+
+    equal(view.$('#get-input').val(), 'some value');
+    equal(view.get('context.source.apple.mcintosh'), 'some value');
   });
 
   QUnit.test('get helper value should be updatable using {{input}} and (mut) - static key', function () {
@@ -14465,6 +14582,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
           this.label = label;
           components[label] = this;
           this._super.apply(this, arguments);
+          pushHook(label, 'init');
         },
 
         didInitAttrs: function (options) {
@@ -14524,7 +14642,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     var middleAttrs = { name: 'Tom Dale' };
     var bottomAttrs = { website: 'tomdale.net' };
 
-    deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+    deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
 
     hooks = [];
 
@@ -14578,6 +14696,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
           this.label = label;
           components[label] = this;
           this._super.apply(this, arguments);
+          pushHook(label, 'init');
         },
 
         didInitAttrs: function (options) {
@@ -14637,7 +14756,7 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     var middleAttrs = { twitterTop: '@tomdale' };
     var bottomAttrs = { twitterMiddle: '@tomdale' };
 
-    deepEqual(hooks, [hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
+    deepEqual(hooks, [hook('top', 'init'), hook('top', 'didInitAttrs', { attrs: topAttrs }), hook('top', 'didReceiveAttrs', { newAttrs: topAttrs }), hook('top', 'willRender'), hook('middle', 'init'), hook('middle', 'didInitAttrs', { attrs: middleAttrs }), hook('middle', 'didReceiveAttrs', { newAttrs: middleAttrs }), hook('middle', 'willRender'), hook('bottom', 'init'), hook('bottom', 'didInitAttrs', { attrs: bottomAttrs }), hook('bottom', 'didReceiveAttrs', { newAttrs: bottomAttrs }), hook('bottom', 'willRender'), hook('bottom', 'didInsertElement'), hook('bottom', 'didRender'), hook('middle', 'didInsertElement'), hook('middle', 'didRender'), hook('top', 'didInsertElement'), hook('top', 'didRender')]);
 
     hooks = [];
 
@@ -14689,6 +14808,30 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
     _emberMetalRun_loop.default(function () {
       component.destroy();
     });
+  });
+
+  QUnit.test('properties set during `init` are availabe in `didReceiveAttrs`', function (assert) {
+    assert.expect(1);
+
+    registry.register('component:the-thing', _emberViewsViewsComponent.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+        this.propertySetInInit = 'init fired!';
+      },
+
+      didReceiveAttrs: function () {
+        this._super.apply(this, arguments);
+
+        assert.equal(this.propertySetInInit, 'init fired!', 'init has already finished before didReceiveAttrs');
+      }
+    }));
+
+    view = _emberViewsViewsView.default.extend({
+      template: _emberTemplateCompilerSystemCompile.default('{{the-thing}}'),
+      container: container
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
   });
 
   // TODO: Write a test that involves deep mutability: the component plucks something
@@ -40560,7 +40703,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0-beta.3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0-beta.3+3b792d6b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
