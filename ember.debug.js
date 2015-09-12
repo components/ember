@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b4c14261
+ * @version   2.2.0-canary+82b550df
  */
 
 (function() {
@@ -107,12 +107,22 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     this.instanceStack = [];
     this._debouncees = [];
     this._throttlers = [];
-    this._timers = [];
     this._eventCallbacks = {
       end: [],
       begin: []
     };
+
+    this._timerTimeoutId = undefined;
+    this._timers = [];
+
+    var _this = this;
+    this._boundRunExpiredTimers = function () {
+      _this._runExpiredTimers();
+    };
   }
+
+  // ms of delay before we conclude a timeout was lost
+  var TIMEOUT_STALLED_THRESHOLD = 1000;
 
   Backburner.prototype = {
     begin: function () {
@@ -269,39 +279,60 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       }
     },
 
+    /*
+      Join the passed method with an existing queue and execute immediately,
+      if there isn't one use `Backburner#run`.
+        The join method is like the run method except that it will schedule into
+      an existing queue if one already exists. In either case, the join method will
+      immediately execute the passed in function and return its result.
+       @method join 
+      @param {Object} target
+      @param {Function} method The method to be executed 
+      @param {any} args The method arguments
+      @return method result
+    */
     join: function () /* target, method, args */{
-      if (this.currentInstance) {
-        var length = arguments.length;
-        var method, target;
-
-        if (length === 1) {
-          method = arguments[0];
-          target = null;
-        } else {
-          target = arguments[0];
-          method = arguments[1];
-        }
-
-        if (_backburnerUtils.isString(method)) {
-          method = target[method];
-        }
-
-        if (length === 1) {
-          return method();
-        } else if (length === 2) {
-          return method.call(target);
-        } else {
-          var args = new Array(length - 2);
-          for (var i = 0, l = length - 2; i < l; i++) {
-            args[i] = arguments[i + 2];
-          }
-          return method.apply(target, args);
-        }
-      } else {
+      if (!this.currentInstance) {
         return this.run.apply(this, arguments);
+      }
+
+      var length = arguments.length;
+      var method, target;
+
+      if (length === 1) {
+        method = arguments[0];
+        target = null;
+      } else {
+        target = arguments[0];
+        method = arguments[1];
+      }
+
+      if (_backburnerUtils.isString(method)) {
+        method = target[method];
+      }
+
+      if (length === 1) {
+        return method();
+      } else if (length === 2) {
+        return method.call(target);
+      } else {
+        var args = new Array(length - 2);
+        for (var i = 0, l = length - 2; i < l; i++) {
+          args[i] = arguments[i + 2];
+        }
+        return method.apply(target, args);
       }
     },
 
+    /*
+      Defer the passed function to run inside the specified queue.
+       @method defer 
+      @param {String} queueName 
+      @param {Object} target
+      @param {Function|String} method The method or method name to be executed 
+      @param {any} args The method arguments
+      @return method result
+    */
     defer: function (queueName /* , target, method, args */) {
       var length = arguments.length;
       var method, target, args;
@@ -444,12 +475,27 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         }
       }
 
+      return this._setTimeout(fn, executeAt);
+    },
+
+    _setTimeout: function (fn, executeAt) {
+      if (this._timers.length === 0) {
+        this._timers.push(executeAt, fn);
+        this._installTimerTimeout();
+        return fn;
+      }
+
+      this._reinstallStalledTimerTimeout();
+
       // find position to insert
       var i = _backburnerBinarySearch.default(executeAt, this._timers);
 
       this._timers.splice(i, 0, executeAt, fn);
 
-      updateLaterTimer(this, executeAt, wait);
+      // we should be the new earliest timer if i == 0
+      if (i === 0) {
+        this._reinstallTimerTimeout();
+      }
 
       return fn;
     },
@@ -547,20 +593,13 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     },
 
     cancelTimers: function () {
-      var clearItems = function (item) {
-        clearTimeout(item[2]);
-      };
-
       _backburnerUtils.each(this._throttlers, clearItems);
       this._throttlers = [];
 
       _backburnerUtils.each(this._debouncees, clearItems);
       this._debouncees = [];
 
-      if (this._laterTimer) {
-        clearTimeout(this._laterTimer);
-        this._laterTimer = null;
-      }
+      this._clearTimerTimeout();
       this._timers = [];
 
       if (this._autorun) {
@@ -585,15 +624,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
           if (this._timers[i + 1] === timer) {
             this._timers.splice(i, 2); // remove the two elements
             if (i === 0) {
-              if (this._laterTimer) {
-                // Active timer? Then clear timer and reset for future timer
-                clearTimeout(this._laterTimer);
-                this._laterTimer = null;
-              }
-              if (this._timers.length > 0) {
-                // Update to next available timer when available
-                updateLaterTimer(this, this._timers[0], this._timers[0] - _backburnerUtils.now());
-              }
+              this._reinstallTimerTimeout();
             }
             return true;
           }
@@ -627,6 +658,67 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       }
 
       return false;
+    },
+
+    _runExpiredTimers: function () {
+      this._timerTimeoutId = undefined;
+      this.run(this, this._scheduleExpiredTimers);
+    },
+
+    _scheduleExpiredTimers: function () {
+      var n = _backburnerUtils.now();
+      var timers = this._timers;
+      var i = 0;
+      var l = timers.length;
+      for (; i < l; i += 2) {
+        var executeAt = timers[i];
+        var fn = timers[i + 1];
+        if (executeAt <= n) {
+          this.schedule(this.options.defaultQueue, null, fn);
+        } else {
+          break;
+        }
+      }
+      timers.splice(0, i);
+      this._installTimerTimeout();
+    },
+
+    _reinstallStalledTimerTimeout: function () {
+      if (!this._timerTimeoutId) {
+        return;
+      }
+      // if we have a timer we should always have a this._timerTimeoutId
+      var minExpiresAt = this._timers[0];
+      var delay = _backburnerUtils.now() - minExpiresAt;
+      // threshold of a second before we assume that the currently
+      // installed timeout will not run, so we don't constantly reinstall
+      // timeouts that are delayed but good still
+      if (delay < TIMEOUT_STALLED_THRESHOLD) {
+        return;
+      }
+    },
+
+    _reinstallTimerTimeout: function () {
+      this._clearTimerTimeout();
+      this._installTimerTimeout();
+    },
+
+    _clearTimerTimeout: function () {
+      if (!this._timerTimeoutId) {
+        return;
+      }
+      clearTimeout(this._timerTimeoutId);
+      this._timerTimeoutId = undefined;
+    },
+
+    _installTimerTimeout: function () {
+      if (!this._timers.length) {
+        return;
+      }
+      var minExpiresAt = this._timers[0];
+      var n = _backburnerUtils.now();
+      var wait = Math.max(0, minExpiresAt - n);
+      this._timerTimeoutId = setTimeout(this._boundRunExpiredTimers, wait);
     }
   };
 
@@ -654,52 +746,6 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     });
   }
 
-  function updateLaterTimer(backburner, executeAt, wait) {
-    var n = _backburnerUtils.now();
-    if (!backburner._laterTimer || executeAt < backburner._laterTimerExpiresAt || backburner._laterTimerExpiresAt < n) {
-
-      if (backburner._laterTimer) {
-        // Clear when:
-        // - Already expired
-        // - New timer is earlier
-        clearTimeout(backburner._laterTimer);
-
-        if (backburner._laterTimerExpiresAt < n) {
-          // If timer was never triggered
-          // Calculate the left-over wait-time
-          wait = Math.max(0, executeAt - n);
-        }
-      }
-
-      backburner._laterTimer = _backburnerPlatform.default.setTimeout(function () {
-        backburner._laterTimer = null;
-        backburner._laterTimerExpiresAt = null;
-        executeTimers(backburner);
-      }, wait);
-
-      backburner._laterTimerExpiresAt = n + wait;
-    }
-  }
-
-  function executeTimers(backburner) {
-    var n = _backburnerUtils.now();
-    var fns, i, l;
-
-    backburner.run(function () {
-      i = _backburnerBinarySearch.default(n, backburner._timers);
-
-      fns = backburner._timers.splice(0, i);
-
-      for (i = 1, l = fns.length; i < l; i += 2) {
-        backburner.schedule(backburner.options.defaultQueue, null, fns[i]);
-      }
-    });
-
-    if (backburner._timers.length) {
-      updateLaterTimer(backburner, backburner._timers[0], backburner._timers[0] - n);
-    }
-  }
-
   function findDebouncee(target, method, debouncees) {
     return findItem(target, method, debouncees);
   }
@@ -721,6 +767,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     }
 
     return index;
+  }
+
+  function clearItems(item) {
+    clearTimeout(item[2]);
   }
 });
 enifed("backburner/binary-search", ["exports"], function (exports) {
@@ -799,10 +849,9 @@ enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'bac
     flush: function () {
       var queues = this.queues;
       var queueNames = this.queueNames;
-      var queueName, queue, queueItems, priorQueueNameIndex;
+      var queueName, queue;
       var queueNameIndex = 0;
       var numberOfQueues = queueNames.length;
-      var options = this.options;
 
       while (queueNameIndex < numberOfQueues) {
         queueName = queueNames[queueNameIndex];
@@ -926,11 +975,6 @@ enifed('backburner/queue', ['exports', 'backburner/utils'], function (exports, _
     },
 
     pushUnique: function (target, method, args, stack) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
       var KEY = this.globalOptions.GUID_KEY;
 
       if (target && KEY) {
@@ -9097,7 +9141,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15080,7 +15124,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+b4c14261
+    @version 2.2.0-canary+82b550df
     @public
   */
 
@@ -15124,11 +15168,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+b4c14261'
+    @default '2.2.0-canary+82b550df'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+b4c14261';
+  Ember.VERSION = '2.2.0-canary+82b550df';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23393,7 +23437,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23886,7 +23930,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37587,7 +37631,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+b4c14261',
+        revision: 'Ember@2.2.0-canary+82b550df',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42963,7 +43007,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b4c14261';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
 
   /**
   @module ember
