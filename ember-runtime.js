@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+0e4bfc5a
+ * @version   2.2.0-canary+6f118090
  */
 
 (function() {
@@ -4817,7 +4817,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+0e4bfc5a
+    @version 2.2.0-canary+6f118090
     @public
   */
 
@@ -4861,11 +4861,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+0e4bfc5a'
+    @default '2.2.0-canary+6f118090'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+0e4bfc5a';
+  Ember.VERSION = '2.2.0-canary+6f118090';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14325,6 +14325,10 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
   });
 });
 enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
   'use strict';
 
   /**
@@ -14332,7 +14336,7 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
     container functionality.
   
     @class ContainerProxyMixin
-    @public
+    @private
   */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
@@ -16886,7 +16890,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/debug', '
     registry functionality.
   
     @class RegistryProxyMixin
-    @public
+    @private
   */
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
