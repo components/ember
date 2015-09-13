@@ -6,5 +6,6 @@ default:
 	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember.prod.js
 	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember-testing.js
 	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember-template-compiler.js
+	@curl -O http://builds.emberjs.com/tags/$(VERSION)/ember-runtime.js
 
 .PHONY: default
