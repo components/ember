@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+82b550df
+ * @version   2.2.0-canary+0e4bfc5a
  */
 
 (function() {
@@ -3418,7 +3418,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   /**
   @module ember
   @submodule ember-application
-  @private
   */
 
   'use strict';
@@ -3444,6 +3443,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     it once the particular test run or FastBoot request has finished.
   
     @public
+    @class Ember.ApplicationInstance
+    @extends Ember.Object
+    @uses RegistryProxyMixin
+    @uses ContainerProxyMixin
   */
 
   var ApplicationInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
@@ -3770,7 +3773,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     });
     ```
   
-    Initializers provide an opportunity to access the container, which
+    Initializers provide an opportunity to access the internal registry, which
     organizes the different components of an Ember application. Additionally
     they provide a chance to access the instantiated application. Beyond
     being used for libraries, initializers are also a great way to organize
@@ -3803,6 +3806,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     @class Application
     @namespace Ember
     @extends Ember.Namespace
+    @uses RegistryProxyMixin
     @public
   */
 
@@ -5643,7 +5647,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     Application.initializer({
       name: "containerDebugAdapter",
   
-      initialize: function(container, application) {
+      initialize: function(application) {
         application.register('container-debug-adapter:main', require('app/container-debug-adapter'));
       }
     });
@@ -5762,7 +5766,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     Application.initializer({
       name: "data-adapter",
   
-      initialize: function(container, application) {
+      initialize: function(application) {
         application.register('data-adapter:main', DS.DataAdapter);
       }
     });
@@ -9141,7 +9145,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0e4bfc5a';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15124,7 +15128,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+82b550df
+    @version 2.2.0-canary+0e4bfc5a
     @public
   */
 
@@ -15168,11 +15172,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+82b550df'
+    @default '2.2.0-canary+0e4bfc5a'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+82b550df';
+  Ember.VERSION = '2.2.0-canary+0e4bfc5a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23437,7 +23441,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+0e4bfc5a';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23930,7 +23934,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+0e4bfc5a';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -31287,6 +31291,13 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
 enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
   'use strict';
 
+  /**
+    ContainerProxyMixin is used to provide public access to specific
+    container functionality.
+  
+    @class ContainerProxyMixin
+    @public
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
      The container stores state.
@@ -33825,9 +33836,22 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 });
 enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
+
+  /**
+    RegistryProxyMixin is used to provide public access to specific
+    registry functionality.
+  
+    @class RegistryProxyMixin
+    @public
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -33879,8 +33903,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/debug', '
       App.register('communication:main', App.Email, { singleton: false });
       App.register('session', App.session, { instantiate: false });
       ```
-       @public
-      @method register
+       @method register
       @param  fullName {String} type:name (e.g., 'model:user')
       @param  factory {Function} (e.g., App.Person)
       @param  options {Object} (optional) disable instantiation or singleton usage
@@ -37631,7 +37654,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+82b550df',
+        revision: 'Ember@2.2.0-canary+0e4bfc5a',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -43007,7 +43030,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+82b550df';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+0e4bfc5a';
 
   /**
   @module ember

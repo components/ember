@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+82b550df
+ * @version   2.2.0-canary+0e4bfc5a
  */
 
 (function() {
@@ -4817,7 +4817,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+82b550df
+    @version 2.2.0-canary+0e4bfc5a
     @public
   */
 
@@ -4861,11 +4861,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+82b550df'
+    @default '2.2.0-canary+0e4bfc5a'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+82b550df';
+  Ember.VERSION = '2.2.0-canary+0e4bfc5a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14327,6 +14327,13 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
 enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
   'use strict';
 
+  /**
+    ContainerProxyMixin is used to provide public access to specific
+    container functionality.
+  
+    @class ContainerProxyMixin
+    @public
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
      The container stores state.
@@ -16865,9 +16872,22 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 });
 enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
+
+  /**
+    RegistryProxyMixin is used to provide public access to specific
+    registry functionality.
+  
+    @class RegistryProxyMixin
+    @public
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -16919,8 +16939,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/debug', '
       App.register('communication:main', App.Email, { singleton: false });
       App.register('session', App.session, { instantiate: false });
       ```
-       @public
-      @method register
+       @method register
       @param  fullName {String} type:name (e.g., 'model:user')
       @param  factory {Function} (e.g., App.Person)
       @param  options {Object} (optional) disable instantiation or singleton usage
