@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+6f118090
+ * @version   2.2.0-canary+000a2489
  */
 
 (function() {
@@ -13536,7 +13536,7 @@ enifed('ember-htmlbars/tests/hooks/text_node_test', ['exports', 'ember-views/vie
     _htmlbarsTestHelpers.equalInnerHTML(view.element, 'ohai mmun', 'new property is output');
   });
 });
-enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-template-compiler/system/compile', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/merge'], function (exports, _emberTemplateCompilerSystemCompile, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalMerge) {
+enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-template-compiler/system/compile', 'ember-htmlbars/env', 'htmlbars-test-helpers', 'ember-metal/assign'], function (exports, _emberTemplateCompilerSystemCompile, _emberHtmlbarsEnv, _htmlbarsTestHelpers, _emberMetalAssign) {
   'use strict';
 
   QUnit.module('ember-htmlbars: main');
@@ -13544,7 +13544,7 @@ enifed('ember-htmlbars/tests/htmlbars_test', ['exports', 'ember-template-compile
   QUnit.test('HTMLBars is present and can be executed', function () {
     var template = _emberTemplateCompilerSystemCompile.default('ohai');
 
-    var env = _emberMetalMerge.default({ dom: _emberHtmlbarsEnv.domHelper }, _emberHtmlbarsEnv.default);
+    var env = _emberMetalAssign.default({ dom: _emberHtmlbarsEnv.domHelper }, _emberHtmlbarsEnv.default);
 
     var output = template.render({}, env, { contextualElement: document.body }).fragment;
     _htmlbarsTestHelpers.equalHTML(output, 'ohai');
@@ -18253,6 +18253,27 @@ enifed('ember-metal/tests/alias_test', ['exports', 'ember-metal/alias', 'ember-m
     }, 'Setting alias \'bar\' on self');
   });
 });
+enifed('ember-metal/tests/assign_test', ['exports', 'ember-metal/assign', 'ember-metal/features'], function (exports, _emberMetalAssign, _emberMetalFeatures) {
+  'use strict';
+
+  QUnit.module('Ember.assign');
+
+  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+    QUnit.test('Ember.assign', function () {
+      var a = { a: 1 };
+      var b = { b: 2 };
+      var c = { c: 3 };
+      var a2 = { a: 4 };
+
+      _emberMetalAssign.default(a, b, c, a2);
+
+      deepEqual(a, { a: 4, b: 2, c: 3 });
+      deepEqual(b, { b: 2 });
+      deepEqual(c, { c: 3 });
+      deepEqual(a2, { a: 4 });
+    });
+  }
+});
 enifed('ember-metal/tests/binding/connect_test', ['exports', 'ember-metal/core', 'ember-metal/tests/props_helper', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalTestsProps_helper, _emberMetalBinding, _emberMetalRun_loop, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
@@ -19831,14 +19852,14 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
     deepEqual(expected.sort(), foundProperties.sort());
   });
 });
-enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/merge'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge) {
+enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalAssign) {
   'use strict';
 
   var origFeatures, origEnableAll, origEnableOptional;
 
   QUnit.module('isEnabled', {
     setup: function () {
-      origFeatures = _emberMetalMerge.default({}, _emberMetalFeatures.FEATURES);
+      origFeatures = _emberMetalAssign.default({}, _emberMetalFeatures.FEATURES);
       origEnableAll = _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
     },
@@ -19847,7 +19868,7 @@ enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember
       for (var feature in _emberMetalFeatures.FEATURES) {
         delete _emberMetalFeatures.FEATURES[feature];
       }
-      _emberMetalMerge.default(_emberMetalFeatures.FEATURES, origFeatures);
+      _emberMetalAssign.default(_emberMetalFeatures.FEATURES, origFeatures);
 
       _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = origEnableAll;
       _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
@@ -20991,6 +21012,19 @@ enifed('ember-metal/tests/map_test', ['exports', 'ember-metal/map'], function (e
     equal(map.add(obj), map);
     equal(map.add(obj), map, 'when it is already in the set');
   });
+});
+enifed('ember-metal/tests/merge_test', ['exports', 'ember-metal/merge', 'ember-metal/features'], function (exports, _emberMetalMerge, _emberMetalFeatures) {
+  'use strict';
+
+  QUnit.module('Ember.merge');
+
+  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+    QUnit.test('Ember.merge should be deprecated', function () {
+      expectDeprecation(function () {
+        _emberMetalMerge.default({ a: 1 }, { b: 2 });
+      }, 'Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.');
+    });
+  }
 });
 enifed('ember-metal/tests/meta_test', ['exports', 'ember-metal/meta'], function (exports, _emberMetalMeta) {
   'use strict';
@@ -27866,11 +27900,11 @@ enifed('ember-routing-views/tests/main_test', ['exports', 'ember-routing-views']
     link.get('currentWhen');
   });
 });
-enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/merge', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/registry'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalMerge, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerRegistry) {
+enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/registry'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerRegistry) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
-    return _emberMetalMerge.default({
+    return _emberMetalAssign.default({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -27882,7 +27916,7 @@ enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-met
   }
 
   function mockBrowserHistory(overrides) {
-    return _emberMetalMerge.default({
+    return _emberMetalAssign.default({
       pushState: function () {
         ok(false, 'history.pushState should not be called during testing');
       },
@@ -28591,11 +28625,11 @@ enifed('ember-routing/tests/location/history_location_test', ['exports', 'ember-
     equal(location.getURL(), '/foo/bar?time=morphin#pink-power-ranger');
   });
 });
-enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/merge', 'ember-routing/location/util'], function (exports, _emberMetalMerge, _emberRoutingLocationUtil) {
+enifed('ember-routing/tests/location/util_test', ['exports', 'ember-metal/assign', 'ember-routing/location/util'], function (exports, _emberMetalAssign, _emberRoutingLocationUtil) {
   'use strict';
 
   function mockBrowserLocation(overrides) {
-    return _emberMetalMerge.default({
+    return _emberMetalAssign.default({
       href: 'http://test.com/',
       pathname: '/',
       hash: '',
@@ -29231,13 +29265,13 @@ enifed('ember-routing/tests/system/route_test', ['exports', 'ember-runtime/tests
     equal(authService, appRoute.get('authService'), 'service.auth is injected');
   });
 });
-enifed('ember-routing/tests/system/router_test', ['exports', 'ember-metal/merge', 'container/registry', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils'], function (exports, _emberMetalMerge, _containerRegistry, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils) {
+enifed('ember-routing/tests/system/router_test', ['exports', 'ember-metal/assign', 'container/registry', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/router', 'ember-runtime/tests/utils'], function (exports, _emberMetalAssign, _containerRegistry, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemRouter, _emberRuntimeTestsUtils) {
   'use strict';
 
   var registry, container;
 
   function createRouter(overrides, disableSetup) {
-    var opts = _emberMetalMerge.default({ container: container }, overrides);
+    var opts = _emberMetalAssign.default({ container: container }, overrides);
     var routerWithContainer = _emberRoutingSystemRouter.default.extend();
     var router = routerWithContainer.create(opts);
 
@@ -41840,7 +41874,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+6f118090', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+000a2489', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
