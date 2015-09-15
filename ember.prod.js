@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+e8eab919
+ * @version   2.2.0-canary+299f8013
  */
 
 (function() {
@@ -8643,7 +8643,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+e8eab919';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+299f8013';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9685,28 +9685,39 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // if the component is rendered via {{component}} helper, the first
     // element of `params` is the name of the component, so we need to
     // skip that when the positional parameters are constructed
-    var paramsStartIndex = renderNode.getState().isComponentHelper ? 1 : 0;
     var isNamed = typeof positionalParams === 'string';
-    var paramsStream = undefined;
 
     if (isNamed) {
-      paramsStream = new _emberMetalStreamsStream.Stream(function () {
-        return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
-      }, 'params');
-
-      attrs[positionalParams] = paramsStream;
-    }
-
-    if (isNamed) {
-      for (var i = paramsStartIndex; i < params.length; i++) {
-        var param = params[i];
-        paramsStream.addDependency(param);
-      }
+      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
     } else {
-      for (var i = 0; i < positionalParams.length; i++) {
-        var param = params[paramsStartIndex + i];
-        attrs[positionalParams[i]] = param;
-      }
+      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
+    }
+  }
+
+  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
+    var paramsStartIndex = renderNode.getState().isComponentHelper ? 1 : 0;
+
+    for (var i = 0; i < positionalParams.length; i++) {
+      var param = params[paramsStartIndex + i];
+
+      attrs[positionalParams[i]] = param;
+    }
+  }
+
+  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+
+    var paramsStartIndex = renderNode.getState().isComponentHelper ? 1 : 0;
+
+    // If there is already an attribute for that variable, do nothing
+    var paramsStream = new _emberMetalStreamsStream.Stream(function () {
+      return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
+    }, 'params');
+
+    attrs[positionalParamsName] = paramsStream;
+
+    for (var i = paramsStartIndex; i < params.length; i++) {
+      var param = params[i];
+      paramsStream.addDependency(param);
     }
   }
 
@@ -14558,7 +14569,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+e8eab919
+    @version 2.2.0-canary+299f8013
     @public
   */
 
@@ -14602,11 +14613,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+e8eab919'
+    @default '2.2.0-canary+299f8013'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+e8eab919';
+  Ember.VERSION = '2.2.0-canary+299f8013';
 
   /**
     The hash of environment variables used to control various configuration
@@ -22750,7 +22761,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+e8eab919';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+299f8013';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -23228,7 +23239,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+e8eab919';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+299f8013';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36834,7 +36845,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+e8eab919',
+        revision: 'Ember@2.2.0-canary+299f8013',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40898,7 +40909,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+e8eab919';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+299f8013';
 
   /**
   @module ember

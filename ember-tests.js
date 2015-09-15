@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+e8eab919
+ * @version   2.2.0-canary+299f8013
  */
 
 (function() {
@@ -14456,6 +14456,29 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
   });
 
+  QUnit.test('if a value is passed as a non-positional parameter, it takes precedence over the named one', function () {
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: ['name']
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component notMyName name=myName}}'),
+      container: container,
+      context: {
+        myName: 'Quint',
+        notMyName: 'Sergio'
+      }
+    }).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+  });
+
   QUnit.test('static arbitrary number of positional parameters', function () {
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -14475,6 +14498,28 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(view.$('#args-3').text(), 'Foo4Bar');
     equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
     equal(view.$('#helper').text(), 'Foo4Bar5Baz');
+  });
+
+  QUnit.test('arbitrary positional parameter conflict with hash parameter is reported', function () {
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'names'
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}'),
+      container: container,
+      context: {
+        numbers: [1, 2, 3]
+      }
+    }).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You cannot specify positional parameters and the hash argument `names`.');
   });
 
   QUnit.test('dynamic arbitrary number of positional parameters', function () {
@@ -41874,7 +41919,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+e8eab919', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+299f8013', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
