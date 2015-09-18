@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+25e93cbd
+ * @version   2.2.0-canary+85f2cd4b
  */
 
 (function() {
@@ -39958,6 +39958,50 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
 
     deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
   });
+
+  QUnit.test('Calling _super in call outside the immediate function of a CP getter works', function () {
+    function macro(callback) {
+      return _emberMetalComputed.computed(function () {
+        return callback.call(this);
+      });
+    }
+
+    var MyClass = _emberRuntimeSystemObject.default.extend({
+      foo: _emberMetalComputed.computed(function () {
+        return 'FOO';
+      })
+    });
+
+    var SubClass = MyClass.extend({
+      foo: macro(function () {
+        return this._super();
+      })
+    });
+
+    ok(_emberMetalProperty_get.get(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
+
+  QUnit.test('Calling _super in apply outside the immediate function of a CP getter works', function () {
+    function macro(callback) {
+      return _emberMetalComputed.computed(function () {
+        return callback.apply(this);
+      });
+    }
+
+    var MyClass = _emberRuntimeSystemObject.default.extend({
+      foo: _emberMetalComputed.computed(function () {
+        return 'FOO';
+      })
+    });
+
+    var SubClass = MyClass.extend({
+      foo: macro(function () {
+        return this._super();
+      })
+    });
+
+    ok(_emberMetalProperty_get.get(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
 });
 enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemObject) {
   'use strict';
@@ -41759,7 +41803,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+25e93cbd', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+85f2cd4b', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

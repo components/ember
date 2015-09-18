@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+25e93cbd
+ * @version   2.2.0-canary+85f2cd4b
  */
 
 (function() {
@@ -4839,7 +4839,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+25e93cbd
+    @version 2.2.0-canary+85f2cd4b
     @public
   */
 
@@ -4883,11 +4883,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+25e93cbd'
+    @default '2.2.0-canary+85f2cd4b'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+25e93cbd';
+  Ember.VERSION = '2.2.0-canary+85f2cd4b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11474,6 +11474,8 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
   }
 
+  var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
+
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
@@ -11481,7 +11483,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
-        return func.toString().indexOf('_super') > -1;
+        return HAS_SUPER_PATTERN.test(func.toString());
       };
     }
 
