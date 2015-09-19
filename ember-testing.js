@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+9f825c2e
+ * @version   2.2.0-canary+290e8208
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1788,7 +1788,7 @@ enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializ
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+9f825c2e
+ * @version   2.2.0-canary+290e8208
  */
 
 var enifed, requireModule, require, requirejs, Ember;
