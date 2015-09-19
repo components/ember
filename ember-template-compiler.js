@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+290e8208
+ * @version   2.2.0-canary+82eaed01
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4031,7 +4031,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+290e8208
+    @version 2.2.0-canary+82eaed01
     @public
   */
 
@@ -4075,11 +4075,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+290e8208'
+    @default '2.2.0-canary+82eaed01'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+290e8208';
+  Ember.VERSION = '2.2.0-canary+82eaed01';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12474,7 +12474,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+290e8208',
+        revision: 'Ember@2.2.0-canary+82eaed01',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -19361,7 +19361,7 @@ enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+290e8208
+ * @version   2.2.0-canary+82eaed01
  */
 
 var enifed, requireModule, require, requirejs, Ember;
