@@ -1,3 +1,4 @@
+;(function() {
 /*!
  * @overview  Ember - JavaScript Application Framework
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
@@ -5,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+82eaed01
+ * @version   2.2.0-canary+a6fcb394
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4031,7 +4032,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+82eaed01
+    @version 2.2.0-canary+a6fcb394
     @public
   */
 
@@ -4075,11 +4076,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+82eaed01'
+    @default '2.2.0-canary+a6fcb394'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+82eaed01';
+  Ember.VERSION = '2.2.0-canary+a6fcb394';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12474,7 +12475,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+82eaed01',
+        revision: 'Ember@2.2.0-canary+a6fcb394',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -19354,100 +19355,6 @@ enifed('htmlbars-util', ['exports', 'htmlbars-util/safe-string', 'htmlbars-util/
   exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
   exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
-/*!
- * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2015 Tilde Inc. and contributors
- *            Portions Copyright 2006-2011 Strobe Inc.
- *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
- * @license   Licensed under MIT license
- *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+82eaed01
- */
-
-var enifed, requireModule, require, requirejs, Ember;
-var mainContext = this;
-
-(function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
-
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; };
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
-      }
-
-      registry[name] = value;
-    };
-
-    requirejs = require = requireModule = function(name) {
-      return internalRequire(name, null);
-    }
-
-    function internalRequire(name, referrerName) {
-      var exports = seen[name];
-
-      if (exports !== undefined) {
-        return exports;
-      }
-
-      exports = seen[name] = {};
-
-      if (!registry[name]) {
-        if (referrerName) {
-          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
-        } else {
-          throw new Error('Could not find module ' + name);
-        }
-      }
-
-      var mod = registry[name];
-      var deps = mod.deps;
-      var callback = mod.callback;
-      var reified = [];
-      var length = deps.length;
-
-      for (var i = 0; i < length; i++) {
-        if (deps[i] === 'exports') {
-          reified.push(exports);
-        } else {
-          reified.push(internalRequire(deps[i], name));
-        }
-      }
-
-      callback.apply(this, reified);
-
-      return exports;
-    };
-
-    requirejs._eak_seen = registry;
-
-    Ember.__loader = {
-      define: enifed,
-      require: require,
-      registry: registry
-    };
-  } else {
-    enifed = Ember.__loader.define;
-    requirejs = require = requireModule = Ember.__loader.require;
-  }
-})();
-
 enifed('morph-range/morph-list', ['exports', 'morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
@@ -22734,6 +22641,8 @@ enifed('simple-html-tokenizer', ['exports', 'simple-html-tokenizer/evented-token
 });
 requireModule("ember-debug");
 requireModule("ember-template-compiler");
+
+}());
 
 ;
 if (typeof exports === "object") {
