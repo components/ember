@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a6fcb394
+ * @version   2.2.0-canary+b8e491e0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -5746,7 +5746,7 @@ enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/
 
   exports.default = EmberHandlebars;
 });
-enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
+enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/environment', 'htmlbars-runtime', 'ember-metal/assign', 'ember-htmlbars/hooks/subexpr', 'ember-htmlbars/hooks/concat', 'ember-htmlbars/hooks/link-render-node', 'ember-htmlbars/hooks/create-fresh-scope', 'ember-htmlbars/hooks/bind-shadow-scope', 'ember-htmlbars/hooks/bind-self', 'ember-htmlbars/hooks/bind-scope', 'ember-htmlbars/hooks/bind-local', 'ember-htmlbars/hooks/bind-block', 'ember-htmlbars/hooks/update-self', 'ember-htmlbars/hooks/get-root', 'ember-htmlbars/hooks/get-child', 'ember-htmlbars/hooks/get-block', 'ember-htmlbars/hooks/get-value', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-htmlbars/hooks/cleanup-render-node', 'ember-htmlbars/hooks/destroy-render-node', 'ember-htmlbars/hooks/did-render-node', 'ember-htmlbars/hooks/will-cleanup-tree', 'ember-htmlbars/hooks/did-cleanup-tree', 'ember-htmlbars/hooks/classify', 'ember-htmlbars/hooks/component', 'ember-htmlbars/hooks/lookup-helper', 'ember-htmlbars/hooks/has-helper', 'ember-htmlbars/hooks/invoke-helper', 'ember-htmlbars/hooks/element', 'ember-htmlbars/helpers', 'ember-htmlbars/keywords', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/keywords/debugger', 'ember-htmlbars/keywords/with', 'ember-htmlbars/keywords/outlet', 'ember-htmlbars/keywords/unbound', 'ember-htmlbars/keywords/view', 'ember-htmlbars/keywords/component', 'ember-htmlbars/keywords/element-component', 'ember-htmlbars/keywords/partial', 'ember-htmlbars/keywords/input', 'ember-htmlbars/keywords/textarea', 'ember-htmlbars/keywords/collection', 'ember-htmlbars/keywords/yield', 'ember-htmlbars/keywords/legacy-yield', 'ember-htmlbars/keywords/mut', 'ember-htmlbars/keywords/each', 'ember-htmlbars/keywords/readonly', 'ember-htmlbars/keywords/get'], function (exports, _emberMetal, _emberMetalEnvironment, _htmlbarsRuntime, _emberMetalAssign, _emberHtmlbarsHooksSubexpr, _emberHtmlbarsHooksConcat, _emberHtmlbarsHooksLinkRenderNode, _emberHtmlbarsHooksCreateFreshScope, _emberHtmlbarsHooksBindShadowScope, _emberHtmlbarsHooksBindSelf, _emberHtmlbarsHooksBindScope, _emberHtmlbarsHooksBindLocal, _emberHtmlbarsHooksBindBlock, _emberHtmlbarsHooksUpdateSelf, _emberHtmlbarsHooksGetRoot, _emberHtmlbarsHooksGetChild, _emberHtmlbarsHooksGetBlock, _emberHtmlbarsHooksGetValue, _emberHtmlbarsHooksGetCellOrValue, _emberHtmlbarsHooksCleanupRenderNode, _emberHtmlbarsHooksDestroyRenderNode, _emberHtmlbarsHooksDidRenderNode, _emberHtmlbarsHooksWillCleanupTree, _emberHtmlbarsHooksDidCleanupTree, _emberHtmlbarsHooksClassify, _emberHtmlbarsHooksComponent, _emberHtmlbarsHooksLookupHelper, _emberHtmlbarsHooksHasHelper, _emberHtmlbarsHooksInvokeHelper, _emberHtmlbarsHooksElement, _emberHtmlbarsHelpers, _emberHtmlbarsKeywords, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsKeywordsDebugger, _emberHtmlbarsKeywordsWith, _emberHtmlbarsKeywordsOutlet, _emberHtmlbarsKeywordsUnbound, _emberHtmlbarsKeywordsView, _emberHtmlbarsKeywordsComponent, _emberHtmlbarsKeywordsElementComponent, _emberHtmlbarsKeywordsPartial, _emberHtmlbarsKeywordsInput, _emberHtmlbarsKeywordsTextarea, _emberHtmlbarsKeywordsCollection, _emberHtmlbarsKeywordsYield, _emberHtmlbarsKeywordsLegacyYield, _emberHtmlbarsKeywordsMut, _emberHtmlbarsKeywordsEach, _emberHtmlbarsKeywordsReadonly, _emberHtmlbarsKeywordsGet) {
   'use strict';
 
   var emberHooks = _emberMetalAssign.default({}, _htmlbarsRuntime.hooks);
@@ -5787,6 +5787,7 @@ enifed('ember-htmlbars/env', ['exports', 'ember-metal', 'ember-metal/environment
   _emberHtmlbarsKeywords.registerKeyword('outlet', _emberHtmlbarsKeywordsOutlet.default);
   _emberHtmlbarsKeywords.registerKeyword('unbound', _emberHtmlbarsKeywordsUnbound.default);
   _emberHtmlbarsKeywords.registerKeyword('component', _emberHtmlbarsKeywordsComponent.default);
+  _emberHtmlbarsKeywords.registerKeyword('@element_component', _emberHtmlbarsKeywordsElementComponent.default);
   _emberHtmlbarsKeywords.registerKeyword('partial', _emberHtmlbarsKeywordsPartial.default);
   _emberHtmlbarsKeywords.registerKeyword('input', _emberHtmlbarsKeywordsInput.default);
   _emberHtmlbarsKeywords.registerKeyword('textarea', _emberHtmlbarsKeywordsTextarea.default);
@@ -6298,6 +6299,47 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_di
   function forEach(iterable, cb) {
     return iterable.forEach ? iterable.forEach(cb) : Array.prototype.forEach.call(iterable, cb);
   }
+});
+enifed("ember-htmlbars/helpers/hash", ["exports"], function (exports) {
+   /**
+   @module ember
+   @submodule ember-templates
+   */
+
+   /**
+      Use the `{{hash}}` helper to create a hash to pass as an option to your
+      components. This is specially useful for contextual components where you can
+      just yield a hash:
+   
+      ```handlebars
+      {{yield (hash
+         name='Sarah'
+         title=office
+      )}}
+      ```
+   
+      Would result in an object such as:
+   
+      ```js
+      { name: 'Sarah', title: this.get('office') }
+      ```
+   
+      Where the `title` is bound to updates of the `office` property.
+   
+      @method hash
+      @for Ember.Templates.helpers
+      @param {Object} options
+      @return {Object} Hash
+      @public
+    */
+
+   "use strict";
+
+   exports.default = hashHelper;
+
+   function hashHelper(params, hash, options) {
+      return hash;
+   }
 });
 enifed('ember-htmlbars/helpers/if_unless', ['exports', 'ember-metal/debug', 'ember-views/streams/should_display'], function (exports, _emberMetalDebug, _emberViewsStreamsShould_display) {
   /**
@@ -7584,6 +7626,123 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     view.ownerView._destroyingSubtreeForView = view;
   }
 });
+enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/utils', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalUtils, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  'use strict';
+
+  exports.default = closureComponent;
+  exports.isComponentCell = isComponentCell;
+  exports.mergeHash = mergeHash;
+  var COMPONENT_REFERENCE = _emberMetalUtils.symbol('COMPONENT_REFERENCE');
+  exports.COMPONENT_REFERENCE = COMPONENT_REFERENCE;
+  var COMPONENT_CELL = _emberMetalUtils.symbol('COMPONENT_CELL');
+  exports.COMPONENT_CELL = COMPONENT_CELL;
+  var COMPONENT_PATH = _emberMetalUtils.symbol('COMPONENT_PATH');
+  exports.COMPONENT_PATH = COMPONENT_PATH;
+  var COMPONENT_POSITIONAL_PARAMS = _emberMetalUtils.symbol('COMPONENT_POSITIONAL_PARAMS');
+  exports.COMPONENT_POSITIONAL_PARAMS = COMPONENT_POSITIONAL_PARAMS;
+  var COMPONENT_HASH = _emberMetalUtils.symbol('COMPONENT_HASH');
+
+  exports.COMPONENT_HASH = COMPONENT_HASH;
+  var ClosureComponentStream = _emberMetalStreamsStream.default.extend({
+    init: function (env, path, params, hash) {
+      this._env = env;
+      this._path = path;
+      this._params = params;
+      this._hash = hash;
+      this.label = _emberHtmlbarsHooksSubexpr.labelForSubexpr([path].concat(params), hash, 'component');
+      this[COMPONENT_REFERENCE] = true;
+    },
+    compute: function () {
+      return createClosureComponentCell(this._env, this._path, this._params, this._hash);
+    }
+  });
+
+  function closureComponent(env, _ref3, hash) {
+    var path = _ref3[0];
+
+    var params = _ref3.slice(1);
+
+    var s = new ClosureComponentStream(env, path, params, hash);
+
+    s.addDependency(path);
+
+    // FIXME: If the stream invalidates on every params or hash change, then
+    // the {{component helper will be forces to rerender the whole component
+    // each time. Instead, these dependencies should not be required and the
+    // element component keyword should add the params and hash as dependencies
+    params.forEach(function (item) {
+      return s.addDependency(item);
+    });
+    Object.keys(hash).forEach(function (key) {
+      return s.addDependency(hash[key]);
+    });
+
+    return s;
+  }
+
+  function createClosureComponentCell(env, originalComponentPath, params, hash) {
+    var componentPath = _emberMetalStreamsUtils.read(originalComponentPath);
+
+    if (isComponentCell(componentPath)) {
+      return createNestedClosureComponentCell(componentPath, params, hash);
+    } else {
+      return createNewClosureComponentCell(env, componentPath, params, hash);
+    }
+  }
+
+  function isComponentCell(component) {
+    return component && component[COMPONENT_CELL];
+  }
+
+  function createNestedClosureComponentCell(componentCell, params, hash) {
+    var _ref;
+
+    var positionalParams = componentCell[COMPONENT_POSITIONAL_PARAMS];
+
+    // This needs to be done in each nesting level to avoid raising assertions
+    _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
+
+    return (_ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = positionalParams, _ref[COMPONENT_CELL] = true, _ref);
+  }
+
+  function createNewClosureComponentCell(env, componentPath, params, hash) {
+    var _ref2;
+
+    var positionalParams = getPositionalParams(env.container, componentPath);
+
+    // This needs to be done in each nesting level to avoid raising assertions
+    _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
+
+    return (_ref2 = {}, _ref2[COMPONENT_PATH] = componentPath, _ref2[COMPONENT_HASH] = hash, _ref2[COMPONENT_POSITIONAL_PARAMS] = positionalParams, _ref2[COMPONENT_CELL] = true, _ref2);
+  }
+
+  /*
+   Returns the positional parameters for component `componentPath`.
+   If it has no positional parameters, it returns the empty array.
+   */
+  function getPositionalParams(container, componentPath) {
+    if (!componentPath) {
+      return [];
+    }
+    var result = _emberHtmlbarsUtilsLookupComponent.default(container, componentPath);
+    var component = result.component;
+
+    if (component && component.positionalParams) {
+      return component.positionalParams;
+    } else {
+      return [];
+    }
+  }
+
+  function mergeHash(original, updates) {
+    return _emberMetalAssign.default(original, updates);
+  }
+});
 enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/utils', 'ember-views/views/collection_view', 'ember-htmlbars/node-managers/view-node-manager', 'ember-metal/assign'], function (exports, _emberViewsStreamsUtils, _emberViewsViewsCollection_view, _emberHtmlbarsNodeManagersViewNodeManager, _emberMetalAssign) {
   /**
   @module ember
@@ -7774,7 +7933,7 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
     return viewClassOrInstance;
   }
 });
-enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/assign'], function (exports, _emberMetalAssign) {
+enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/core', 'htmlbars-runtime/hooks', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalCore, _htmlbarsRuntimeHooks, _emberHtmlbarsKeywordsClosureComponent) {
   /**
     @module ember
     @submodule ember-templates
@@ -7829,45 +7988,19 @@ enifed('ember-htmlbars/keywords/component', ['exports', 'ember-metal/assign'], f
     @for Ember.Templates.helpers
     @public
   */
-  exports.default = {
-    setupState: function (lastState, env, scope, params, hash) {
-      var componentPath = env.hooks.getValue(params[0]);
-      return _emberMetalAssign.default({}, lastState, { componentPath: componentPath, isComponentHelper: true });
-    },
 
-    render: function (morph) {
-      var state = morph.getState();
-
-      if (state.manager) {
-        state.manager.destroy();
+  exports.default = function (morph, env, scope, params, hash, template, inverse, visitor) {
+    if (_emberMetalCore.default.FEATURES.isEnabled('ember-contextual-components')) {
+      if (morph) {
+        _htmlbarsRuntimeHooks.keyword('@element_component', morph, env, scope, params, hash, template, inverse, visitor);
+        return true;
       }
-
-      // Force the component hook to treat this as a first-time render,
-      // because normal components (`<foo-bar>`) cannot change at runtime,
-      // but the `{{component}}` helper can.
-      state.manager = null;
-
-      for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        rest[_key - 1] = arguments[_key];
-      }
-
-      render.apply(undefined, [morph].concat(rest));
-    },
-
-    rerender: render
-  };
-
-  function render(morph, env, scope, params, hash, template, inverse, visitor) {
-    var componentPath = morph.getState().componentPath;
-
-    // If the value passed to the {{component}} helper is undefined or null,
-    // don't create a new ComponentNode.
-    if (componentPath === undefined || componentPath === null) {
-      return;
+      return _emberHtmlbarsKeywordsClosureComponent.default(env, params, hash);
+    } else {
+      _htmlbarsRuntimeHooks.keyword('@element_component', morph, env, scope, params, hash, template, inverse, visitor);
+      return true;
     }
-
-    env.hooks.component(morph, env, scope, componentPath, params, hash, { default: template, inverse: inverse }, visitor);
-  }
+  };
 });
 enifed('ember-htmlbars/keywords/debugger', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
   /*jshint debug:true*/
@@ -7967,6 +8100,79 @@ enifed('ember-htmlbars/keywords/each', ['exports'], function (exports) {
     }
 
     return false;
+  }
+});
+enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/utils/extract-positional-params'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsUtilsExtractPositionalParams) {
+  'use strict';
+
+  exports.default = {
+    setupState: function (lastState, env, scope, params, hash) {
+      var componentPath = getComponentPath(params[0], env);
+      return _emberMetalAssign.default({}, lastState, {
+        componentPath: componentPath,
+        isComponentHelper: true
+      });
+    },
+
+    render: function (morph) {
+      var state = morph.getState();
+
+      if (state.manager) {
+        state.manager.destroy();
+      }
+
+      // Force the component hook to treat this as a first-time render,
+      // because normal components (`<foo-bar>`) cannot change at runtime,
+      // but the `{{component}}` helper can.
+      state.manager = null;
+
+      for (var _len = arguments.length, rest = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        rest[_key - 1] = arguments[_key];
+      }
+
+      render.apply(undefined, [morph].concat(rest));
+    },
+
+    rerender: render
+  };
+
+  function getComponentPath(param, env) {
+    var path = env.hooks.getValue(param);
+    if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(path)) {
+      path = path[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_PATH];
+    }
+    return path;
+  }
+
+  function render(morph, env, scope, _ref, hash, template, inverse, visitor) {
+    var path = _ref[0];
+
+    var params = _ref.slice(1);
+
+    var _morph$getState = morph.getState();
+
+    var componentPath = _morph$getState.componentPath;
+
+    // If the value passed to the {{component}} helper is undefined or null,
+    // don't create a new ComponentNode.
+    if (componentPath === undefined || componentPath === null) {
+      return;
+    }
+
+    path = env.hooks.getValue(path);
+
+    if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(path)) {
+      var closureComponent = env.hooks.getValue(path);
+      var positionalParams = closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_POSITIONAL_PARAMS];
+
+      // This needs to be done in each nesting level to avoid raising assertions
+      _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
+      params = [];
+      hash = _emberHtmlbarsKeywordsClosureComponent.mergeHash(closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash);
+    }
+
+    var templates = { default: template, inverse: inverse };
+    env.hooks.component(morph, env, scope, componentPath, params, hash, templates, visitor);
   }
 });
 enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-htmlbars/utils/subscribe', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalDebug, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberHtmlbarsUtilsSubscribe, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver) {
@@ -8470,7 +8676,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a6fcb394';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b8e491e0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9457,7 +9663,7 @@ enifed('ember-htmlbars/morphs/morph', ['exports', 'dom-helper', 'ember-metal/deb
 
   exports.default = EmberMorph;
 });
-enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
+enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember-metal/debug', 'ember-views/system/build-component-template', 'ember-htmlbars/hooks/get-cell-or-value', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-views/compat/attrs-proxy', 'ember-htmlbars/system/instrumentation-support', 'ember-views/components/component', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/utils/extract-positional-params', 'ember-metal/utils', 'ember-htmlbars/hooks/get-value'], function (exports, _emberMetalDebug, _emberViewsSystemBuildComponentTemplate, _emberHtmlbarsHooksGetCellOrValue, _emberMetalProperty_get, _emberMetalProperty_set, _emberViewsCompatAttrsProxy, _emberHtmlbarsSystemInstrumentationSupport, _emberViewsComponentsComponent, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsUtilsExtractPositionalParams, _emberMetalUtils, _emberHtmlbarsHooksGetValue) {
   'use strict';
 
   exports.createComponent = createComponent;
@@ -9518,7 +9724,7 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
       createOptions._controller = _emberHtmlbarsHooksGetValue.default(parentScope.getLocal('controller'));
     }
 
-    extractPositionalParams(renderNode, component, params, attrs);
+    _emberHtmlbarsUtilsExtractPositionalParams.default(renderNode, component, params, attrs);
 
     // Instantiate the component
     component = createComponent(component, isAngleBracket, createOptions, renderNode, env, attrs);
@@ -9534,54 +9740,6 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     return new ComponentNodeManager(component, isAngleBracket, parentScope, renderNode, attrs, results.block, results.createdElement);
   };
-
-  function extractPositionalParams(renderNode, component, params, attrs) {
-    var positionalParams = component.positionalParams;
-
-    if (positionalParams) {
-      processPositionalParams(renderNode, positionalParams, params, attrs);
-    }
-  }
-
-  function processPositionalParams(renderNode, positionalParams, params, attrs) {
-    // if the component is rendered via {{component}} helper, the first
-    // element of `params` is the name of the component, so we need to
-    // skip that when the positional parameters are constructed
-    var isNamed = typeof positionalParams === 'string';
-
-    if (isNamed) {
-      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
-    } else {
-      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
-    }
-  }
-
-  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
-    var paramsStartIndex = renderNode.getState().isComponentHelper ? 1 : 0;
-
-    for (var i = 0; i < positionalParams.length; i++) {
-      var param = params[paramsStartIndex + i];
-
-      attrs[positionalParams[i]] = param;
-    }
-  }
-
-  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
-
-    var paramsStartIndex = renderNode.getState().isComponentHelper ? 1 : 0;
-
-    // If there is already an attribute for that variable, do nothing
-    var paramsStream = new _emberMetalStreamsStream.Stream(function () {
-      return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
-    }, 'params');
-
-    attrs[positionalParamsName] = paramsStream;
-
-    for (var i = paramsStartIndex; i < params.length; i++) {
-      var param = params[i];
-      paramsStream.addDependency(param);
-    }
-  }
 
   function configureTagName(attrs, tagName, component, isAngleBracket, createOptions) {
     if (isAngleBracket) {
@@ -11381,6 +11539,55 @@ enifed('ember-htmlbars/utils/decode-each-key', ['exports', 'ember-metal/property
     return key;
   }
 });
+enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-metal/debug', 'ember-metal/streams/stream', 'ember-metal/streams/utils'], function (exports, _emberMetalDebug, _emberMetalStreamsStream, _emberMetalStreamsUtils) {
+  'use strict';
+
+  exports.default = extractPositionalParams;
+  exports.processPositionalParams = processPositionalParams;
+
+  function extractPositionalParams(renderNode, component, params, attrs) {
+    var positionalParams = component.positionalParams;
+
+    if (positionalParams) {
+      processPositionalParams(renderNode, positionalParams, params, attrs);
+    }
+  }
+
+  function processPositionalParams(renderNode, positionalParams, params, attrs) {
+    var isNamed = typeof positionalParams === 'string';
+
+    if (isNamed) {
+      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
+    } else {
+      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
+    }
+  }
+
+  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
+    var limit = Math.min(params.length, positionalParams.length);
+
+    for (var i = 0; i < limit; i++) {
+      var param = params[i];
+
+      attrs[positionalParams[i]] = param;
+    }
+  }
+
+  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+
+    var paramsStream = new _emberMetalStreamsStream.Stream(function () {
+      return _emberMetalStreamsUtils.readArray(params.slice(0));
+    }, 'params');
+
+    // If there is already an attribute for that variable, do nothing
+    attrs[positionalParamsName] = paramsStream;
+
+    for (var i = 0; i < params.length; i++) {
+      var param = params[i];
+      paramsStream.addDependency(param);
+    }
+  }
+});
 enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-htmlbars/system/lookup-helper'], function (exports, _emberHtmlbarsSystemLookupHelper) {
   /**
   @module ember
@@ -11543,7 +11750,7 @@ enifed('ember-htmlbars/utils/update-scope', ['exports', 'ember-metal/streams/pro
     }
   }
 });
-enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -11653,6 +11860,10 @@ enifed('ember-htmlbars', ['exports', 'ember-metal/core', 'ember-metal/features',
   _emberHtmlbarsHelpers.registerHelper('concat', _emberHtmlbarsHelpersConcat.default);
   _emberHtmlbarsHelpers.registerHelper('-join-classes', _emberHtmlbarsHelpersJoinClasses.default);
   _emberHtmlbarsHelpers.registerHelper('-html-safe', _emberHtmlbarsHelpersHtmlSafe.default);
+
+  if (_emberMetalCore.default.FEATURES.isEnabled('ember-contextual-components')) {
+    _emberHtmlbarsHelpers.registerHelper('hash', _emberHtmlbarsHelpersHash.default);
+  }
 
   if (_emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
     _emberHtmlbarsHelpers.registerHelper('-legacy-each-with-controller', _emberHtmlbarsHelpersLegacyEachWithController.default);
@@ -14066,7 +14277,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+a6fcb394
+    @version 2.2.0-canary+b8e491e0
     @public
   */
 
@@ -14110,11 +14321,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+a6fcb394'
+    @default '2.2.0-canary+b8e491e0'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+a6fcb394';
+  Ember.VERSION = '2.2.0-canary+b8e491e0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14939,7 +15150,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-application-visit":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-metal-ember-assign":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-testing-checkbox-helpers":null,"ember-application-visit":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-metal-ember-assign":null,"ember-contextual-components":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -27677,7 +27888,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+a6fcb394';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b8e491e0';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -28155,7 +28366,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+a6fcb394';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b8e491e0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36912,7 +37123,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+a6fcb394',
+        revision: 'Ember@2.2.0-canary+b8e491e0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40900,7 +41111,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+a6fcb394';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b8e491e0';
 
   /**
   @module ember
