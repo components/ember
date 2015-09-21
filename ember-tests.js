@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b8e491e0
+ * @version   2.2.0-canary+2c5a0f1f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15451,14 +15451,14 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-metal/core', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop'], function (exports, _emberMetalCore, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop) {
+enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'container/registry', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features'], function (exports, _containerRegistry, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures) {
   'use strict';
 
   var component = undefined,
       registry = undefined,
       container = undefined;
 
-  if (_emberMetalCore.default.FEATURES.isEnabled('ember-contextual-components')) {
+  if (_emberMetalFeatures.default('ember-contextual-components')) {
     QUnit.module('ember-htmlbars: closure component helper', {
       setup: function () {
         registry = new _containerRegistry.default();
@@ -51349,7 +51349,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+b8e491e0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+2c5a0f1f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
