@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+e9d41723
+ * @version   2.2.0-canary+9ab49f49
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -28926,14 +28926,14 @@ enifed('ember-metal/tests/core/inspect_test', ['exports', 'ember-metal/utils'], 
     ok(inspected.match(/13:24:11/), 'The inspected date has its time');
   });
 });
-enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/core'], function (exports, _emberMetalCore) {
+enifed('ember-metal/tests/error_test', ['exports', 'ember-metal/error'], function (exports, _emberMetalError) {
   'use strict';
 
   QUnit.module('Ember Error Throwing');
 
   QUnit.test('new Ember.Error displays provided message', function () {
     throws(function () {
-      throw new _emberMetalCore.default.Error('A Message');
+      throw new _emberMetalError.default('A Message');
     }, function (e) {
       return e.message === 'A Message';
     }, 'the assigned message was displayed');
@@ -51349,7 +51349,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+e9d41723', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+9ab49f49', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
