@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+2c401c4b
+ * @version   2.2.0-canary+1be49237
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+2c401c4b
+    @version 2.2.0-canary+1be49237
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+2c401c4b'
+    @default '2.2.0-canary+1be49237'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+2c401c4b';
+  Ember.VERSION = '2.2.0-canary+1be49237';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13216,7 +13216,7 @@ enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'ember-metal/de
   }
 
   function after(cb) {
-    _emberMetalCore.default.run.schedule(_emberMetalCore.default.run.queues[_emberMetalCore.default.run.queues.length - 1], cb);
+    _emberMetalRun_loop.default.schedule(_emberMetalRun_loop.default.queues[_emberMetalRun_loop.default.queues.length - 1], cb);
   }
 
   _rsvp.on('error', onerrorDefault);
