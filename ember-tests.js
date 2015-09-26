@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+a4743dc4
+ * @version   2.2.0-canary+de6b0c49
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1881,7 +1881,7 @@ enifed('ember/tests/global-api-test', ['exports', 'ember-runtime/utils'], functi
   confirmExport('Ember.Helper.helper');
   confirmExport('Ember.isArray', _emberRuntimeUtils.isArray);
 });
-enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-htmlbars/helper', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberHtmlbarsHelper, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-htmlbars/helpers', 'ember-template-compiler', 'ember-htmlbars/helper', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/inject', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberHtmlbarsHelpers, _emberTemplateCompiler, _emberHtmlbarsHelper, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeInject, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var App, registry, container, originalViewKeyword;
@@ -1995,7 +1995,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember-metal/
         }
       }));
       registry.register('helper:full-name', _emberHtmlbarsHelper.default.extend({
-        nameBuilder: _emberMetalCore.default.inject.service('name-builder'),
+        nameBuilder: _emberRuntimeInject.default.service('name-builder'),
         compute: function () {
           this.get('nameBuilder').build();
         }
@@ -3003,7 +3003,7 @@ enifed('ember/tests/helpers/link_to_test/link_to_with_query_params_test', ['expo
     });
   }
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberMetalLogger, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberTemplateCompiler, _emberViewsViewsView) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-metal/features', 'ember-metal/alias', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/inject', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _emberMetalCore, _emberMetalLogger, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberMetalFeatures, _emberMetalAlias, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeInject, _emberTemplateCompiler, _emberViewsViewsView) {
   'use strict';
 
   var Router, App, AppView, router, registry, container;
@@ -4273,7 +4273,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompiler.compile('{{#link-to \'index\' id=\'home-link\'}}Home{{/link-to}}{{#link-to \'post\' defaultPost id=\'default-post-link\'}}Default Post{{/link-to}}{{#if currentPost}}{{#link-to \'post\' id=\'post-link\'}}Post{{/link-to}}{{/if}}');
 
     App.ApplicationController = _emberMetalCore.default.Controller.extend({
-      postController: _emberMetalCore.default.inject.controller('post'),
+      postController: _emberRuntimeInject.default.controller('post'),
       currentPost: _emberMetalAlias.default('postController.model')
     });
 
@@ -51346,7 +51346,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+a4743dc4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+de6b0c49', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
