@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+7369c858
+ * @version   2.2.0-canary+ed0bd63d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2332,7 +2332,7 @@ enifed("ember-metal/assign", ["exports"], function (exports) {
     return original;
   }
 });
-enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/run_loop', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
+enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/utils', 'ember-metal/observer', 'ember-metal/run_loop', 'ember-metal/path_cache'], function (exports, _emberMetalCore, _emberMetalLogger, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalUtils, _emberMetalObserver, _emberMetalRun_loop, _emberMetalPath_cache) {
   'use strict';
 
   exports.bind = bind;
@@ -2580,7 +2580,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/debug
       if (direction === 'fwd') {
         var fromValue = getWithGlobals(obj, this._from);
         if (log) {
-          _emberMetalCore.default.Logger.log(' ', this.toString(), '->', fromValue, obj);
+          _emberMetalLogger.default.log(' ', this.toString(), '->', fromValue, obj);
         }
         if (this._oneWay) {
           _emberMetalProperty_set.trySet(obj, toPath, fromValue);
@@ -2593,7 +2593,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/debug
       } else if (direction === 'back') {
           var toValue = _emberMetalProperty_get.get(obj, this._to);
           if (log) {
-            _emberMetalCore.default.Logger.log(' ', this.toString(), '<-', toValue, obj);
+            _emberMetalLogger.default.log(' ', this.toString(), '<-', toValue, obj);
           }
           _emberMetalObserver._suspendObserver(obj, fromPath, this, this.fromDidChange, function () {
             _emberMetalProperty_set.trySet(_emberMetalPath_cache.isGlobal(fromPath) ? _emberMetalCore.default.lookup : obj, fromPath, toValue);
@@ -2787,7 +2787,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/debug
   exports.Binding = Binding;
   exports.isGlobalPath = _emberMetalPath_cache.isGlobal;
 });
-// Ember.Logger, Ember.LOG_BINDINGS
+// Ember.LOG_BINDINGS
 enifed('ember-metal/cache', ['exports', 'ember-metal/empty_object'], function (exports, _emberMetalEmpty_object) {
   'use strict';
 
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+7369c858
+    @version 2.2.0-canary+ed0bd63d
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+7369c858'
+    @default '2.2.0-canary+ed0bd63d'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+7369c858';
+  Ember.VERSION = '2.2.0-canary+ed0bd63d';
 
   /**
     The hash of environment variables used to control various configuration
