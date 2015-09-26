@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+de6b0c49
+ * @version   2.2.0-canary+ba67760e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1274,7 +1274,7 @@ enifed('ember-testing/support', ['exports', 'ember-metal/debug', 'ember-views/sy
     });
   }
 });
-enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication) {
+enifed('ember-testing/test', ['exports', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-testing/setup_for_testing', 'ember-application/system/application', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberTestingSetup_for_testing, _emberApplicationSystemApplication, _emberRuntimeSystemNative_array) {
   'use strict';
 
   /**
@@ -1486,7 +1486,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         context = null;
       }
       if (!this.waiters) {
-        this.waiters = _emberMetalCore.default.A();
+        this.waiters = _emberRuntimeSystemNative_array.A();
       }
       this.waiters.push([context, callback]);
     },
@@ -1507,7 +1507,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
         callback = context;
         context = null;
       }
-      this.waiters = _emberMetalCore.default.A(this.waiters.filter(function (elt) {
+      this.waiters = _emberRuntimeSystemNative_array.A(this.waiters.filter(function (elt) {
         return !(elt[0] === context && elt[1] === callback);
       }));
     }

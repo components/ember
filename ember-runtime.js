@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+de6b0c49
+ * @version   2.2.0-canary+ba67760e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+de6b0c49
+    @version 2.2.0-canary+ba67760e
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+de6b0c49'
+    @default '2.2.0-canary+ba67760e'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+de6b0c49';
+  Ember.VERSION = '2.2.0-canary+ba67760e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12141,7 +12141,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     }
   }
 });
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
   /**
   @module ember
   @submodule ember-runtime
@@ -12190,9 +12190,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return _emberMetalComputed.computed(dependentKey, function () {
       var value = _emberMetalProperty_get.get(this, propertyName);
       if (_emberRuntimeUtils.isArray(value)) {
-        return _emberMetalCore.default.A(callback.call(this, value));
+        return _emberRuntimeSystemNative_array.A(callback.call(this, value));
       } else {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
     }).readOnly();
   }
@@ -12203,7 +12203,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
 
     args.push(function () {
-      return _emberMetalCore.default.A(callback.call(this, dependentKeys));
+      return _emberRuntimeSystemNative_array.A(callback.call(this, dependentKeys));
     });
 
     return _emberMetalComputed.computed.apply(this, args).readOnly();
@@ -12516,7 +12516,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return multiArrayMacro(args, function (dependentKeys) {
       var _this2 = this;
 
-      var uniq = _emberMetalCore.default.A();
+      var uniq = _emberRuntimeSystemNative_array.A();
 
       dependentKeys.forEach(function (dependentKey) {
         var value = _emberMetalProperty_get.get(_this2, dependentKey);
@@ -12604,7 +12604,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
         return true;
       });
 
-      return _emberMetalCore.default.A(results);
+      return _emberRuntimeSystemNative_array.A(results);
     });
   }
 
@@ -12651,10 +12651,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       var setB = this.get(setBProperty);
 
       if (!_emberRuntimeUtils.isArray(setA)) {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
       if (!_emberRuntimeUtils.isArray(setB)) {
-        return _emberMetalCore.default.A(setA);
+        return _emberRuntimeSystemNative_array.A(setA);
       }
 
       return setA.filter(function (x) {
@@ -12763,7 +12763,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
 
       if (items === null || typeof items !== 'object') {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
 
       // TODO: Ideally we'd only do this if things have changed
@@ -12799,7 +12799,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
         _emberMetalObserver.addObserver.apply(null, args);
       });
 
-      return _emberMetalCore.default.A(items.slice().sort(function (itemA, itemB) {
+      return _emberRuntimeSystemNative_array.A(items.slice().sort(function (itemA, itemB) {
         for (var i = 0; i < normalizedSort.length; ++i) {
           var _normalizedSort$i = normalizedSort[i];
           var prop = _normalizedSort$i[0];
@@ -18560,7 +18560,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
 
   exports.onLoad = onLoad;
   exports.runLoadHooks = runLoadHooks;
-  // make sure Ember.A is setup.
 
   /**
     @module ember
@@ -18595,7 +18594,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   function onLoad(name, callback) {
     var object = loaded[name];
 
-    loadHooks[name] = loadHooks[name] || _emberMetalCore.default.A();
+    loadHooks[name] = loadHooks[name] || _emberRuntimeSystemNative_array.A();
     loadHooks[name].pushObject(callback);
 
     if (object) {

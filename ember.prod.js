@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+de6b0c49
+ * @version   2.2.0-canary+ba67760e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -8676,7 +8676,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+de6b0c49';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ba67760e';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14277,7 +14277,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+de6b0c49
+    @version 2.2.0-canary+ba67760e
     @public
   */
 
@@ -14321,11 +14321,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+de6b0c49'
+    @default '2.2.0-canary+ba67760e'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+de6b0c49';
+  Ember.VERSION = '2.2.0-canary+ba67760e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -23357,7 +23357,7 @@ enifed('ember-routing/system/query_params', ['exports', 'ember-runtime/system/ob
     values: null
   });
 });
-enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/get_properties', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/assign', 'ember-runtime/utils', 'ember-metal/run_loop', 'ember-runtime/copy', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-routing/system/generate_controller', 'ember-routing/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalGet_properties, _emberMetalIs_none, _emberMetalComputed, _emberMetalAssign, _emberRuntimeUtils, _emberMetalRun_loop, _emberRuntimeCopy, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRoutingSystemGenerate_controller, _emberRoutingUtils) {
+enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/get_properties', 'ember-metal/is_none', 'ember-metal/computed', 'ember-metal/assign', 'ember-runtime/utils', 'ember-metal/run_loop', 'ember-runtime/copy', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/action_handler', 'ember-routing/system/generate_controller', 'ember-routing/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalFeatures, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalGet_properties, _emberMetalIs_none, _emberMetalComputed, _emberMetalAssign, _emberRuntimeUtils, _emberMetalRun_loop, _emberRuntimeCopy, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberRuntimeMixinsEvented, _emberRuntimeMixinsAction_handler, _emberRoutingSystemGenerate_controller, _emberRoutingUtils) {
   'use strict';
 
   var slice = Array.prototype.slice;
@@ -23512,7 +23512,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         var defaultValue = _emberMetalProperty_get.get(controllerProto, propName);
 
         if (Array.isArray(defaultValue)) {
-          defaultValue = _emberMetalCore.default.A(defaultValue.slice());
+          defaultValue = _emberRuntimeSystemNative_array.A(defaultValue.slice());
         }
 
         var type = desc.type || _emberRuntimeUtils.typeOf(defaultValue);
@@ -23710,7 +23710,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       } else if (defaultValueType === 'number') {
         return Number(value).valueOf();
       } else if (defaultValueType === 'array') {
-        return _emberMetalCore.default.A(JSON.parse(value));
+        return _emberRuntimeSystemNative_array.A(JSON.parse(value));
       }
       return value;
     },
@@ -25356,7 +25356,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
   function copyDefaultValue(value) {
     if (Array.isArray(value)) {
-      return _emberMetalCore.default.A(value.slice());
+      return _emberRuntimeSystemNative_array.A(value.slice());
     }
     return value;
   }
@@ -27888,7 +27888,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+de6b0c49';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+ba67760e';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -28366,7 +28366,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+de6b0c49';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ba67760e';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -28556,7 +28556,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
     }
   }
 });
-enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils) {
+enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/computed', 'ember-metal/observer', 'ember-runtime/compare', 'ember-runtime/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalError, _emberMetalComputed, _emberMetalObserver, _emberRuntimeCompare, _emberRuntimeUtils, _emberRuntimeSystemNative_array) {
   /**
   @module ember
   @submodule ember-runtime
@@ -28605,9 +28605,9 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return _emberMetalComputed.computed(dependentKey, function () {
       var value = _emberMetalProperty_get.get(this, propertyName);
       if (_emberRuntimeUtils.isArray(value)) {
-        return _emberMetalCore.default.A(callback.call(this, value));
+        return _emberRuntimeSystemNative_array.A(callback.call(this, value));
       } else {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
     }).readOnly();
   }
@@ -28618,7 +28618,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     });
 
     args.push(function () {
-      return _emberMetalCore.default.A(callback.call(this, dependentKeys));
+      return _emberRuntimeSystemNative_array.A(callback.call(this, dependentKeys));
     });
 
     return _emberMetalComputed.computed.apply(this, args).readOnly();
@@ -28930,7 +28930,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
     return multiArrayMacro(args, function (dependentKeys) {
       var _this2 = this;
 
-      var uniq = _emberMetalCore.default.A();
+      var uniq = _emberRuntimeSystemNative_array.A();
 
       dependentKeys.forEach(function (dependentKey) {
         var value = _emberMetalProperty_get.get(_this2, dependentKey);
@@ -29018,7 +29018,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
         return true;
       });
 
-      return _emberMetalCore.default.A(results);
+      return _emberRuntimeSystemNative_array.A(results);
     });
   }
 
@@ -29065,10 +29065,10 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       var setB = this.get(setBProperty);
 
       if (!_emberRuntimeUtils.isArray(setA)) {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
       if (!_emberRuntimeUtils.isArray(setB)) {
-        return _emberMetalCore.default.A(setA);
+        return _emberRuntimeSystemNative_array.A(setA);
       }
 
       return setA.filter(function (x) {
@@ -29176,7 +29176,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
       var sortProperties = _emberMetalProperty_get.get(this, sortPropertiesKey);
 
       if (items === null || typeof items !== 'object') {
-        return _emberMetalCore.default.A();
+        return _emberRuntimeSystemNative_array.A();
       }
 
       // TODO: Ideally we'd only do this if things have changed
@@ -29212,7 +29212,7 @@ enifed('ember-runtime/computed/reduce_computed_macros', ['exports', 'ember-metal
         _emberMetalObserver.addObserver.apply(null, args);
       });
 
-      return _emberMetalCore.default.A(items.slice().sort(function (itemA, itemB) {
+      return _emberRuntimeSystemNative_array.A(items.slice().sort(function (itemA, itemB) {
         for (var i = 0; i < normalizedSort.length; ++i) {
           var _normalizedSort$i = normalizedSort[i];
           var prop = _normalizedSort$i[0];
@@ -34919,7 +34919,6 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
 
   exports.onLoad = onLoad;
   exports.runLoadHooks = runLoadHooks;
-  // make sure Ember.A is setup.
 
   /**
     @module ember
@@ -34954,7 +34953,7 @@ enifed('ember-runtime/system/lazy_load', ['exports', 'ember-metal/core', 'ember-
   function onLoad(name, callback) {
     var object = loaded[name];
 
-    loadHooks[name] = loadHooks[name] || _emberMetalCore.default.A();
+    loadHooks[name] = loadHooks[name] || _emberRuntimeSystemNative_array.A();
     loadHooks[name].pushObject(callback);
 
     if (object) {
@@ -37123,7 +37122,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+de6b0c49',
+        revision: 'Ember@2.2.0-canary+ba67760e',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -37343,7 +37342,6 @@ enifed('ember-views/compat/attrs-proxy', ['exports', 'ember-metal/mixin', 'ember
   exports.default = _emberMetalMixin.Mixin.create(AttrsProxyMixin);
 });
 enifed('ember-views/compat/metamorph_view', ['exports', 'ember-metal/debug', 'ember-views/views/view', 'ember-metal/mixin'], function (exports, _emberMetalDebug, _emberViewsViewsView, _emberMetalMixin) {
-  /*jshint newcap:false*/
   'use strict';
 
   /**
@@ -38539,7 +38537,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
 
   exports.default = TextSupport;
 });
-enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties) {
+enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/debug', 'ember-metal/mixin', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/set_properties', 'ember-runtime/system/native_array'], function (exports, _emberMetalDebug, _emberMetalMixin, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalSet_properties, _emberRuntimeSystemNative_array) {
   /**
   @module ember
   @submodule ember-views
@@ -38564,7 +38562,7 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/c
 
       // setup child views. be sure to clone the child views array first
       // 2.0TODO: Remove Ember.A() here
-      this.childViews = _emberMetalCore.default.A(this.childViews.slice());
+      this.childViews = _emberRuntimeSystemNative_array.A(this.childViews.slice());
       this.ownerView = this.ownerView || this;
     },
 
@@ -41126,10 +41124,10 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
   exports.default = CollectionView;
   exports.DeprecatedCollectionView = DeprecatedCollectionView;
 });
-enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
+enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+de6b0c49';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+ba67760e';
 
   /**
   @module ember
@@ -41301,7 +41299,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       // redefine view's childViews property that was obliterated
       // 2.0TODO: Don't Ember.A() this so users disabling prototype extensions
       // don't pay a penalty.
-      var childViews = this.childViews = _emberMetalCore.default.A([]);
+      var childViews = this.childViews = _emberRuntimeSystemNative_array.A();
 
       userChildViews.forEach(function (viewName, idx) {
         var view;
@@ -41320,7 +41318,7 @@ enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'embe
       var currentView = _emberMetalProperty_get.get(this, 'currentView');
       if (currentView) {
         if (!childViews.length) {
-          childViews = this.childViews = _emberMetalCore.default.A(this.childViews.slice());
+          childViews = this.childViews = _emberRuntimeSystemNative_array.A(this.childViews.slice());
         }
         childViews.push(this.createChildView(currentView));
       }
