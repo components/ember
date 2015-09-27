@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+d1aa5951
+ * @version   2.2.0-canary+1a2cd166
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51174,7 +51174,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+d1aa5951', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+1a2cd166', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -51789,15 +51789,16 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(helperContainer.boot);
   });
 
-  QUnit.test('Helper is ran when called', function () {
-    expect(1);
+  QUnit.test('Helper is ran when called', function (assert) {
+    var done = assert.async();
+    assert.expect(1);
 
     registerHelper();
     setupApp();
 
     App.testHelpers.boot().then(function () {
-      ok(appBooted);
-    });
+      assert.ok(appBooted);
+    }).finally(done);
   });
 
   QUnit.test('Helper can be unregistered', function () {
