@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ea21467f
+ * @version   2.2.0-canary+d1aa5951
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51334,7 +51334,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+ea21467f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+d1aa5951', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -54822,6 +54822,16 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         }
       });
     }
+  });
+
+  QUnit.test('throws an error if `this._super` is not called from `init`', function () {
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      init: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
   });
 
   QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {

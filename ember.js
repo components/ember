@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ea21467f
+ * @version   2.2.0-canary+d1aa5951
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9178,7 +9178,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ea21467f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+d1aa5951';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14872,7 +14872,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+ea21467f
+    @version 2.2.0-canary+d1aa5951
     @public
   */
 
@@ -14916,11 +14916,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+ea21467f'
+    @default '2.2.0-canary+d1aa5951'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+ea21467f';
+  Ember.VERSION = '2.2.0-canary+d1aa5951';
 
   /**
     The hash of environment variables used to control various configuration
@@ -28647,7 +28647,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+ea21467f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+d1aa5951';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29128,7 +29128,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+ea21467f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+d1aa5951';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37964,7 +37964,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+ea21467f',
+        revision: 'Ember@2.2.0-canary+d1aa5951',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40892,6 +40892,8 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
 
   var _Mixin$create;
 
+  var INIT_WAS_CALLED = _emberMetalUtils.symbol('INIT_WAS_CALLED');
+
   function K() {
     return this;
   }
@@ -41440,19 +41442,24 @@ enifed('ember-views/mixins/view_support', ['exports', 'ember-metal/debug', 'embe
       @private
     */
     init: function () {
+      this._super.apply(this, arguments);
+
       if (!this.elementId) {
         this.elementId = _emberMetalUtils.guidFor(this);
       }
 
       this.scheduledRevalidation = false;
 
-      this._super.apply(this, arguments);
+      this[INIT_WAS_CALLED] = true;
 
       _emberMetalDebug.assert('Using a custom `.render` function is no longer supported.', !this.render);
     }
 
   }, _Mixin$create[_emberRuntimeSystemCore_object.POST_INIT] = function () {
     this._super.apply(this, arguments);
+
+    _emberMetalDebug.assert('You must call `this._super(...arguments);` when implementing `init` in a component. Please update ' + this + ' to call `this._super` from `init`.', this[INIT_WAS_CALLED]);
+
     this.renderer.componentInitAttrs(this, this.attrs || {});
   }, _Mixin$create.__defineNonEnumerable = function (property) {
     this[property.name] = property.descriptor.value;
@@ -43281,7 +43288,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+ea21467f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+d1aa5951';
 
   /**
   @module ember
