@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+4234d92d
+ * @version   2.2.0-canary+ea21467f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1859,15 +1859,14 @@ enifed('ember/tests/default_initializers_test', ['exports', 'ember-application/s
     });
   });
 });
-enifed('ember/tests/global-api-test', ['exports', 'ember-runtime/utils'], function (exports, _emberRuntimeUtils) {
-  /*globals Ember */
+enifed('ember/tests/global-api-test', ['exports', 'ember-metal/property_get', 'ember-runtime/utils'], function (exports, _emberMetalProperty_get, _emberRuntimeUtils) {
   'use strict';
 
   QUnit.module('Global API Tests');
 
   function confirmExport(property, internal) {
     QUnit.test('confirm ' + property + ' is exported', function () {
-      var theExport = Ember.get(window, property);
+      var theExport = _emberMetalProperty_get.default(window, property);
       ok(theExport + ' is exported');
       if (internal !== undefined) {
         equal(theExport, internal, theExport + ' is exported properly');
@@ -6160,11 +6159,10 @@ enifed('ember/tests/routing/query_params_test/query_params_paramless_link_to_tes
     testParamlessLinks('index');
   }
 });
-enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location) {
+enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-runtime/system/object', 'ember-metal/features', 'ember-metal/computed', 'ember-template-compiler', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-runtime/system/native_array', 'ember-routing/location/none_location'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberMetalProperty_get, _emberRuntimeSystemObject, _emberMetalFeatures, _emberMetalComputed, _emberTemplateCompiler, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberRuntimeSystemNative_array, _emberRoutingLocationNone_location) {
   'use strict';
 
   var Router, App, router, container;
-  var get = _emberMetalCore.default.get;
 
   function bootApplication() {
     router = container.lookup('router:main');
@@ -7048,7 +7046,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
       _emberMetalRun_loop.default($link, 'click');
 
       var controller = container.lookup('controller:example');
-      equal(get(controller, 'foo'), undefined);
+      equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
     });
 
     QUnit.test('query params have been set by the time setupController is called when configuration occurs on the router', function () {
@@ -8053,7 +8051,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
       _emberMetalRun_loop.default($link, 'click');
 
       var controller = container.lookup('controller:example');
-      equal(get(controller, 'foo'), undefined);
+      equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
     });
 
     QUnit.test('Changing a query param property on a controller after navigating using a {{link-to}} should preserve the unchanged query params', function () {
@@ -8082,18 +8080,18 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
 
       expectedPushURL = '/example?bar=abc&foo=def';
       _emberMetalRun_loop.default($link1, 'click');
-      equal(get(controller, 'bar'), 'abc');
-      equal(get(controller, 'foo'), 'def');
+      equal(_emberMetalProperty_get.default(controller, 'bar'), 'abc');
+      equal(_emberMetalProperty_get.default(controller, 'foo'), 'def');
 
       expectedPushURL = '/example?bar=123&foo=456';
       _emberMetalRun_loop.default($link2, 'click');
-      equal(get(controller, 'bar'), '123');
-      equal(get(controller, 'foo'), '456');
+      equal(_emberMetalProperty_get.default(controller, 'bar'), '123');
+      equal(_emberMetalProperty_get.default(controller, 'foo'), '456');
 
       expectedPushURL = '/example?bar=rab&foo=456';
       setAndFlush(controller, 'bar', 'rab');
-      equal(get(controller, 'bar'), 'rab');
-      equal(get(controller, 'foo'), '456');
+      equal(_emberMetalProperty_get.default(controller, 'bar'), 'rab');
+      equal(_emberMetalProperty_get.default(controller, 'foo'), '456');
     });
   } else {
     QUnit.test('Single query params can be set on the controller [DEPRECATED]', function () {
@@ -9194,7 +9192,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
       _emberMetalRun_loop.default($link, 'click');
 
       var controller = container.lookup('controller:example');
-      equal(get(controller, 'foo'), undefined);
+      equal(_emberMetalProperty_get.default(controller, 'foo'), undefined);
     });
   }
 
@@ -9230,7 +9228,7 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
     _emberMetalRun_loop.default(router, 'transitionTo', 'constructor', { queryParams: { foo: '999' } });
 
     var controller = container.lookup('controller:constructor');
-    equal(get(controller, 'foo'), '999');
+    equal(_emberMetalProperty_get.default(controller, 'foo'), '999');
   });
 });
 enifed('ember/tests/routing/router_map_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'ember-application/system/application', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _emberApplicationSystemApplication, _emberViewsSystemJquery) {
@@ -34505,7 +34503,7 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
     equal(didCount, 0, 'should NOT have invoked didCount');
   });
 });
-enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/tests/props_helper', 'ember-metal/events', 'ember-metal/watching'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalComputed, _emberMetalProperties, _emberMetalTestsProps_helper, _emberMetalEvents, _emberMetalWatching) {
+enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/tests/props_helper', 'ember-metal/events', 'ember-metal/watching'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalTestsProps_helper, _emberMetalEvents, _emberMetalWatching) {
   'use strict';
 
   var willCount, didCount, willKeys, didKeys, originalLookup, lookup, Global;
@@ -34612,7 +34610,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
     _emberMetalProperties.defineProperty(obj, 'foo');
     _emberMetalProperty_set.set(obj, 'foo', 'bar');
 
-    equal(_emberMetalCore.default.get(obj, 'foo'), 'bar', 'should have set');
+    equal(_emberMetalProperty_get.default(obj, 'foo'), 'bar', 'should have set');
     equal(willCount, 1, 'should have invoked willChange once');
     equal(didCount, 1, 'should have invoked didChange once');
   });
@@ -34658,7 +34656,7 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
     _emberMetalWatching.watch(obj, 'foo.bar.baz.biff');
 
-    var foo = _emberMetalCore.default.get(obj, 'foo');
+    var foo = get(obj, 'foo');
     equal(get(get(get(foo, 'bar'), 'baz'), 'biff'), 'BIFF', 'biff should exist');
 
     _emberMetalWatching.unwatch(obj, 'foo.bar.baz.biff');
@@ -46531,7 +46529,7 @@ enifed('ember-runtime/tests/suites/enumerable', ['exports', 'ember-runtime/tests
   exports.EnumerableTests = EnumerableTests;
   exports.ObserverClass = ObserverClass;
 });
-enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -46558,7 +46556,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
     obj.addObject(item);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
@@ -46583,7 +46581,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
     obj.addObject(item); // note: item in set
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.validate('[]'), false, 'should NOT have notified []');
@@ -46596,7 +46594,7 @@ enifed('ember-runtime/tests/suites/mutable_array/addObject', ['exports', 'ember-
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -46615,7 +46613,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
     equal(obj.clear(), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.validate('[]'), false, 'should NOT have notified [] once');
     equal(observer.validate('@each'), false, 'should NOT have notified @each once');
@@ -46636,7 +46634,7 @@ enifed('ember-runtime/tests/suites/mutable_array/clear', ['exports', 'ember-meta
     equal(obj.clear(), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -47124,7 +47122,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeAt', ['exports', 'ember-r
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -47150,7 +47148,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
     obj.removeObject(before[1]);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
@@ -47175,7 +47173,7 @@ enifed('ember-runtime/tests/suites/mutable_array/removeObject', ['exports', 'emb
     obj.removeObject(item); // note: item not in set
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     if (observer.isEnabled) {
       equal(observer.validate('[]'), false, 'should NOT have notified []');
@@ -47361,7 +47359,7 @@ enifed('ember-runtime/tests/suites/mutable_array/reverseObjects', ['exports', 'e
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -47380,7 +47378,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(obj.setObjects(after), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -47401,7 +47399,7 @@ enifed('ember-runtime/tests/suites/mutable_array/setObjects', ['exports', 'ember
     equal(obj.setObjects(after), obj, 'return self');
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -47569,7 +47567,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObject', ['exports', 'em
 
   exports.default = suite;
 });
-enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'ember-metal/core', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalCore, _emberRuntimeTestsSuitesSuite) {
+enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'ember-metal/property_get', 'ember-runtime/tests/suites/suite'], function (exports, _emberMetalProperty_get, _emberRuntimeTestsSuitesSuite) {
   'use strict';
 
   var suite = _emberRuntimeTestsSuitesSuite.SuiteModuleBuilder.create();
@@ -47594,7 +47592,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), items, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), items.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), items.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -47616,7 +47614,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -47639,7 +47637,7 @@ enifed('ember-runtime/tests/suites/mutable_array/unshiftObjects', ['exports', 'e
     obj.unshiftObjects(items);
 
     deepEqual(this.toArray(obj), after, 'post item results');
-    equal(_emberMetalCore.default.get(obj, 'length'), after.length, 'length');
+    equal(_emberMetalProperty_get.default(obj, 'length'), after.length, 'length');
 
     equal(observer.timesCalled('[]'), 1, 'should have notified [] once');
     equal(observer.timesCalled('@each'), 0, 'should not have notified @each once');
@@ -51336,7 +51334,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+4234d92d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+ea21467f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
