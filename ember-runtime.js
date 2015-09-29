@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+145bc36c
+ * @version   2.2.0-canary+aefcf141
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+145bc36c
+    @version 2.2.0-canary+aefcf141
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+145bc36c'
+    @default '2.2.0-canary+aefcf141'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+145bc36c';
+  Ember.VERSION = '2.2.0-canary+aefcf141';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19209,13 +19209,22 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     });
   });
 
-  var STRING_CLASSIFY_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
-  var STRING_CLASSIFY_REGEXP_2 = /(^|\/|\.)([a-z])/g;
+  var STRING_CLASSIFY_REGEXP_1 = /^(\-|_)+(.)?/;
+  var STRING_CLASSIFY_REGEXP_2 = /(.)(\-|\_|\.|\s)+(.)?/g;
+  var STRING_CLASSIFY_REGEXP_3 = /(^|\/|\.)([a-z])/g;
 
   var CLASSIFY_CACHE = new _emberMetalCache.default(1000, function (str) {
-    return str.replace(STRING_CLASSIFY_REGEXP_1, function (match, separator, chr) {
-      return chr ? chr.toUpperCase() : '';
-    }).replace(STRING_CLASSIFY_REGEXP_2, function (match, separator, chr) {
+    var replace1 = function (match, separator, chr) {
+      return chr ? '_' + chr.toUpperCase() : '';
+    };
+    var replace2 = function (match, initialChar, separator, chr) {
+      return initialChar + (chr ? chr.toUpperCase() : '');
+    };
+    var parts = str.split('/');
+    for (var i = 0, len = parts.length; i < len; i++) {
+      parts[i] = parts[i].replace(STRING_CLASSIFY_REGEXP_1, replace1).replace(STRING_CLASSIFY_REGEXP_2, replace2);
+    }
+    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match, separator, chr) {
       return match.toUpperCase();
     });
   });
