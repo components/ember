@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b1d4d3c8
+ * @version   2.2.0-canary+145bc36c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51174,7 +51174,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+b1d4d3c8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+145bc36c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -52077,8 +52077,10 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     }
   });
 
-  QUnit.test('`wait` respects registerWaiters', function () {
-    expect(3);
+  QUnit.test('`wait` respects registerWaiters', function (assert) {
+    assert.expect(3);
+
+    var done = assert.async();
 
     var counter = 0;
     function waiter() {
@@ -52102,7 +52104,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       return App.testHelpers.wait();
     }).then(function () {
       equal(otherWaiter(), true, 'other waiter is still registered');
-    });
+    }).finally(done);
   });
 
   QUnit.test('`visit` advances readiness.', function () {
@@ -52110,7 +52112,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
 
     equal(App._readinessDeferrals, 1, 'App is in deferred state after setupForTesting.');
 
-    App.testHelpers.visit('/').then(function () {
+    return App.testHelpers.visit('/').then(function () {
       equal(App._readinessDeferrals, 0, 'App\'s readiness was advanced by visit.');
     });
   });
@@ -52128,7 +52130,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
 
     wait = App.testHelpers.wait;
 
-    wait('text').then(function (val) {
+    return wait('text').then(function (val) {
       equal(val, 'text', 'can resolve to a string');
       return wait(1);
     }).then(function (val) {
@@ -52174,7 +52176,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     click = App.testHelpers.click;
     wait = App.testHelpers.wait;
 
-    wait().then(function () {
+    return wait().then(function () {
       events = [];
       return click('.index-view');
     }).then(function () {
@@ -52218,7 +52220,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       wait_done = true;
     }, 500);
 
-    App.testHelpers.wait().then(function () {
+    return App.testHelpers.wait().then(function () {
       equal(wait_done, true, 'should wait for the timer to be fired.');
     });
   });
@@ -52242,7 +52244,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     _emberTestingTest.default.registerWaiter(obj, obj.ready);
     _emberTestingTest.default.registerWaiter(otherWaiter);
 
-    App.testHelpers.wait().then(function () {
+    return App.testHelpers.wait().then(function () {
       equal(obj.ready(), true, 'should not resolve until our waiter is ready');
       _emberTestingTest.default.unregisterWaiter(obj, obj.ready);
       equal(_emberTestingTest.default.waiters.length, 1, 'should not leave the waiter registered');
@@ -52255,7 +52257,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('`wait` does not error if routing has not begun', function () {
     expect(1);
 
-    App.testHelpers.wait().then(function () {
+    return App.testHelpers.wait().then(function () {
       ok(true, 'should not error without `visit`');
     });
   });
@@ -52280,7 +52282,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     triggerEvent = App.testHelpers.triggerEvent;
     wait = App.testHelpers.wait;
 
-    wait().then(function () {
+    return wait().then(function () {
       return triggerEvent('.input', 'blur', { keyCode: 13 });
     }).then(function () {
       equal(event.keyCode, 13, 'options were passed');
@@ -52309,7 +52311,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     triggerEvent = App.testHelpers.triggerEvent;
     wait = App.testHelpers.wait;
 
-    wait().then(function () {
+    return wait().then(function () {
       return triggerEvent('.input', '#limited', 'blur');
     }).then(function () {
       equal(event.type, 'blur', 'correct event was triggered');
@@ -52337,7 +52339,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     triggerEvent = App.testHelpers.triggerEvent;
     wait = App.testHelpers.wait;
 
-    wait().then(function () {
+    return wait().then(function () {
       return triggerEvent('#foo', 'blur');
     }).then(function () {
       equal(event.type, 'blur', 'correct event was triggered');
@@ -52347,7 +52349,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
 
   QUnit.test('`fillIn` takes context into consideration', function () {
     expect(2);
-    var fillIn, find, visit, andThen;
+    var fillIn, find, visit, andThen, wait;
 
     App.IndexView = _emberViewsViewsView.default.extend({
       template: _emberTemplateCompilerSystemCompile.default('<div id="parent">{{input type="text" id="first" class="current"}}</div>{{input type="text" id="second" class="current"}}')
@@ -52359,6 +52361,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     find = App.testHelpers.find;
     visit = App.testHelpers.visit;
     andThen = App.testHelpers.andThen;
+    wait = App.testHelpers.wait;
 
     visit('/');
     fillIn('.current', '#parent', 'current value');
@@ -52366,11 +52369,13 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       equal(find('#first').val(), 'current value');
       equal(find('#second').val(), '');
     });
+
+    return wait();
   });
 
   QUnit.test('`fillIn` focuses on the element', function () {
     expect(2);
-    var fillIn, find, visit, andThen;
+    var fillIn, find, visit, andThen, wait;
 
     App.ApplicationRoute = _emberMetalCore.default.Route.extend({
       actions: {
@@ -52390,18 +52395,21 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     find = App.testHelpers.find;
     visit = App.testHelpers.visit;
     andThen = App.testHelpers.andThen;
+    wait = App.testHelpers.wait;
 
     visit('/');
     fillIn('#first', 'current value');
     andThen(function () {
       equal(find('#first').val(), 'current value');
     });
+
+    return wait();
   });
 
   QUnit.test('`fillIn` fires `input` and `change` events in the proper order', function () {
     expect(1);
 
-    var fillIn, visit, andThen;
+    var fillIn, visit, andThen, wait;
     var events = [];
     App.IndexController = _emberRuntimeControllersController.default.extend({
       actions: {
@@ -52423,18 +52431,21 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     fillIn = App.testHelpers.fillIn;
     visit = App.testHelpers.visit;
     andThen = App.testHelpers.andThen;
+    wait = App.testHelpers.wait;
 
     visit('/');
     fillIn('#first', 'current value');
     andThen(function () {
       deepEqual(events, ['input', 'change'], '`input` and `change` events are fired in the proper order');
     });
+
+    return wait();
   });
 
   if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
     QUnit.test('`check` ensures checkboxes are `checked` state for checkboxes', function () {
       expect(2);
-      var check, find, visit, andThen;
+      var check, find, visit, andThen, wait;
 
       App.IndexView = _emberViewsViewsView.default.extend({
         template: _emberTemplateCompilerSystemCompile.default('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
@@ -52446,6 +52457,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       find = App.testHelpers.find;
       visit = App.testHelpers.visit;
       andThen = App.testHelpers.andThen;
+      wait = App.testHelpers.wait;
 
       visit('/');
       check('#unchecked');
@@ -52454,11 +52466,13 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
         equal(find('#unchecked').is(':checked'), true, 'can check an unchecked checkbox');
         equal(find('#checked').is(':checked'), true, 'can check a checked checkbox');
       });
+
+      return wait();
     });
 
     QUnit.test('`uncheck` ensures checkboxes are not `checked`', function () {
       expect(2);
-      var uncheck, find, visit, andThen;
+      var uncheck, find, visit, andThen, wait;
 
       App.IndexView = _emberViewsViewsView.default.extend({
         template: _emberTemplateCompilerSystemCompile.default('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
@@ -52470,6 +52484,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       find = App.testHelpers.find;
       visit = App.testHelpers.visit;
       andThen = App.testHelpers.andThen;
+      wait = App.testHelpers.wait;
 
       visit('/');
       uncheck('#unchecked');
@@ -52478,6 +52493,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
         equal(find('#unchecked').is(':checked'), false, 'can uncheck an unchecked checkbox');
         equal(find('#checked').is(':checked'), false, 'can uncheck a checked checkbox');
       });
+
+      return wait();
     });
 
     QUnit.test('`check` asserts the selected inputs are checkboxes', function () {
@@ -52492,8 +52509,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       check = App.testHelpers.check;
       visit = App.testHelpers.visit;
 
-      visit('/').then(function () {
-        check('#text').catch(function (error) {
+      return visit('/').then(function () {
+        return check('#text').catch(function (error) {
           ok(/must be a checkbox/.test(error.message));
         });
       });
@@ -52511,8 +52528,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       visit = App.testHelpers.visit;
       uncheck = App.testHelpers.uncheck;
 
-      visit('/').then(function () {
-        uncheck('#text').catch(function (error) {
+      return visit('/').then(function () {
+        return uncheck('#text').catch(function (error) {
           ok(/must be a checkbox/.test(error.message));
         });
       });
@@ -52539,7 +52556,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     triggerEvent = App.testHelpers.triggerEvent;
     wait = App.testHelpers.wait;
 
-    wait().then(function () {
+    return wait().then(function () {
       return triggerEvent('.input', '#limited', 'blur', { keyCode: 13 });
     }).then(function () {
       equal(event.keyCode, 13, 'options were passed');
@@ -52607,7 +52624,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('currentRouteName for \'/\'', function () {
     expect(3);
 
-    App.testHelpers.visit('/').then(function () {
+    return App.testHelpers.visit('/').then(function () {
       equal(App.testHelpers.currentRouteName(), 'index', 'should equal \'index\'.');
       equal(App.testHelpers.currentPath(), 'index', 'should equal \'index\'.');
       equal(App.testHelpers.currentURL(), '/', 'should equal \'/\'.');
@@ -52617,7 +52634,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('currentRouteName for \'/posts\'', function () {
     expect(3);
 
-    App.testHelpers.visit('/posts').then(function () {
+    return App.testHelpers.visit('/posts').then(function () {
       equal(App.testHelpers.currentRouteName(), 'posts.index', 'should equal \'posts.index\'.');
       equal(App.testHelpers.currentPath(), 'posts.index', 'should equal \'posts.index\'.');
       equal(App.testHelpers.currentURL(), '/posts', 'should equal \'/posts\'.');
@@ -52627,7 +52644,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('currentRouteName for \'/posts/new\'', function () {
     expect(3);
 
-    App.testHelpers.visit('/posts/new').then(function () {
+    return App.testHelpers.visit('/posts/new').then(function () {
       equal(App.testHelpers.currentRouteName(), 'posts.new', 'should equal \'posts.new\'.');
       equal(App.testHelpers.currentPath(), 'posts.new', 'should equal \'posts.new\'.');
       equal(App.testHelpers.currentURL(), '/posts/new', 'should equal \'/posts/new\'.');
@@ -52746,7 +52763,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('currentRouteName for \'/user\'', function () {
     expect(4);
 
-    App.testHelpers.visit('/user').then(function () {
+    return App.testHelpers.visit('/user').then(function () {
       equal(currentRouteName(App), 'user.index', 'should equal \'user.index\'.');
       equal(currentPath(App), 'user.index', 'should equal \'user.index\'.');
       equal(currentURL(App), '/user', 'should equal \'/user\'.');
@@ -52757,7 +52774,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
   QUnit.test('currentRouteName for \'/user/profile\'', function () {
     expect(4);
 
-    App.testHelpers.visit('/user/profile').then(function () {
+    return App.testHelpers.visit('/user/profile').then(function () {
       equal(currentRouteName(App), 'user.edit', 'should equal \'user.edit\'.');
       equal(currentPath(App), 'user.edit', 'should equal \'user.edit\'.');
       equal(currentURL(App), '/user/edit', 'should equal \'/user/edit\'.');
@@ -52804,7 +52821,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     });
 
     App.injectTestHelpers();
-    App.testHelpers.visit();
+
+    return App.testHelpers.visit();
   });
 
   QUnit.test('can override find helper', function () {
@@ -52817,7 +52835,8 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     });
 
     App.injectTestHelpers();
-    App.testHelpers.findWithAssert('.who-cares');
+
+    return App.testHelpers.findWithAssert('.who-cares');
   });
 });
 // ensure that the helpers are loaded
@@ -56117,37 +56136,35 @@ enifed('ember-views/tests/views/select_test', ['exports', 'ember-metal/run_loop'
     equal(select.$()[0].selectedIndex, 1, 'Should select from Promise content');
   });
 
-  QUnit.test('selection from a Promise don\'t overwrite newer selection once resolved, when multiple=false', function () {
-    expect(1);
+  QUnit.test('selection from a Promise don\'t overwrite newer selection once resolved, when multiple=false', function (assert) {
+    assert.expect(1);
 
     var yehuda = { id: 1, firstName: 'Yehuda' };
     var tom = { id: 2, firstName: 'Tom' };
     var seb = { id: 3, firstName: 'Seb' };
 
-    QUnit.stop();
+    var firstPromise = new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+      _emberMetalRun_loop.default.next(function () {
+        resolve(seb);
+      });
+    });
+
+    var secondPromise = firstPromise.then(function () {
+      return tom;
+    });
 
     _emberMetalRun_loop.default(function () {
       select.set('content', _emberRuntimeSystemNative_array.A([yehuda, tom, seb]));
       select.set('multiple', false);
-      select.set('selection', new _emberRuntimeExtRsvp.default.Promise(function (resolve, reject) {
-        _emberMetalRun_loop.default.later(function () {
-          _emberMetalRun_loop.default(function () {
-            resolve(tom);
-          });
-          QUnit.start();
-          equal(select.$()[0].selectedIndex, 2, 'Should not select from Promise if newer selection');
-        }, 40);
-      }));
-      select.set('selection', new _emberRuntimeExtRsvp.default.Promise(function (resolve, reject) {
-        _emberMetalRun_loop.default.later(function () {
-          _emberMetalRun_loop.default(function () {
-            resolve(seb);
-          });
-        }, 30);
-      }));
+      select.set('selection', secondPromise);
+      select.set('selection', firstPromise);
     });
 
     append();
+
+    return _emberRuntimeExtRsvp.default.all([firstPromise, secondPromise]).then(function () {
+      assert.equal(select.$()[0].selectedIndex, 2, 'Should not select from Promise if newer selection');
+    });
   });
 
   QUnit.test('selection from a Promise resolving to null should not select when multiple=false', function () {
