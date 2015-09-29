@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+256a2336
+ * @version   2.2.0-canary+b1d4d3c8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2808,7 +2808,11 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
       // Some version of IE (like IE9) actually throw an exception
       // if you set input.type = 'something-unknown'
       type: true,
-      form: true
+      form: true,
+      // Chrome 46.0.2464.0: 'autocorrect' in document.createElement('input') === false
+      // Safari 8.0.7: 'autocorrect' in document.createElement('input') === false
+      // Mobile Safari (iOS 8.4 simulator): 'autocorrect' in document.createElement('input') === true
+      autocorrect: true
     },
 
     // element.form is actually a legitimate readOnly property, that is to be
@@ -8676,7 +8680,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+256a2336';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b1d4d3c8';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14277,7 +14281,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+256a2336
+    @version 2.2.0-canary+b1d4d3c8
     @public
   */
 
@@ -14321,11 +14325,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+256a2336'
+    @default '2.2.0-canary+b1d4d3c8'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+256a2336';
+  Ember.VERSION = '2.2.0-canary+b1d4d3c8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -27888,7 +27892,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+256a2336';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-canary+b1d4d3c8';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -28366,7 +28370,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+256a2336';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-canary+b1d4d3c8';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37122,7 +37126,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+256a2336',
+        revision: 'Ember@2.2.0-canary+b1d4d3c8',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41132,7 +41136,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+256a2336';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-canary+b1d4d3c8';
 
   /**
   @module ember
@@ -46441,10 +46445,25 @@ enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morp
       case 'boolean':
       case 'number':
         return this.setText(content.toString());
+      case 'function':
+        raiseCannotBindToFunction(content);
       default:
         throw new TypeError('unsupported content');
     }
   };
+
+  function raiseCannotBindToFunction(content) {
+    var functionName = content.name;
+    var message;
+
+    if (functionName) {
+      message = 'Unsupported Content: Cannot bind to function `' + functionName + '`';
+    } else {
+      message = 'Unsupported Content: Cannot bind to function';
+    }
+
+    throw new TypeError(message);
+  }
 
   Morph.prototype.clear = function Morph$clear() {
     var node = this.setNode(this.domHelper.createComment(''));
