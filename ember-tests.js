@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+aefcf141
+ * @version   2.2.0-canary+ab1f9dff
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11236,6 +11236,41 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
+  if (_emberMetalFeatures.default('ember-application-visit')) {
+    QUnit.test('initializers that thorws causes the boot promise to reject with the error', function () {
+      QUnit.expect(2);
+      QUnit.stop();
+
+      var MyApplication = _emberApplicationSystemApplication.default.extend();
+
+      MyApplication.initializer({
+        name: 'initializer',
+        initialize: function () {
+          throw new Error('boot failure');
+        }
+      });
+
+      var app = MyApplication.create({
+        autoboot: false
+      });
+
+      try {
+        app.boot().then(function (app) {
+          QUnit.start();
+          ok(false, 'The boot promise should not resolve when there is a boot error');
+        }, function (err) {
+          QUnit.start();
+          ok(err instanceof Error, 'The boot promise should reject with an error');
+          equal(err.message, 'boot failure');
+        });
+      } catch (e) {
+        QUnit.start();
+        ok(false, 'The boot method should not throw');
+        throw e;
+      }
+    });
+  }
+
   QUnit.test('initializers are passed an App', function () {
     var MyApplication = _emberApplicationSystemApplication.default.extend();
 
@@ -12617,24 +12652,69 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     equal(listeners['hashchange'].length, 1, 'hashchange event only exists once');
   });
 });
-enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/router', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/system/jquery'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRouter, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/core', 'ember-runtime/system/object', 'ember-metal/features', 'ember-runtime/inject', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberRuntimeSystemObject, _emberMetalFeatures, _emberRuntimeInject, _emberMetalRun_loop, _emberRuntimeExtRsvp, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberViewsSystemJquery) {
   'use strict';
 
-  function createApplication() {
-    var App = _emberApplicationSystemApplication.default.extend().create({
+  var App = null;
+  var instance = null;
+  var instances = [];
+
+  function createApplication(integration) {
+    App = _emberApplicationSystemApplication.default.extend().create({
       autoboot: false,
+      rootElement: '#qunit-fixture',
       LOG_TRANSITIONS: true,
       LOG_TRANSITIONS_INTERNAL: true,
       LOG_ACTIVE_GENERATION: true
     });
 
-    App.Router = _emberRoutingSystemRouter.default.extend();
+    App.Router = _emberRoutingSystemRouter.default.extend({
+      location: 'none'
+    });
+
+    if (integration) {
+      App.instanceInitializer({
+        name: 'auto-cleanup',
+        initialize: function (_instance) {
+          instances.push(_instance);
+        }
+      });
+    } else {
+      App.instanceInitializer({
+        name: 'auto-cleanup',
+        initialize: function (_instance) {
+          if (instance) {
+            _emberMetalRun_loop.default(instance, 'destroy');
+          }
+
+          instance = _instance;
+        }
+      });
+    }
 
     return App;
   }
 
+  function expectAsyncError() {
+    _emberRuntimeExtRsvp.default.off('error');
+  }
+
   if (_emberMetalFeatures.default('ember-application-visit')) {
-    QUnit.module('Ember.Application - visit()');
+    QUnit.module('Ember.Application - visit()', {
+      teardown: function () {
+        _emberRuntimeExtRsvp.default.on('error', _emberRuntimeExtRsvp.onerrorDefault);
+
+        if (instance) {
+          _emberMetalRun_loop.default(instance, 'destroy');
+          instance = null;
+        }
+
+        if (App) {
+          _emberMetalRun_loop.default(App, 'destroy');
+          App = null;
+        }
+      }
+    });
 
     // This tests whether the application is "autobooted" by registering an
     // instance initializer and asserting it never gets run. Since this is
@@ -12643,91 +12723,289 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/fea
     // instance initializer that would normally get called on DOM ready
     // does not fire.
     QUnit.test('Applications with autoboot set to false do not autoboot', function (assert) {
-      QUnit.expect(1);
-      QUnit.stop();
+      function delay(time) {
+        return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
+          return _emberMetalCore.default.run.later(resolve, time);
+        });
+      }
+
+      var appBooted = 0;
+      var instanceBooted = 0;
 
       _emberMetalRun_loop.default(function () {
-        var app = createApplication();
+        createApplication();
 
-        // Start the timeout
-        var timeout = setTimeout(function () {
-          ok(true, '500ms elapsed without initializers being called');
-          QUnit.start();
-        }, 500);
-
-        // Create an instance initializer that should *not* get run.
-        app.instanceInitializer({
+        App.initializer({
           name: 'assert-no-autoboot',
           initialize: function () {
-            clearTimeout(timeout);
-            QUnit.start();
-            assert.ok(false, 'instance should not have been created');
+            appBooted++;
           }
         });
+
+        App.instanceInitializer({
+          name: 'assert-no-autoboot',
+          initialize: function () {
+            instanceBooted++;
+          }
+        });
+      });
+
+      // Continue after 500ms
+      return delay(500).then(function () {
+        assert.ok(appBooted === 0, '500ms elapsed without app being booted');
+        assert.ok(instanceBooted === 0, '500ms elapsed without instances being booted');
+
+        return _emberMetalRun_loop.default(App, 'boot');
+      }).then(function () {
+        assert.ok(appBooted === 1, 'app should boot when manually calling `app.boot()`');
+        assert.ok(instanceBooted === 0, 'no instances should be booted automatically when manually calling `app.boot()');
+      });
+    });
+
+    QUnit.test('calling visit() on app without first calling boot() should boot the app', function (assert) {
+      var appBooted = 0;
+      var instanceBooted = 0;
+
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.initializer({
+          name: 'assert-no-autoboot',
+          initialize: function () {
+            appBooted++;
+          }
+        });
+
+        App.instanceInitializer({
+          name: 'assert-no-autoboot',
+          initialize: function () {
+            instanceBooted++;
+          }
+        });
+      });
+
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function () {
+        assert.ok(appBooted === 1, 'the app should be booted`');
+        assert.ok(instanceBooted === 1, 'an instances should be booted');
+      });
+    });
+
+    QUnit.test('calling visit() on an already booted app should not boot it again', function (assert) {
+      var appBooted = 0;
+      var instanceBooted = 0;
+
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.initializer({
+          name: 'assert-no-autoboot',
+          initialize: function () {
+            appBooted++;
+          }
+        });
+
+        App.instanceInitializer({
+          name: 'assert-no-autoboot',
+          initialize: function () {
+            instanceBooted++;
+          }
+        });
+      });
+
+      return _emberMetalRun_loop.default(App, 'boot').then(function () {
+        assert.ok(appBooted === 1, 'the app should be booted');
+        assert.ok(instanceBooted === 0, 'no instances should be booted');
+
+        return _emberMetalRun_loop.default(App, 'visit', '/');
+      }).then(function () {
+        assert.ok(appBooted === 1, 'the app should not be booted again');
+        assert.ok(instanceBooted === 1, 'an instance should be booted');
+
+        return _emberMetalRun_loop.default(App, 'visit', '/');
+      }).then(function () {
+        assert.ok(appBooted === 1, 'the app should not be booted again');
+        assert.ok(instanceBooted === 2, 'another instance should be booted');
+      });
+    });
+
+    QUnit.test('visit() rejects on application boot failure', function (assert) {
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.initializer({
+          name: 'error',
+          initialize: function () {
+            throw new Error('boot failure');
+          }
+        });
+      });
+
+      expectAsyncError();
+
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'boot failure');
+      });
+    });
+
+    QUnit.test('visit() rejects on instance boot failure', function (assert) {
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.instanceInitializer({
+          name: 'error',
+          initialize: function () {
+            throw new Error('boot failure');
+          }
+        });
+      });
+
+      expectAsyncError();
+
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'boot failure');
+      });
+    });
+
+    QUnit.test('visit() follows redirects', function (assert) {
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.Router.map(function () {
+          this.route('a');
+          this.route('b', { path: '/b/:b' });
+          this.route('c', { path: '/c/:c' });
+        });
+
+        App.register('route:a', _emberRoutingSystemRoute.default.extend({
+          afterModel: function () {
+            this.replaceWith('b', 'zomg');
+          }
+        }));
+
+        App.register('route:b', _emberRoutingSystemRoute.default.extend({
+          afterModel: function (params) {
+            this.transitionTo('c', params.b);
+          }
+        }));
+      });
+
+      return _emberMetalRun_loop.default(App, 'visit', '/a').then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/c/zomg', 'It should follow all redirects');
+      });
+    });
+
+    QUnit.test('visit() rejects if an error occured during a transition', function (assert) {
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.Router.map(function () {
+          this.route('a');
+          this.route('b', { path: '/b/:b' });
+          this.route('c', { path: '/c/:c' });
+        });
+
+        App.register('route:a', _emberRoutingSystemRoute.default.extend({
+          afterModel: function () {
+            this.replaceWith('b', 'zomg');
+          }
+        }));
+
+        App.register('route:b', _emberRoutingSystemRoute.default.extend({
+          afterModel: function (params) {
+            this.transitionTo('c', params.b);
+          }
+        }));
+
+        App.register('route:c', _emberRoutingSystemRoute.default.extend({
+          afterModel: function (params) {
+            throw new Error('transition failure');
+          }
+        }));
+      });
+
+      expectAsyncError();
+
+      return _emberMetalRun_loop.default(App, 'visit', '/a').then(function () {
+        assert.ok(false, 'It should not resolve the promise');
+      }, function (error) {
+        assert.ok(error instanceof Error, 'It should reject the promise with the boot error');
+        assert.equal(error.message, 'transition failure');
+      });
+    });
+
+    QUnit.test('visit() chain', function (assert) {
+      _emberMetalRun_loop.default(function () {
+        createApplication();
+
+        App.Router.map(function () {
+          this.route('a');
+          this.route('b');
+          this.route('c');
+        });
+      });
+
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/');
+
+        return instance.visit('/a');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/a');
+
+        return instance.visit('/b');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/b');
+
+        return instance.visit('/c');
+      }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+        assert.equal(instance.getURL(), '/c');
       });
     });
 
     QUnit.test('visit() returns a promise that resolves when the view has rendered', function (assert) {
-      QUnit.expect(3);
-      QUnit.stop();
-
-      var app;
-
       _emberMetalRun_loop.default(function () {
-        app = createApplication();
-        app.instanceInitializer({
-          name: 'register-application-template',
-          initialize: function (app) {
-            app.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1>'));
-          }
-        });
+        createApplication();
+
+        App.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1>'));
       });
 
-      assert.equal(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
-      app.visit('/').then(function (instance) {
-        QUnit.start();
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function (instance) {
         assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        _emberMetalRun_loop.default(instance.view, 'appendTo', '#qunit-fixture');
         assert.equal(_emberViewsSystemJquery.default('#qunit-fixture > .ember-view h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
-
-        instance.destroy();
-      }, function (error) {
-        QUnit.start();
-        assert.ok(false, 'The visit() promise was rejected: ' + error);
       });
     });
 
     QUnit.test('Views created via visit() are not added to the global views hash', function (assert) {
-      QUnit.expect(6);
-      QUnit.stop();
-
-      var app;
-
       _emberMetalRun_loop.default(function () {
-        app = createApplication();
-        app.instanceInitializer({
-          name: 'register-application-template',
-          initialize: function (app) {
-            app.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1> {{component "x-child"}}'));
-            app.register('view:application', _emberViewsViewsView.default.extend({
-              elementId: 'my-cool-app'
-            }));
-            app.register('component:x-child', _emberViewsViewsView.default.extend({
-              elementId: 'child-view'
-            }));
-          }
-        });
+        createApplication();
+
+        App.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1> {{component "x-child"}}'));
+
+        App.register('view:application', _emberViewsViewsView.default.extend({
+          elementId: 'my-cool-app'
+        }));
+
+        App.register('component:x-child', _emberViewsViewsView.default.extend({
+          elementId: 'child-view'
+        }));
       });
 
-      assert.equal(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
 
-      app.visit('/').then(function (instance) {
-        QUnit.start();
+      return _emberMetalRun_loop.default(App, 'visit', '/').then(function (instance) {
         assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        _emberMetalRun_loop.default(instance.view, 'appendTo', '#qunit-fixture');
         assert.equal(_emberViewsSystemJquery.default('#qunit-fixture > #my-cool-app h1').text(), 'Hello world', 'the application was rendered once the promise resolves');
         assert.strictEqual(_emberViewsViewsView.default.views['my-cool-app'], undefined, 'view was not registered globally');
 
@@ -12735,15 +13013,396 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/fea
           return instance.lookup(fullName);
         }
 
-        ok(lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
-        ok(lookup('-view-registry:main')['child-view'] instanceof _emberViewsViewsView.default, 'child view was registered on the instance\'s view registry');
-
-        instance.destroy();
-      }, function (error) {
-        QUnit.start();
-        assert.ok(false, 'The visit() promise was rejected: ' + error);
+        assert.ok(lookup('-view-registry:main')['my-cool-app'] instanceof _emberViewsViewsView.default, 'view was registered on the instance\'s view registry');
+        assert.ok(lookup('-view-registry:main')['child-view'] instanceof _emberViewsViewsView.default, 'child view was registered on the instance\'s view registry');
       });
     });
+
+    QUnit.module('Ember.Application - visit() Integration Tests', {
+      teardown: function () {
+        if (instances) {
+          _emberMetalRun_loop.default(instances, 'forEach', function (i) {
+            return i.destroy();
+          });
+          instances = [];
+        }
+
+        if (App) {
+          _emberMetalRun_loop.default(App, 'destroy');
+          App = null;
+        }
+      }
+    });
+
+    if (document.implementation && typeof document.implementation.createHTMLDocument === 'function') {
+      QUnit.test('FastBoot-style setup', function (assert) {
+        var initCalled = false;
+        var didInsertElementCalled = false;
+
+        _emberMetalRun_loop.default(function () {
+          createApplication(true);
+
+          App.Router.map(function () {
+            this.route('a');
+            this.route('b');
+          });
+
+          App.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1>\n{{outlet}}'));
+
+          App.register('template:a', _emberTemplateCompilerSystemCompile.default('<h2>Welcome to {{x-foo page="A"}}</h2>'));
+
+          App.register('template:b', _emberTemplateCompilerSystemCompile.default('<h2>{{x-foo page="B"}}</h2>'));
+
+          App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('Page {{page}}'));
+
+          App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+            tagName: 'span',
+            init: function () {
+              this._super();
+              initCalled = true;
+            },
+            didInsertElement: function () {
+              didInsertElementCalled = true;
+            }
+          }));
+        });
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+        function makeForiegnDocument() {
+          // TODO: use simple-dom
+          return document.implementation.createHTMLDocument();
+        }
+
+        var a = _emberMetalRun_loop.default(function () {
+          var dom = makeForiegnDocument();
+
+          return App.visit('/a', { isBrowser: false, document: dom, rootElement: dom.body }).then(function (instance) {
+            QUnit.start();
+            assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+            assert.equal(instance.getURL(), '/a');
+
+            var serialized = dom.body.innerHTML;
+            var $parsed = _emberViewsSystemJquery.default(serialized);
+
+            assert.equal($parsed.find('h1').text(), 'Hello world');
+            assert.equal($parsed.find('h2').text(), 'Welcome to Page A');
+
+            assert.ok(initCalled, 'Component#init should be called');
+            assert.ok(!didInsertElementCalled, 'Component#didInsertElement should not be called');
+
+            assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+            QUnit.stop();
+          });
+        });
+
+        var b = _emberMetalRun_loop.default(function () {
+          var dom = makeForiegnDocument();
+
+          return App.visit('/b', { isBrowser: false, document: dom, rootElement: dom.body }).then(function (instance) {
+            QUnit.start();
+            assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+            assert.equal(instance.getURL(), '/b');
+
+            var serialized = dom.body.innerHTML;
+            var $parsed = _emberViewsSystemJquery.default(serialized);
+
+            assert.equal($parsed.find('h1').text(), 'Hello world');
+            assert.equal($parsed.find('h2').text(), 'Page B');
+
+            assert.ok(initCalled, 'Component#init should be called');
+            assert.ok(!didInsertElementCalled, 'Component#didInsertElement should not be called');
+
+            assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+            QUnit.stop();
+          });
+        });
+
+        return _emberRuntimeExtRsvp.default.all([a, b]);
+      });
+    }
+
+    QUnit.test('Ember Islands-style setup', function (assert) {
+      var xFooInitCalled = false;
+      var xFooDidInsertElementCalled = false;
+
+      var xBarInitCalled = false;
+      var xBarDidInsertElementCalled = false;
+
+      _emberMetalRun_loop.default(function () {
+        createApplication(true);
+
+        App.Router.map(function () {
+          this.route('show', { path: '/:component_name' });
+        });
+
+        App.register('route:show', _emberRoutingSystemRoute.default.extend({
+          queryParams: {
+            data: { refreshModel: true }
+          },
+
+          model: function (params) {
+            return {
+              componentName: params.component_name,
+              componentData: params.data ? JSON.parse(params.data) : undefined
+            };
+          }
+        }));
+
+        var Counter = _emberRuntimeSystemObject.default.extend({
+          value: 0,
+
+          increment: function () {
+            this.incrementProperty('value');
+          }
+        });
+
+        App.register('service:isolated-counter', Counter);
+        App.register('service:shared-counter', Counter.create(), { instantiate: false });
+
+        App.register('template:show', _emberTemplateCompilerSystemCompile.default('{{component model.componentName model=model.componentData}}'));
+
+        App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('\n        <h1>X-Foo</h1>\n        <p>Hello {{model.name}}, I have been clicked {{isolatedCounter.value}} times ({{sharedCounter.value}} times combined)!</p>\n      '));
+
+        App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+          tagName: 'x-foo',
+
+          isolatedCounter: _emberRuntimeInject.default.service(),
+          sharedCounter: _emberRuntimeInject.default.service(),
+
+          init: function () {
+            this._super();
+            xFooInitCalled = true;
+          },
+
+          didInsertElement: function () {
+            xFooDidInsertElementCalled = true;
+          },
+
+          click: function () {
+            this.get('isolatedCounter').increment();
+            this.get('sharedCounter').increment();
+          }
+        }));
+
+        App.register('template:components/x-bar', _emberTemplateCompilerSystemCompile.default('\n        <h1>X-Bar</h1>\n        <button {{action "incrementCounter"}}>Join {{counter.value}} others in clicking me!</button>\n      '));
+
+        App.register('component:x-bar', _emberViewsComponentsComponent.default.extend({
+          counter: _emberRuntimeInject.default.service('shared-counter'),
+
+          actions: {
+            incrementCounter: function () {
+              this.get('counter').increment();
+            }
+          },
+
+          init: function () {
+            this._super();
+            xBarInitCalled = true;
+          },
+
+          didInsertElement: function () {
+            xBarDidInsertElementCalled = true;
+          }
+        }));
+      });
+
+      var $foo = _emberViewsSystemJquery.default('<div />').appendTo('#qunit-fixture');
+      var $bar = _emberViewsSystemJquery.default('<div />').appendTo('#qunit-fixture');
+
+      var data = encodeURIComponent(JSON.stringify({ name: 'Godfrey' }));
+
+      return _emberRuntimeExtRsvp.default.all([_emberMetalRun_loop.default(App, 'visit', '/x-foo?data=' + data, { rootElement: $foo[0] }), _emberMetalRun_loop.default(App, 'visit', '/x-bar', { rootElement: $bar[0] })]).then(function () {
+        assert.ok(xFooInitCalled);
+        assert.ok(xFooDidInsertElementCalled);
+
+        assert.ok(xBarInitCalled);
+        assert.ok(xBarDidInsertElementCalled);
+
+        assert.equal($foo.find('h1').text(), 'X-Foo');
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 0 times (0 times combined)!');
+        assert.ok($foo.text().indexOf('X-Bar') === -1);
+
+        assert.equal($bar.find('h1').text(), 'X-Bar');
+        assert.equal($bar.find('button').text(), 'Join 0 others in clicking me!');
+        assert.ok($bar.text().indexOf('X-Foo') === -1);
+
+        _emberMetalRun_loop.default(function () {
+          $foo.find('x-foo').click();
+        });
+
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (1 times combined)!');
+        assert.equal($bar.find('button').text(), 'Join 1 others in clicking me!');
+
+        _emberMetalRun_loop.default(function () {
+          $bar.find('button').click();
+          $bar.find('button').click();
+        });
+
+        assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
+        assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
+      });
+    });
+
+    QUnit.test('Resource-discovery setup', function (assert) {
+      var xFooInstances = 0;
+
+      _emberMetalRun_loop.default(function () {
+        createApplication(true);
+
+        App.Router.map(function () {
+          this.route('a');
+          this.route('b');
+          this.route('c');
+          this.route('d');
+          this.route('e');
+        });
+
+        var NetworkService = _emberMetalCore.default.Object.extend({
+          init: function () {
+            this.set('requests', []);
+          },
+
+          fetch: function (url) {
+            this.get('requests').push(url);
+            return _emberRuntimeExtRsvp.default.resolve();
+          }
+        });
+
+        App.register('service:network', NetworkService);
+
+        App.inject('route', 'network', 'service:network');
+
+        App.register('route:a', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            return this.network.fetch('/a');
+          },
+          afterModel: function () {
+            this.replaceWith('b');
+          }
+        }));
+
+        App.register('route:b', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            return this.network.fetch('/b');
+          },
+          afterModel: function () {
+            this.replaceWith('c');
+          }
+        }));
+
+        App.register('route:c', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            return this.network.fetch('/c');
+          }
+        }));
+
+        App.register('route:d', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            return this.network.fetch('/d');
+          },
+          afterModel: function () {
+            this.replaceWith('e');
+          }
+        }));
+
+        App.register('route:e', _emberRoutingSystemRoute.default.extend({
+          model: function () {
+            return this.network.fetch('/e');
+          }
+        }));
+
+        App.register('template:a', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
+        App.register('template:b', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
+        App.register('template:c', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
+        App.register('template:d', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
+        App.register('template:e', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
+
+        App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
+          init: function () {
+            this._super();
+            xFooInstances++;
+          }
+        }));
+      });
+
+      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+
+      function lookup(instance, fullName) {
+        return instance.lookup(fullName);
+      }
+
+      var a = _emberMetalRun_loop.default(App, 'visit', '/a', { isBrowser: false, shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
+
+        var viewRegistry = lookup(instance, '-view-registry:main');
+        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
+
+        var networkService = lookup(instance, 'service:network');
+        assert.deepEqual(networkService.get('requests'), ['/a', '/b', '/c']);
+      });
+
+      var b = _emberMetalRun_loop.default(App, 'visit', '/b', { isBrowser: false, shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
+
+        var viewRegistry = lookup(instance, '-view-registry:main');
+        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
+
+        var networkService = lookup(instance, 'service:network');
+        assert.deepEqual(networkService.get('requests'), ['/b', '/c']);
+      });
+
+      var c = _emberMetalRun_loop.default(App, 'visit', '/c', { isBrowser: false, shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
+
+        var viewRegistry = lookup(instance, '-view-registry:main');
+        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
+
+        var networkService = lookup(instance, 'service:network');
+        assert.deepEqual(networkService.get('requests'), ['/c']);
+      });
+
+      var d = _emberMetalRun_loop.default(App, 'visit', '/d', { isBrowser: false, shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
+
+        var viewRegistry = lookup(instance, '-view-registry:main');
+        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
+
+        var networkService = lookup(instance, 'service:network');
+        assert.deepEqual(networkService.get('requests'), ['/d', '/e']);
+      });
+
+      var e = _emberMetalRun_loop.default(App, 'visit', '/e', { isBrowser: false, shouldRender: false }).then(function (instance) {
+        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
+
+        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
+        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
+
+        var viewRegistry = lookup(instance, '-view-registry:main');
+        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
+
+        var networkService = lookup(instance, 'service:network');
+        assert.deepEqual(networkService.get('requests'), ['/e']);
+      });
+
+      return _emberRuntimeExtRsvp.default.all([a, b, c, d, e]);
+    });
+
+    QUnit.skip('Test setup', function (assert) {});
+
+    QUnit.skip('iframe setup', function (assert) {});
   }
 });
 enifed('ember-debug/tests/handlers-test', ['exports', 'ember-debug/handlers'], function (exports, _emberDebugHandlers) {
@@ -51310,7 +51969,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+aefcf141', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+ab1f9dff', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -51688,6 +52347,16 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
         _emberTestingTest.default.adapter.asyncEnd();
       });
     }
+  });
+
+  QUnit.test('visiting a URL that causes another transition should yield the correct URL', function () {
+    expect(1);
+
+    visit('/redirect');
+
+    andThen(function () {
+      equal(currentURL(), '/comments', 'Redirected to Comments URL');
+    });
   });
 
   QUnit.test('visiting a URL and then visiting a second URL with a transition should yield the correct URL', function () {
