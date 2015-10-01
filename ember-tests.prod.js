@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+72bdb39d
+ * @version   2.2.0-canary+ab04e97a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37391,10 +37391,10 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     });
   });
 });
-enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-runtime/tests/utils'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberRuntimeTestsUtils) {
+enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/registry', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerRegistry, _emberViewsComponent_lookup, _emberRuntimeTestsUtils) {
   'use strict';
 
-  var dispatcher, view, originalViewKeyword;
+  var dispatcher, view, originalViewKeyword, registry, container;
   var originalRegisterAction = _emberRoutingHtmlbarsKeywordsElementAction.ActionHelper.registerAction;
 
   QUnit.module('ember-routing-htmlbars: action helper', {
@@ -38397,6 +38397,70 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     view.$('a').trigger(event);
 
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+  });
+
+  QUnit.module('ember-routing-htmlbars: action helper - action target without `controller`', {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      registry.optionsForType('template', { instantiate: false });
+      registry.optionsForType('component', { singleton: false });
+      registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+      registry.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+
+      container = registry.container();
+
+      dispatcher = container.lookup('event_dispatcher:main');
+      dispatcher.setup();
+
+      this.originalLegacyControllerSupport = _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = false;
+
+      this.originalLegacyViewSupport = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(dispatcher);
+      _emberRuntimeTestsUtils.runDestroy(container);
+
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_CONTROLLER_SUPPORT = this.originalLegacyControllerSupport;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = this.originalLegacyViewSupport;
+    }
+  });
+
+  QUnit.test('should target the proper component when `action` is in yielded block [GH #12409]', function (assert) {
+    assert.expect(2);
+
+    registry.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('\n    {{#x-middle}}\n      {{x-inner action="hey" }}\n    {{/x-middle}}\n  '));
+
+    registry.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('{{yield}}'));
+    registry.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('\n    <button>Click Me</button>\n    {{yield}}\n  '));
+
+    registry.register('component:x-inner', _emberViewsComponentsComponent.default.extend({
+      click: function () {
+        assert.ok(true, 'click was triggered');
+        this.sendAction();
+      }
+    }));
+
+    registry.register('component:x-outer', _emberViewsComponentsComponent.default.extend({
+      actions: {
+        hey: function () {
+          assert.ok(true, 'action fired on proper target');
+        }
+      }
+    }));
+
+    view = _emberViewsComponentsComponent.default.create({
+      container: container,
+      layout: _emberTemplateCompilerSystemCompile.default('{{x-outer}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    view.$('button').trigger(event);
   });
 });
 enifed('ember-routing-htmlbars/tests/helpers/link-to_test', ['exports', 'ember-routing-htmlbars', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/controllers/controller', 'ember-runtime/system/container', 'ember-runtime/tests/utils', 'ember-runtime/system/object', 'ember-views/component_lookup', 'ember-routing-views/components/link-to'], function (exports, _emberRoutingHtmlbars, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeControllersController, _emberRuntimeSystemContainer, _emberRuntimeTestsUtils, _emberRuntimeSystemObject, _emberViewsComponent_lookup, _emberRoutingViewsComponentsLinkTo) {
@@ -51809,7 +51873,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+72bdb39d', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+ab04e97a', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
