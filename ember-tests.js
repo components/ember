@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+e88eee77
+ * @version   2.2.0-canary+72bdb39d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51969,7 +51969,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+e88eee77', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+72bdb39d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -59651,6 +59651,58 @@ enifed('ember-views/tests/views/view/controller_test', ['exports', 'ember-metal/
     strictEqual(parent.get('controller'), newController);
     strictEqual(child.get('controller'), newController);
     strictEqual(grandchild.get('controller'), newController);
+
+    _emberMetalRun_loop.default(function () {
+      grandparent.destroy();
+      parent.destroy();
+      child.destroy();
+      grandchild.destroy();
+    });
+  });
+
+  QUnit.test('controller changes are passed to descendants', function () {
+    var grandparent = _emberViewsViewsContainer_view.default.create();
+    var parent = _emberViewsViewsContainer_view.default.create();
+    var child = _emberViewsViewsContainer_view.default.create();
+    var grandchild = _emberViewsViewsContainer_view.default.create();
+
+    _emberMetalRun_loop.default(function () {
+      grandparent.set('controller', {});
+
+      grandparent.pushObject(parent);
+      parent.pushObject(child);
+      child.pushObject(grandchild);
+    });
+
+    var parentCount = 0;
+    var childCount = 0;
+    var grandchildCount = 0;
+
+    parent.addObserver('controller', parent, function () {
+      parentCount++;
+    });
+    child.addObserver('controller', child, function () {
+      childCount++;
+    });
+    grandchild.addObserver('controller', grandchild, function () {
+      grandchildCount++;
+    });
+
+    _emberMetalRun_loop.default(function () {
+      grandparent.set('controller', {});
+    });
+
+    equal(parentCount, 1);
+    equal(childCount, 1);
+    equal(grandchildCount, 1);
+
+    _emberMetalRun_loop.default(function () {
+      grandparent.set('controller', {});
+    });
+
+    equal(parentCount, 2);
+    equal(childCount, 2);
+    equal(grandchildCount, 2);
 
     _emberMetalRun_loop.default(function () {
       grandparent.destroy();
