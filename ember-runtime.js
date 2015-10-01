@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+e64c6768
+ * @version   2.2.0-canary+b4718218
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+e64c6768
+    @version 2.2.0-canary+b4718218
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+e64c6768'
+    @default '2.2.0-canary+b4718218'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+e64c6768';
+  Ember.VERSION = '2.2.0-canary+b4718218';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17629,7 +17629,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
     // possible.
 
     var wasApplied = false;
-    var initMixins, initProperties;
+    var initProperties;
 
     var Class = function () {
       if (!wasApplied) {
@@ -17644,12 +17644,6 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
       var m = _emberMetalMeta.meta(this);
       var proto = m.proto;
       m.proto = this;
-      if (initMixins) {
-        // capture locally so we can clear the closed over variable
-        var mixins = initMixins;
-        initMixins = null;
-        _emberMetalUtils.apply(this, this.reopen, mixins);
-      }
       if (initProperties) {
         // capture locally so we can clear the closed over variable
         var props = initProperties;
@@ -17758,9 +17752,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
 
       wasApplied = false;
     };
-    Class._initMixins = function (args) {
-      initMixins = args;
-    };
+
     Class._initProperties = function (args) {
       initProperties = args;
     };
