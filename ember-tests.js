@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+b4718218
+ * @version   2.2.0-canary+db8721b4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -22879,6 +22879,19 @@ enifed('ember-htmlbars/tests/helpers/view_test', ['exports', 'ember-metal/core',
     _emberMetalRun_loop.default(function () {
       _emberViewsViewsView.default.views['x-inner'].sendAction('dismiss');
     });
+  });
+
+  QUnit.test('Throw an `Unsupported Content` error when attempting to bind to a function', function () {
+    view = _emberViewsViewsView.default.extend({
+      someFunction: function () {},
+      template: _emberTemplateCompilerSystemCompile.default('{{view.someFunction}}')
+    }).create();
+
+    try {
+      _emberRuntimeTestsUtils.runAppend(view);
+    } catch (error) {
+      equal(error.message, 'Unsupported Content: Cannot bind to function');
+    }
   });
 });
 enifed('ember-htmlbars/tests/helpers/with_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-metal/property_set', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberMetalProperty_set, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
@@ -52135,7 +52148,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+b4718218', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+db8721b4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
