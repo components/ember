@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+ab04e97a
+ * @version   2.2.0-canary+e64c6768
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13644,14 +13644,14 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.deprecate does not throw deprecation if second argument is a function and it returns true', function () {
-    expect(1);
+  QUnit.test('Ember.deprecate throws deprecation if second argument is a function and it returns true', function (assert) {
+    assert.expect(1);
 
-    _emberMetalCore.default.deprecate('Deprecation is thrown', function () {
-      return true;
-    }, { id: 'test', until: 'forever' });
-
-    ok(true, 'deprecation was not thrown');
+    throws(function () {
+      _emberMetalCore.default.deprecate('This deprecation is not thrown, but argument deprecation is thrown', function () {
+        return true;
+      }, { id: 'test', until: 'forever' });
+    });
   });
 
   QUnit.test('Ember.deprecate throws if second argument is a function and it returns false', function () {
@@ -13689,14 +13689,15 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
   });
 
-  QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function () {
-    expect(1);
+  QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function (assert) {
+    assert.expect(1);
 
-    _emberMetalCore.default.assert('Assertion is thrown', function () {
-      return true;
-    });
-
-    ok(true, 'assertion was not thrown');
+    // shouldn't trigger an assertion, but deprecation from using function as test is expected
+    expectDeprecation(function () {
+      return _emberMetalCore.default.assert('Assertion is thrown', function () {
+        return true;
+      });
+    }, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'));
   });
 
   QUnit.test('Ember.assert throws if second argument is a function and it returns false', function () {
@@ -13836,6 +13837,42 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     });
 
     _emberMetalCore.default.warn('foo', false, {});
+  });
+
+  QUnit.test('Ember.deprecate triggers a deprecation when test argument is a function', function (assert) {
+    assert.expect(1);
+
+    _emberDebugDeprecate.registerHandler(function (message) {
+      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.deprecate'), 'proper deprecation is triggered when test argument is a function');
+    });
+
+    _emberDebugDeprecate.default('Deprecation is thrown', function () {
+      return true;
+    }, { id: 'test', until: 'forever' });
+  });
+
+  QUnit.test('Ember.warn triggers a deprecation when test argument is a function', function (assert) {
+    assert.expect(1);
+
+    _emberDebugDeprecate.registerHandler(function (message) {
+      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.warn'), 'proper deprecation is triggered when test argument is a function');
+    });
+
+    _emberMetalCore.default.warn('Warning is thrown', function () {
+      return true;
+    }, { id: 'test' });
+  });
+
+  QUnit.test('Ember.assert triggers a deprecation when test argument is a function', function (assert) {
+    assert.expect(1);
+
+    _emberDebugDeprecate.registerHandler(function (message) {
+      return assert.equal(message, _emberDebugHandlers.generateTestAsFunctionDeprecation('Ember.assert'), 'proper deprecation is triggered when test argument is a function');
+    });
+
+    _emberMetalCore.default.assert('Assertion is thrown', function () {
+      return true;
+    });
   });
 });
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
@@ -26961,6 +26998,71 @@ enifed('ember-htmlbars/tests/integration/with_view_test', ['exports', 'ember-vie
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(view.$('h1').text(), 'Brodele del Heeeyyyyyy', 'renders properties from parent context');
+  });
+});
+enifed('ember-htmlbars/tests/node-managers/view-node-manager-test', ['exports', 'ember-htmlbars/node-managers/view-node-manager'], function (exports, _emberHtmlbarsNodeManagersViewNodeManager) {
+  'use strict';
+
+  QUnit.module('ember-htmlbars: node-managers - ViewNodeManager');
+
+  QUnit.test('create method should assert if component hasn\'t been found', function (assert) {
+    assert.expect(1);
+
+    var found = {
+      component: null,
+      layout: null
+    };
+
+    var path = undefined;
+
+    expectAssertion(function () {
+      _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found, null, path);
+    }, 'HTMLBars error: Could not find component named "' + path + '" (no component or template with that name was found)');
+  });
+
+  QUnit.test('create method shouldn\'t assert if `found.component` is truthy', function (assert) {
+    assert.expect(1);
+
+    var found = {
+      component: {},
+      layout: null
+    };
+    var attrs = {};
+    var renderNode = {};
+
+    var env = {
+      renderer: {
+        componentUpdateAttrs: function () {
+          assert.ok('env.renderer.componentUpdateAttrs called');
+        }
+      }
+    };
+
+    _emberHtmlbarsNodeManagersViewNodeManager.default.create(renderNode, env, attrs, found);
+  });
+
+  QUnit.test('create method shouldn\'t assert if `found.layout` is truthy', function (assert) {
+    assert.expect(0);
+
+    var found = {
+      component: null,
+      layout: true
+    };
+
+    _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found);
+  });
+
+  QUnit.test('create method shouldn\'t assert if `path` is falsy and `contentTemplate` is truthy', function (assert) {
+    assert.expect(0);
+
+    var found = {
+      component: null,
+      layout: null
+    };
+    var path = null;
+    var contentTemplate = true;
+
+    _emberHtmlbarsNodeManagersViewNodeManager.default.create(null, null, null, found, null, path, null, contentTemplate);
   });
 });
 enifed('ember-htmlbars/tests/system/append-templated-view-test', ['exports', 'ember-runtime/tests/utils', 'ember-views/views/view', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberRuntimeTestsUtils, _emberViewsViewsView, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -51873,7 +51975,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-canary+ab04e97a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-canary+e64c6768', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
