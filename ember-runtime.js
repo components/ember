@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+cabce3ee
+ * @version   2.2.0-canary+07d4d688
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+cabce3ee
+    @version 2.2.0-canary+07d4d688
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+cabce3ee'
+    @default '2.2.0-canary+07d4d688'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+cabce3ee';
+  Ember.VERSION = '2.2.0-canary+07d4d688';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18442,7 +18442,7 @@ enifed('ember-runtime/system/each_proxy', ['exports', 'ember-metal/debug', 'embe
   function EachProxy(content) {
     this._content = content;
     this._keys = undefined;
-    this.__ember_meta__ = undefined;
+    this.__ember_meta__ = null;
   }
 
   EachProxy.prototype = {
