@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.4
+ * @version   2.1.0-beta.4+28f012ff
  */
 
 (function() {
@@ -4900,7 +4900,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.4
+    @version 2.1.0-beta.4+28f012ff
     @public
   */
 
@@ -4934,11 +4934,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.4'
+    @default '2.1.0-beta.4+28f012ff'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.4';
+  Ember.VERSION = '2.1.0-beta.4+28f012ff';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11469,6 +11469,8 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
   }
 
+  var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
+
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
@@ -11476,7 +11478,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
-        return func.toString().indexOf('_super') > -1;
+        return HAS_SUPER_PATTERN.test(func.toString());
       };
     }
 
@@ -14362,8 +14364,19 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
   });
 });
 enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
   'use strict';
 
+  /**
+    ContainerProxyMixin is used to provide public access to specific
+    container functionality.
+  
+    @class ContainerProxyMixin
+    @private
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
      The container stores state.
@@ -15141,7 +15154,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Boolean} `true` if the passed function returns `true` for any item
-      @private
+      @public
     */
     any: function (callback, target) {
       var len = _emberMetalProperty_get.get(this, 'length');
@@ -15205,7 +15218,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Object} initialValue Initial value for the reduce
       @param {String} reducerProperty internal use only.
       @return {Object} The reduced value.
-      @private
+      @public
     */
     reduce: function (callback, initialValue, reducerProperty) {
       if (typeof callback !== 'function') {
@@ -15229,7 +15242,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} methodName the name of the method
       @param {Object...} args optional arguments to pass as well.
       @return {Array} return values from calling invoke.
-      @private
+      @public
     */
     invoke: function (methodName) {
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -15254,7 +15267,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       guaranteed. Corresponds to the method implemented by Prototype.
        @method toArray
       @return {Array} the enumerable as an array.
-      @private
+      @public
     */
     toArray: function () {
       var ret = _emberMetalCore.default.A();
@@ -15321,7 +15334,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        This only works on primitive data types, e.g. Strings, Numbers, etc.
        @method uniq
       @return {Ember.Enumerable}
-      @private
+      @public
     */
     uniq: function () {
       var ret = _emberMetalCore.default.A();
@@ -16903,9 +16916,22 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 });
 enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
+
+  /**
+    RegistryProxyMixin is used to provide public access to specific
+    registry functionality.
+  
+    @class RegistryProxyMixin
+    @private
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -16957,8 +16983,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'e
       App.register('communication:main', App.Email, { singleton: false });
       App.register('session', App.session, { instantiate: false });
       ```
-       @public
-      @method register
+       @method register
       @param  fullName {String} type:name (e.g., 'model:user')
       @param  factory {Function} (e.g., App.Person)
       @param  options {Object} (optional) disable instantiation or singleton usage
@@ -17896,7 +17921,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
     Object.defineProperty(this, property.name, property.descriptor);
     //this[property.name] = property.descriptor.value;
-  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
     if (this.isDestroying) {
       return;
     }
@@ -18365,6 +18390,64 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   document its usage in each individual concatenated property (to not
   mislead your users to think they can override the property in a subclass).
    @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Defines the properties that will be merged from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by merging the superclass property value
+  with the subclass property's value. An example of this in use within Ember
+  is the `queryParams` property of routes.
+   Here is some sample code showing the difference between a merged
+  property and a normal one:
+   ```javascript
+  App.BarRoute = Ember.Route.extend({
+    someNonMergedProperty: {
+      nonMerged: 'superclass value of nonMerged'
+    },
+    queryParams: {
+      page: {replace: false},
+      limit: {replace: true}
+    }
+  });
+   App.FooBarRoute = App.BarRoute.extend({
+    someNonMergedProperty: {
+      completelyNonMerged: 'subclass value of nonMerged'
+    },
+    queryParams: {
+      limit: {replace: false}
+    }
+  });
+   var fooBarRoute = App.FooBarRoute.create();
+   fooBarRoute.get('someNonMergedProperty');
+  // => { completelyNonMerged: 'subclass value of nonMerged' }
+  //
+  // Note the entire object, including the nonMerged property of
+  // the superclass object, has been replaced
+   fooBarRoute.get('queryParams');
+  // => {
+  //   page: {replace: false},
+  //   limit: {replace: false}
+  // }
+  //
+  // Note the page remains from the superclass, and the
+  // `limit` property's value of `false` has been merged from
+  // the subclass.
+  ```
+   This behavior is not available during object `create` calls. It is only
+  available at `extend` time.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual merged property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property mergedProperties
   @type Array
   @default null
   @public
@@ -19224,13 +19307,22 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     });
   });
 
-  var STRING_CLASSIFY_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
-  var STRING_CLASSIFY_REGEXP_2 = /(^|\/|\.)([a-z])/g;
+  var STRING_CLASSIFY_REGEXP_1 = /^(\-|_)+(.)?/;
+  var STRING_CLASSIFY_REGEXP_2 = /(.)(\-|\_|\.|\s)+(.)?/g;
+  var STRING_CLASSIFY_REGEXP_3 = /(^|\/|\.)([a-z])/g;
 
   var CLASSIFY_CACHE = new _emberMetalCache.default(1000, function (str) {
-    return str.replace(STRING_CLASSIFY_REGEXP_1, function (match, separator, chr) {
-      return chr ? chr.toUpperCase() : '';
-    }).replace(STRING_CLASSIFY_REGEXP_2, function (match, separator, chr) {
+    var replace1 = function (match, separator, chr) {
+      return chr ? '_' + chr.toUpperCase() : '';
+    };
+    var replace2 = function (match, initialChar, separator, chr) {
+      return initialChar + (chr ? chr.toUpperCase() : '');
+    };
+    var parts = str.split('/');
+    for (var i = 0, len = parts.length; i < len; i++) {
+      parts[i] = parts[i].replace(STRING_CLASSIFY_REGEXP_1, replace1).replace(STRING_CLASSIFY_REGEXP_2, replace2);
+    }
+    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match, separator, chr) {
       return match.toUpperCase();
     });
   });

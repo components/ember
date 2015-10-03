@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.4
+ * @version   2.1.0-beta.4+28f012ff
  */
 
 (function() {
@@ -14075,6 +14075,29 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Edward5');
   });
 
+  QUnit.test('if a value is passed as a non-positional parameter, it takes precedence over the named one', function () {
+    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: ['name']
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component notMyName name=myName}}'),
+      container: container,
+      context: {
+        myName: 'Quint',
+        notMyName: 'Sergio'
+      }
+    }).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+  });
+
   QUnit.test('static arbitrary number of positional parameters', function () {
     var SampleComponent = _emberViewsViewsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -14094,6 +14117,28 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(view.$('#args-3').text(), 'Foo4Bar');
     equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
     equal(view.$('#helper').text(), 'Foo4Bar5Baz');
+  });
+
+  QUnit.test('arbitrary positional parameter conflict with hash parameter is reported', function () {
+    var SampleComponent = _emberViewsViewsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'names'
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}'),
+      container: container,
+      context: {
+        numbers: [1, 2, 3]
+      }
+    }).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You cannot specify positional parameters and the hash argument `names`.');
   });
 
   QUnit.test('dynamic arbitrary number of positional parameters', function () {
@@ -39023,6 +39068,50 @@ enifed('ember-runtime/tests/system/object/computed_test', ['exports', 'ember-met
 
     deepEqual(list.sort(), ['bar', 'foo', 'baz'].sort(), 'expected three computed properties');
   });
+
+  QUnit.test('Calling _super in call outside the immediate function of a CP getter works', function () {
+    function macro(callback) {
+      return _emberMetalComputed.computed(function () {
+        return callback.call(this);
+      });
+    }
+
+    var MyClass = _emberRuntimeSystemObject.default.extend({
+      foo: _emberMetalComputed.computed(function () {
+        return 'FOO';
+      })
+    });
+
+    var SubClass = MyClass.extend({
+      foo: macro(function () {
+        return this._super();
+      })
+    });
+
+    ok(_emberMetalProperty_get.get(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
+
+  QUnit.test('Calling _super in apply outside the immediate function of a CP getter works', function () {
+    function macro(callback) {
+      return _emberMetalComputed.computed(function () {
+        return callback.apply(this);
+      });
+    }
+
+    var MyClass = _emberRuntimeSystemObject.default.extend({
+      foo: _emberMetalComputed.computed(function () {
+        return 'FOO';
+      })
+    });
+
+    var SubClass = MyClass.extend({
+      foo: macro(function () {
+        return this._super();
+      })
+    });
+
+    ok(_emberMetalProperty_get.get(SubClass.create(), 'foo'), 'FOO', 'super value is fetched');
+  });
 });
 enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/computed', 'ember-metal/mixin', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalComputed, _emberMetalMixin, _emberRuntimeSystemObject) {
   'use strict';
@@ -40311,6 +40400,62 @@ enifed('ember-runtime/tests/system/string/classify_test', ['exports', 'ember-met
       deepEqual('private-docs/owner-invoice'.classify(), 'PrivateDocs/OwnerInvoice');
     }
   });
+
+  QUnit.test('classify prefixed dasherized string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('-view-registry'), '_ViewRegistry');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('-view-registry'.classify(), '_ViewRegistry');
+    }
+  });
+
+  QUnit.test('classify namespaced prefixed dasherized string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('components/-text-field'), 'Components/_TextField');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('components/-text-field'.classify(), 'Components/_TextField');
+    }
+  });
+
+  QUnit.test('does nothing with classified prefixed string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('_FooBar'), '_FooBar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('_FooBar'.classify(), '_FooBar');
+    }
+  });
+
+  QUnit.test('classify underscore-prefixed underscored string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('_Foo_Bar'), '_FooBar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('_Foo_Bar'.classify(), '_FooBar');
+    }
+  });
+
+  QUnit.test('classify underscore-prefixed dasherized string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('_Foo-Bar'), '_FooBar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('_Foo-Bar'.classify(), '_FooBar');
+    }
+  });
+
+  QUnit.test('classify underscore-prefixed-namespaced underscore-prefixed string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('_foo/_bar'), '_Foo/_Bar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('_foo/_bar'.classify(), '_Foo/_Bar');
+    }
+  });
+
+  QUnit.test('classify dash-prefixed-namespaced underscore-prefixed string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('-foo/_bar'), '_Foo/_Bar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('-foo/_bar'.classify(), '_Foo/_Bar');
+    }
+  });
+
+  QUnit.test('classify dash-prefixed-namespaced dash-prefixed string', function () {
+    deepEqual(_emberRuntimeSystemString.classify('-foo/-bar'), '_Foo/_Bar');
+    if (_emberMetalCore.default.EXTEND_PROTOTYPES) {
+      deepEqual('-foo/-bar'.classify(), '_Foo/_Bar');
+    }
+  });
 });
 enifed('ember-runtime/tests/system/string/dasherize_test', ['exports', 'ember-metal/core', 'ember-runtime/system/string'], function (exports, _emberMetalCore, _emberRuntimeSystemString) {
   'use strict';
@@ -40865,7 +41010,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0-beta.4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0-beta.4+28f012ff', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -44257,6 +44402,16 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
         }
       });
     }
+  });
+
+  QUnit.test('throws an error if `this._super` is not called from `init`', function () {
+    var TestComponent = _emberViewsViewsComponent.default.extend({
+      init: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You must call `this._super\(...arguments\);` when implementing `init` in a component. Please update .* to call `this._super` from `init`/);
   });
 
   QUnit.test('can access `actions` hash via `_actions` [DEPRECATED]', function () {
@@ -51861,6 +52016,26 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     equal(_emberMetalCore.default.$('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class');
   });
 
+  QUnit.test('the {{link-to}} helper supports a custom disabledClass set via bound param', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=true disabledClass=disabledClass}}About{{/link-to}}');
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      disabledClass: 'do-not-want'
+    });
+
+    bootApplication();
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/');
+    });
+
+    equal(_emberMetalCore.default.$('#about-link.do-not-want', '#qunit-fixture').length, 1, 'The link can apply a custom disabled class via bound param');
+  });
+
   QUnit.test('the {{link-to}} helper does not respond to clicks when disabled', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=true}}About{{/link-to}}');
 
@@ -51881,11 +52056,57 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     equal(_emberMetalCore.default.$('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
   });
 
+  QUnit.test('the {{link-to}} helper does not respond to clicks when disabled via a bound param', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen=disabledWhen}}About{{/link-to}}');
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      disabledWhen: true
+    });
+
+    bootApplication();
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/');
+    });
+
+    _emberMetalCore.default.run(function () {
+      _emberMetalCore.default.$('#about-link', '#qunit-fixture').click();
+    });
+
+    equal(_emberMetalCore.default.$('h3:contains(About)', '#qunit-fixture').length, 0, 'Transitioning did not occur');
+  });
+
   QUnit.test('The {{link-to}} helper supports a custom activeClass', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=\'zomg-active\'}}Self{{/link-to}}');
 
     Router.map(function () {
       this.route('about');
+    });
+
+    bootApplication();
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/');
+    });
+
+    equal(_emberMetalCore.default.$('h3:contains(Home)', '#qunit-fixture').length, 1, 'The home template was rendered');
+    equal(_emberMetalCore.default.$('#self-link.zomg-active', '#qunit-fixture').length, 1, 'The self-link was rendered with active class');
+    equal(_emberMetalCore.default.$('#about-link:not(.active)', '#qunit-fixture').length, 1, 'The other link was rendered without active class');
+  });
+
+  QUnit.test('The {{link-to}} helper supports a custom activeClass from a bound param', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\'}}About{{/link-to}}{{#link-to \'index\' id=\'self-link\' activeClass=activeClass}}Self{{/link-to}}');
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    App.IndexController = _emberMetalCore.default.Controller.extend({
+      activeClass: 'zomg-active'
     });
 
     bootApplication();
@@ -52001,6 +52222,33 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
 
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}');
     _emberMetalCore.default.TEMPLATES['index/about'] = _emberTemplateCompiler.compile('{{#link-to \'items\' id=\'other-link\' current-when=\'index\'}}ITEM{{/link-to}}');
+
+    bootApplication();
+
+    _emberMetalCore.default.run(function () {
+      router.handleURL('/about');
+    });
+
+    equal(_emberMetalCore.default.$('#other-link.active', '#qunit-fixture').length, 1, 'The link is active when current-when is given for explicitly for a route');
+  });
+
+  QUnit.test('The {{link-to}} helper does not disregard current-when when it is set via a bound param', function () {
+    Router.map(function (match) {
+      this.route('index', { path: '/' }, function () {
+        this.route('about');
+      });
+
+      this.route('items', function () {
+        this.route('item');
+      });
+    });
+
+    App.IndexAboutController = _emberMetalCore.default.Controller.extend({
+      currentWhen: 'index'
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['index/about'] = _emberTemplateCompiler.compile('{{#link-to \'items\' id=\'other-link\' current-when=currentWhen}}ITEM{{/link-to}}');
 
     bootApplication();
 
@@ -52403,13 +52651,14 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     _emberMetalCore.default.Logger.warn = function () {
       warnCalled = true;
     };
-    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to destinationRoute routeContext loadingClass=\'i-am-loading\' id=\'context-link\'}}string{{/link-to}}{{#link-to secondRoute loadingClass=\'i-am-loading\' id=\'static-link\'}}string{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to destinationRoute routeContext loadingClass=\'i-am-loading\' id=\'context-link\'}}string{{/link-to}}{{#link-to secondRoute loadingClass=loadingClass id=\'static-link\'}}string{{/link-to}}');
 
     var thing = _emberMetalCore.default.Object.create({ id: 123 });
 
     App.IndexController = _emberMetalCore.default.Controller.extend({
       destinationRoute: null,
-      routeContext: null
+      routeContext: null,
+      loadingClass: 'i-am-loading'
     });
 
     App.AboutRoute = _emberMetalCore.default.Route.extend({
