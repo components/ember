@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-canary+77f6fc86
+ * @version   2.2.0-canary+a11b1f75
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1621,10 +1621,66 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
       }, false);
     }
   }
-
+  /**
+    @public
+    @class Ember.Debug
+  */
   _emberMetalCore.default.Debug = {};
 
+  /**
+    Allows for runtime registration of handler functions that override the default deprecation behavior.
+    Deprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).
+    The following example demonstrates its usage by registering a handler that throws an error if the
+    message contains the word "should", otherwise defers to the default handler.
+     ```javascript
+    Ember.Debug.registerDeprecationHandler((message, options, next) => {
+      if (message.indexOf('should') !== -1) {
+        throw new Error(`Deprecation message with should: ${message}`);
+      } else {
+        // defer to whatever handler was registered before this one
+        next(message, options);
+      }
+    }
+    ```
+     The handler function takes the following arguments:
+     <ul>
+      <li> <code>message</code> - The message received from the deprecation call. </li>
+      <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - an id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
+          <li> <code>until</code> - is the version number Ember the feature and deprecation will be removed in.</li>
+        </ul>
+      <li> <code>next</code> - a function that calls into the previously registered handler.</li>
+    </ul>
+     @public
+    @static
+    @method registerDeprecationHandler
+    @param handler {Function} a function to handle deprecation calls
+  */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
+  /**
+    Allows for runtime registration of handler functions that override the default warning behavior.
+    Warnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).
+    The following example demonstrates its usage by registering a handler that does nothing overriding Ember's
+    default warning behavior.
+     ```javascript
+    // next is not called, so no warnings get the default behavior
+    Ember.Debug.registerWarnHandler(() => {});
+    ```
+     The handler function takes the following arguments:
+     <ul>
+      <li> <code>message</code> - The message received from the warn call. </li>
+      <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
+        <ul>
+          <li> <code>id</code> - an id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+        </ul>
+      <li> <code>next</code> - a function that calls into the previously registered handler.</li>
+    </ul>
+     @public
+    @static
+    @method registerWarnHandler
+    @param handler {Function} a function to handle warnings
+  */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
   /*
@@ -4044,7 +4100,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-canary+77f6fc86
+    @version 2.2.0-canary+a11b1f75
     @public
   */
 
@@ -4088,11 +4144,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-canary+77f6fc86'
+    @default '2.2.0-canary+a11b1f75'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-canary+77f6fc86';
+  Ember.VERSION = '2.2.0-canary+a11b1f75';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12493,7 +12549,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-canary+77f6fc86',
+        revision: 'Ember@2.2.0-canary+a11b1f75',
         loc: program.loc,
         moduleName: options.moduleName
       };
