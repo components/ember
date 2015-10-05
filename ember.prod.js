@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0-beta.4
+ * @version   2.1.0
  */
 
 (function() {
@@ -3440,7 +3440,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   /**
   @module ember
   @submodule ember-application
-  @private
   */
 
   'use strict';
@@ -3466,6 +3465,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     it once the particular test run or FastBoot request has finished.
   
     @public
+    @class Ember.ApplicationInstance
+    @extends Ember.Object
+    @uses RegistryProxyMixin
+    @uses ContainerProxyMixin
   */
 
   var ApplicationInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
@@ -3637,7 +3640,8 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       var instance = this;
       return {
         lookup: function () {
-                    return instance.lookup.apply(instance, arguments);
+          
+          return instance.lookup.apply(instance, arguments);
         }
       };
     }
@@ -3792,7 +3796,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     });
     ```
   
-    Initializers provide an opportunity to access the container, which
+    Initializers provide an opportunity to access the internal registry, which
     organizes the different components of an Ember application. Additionally
     they provide a chance to access the instantiated application. Beyond
     being used for libraries, initializers are also a great way to organize
@@ -3825,6 +3829,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     @class Application
     @namespace Ember
     @extends Ember.Namespace
+    @uses RegistryProxyMixin
     @public
   */
 
@@ -5172,7 +5177,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     Application.initializer({
       name: "containerDebugAdapter",
   
-      initialize: function(container, application) {
+      initialize: function(application) {
         application.register('container-debug-adapter:main', require('app/container-debug-adapter'));
       }
     });
@@ -5291,7 +5296,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     Application.initializer({
       name: "data-adapter",
   
-      initialize: function(container, application) {
+      initialize: function(application) {
         application.register('data-adapter:main', DS.DataAdapter);
       }
     });
@@ -8436,7 +8441,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9474,28 +9479,40 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
     // if the component is rendered via {{component}} helper, the first
     // element of `params` is the name of the component, so we need to
     // skip that when the positional parameters are constructed
-    var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
     var isNamed = typeof positionalParams === 'string';
-    var paramsStream = undefined;
 
     if (isNamed) {
-      paramsStream = new _emberMetalStreamsStream.default(function () {
-        return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
-      }, 'params');
-
-      attrs[positionalParams] = paramsStream;
-    }
-
-    if (isNamed) {
-      for (var i = paramsStartIndex; i < params.length; i++) {
-        var param = params[i];
-        paramsStream.addDependency(param);
-      }
+      processRestPositionalParameters(renderNode, positionalParams, params, attrs);
     } else {
-      for (var i = 0; i < positionalParams.length; i++) {
-        var param = params[paramsStartIndex + i];
-        attrs[positionalParams[i]] = param;
-      }
+      processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
+    }
+  }
+
+  function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
+    var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
+
+    for (var i = 0; i < positionalParams.length; i++) {
+      var param = params[paramsStartIndex + i];
+
+      
+      attrs[positionalParams[i]] = param;
+    }
+  }
+
+  function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+    // If there is already an attribute for that variable, do nothing
+    
+    var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
+
+    var paramsStream = new _emberMetalStreamsStream.default(function () {
+      return _emberMetalStreamsUtils.readArray(params.slice(paramsStartIndex));
+    }, 'params');
+
+    attrs[positionalParamsName] = paramsStream;
+
+    for (var i = paramsStartIndex; i < params.length; i++) {
+      var param = params[i];
+      paramsStream.addDependency(param);
     }
   }
 
@@ -14329,7 +14346,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0-beta.4
+    @version 2.1.0
     @public
   */
 
@@ -14363,11 +14380,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0-beta.4'
+    @default '2.1.0'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0-beta.4';
+  Ember.VERSION = '2.1.0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20839,6 +20856,8 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     }
   }
 
+  var HAS_SUPER_PATTERN = /\.(_super|call\(this|apply\(this)/;
+
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
@@ -20846,7 +20865,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
-        return func.toString().indexOf('_super') > -1;
+        return HAS_SUPER_PATTERN.test(func.toString());
       };
     }
 
@@ -22542,7 +22561,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0-beta.4';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22962,20 +22981,8 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
       var params = attrs.params.slice();
 
       
-      if (attrs.disabledClass) {
-        this.set('disabledClass', attrs.disabledClass);
-      }
-
-      if (attrs.activeClass) {
-        this.set('activeClass', attrs.activeClass);
-      }
-
       if (attrs.disabledWhen) {
         this.set('disabled', attrs.disabledWhen);
-      }
-
-      if (attrs.loadingClass) {
-        this.set('loadingClass', attrs.loadingClass);
       }
 
       // Process the positional arguments, in order.
@@ -23035,7 +23042,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0-beta.4';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -30326,8 +30333,19 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
   });
 });
 enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
   'use strict';
 
+  /**
+    ContainerProxyMixin is used to provide public access to specific
+    container functionality.
+  
+    @class ContainerProxyMixin
+    @private
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     /**
      The container stores state.
@@ -31103,7 +31121,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Function} callback The callback to execute
       @param {Object} [target] The target object to use
       @return {Boolean} `true` if the passed function returns `true` for any item
-      @private
+      @public
     */
     any: function (callback, target) {
       var len = _emberMetalProperty_get.get(this, 'length');
@@ -31167,7 +31185,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {Object} initialValue Initial value for the reduce
       @param {String} reducerProperty internal use only.
       @return {Object} The reduced value.
-      @private
+      @public
     */
     reduce: function (callback, initialValue, reducerProperty) {
       if (typeof callback !== 'function') {
@@ -31191,7 +31209,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       @param {String} methodName the name of the method
       @param {Object...} args optional arguments to pass as well.
       @return {Array} return values from calling invoke.
-      @private
+      @public
     */
     invoke: function (methodName) {
       for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -31216,7 +31234,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
       guaranteed. Corresponds to the method implemented by Prototype.
        @method toArray
       @return {Array} the enumerable as an array.
-      @private
+      @public
     */
     toArray: function () {
       var ret = _emberMetalCore.default.A();
@@ -31283,7 +31301,7 @@ enifed('ember-runtime/mixins/enumerable', ['exports', 'ember-metal/core', 'ember
        This only works on primitive data types, e.g. Strings, Numbers, etc.
        @method uniq
       @return {Ember.Enumerable}
-      @private
+      @public
     */
     uniq: function () {
       var ret = _emberMetalCore.default.A();
@@ -32862,9 +32880,22 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
   }
 });
 enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'ember-metal/mixin'], function (exports, _emberMetalCore, _emberMetalMixin) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.buildFakeRegistryWithDeprecations = buildFakeRegistryWithDeprecations;
+
+  /**
+    RegistryProxyMixin is used to provide public access to specific
+    registry functionality.
+  
+    @class RegistryProxyMixin
+    @private
+  */
   exports.default = _emberMetalMixin.Mixin.create({
     __registry__: null,
 
@@ -32916,8 +32947,7 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'e
       App.register('communication:main', App.Email, { singleton: false });
       App.register('session', App.session, { instantiate: false });
       ```
-       @public
-      @method register
+       @method register
       @param  fullName {String} type:name (e.g., 'model:user')
       @param  factory {Function} (e.g., App.Person)
       @param  options {Object} (optional) disable instantiation or singleton usage
@@ -33094,7 +33124,8 @@ enifed('ember-runtime/mixins/registry_proxy', ['exports', 'ember-metal/core', 'e
 
   function buildFakeRegistryFunction(instance, typeForMessage, deprecatedProperty, nonDeprecatedProperty) {
     return function () {
-            return instance[nonDeprecatedProperty].apply(instance, arguments);
+      
+      return instance[nonDeprecatedProperty].apply(instance, arguments);
     };
   }
 });
@@ -33840,7 +33871,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   }, _Mixin$create[POST_INIT] = function () {}, _Mixin$create.__defineNonEnumerable = function (property) {
     Object.defineProperty(this, property.name, property.descriptor);
     //this[property.name] = property.descriptor.value;
-  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
+  }, _Mixin$create.concatenatedProperties = null, _Mixin$create.mergedProperties = null, _Mixin$create.isDestroyed = false, _Mixin$create.isDestroying = false, _Mixin$create.destroy = function () {
     if (this.isDestroying) {
       return;
     }
@@ -34299,6 +34330,64 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-met
   document its usage in each individual concatenated property (to not
   mislead your users to think they can override the property in a subclass).
    @property concatenatedProperties
+  @type Array
+  @default null
+  @public
+*/
+
+/**
+  Defines the properties that will be merged from the superclass
+  (instead of overridden).
+   By default, when you extend an Ember class a property defined in
+  the subclass overrides a property with the same name that is defined
+  in the superclass. However, there are some cases where it is preferable
+  to build up a property's value by merging the superclass property value
+  with the subclass property's value. An example of this in use within Ember
+  is the `queryParams` property of routes.
+   Here is some sample code showing the difference between a merged
+  property and a normal one:
+   ```javascript
+  App.BarRoute = Ember.Route.extend({
+    someNonMergedProperty: {
+      nonMerged: 'superclass value of nonMerged'
+    },
+    queryParams: {
+      page: {replace: false},
+      limit: {replace: true}
+    }
+  });
+   App.FooBarRoute = App.BarRoute.extend({
+    someNonMergedProperty: {
+      completelyNonMerged: 'subclass value of nonMerged'
+    },
+    queryParams: {
+      limit: {replace: false}
+    }
+  });
+   var fooBarRoute = App.FooBarRoute.create();
+   fooBarRoute.get('someNonMergedProperty');
+  // => { completelyNonMerged: 'subclass value of nonMerged' }
+  //
+  // Note the entire object, including the nonMerged property of
+  // the superclass object, has been replaced
+   fooBarRoute.get('queryParams');
+  // => {
+  //   page: {replace: false},
+  //   limit: {replace: false}
+  // }
+  //
+  // Note the page remains from the superclass, and the
+  // `limit` property's value of `false` has been merged from
+  // the subclass.
+  ```
+   This behavior is not available during object `create` calls. It is only
+  available at `extend` time.
+   This feature is available for you to use throughout the Ember object model,
+  although typical app developers are likely to use it infrequently. Since
+  it changes expectations about behavior of properties, you should properly
+  document its usage in each individual merged property (to not
+  mislead your users to think they can override the property in a subclass).
+   @property mergedProperties
   @type Array
   @default null
   @public
@@ -35157,13 +35246,22 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/core', 'ember-met
     });
   });
 
-  var STRING_CLASSIFY_REGEXP_1 = /(\-|\_|\.|\s)+(.)?/g;
-  var STRING_CLASSIFY_REGEXP_2 = /(^|\/|\.)([a-z])/g;
+  var STRING_CLASSIFY_REGEXP_1 = /^(\-|_)+(.)?/;
+  var STRING_CLASSIFY_REGEXP_2 = /(.)(\-|\_|\.|\s)+(.)?/g;
+  var STRING_CLASSIFY_REGEXP_3 = /(^|\/|\.)([a-z])/g;
 
   var CLASSIFY_CACHE = new _emberMetalCache.default(1000, function (str) {
-    return str.replace(STRING_CLASSIFY_REGEXP_1, function (match, separator, chr) {
-      return chr ? chr.toUpperCase() : '';
-    }).replace(STRING_CLASSIFY_REGEXP_2, function (match, separator, chr) {
+    var replace1 = function (match, separator, chr) {
+      return chr ? '_' + chr.toUpperCase() : '';
+    };
+    var replace2 = function (match, initialChar, separator, chr) {
+      return initialChar + (chr ? chr.toUpperCase() : '');
+    };
+    var parts = str.split('/');
+    for (var i = 0, len = parts.length; i < len; i++) {
+      parts[i] = parts[i].replace(STRING_CLASSIFY_REGEXP_1, replace1).replace(STRING_CLASSIFY_REGEXP_2, replace2);
+    }
+    return parts.join('/').replace(STRING_CLASSIFY_REGEXP_3, function (match, separator, chr) {
       return match.toUpperCase();
     });
   });
@@ -36591,7 +36689,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0-beta.4',
+        revision: 'Ember@2.1.0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -39923,7 +40021,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
        ```hbs
       {{! templates/application.hbs }}
        {{foo-bar}}
-       {{! templates/components/foo-bar.js }}
+       {{! templates/components/foo-bar.hbs }}
       {{#if hasBlock}}
         This will not be printed, because no block was provided
       {{/if}}
@@ -39934,14 +40032,32 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
        {{#foo-bar}}
         Hi!
       {{/foo-bar}}
-       {{! templates/components/foo-bar.js }}
+       {{! templates/components/foo-bar.hbs }}
       {{#if hasBlock}}
         This will be printed because a block was provided
         {{yield}}
       {{/if}}
       ```
+       This helper accepts an argument with the name of the block we want to check the presence of.
+      This is useful for checking for the presence of the optional inverse block in components.
+       ```hbs
+      {{! templates/application.hbs }}
+       {{#foo-bar}}
+        Hi!
+      {{else}}
+        What's up?
+      {{/foo-bar}}
+       {{! templates/components/foo-bar.hbs }}
+      {{yield}}
+      {{#if (hasBlock "inverse")}}
+        {{yield to="inverse"}}
+      {{else}}
+        How are you?
+      {{/if}}
+      ```
        @public
       @property hasBlock
+      @param {String} [blockName="default"] The name of the block to check presence of.
       @returns Boolean
     */
 
@@ -39954,7 +40070,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
        {{#foo-bar}}
         No block parameter.
       {{/foo-bar}}
-       {{! templates/components/foo-bar.js }}
+       {{! templates/components/foo-bar.hbs }}
       {{#if hasBlockParams}}
         This will not be printed, because no block was provided
         {{yield this}}
@@ -39966,7 +40082,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
        {{#foo-bar as |foo|}}
         Hi!
       {{/foo-bar}}
-       {{! templates/components/foo-bar.js }}
+       {{! templates/components/foo-bar.hbs }}
       {{#if hasBlockParams}}
         This will be printed because a block was provided
         {{yield this}}
@@ -40026,7 +40142,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0-beta.4';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0';
 
   /**
   @module ember
@@ -41568,6 +41684,8 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
 
   var _CoreView$extend;
 
+  var INIT_WAS_CALLED = _emberMetalUtils.symbol('INIT_WAS_CALLED');
+
   function K() {
     return this;
   }
@@ -42764,13 +42882,15 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
       @private
     */
     init: function () {
+      this._super.apply(this, arguments);
+
       if (!this.elementId) {
         this.elementId = _emberMetalUtils.guidFor(this);
       }
 
       this.scheduledRevalidation = false;
 
-      this._super.apply(this, arguments);
+      this[INIT_WAS_CALLED] = true;
 
       if (!this._viewRegistry) {
         this._viewRegistry = View.views;
@@ -42780,6 +42900,8 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
 
   }, _CoreView$extend[_emberRuntimeSystemCore_object.POST_INIT] = function () {
     this._super.apply(this, arguments);
+
+    
     this.renderer.componentInitAttrs(this, this.attrs || {});
   }, _CoreView$extend.__defineNonEnumerable = function (property) {
     this[property.name] = property.descriptor.value;
@@ -42867,7 +42989,8 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/er
 
   _emberMetalDeprecate_property.deprecateProperty(View.prototype, 'currentState', '_currentState', {
     id: 'ember-view.current-state',
-    until: '2.3.0'
+    until: '2.3.0',
+    url: 'http://emberjs.com/deprecations/v2.x/#toc_ember-component-currentstate'
   });
 
   /*
