@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+d34c9ea8
+ * @version   2.3.0-canary+23258c1e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1182,7 +1182,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary) {
   'use strict';
 
   /**
@@ -1514,18 +1514,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
         member.destroy();
       }
     }
-  }
-
-  // Once registry / container reform is enabled, we no longer need to expose
-  // Container#_registry, since Container itself will be fully private.
-  if (!_emberMetalFeatures.default('ember-registry-container-reform')) {
-    Object.defineProperty(Container.prototype, '_registry', {
-      configurable: true,
-      enumerable: false,
-      get: function () {
-        return this.registry;
-      }
-    });
   }
 
   exports.default = Container;
@@ -4619,7 +4607,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+d34c9ea8
+    @version 2.3.0-canary+23258c1e
     @public
   */
 
@@ -4663,11 +4651,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+d34c9ea8'
+    @default '2.3.0-canary+23258c1e'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+d34c9ea8';
+  Ember.VERSION = '2.3.0-canary+23258c1e';
 
   /**
     The hash of environment variables used to control various configuration

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+d34c9ea8
+ * @version   2.3.0-canary+23258c1e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -164,7 +164,7 @@ enifed('container/tests/container_helper', ['exports'], function (exports) {
   exports.factory = factory;
   exports.setProperties = setProperties;
 });
-enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/container_helper', 'ember-metal/features'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsContainer_helper, _emberMetalFeatures) {
+enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/container_helper'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsContainer_helper) {
   'use strict';
 
   var originalModelInjections;
@@ -1101,7 +1101,7 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     });
   });
 });
-enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/features', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalFeatures, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery) {
+enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core', 'ember-application/system/application', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberViewsSystemJquery) {
   'use strict';
 
   var compile = _emberMetalCore.default.HTMLBars.compile;
@@ -10202,7 +10202,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 
     _emberMetalInstrumentation.unsubscribe(subscriber);
   });
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _emberMetalFeatures) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery) {
   'use strict';
 
   var app = undefined,
@@ -10239,6 +10239,8 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
   });
 
   QUnit.test('properties (and aliases) are correctly assigned for accessing the container and registry', function () {
+    expect(9);
+
     _emberMetalRun_loop.default(function () {
       appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
     });
@@ -10246,8 +10248,6 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     ok(appInstance, 'instance should be created');
     ok(appInstance.__container__, '#__container__ is accessible');
     ok(appInstance.__registry__, '#__registry__ is accessible');
-
-    expect(9);
 
     ok(typeof appInstance.container.lookup === 'function', '#container.lookup is available as a function');
 
@@ -10327,7 +10327,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     appInstance.setupEventDispatcher();
   });
 });
-enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/features', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalFeatures, _emberMetalDebug) {
+enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
   /*globals EmberDev */
 
   'use strict';
@@ -11203,7 +11203,7 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
     ok(application.Email.detectInstance(user.get('communication')));
   });
 });
-enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'container/registry', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _containerRegistry, _emberMetalFeatures) {
+enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberMetalFeatures) {
   'use strict';
 
   var app;
@@ -12375,7 +12375,7 @@ enifed('ember-application/tests/system/readiness_test', ['exports', 'ember-metal
     });
   });
 });
-enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'container/registry', 'ember-metal/features'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberViewsSystemJquery, _containerRegistry, _emberMetalFeatures) {
+enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'container/registry'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberViewsSystemJquery, _containerRegistry) {
   'use strict';
 
   var application, Application;
@@ -52178,7 +52178,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+d34c9ea8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+23258c1e', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
