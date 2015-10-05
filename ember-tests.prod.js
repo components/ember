@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+e673f911
+ * @version   2.3.0-canary+736fdeae
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16213,13 +16213,14 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'conta
       registry.register('template:components/-hindi', _emberTemplateCompilerSystemCompile.default('Namaste'));
 
       var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+      component = _emberViewsComponentsComponent.default.extend({
+        container: container,
+        template: template,
+        lookupComponent: '-mandarin'
+      }).create();
 
       _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), '', 'undefined lookupComponent does not render');
-      _emberMetalRun_loop.default(function () {
-        component.set('lookupComponent', '-mandarin');
-      });
+
       equal(component.$().text(), 'ni hao', 'mandarin lookupComponent renders greeting');
       _emberMetalRun_loop.default(function () {
         component.set('lookupComponent', '-hindi');
@@ -16348,6 +16349,35 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'conta
 
       _emberRuntimeTestsUtils.runAppend(component);
       equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
+    });
+
+    QUnit.test('raises an assertion when component path is null', function () {
+      var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
+      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      });
+    });
+
+    QUnit.test('raises an assertion when component path is not a component name', function () {
+      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
+      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
+
+      template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
+      component = _emberViewsComponentsComponent.default.extend({
+        container: container,
+        template: template,
+        compName: 'not-a-component'
+      }).create();
+
+      expectAssertion(function () {
+        _emberRuntimeTestsUtils.runAppend(component);
+      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
     });
   }
 });
@@ -51988,7 +52018,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+e673f911', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+736fdeae', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
