@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1
+ * @version   2.2.0-beta.1+387a36f7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -21080,6 +21080,52 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(view);
     }, 'You cannot specify positional parameters and the hash argument `names`.');
+  });
+
+  QUnit.test('can use hash parameter instead of arbitrary positional param [GH #12444]', function () {
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'names'
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{sample-component names=things id="args-3"}}'),
+      container: container,
+      context: {
+        things: ['Foo', 4, 'Bar']
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#args-3').text(), 'Foo4Bar');
+  });
+
+  QUnit.test('can use hash parameter instead of positional param', function () {
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: ['first', 'second']
+    });
+
+    registry.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.first}} - {{attrs.second}}'));
+    registry.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}\n\n    '),
+      container: container,
+      context: {
+        things: ['Foo', 4, 'Bar']
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#two-positional').text(), 'one - two');
+    equal(view.$('#one-positional').text(), 'one - two');
+    equal(view.$('#no-positional').text(), 'one - two');
   });
 
   QUnit.test('dynamic arbitrary number of positional parameters', function () {
@@ -47900,7 +47946,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-beta.1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+387a36f7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
