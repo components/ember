@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+c0b010ec
+ * @version   2.3.0-canary+d462156d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -28726,7 +28726,7 @@ enifed('ember-metal/tests/cache_test', ['exports', 'ember-metal/cache'], functio
     equal(cache.get('c'), 'C');
   });
 });
-enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'ember-metal/property_get', 'ember-metal/chains', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/property_events'], function (exports, _emberMetalObserver, _emberMetalProperty_get, _emberMetalChains, _emberMetalProperties, _emberMetalComputed, _emberMetalProperty_events) {
+enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'ember-metal/property_get', 'ember-metal/chains', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/property_events', 'ember-metal/meta'], function (exports, _emberMetalObserver, _emberMetalProperty_get, _emberMetalChains, _emberMetalProperties, _emberMetalComputed, _emberMetalProperty_events, _emberMetalMeta) {
   'use strict';
 
   QUnit.module('Chains');
@@ -28739,7 +28739,7 @@ enifed('ember-metal/tests/chains_test', ['exports', 'ember-metal/observer', 'emb
 
     var childObj = Object.create(obj);
     _emberMetalChains.finishChains(childObj);
-    ok(obj['__ember_meta__'].readableChains() !== childObj['__ember_meta__'].readableChains(), 'The chains object is copied');
+    ok(_emberMetalMeta.peekMeta(obj) !== _emberMetalMeta.peekMeta(childObj).readableChains(), 'The chains object is copied');
   });
 
   QUnit.test('observer and CP chains', function () {
@@ -50220,7 +50220,7 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
 });
 
 // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject) {
+enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject, _emberMetalMeta) {
   'use strict';
 
   QUnit.module('ember-runtime/system/object/destroy_test');
@@ -50231,13 +50231,13 @@ enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-meta
 
     _emberMetalRun_loop.default(function () {
       obj.destroy();
-      meta = obj['__ember_meta__'];
+      meta = _emberMetalMeta.peekMeta(obj);
       ok(meta, 'meta is not destroyed immediately');
       ok(get(obj, 'isDestroying'), 'object is marked as destroying immediately');
       ok(!get(obj, 'isDestroyed'), 'object is not destroyed immediately');
     });
 
-    meta = obj['__ember_meta__'];
+    meta = _emberMetalMeta.peekMeta(obj);
     ok(!meta, 'meta is destroyed after run loop finishes');
     ok(get(obj, 'isDestroyed'), 'object is destroyed after run loop finishes');
   });
@@ -52064,7 +52064,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+c0b010ec', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+d462156d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
