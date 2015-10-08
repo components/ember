@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0+3cf832fd
+ * @version   2.1.0+280421d7
  */
 
 (function() {
@@ -1572,6 +1572,11 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
 
   exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
     `Ember.deprecate()` when doing a production build.
@@ -1586,6 +1591,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       `id` for this deprecation. The `id` can be used by Ember debugging tools
       to change the behavior (raise, log or silence) for that specific deprecation.
       The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @for Ember
     @public
   */
 
@@ -1686,6 +1692,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
 
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
   
@@ -1693,6 +1704,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/core', 'ember-metal/logger',
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
+    @param {Object} options An ojbect that can be used to pass a unique
+      `id` for this warning.  The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log, or silence) for that specific warning.
+      The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
+    @for Ember
     @public
   */
 
@@ -4374,7 +4390,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0+3cf832fd
+    @version 2.1.0+280421d7
     @public
   */
 
@@ -4408,11 +4424,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0+3cf832fd'
+    @default '2.1.0+280421d7'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0+3cf832fd';
+  Ember.VERSION = '2.1.0+280421d7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12494,7 +12510,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0+3cf832fd',
+        revision: 'Ember@2.1.0+280421d7',
         loc: program.loc,
         moduleName: options.moduleName
       };

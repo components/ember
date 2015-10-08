@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0+3cf832fd
+ * @version   2.1.0+280421d7
  */
 
 (function() {
@@ -41056,7 +41056,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0+3cf832fd', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0+280421d7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -53242,6 +53242,42 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
       router.handleURL('/about');
     });
     equal(_emberMetalCore.default.$('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
+  });
+
+  QUnit.test('The {{link-to}} helper can use dynamic params', function () {
+    Router.map(function (match) {
+      this.route('foo', { path: 'foo/:some/:thing' });
+      this.route('bar', { path: 'bar/:some/:thing/:else' });
+    });
+
+    var controller = undefined;
+    App.IndexController = Controller.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        controller = this;
+
+        this.dynamicLinkParams = ['foo', 'one', 'two'];
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('\n    <h3>Home</h3>\n\n    {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n  ');
+
+    bootApplication();
+
+    run(function () {
+      router.handleURL('/');
+    });
+
+    var link = jQuery('#dynamic-link', '#qunit-fixture');
+
+    equal(link.attr('href'), '/foo/one/two');
+
+    run(function () {
+      controller.set('dynamicLinkParams', ['bar', 'one', 'two', 'three']);
+    });
+
+    equal(link.attr('href'), '/bar/one/two/three');
   });
 });
 enifed('ember/tests/helpers/link_to_test/link_to_transitioning_classes_test', ['exports', 'ember', 'ember-metal/core', 'ember-template-compiler'], function (exports, _ember, _emberMetalCore, _emberTemplateCompiler) {
