@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0+280421d7
+ * @version   2.1.0+2be95fad
  */
 
 (function() {
@@ -41056,7 +41056,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.1.0+280421d7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.1.0+2be95fad', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -51818,7 +51818,7 @@ enifed('ember/tests/helpers/helper_registration_test', ['exports', 'ember', 'emb
     ok(serviceCalled, 'service was injected, method called');
   });
 });
-enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberTemplateCompiler, _emberViewsViewsView) {
+enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/core', 'ember-views/component_lookup', 'ember-metal/features', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-template-compiler', 'ember-views/views/view'], function (exports, _ember, _emberMetalCore, _emberViewsComponent_lookup, _emberMetalFeatures, _emberViewsSystemJquery, _emberMetalRun_loop, _emberRuntimeControllersController, _emberTemplateCompiler, _emberViewsViewsView) {
   'use strict';
 
   var Router, App, AppView, router, registry, container;
@@ -53251,7 +53251,7 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
     });
 
     var controller = undefined;
-    App.IndexController = Controller.extend({
+    App.IndexController = _emberRuntimeControllersController.default.extend({
       init: function () {
         this._super.apply(this, arguments);
 
@@ -53265,15 +53265,15 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember', 'ember-metal/cor
 
     bootApplication();
 
-    run(function () {
+    _emberMetalRun_loop.default(function () {
       router.handleURL('/');
     });
 
-    var link = jQuery('#dynamic-link', '#qunit-fixture');
+    var link = _emberViewsSystemJquery.default('#dynamic-link', '#qunit-fixture');
 
     equal(link.attr('href'), '/foo/one/two');
 
-    run(function () {
+    _emberMetalRun_loop.default(function () {
       controller.set('dynamicLinkParams', ['bar', 'one', 'two', 'three']);
     });
 
