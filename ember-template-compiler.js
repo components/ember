@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+774d4150
+ * @version   2.2.0-beta.1+72e5fc9a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1267,6 +1267,11 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
 
   exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
     `Ember.deprecate()` when doing a production build.
@@ -1280,6 +1285,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       `id` for this deprecation. The `id` can be used by Ember debugging tools
       to change the behavior (raise, log or silence) for that specific deprecation.
       The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @for Ember
     @public
   */
 
@@ -1392,6 +1398,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
 
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
   
@@ -1399,6 +1410,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
+    @param {Object} options An ojbect that can be used to pass a unique
+      `id` for this warning.  The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log, or silence) for that specific warning.
+      The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
+    @for Ember
     @public
   */
 
@@ -1584,7 +1600,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   });
 
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+
   _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
+
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
     any specific FEATURES flag is truthy.
@@ -4116,7 +4134,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-beta.1+774d4150
+    @version 2.2.0-beta.1+72e5fc9a
     @public
   */
 
@@ -4160,11 +4178,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-beta.1+774d4150'
+    @default '2.2.0-beta.1+72e5fc9a'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-beta.1+774d4150';
+  Ember.VERSION = '2.2.0-beta.1+72e5fc9a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12545,7 +12563,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-beta.1+774d4150',
+        revision: 'Ember@2.2.0-beta.1+72e5fc9a',
         loc: program.loc,
         moduleName: options.moduleName
       };
