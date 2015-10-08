@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+c8c79dec
+ * @version   2.3.0-canary+1f85853c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3178,6 +3178,62 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     equal(replaceCount, 1, 'replaceURL should be called once');
   });
 
+  QUnit.test('The {{link-to}} helper supports URL replacement via replace=boundTruthyThing', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundTruthyThing}}About{{/link-to}}');
+
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      boundTruthyThing: true
+    });
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(function () {
+      router.handleURL('/');
+    });
+
+    equal(updateCount, 0, 'precond: setURL has not been called');
+    equal(replaceCount, 0, 'precond: replaceURL has not been called');
+
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+
+    equal(updateCount, 0, 'setURL should not be called');
+    equal(replaceCount, 1, 'replaceURL should be called once');
+  });
+
+  QUnit.test('The {{link-to}} helper supports setting replace=boundFalseyThing', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'about\' id=\'about-link\' replace=boundFalseyThing}}About{{/link-to}}');
+
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      boundFalseyThing: false
+    });
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(function () {
+      router.handleURL('/');
+    });
+
+    equal(updateCount, 0, 'precond: setURL has not been called');
+    equal(replaceCount, 0, 'precond: replaceURL has not been called');
+
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').click();
+    });
+
+    equal(updateCount, 1, 'setURL should be called');
+    equal(replaceCount, 0, 'replaceURL should not be called');
+  });
+
   QUnit.test('the {{link-to}} helper doesn\'t add an href when the tagName isn\'t \'a\'', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to \'about\' id=\'about-link\' tagName=\'div\'}}About{{/link-to}}');
 
@@ -3195,9 +3251,11 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
   });
 
   QUnit.test('the {{link-to}} applies a \'disabled\' class when disabled', function () {
-    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to "about" id="about-link" disabledWhen="shouldDisable"}}About{{/link-to}}');
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('\n    {{#link-to "about" id="about-link-static" disabledWhen="shouldDisable"}}About{{/link-to}}\n    {{#link-to "about" id="about-link-dynamic" disabledWhen=dynamicDisabledWhen}}About{{/link-to}}\n  ');
+
     App.IndexController = _emberRuntimeControllersController.default.extend({
-      shouldDisable: true
+      shouldDisable: true,
+      dynamicDisabledWhen: 'shouldDisable'
     });
 
     Router.map(function () {
@@ -3210,7 +3268,8 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
       router.handleURL('/');
     });
 
-    equal(_emberViewsSystemJquery.default('#about-link.disabled', '#qunit-fixture').length, 1, 'The link is disabled when its disabledWhen is true');
+    equal(_emberViewsSystemJquery.default('#about-link-static.disabled', '#qunit-fixture').length, 1, 'The static link is disabled when its disabledWhen is true');
+    equal(_emberViewsSystemJquery.default('#about-link-dynamic.disabled', '#qunit-fixture').length, 1, 'The dynamic link is disabled when its disabledWhen is true');
   });
 
   QUnit.test('the {{link-to}} doesn\'t apply a \'disabled\' class if disabledWhen is not provided', function () {
@@ -3593,6 +3652,45 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     equal(hidden, 0, 'The link didn\'t bubble');
   });
 
+  QUnit.test('The {{link-to}} helper supports bubbles=boundFalseyThing', function () {
+    _emberMetalCore.default.TEMPLATES.about = _emberTemplateCompiler.compile('<div {{action \'hide\'}}>{{#link-to \'about.contact\' id=\'about-contact\' bubbles=boundFalseyThing}}About{{/link-to}}</div>{{outlet}}');
+    _emberMetalCore.default.TEMPLATES['about/contact'] = _emberTemplateCompiler.compile('<h1 id=\'contact\'>Contact</h1>');
+
+    App.AboutController = _emberRuntimeControllersController.default.extend({
+      boundFalseyThing: false
+    });
+
+    Router.map(function () {
+      this.route('about', function () {
+        this.route('contact');
+      });
+    });
+
+    var hidden = 0;
+
+    App.AboutRoute = _emberRoutingSystemRoute.default.extend({
+      actions: {
+        hide: function () {
+          hidden++;
+        }
+      }
+    });
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(function () {
+      router.handleURL('/about');
+    });
+
+    _emberMetalRun_loop.default(function () {
+      _emberViewsSystemJquery.default('#about-contact', '#qunit-fixture').click();
+    });
+
+    equal(_emberViewsSystemJquery.default('#contact', '#qunit-fixture').text(), 'Contact', 'precond - the link worked');
+
+    equal(hidden, 0, 'The link didn\'t bubble');
+  });
+
   QUnit.test('The {{link-to}} helper moves into the named route with context', function () {
     Router.map(function (match) {
       this.route('about');
@@ -3664,6 +3762,23 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
 
   QUnit.test('The {{link-to}} helper supports `target` attribute', function () {
     _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=\'_blank\'}}Self{{/link-to}}');
+    bootApplication();
+
+    _emberMetalRun_loop.default(function () {
+      router.handleURL('/');
+    });
+
+    var link = _emberViewsSystemJquery.default('#self-link', '#qunit-fixture');
+    equal(link.attr('target'), '_blank', 'The self-link contains `target` attribute');
+  });
+
+  QUnit.test('The {{link-to}} helper supports `target` attribute specified as a bound param', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('<h3>Home</h3>{{#link-to \'index\' id=\'self-link\' target=boundLinkTarget}}Self{{/link-to}}');
+
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      boundLinkTarget: '_blank'
+    });
+
     bootApplication();
 
     _emberMetalRun_loop.default(function () {
@@ -4266,6 +4381,27 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
   });
 
+  QUnit.test('the {{link-to}} helper does not call preventDefault if `preventDefault=boundFalseyThing` is passed as an option', function () {
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('{{#link-to \'about\' id=\'about-link\' preventDefault=boundFalseyThing}}About{{/link-to}}');
+
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      boundFalseyThing: false
+    });
+
+    Router.map(function () {
+      this.route('about');
+    });
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(router, 'handleURL', '/');
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    _emberViewsSystemJquery.default('#about-link', '#qunit-fixture').trigger(event);
+
+    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+  });
+
   QUnit.test('the {{link-to}} helper does not throw an error if its route has exited', function () {
     expect(0);
 
@@ -4517,6 +4653,42 @@ enifed('ember/tests/helpers/link_to_test', ['exports', 'ember-metal/core', 'embe
       router.handleURL('/about');
     });
     equal(_emberViewsSystemJquery.default('#the-link').attr('href'), '/about?bar=NAW&foo=456', 'link has right href');
+  });
+
+  QUnit.test('The {{link-to}} helper can use dynamic params', function () {
+    Router.map(function (match) {
+      this.route('foo', { path: 'foo/:some/:thing' });
+      this.route('bar', { path: 'bar/:some/:thing/:else' });
+    });
+
+    var controller = undefined;
+    App.IndexController = _emberRuntimeControllersController.default.extend({
+      init: function () {
+        this._super.apply(this, arguments);
+
+        controller = this;
+
+        this.dynamicLinkParams = ['foo', 'one', 'two'];
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompiler.compile('\n    <h3>Home</h3>\n\n    {{#link-to params=dynamicLinkParams id="dynamic-link"}}Dynamic{{/link-to}}\n  ');
+
+    bootApplication();
+
+    _emberMetalRun_loop.default(function () {
+      router.handleURL('/');
+    });
+
+    var link = _emberViewsSystemJquery.default('#dynamic-link', '#qunit-fixture');
+
+    equal(link.attr('href'), '/foo/one/two');
+
+    _emberMetalRun_loop.default(function () {
+      controller.set('dynamicLinkParams', ['bar', 'one', 'two', 'three']);
+    });
+
+    equal(link.attr('href'), '/bar/one/two/three');
   });
 });
 enifed('ember/tests/homepage_example_test', ['exports', 'ember-metal/core', 'ember-routing/system/route', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-runtime/system/object', 'ember-metal/computed', 'ember-template-compiler', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRoutingSystemRoute, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberRuntimeSystemObject, _emberMetalComputed, _emberTemplateCompiler, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
@@ -52064,7 +52236,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+c8c79dec', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+1f85853c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
