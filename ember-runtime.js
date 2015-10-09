@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+72e5fc9a
+ * @version   2.2.0-beta.1+37e83f91
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-beta.1+72e5fc9a
+    @version 2.2.0-beta.1+37e83f91
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-beta.1+72e5fc9a'
+    @default '2.2.0-beta.1+37e83f91'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-beta.1+72e5fc9a';
+  Ember.VERSION = '2.2.0-beta.1+37e83f91';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5010,6 +5010,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: true,
       isChrome: !!window.chrome && !window.opera,
       isFirefox: typeof InstallTrigger !== 'undefined',
+      isPhantom: !!window.callPhantom,
       location: window.location,
       history: window.history,
       userAgent: window.navigator.userAgent,
@@ -5020,6 +5021,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: false,
       isChrome: false,
       isFirefox: false,
+      isPhantom: false,
       location: null,
       history: null,
       userAgent: 'Lynx (textmode)',
@@ -11265,7 +11267,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
-    }).toString().indexOf('return this;') > -1;
+    }).toString().indexOf('return this') > -1;
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
@@ -11278,6 +11280,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     };
   })();
 
+  exports.checkHasSuper = checkHasSuper;
   function ROOT() {}
   ROOT.__hasSuper = false;
 

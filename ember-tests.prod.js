@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+72e5fc9a
+ * @version   2.2.0-beta.1+37e83f91
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -31092,7 +31092,7 @@ enifed('ember-metal/tests/utils/try_invoke_test', ['exports', 'ember-metal/utils
     equal(_emberMetalUtils.tryInvoke(obj, 'aMethodThatTakesArguments', [true, true]), true);
   });
 });
-enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
+enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils', 'ember-metal/environment'], function (exports, _emberMetalUtils, _emberMetalEnvironment) {
   'use strict';
 
   QUnit.module('Ember Metal Utils');
@@ -31109,6 +31109,15 @@ enifed('ember-metal/tests/utils_test', ['exports', 'ember-metal/utils'], functio
       expect(0);
     }
   });
+
+  // Only run this test on browsers that we are certain should have function
+  // source available.  This allows the test suite to continue to pass on other
+  // platforms that correctly (for them) fall back to the "always wrap" code.
+  if (_emberMetalEnvironment.default.isPhantom || _emberMetalEnvironment.default.isChrome || _emberMetalEnvironment.default.isFirefox) {
+    QUnit.test('does not super wrap needlessly [GH #12462]', function (assert) {
+      assert.notOk(_emberMetalUtils.checkHasSuper(function () {}), 'empty function does not have super');
+    });
+  }
 });
 enifed('ember-metal/tests/watching/is_watching_test', ['exports', 'ember-metal/computed', 'ember-metal/property_get', 'ember-metal/properties', 'ember-metal/mixin', 'ember-metal/observer', 'ember-metal/watching'], function (exports, _emberMetalComputed, _emberMetalProperty_get, _emberMetalProperties, _emberMetalMixin, _emberMetalObserver, _emberMetalWatching) {
   'use strict';
@@ -48118,7 +48127,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+72e5fc9a', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+37e83f91', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
