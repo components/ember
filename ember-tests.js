@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+37e83f91
+ * @version   2.2.0-beta.1+0e5a6bf0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -23757,15 +23757,21 @@ enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe
   QUnit.test('htmlSafe should return an instance of SafeString', function () {
     var safeString = _emberHtmlbarsUtilsString.htmlSafe('you need to be more <b>bold</b>');
 
-    ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should return SafeString');
+    ok(safeString instanceof _htmlbarsUtilSafeString.default, 'should be a SafeString');
   });
 
   QUnit.test('htmlSafe should return an empty string for null', function () {
-    equal(_emberHtmlbarsUtilsString.htmlSafe(null).toString(), '', 'should return an empty string');
+    var safeString = _emberHtmlbarsUtilsString.htmlSafe(null);
+
+    equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
+    equal(safeString.toString(), '', 'should return an empty string');
   });
 
   QUnit.test('htmlSafe should return an empty string for undefined', function () {
-    equal(_emberHtmlbarsUtilsString.htmlSafe().toString(), '', 'should return an empty string');
+    var safeString = _emberHtmlbarsUtilsString.htmlSafe();
+
+    equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
+    equal(safeString.toString(), '', 'should return an empty string');
   });
 });
 enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
@@ -48287,7 +48293,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+37e83f91', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+0e5a6bf0', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
