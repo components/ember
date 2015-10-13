@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+28163882
+ * @version   2.3.0-canary+ecbc94ac
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -28252,10 +28252,95 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
     var obj = { someProp: null };
 
     Object.defineProperty(obj, 'someProp', {
+      get: function () {
+        return null;
+      },
+
       set: function (value) {
         equal(value, 'foo-bar', 'custom setter was called');
       }
     });
+
+    _emberMetalWatching.watch(obj, 'someProp');
+    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+    obj.someProp = 'foo-bar';
+  });
+
+  QUnit.test('should not setup mandatory-setter if setter is already setup on property in parent prototype', function () {
+    expect(2);
+
+    function Foo() {}
+
+    Object.defineProperty(Foo.prototype, 'someProp', {
+      get: function () {
+        return null;
+      },
+
+      set: function (value) {
+        equal(value, 'foo-bar', 'custom setter was called');
+      }
+    });
+
+    var obj = new Foo();
+
+    _emberMetalWatching.watch(obj, 'someProp');
+    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+    obj.someProp = 'foo-bar';
+  });
+
+  QUnit.test('should not setup mandatory-setter if setter is already setup on property in grandparent prototype', function () {
+    expect(2);
+
+    function Foo() {}
+
+    Object.defineProperty(Foo.prototype, 'someProp', {
+      get: function () {
+        return null;
+      },
+
+      set: function (value) {
+        equal(value, 'foo-bar', 'custom setter was called');
+      }
+    });
+
+    function Bar() {}
+    Bar.prototype = Object.create(Foo.prototype);
+    Bar.prototype.constructor = Bar;
+
+    var obj = new Bar();
+
+    _emberMetalWatching.watch(obj, 'someProp');
+    ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
+
+    obj.someProp = 'foo-bar';
+  });
+
+  QUnit.test('should not setup mandatory-setter if setter is already setup on property in great grandparent prototype', function () {
+    expect(2);
+
+    function Foo() {}
+
+    Object.defineProperty(Foo.prototype, 'someProp', {
+      get: function () {
+        return null;
+      },
+
+      set: function (value) {
+        equal(value, 'foo-bar', 'custom setter was called');
+      }
+    });
+
+    function Bar() {}
+    Bar.prototype = Object.create(Foo.prototype);
+    Bar.prototype.constructor = Bar;
+
+    function Qux() {}
+    Qux.prototype = Object.create(Bar.prototype);
+    Qux.prototype.constructor = Qux;
+
+    var obj = new Qux();
 
     _emberMetalWatching.watch(obj, 'someProp');
     ok(!hasMandatorySetter(obj, 'someProp'), 'mandatory-setter should not be installed');
@@ -52411,7 +52496,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+28163882', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+ecbc94ac', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

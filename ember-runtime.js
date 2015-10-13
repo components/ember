@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+28163882
+ * @version   2.3.0-canary+ecbc94ac
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4607,7 +4607,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+28163882
+    @version 2.3.0-canary+ecbc94ac
     @public
   */
 
@@ -4651,11 +4651,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+28163882'
+    @default '2.3.0-canary+ecbc94ac'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+28163882';
+  Ember.VERSION = '2.3.0-canary+ecbc94ac';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11575,6 +11575,9 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
   exports.watchKey = watchKey;
   exports.unwatchKey = unwatchKey;
 
+  var handleMandatorySetter = undefined,
+      lookupDescriptor = undefined;
+
   function watchKey(obj, keyName, meta) {
     // can't watch length on Array - it is special...
     if (keyName === 'length' && Array.isArray(obj)) {
@@ -11606,8 +11609,23 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
   }
 
   if (_emberMetalFeatures.default('mandatory-setter')) {
-    var handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
-      var descriptor = Object.getOwnPropertyDescriptor && Object.getOwnPropertyDescriptor(obj, keyName);
+    lookupDescriptor = function lookupDescriptor(obj, keyName) {
+      var current = obj;
+      while (current) {
+        var descriptor = Object.getOwnPropertyDescriptor(current, keyName);
+
+        if (descriptor) {
+          return descriptor;
+        }
+
+        current = Object.getPrototypeOf(current);
+      }
+
+      return null;
+    };
+
+    handleMandatorySetter = function handleMandatorySetter(m, obj, keyName) {
+      var descriptor = lookupDescriptor(obj, keyName);
       var configurable = descriptor ? descriptor.configurable : true;
       var isWritable = descriptor ? descriptor.writable : true;
       var hasValue = descriptor ? 'value' in descriptor : true;
