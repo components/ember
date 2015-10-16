@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+ecbc94ac
+ * @version   2.3.0-canary+08d7949f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -28002,6 +28002,19 @@ enifed('ember-metal/tests/accessors/get_test', ['exports', 'ember-metal/tests/pr
     }
   });
 
+  QUnit.test('should not access a property more than once', function () {
+    var count = 0;
+    var obj = {
+      get id() {
+        return ++count;
+      }
+    };
+
+    _emberMetalProperty_get.get(obj, 'id');
+
+    equal(count, 1);
+  });
+
   _emberMetalTestsProps_helper.testBoth('should call unknownProperty on watched values if the value is undefined', function (get, set) {
     var obj = {
       count: 0,
@@ -52496,7 +52509,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+ecbc94ac', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+08d7949f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
