@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+76e00890
+ * @version   2.3.0-canary+bb5cc203
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4138,7 +4138,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+76e00890
+    @version 2.3.0-canary+bb5cc203
     @public
   */
 
@@ -4182,11 +4182,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+76e00890'
+    @default '2.3.0-canary+bb5cc203'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+76e00890';
+  Ember.VERSION = '2.3.0-canary+bb5cc203';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5553,59 +5553,6 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
   }
-});
-enifed('ember-metal/keys', ['exports'], function (exports) {
-  /**
-    Returns all of the keys defined on an object or hash. This is useful
-    when inspecting objects for debugging. On browsers that support it, this
-    uses the native `Object.keys` implementation.
-  
-    @method keys
-    @for Ember
-    @param {Object} obj
-    @return {Array} Array containing keys of obj
-    @private
-  */
-  'use strict';
-
-  var keys = Object.keys;
-
-  if (!keys) {
-    // modified from
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-    keys = (function () {
-      var hasOwnProperty = Object.prototype.hasOwnProperty;
-      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
-      var dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
-      var dontEnumsLength = dontEnums.length;
-
-      return function keys(obj) {
-        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-          throw new TypeError('Object.keys called on non-object');
-        }
-
-        var result = [];
-        var prop, i;
-
-        for (prop in obj) {
-          if (prop !== '_super' && prop.lastIndexOf('__', 0) !== 0 && hasOwnProperty.call(obj, prop)) {
-            result.push(prop);
-          }
-        }
-
-        if (hasDontEnumBug) {
-          for (i = 0; i < dontEnumsLength; i++) {
-            if (hasOwnProperty.call(obj, dontEnums[i])) {
-              result.push(dontEnums[i]);
-            }
-          }
-        }
-        return result;
-      };
-    })();
-  }
-
-  exports.default = keys;
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
@@ -12628,7 +12575,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+76e00890',
+        revision: 'Ember@2.3.0-canary+bb5cc203',
         loc: program.loc,
         moduleName: options.moduleName
       };

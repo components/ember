@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+76e00890
+ * @version   2.3.0-canary+bb5cc203
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1291,17 +1291,19 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core', 'ember-runtime/controllers/controller', 'ember-metal/keys', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRuntimeControllersController, _emberMetalKeys, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var App, registry, container;
   var originalHelpers;
 
+  var keys = Object.keys;
+
   function prepare() {
     _emberMetalCore.default.TEMPLATES['components/expand-it'] = _emberTemplateCompilerSystemCompile.default('<p>hello {{yield}}</p>');
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('Hello world {{#expand-it}}world{{/expand-it}}');
 
-    originalHelpers = _emberRuntimeSystemNative_array.A(_emberMetalKeys.default(_emberHtmlbarsHelpers.default));
+    originalHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
   }
 
   function cleanup() {
@@ -1317,7 +1319,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core'
   }
 
   function cleanupHelpers() {
-    var currentHelpers = _emberRuntimeSystemNative_array.A(_emberMetalKeys.default(_emberHtmlbarsHelpers.default));
+    var currentHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
 
     currentHelpers.forEach(function (name) {
       if (!originalHelpers.contains(name)) {
@@ -30583,125 +30585,6 @@ enifed('ember-metal/tests/is_present_test', ['exports', 'ember-metal/is_present'
     equal(true, _emberMetalIs_present.default([1, 2, 3]), 'for a non-empty array');
   });
 });
-enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalObserver) {
-  'use strict';
-
-  function K() {
-    return this;
-  }
-
-  QUnit.module('Fetch Keys ');
-
-  QUnit.test('should get a key array for a specified object', function () {
-    var object1 = {};
-
-    object1.names = 'Rahul';
-    object1.age = '23';
-    object1.place = 'Mangalore';
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['names', 'age', 'place']);
-  });
-
-  // This test is for IE8.
-  QUnit.test('should get a key array for property that is named the same as prototype property', function () {
-    var object1 = {
-      toString: function () {}
-    };
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['toString']);
-  });
-
-  QUnit.test('should not contain properties declared in the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('should return properties that were set after object creation', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalProperty_set.set(beer, 'brand', 'big daddy');
-
-    deepEqual(Object.keys(beer), ['brand']);
-  });
-
-  QUnit.module('Keys behavior with observers');
-
-  QUnit.test('should not leak properties on the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    deepEqual(Object.keys(beer), []);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-  });
-
-  QUnit.test('observing a non existent property', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'brand', K);
-
-    deepEqual(Object.keys(beer), []);
-
-    _emberMetalProperty_set.set(beer, 'brand', 'Corona');
-    deepEqual(Object.keys(beer), ['brand']);
-
-    _emberMetalObserver.removeObserver(beer, 'brand', K);
-  });
-
-  QUnit.test('with observers switched on and off', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('observers switched on and off with setter in between', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), ['type']);
-  });
-
-  QUnit.test('observer switched on and off and then setter', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-
-    deepEqual(Object.keys(beer), ['type']);
-  });
-});
 enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
   /* globals EmberDev */
   'use strict';
@@ -33751,6 +33634,73 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
     equal(removedAfterLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called after the last change still sees 1');
     equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
+  });
+
+  QUnit.module('Keys behavior with observers');
+
+  _emberMetalTestsProps_helper.testBoth('should not leak properties on the prototype', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(beer), []);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observing a non existent property', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'brand', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), []);
+
+    set(beer, 'brand', 'Corona');
+    deepEqual(Object.keys(beer), ['brand']);
+
+    _emberMetalObserver.removeObserver(beer, 'brand', _emberMetalCore.K);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('with observers switched on and off', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), []);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observers switched on and off with setter in between', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    set(beer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), ['type']);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observer switched on and off and then setter', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    set(beer, 'type', 'ale');
+
+    deepEqual(Object.keys(beer), ['type']);
   });
 });
 enifed('ember-metal/tests/performance_test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_events, _emberMetalObserver) {
@@ -52265,7 +52215,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+76e00890', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+bb5cc203', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
