@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+0f5c7f5e
+ * @version   2.3.0-canary+76e00890
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13206,94 +13206,6 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
       }
     });
 
-    if (document.implementation && typeof document.implementation.createHTMLDocument === 'function') {
-      QUnit.test('FastBoot-style setup', function (assert) {
-        var initCalled = false;
-        var didInsertElementCalled = false;
-
-        _emberMetalRun_loop.default(function () {
-          createApplication(true);
-
-          App.Router.map(function () {
-            this.route('a');
-            this.route('b');
-          });
-
-          App.register('template:application', _emberTemplateCompilerSystemCompile.default('<h1>Hello world</h1>\n{{outlet}}'));
-
-          App.register('template:a', _emberTemplateCompilerSystemCompile.default('<h2>Welcome to {{x-foo page="A"}}</h2>'));
-
-          App.register('template:b', _emberTemplateCompilerSystemCompile.default('<h2>{{x-foo page="B"}}</h2>'));
-
-          App.register('template:components/x-foo', _emberTemplateCompilerSystemCompile.default('Page {{page}}'));
-
-          App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
-            tagName: 'span',
-            init: function () {
-              this._super();
-              initCalled = true;
-            },
-            didInsertElement: function () {
-              didInsertElementCalled = true;
-            }
-          }));
-        });
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-
-        function makeForiegnDocument() {
-          // TODO: use simple-dom
-          return document.implementation.createHTMLDocument();
-        }
-
-        var a = _emberMetalRun_loop.default(function () {
-          var dom = makeForiegnDocument();
-
-          return App.visit('/a', { isBrowser: false, document: dom, rootElement: dom.body }).then(function (instance) {
-            QUnit.start();
-            assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-            assert.equal(instance.getURL(), '/a');
-
-            var serialized = dom.body.innerHTML;
-            var $parsed = _emberViewsSystemJquery.default(serialized);
-
-            assert.equal($parsed.find('h1').text(), 'Hello world');
-            assert.equal($parsed.find('h2').text(), 'Welcome to Page A');
-
-            assert.ok(initCalled, 'Component#init should be called');
-            assert.ok(!didInsertElementCalled, 'Component#didInsertElement should not be called');
-
-            assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-            QUnit.stop();
-          });
-        });
-
-        var b = _emberMetalRun_loop.default(function () {
-          var dom = makeForiegnDocument();
-
-          return App.visit('/b', { isBrowser: false, document: dom, rootElement: dom.body }).then(function (instance) {
-            QUnit.start();
-            assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-            assert.equal(instance.getURL(), '/b');
-
-            var serialized = dom.body.innerHTML;
-            var $parsed = _emberViewsSystemJquery.default(serialized);
-
-            assert.equal($parsed.find('h1').text(), 'Hello world');
-            assert.equal($parsed.find('h2').text(), 'Page B');
-
-            assert.ok(initCalled, 'Component#init should be called');
-            assert.ok(!didInsertElementCalled, 'Component#didInsertElement should not be called');
-
-            assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-            QUnit.stop();
-          });
-        });
-
-        return _emberRuntimeExtRsvp.default.all([a, b]);
-      });
-    }
-
     QUnit.test('Ember Islands-style setup', function (assert) {
       var xFooInitCalled = false;
       var xFooDidInsertElementCalled = false;
@@ -13414,162 +13326,6 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
         assert.equal($foo.find('p').text(), 'Hello Godfrey, I have been clicked 1 times (3 times combined)!');
         assert.equal($bar.find('button').text(), 'Join 3 others in clicking me!');
       });
-    });
-
-    QUnit.test('Resource-discovery setup', function (assert) {
-      var xFooInstances = 0;
-
-      _emberMetalRun_loop.default(function () {
-        createApplication(true);
-
-        App.Router.map(function () {
-          this.route('a');
-          this.route('b');
-          this.route('c');
-          this.route('d');
-          this.route('e');
-        });
-
-        var NetworkService = _emberMetalCore.default.Object.extend({
-          init: function () {
-            this.set('requests', []);
-          },
-
-          fetch: function (url) {
-            this.get('requests').push(url);
-            return _emberRuntimeExtRsvp.default.resolve();
-          }
-        });
-
-        App.register('service:network', NetworkService);
-
-        App.inject('route', 'network', 'service:network');
-
-        App.register('route:a', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            return this.network.fetch('/a');
-          },
-          afterModel: function () {
-            this.replaceWith('b');
-          }
-        }));
-
-        App.register('route:b', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            return this.network.fetch('/b');
-          },
-          afterModel: function () {
-            this.replaceWith('c');
-          }
-        }));
-
-        App.register('route:c', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            return this.network.fetch('/c');
-          }
-        }));
-
-        App.register('route:d', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            return this.network.fetch('/d');
-          },
-          afterModel: function () {
-            this.replaceWith('e');
-          }
-        }));
-
-        App.register('route:e', _emberRoutingSystemRoute.default.extend({
-          model: function () {
-            return this.network.fetch('/e');
-          }
-        }));
-
-        App.register('template:a', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
-        App.register('template:b', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
-        App.register('template:c', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
-        App.register('template:d', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
-        App.register('template:e', _emberTemplateCompilerSystemCompile.default('{{x-foo}}'));
-
-        App.register('component:x-foo', _emberViewsComponentsComponent.default.extend({
-          init: function () {
-            this._super();
-            xFooInstances++;
-          }
-        }));
-      });
-
-      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-
-      function lookup(instance, fullName) {
-        return instance.lookup(fullName);
-      }
-
-      var a = _emberMetalRun_loop.default(App, 'visit', '/a', { isBrowser: false, shouldRender: false }).then(function (instance) {
-        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
-
-        var viewRegistry = lookup(instance, '-view-registry:main');
-        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
-
-        var networkService = lookup(instance, 'service:network');
-        assert.deepEqual(networkService.get('requests'), ['/a', '/b', '/c']);
-      });
-
-      var b = _emberMetalRun_loop.default(App, 'visit', '/b', { isBrowser: false, shouldRender: false }).then(function (instance) {
-        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
-
-        var viewRegistry = lookup(instance, '-view-registry:main');
-        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
-
-        var networkService = lookup(instance, 'service:network');
-        assert.deepEqual(networkService.get('requests'), ['/b', '/c']);
-      });
-
-      var c = _emberMetalRun_loop.default(App, 'visit', '/c', { isBrowser: false, shouldRender: false }).then(function (instance) {
-        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
-
-        var viewRegistry = lookup(instance, '-view-registry:main');
-        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
-
-        var networkService = lookup(instance, 'service:network');
-        assert.deepEqual(networkService.get('requests'), ['/c']);
-      });
-
-      var d = _emberMetalRun_loop.default(App, 'visit', '/d', { isBrowser: false, shouldRender: false }).then(function (instance) {
-        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
-
-        var viewRegistry = lookup(instance, '-view-registry:main');
-        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
-
-        var networkService = lookup(instance, 'service:network');
-        assert.deepEqual(networkService.get('requests'), ['/d', '/e']);
-      });
-
-      var e = _emberMetalRun_loop.default(App, 'visit', '/e', { isBrowser: false, shouldRender: false }).then(function (instance) {
-        assert.ok(instance instanceof _emberApplicationSystemApplicationInstance.default, 'promise is resolved with an ApplicationInstance');
-
-        assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').children().length, 0, 'there are no elements in the fixture element');
-        assert.strictEqual(xFooInstances, 0, 'did not create any x-foo components');
-
-        var viewRegistry = lookup(instance, '-view-registry:main');
-        assert.strictEqual(Object.keys(viewRegistry).length, 0, 'did not create any views');
-
-        var networkService = lookup(instance, 'service:network');
-        assert.deepEqual(networkService.get('requests'), ['/e']);
-      });
-
-      return _emberRuntimeExtRsvp.default.all([a, b, c, d, e]);
     });
 
     QUnit.skip('Test setup', function (assert) {});
@@ -52509,7 +52265,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+0f5c7f5e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+76e00890', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
