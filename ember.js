@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+f96aecd2
+ * @version   2.3.0-canary+7d51c7a8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4599,11 +4599,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       });
     },
 
-    /**
-      @private
-      @since 1.12.0
-      @method runInstanceInitializers
-    */
     runInstanceInitializers: function (instance) {
       this._runInitializer('instanceInitializers', function (name, initializer) {
         _emberMetalDebug.assert('No instance initializer named \'' + name + '\'', !!initializer);
@@ -6288,7 +6283,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerDeprecationHandler
     @param handler {Function} a function to handle deprecation calls
-    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
@@ -6313,7 +6307,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerWarnHandler
     @param handler {Function} a function to handle warnings
-    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
@@ -7086,7 +7079,6 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
   
     @class Ember.Helper
     @public
-    @since 1.13.0
   */
   var Helper = _emberRuntimeSystemObject.default.extend({
     isHelperInstance: true,
@@ -7110,7 +7102,6 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
       ```
        @method recompute
       @public
-      @since 1.13.0
     */
     recompute: function () {
       this._stream.notify();
@@ -7122,7 +7113,6 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
       @param {Array} params The positional arguments to the helper
       @param {Object} hash The named arguments to the helper
       @public
-      @since 1.13.0
     */
   });
 
@@ -7148,7 +7138,6 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     @param {Function} helper The helper function
     @method helper
     @public
-    @since 1.13.0
   */
 
   function helper(helperFn) {
@@ -7180,7 +7169,6 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
     @public
     @method concat
     @for Ember.Templates.helpers
-    @since 1.13.0
   */
   'use strict';
 
@@ -7402,7 +7390,6 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should
     @method each-in
     @for Ember.Templates.helpers
     @public
-    @since 2.1.0
   */
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
@@ -9554,7 +9541,6 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
     @public
     @method get
     @for Ember.Templates.helpers
-    @since 2.1.0
   */
   function getKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
     if (morph === null) {
@@ -9925,7 +9911,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f96aecd2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+7d51c7a8';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15642,7 +15628,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+f96aecd2
+    @version 2.3.0-canary+7d51c7a8
     @public
   */
 
@@ -15686,11 +15672,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+f96aecd2'
+    @default '2.3.0-canary+7d51c7a8'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+f96aecd2';
+  Ember.VERSION = '2.3.0-canary+7d51c7a8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29419,7 +29405,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+f96aecd2';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+7d51c7a8';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29900,7 +29886,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f96aecd2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+7d51c7a8';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38741,7 +38727,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+f96aecd2',
+        revision: 'Ember@2.3.0-canary+7d51c7a8',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40649,7 +40635,6 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
       @property hasBlock
       @param {String} [blockName="default"] The name of the block to check presence of.
       @returns Boolean
-      @since 1.13.0
     */
 
     /**
@@ -40682,7 +40667,6 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
       @public
       @property hasBlockParams
       @returns Boolean
-      @since 1.13.0
     */
 
     /**
@@ -40722,7 +40706,6 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
        @static
       @public
       @property positionalParams
-      @since 1.13.0
     */
   });
 
@@ -44098,7 +44081,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+f96aecd2';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+7d51c7a8';
 
   /**
   @module ember
