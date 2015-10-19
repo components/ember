@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+4f9a3bca
+ * @version   2.3.0-canary+e2643a5c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -52215,7 +52215,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+4f9a3bca', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+e2643a5c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -52248,10 +52248,10 @@ enifed('ember-template-compiler/tests/system/template_test', ['exports', 'ember-
     equal(result.isMethod, false, 'sets isMethod on the provided function');
   });
 });
-enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-runtime/ext/rsvp', 'ember-routing'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberViewsViewsView, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerSystemCompile, _emberRuntimeExtRsvp, _emberRouting) {
+enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberViewsViewsView, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerSystemCompile, _emberRuntimeExtRsvp) {
   'use strict';
 
-  //ES6TODO: fixme?
+  //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
 
   var App, find, click, fillIn, currentRoute, currentURL, visit, originalAdapter, andThen, indexHitCount;
 
@@ -52647,8 +52647,6 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
   });
 });
 // ensure the initializer is setup
-
-//ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
 enifed('ember-testing/tests/adapters/adapter_test', ['exports', 'ember-metal/run_loop', 'ember-testing/adapters/adapter'], function (exports, _emberMetalRun_loop, _emberTestingAdaptersAdapter) {
   'use strict';
 
