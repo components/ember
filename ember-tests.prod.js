@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+e2643a5c
+ * @version   2.3.0-canary+c35e15c6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16308,6 +16308,43 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'conta
       expectAssertion(function () {
         _emberRuntimeTestsUtils.runAppend(component);
       }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+    });
+
+    QUnit.test('renders with dot path', function () {
+      var expectedText = 'Hodi';
+      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
+
+      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
+      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+      _emberRuntimeTestsUtils.runAppend(component);
+      equal(component.$().text(), expectedText, '-looked-up component rendered');
+    });
+
+    QUnit.test('renders with dot path and attr', function () {
+      var expectedText = 'Hodi';
+      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
+
+      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
+      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
+        expectedText: expectedText
+      });
+
+      _emberRuntimeTestsUtils.runAppend(component);
+      equal(component.$().text(), expectedText, '-looked-up component rendered');
+    });
+
+    QUnit.test('renders with dot path curried over attr', function () {
+      var expectedText = 'Hodi';
+      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
+
+      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
+        expectedText: expectedText
+      });
+
+      _emberRuntimeTestsUtils.runAppend(component);
+      equal(component.$().text(), expectedText, '-looked-up component rendered');
     });
   }
 });
@@ -51970,7 +52007,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+e2643a5c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+c35e15c6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
