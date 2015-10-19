@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+72cdc4a6
+ * @version   2.3.0-canary+4f9a3bca
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51970,7 +51970,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+72cdc4a6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+4f9a3bca', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55467,7 +55467,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.A
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/features', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalFeatures, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -55742,6 +55742,100 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     });
 
     appComponent.send('foo', 'baz');
+  });
+
+  var app = undefined,
+      appInstance = undefined;
+
+  QUnit.module('Ember.Component - tagless components assertions', {
+    teardown: function () {
+      if (appInstance) {
+        _emberMetalRun_loop.default(appInstance, 'destroy');
+      }
+
+      if (app) {
+        _emberMetalRun_loop.default(app, 'destroy');
+      }
+    }
+  });
+
+  QUnit.test('throws an error if an event function is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
+    if (!_emberMetalFeatures.default('ember-application-visit')) {
+      _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+    }
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      click: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+  });
+
+  QUnit.test('throws an error if an Application custom event handler is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
+      rootElement: '#qunit-fixture',
+      autoboot: false,
+      customEvents: {
+        awesome: 'sauce'
+      }
+    });
+
+    if (!_emberMetalFeatures.default('ember-application-visit')) {
+      _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+    }
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      sauce: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+  });
+
+  QUnit.test('throws an error if an ApplicationInstance custom event handler is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
+
+    if (!_emberMetalFeatures.default('ember-application-visit')) {
+      _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+    }
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({
+        application: app,
+        customEvents: {
+          love: 'hurts'
+        }
+      });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      hurts: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
   });
 });
 enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeControllersController, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
