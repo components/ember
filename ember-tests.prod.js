@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+b0cad090
+ * @version   2.3.0-canary+37c67c21
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -30341,6 +30341,8 @@ enifed('ember-metal/tests/is_empty_test', ['exports', 'ember-metal/is_empty', 'e
     equal(true, _emberMetalIs_empty.default(null), 'for null');
     equal(true, _emberMetalIs_empty.default(undefined), 'for undefined');
     equal(true, _emberMetalIs_empty.default(''), 'for an empty String');
+    equal(false, _emberMetalIs_empty.default('  '), 'for a whitespace String');
+    equal(false, _emberMetalIs_empty.default('\n\t'), 'for another whitespace String');
     equal(false, _emberMetalIs_empty.default(true), 'for true');
     equal(false, _emberMetalIs_empty.default(false), 'for false');
     equal(false, _emberMetalIs_empty.default(string), 'for a String');
@@ -52007,7 +52009,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+b0cad090', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+37c67c21', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
