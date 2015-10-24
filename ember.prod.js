@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+37c67c21
+ * @version   2.3.0-canary+895ba09d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9308,7 +9308,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+37c67c21';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+895ba09d';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14932,7 +14932,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+37c67c21
+    @version 2.3.0-canary+895ba09d
     @public
   */
 
@@ -14976,11 +14976,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+37c67c21'
+    @default '2.3.0-canary+895ba09d'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+37c67c21';
+  Ember.VERSION = '2.3.0-canary+895ba09d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -27685,7 +27685,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     return _emberRoutingHtmlbarsKeywordsClosureAction.default(morph, env, scope, params, hash, template, inverse, visitor);
   };
 });
-enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError) {
+enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop) {
   'use strict';
 
   exports.default = closureAction;
@@ -27758,23 +27758,31 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     if (actionArguments.length > 0) {
       closureAction = function () {
         var args = actionArguments;
-        if (arguments.length > 0) {
-          var passedArguments = Array.prototype.slice.apply(arguments);
+
+        for (var _len = arguments.length, passedArguments = Array(_len), _key = 0; _key < _len; _key++) {
+          passedArguments[_key] = arguments[_key];
+        }
+
+        if (passedArguments.length > 0) {
           args = actionArguments.concat(passedArguments);
         }
         if (valuePath && args.length > 0) {
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
-        return action.apply(target, args);
+
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     } else {
       closureAction = function () {
-        var args = arguments;
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
         if (valuePath && args.length > 0) {
-          args = Array.prototype.slice.apply(args);
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
-        return action.apply(target, args);
+
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     }
 
@@ -28532,7 +28540,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+37c67c21';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+895ba09d';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29010,7 +29018,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+37c67c21';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+895ba09d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37767,7 +37775,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+37c67c21',
+        revision: 'Ember@2.3.0-canary+895ba09d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41787,7 +41795,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+37c67c21';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+895ba09d';
 
   /**
   @module ember

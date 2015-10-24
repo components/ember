@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+37c67c21
+ * @version   2.3.0-canary+895ba09d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37734,6 +37734,30 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
       innerComponent.fireAction();
     });
   });
+
+  QUnit.test('action should be called within a run loop', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberViewsComponentsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberViewsComponentsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
+      innerComponent: innerComponent,
+      actions: {
+        submit: function (newValue) {
+          assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    innerComponent.fireAction();
+  });
 });
 enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/registry', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerRegistry, _emberViewsComponent_lookup, _emberRuntimeTestsUtils) {
   'use strict';
@@ -52254,7 +52278,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+37c67c21', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+895ba09d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
