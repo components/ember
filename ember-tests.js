@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+0e5a6bf0
+ * @version   2.2.0-beta.1+4595dc04
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1291,17 +1291,19 @@ enifed('ember/tests/application_lifecycle_test', ['exports', 'ember-metal/core',
     });
   });
 });
-enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core', 'ember-runtime/controllers/controller', 'ember-metal/keys', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRuntimeControllersController, _emberMetalKeys, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
+enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/helpers', 'ember-routing-views/views/outlet', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-runtime/system/native_array'], function (exports, _emberMetalCore, _emberRuntimeControllersController, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelpers, _emberRoutingViewsViewsOutlet, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRuntimeSystemNative_array) {
   'use strict';
 
   var App, registry, container;
   var originalHelpers;
 
+  var keys = Object.keys;
+
   function prepare() {
     _emberMetalCore.default.TEMPLATES['components/expand-it'] = _emberTemplateCompilerSystemCompile.default('<p>hello {{yield}}</p>');
     _emberMetalCore.default.TEMPLATES.application = _emberTemplateCompilerSystemCompile.default('Hello world {{#expand-it}}world{{/expand-it}}');
 
-    originalHelpers = _emberRuntimeSystemNative_array.A(_emberMetalKeys.default(_emberHtmlbarsHelpers.default));
+    originalHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
   }
 
   function cleanup() {
@@ -1317,7 +1319,7 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core'
   }
 
   function cleanupHelpers() {
-    var currentHelpers = _emberRuntimeSystemNative_array.A(_emberMetalKeys.default(_emberHtmlbarsHelpers.default));
+    var currentHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
 
     currentHelpers.forEach(function (name) {
       if (!originalHelpers.contains(name)) {
@@ -26633,125 +26635,6 @@ enifed('ember-metal/tests/is_present_test', ['exports', 'ember-metal/is_present'
     equal(true, _emberMetalIs_present.default([1, 2, 3]), 'for a non-empty array');
   });
 });
-enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalObserver) {
-  'use strict';
-
-  function K() {
-    return this;
-  }
-
-  QUnit.module('Fetch Keys ');
-
-  QUnit.test('should get a key array for a specified object', function () {
-    var object1 = {};
-
-    object1.names = 'Rahul';
-    object1.age = '23';
-    object1.place = 'Mangalore';
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['names', 'age', 'place']);
-  });
-
-  // This test is for IE8.
-  QUnit.test('should get a key array for property that is named the same as prototype property', function () {
-    var object1 = {
-      toString: function () {}
-    };
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['toString']);
-  });
-
-  QUnit.test('should not contain properties declared in the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('should return properties that were set after object creation', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalProperty_set.set(beer, 'brand', 'big daddy');
-
-    deepEqual(Object.keys(beer), ['brand']);
-  });
-
-  QUnit.module('Keys behavior with observers');
-
-  QUnit.test('should not leak properties on the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    deepEqual(Object.keys(beer), []);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-  });
-
-  QUnit.test('observing a non existent property', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'brand', K);
-
-    deepEqual(Object.keys(beer), []);
-
-    _emberMetalProperty_set.set(beer, 'brand', 'Corona');
-    deepEqual(Object.keys(beer), ['brand']);
-
-    _emberMetalObserver.removeObserver(beer, 'brand', K);
-  });
-
-  QUnit.test('with observers switched on and off', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('observers switched on and off with setter in between', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), ['type']);
-  });
-
-  QUnit.test('observer switched on and off and then setter', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-
-    deepEqual(Object.keys(beer), ['type']);
-  });
-});
 enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
   /* globals EmberDev */
   'use strict';
@@ -29779,6 +29662,73 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     equal(removedBeforeLastChangeObserver.didChangeCount, 1, 'removeObserver called before the last change still sees 1');
     equal(removedAfterLastChangeObserver.willChangeCount, 1, '_removeBeforeObserver called after the last change still sees 1');
     equal(removedAfterLastChangeObserver.didChangeCount, 1, 'removeObserver called after the last change still sees 1');
+  });
+
+  QUnit.module('Keys behavior with observers');
+
+  _emberMetalTestsProps_helper.testBoth('should not leak properties on the prototype', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(beer), []);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observing a non existent property', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'brand', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), []);
+
+    set(beer, 'brand', 'Corona');
+    deepEqual(Object.keys(beer), ['brand']);
+
+    _emberMetalObserver.removeObserver(beer, 'brand', _emberMetalCore.K);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('with observers switched on and off', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), []);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observers switched on and off with setter in between', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    set(beer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+
+    deepEqual(Object.keys(beer), ['type']);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observer switched on and off and then setter', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', _emberMetalCore.K);
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    set(beer, 'type', 'ale');
+
+    deepEqual(Object.keys(beer), ['type']);
   });
 });
 enifed('ember-metal/tests/performance_test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_events, _emberMetalObserver) {
@@ -33772,6 +33722,30 @@ enifed('ember-routing-htmlbars/tests/helpers/closure_action_test', ['exports', '
     _emberMetalRun_loop.default(function () {
       innerComponent.fireAction();
     });
+  });
+
+  QUnit.test('action should be called within a run loop', function (assert) {
+    assert.expect(1);
+
+    innerComponent = _emberViewsComponentsComponent.default.extend({
+      fireAction: function () {
+        this.attrs.submit();
+      }
+    }).create();
+
+    outerComponent = _emberViewsComponentsComponent.default.extend({
+      layout: _emberTemplateCompilerSystemCompile.default('{{view innerComponent submit=(action \'submit\')}}'),
+      innerComponent: innerComponent,
+      actions: {
+        submit: function (newValue) {
+          assert.ok(_emberMetalRun_loop.default.currentRunLoop, 'action is called within a run loop');
+        }
+      }
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(outerComponent);
+
+    innerComponent.fireAction();
   });
 });
 enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-views/system/event_dispatcher', 'ember-views/system/action_manager', 'ember-runtime/system/object', 'ember-runtime/controllers/controller', 'ember-runtime/system/native_array', 'ember-template-compiler/system/compile', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-routing-htmlbars/keywords/element-action', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'container/registry', 'ember-views/component_lookup', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalRun_loop, _emberViewsSystemEvent_dispatcher, _emberViewsSystemAction_manager, _emberRuntimeSystemObject, _emberRuntimeControllersController, _emberRuntimeSystemNative_array, _emberTemplateCompilerSystemCompile, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberRoutingHtmlbarsKeywordsElementAction, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _containerRegistry, _emberViewsComponent_lookup, _emberRuntimeTestsUtils) {
@@ -48293,7 +48267,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+0e5a6bf0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.2.0-beta.1+4595dc04', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -48326,10 +48300,10 @@ enifed('ember-template-compiler/tests/system/template_test', ['exports', 'ember-
     equal(result.isMethod, false, 'sets isMethod on the provided function');
   });
 });
-enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-runtime/ext/rsvp', 'ember-routing'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberViewsViewsView, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerSystemCompile, _emberRuntimeExtRsvp, _emberRouting) {
+enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/adapters/qunit', 'ember-views/views/view', 'ember-testing/initializers', 'ember-application/system/application', 'ember-routing/system/route', 'ember-template-compiler/system/compile', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberTestingAdaptersQunit, _emberViewsViewsView, _emberTestingInitializers, _emberApplicationSystemApplication, _emberRoutingSystemRoute, _emberTemplateCompilerSystemCompile, _emberRuntimeExtRsvp) {
   'use strict';
 
-  //ES6TODO: fixme?
+  //ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
 
   var App, find, click, fillIn, currentRoute, currentURL, visit, originalAdapter, andThen, indexHitCount;
 
@@ -48725,8 +48699,6 @@ enifed('ember-testing/tests/acceptance_test', ['exports', 'ember-metal/run_loop'
   });
 });
 // ensure the initializer is setup
-
-//ES6TODO: we need {{link-to}}  and {{outlet}} to exist here
 enifed('ember-testing/tests/adapters/adapter_test', ['exports', 'ember-metal/run_loop', 'ember-testing/adapters/adapter'], function (exports, _emberMetalRun_loop, _emberTestingAdaptersAdapter) {
   'use strict';
 
@@ -51691,7 +51663,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.A
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/system/container', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/features', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeSystemContainer, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalFeatures, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -51966,6 +51938,95 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
     });
 
     appComponent.send('foo', 'baz');
+  });
+
+  var app = undefined,
+      appInstance = undefined;
+
+  QUnit.module('Ember.Component - tagless components assertions', {
+    teardown: function () {
+      if (appInstance) {
+        _emberMetalRun_loop.default(appInstance, 'destroy');
+      }
+
+      if (app) {
+        _emberMetalRun_loop.default(app, 'destroy');
+      }
+    }
+  });
+
+  QUnit.test('throws an error if an event function is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
+
+    _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      click: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+  });
+
+  QUnit.test('throws an error if an Application custom event handler is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
+      rootElement: '#qunit-fixture',
+      autoboot: false,
+      customEvents: {
+        awesome: 'sauce'
+      }
+    });
+
+    _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      sauce: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
+  });
+
+  QUnit.test('throws an error if an ApplicationInstance custom event handler is defined in a tagless component', function () {
+    app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
+
+    _emberMetalRun_loop.default(app.__deprecatedInstance__, 'destroy');
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({
+        application: app,
+        customEvents: {
+          love: 'hurts'
+        }
+      });
+      appInstance.setupEventDispatcher();
+    });
+
+    var TestComponent = _emberViewsComponentsComponent.default.extend({
+      tagName: '',
+      container: appInstance,
+      hurts: function () {}
+    });
+
+    expectAssertion(function () {
+      TestComponent.create();
+    }, /You can not define a function that handles DOM events in the .* tagless component since it doesn't have any DOM element./);
   });
 });
 enifed('ember-views/tests/views/container_view_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/controllers/controller', 'ember-views/system/jquery', 'ember-views/views/view', 'ember-views/views/container_view', 'container/registry', 'ember-template-compiler/system/compile', 'ember-views/tests/test-helpers/get-element-style', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeControllersController, _emberViewsSystemJquery, _emberViewsViewsView, _emberViewsViewsContainer_view, _containerRegistry, _emberTemplateCompilerSystemCompile, _emberViewsTestsTestHelpersGetElementStyle, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {

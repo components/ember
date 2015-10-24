@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+0e5a6bf0
+ * @version   2.2.0-beta.1+4595dc04
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -601,6 +601,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerDeprecationHandler
     @param handler {Function} a function to handle deprecation calls
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
@@ -625,6 +626,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerWarnHandler
     @param handler {Function} a function to handle warnings
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 

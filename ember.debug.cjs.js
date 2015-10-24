@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1+0e5a6bf0
+ * @version   2.2.0-beta.1+4595dc04
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4471,6 +4471,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       });
     },
 
+    /**
+      @private
+      @since 1.12.0
+      @method runInstanceInitializers
+    */
     runInstanceInitializers: function (instance) {
       this._runInitializer('instanceInitializers', function (name, initializer) {
         _emberMetalDebug.assert('No instance initializer named \'' + name + '\'', !!initializer);
@@ -6118,6 +6123,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerDeprecationHandler
     @param handler {Function} a function to handle deprecation calls
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
@@ -6142,6 +6148,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerWarnHandler
     @param handler {Function} a function to handle warnings
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
@@ -6914,6 +6921,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
   
     @class Ember.Helper
     @public
+    @since 1.13.0
   */
   var Helper = _emberRuntimeSystemObject.default.extend({
     isHelperInstance: true,
@@ -6937,6 +6945,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
       ```
        @method recompute
       @public
+      @since 1.13.0
     */
     recompute: function () {
       this._stream.notify();
@@ -6948,6 +6957,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
       @param {Array} params The positional arguments to the helper
       @param {Object} hash The named arguments to the helper
       @public
+      @since 1.13.0
     */
   });
 
@@ -6973,6 +6983,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     @param {Function} helper The helper function
     @method helper
     @public
+    @since 1.13.0
   */
 
   function helper(helperFn) {
@@ -7004,6 +7015,7 @@ enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
     @public
     @method concat
     @for Ember.Templates.helpers
+    @since 1.13.0
   */
   'use strict';
 
@@ -7225,6 +7237,7 @@ enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should
     @method each-in
     @for Ember.Templates.helpers
     @public
+    @since 2.1.0
   */
   var eachInHelper = function (_ref, hash, blocks) {
     var object = _ref[0];
@@ -9354,6 +9367,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
     @public
     @method get
     @for Ember.Templates.helpers
+    @since 2.1.0
   */
   function getKeyword(morph, env, scope, params, hash, template, inverse, visitor) {
     if (morph === null) {
@@ -9724,7 +9738,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-beta.1+0e5a6bf0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-beta.1+4595dc04';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15413,7 +15427,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-beta.1+0e5a6bf0
+    @version 2.2.0-beta.1+4595dc04
     @public
   */
 
@@ -15457,11 +15471,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-beta.1+0e5a6bf0'
+    @default '2.2.0-beta.1+4595dc04'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-beta.1+0e5a6bf0';
+  Ember.VERSION = '2.2.0-beta.1+4595dc04';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16777,7 +16791,7 @@ enifed("ember-metal/is_none", ["exports"], function (exports) {
     Ember.isNone(undefined);     // true
     Ember.isNone('');            // false
     Ember.isNone([]);            // false
-    Ember.isNone(function() {});  // false
+    Ember.isNone(function() {}); // false
     ```
   
     @method isNone
@@ -16806,12 +16820,12 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     Ember.isPresent();                // false
     Ember.isPresent(null);            // false
     Ember.isPresent(undefined);       // false
-    Ember.isPresent(false);           // false
     Ember.isPresent('');              // false
     Ember.isPresent([]);              // false
     Ember.isPresent('\n\t');          // false
     Ember.isPresent('  ');            // false
     Ember.isPresent({});              // true
+    Ember.isPresent(false);           // true
     Ember.isPresent('\n\t Hello');    // true
     Ember.isPresent('Hello world');   // true
     Ember.isPresent([1,2,3]);         // true
@@ -16828,59 +16842,6 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
   }
-});
-enifed('ember-metal/keys', ['exports'], function (exports) {
-  /**
-    Returns all of the keys defined on an object or hash. This is useful
-    when inspecting objects for debugging. On browsers that support it, this
-    uses the native `Object.keys` implementation.
-  
-    @method keys
-    @for Ember
-    @param {Object} obj
-    @return {Array} Array containing keys of obj
-    @private
-  */
-  'use strict';
-
-  var keys = Object.keys;
-
-  if (!keys) {
-    // modified from
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-    keys = (function () {
-      var hasOwnProperty = Object.prototype.hasOwnProperty;
-      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
-      var dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
-      var dontEnumsLength = dontEnums.length;
-
-      return function keys(obj) {
-        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-          throw new TypeError('Object.keys called on non-object');
-        }
-
-        var result = [];
-        var prop, i;
-
-        for (prop in obj) {
-          if (prop !== '_super' && prop.lastIndexOf('__', 0) !== 0 && hasOwnProperty.call(obj, prop)) {
-            result.push(prop);
-          }
-        }
-
-        if (hasDontEnumBug) {
-          for (i = 0; i < dontEnumsLength; i++) {
-            if (hasOwnProperty.call(obj, dontEnums[i])) {
-              result.push(dontEnums[i]);
-            }
-          }
-        }
-        return result;
-      };
-    })();
-  }
-
-  exports.default = keys;
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
@@ -27790,8 +27751,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
 @module ember
 @submodule ember-routing
 */
-enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 'ember-metal/keys', 'ember-runtime/system/object', 'ember-metal/assign'], function (exports, _emberMetalIs_empty, _emberMetalKeys, _emberRuntimeSystemObject, _emberMetalAssign) {
+enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 'ember-runtime/system/object', 'ember-metal/assign'], function (exports, _emberMetalIs_empty, _emberRuntimeSystemObject, _emberMetalAssign) {
   'use strict';
+
+  var keys = Object.keys;
 
   var RouterState = _emberRuntimeSystemObject.default.extend({
     emberRouter: null,
@@ -27804,7 +27767,7 @@ enifed('ember-routing/system/router_state', ['exports', 'ember-metal/is_empty', 
         return false;
       }
 
-      var emptyQueryParams = _emberMetalIs_empty.default(_emberMetalKeys.default(queryParams));
+      var emptyQueryParams = _emberMetalIs_empty.default(keys(queryParams));
 
       if (queryParamsMustMatch && !emptyQueryParams) {
         var visibleQueryParams = {};
@@ -28107,7 +28070,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     ```js
     export default Ember.Component.extend({
       actions: {
-        save(/* event *\/) {
+        save() {
           this.get('model').save();
         }
       }
@@ -28296,7 +28259,7 @@ enifed('ember-routing-htmlbars/keywords/action', ['exports', 'htmlbars-runtime/h
     return _emberRoutingHtmlbarsKeywordsClosureAction.default(morph, env, scope, params, hash, template, inverse, visitor);
   };
 });
-enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError) {
+enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-metal/streams/stream', 'ember-metal/streams/utils', 'ember-metal/utils', 'ember-metal/property_get', 'ember-htmlbars/hooks/subexpr', 'ember-metal/error', 'ember-metal/run_loop'], function (exports, _emberMetalStreamsStream, _emberMetalStreamsUtils, _emberMetalUtils, _emberMetalProperty_get, _emberHtmlbarsHooksSubexpr, _emberMetalError, _emberMetalRun_loop) {
   'use strict';
 
   exports.default = closureAction;
@@ -28369,23 +28332,31 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     if (actionArguments.length > 0) {
       closureAction = function () {
         var args = actionArguments;
-        if (arguments.length > 0) {
-          var passedArguments = Array.prototype.slice.apply(arguments);
+
+        for (var _len = arguments.length, passedArguments = Array(_len), _key = 0; _key < _len; _key++) {
+          passedArguments[_key] = arguments[_key];
+        }
+
+        if (passedArguments.length > 0) {
           args = actionArguments.concat(passedArguments);
         }
         if (valuePath && args.length > 0) {
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
-        return action.apply(target, args);
+
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     } else {
       closureAction = function () {
-        var args = arguments;
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          args[_key2] = arguments[_key2];
+        }
+
         if (valuePath && args.length > 0) {
-          args = Array.prototype.slice.apply(args);
           args[0] = _emberMetalProperty_get.get(args[0], valuePath);
         }
-        return action.apply(target, args);
+
+        return _emberMetalRun_loop.default.join.apply(_emberMetalRun_loop.default, [target, action].concat(args));
       };
     }
 
@@ -29154,7 +29125,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-beta.1+0e5a6bf0';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.2.0-beta.1+4595dc04';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29635,7 +29606,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-beta.1+0e5a6bf0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.2.0-beta.1+4595dc04';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -29759,7 +29730,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
    @param {Object} v First value to compare
    @param {Object} w Second value to compare
    @return {Number} -1 if v < w, 0 if v = w and 1 if v > w.
-   @private
+   @public
   */
 
   function compare(v, w) {
@@ -38470,7 +38441,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-beta.1+0e5a6bf0',
+        revision: 'Ember@2.2.0-beta.1+4595dc04',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40143,6 +40114,8 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
     }),
 
     init: function () {
+      var _this = this;
+
       this._super.apply(this, arguments);
       _emberMetalProperty_set.set(this, 'controller', this);
       _emberMetalProperty_set.set(this, 'context', this);
@@ -40161,6 +40134,20 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
 
         this.layout = this.defaultLayout;
       }
+
+      // If in a tagless component, assert that no event handlers are defined
+      _emberMetalDebug.assert('You can not define a function that handles DOM events in the `' + this + '` tagless component since it doesn\'t have any DOM element.', this.tagName !== '' || !(function () {
+        var eventDispatcher = _this.container.lookup('event_dispatcher:main');
+        var events = eventDispatcher && eventDispatcher._finalEvents || {};
+
+        for (var key in events) {
+          var methodName = events[key];
+
+          if (typeof _this[methodName] === 'function') {
+            return true; // indicate that the assertion should be triggered
+          }
+        }
+      })());
     },
 
     template: null,
@@ -40355,6 +40342,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
       @property hasBlock
       @param {String} [blockName="default"] The name of the block to check presence of.
       @returns Boolean
+      @since 1.13.0
     */
 
     /**
@@ -40387,6 +40375,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
       @public
       @property hasBlockParams
       @returns Boolean
+      @since 1.13.0
     */
 
     /**
@@ -40426,6 +40415,7 @@ enifed('ember-views/components/component', ['exports', 'ember-metal/core', 'embe
        @static
       @public
       @property positionalParams
+      @since 1.13.0
     */
   });
 
@@ -42977,7 +42967,7 @@ enifed('ember-views/system/event_dispatcher', ['exports', 'ember-metal/debug', '
     */
     setup: function (addedEvents, rootElement) {
       var event;
-      var events = _emberMetalAssign.default({}, _emberMetalProperty_get.get(this, 'events'), addedEvents);
+      var events = this._finalEvents = _emberMetalAssign.default({}, _emberMetalProperty_get.get(this, 'events'), addedEvents);
 
       if (!_emberMetalIs_none.default(rootElement)) {
         _emberMetalProperty_set.set(this, 'rootElement', rootElement);
@@ -43781,7 +43771,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-beta.1+0e5a6bf0';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.2.0-beta.1+4595dc04';
 
   /**
   @module ember
