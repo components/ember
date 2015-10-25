@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.2.0-beta.1"
+        "version": "v2.2.0-beta.2"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -214,16 +214,18 @@
         },
         "packages/ember-debug/lib/deprecate.js": {
             "name": "packages/ember-debug/lib/deprecate.js",
-            "modules": {},
+            "modules": {
+                "ember-debug": 1
+            },
             "classes": {},
-            "fors": {},
+            "fors": {
+                "Ember": 1
+            },
             "namespaces": {}
         },
         "packages/ember-debug/lib/main.js": {
             "name": "packages/ember-debug/lib/main.js",
-            "modules": {
-                "ember-debug": 1
-            },
+            "modules": {},
             "classes": {
                 "Ember.Debug": 1
             },
@@ -234,7 +236,9 @@
             "name": "packages/ember-debug/lib/warn.js",
             "modules": {},
             "classes": {},
-            "fors": {},
+            "fors": {
+                "Ember": 1
+            },
             "namespaces": {}
         },
         "packages/ember-extension-support/lib/container_debug_adapter.js": {
@@ -880,15 +884,6 @@
         },
         "packages/ember-metal/lib/is_present.js": {
             "name": "packages/ember-metal/lib/is_present.js",
-            "modules": {},
-            "classes": {},
-            "fors": {
-                "Ember": 1
-            },
-            "namespaces": {}
-        },
-        "packages/ember-metal/lib/keys.js": {
-            "name": "packages/ember-metal/lib/keys.js",
             "modules": {},
             "classes": {},
             "fors": {
@@ -2172,10 +2167,10 @@
                 "Ember.View": 1
             },
             "fors": {
+                "Ember": 1,
                 "Ember.Templates.helpers": 1,
                 "Ember.HTMLBars": 1,
                 "Ember.String": 1,
-                "Ember": 1,
                 "Ember.computed": 1,
                 "Ember.FEATURES": 1,
                 "Ember.Logger": 1,
@@ -2223,13 +2218,15 @@
             "classes": {
                 "Ember.Debug": 1
             },
-            "fors": {},
+            "fors": {
+                "Ember": 1
+            },
             "is_submodule": 1,
             "namespaces": {},
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-debug/lib/main.js",
-            "line": 219
+            "line": 221
         },
         "ember-extension-support": {
             "name": "ember-extension-support",
@@ -2653,7 +2650,7 @@
             "submodule": "ember-debug",
             "namespace": "",
             "file": "packages/ember-debug/lib/main.js",
-            "line": 219,
+            "line": 221,
             "access": "public",
             "tagname": ""
         },
@@ -2751,7 +2748,8 @@
             "line": 8,
             "description": "Ember Helpers are functions that can compute values, and are used in templates.\nFor example, this code calls a helper named `format-currency`:\n\n```handlebars\n<div>{{format-currency cents currency=\"$\"}}</div>\n```\n\nAdditionally a helper can be called as a nested helper (sometimes called a\nsubexpression). In this example, the computed value of a helper is passed\nto a component named `show-money`:\n\n```handlebars\n{{show-money amount=(format-currency cents currency=\"$\")}}\n```\n\nHelpers defined using a class must provide a `compute` function. For example:\n\n```js\nexport default Ember.Helper.extend({\n  compute(params, hash) {\n    let cents = params[0];\n    let currency = hash.currency;\n    return `${currency}${cents * 0.01}`;\n  }\n});\n```\n\nEach time the input to a helper changes, the `compute` function will be\ncalled again.\n\nAs instances, these helpers also have access to the container an will accept\ninjected dependencies.\n\nAdditionally, class helpers can call `recompute` to force a new computation.",
             "access": "public",
-            "tagname": ""
+            "tagname": "",
+            "since": "1.13.0"
         },
         "Ember.streams.Dependency": {
             "name": "Ember.streams.Dependency",
@@ -5411,7 +5409,20 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 796,
+            "line": 773,
+            "access": "private",
+            "tagname": "",
+            "since": "1.12.0",
+            "itemtype": "method",
+            "name": "runInstanceInitializers",
+            "class": "Ember.Application",
+            "module": "ember",
+            "submodule": "ember-application",
+            "namespace": "Ember"
+        },
+        {
+            "file": "packages/ember-application/lib/system/application.js",
+            "line": 801,
             "access": "private",
             "tagname": "",
             "itemtype": "method",
@@ -5423,7 +5434,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 855,
+            "line": 860,
             "description": "Called when the Application has become ready, immediately before routing\nbegins. The call will be delayed until the DOM has become ready.",
             "itemtype": "event",
             "name": "ready",
@@ -5436,7 +5447,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 864,
+            "line": 869,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "deprecated": true,
             "deprecationMessage": "Use 'Resolver' instead",
@@ -5451,7 +5462,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 874,
+            "line": 879,
             "description": "Set this to provide an alternate class to `Ember.DefaultResolver`",
             "itemtype": "property",
             "name": "resolver",
@@ -5464,7 +5475,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 915,
+            "line": 920,
             "description": "Instance initializers run after all initializers have run. Because\ninstance initializers run after the app is fully set up. We have access\nto the store, container, and other items. However, these initializers run\nafter code has loaded and are not allowed to defer readiness.\n\nInstance initializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the instanceInitializer is\nregistered. This must be a unique name, as trying to register two\ninstanceInitializer with the same name will result in an error.\n\n```javascript\nEmber.Application.instanceInitializer({\n  name: 'namedinstanceInitializer',\n\n  initialize: function(application) {\n    Ember.debug('Running namedInitializer!');\n  }\n});\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\n* See Ember.Application.initializer for discussion on the usage of before\nand after.\n\nExample instanceInitializer to preload data into the store.\n\n```javascript\nEmber.Application.initializer({\n  name: 'preload-data',\n\n  initialize: function(application) {\n    var userConfig, userConfigEncoded, store;\n    // We have a HTML escaped JSON representation of the user's basic\n    // configuration generated server side and stored in the DOM of the main\n    // index.html file. This allows the app to have access to a set of data\n    // without making any additional remote calls. Good for basic data that is\n    // needed for immediate rendering of the page. Keep in mind, this data,\n    // like all local models and data can be manipulated by the user, so it\n    // should not be relied upon for security or authorization.\n    //\n    // Grab the encoded data from the meta tag\n    userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');\n    // Unescape the text, then parse the resulting JSON into a real object\n    userConfig = JSON.parse(unescape(userConfigEncoded));\n    // Lookup the store\n    store = application.lookup('service:store');\n    // Push the encoded JSON into the store\n    store.pushPayload(userConfig);\n  }\n});\n```",
             "itemtype": "method",
             "name": "instanceInitializer",
@@ -5483,7 +5494,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 983,
+            "line": 988,
             "description": "Boot a new instance of `Ember.ApplicationInstance` for the current\napplication and navigate it to the given `url`. Returns a `Promise` that\nresolves with the instance when the initial routing and rendering is\ncomplete, or rejects with any error that occured during the boot process.\n\nWhen `autoboot` is disabled, calling `visit` would first cause the\napplication to boot, which runs the application initializers.\n\nThis method also takes a hash of boot-time configuration options for\ncustomizing the instance's behavior. See the documentation on\n`Ember.ApplicationInstance.BootOptions` for details.\n\n`Ember.ApplicationInstance.BootOptions` is an interface class that exists\npurely to document the available options; you do not need to construct it\nmanually. Simply pass a regular JavaScript object containing of the\ndesired options:\n\n```javascript\nMyApp.visit(\"/\", { location: \"none\", rootElement: \"#container\" });\n```\n\n### Supported Scenarios\n\nWhile the `BootOptions` class exposes a large number of knobs, not all\ncombinations of them are valid; certain incompatible combinations might\nresult in unexpected behavior.\n\nFor example, booting the instance in the full browser environment\nwhile specifying a foriegn `document` object (e.g. `{ isBrowser: true,\ndocument: iframe.contentDocument }`) does not work correctly today,\nlargely due to Ember's jQuery dependency.\n\nCurrently, there are three officially supported scenarios/configurations.\nUsages outside of these scenarios are not guaranteed to work, but please\nfeel free to file bug reports documenting your experience and any issues\nyou encountered to help expand support.\n\n#### Browser Applications (Manual Boot)\n\nThe setup is largely similar to how Ember works out-of-the-box. Normally,\nEmber will boot a default instance for your Application on \"DOM ready\".\nHowever, you can customize this behavior by disabling `autoboot`.\n\nFor example, this allows you to render a miniture demo of your application\ninto a specific area on your marketing website:\n\n```javascript\nimport MyApp from 'my-app';\n\n$(function() {\n  let App = MyApp.create({ autoboot: false });\n\n  let options = {\n    // Override the router's location adapter to prevent it from updating\n    // the URL in the address bar\n    location: 'none',\n\n    // Override the default `rootElement` on the app to render into a\n    // specific `div` on the page\n    rootElement: '#demo'\n  };\n\n  // Start the app at the special demo URL\n  App.visit('/demo', options);\n});\n````\n\nOr perhaps you might want to boot two instances of your app on the same\npage for a split-screen multiplayer experience:\n\n```javascript\nimport MyApp from 'my-app';\n\n$(function() {\n  let App = MyApp.create({ autoboot: false });\n\n  let sessionId = MyApp.generateSessionID();\n\n  let player1 = App.visit(`/matches/join?name=Player+1&session=${sessionId}`, { rootElement: '#left', location: 'none' });\n  let player2 = App.visit(`/matches/join?name=Player+2&session=${sessionId}`, { rootElement: '#right', location: 'none' });\n\n  Promise.all([player1, player2]).then(() => {\n    // Both apps have completed the initial render\n    $('#loading').fadeOut();\n  });\n});\n```\n\nDo note that each app instance maintains their own registry/container, so\nthey will run in complete isolation by default.\n\n#### Server-Side Rendering (also known as FastBoot)\n\nThis setup allows you to run your Ember app in a server environment using\nNode.js and render its content into static HTML for SEO purposes.\n\n```javascript\nconst HTMLSerializer = new SimpleDOM.HTMLSerializer(SimpleDOM.voidMap);\n\nfunction renderURL(url) {\n  let dom = new SimpleDOM.Document();\n  let rootElement = dom.body;\n  let options = { isBrowser: false, document: dom, rootElement: rootElement };\n\n  return MyApp.visit(options).then(instance => {\n    try {\n      return HTMLSerializer.serialize(rootElement.firstChild);\n    } finally {\n      instance.destroy();\n    }\n  });\n}\n```\n\nIn this scenario, because Ember does not have access to a global `document`\nobject in the Node.js environment, you must provide one explicitly. In practice,\nin the non-browser environment, the stand-in `document` object only need to\nimplement a limited subset of the full DOM API. The `SimpleDOM` library is known\nto work.\n\nSince there is no access to jQuery in the non-browser environment, you must also\nspecify a DOM `Element` object in the same `document` for the `rootElement` option\n(as opposed to a selector string like `\"body\"`).\n\nSee the documentation on the `isBrowser`, `document` and `rootElement` properties\non `Ember.ApplicationInstance.BootOptions` for details.\n\n#### Server-Side Resource Discovery\n\nThis setup allows you to run the routing layer of your Ember app in a server\nenvironment using Node.js and completely disable rendering. This allows you\nto simulate and discover the resources (i.e. AJAX requests) needed to fufill\na given request and eagerly \"push\" these resources to the client.\n\n```app/initializers/network-service.js\nimport BrowserNetworkService from 'app/services/network/browser';\nimport NodeNetworkService from 'app/services/network/node';\n\n// Inject a (hypothetical) service for abstracting all AJAX calls and use\n// the appropiate implementaion on the client/server. This also allows the\n// server to log all the AJAX calls made during a particular request and use\n// that for resource-discovery purpose.\n\nexport function initialize(application) {\n  if (window) { // browser\n    application.register('service:network', BrowserNetworkService);\n  } else { // node\n    application.register('service:network', NodeNetworkService);\n  }\n\n  application.inject('route', 'network', 'service:network');\n};\n\nexport default {\n  name: 'network-service',\n  initialize: initialize\n};\n```\n\n```app/routes/post.js\nimport Ember from 'ember';\n\n// An example of how the (hypothetical) service is used in routes.\n\nexport default Ember.Route.extend({\n  model(params) {\n    return this.network.fetch(`/api/posts/${params.post_id}.json`);\n  },\n\n  afterModel(post) {\n    if (post.isExternalContent) {\n      return this.network.fetch(`/api/external/?url=${post.externalURL}`);\n    } else {\n      return post;\n    }\n  }\n});\n```\n\n```javascript\n// Finally, put all the pieces together\n\nfunction discoverResourcesFor(url) {\n  return MyApp.visit(url, { isBrowser: false, shouldRender: false }).then(instance => {\n    let networkService = instance.lookup('service:network');\n    return networkService.requests; // => { \"/api/posts/123.json\": \"...\" }\n  });\n}\n```",
             "itemtype": "method",
             "name": "visit",
@@ -5512,7 +5523,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1194,
+            "line": 1199,
             "description": "The goal of initializers should be to register dependencies and injections.\nThis phase runs once. Because these initializers may load code, they are\nallowed to defer application readiness and advance it. If you need to access\nthe container or store you should use an InstanceInitializer that will be run\nafter all initializers and therefore after all code is loaded and the app is\nready.\n\nInitializer receives an object which has the following attributes:\n`name`, `before`, `after`, `initialize`. The only required attribute is\n`initialize`, all others are optional.\n\n* `name` allows you to specify under which name the initializer is registered.\nThis must be a unique name, as trying to register two initializers with the\nsame name will result in an error.\n\n```javascript\nEmber.Application.initializer({\n  name: 'namedInitializer',\n\n  initialize: function(application) {\n    Ember.debug('Running namedInitializer!');\n  }\n});\n```\n\n* `before` and `after` are used to ensure that this initializer is ran prior\nor after the one identified by the value. This value can be a single string\nor an array of strings, referencing the `name` of other initializers.\n\nAn example of ordering initializers, we create an initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'first',\n\n  initialize: function(application) {\n    Ember.debug('First initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n```\n\nWe add another initializer named `second`, specifying that it should run\nafter the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'second',\n  after: 'first',\n\n  initialize: function(application) {\n    Ember.debug('Second initializer!');\n  }\n});\n\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nAfterwards we add a further initializer named `pre`, this time specifying\nthat it should run before the initializer named `first`:\n\n```javascript\nEmber.Application.initializer({\n  name: 'pre',\n  before: 'first',\n\n  initialize: function(application) {\n    Ember.debug('Pre initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n```\n\nFinally we add an initializer named `post`, specifying it should run after\nboth the `first` and the `second` initializers:\n\n```javascript\nEmber.Application.initializer({\n  name: 'post',\n  after: ['first', 'second'],\n\n  initialize: function(application) {\n    Ember.debug('Post initializer!');\n  }\n});\n\n// DEBUG: Pre initializer!\n// DEBUG: First initializer!\n// DEBUG: Second initializer!\n// DEBUG: Post initializer!\n```\n\n* `initialize` is a callback function that receives one argument,\n  `application`, on which you can operate.\n\nExample of using `application` to register an adapter:\n\n```javascript\nEmber.Application.initializer({\n  name: 'api-adapter',\n\n  initialize: function(application) {\n    application.register('api-adapter:main', ApiAdapter);\n  }\n});\n```",
             "itemtype": "method",
             "name": "initializer",
@@ -5532,7 +5543,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1314,
+            "line": 1319,
             "description": "This creates a registry with the default Ember naming conventions.\n\nIt also configures the registry:\n\n* registered views are created every time they are looked up (they are\n  not singletons)\n* registered templates are not factories; the registered value is\n  returned directly.\n* the router receives the application as its `namespace` property\n* all controllers receive the router as their `target` and `controllers`\n  properties\n* all controllers receive the application as their `namespace` property\n* the application view receives the application controller as its\n  `controller` property\n* the application view receives the application template as its\n  `defaultTemplate` property",
             "access": "public",
             "tagname": "",
@@ -5557,7 +5568,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1421,
+            "line": 1426,
             "description": "This function defines the default lookup rules for container lookups:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after classifying the name.\n  For example, `controller:post` looks up `App.PostController` by default.\n* if the default lookup fails, look for registered classes on the container\n\nThis allows the application to register default injections in the container\nthat could be overridden by the normal naming convention.",
             "access": "private",
             "tagname": "",
@@ -5887,7 +5898,7 @@
         },
         {
             "file": "packages/ember-debug/lib/deprecate.js",
-            "line": 81,
+            "line": 86,
             "description": "Display a deprecation warning with the provided message and a stack trace\n(Chrome and Firefox only). Ember build tools will remove any calls to\n`Ember.deprecate()` when doing a production build.",
             "itemtype": "method",
             "name": "deprecate",
@@ -5911,7 +5922,8 @@
             "access": "public",
             "tagname": "",
             "class": "Ember",
-            "module": "ember"
+            "module": "ember",
+            "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/main.js",
@@ -6024,7 +6036,7 @@
         },
         {
             "file": "packages/ember-debug/lib/main.js",
-            "line": 164,
+            "line": 166,
             "description": "Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or\nany specific FEATURES flag is truthy.\n\nThis method is called automatically in debug canary builds.",
             "access": "private",
             "tagname": "",
@@ -6040,7 +6052,7 @@
         },
         {
             "file": "packages/ember-debug/lib/main.js",
-            "line": 226,
+            "line": 228,
             "description": "Allows for runtime registration of handler functions that override the default deprecation behavior.\nDeprecations are invoked by calls to [Ember.deprecate](http://emberjs.com/api/classes/Ember.html#method_deprecate).\nThe following example demonstrates its usage by registering a handler that throws an error if the\nmessage contains the word \"should\", otherwise defers to the default handler.\n\n```javascript\nEmber.Debug.registerDeprecationHandler((message, options, next) => {\n  if (message.indexOf('should') !== -1) {\n    throw new Error(`Deprecation message with should: ${message}`);\n  } else {\n    // defer to whatever handler was registered before this one\n    next(message, options);\n  }\n}\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the deprecation call. </li>\n  <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - an id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>\n      <li> <code>until</code> - is the version number Ember the feature and deprecation will be removed in.</li>\n    </ul>\n  <li> <code>next</code> - a function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6054,13 +6066,14 @@
                     "type": "Function"
                 }
             ],
+            "since": "2.1.0",
             "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/main.js",
-            "line": 261,
+            "line": 264,
             "description": "Allows for runtime registration of handler functions that override the default warning behavior.\nWarnings are invoked by calls made to [Ember.warn](http://emberjs.com/api/classes/Ember.html#method_warn).\nThe following example demonstrates its usage by registering a handler that does nothing overriding Ember's\ndefault warning behavior.\n\n```javascript\n// next is not called, so no warnings get the default behavior\nEmber.Debug.registerWarnHandler(() => {});\n```\n\nThe handler function takes the following arguments:\n\n<ul>\n  <li> <code>message</code> - The message received from the warn call. </li>\n  <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>\n    <ul>\n      <li> <code>id</code> - an id of the warning in the form of <code>package-name.specific-warning</code>.</li>\n    </ul>\n  <li> <code>next</code> - a function that calls into the previously registered handler.</li>\n</ul>",
             "access": "public",
             "tagname": "",
@@ -6074,13 +6087,14 @@
                     "type": "Function"
                 }
             ],
+            "since": "2.1.0",
             "class": "Ember.Debug",
             "module": "ember",
             "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-debug/lib/warn.js",
-            "line": 21,
+            "line": 26,
             "description": "Display a warning with the provided message. Ember build tools will\nremove any calls to `Ember.warn()` when doing a production build.",
             "itemtype": "method",
             "name": "warn",
@@ -6094,12 +6108,18 @@
                     "name": "test",
                     "description": "An optional boolean. If falsy, the warning\n  will be displayed.",
                     "type": "Boolean"
+                },
+                {
+                    "name": "options",
+                    "description": "An ojbect that can be used to pass a unique\n  `id` for this warning.  The `id` can be used by Ember debugging tools\n  to change the behavior (raise, log, or silence) for that specific warning.\n  The `id` should be namespaced by dots, e.g. \"ember-debug.feature-flag-with-features-stripped\"",
+                    "type": "Object"
                 }
             ],
             "access": "public",
             "tagname": "",
-            "class": "Ember.ContainerDebugAdapter",
-            "module": "ember"
+            "class": "Ember",
+            "module": "ember",
+            "submodule": "ember-debug"
         },
         {
             "file": "packages/ember-extension-support/lib/container_debug_adapter.js",
@@ -6646,6 +6666,7 @@
             "tagname": "",
             "itemtype": "method",
             "name": "concat",
+            "since": "1.13.0",
             "class": "Ember.Templates.helpers",
             "module": "ember",
             "submodule": "ember-templates"
@@ -6667,6 +6688,7 @@
             "name": "each-in",
             "access": "public",
             "tagname": "",
+            "since": "2.1.0",
             "class": "Ember.Templates.helpers",
             "module": "ember",
             "submodule": "ember-templates"
@@ -6841,6 +6863,7 @@
             "tagname": "",
             "itemtype": "method",
             "name": "get",
+            "since": "2.1.0",
             "class": "Ember.Templates.helpers",
             "module": "ember",
             "submodule": "ember-templates"
@@ -7078,19 +7101,20 @@
         },
         {
             "file": "packages/ember-htmlbars/lib/helper.js",
-            "line": 50,
+            "line": 51,
             "description": "On a class-based helper, it may be useful to force a recomputation of that\nhelpers value. This is akin to `rerender` on a component.\n\nFor example, this component will rerender when the `currentUser` on a\nsession service changes:\n\n```js\n// app/helpers/current-user-email.js\nexport default Ember.Helper.extend({\n  session: Ember.inject.service(),\n  onNewUser: Ember.observer('session.currentUser', function() {\n    this.recompute();\n  }),\n  compute() {\n    return this.get('session.currentUser.email');\n  }\n});\n```",
             "itemtype": "method",
             "name": "recompute",
             "access": "public",
             "tagname": "",
+            "since": "1.13.0",
             "class": "Ember.Helper",
             "module": "ember",
             "submodule": "ember-templates"
         },
         {
             "file": "packages/ember-htmlbars/lib/helper.js",
-            "line": 77,
+            "line": 79,
             "description": "Override this function when writing a class-based helper.",
             "itemtype": "method",
             "name": "compute",
@@ -7108,13 +7132,14 @@
             ],
             "access": "public",
             "tagname": "",
+            "since": "1.13.0",
             "class": "Ember.Helper",
             "module": "ember",
             "submodule": "ember-templates"
         },
         {
             "file": "packages/ember-htmlbars/lib/helper.js",
-            "line": 91,
+            "line": 94,
             "description": "In many cases, the ceremony of a full `Ember.Helper` class is not required.\nThe `helper` method create pure-function helpers without instances. For\nexample:\n\n```js\n// app/helpers/format-currency.js\nexport default Ember.Helper.helper(function(params, hash) {\n  let cents = params[0];\n  let currency = hash.currency;\n  return `${currency}${cents * 0.01}`;\n});\n```",
             "static": 1,
             "params": [
@@ -7128,6 +7153,7 @@
             "name": "helper",
             "access": "public",
             "tagname": "",
+            "since": "1.13.0",
             "class": "Ember.Helper",
             "module": "ember",
             "submodule": "ember-templates"
@@ -8749,7 +8775,7 @@
         {
             "file": "packages/ember-metal/lib/is_none.js",
             "line": 1,
-            "description": "Returns true if the passed value is null or undefined. This avoids errors\nfrom JSLint complaining about use of ==, which can be technically\nconfusing.\n\n```javascript\nEmber.isNone();              // true\nEmber.isNone(null);          // true\nEmber.isNone(undefined);     // true\nEmber.isNone('');            // false\nEmber.isNone([]);            // false\nEmber.isNone(function() {});  // false\n```",
+            "description": "Returns true if the passed value is null or undefined. This avoids errors\nfrom JSLint complaining about use of ==, which can be technically\nconfusing.\n\n```javascript\nEmber.isNone();              // true\nEmber.isNone(null);          // true\nEmber.isNone(undefined);     // true\nEmber.isNone('');            // false\nEmber.isNone([]);            // false\nEmber.isNone(function() {}); // false\n```",
             "itemtype": "method",
             "name": "isNone",
             "params": [
@@ -8771,7 +8797,7 @@
         {
             "file": "packages/ember-metal/lib/is_present.js",
             "line": 3,
-            "description": "A value is present if it not `isBlank`.\n\n```javascript\nEmber.isPresent();                // false\nEmber.isPresent(null);            // false\nEmber.isPresent(undefined);       // false\nEmber.isPresent(false);           // false\nEmber.isPresent('');              // false\nEmber.isPresent([]);              // false\nEmber.isPresent('\\n\\t');          // false\nEmber.isPresent('  ');            // false\nEmber.isPresent({});              // true\nEmber.isPresent('\\n\\t Hello');    // true\nEmber.isPresent('Hello world');   // true\nEmber.isPresent([1,2,3]);         // true\n```",
+            "description": "A value is present if it not `isBlank`.\n\n```javascript\nEmber.isPresent();                // false\nEmber.isPresent(null);            // false\nEmber.isPresent(undefined);       // false\nEmber.isPresent('');              // false\nEmber.isPresent([]);              // false\nEmber.isPresent('\\n\\t');          // false\nEmber.isPresent('  ');            // false\nEmber.isPresent({});              // true\nEmber.isPresent(false);           // true\nEmber.isPresent('\\n\\t Hello');    // true\nEmber.isPresent('Hello world');   // true\nEmber.isPresent([1,2,3]);         // true\n```",
             "itemtype": "method",
             "name": "isPresent",
             "params": [
@@ -8787,28 +8813,6 @@
             },
             "since": "1.8.0",
             "access": "public",
-            "tagname": "",
-            "class": "Ember",
-            "module": "ember"
-        },
-        {
-            "file": "packages/ember-metal/lib/keys.js",
-            "line": 1,
-            "description": "Returns all of the keys defined on an object or hash. This is useful\nwhen inspecting objects for debugging. On browsers that support it, this\nuses the native `Object.keys` implementation.",
-            "itemtype": "method",
-            "name": "keys",
-            "params": [
-                {
-                    "name": "obj",
-                    "description": "",
-                    "type": "Object"
-                }
-            ],
-            "return": {
-                "description": "Array containing keys of obj",
-                "type": "Array"
-            },
-            "access": "private",
             "tagname": "",
             "class": "Ember",
             "module": "ember"
@@ -10899,7 +10903,7 @@
         {
             "file": "packages/ember-routing-htmlbars/lib/keywords/action.js",
             "line": 9,
-            "description": "The `{{action}}` helper provides a way to pass triggers for behavior (usually\njust a function) between components, and into components from controllers.\n\n### Passing functions with the action helper\n\nThere are three contexts an action helper can be used in. The first two\ncontexts to discuss are attribute context, and Handlebars value context.\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n{{! Examples of Handlebars value context }}\n{{input on-input=(action \"save\")}}\n{{yield (action \"refreshData\") andAnotherParam}}\n```\n\nIn these contexts,\nthe helper is called a \"closure action\" helper. It's behavior is simple:\nIf passed a function name, read that function off the `actions` property\nof the current context. Once that function is read (or if a function was\npassed), create a closure over that function and any arguments.\n\nThe resulting value of an action helper used this way is simply a function.\nFor example with this attribute context example:\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n```\n\nThe resulting template render logic would be:\n\n```js\nvar div = document.createElement('div');\nvar actionFunction = (function(context){\n  return function() {\n    return context.actions.save.apply(context, arguments);\n  };\n})(context);\ndiv.onclick = actionFunction;\n```\n\nThus when the div is clicked, the action on that context is called.\nBecause the `actionFunction` is just a function, closure actions can be\npassed between components the still execute in the correct context.\n\nHere is an example action handler on a component:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    save(/* event *\\/) {\n      this.get('model').save();\n    }\n  }\n});\n```\n\nActions are always looked up on the `actions` property of the current context.\nThis avoids collisions in the naming of common actions, such as `destroy`.\n\nTwo options can be passed to the `action` helper when it is used in this way.\n\n* `target=someProperty` will look to `someProperty` instead of the current\n  context for the `actions` hash. This can be useful when targetting a\n  service for actions.\n* `value=\"target.value\"` will read the path `target.value` off the first\n  argument to the action when it is called and rewrite the first argument\n  to be that value. This is useful when attaching actions to event listeners.\n\n### Invoking an action\n\nClosure actions curry both their scope and any arguments. When invoked, any\nadditional arguments are added to the already curried list.\n\nActions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)\nmethod. The first argument to `sendAction` is the action to be called, and\nadditional arguments are passed to the action function. This has interesting\nproperties combined with currying of arguments. For example:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    // Usage {{input on-input=(action (action 'setName' model) value=\"target.value\")}}\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\nThe first argument (`model`) was curried over, and the run-time argument (`event`)\nbecomes a second argument. Action calls be nested this way because each simply\nreturns a function. Any function can be passed to the `{{action` helper, including\nother actions.\n\nActions invoked with `sendAction` have the same currying behavior as demonstrated\nwith `on-input` above. For example:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\n```handlebars\n{{my-input submit=(action 'setName' model)}}\n```\n\n```js\n// app/components/my-component.js\nexport default Ember.Component.extend({\n  click() {\n    // Note that model is not passed, it was curried in the template\n    this.sendAction('submit', 'bob');\n  }\n});\n```\n\n### Attaching actions to DOM\n\nThe third context the `{{action` helper can be used in we call \"element space\".\nFor example:\n\n```handlebars\n{{! An example of element space }}\n<div {{action \"save\"}}></div>\n```\n\nUsed this way, the `{{action}}` helper provides a useful shortcut for\nregistering an HTML element within a template for a single DOM event and\nforwarding that interaction to the template's context (controller or component).\n\nIf the context of a template is a controller, actions used this way will\nbubble to routes when the controller does not implement the specified action.\nOnce an action hits a route, it will bubble through the route hierarchy.\n\n### Event Propagation\n\n`{{action` helpers called in element space can control event bubbling.\n\nEvents triggered through the action helper will automatically have\n`.preventDefault()` called on them. You do not need to do so in your event\nhandlers. If you need to allow event propagation (to handle file inputs for\nexample) you can supply the `preventDefault=false` option to the `{{action}}` helper:\n\n```handlebars\n<div {{action \"sayHello\" preventDefault=false}}>\n  <input type=\"file\" />\n  <input type=\"checkbox\" />\n</div>\n```\n\nTo disable bubbling, pass `bubbles=false` to the helper:\n\n```handlebars\n<button {{action 'edit' post bubbles=false}}>Edit</button>\n```\n\nIf you need the default handler to trigger you should either register your\nown event handler, or use event methods on your view class. See [Ember.View](/api/classes/Ember.View.html)\n'Responding to Browser Events' for more information.\n\n### Specifying DOM event type\n\n`{{action` helpers called in element space can specify an event type.\n\nBy default the `{{action}}` helper registers for DOM `click` events. You can\nsupply an `on` option to the helper to specify a different DOM event name:\n\n```handlebars\n<div {{action \"anActionName\" on=\"double-click\"}}>\n  click me\n</div>\n```\n\nSee [Event Names](/api/classes/Ember.View.html#toc_event-names) for a list of\nacceptable DOM event names.\n\n### Specifying whitelisted modifier keys\n\n`{{action` helpers called in element space can specify modifier keys.\n\nBy default the `{{action}}` helper will ignore click event with pressed modifier\nkeys. You can supply an `allowedKeys` option to specify which keys should not be ignored.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"alt\"}}>\n  click me\n</div>\n```\n\nThis way the `{{action}}` will fire when clicking with the alt key pressed down.\n\nAlternatively, supply \"any\" to the `allowedKeys` option to accept any combination of modifier keys.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"any\"}}>\n  click me with any key pressed\n</div>\n```\n\n### Specifying a Target\n\nA `target` option can be provided to the helper to change\nwhich object will receive the method call. This option must be a path\nto an object, accessible in the current context:\n\n```handlebars\n{{! app/templates/application.hbs }}\n<div {{action \"anActionName\" target=someService}}>\n  click me\n</div>\n```\n\n```javascript\n// app/controllers/application.js\nexport default Ember.Controller.extend({\n  someService: Ember.inject.service()\n});\n```",
+            "description": "The `{{action}}` helper provides a way to pass triggers for behavior (usually\njust a function) between components, and into components from controllers.\n\n### Passing functions with the action helper\n\nThere are three contexts an action helper can be used in. The first two\ncontexts to discuss are attribute context, and Handlebars value context.\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n{{! Examples of Handlebars value context }}\n{{input on-input=(action \"save\")}}\n{{yield (action \"refreshData\") andAnotherParam}}\n```\n\nIn these contexts,\nthe helper is called a \"closure action\" helper. It's behavior is simple:\nIf passed a function name, read that function off the `actions` property\nof the current context. Once that function is read (or if a function was\npassed), create a closure over that function and any arguments.\n\nThe resulting value of an action helper used this way is simply a function.\nFor example with this attribute context example:\n\n```handlebars\n{{! An example of attribute context }}\n<div onclick={{action \"save\"}}></div>\n```\n\nThe resulting template render logic would be:\n\n```js\nvar div = document.createElement('div');\nvar actionFunction = (function(context){\n  return function() {\n    return context.actions.save.apply(context, arguments);\n  };\n})(context);\ndiv.onclick = actionFunction;\n```\n\nThus when the div is clicked, the action on that context is called.\nBecause the `actionFunction` is just a function, closure actions can be\npassed between components the still execute in the correct context.\n\nHere is an example action handler on a component:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    save() {\n      this.get('model').save();\n    }\n  }\n});\n```\n\nActions are always looked up on the `actions` property of the current context.\nThis avoids collisions in the naming of common actions, such as `destroy`.\n\nTwo options can be passed to the `action` helper when it is used in this way.\n\n* `target=someProperty` will look to `someProperty` instead of the current\n  context for the `actions` hash. This can be useful when targetting a\n  service for actions.\n* `value=\"target.value\"` will read the path `target.value` off the first\n  argument to the action when it is called and rewrite the first argument\n  to be that value. This is useful when attaching actions to event listeners.\n\n### Invoking an action\n\nClosure actions curry both their scope and any arguments. When invoked, any\nadditional arguments are added to the already curried list.\n\nActions should be invoked using the [sendAction](/api/classes/Ember.Component.html#method_sendAction)\nmethod. The first argument to `sendAction` is the action to be called, and\nadditional arguments are passed to the action function. This has interesting\nproperties combined with currying of arguments. For example:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    // Usage {{input on-input=(action (action 'setName' model) value=\"target.value\")}}\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\nThe first argument (`model`) was curried over, and the run-time argument (`event`)\nbecomes a second argument. Action calls be nested this way because each simply\nreturns a function. Any function can be passed to the `{{action` helper, including\nother actions.\n\nActions invoked with `sendAction` have the same currying behavior as demonstrated\nwith `on-input` above. For example:\n\n```js\nexport default Ember.Component.extend({\n  actions: {\n    setName(model, name) {\n      model.set('name', name);\n    }\n  }\n});\n```\n\n```handlebars\n{{my-input submit=(action 'setName' model)}}\n```\n\n```js\n// app/components/my-component.js\nexport default Ember.Component.extend({\n  click() {\n    // Note that model is not passed, it was curried in the template\n    this.sendAction('submit', 'bob');\n  }\n});\n```\n\n### Attaching actions to DOM\n\nThe third context the `{{action` helper can be used in we call \"element space\".\nFor example:\n\n```handlebars\n{{! An example of element space }}\n<div {{action \"save\"}}></div>\n```\n\nUsed this way, the `{{action}}` helper provides a useful shortcut for\nregistering an HTML element within a template for a single DOM event and\nforwarding that interaction to the template's context (controller or component).\n\nIf the context of a template is a controller, actions used this way will\nbubble to routes when the controller does not implement the specified action.\nOnce an action hits a route, it will bubble through the route hierarchy.\n\n### Event Propagation\n\n`{{action` helpers called in element space can control event bubbling.\n\nEvents triggered through the action helper will automatically have\n`.preventDefault()` called on them. You do not need to do so in your event\nhandlers. If you need to allow event propagation (to handle file inputs for\nexample) you can supply the `preventDefault=false` option to the `{{action}}` helper:\n\n```handlebars\n<div {{action \"sayHello\" preventDefault=false}}>\n  <input type=\"file\" />\n  <input type=\"checkbox\" />\n</div>\n```\n\nTo disable bubbling, pass `bubbles=false` to the helper:\n\n```handlebars\n<button {{action 'edit' post bubbles=false}}>Edit</button>\n```\n\nIf you need the default handler to trigger you should either register your\nown event handler, or use event methods on your view class. See [Ember.View](/api/classes/Ember.View.html)\n'Responding to Browser Events' for more information.\n\n### Specifying DOM event type\n\n`{{action` helpers called in element space can specify an event type.\n\nBy default the `{{action}}` helper registers for DOM `click` events. You can\nsupply an `on` option to the helper to specify a different DOM event name:\n\n```handlebars\n<div {{action \"anActionName\" on=\"double-click\"}}>\n  click me\n</div>\n```\n\nSee [Event Names](/api/classes/Ember.View.html#toc_event-names) for a list of\nacceptable DOM event names.\n\n### Specifying whitelisted modifier keys\n\n`{{action` helpers called in element space can specify modifier keys.\n\nBy default the `{{action}}` helper will ignore click event with pressed modifier\nkeys. You can supply an `allowedKeys` option to specify which keys should not be ignored.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"alt\"}}>\n  click me\n</div>\n```\n\nThis way the `{{action}}` will fire when clicking with the alt key pressed down.\n\nAlternatively, supply \"any\" to the `allowedKeys` option to accept any combination of modifier keys.\n\n```handlebars\n<div {{action \"anActionName\" allowedKeys=\"any\"}}>\n  click me with any key pressed\n</div>\n```\n\n### Specifying a Target\n\nA `target` option can be provided to the helper to change\nwhich object will receive the method call. This option must be a path\nto an object, accessible in the current context:\n\n```handlebars\n{{! app/templates/application.hbs }}\n<div {{action \"anActionName\" target=someService}}>\n  click me\n</div>\n```\n\n```javascript\n// app/controllers/application.js\nexport default Ember.Controller.extend({\n  someService: Ember.inject.service()\n});\n```",
             "itemtype": "method",
             "name": "action",
             "access": "public",
@@ -11243,7 +11247,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 686,
+            "line": 687,
             "description": "Sets the element's `href` attribute to the url for\nthe `LinkComponent`'s targeted route.\n\nIf the `LinkComponent`'s `tagName` is changed to a value other\nthan `a`, this property will be ignored.",
             "itemtype": "property",
             "name": "href",
@@ -11256,7 +11260,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 727,
+            "line": 728,
             "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
             "itemtype": "property",
             "name": "loadingHref",
@@ -17466,7 +17470,7 @@
                 "description": "-1 if v < w, 0 if v = w and 1 if v > w.",
                 "type": "Number"
             },
-            "access": "private",
+            "access": "public",
             "tagname": "",
             "class": "Ember",
             "module": "ember"
@@ -18346,7 +18350,7 @@
         },
         {
             "file": "packages/ember-views/lib/components/component.js",
-            "line": 163,
+            "line": 180,
             "description": "If the component is currently inserted into the DOM of a parent view, this\nproperty will point to the controller of the parent view.",
             "itemtype": "property",
             "name": "targetObject",
@@ -18361,7 +18365,7 @@
         },
         {
             "file": "packages/ember-views/lib/components/component.js",
-            "line": 179,
+            "line": 196,
             "description": "Calls a action passed to a component.\n\nFor example a component for playing or pausing music may translate click events\ninto action notifications of \"play\" or \"stop\" depending on some internal state\nof the component:\n\n```javascript\n// app/components/play-button.js\nexport default Ember.Component.extend({\n  click() {\n    if (this.get('isPlaying')) {\n      this.sendAction('play');\n    } else {\n      this.sendAction('stop');\n    }\n  }\n});\n```\n\nThe actions \"play\" and \"stop\" must be passed to this `play-button` component:\n\n```handlebars\n{{! app/templates/application.hbs }}\n{{play-button play=(action \"musicStarted\") stop=(action \"musicStopped\")}}\n```\n\nWhen the component receives a browser `click` event it translate this\ninteraction into application-specific semantics (\"play\" or \"stop\") and\ncalls the specified action.\n\n```javascript\n// app/controller/application.js\nexport default Ember.Controller.extend({\n  actions: {\n    musicStarted() {\n      // called when the play button is clicked\n      // and the music started playing\n    },\n    musicStopped() {\n      // called when the play button is clicked\n      // and the music stopped playing\n    }\n  }\n});\n```\n\nIf no action is passed to `sendAction` a default name of \"action\"\nis assumed.\n\n```javascript\n// app/components/next-button.js\nexport default Ember.Component.extend({\n  click() {\n    this.sendAction();\n  }\n});\n```\n\n```handlebars\n{{! app/templates/application.hbs }}\n{{next-button action=(action \"playNextSongInAlbum\")}}\n```\n\n```javascript\n// app/controllers/application.js\nApp.ApplicationController = Ember.Controller.extend({\n  actions: {\n    playNextSongInAlbum() {\n      ...\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "sendAction",
@@ -18388,7 +18392,7 @@
         },
         {
             "file": "packages/ember-views/lib/components/component.js",
-            "line": 305,
+            "line": 322,
             "description": "Returns true when the component was invoked with a block template.\n\nExample (`hasBlock` will be `false`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{foo-bar}}\n\n{{! templates/components/foo-bar.hbs }}\n{{#if hasBlock}}\n  This will not be printed, because no block was provided\n{{/if}}\n```\n\nExample (`hasBlock` will be `true`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar}}\n  Hi!\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.hbs }}\n{{#if hasBlock}}\n  This will be printed because a block was provided\n  {{yield}}\n{{/if}}\n```\n\nThis helper accepts an argument with the name of the block we want to check the presence of.\nThis is useful for checking for the presence of the optional inverse block in components.\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar}}\n  Hi!\n{{else}}\n  What's up?\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.hbs }}\n{{yield}}\n{{#if (hasBlock \"inverse\")}}\n  {{yield to=\"inverse\"}}\n{{else}}\n  How are you?\n{{/if}}\n```",
             "access": "public",
             "tagname": "",
@@ -18397,6 +18401,7 @@
             "return": {
                 "description": "Boolean"
             },
+            "since": "1.13.0",
             "class": "Ember.Component",
             "module": "ember",
             "submodule": "ember-views",
@@ -18413,7 +18418,7 @@
         },
         {
             "file": "packages/ember-views/lib/components/component.js",
-            "line": 364,
+            "line": 382,
             "description": "Returns true when the component was invoked with a block parameter\nsupplied.\n\nExample (`hasBlockParams` will be `false`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar}}\n  No block parameter.\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.hbs }}\n{{#if hasBlockParams}}\n  This will not be printed, because no block was provided\n  {{yield this}}\n{{/if}}\n```\n\nExample (`hasBlockParams` will be `true`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar as |foo|}}\n  Hi!\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.hbs }}\n{{#if hasBlockParams}}\n  This will be printed because a block was provided\n  {{yield this}}\n{{/if}}\n```",
             "access": "public",
             "tagname": "",
@@ -18422,6 +18427,7 @@
             "return": {
                 "description": "Boolean"
             },
+            "since": "1.13.0",
             "class": "Ember.Component",
             "module": "ember",
             "submodule": "ember-views",
@@ -18429,13 +18435,14 @@
         },
         {
             "file": "packages/ember-views/lib/components/component.js",
-            "line": 404,
+            "line": 423,
             "description": "Enables components to take a list of parameters as arguments\n\nFor example a component that takes two parameters with the names\n`name` and `age`:\n\n```javascript\nlet MyComponent = Ember.Component.extend;\nMyComponent.reopenClass({\n  positionalParams: ['name', 'age']\n});\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" 38}}\n```\n\nThe parameters can be refered to just like named parameters:\n\n```hbs\nName: {{attrs.name}}, Age: {{attrs.age}}.\n```\n\nUsing a string instead of an array allows for an arbitrary number of\nparameters:\n\n```javascript\nlet MyComponent = Ember.Component.extend;\nMyComponent.reopenClass({\n  positionalParams: 'names'\n});\n```\n\nIt can then be invoked like this:\n\n```hbs\n{{my-component \"John\" \"Michael\" \"Scott\"}}\n```\n\nThe parameters can then be refered to by enumerating over the list:\n\n```hbs\n{{#each attrs.names as |name|}}{{name}}{{/each}}\n```",
             "static": 1,
             "access": "public",
             "tagname": "",
             "itemtype": "property",
             "name": "positionalParams",
+            "since": "1.13.0",
             "class": "Ember.Component",
             "module": "ember",
             "submodule": "ember-views",
@@ -20223,11 +20230,11 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/ember-views/lib/components/component.js:305"
+            "line": " packages/ember-views/lib/components/component.js:322"
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/ember-views/lib/components/component.js:364"
+            "line": " packages/ember-views/lib/components/component.js:382"
         },
         {
             "message": "Missing item type\nUnfortunately, a lot of existing code assumes booting an instance is\nsynchronous – specifically, a lot of tests assumes the last call to\n`app.advanceReadiness()` or `app.reset()` will result in a new instance\nbeing fully-booted when the current runloop completes.\n\nWe would like new code (like the `visit` API) to stop making this assumption,\nso we created the asynchronous version above that returns a promise. But until\nwe have migrated all the code, we would have to expose this method for use\n*internally* in places where we need to boot an instance synchronously.",

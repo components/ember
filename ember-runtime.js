@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1
+ * @version   2.2.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4619,7 +4619,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-beta.1
+    @version 2.2.0-beta.2
     @public
   */
 
@@ -4663,11 +4663,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-beta.1'
+    @default '2.2.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-beta.1';
+  Ember.VERSION = '2.2.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5010,6 +5010,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: true,
       isChrome: !!window.chrome && !window.opera,
       isFirefox: typeof InstallTrigger !== 'undefined',
+      isPhantom: !!window.callPhantom,
       location: window.location,
       history: window.history,
       userAgent: window.navigator.userAgent,
@@ -5020,6 +5021,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: false,
       isChrome: false,
       isFirefox: false,
+      isPhantom: false,
       location: null,
       history: null,
       userAgent: 'Lynx (textmode)',
@@ -5981,7 +5983,7 @@ enifed("ember-metal/is_none", ["exports"], function (exports) {
     Ember.isNone(undefined);     // true
     Ember.isNone('');            // false
     Ember.isNone([]);            // false
-    Ember.isNone(function() {});  // false
+    Ember.isNone(function() {}); // false
     ```
   
     @method isNone
@@ -6010,12 +6012,12 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     Ember.isPresent();                // false
     Ember.isPresent(null);            // false
     Ember.isPresent(undefined);       // false
-    Ember.isPresent(false);           // false
     Ember.isPresent('');              // false
     Ember.isPresent([]);              // false
     Ember.isPresent('\n\t');          // false
     Ember.isPresent('  ');            // false
     Ember.isPresent({});              // true
+    Ember.isPresent(false);           // true
     Ember.isPresent('\n\t Hello');    // true
     Ember.isPresent('Hello world');   // true
     Ember.isPresent([1,2,3]);         // true
@@ -6032,59 +6034,6 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
   }
-});
-enifed('ember-metal/keys', ['exports'], function (exports) {
-  /**
-    Returns all of the keys defined on an object or hash. This is useful
-    when inspecting objects for debugging. On browsers that support it, this
-    uses the native `Object.keys` implementation.
-  
-    @method keys
-    @for Ember
-    @param {Object} obj
-    @return {Array} Array containing keys of obj
-    @private
-  */
-  'use strict';
-
-  var keys = Object.keys;
-
-  if (!keys) {
-    // modified from
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-    keys = (function () {
-      var hasOwnProperty = Object.prototype.hasOwnProperty;
-      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
-      var dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
-      var dontEnumsLength = dontEnums.length;
-
-      return function keys(obj) {
-        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-          throw new TypeError('Object.keys called on non-object');
-        }
-
-        var result = [];
-        var prop, i;
-
-        for (prop in obj) {
-          if (prop !== '_super' && prop.lastIndexOf('__', 0) !== 0 && hasOwnProperty.call(obj, prop)) {
-            result.push(prop);
-          }
-        }
-
-        if (hasDontEnumBug) {
-          for (i = 0; i < dontEnumsLength; i++) {
-            if (hasOwnProperty.call(obj, dontEnums[i])) {
-              result.push(dontEnums[i]);
-            }
-          }
-        }
-        return result;
-      };
-    })();
-  }
-
-  exports.default = keys;
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
@@ -11265,7 +11214,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
-    }).toString().indexOf('return this;') > -1;
+    }).toString().indexOf('return this') > -1;
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
@@ -11278,6 +11227,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     };
   })();
 
+  exports.checkHasSuper = checkHasSuper;
   function ROOT() {}
   ROOT.__hasSuper = false;
 
@@ -12081,7 +12031,7 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
    @param {Object} v First value to compare
    @param {Object} w Second value to compare
    @return {Number} -1 if v < w, 0 if v = w and 1 if v > w.
-   @private
+   @public
   */
 
   function compare(v, w) {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1
+ * @version   2.2.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1267,6 +1267,11 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
 
   exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
     `Ember.deprecate()` when doing a production build.
@@ -1280,6 +1285,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       `id` for this deprecation. The `id` can be used by Ember debugging tools
       to change the behavior (raise, log or silence) for that specific deprecation.
       The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @for Ember
     @public
   */
 
@@ -1392,6 +1398,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
 
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
   
@@ -1399,6 +1410,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
+    @param {Object} options An ojbect that can be used to pass a unique
+      `id` for this warning.  The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log, or silence) for that specific warning.
+      The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
+    @for Ember
     @public
   */
 
@@ -1584,7 +1600,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   });
 
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+
   _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
+
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
     any specific FEATURES flag is truthy.
@@ -1613,6 +1631,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     // Complain if they're using FEATURE flags in builds other than canary
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
+
+    if (_emberMetalFeatures.default('features-stripped-test')) {
+      featuresWereStripped = false;
+    }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
@@ -1672,6 +1694,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerDeprecationHandler
     @param handler {Function} a function to handle deprecation calls
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
@@ -1696,6 +1719,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerWarnHandler
     @param handler {Function} a function to handle warnings
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
@@ -4116,7 +4140,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.2.0-beta.1
+    @version 2.2.0-beta.2
     @public
   */
 
@@ -4160,11 +4184,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.2.0-beta.1'
+    @default '2.2.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.2.0-beta.1';
+  Ember.VERSION = '2.2.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4507,6 +4531,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: true,
       isChrome: !!window.chrome && !window.opera,
       isFirefox: typeof InstallTrigger !== 'undefined',
+      isPhantom: !!window.callPhantom,
       location: window.location,
       history: window.history,
       userAgent: window.navigator.userAgent,
@@ -4517,6 +4542,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: false,
       isChrome: false,
       isFirefox: false,
+      isPhantom: false,
       location: null,
       history: null,
       userAgent: 'Lynx (textmode)',
@@ -5478,7 +5504,7 @@ enifed("ember-metal/is_none", ["exports"], function (exports) {
     Ember.isNone(undefined);     // true
     Ember.isNone('');            // false
     Ember.isNone([]);            // false
-    Ember.isNone(function() {});  // false
+    Ember.isNone(function() {}); // false
     ```
   
     @method isNone
@@ -5507,12 +5533,12 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
     Ember.isPresent();                // false
     Ember.isPresent(null);            // false
     Ember.isPresent(undefined);       // false
-    Ember.isPresent(false);           // false
     Ember.isPresent('');              // false
     Ember.isPresent([]);              // false
     Ember.isPresent('\n\t');          // false
     Ember.isPresent('  ');            // false
     Ember.isPresent({});              // true
+    Ember.isPresent(false);           // true
     Ember.isPresent('\n\t Hello');    // true
     Ember.isPresent('Hello world');   // true
     Ember.isPresent([1,2,3]);         // true
@@ -5529,59 +5555,6 @@ enifed('ember-metal/is_present', ['exports', 'ember-metal/is_blank'], function (
   function isPresent(obj) {
     return !_emberMetalIs_blank.default(obj);
   }
-});
-enifed('ember-metal/keys', ['exports'], function (exports) {
-  /**
-    Returns all of the keys defined on an object or hash. This is useful
-    when inspecting objects for debugging. On browsers that support it, this
-    uses the native `Object.keys` implementation.
-  
-    @method keys
-    @for Ember
-    @param {Object} obj
-    @return {Array} Array containing keys of obj
-    @private
-  */
-  'use strict';
-
-  var keys = Object.keys;
-
-  if (!keys) {
-    // modified from
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-    keys = (function () {
-      var hasOwnProperty = Object.prototype.hasOwnProperty;
-      var hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString');
-      var dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'];
-      var dontEnumsLength = dontEnums.length;
-
-      return function keys(obj) {
-        if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-          throw new TypeError('Object.keys called on non-object');
-        }
-
-        var result = [];
-        var prop, i;
-
-        for (prop in obj) {
-          if (prop !== '_super' && prop.lastIndexOf('__', 0) !== 0 && hasOwnProperty.call(obj, prop)) {
-            result.push(prop);
-          }
-        }
-
-        if (hasDontEnumBug) {
-          for (i = 0; i < dontEnumsLength; i++) {
-            if (hasOwnProperty.call(obj, dontEnums[i])) {
-              result.push(dontEnums[i]);
-            }
-          }
-        }
-        return result;
-      };
-    })();
-  }
-
-  exports.default = keys;
 });
 enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/features'], function (exports, _emberMetalDebug, _emberMetalFeatures) {
   'use strict';
@@ -5641,6 +5614,12 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
       }
     }
   };
+
+  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+    Libraries.prototype.isRegistered = function (name) {
+      return !!this._getLibraryByName(name);
+    };
+  }
 
   exports.default = Libraries;
 });
@@ -6313,6 +6292,9 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
+    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
+    }
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -10737,7 +10719,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
-    }).toString().indexOf('return this;') > -1;
+    }).toString().indexOf('return this') > -1;
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
@@ -10750,6 +10732,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     };
   })();
 
+  exports.checkHasSuper = checkHasSuper;
   function ROOT() {}
   ROOT.__hasSuper = false;
 
@@ -12368,6 +12351,9 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
     if (lastComponentNode.type === 'ComponentNode') {
       componentCallback(lastComponentNode);
+    } else if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+      var component = elementCallback(lastComponentNode);
+      body.splice(lastIndex, 1, component);
     }
   }
 
@@ -12520,6 +12506,9 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports.default = function (_options) {
     var disableComponentGeneration = true;
+    if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+      disableComponentGeneration = false;
+    }
 
     var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -12545,7 +12534,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.2.0-beta.1',
+        revision: 'Ember@2.2.0-beta.2',
         loc: program.loc,
         moduleName: options.moduleName
       };

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.2.0-beta.1
+ * @version   2.2.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -178,6 +178,11 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
 
   exports.missingOptionsUntilDeprecation = missingOptionsUntilDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a deprecation warning with the provided message and a stack trace
     (Chrome and Firefox only). Ember build tools will remove any calls to
     `Ember.deprecate()` when doing a production build.
@@ -191,6 +196,7 @@ enifed('ember-debug/deprecate', ['exports', 'ember-metal/core', 'ember-metal/err
       `id` for this deprecation. The `id` can be used by Ember debugging tools
       to change the behavior (raise, log or silence) for that specific deprecation.
       The `id` should be namespaced by dots, e.g. "view.helper.select".
+    @for Ember
     @public
   */
 
@@ -303,6 +309,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
 
   exports.missingOptionsIdDeprecation = missingOptionsIdDeprecation;
   /**
+  @module ember
+  @submodule ember-debug
+  */
+
+  /**
     Display a warning with the provided message. Ember build tools will
     remove any calls to `Ember.warn()` when doing a production build.
   
@@ -310,6 +321,11 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
+    @param {Object} options An ojbect that can be used to pass a unique
+      `id` for this warning.  The `id` can be used by Ember debugging tools
+      to change the behavior (raise, log, or silence) for that specific warning.
+      The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
+    @for Ember
     @public
   */
 
@@ -495,7 +511,9 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   });
 
   _emberMetalDebug.setDebugFunction('deprecate', _emberDebugDeprecate.default);
+
   _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
+
   /**
     Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
     any specific FEATURES flag is truthy.
@@ -524,6 +542,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     // Complain if they're using FEATURE flags in builds other than canary
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
+
+    if (_emberMetalFeatures.default('features-stripped-test')) {
+      featuresWereStripped = false;
+    }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
@@ -583,6 +605,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerDeprecationHandler
     @param handler {Function} a function to handle deprecation calls
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
   /**
@@ -607,6 +630,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     @static
     @method registerWarnHandler
     @param handler {Function} a function to handle warnings
+    @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
 
@@ -987,6 +1011,39 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/debug', 'ember-metal/fe
   */
   asyncHelper('click', click);
 
+  if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
+    /**
+      Checks a checkbox. Ensures the presence of the `checked` attribute
+       Example:
+       ```javascript
+      check('#remember-me').then(function() {
+        // assert something
+      });
+      ```
+       @method check
+      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      element on the DOM to check
+      @return {RSVP.Promise}
+      @private
+    */
+    asyncHelper('check', check);
+
+    /**
+      Unchecks a checkbox. Ensures the absence of the `checked` attribute
+       Example:
+       ```javascript
+      uncheck('#remember-me').then(function() {
+       // assert something
+      });
+      ```
+       @method check
+      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
+      element on the DOM to uncheck
+      @return {RSVP.Promise}
+      @private
+    */
+    asyncHelper('uncheck', uncheck);
+  }
   /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   
@@ -1197,36 +1254,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/debug', 'ember-metal/fe
   */
   asyncHelper('triggerEvent', triggerEvent);
 });
-
-/**
-  Checks a checkbox. Ensures the presence of the `checked` attribute
-   Example:
-   ```javascript
-  check('#remember-me').then(function() {
-    // assert something
-  });
-  ```
-   @method check
-  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-  element on the DOM to check
-  @return {RSVP.Promise}
-  @private
-*/
-
-/**
-  Unchecks a checkbox. Ensures the absence of the `checked` attribute
-   Example:
-   ```javascript
-  uncheck('#remember-me').then(function() {
-   // assert something
-  });
-  ```
-   @method check
-  @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-  element on the DOM to uncheck
-  @return {RSVP.Promise}
-  @private
-*/
 enifed('ember-testing/initializers', ['exports', 'ember-runtime/system/lazy_load'], function (exports, _emberRuntimeSystemLazy_load) {
   'use strict';
 
