@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+08ae4d65
+ * @version   2.3.0-canary+e88c6446
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4140,7 +4140,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+08ae4d65
+    @version 2.3.0-canary+e88c6446
     @public
   */
 
@@ -4184,11 +4184,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+08ae4d65'
+    @default '2.3.0-canary+e88c6446'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+08ae4d65';
+  Ember.VERSION = '2.3.0-canary+e88c6446';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8567,6 +8567,23 @@ enifed('ember-metal/property_get', ['exports', 'ember-metal/core', 'ember-metal/
     return root;
   }
 
+  /**
+    Retrieves the value of a property from an Object, or a default value in the
+    case that the property returns `undefined`.
+  
+    ```javascript
+    Ember.getWithDefault(person, 'lastName', 'Doe');
+    ```
+  
+    @method getWithDefault
+    @for Ember
+    @param {Object} obj The object to retrieve from.
+    @param {String} keyName The name of the property to retrieve
+    @param {Object} defaultValue The value to return if the property value is undefined
+    @return {Object} The property value or the defaultValue.
+    @public
+  */
+
   function getWithDefault(root, key, defaultValue) {
     var value = get(root, key);
 
@@ -12579,7 +12596,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+08ae4d65',
+        revision: 'Ember@2.3.0-canary+e88c6446',
         loc: program.loc,
         moduleName: options.moduleName
       };
