@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+e88c6446
+ * @version   2.3.0-canary+d5586957
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16078,275 +16078,273 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'conta
       registry = undefined,
       container = undefined;
 
-  if (_emberMetalFeatures.default('ember-contextual-components')) {
-    QUnit.module('ember-htmlbars: closure component helper', {
-      setup: function () {
-        registry = new _containerRegistry.default();
-        container = registry.container();
+  QUnit.module('ember-htmlbars: closure component helper', {
+    setup: function () {
+      registry = new _containerRegistry.default();
+      container = registry.container();
 
-        registry.optionsForType('template', { instantiate: false });
-        registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
-      },
+      registry.optionsForType('template', { instantiate: false });
+      registry.register('component-lookup:main', _emberViewsComponent_lookup.default);
+    },
 
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(component);
-        _emberRuntimeTestsUtils.runDestroy(container);
-        registry = container = component = null;
-      }
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(component);
+      _emberRuntimeTestsUtils.runDestroy(container);
+      registry = container = component = null;
+    }
+  });
+
+  QUnit.test('renders with component helper', function () {
+    var expectedText = 'Hodi';
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up")}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
+
+  QUnit.test('renders with component helper with invocation params, hash', function () {
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
     });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
 
-    QUnit.test('renders with component helper', function () {
-      var expectedText = 'Hodi';
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up") "Hodari" greeting="Hodi"}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
 
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up")}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Hodi Hodari', '-looked-up component rendered');
+  });
 
+  QUnit.test('renders with component helper with curried params, hash', function () {
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
+    });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" greeting="Hodi") greeting="Hola"}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Hola Hodari', '-looked-up component rendered');
+  });
+
+  QUnit.test('updates when component path is bound', function () {
+    var Mandarin = _emberViewsComponentsComponent.default.extend();
+    registry.register('component:-mandarin', Mandarin);
+    registry.register('template:components/-mandarin', _emberTemplateCompilerSystemCompile.default('ni hao'));
+    registry.register('template:components/-hindi', _emberTemplateCompilerSystemCompile.default('Namaste'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
+    component = _emberViewsComponentsComponent.default.extend({
+      container: container,
+      template: template,
+      lookupComponent: '-mandarin'
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    equal(component.$().text(), 'ni hao', 'mandarin lookupComponent renders greeting');
+    _emberMetalRun_loop.default(function () {
+      component.set('lookupComponent', '-hindi');
+    });
+    equal(component.$().text(), 'Namaste', 'hindi lookupComponent renders greeting');
+  });
+
+  QUnit.test('updates when curried hash argument is bound', function () {
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" greeting=greeting)}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), '', '-looked-up component rendered');
+    _emberMetalRun_loop.default(function () {
+      component.set('greeting', 'Hodi');
+    });
+    equal(component.$().text(), 'Hodi', 'greeting is bound');
+  });
+
+  QUnit.test('nested components overwrites named positional parameters', function () {
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name', 'age']
+    });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component\n          (component (component "-looked-up" "Sergio" 28)\n                     "Marvin" 21)\n          "Hodari"}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Hodari 21', '-looked-up component rendered');
+  });
+
+  QUnit.test('nested components overwrites hash parameters', function () {
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}} {{age}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                  greeting="Hola" name="Dolores" age=33)\n                              greeting="Hej" name="Sigmundur")\n                    greeting=greeting}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template, greeting: 'Hodi' }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    equal(component.$().text(), 'Hodi Sigmundur 33', '-looked-up component rendered');
+  });
+
+  QUnit.test('bound outer named parameters get updated in the right scope', function () {
+    var InnerComponent = _emberViewsComponentsComponent.default.extend();
+    InnerComponent.reopenClass({
+      positionalParams: ['comp']
+    });
+    registry.register('component:-inner-component', InnerComponent);
+    registry.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp "Inner"}}'));
+
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name', 'age']
+    });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" outerName outerAge)}}');
+    component = _emberViewsComponentsComponent.default.extend({
+      container: container,
+      template: template,
+      outerName: 'Outer',
+      outerAge: 28
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
+  });
+
+  QUnit.test('bound outer hash parameters get updated in the right scope', function () {
+    var InnerComponent = _emberViewsComponentsComponent.default.extend();
+    InnerComponent.reopenClass({
+      positionalParams: ['comp']
+    });
+    registry.register('component:-inner-component', InnerComponent);
+    registry.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp name="Inner"}}'));
+
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({});
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" name=outerName age=outerAge)}}');
+    component = _emberViewsComponentsComponent.default.extend({
+      container: container,
+      template: template,
+      outerName: 'Outer',
+      outerAge: 28
+    }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
+  });
+
+  QUnit.test('conflicting positional and hash parameters raise and assertion if in the same closure', function () {
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
+    });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
+    }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+  });
+
+  QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
     });
+    registry.register('component:-looked-up', LookedUp);
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
 
-    QUnit.test('renders with component helper with invocation params, hash', function () {
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
 
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up") "Hodari" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
+  });
 
+  QUnit.test('raises an assertion when component path is null', function () {
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodi Hodari', '-looked-up component rendered');
     });
+  });
 
-    QUnit.test('renders with component helper with curried params, hash', function () {
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+  QUnit.test('raises an assertion when component path is not a component name', function () {
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
 
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" greeting="Hodi") greeting="Hola"}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
+    expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hola Hodari', '-looked-up component rendered');
-    });
+    }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
 
-    QUnit.test('updates when component path is bound', function () {
-      var Mandarin = _emberViewsComponentsComponent.default.extend();
-      registry.register('component:-mandarin', Mandarin);
-      registry.register('template:components/-mandarin', _emberTemplateCompilerSystemCompile.default('ni hao'));
-      registry.register('template:components/-hindi', _emberTemplateCompilerSystemCompile.default('Namaste'));
+    template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
+    component = _emberViewsComponentsComponent.default.extend({
+      container: container,
+      template: template,
+      compName: 'not-a-component'
+    }).create();
 
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-      component = _emberViewsComponentsComponent.default.extend({
-        container: container,
-        template: template,
-        lookupComponent: '-mandarin'
-      }).create();
-
+    expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
+    }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
+  });
 
-      equal(component.$().text(), 'ni hao', 'mandarin lookupComponent renders greeting');
-      _emberMetalRun_loop.default(function () {
-        component.set('lookupComponent', '-hindi');
-      });
-      equal(component.$().text(), 'Namaste', 'hindi lookupComponent renders greeting');
+  QUnit.test('renders with dot path', function () {
+    var expectedText = 'Hodi';
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
+
+  QUnit.test('renders with dot path and attr', function () {
+    var expectedText = 'Hodi';
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
+      expectedText: expectedText
     });
 
-    QUnit.test('updates when curried hash argument is bound', function () {
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
 
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" greeting=greeting)}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+  QUnit.test('renders with dot path curried over attr', function () {
+    var expectedText = 'Hodi';
+    registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
 
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), '', '-looked-up component rendered');
-      _emberMetalRun_loop.default(function () {
-        component.set('greeting', 'Hodi');
-      });
-      equal(component.$().text(), 'Hodi', 'greeting is bound');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
+      expectedText: expectedText
     });
 
-    QUnit.test('nested components overwrites named positional parameters', function () {
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component\n          (component (component "-looked-up" "Sergio" 28)\n                     "Marvin" 21)\n          "Hodari"}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodari 21', '-looked-up component rendered');
-    });
-
-    QUnit.test('nested components overwrites hash parameters', function () {
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                  greeting="Hola" name="Dolores" age=33)\n                              greeting="Hej" name="Sigmundur")\n                    greeting=greeting}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template, greeting: 'Hodi' }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-
-      equal(component.$().text(), 'Hodi Sigmundur 33', '-looked-up component rendered');
-    });
-
-    QUnit.test('bound outer named parameters get updated in the right scope', function () {
-      var InnerComponent = _emberViewsComponentsComponent.default.extend();
-      InnerComponent.reopenClass({
-        positionalParams: ['comp']
-      });
-      registry.register('component:-inner-component', InnerComponent);
-      registry.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp "Inner"}}'));
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name', 'age']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" outerName outerAge)}}');
-      component = _emberViewsComponentsComponent.default.extend({
-        container: container,
-        template: template,
-        outerName: 'Outer',
-        outerAge: 28
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
-    });
-
-    QUnit.test('bound outer hash parameters get updated in the right scope', function () {
-      var InnerComponent = _emberViewsComponentsComponent.default.extend();
-      InnerComponent.reopenClass({
-        positionalParams: ['comp']
-      });
-      registry.register('component:-inner-component', InnerComponent);
-      registry.register('template:components/-inner-component', _emberTemplateCompilerSystemCompile.default('{{component comp name="Inner"}}'));
-
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({});
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" name=outerName age=outerAge)}}');
-      component = _emberViewsComponentsComponent.default.extend({
-        container: container,
-        template: template,
-        outerName: 'Outer',
-        outerAge: 28
-      }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
-    });
-
-    QUnit.test('conflicting positional and hash parameters raise and assertion if in the same closure', function () {
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
-    });
-
-    QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
-      var LookedUp = _emberViewsComponentsComponent.default.extend();
-      LookedUp.reopenClass({
-        positionalParams: ['name']
-      });
-      registry.register('component:-looked-up', LookedUp);
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
-    });
-
-    QUnit.test('raises an assertion when component path is null', function () {
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      });
-    });
-
-    QUnit.test('raises an assertion when component path is not a component name', function () {
-      var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
-
-      template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
-      component = _emberViewsComponentsComponent.default.extend({
-        container: container,
-        template: template,
-        compName: 'not-a-component'
-      }).create();
-
-      expectAssertion(function () {
-        _emberRuntimeTestsUtils.runAppend(component);
-      }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component compName)');
-    });
-
-    QUnit.test('renders with dot path', function () {
-      var expectedText = 'Hodi';
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with dot path and attr', function () {
-      var expectedText = 'Hodi';
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
-        expectedText: expectedText
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-
-    QUnit.test('renders with dot path curried over attr', function () {
-      var expectedText = 'Hodi';
-      registry.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-      var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
-      component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create({
-        expectedText: expectedText
-      });
-
-      _emberRuntimeTestsUtils.runAppend(component);
-      equal(component.$().text(), expectedText, '-looked-up component rendered');
-    });
-  }
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
 });
 enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
@@ -19245,69 +19243,67 @@ enifed('ember-htmlbars/tests/helpers/hash_test', ['exports', 'ember-views/views/
 
   var view;
 
-  if (_emberMetalFeatures.default('ember-contextual-components')) {
-    QUnit.module('hash helper', {
-      setup: function () {},
+  QUnit.module('hash helper', {
+    setup: function () {},
 
-      teardown: function () {
-        _emberRuntimeTestsUtils.runDestroy(view);
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+    }
+  });
+
+  QUnit.test('returns a hash with the right key-value', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio") as |person|}}{{person.name}}{{/with}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Sergio', 'shows literal value');
+  });
+
+  QUnit.test('can have more than one key-value', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio" lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Sergio Arbeo', 'shows both literal values');
+  });
+
+  QUnit.test('binds values when variables are used', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}'),
+
+      context: {
+        firstName: 'Marisa'
       }
     });
 
-    QUnit.test('returns a hash with the right key-value', function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio") as |person|}}{{person.name}}{{/with}}')
-      });
+    _emberRuntimeTestsUtils.runAppend(view);
 
-      _emberRuntimeTestsUtils.runAppend(view);
+    // Hello, mom
+    equal(view.$().text(), 'Marisa Arbeo', 'shows original variable value');
 
-      equal(view.$().text(), 'Sergio', 'shows literal value');
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'context.firstName', 'Sergio');
     });
 
-    QUnit.test('can have more than one key-value', function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name="Sergio" lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}')
-      });
+    equal(view.$().text(), 'Sergio Arbeo', 'shows new variable value');
+  });
 
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'Sergio Arbeo', 'shows both literal values');
+  QUnit.test('hash helpers can be nested', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}'),
+      context: {
+        firstName: 'Balint'
+      }
     });
 
-    QUnit.test('binds values when variables are used', function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with (hash name=firstName lastName="Arbeo") as |person|}}{{person.name}} {{person.lastName}}{{/with}}'),
+    _emberRuntimeTestsUtils.runAppend(view);
 
-        context: {
-          firstName: 'Marisa'
-        }
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      // Hello, mom
-      equal(view.$().text(), 'Marisa Arbeo', 'shows original variable value');
-
-      _emberMetalRun_loop.default(function () {
-        _emberMetalProperty_set.set(view, 'context.firstName', 'Sergio');
-      });
-
-      equal(view.$().text(), 'Sergio Arbeo', 'shows new variable value');
-    });
-
-    QUnit.test('hash helpers can be nested', function () {
-      view = _emberViewsViewsView.default.create({
-        template: _emberTemplateCompilerSystemCompile.default('{{#with (hash person=(hash name=firstName)) as |ctx|}}{{ctx.person.name}}{{/with}}'),
-        context: {
-          firstName: 'Balint'
-        }
-      });
-
-      _emberRuntimeTestsUtils.runAppend(view);
-
-      equal(view.$().text(), 'Balint', 'it gets the value from a nested hash');
-    });
-  }
+    equal(view.$().text(), 'Balint', 'it gets the value from a nested hash');
+  });
 });
 enifed('ember-htmlbars/tests/helpers/if_unless_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-views/views/view', 'ember-views/components/component', 'ember-runtime/system/object_proxy', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-runtime/system/array_proxy', 'ember-runtime/system/native_array', 'ember-metal/property_set', 'ember-runtime/utils', 'ember-runtime/tests/utils', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view', 'ember-views/component_lookup', 'ember-views/system/jquery'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberViewsViewsView, _emberViewsComponentsComponent, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNative_array, _emberMetalProperty_set, _emberRuntimeUtils, _emberRuntimeTestsUtils, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView, _emberViewsComponent_lookup, _emberViewsSystemJquery) {
   'use strict';
@@ -52278,7 +52274,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+e88c6446', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+d5586957', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
