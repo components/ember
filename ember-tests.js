@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+0f51f7d2
+ * @version   2.3.0-canary+10d599eb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16344,6 +16344,19 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'conta
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
+
+  QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
+    registry.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
+
+    registry.register('template:components/select-box-option', _emberTemplateCompilerSystemCompile.default('{{label}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
+
+    component = _emberViewsComponentsComponent.default.extend({ container: container, template: template }).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Foo', 'there is only one Foo');
   });
 });
 enifed('ember-htmlbars/tests/helpers/collection_test', ['exports', 'ember-metal/core', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/system/object', 'ember-runtime/system/array_proxy', 'ember-runtime/system/namespace', 'ember-runtime/system/container', 'ember-runtime/system/native_array', 'ember-runtime/tests/utils', 'ember-views/views/collection_view', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeSystemObject, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemNamespace, _emberRuntimeSystemContainer, _emberRuntimeSystemNative_array, _emberRuntimeTestsUtils, _emberViewsViewsCollection_view, _emberViewsViewsView, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
@@ -52274,7 +52287,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+0f51f7d2', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+10d599eb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
