@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+860bb4be
+ * @version   2.3.0-canary+f4b1e662
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -52042,7 +52042,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+860bb4be', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+f4b1e662', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -52694,7 +52694,7 @@ enifed('ember-testing/tests/helper_registration_test', ['exports', 'ember-metal/
     ok(!helperContainer.boot, 'once unregistered the helper is not added to the helperContainer');
   });
 });
-enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/features', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalFeatures, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
+enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'ember-routing/system/route', 'ember-runtime/controllers/controller', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/ext/rsvp', 'ember-views/views/view', 'ember-views/system/jquery', 'ember-testing/test', 'ember-testing/helpers', 'ember-testing/initializers', 'ember-testing/setup_for_testing', 'ember-routing/system/router', 'ember-application/system/application', 'ember-template-compiler/system/compile', 'ember-htmlbars/tests/utils', 'ember-htmlbars/keywords/view'], function (exports, _emberMetalCore, _emberRoutingSystemRoute, _emberRuntimeControllersController, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeExtRsvp, _emberViewsViewsView, _emberViewsSystemJquery, _emberTestingTest, _emberTestingHelpers, _emberTestingInitializers, _emberTestingSetup_for_testing, _emberRoutingSystemRouter, _emberApplicationSystemApplication, _emberTemplateCompilerSystemCompile, _emberHtmlbarsTestsUtils, _emberHtmlbarsKeywordsView) {
   'use strict';
 
   var App;
@@ -52745,11 +52745,6 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     checkHelperPresent('fillIn', expected);
     checkHelperPresent('wait', expected);
     checkHelperPresent('triggerEvent', expected);
-
-    if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
-      checkHelperPresent('check', expected);
-      checkHelperPresent('uncheck', expected);
-    }
   }
 
   function assertNoHelpers(application, helperContainer) {
@@ -53317,100 +53312,6 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
 
     return wait();
   });
-
-  if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
-    QUnit.test('`check` ensures checkboxes are `checked` state for checkboxes', function () {
-      expect(2);
-      var check, find, visit, andThen, wait;
-
-      App.IndexView = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerSystemCompile.default('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
-      });
-
-      _emberMetalRun_loop.default(App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-      wait = App.testHelpers.wait;
-
-      visit('/');
-      check('#unchecked');
-      check('#checked');
-      andThen(function () {
-        equal(find('#unchecked').is(':checked'), true, 'can check an unchecked checkbox');
-        equal(find('#checked').is(':checked'), true, 'can check a checked checkbox');
-      });
-
-      return wait();
-    });
-
-    QUnit.test('`uncheck` ensures checkboxes are not `checked`', function () {
-      expect(2);
-      var uncheck, find, visit, andThen, wait;
-
-      App.IndexView = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerSystemCompile.default('<input type="checkbox" id="unchecked"><input type="checkbox" id="checked" checked>')
-      });
-
-      _emberMetalRun_loop.default(App, App.advanceReadiness);
-
-      uncheck = App.testHelpers.uncheck;
-      find = App.testHelpers.find;
-      visit = App.testHelpers.visit;
-      andThen = App.testHelpers.andThen;
-      wait = App.testHelpers.wait;
-
-      visit('/');
-      uncheck('#unchecked');
-      uncheck('#checked');
-      andThen(function () {
-        equal(find('#unchecked').is(':checked'), false, 'can uncheck an unchecked checkbox');
-        equal(find('#checked').is(':checked'), false, 'can uncheck a checked checkbox');
-      });
-
-      return wait();
-    });
-
-    QUnit.test('`check` asserts the selected inputs are checkboxes', function () {
-      var check, visit;
-
-      App.IndexView = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerSystemCompile.default('<input type="text" id="text">')
-      });
-
-      _emberMetalRun_loop.default(App, App.advanceReadiness);
-
-      check = App.testHelpers.check;
-      visit = App.testHelpers.visit;
-
-      return visit('/').then(function () {
-        return check('#text').catch(function (error) {
-          ok(/must be a checkbox/.test(error.message));
-        });
-      });
-    });
-
-    QUnit.test('`uncheck` asserts the selected inputs are checkboxes', function () {
-      var visit, uncheck;
-
-      App.IndexView = _emberViewsViewsView.default.extend({
-        template: _emberTemplateCompilerSystemCompile.default('<input type="text" id="text">')
-      });
-
-      _emberMetalRun_loop.default(App, App.advanceReadiness);
-
-      visit = App.testHelpers.visit;
-      uncheck = App.testHelpers.uncheck;
-
-      return visit('/').then(function () {
-        return uncheck('#text').catch(function (error) {
-          ok(/must be a checkbox/.test(error.message));
-        });
-      });
-    });
-  }
 
   QUnit.test('`triggerEvent accepts an optional options hash and context', function () {
     expect(3);

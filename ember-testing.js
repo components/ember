@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+860bb4be
+ * @version   2.3.0-canary+f4b1e662
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -730,7 +730,7 @@ enifed('ember-testing/adapters/qunit', ['exports', 'ember-testing/adapters/adapt
     }
   });
 });
-enifed('ember-testing/helpers', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
+enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-metal/error', 'ember-metal/run_loop', 'ember-views/system/jquery', 'ember-testing/test', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalProperty_get, _emberMetalError, _emberMetalRun_loop, _emberViewsSystemJquery, _emberTestingTest, _emberRuntimeExtRsvp) {
   'use strict';
 
   /**
@@ -813,32 +813,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/debug', 'ember-metal/fe
 
     _emberMetalRun_loop.default($el, 'mouseup');
     _emberMetalRun_loop.default($el, 'click');
-
-    return app.testHelpers.wait();
-  }
-
-  function check(app, selector, context) {
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var type = $el.prop('type');
-
-    _emberMetalDebug.assert('To check \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
-
-    if (!$el.prop('checked')) {
-      app.testHelpers.click(selector, context);
-    }
-
-    return app.testHelpers.wait();
-  }
-
-  function uncheck(app, selector, context) {
-    var $el = app.testHelpers.findWithAssert(selector, context);
-    var type = $el.prop('type');
-
-    _emberMetalDebug.assert('To uncheck \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
-
-    if ($el.prop('checked')) {
-      app.testHelpers.click(selector, context);
-    }
 
     return app.testHelpers.wait();
   }
@@ -1011,39 +985,6 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/debug', 'ember-metal/fe
   */
   asyncHelper('click', click);
 
-  if (_emberMetalFeatures.default('ember-testing-checkbox-helpers')) {
-    /**
-      Checks a checkbox. Ensures the presence of the `checked` attribute
-       Example:
-       ```javascript
-      check('#remember-me').then(function() {
-        // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to check
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper('check', check);
-
-    /**
-      Unchecks a checkbox. Ensures the absence of the `checked` attribute
-       Example:
-       ```javascript
-      uncheck('#remember-me').then(function() {
-       // assert something
-      });
-      ```
-       @method check
-      @param {String} selector jQuery selector finding an `input[type="checkbox"]`
-      element on the DOM to uncheck
-      @return {RSVP.Promise}
-      @private
-    */
-    asyncHelper('uncheck', uncheck);
-  }
   /**
     Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
   
