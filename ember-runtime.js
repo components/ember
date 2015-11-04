@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+35efded4
+ * @version   2.3.0-canary+cb938608
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1182,7 +1182,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner) {
   'use strict';
 
   /**
@@ -1200,12 +1200,20 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
    */
   function Container(registry, options) {
     this.registry = registry;
+    this.owner = options && options.owner ? options.owner : null;
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
   }
 
   Container.prototype = {
+    /**
+     @private
+     @property owner
+     @type Object
+     */
+    owner: null,
+
     /**
      @private
      @property registry
@@ -1403,6 +1411,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       factoryInjections._toString = registry.makeToString(factory, fullName);
 
       var injectedFactory = factory.extend(injections);
+
+      if (_emberMetalFeatures.default('ember-container-inject-owner')) {
+        injectDeprecatedContainer(injectedFactory.prototype, container);
+      }
+
       injectedFactory.reopenClass(factoryInjections);
 
       if (factory && typeof factory._onLookup === 'function') {
@@ -1424,7 +1437,14 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
     var injections = buildInjections(container, registry.getTypeInjections(type), registry.getInjections(fullName));
     injections._debugContainerKey = fullName;
-    injections.container = container;
+
+    _containerOwner.setOwner(injections, container.owner);
+
+    // TODO - Inject a `FakeContainer` instead here. The `FakeContainer` will
+    // proxy all properties of the container with deprecations.
+    if (!_emberMetalFeatures.default('ember-container-inject-owner')) {
+      injections.container = container;
+    }
 
     return injections;
   }
@@ -1465,16 +1485,36 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
       validationCache[fullName] = true;
 
+      var obj = undefined;
+
       if (typeof factory.extend === 'function') {
         // assume the factory was extendable and is already injected
-        return factory.create();
+        obj = factory.create();
       } else {
         // assume the factory was extendable
         // to create time injections
         // TODO: support new'ing for instantiation and merge injections for pure JS Functions
-        return factory.create(injectionsFor(container, fullName));
+        obj = factory.create(injectionsFor(container, fullName));
+
+        if (_emberMetalFeatures.default('ember-container-inject-owner')) {
+          injectDeprecatedContainer(obj, container);
+        }
       }
+
+      return obj;
     }
+  }
+
+  // TODO - remove when Ember reaches v3.0.0
+  function injectDeprecatedContainer(object, container) {
+    Object.defineProperty(object, 'container', {
+      configurable: true,
+      enumerable: false,
+      get: function () {
+        _emberMetalCore.default.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0' });
+        return container;
+      }
+    });
   }
 
   function eachDestroyable(container, callback) {
@@ -1517,6 +1557,23 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
   }
 
   exports.default = Container;
+});
+enifed('container/owner', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
+  'use strict';
+
+  exports.getOwner = getOwner;
+  exports.setOwner = setOwner;
+  var OWNER = _emberMetalUtils.symbol('OWNER');
+
+  exports.OWNER = OWNER;
+
+  function getOwner(object) {
+    return object[OWNER];
+  }
+
+  function setOwner(object, owner) {
+    object[OWNER] = owner;
+  }
 });
 enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/assign', 'container/container'], function (exports, _emberMetalDebug, _emberMetalDictionary, _emberMetalAssign, _containerContainer) {
   'use strict';
@@ -2180,7 +2237,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
 
   exports.default = Registry;
 });
-enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'container/container'], function (exports, _emberMetalCore, _containerRegistry, _containerContainer) {
+enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'container/container', 'container/owner'], function (exports, _emberMetalCore, _containerRegistry, _containerContainer, _containerOwner) {
   'use strict';
 
   /*
@@ -2203,6 +2260,8 @@ enifed('container', ['exports', 'ember-metal/core', 'container/registry', 'conta
 
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
+  exports.getOwner = _containerOwner.getOwner;
+  exports.setOwner = _containerOwner.setOwner;
 });
 enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/dependent_keys'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalUtils, _emberMetalMeta, _emberMetalDependent_keys) {
   'use strict';
@@ -4607,7 +4666,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+35efded4
+    @version 2.3.0-canary+cb938608
     @public
   */
 
@@ -4651,11 +4710,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+35efded4'
+    @default '2.3.0-canary+cb938608'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+35efded4';
+  Ember.VERSION = '2.3.0-canary+cb938608';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5486,7 +5545,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-application-visit": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-application-visit": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null, "ember-container-inject-owner": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -5565,7 +5624,7 @@ enifed('ember-metal/get_properties', ['exports', 'ember-metal/property_get'], fu
     return ret;
   }
 });
-enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties'], function (exports, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties) {
+enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/properties', 'container/owner'], function (exports, _emberMetalDebug, _emberMetalComputed, _emberMetalAlias, _emberMetalProperties, _containerOwner) {
   'use strict';
 
   /**
@@ -5589,11 +5648,12 @@ enifed('ember-metal/injected_property', ['exports', 'ember-metal/debug', 'ember-
 
   function injectedPropertyGet(keyName) {
     var desc = this[keyName];
+    var owner = _containerOwner.getOwner(this);
 
     _emberMetalDebug.assert('InjectedProperties should be defined with the Ember.inject computed property macros.', desc && desc.isDescriptor && desc.type);
-    _emberMetalDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', this.container);
+    _emberMetalDebug.assert('Attempting to lookup an injected property on an object without a container, ensure that the object was instantiated via a container.', owner);
 
-    return this.container.lookup(desc.type + ':' + (desc.name || keyName));
+    return owner.lookup(desc.type + ':' + (desc.name || keyName));
   }
 
   InjectedProperty.prototype = Object.create(_emberMetalProperties.Descriptor.prototype);
@@ -14383,8 +14443,6 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
     */
     target: null,
 
-    container: null,
-
     parentController: null,
 
     store: null,
@@ -17590,7 +17648,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
 
   exports.default = ArrayProxy;
 });
-enifed('ember-runtime/system/container', ['exports', 'ember-metal/property_set', 'container/registry', 'container/container'], function (exports, _emberMetalProperty_set, _containerRegistry, _containerContainer) {
+enifed('ember-runtime/system/container', ['exports', 'ember-metal/property_set', 'container/registry', 'container/container', 'container/owner'], function (exports, _emberMetalProperty_set, _containerRegistry, _containerContainer, _containerOwner) {
   'use strict';
 
   _containerRegistry.default.set = _emberMetalProperty_set.set;
@@ -17598,6 +17656,8 @@ enifed('ember-runtime/system/container', ['exports', 'ember-metal/property_set',
 
   exports.Registry = _containerRegistry.default;
   exports.Container = _containerContainer.default;
+  exports.getOwner = _containerOwner.getOwner;
+  exports.setOwner = _containerOwner.setOwner;
 });
 enifed('ember-runtime/system/core_object', ['exports', 'ember-metal', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/assign', 'ember-metal/property_get', 'ember-metal/utils', 'ember-metal/meta', 'ember-metal/chains', 'ember-metal/events', 'ember-metal/mixin', 'ember-metal/error', 'ember-runtime/mixins/action_handler', 'ember-metal/properties', 'ember-metal/binding', 'ember-metal/computed', 'ember-metal/injected_property', 'ember-metal/run_loop', 'ember-metal/watching', 'ember-metal/core', 'ember-runtime/inject'], function (exports, _emberMetal, _emberMetalDebug, _emberMetalFeatures, _emberMetalAssign, _emberMetalProperty_get, _emberMetalUtils, _emberMetalMeta, _emberMetalChains, _emberMetalEvents, _emberMetalMixin, _emberMetalError, _emberRuntimeMixinsAction_handler, _emberMetalProperties, _emberMetalBinding, _emberMetalComputed, _emberMetalInjected_property, _emberMetalRun_loop, _emberMetalWatching, _emberMetalCore, _emberRuntimeInject) {
   'no use strict';
@@ -19651,7 +19711,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
     return ret;
   }
 });
-enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils) {
+enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'ember-runtime/compare', 'ember-runtime/copy', 'ember-runtime/inject', 'ember-runtime/system/namespace', 'ember-runtime/system/object', 'ember-runtime/system/container', 'ember-runtime/system/array_proxy', 'ember-runtime/system/object_proxy', 'ember-runtime/system/core_object', 'ember-runtime/system/native_array', 'ember-runtime/system/string', 'ember-runtime/system/lazy_load', 'ember-runtime/mixins/array', 'ember-runtime/mixins/comparable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/enumerable', 'ember-runtime/mixins/freezable', 'ember-runtime/mixins/-proxy', 'ember-runtime/mixins/observable', 'ember-runtime/mixins/action_handler', 'ember-runtime/mixins/mutable_enumerable', 'ember-runtime/mixins/mutable_array', 'ember-runtime/mixins/target_action_support', 'ember-runtime/mixins/evented', 'ember-runtime/mixins/promise_proxy', 'ember-runtime/computed/reduce_computed_macros', 'ember-runtime/controllers/controller', 'ember-runtime/mixins/controller', 'ember-runtime/system/service', 'ember-runtime/ext/rsvp', 'ember-runtime/ext/string', 'ember-runtime/ext/function', 'ember-runtime/utils', 'ember-metal/features'], function (exports, _emberMetal, _emberRuntimeIsEqual, _emberRuntimeCompare, _emberRuntimeCopy, _emberRuntimeInject, _emberRuntimeSystemNamespace, _emberRuntimeSystemObject, _emberRuntimeSystemContainer, _emberRuntimeSystemArray_proxy, _emberRuntimeSystemObject_proxy, _emberRuntimeSystemCore_object, _emberRuntimeSystemNative_array, _emberRuntimeSystemString, _emberRuntimeSystemLazy_load, _emberRuntimeMixinsArray, _emberRuntimeMixinsComparable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsEnumerable, _emberRuntimeMixinsFreezable, _emberRuntimeMixinsProxy, _emberRuntimeMixinsObservable, _emberRuntimeMixinsAction_handler, _emberRuntimeMixinsMutable_enumerable, _emberRuntimeMixinsMutable_array, _emberRuntimeMixinsTarget_action_support, _emberRuntimeMixinsEvented, _emberRuntimeMixinsPromise_proxy, _emberRuntimeComputedReduce_computed_macros, _emberRuntimeControllersController, _emberRuntimeMixinsController, _emberRuntimeSystemService, _emberRuntimeExtRsvp, _emberRuntimeExtString, _emberRuntimeExtFunction, _emberRuntimeUtils, _emberMetalFeatures) {
   /**
   @module ember
   @submodule ember-runtime
@@ -19710,6 +19770,12 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'em
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
   _emberMetal.default.Container = _emberRuntimeSystemContainer.Container;
   _emberMetal.default.Registry = _emberRuntimeSystemContainer.Registry;
+
+  if (_emberMetalFeatures.default('ember-container-inject-owner')) {
+    _emberMetal.default.getOwner = _emberRuntimeSystemContainer.getOwner;
+    _emberMetal.default.setOwner = _emberRuntimeSystemContainer.setOwner;
+  }
+
   _emberMetal.default.Namespace = _emberRuntimeSystemNamespace.default;
   _emberMetal.default.Enumerable = _emberRuntimeMixinsEnumerable.default;
   _emberMetal.default.ArrayProxy = _emberRuntimeSystemArray_proxy.default;
