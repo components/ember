@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.10+33df9d99
+ * @version   1.13.10+a7a52710
  */
 
 (function() {
@@ -1784,7 +1784,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       _emberMetalCore["default"].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore["default"].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        _emberMetalCore["default"].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.calling-lookup-from-registry', until: '2.0.0', url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
       return this._defaultContainer.lookup(fullName, options);
@@ -1794,7 +1794,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       _emberMetalCore["default"].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore["default"].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        _emberMetalCore["default"].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.calling-lookupfactory-from-registry', until: '2.0.0', url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
       return this._defaultContainer.lookupFactory(fullName);
@@ -5170,7 +5170,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.10+33df9d99
+    @version 1.13.10+a7a52710
     @public
   */
 
@@ -5204,11 +5204,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.10+33df9d99'
+    @default '1.13.10+a7a52710'
     @static
     @public
   */
-  Ember.VERSION = '1.13.10+33df9d99';
+  Ember.VERSION = '1.13.10+a7a52710';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15453,7 +15453,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated, { url: 'http://emberjs.com/guides/deprecations#toc_arraycontroller' });
+      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated, { id: 'ember-runtime.array-controller', until: '2.0.0', url: 'http://emberjs.com/guides/deprecations#toc_arraycontroller' });
 
       this._super.apply(this, arguments);
       this._subControllers = [];
@@ -15626,7 +15626,7 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
   exports["default"] = _emberRuntimeSystemObject_proxy["default"].extend(_emberRuntimeMixinsController["default"], {
     init: function () {
       this._super();
-      _emberMetalCore["default"].deprecate(objectControllerDeprecation, this.isGenerated);
+      _emberMetalCore["default"].deprecate(objectControllerDeprecation, this.isGenerated, { id: 'ember-runtime.object-controller', until: '2.0.0' });
     }
   });
 });

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.10+33df9d99
+ * @version   1.13.10+a7a52710
  */
 
 (function() {
@@ -1784,7 +1784,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       _emberMetalCore["default"].assert('Create a container on the registry (with `registry.container()`) before calling `lookup`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore["default"].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        _emberMetalCore["default"].deprecate('`lookup` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.calling-lookup-from-registry', until: '2.0.0', url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
       return this._defaultContainer.lookup(fullName, options);
@@ -1794,7 +1794,7 @@ enifed('container/registry', ['exports', 'ember-metal/core', 'ember-metal/dictio
       _emberMetalCore["default"].assert('Create a container on the registry (with `registry.container()`) before calling `lookupFactory`.', this._defaultContainer);
 
       if (instanceInitializersFeatureEnabled) {
-        _emberMetalCore["default"].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
+        _emberMetalCore["default"].deprecate('`lookupFactory` was called on a Registry. The `initializer` API no longer receives a container, and you should use an `instanceInitializer` to look up objects from the container.', false, { id: 'container.calling-lookupfactory-from-registry', until: '2.0.0', url: "http://emberjs.com/guides/deprecations#toc_deprecate-access-to-instances-in-initializers" });
       }
 
       return this._defaultContainer.lookupFactory(fullName);
@@ -5454,7 +5454,7 @@ enifed('ember-application/utils/validate-type', ['exports'], function (exports) 
     var expectedType = validationAttributes[2];
 
     if (action === 'deprecate') {
-      Ember.deprecate('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), resolvedType[factoryFlag]);
+      Ember.deprecate('In Ember 2.0 ' + parsedName.type + ' factories must have an `' + factoryFlag + '` ' + ('property set to true. You registered ' + resolvedType + ' as a ' + parsedName.type + ' ') + ('factory. Either add the `' + factoryFlag + '` property to this factory or ') + ('extend from ' + expectedType + '.'), resolvedType[factoryFlag], { id: 'ember-application.validate-type', until: '3.0.0' });
     } else {
       Ember.assert('Expected ' + parsedName.fullName + ' to resolve to an ' + expectedType + ' but ' + ('instead it was ' + resolvedType + '.'), function () {
         return resolvedType[factoryFlag];
@@ -9702,7 +9702,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+33df9d99';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+a7a52710';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -11639,7 +11639,7 @@ enifed("ember-htmlbars/system/lookup-helper", ["exports", "ember-metal/core", "e
   }
 
   function isLegacyBareHelper(helper) {
-    return helper && (!helper.isHelperFactory && !helper.isHelperInstance && !helper.isHTMLBars);
+    return helper && !helper.isHelperFactory && !helper.isHelperInstance && !helper.isHTMLBars;
   }
 
   /**
@@ -16033,7 +16033,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.10+33df9d99
+    @version 1.13.10+a7a52710
     @public
   */
 
@@ -16067,11 +16067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.10+33df9d99'
+    @default '1.13.10+a7a52710'
     @static
     @public
   */
-  Ember.VERSION = '1.13.10+33df9d99';
+  Ember.VERSION = '1.13.10+a7a52710';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25114,7 +25114,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.10+33df9d99';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.10+a7a52710';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -25641,7 +25641,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+33df9d99';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+a7a52710';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -32960,7 +32960,7 @@ enifed('ember-runtime/controllers/array_controller', ['exports', 'ember-metal/co
     },
 
     init: function () {
-      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated, { url: 'http://emberjs.com/guides/deprecations#toc_arraycontroller' });
+      _emberMetalCore["default"].deprecate(arrayControllerDeprecation, this.isGenerated, { id: 'ember-runtime.array-controller', until: '2.0.0', url: 'http://emberjs.com/guides/deprecations#toc_arraycontroller' });
 
       this._super.apply(this, arguments);
       this._subControllers = [];
@@ -33133,7 +33133,7 @@ enifed('ember-runtime/controllers/object_controller', ['exports', 'ember-metal/c
   exports["default"] = _emberRuntimeSystemObject_proxy["default"].extend(_emberRuntimeMixinsController["default"], {
     init: function () {
       this._super();
-      _emberMetalCore["default"].deprecate(objectControllerDeprecation, this.isGenerated);
+      _emberMetalCore["default"].deprecate(objectControllerDeprecation, this.isGenerated, { id: 'ember-runtime.object-controller', until: '2.0.0' });
     }
   });
 });
@@ -42639,7 +42639,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.10+33df9d99',
+        revision: 'Ember@1.13.10+a7a52710',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -47641,7 +47641,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
     */
     template: _emberMetalComputed.computed({
       get: function () {
-        _emberMetalCore["default"].deprecate("Accessing 'template' in " + this + " is deprecated. To determine if a block was specified to " + this + " please use '{{#if hasBlock}}' in the components layout.");
+        _emberMetalCore["default"].deprecate("Accessing 'template' in " + this + " is deprecated. To determine if a block was specified to " + this + " please use '{{#if hasBlock}}' in the components layout.", false, { id: 'ember-views.accessing-template', until: '2.0.0' });
 
         return _emberMetalProperty_get.get(this, '_template');
       },
@@ -47891,7 +47891,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.10+33df9d99';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.10+a7a52710';
 
   /**
   @module ember
@@ -50760,15 +50760,15 @@ enifed("ember-views/views/view", ["exports", "ember-metal/core", "ember-runtime/
     scheduleRevalidate: function (node, label, manualRerender) {
       if (node && !this._dispatching && node.guid in this.env.renderedNodes) {
         if (manualRerender) {
-          _emberMetalCore["default"].deprecate("You manually rerendered " + label + " (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0");
+          _emberMetalCore["default"].deprecate("You manually rerendered " + label + " (a parent component) from a child component during the rendering process. This rarely worked in Ember 1.x and will be removed in Ember 2.0", false, { id: 'ember-views.manual-parent-rerender', until: '3.0.0' });
         } else {
-          _emberMetalCore["default"].deprecate("You modified " + label + " twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0");
+          _emberMetalCore["default"].deprecate("You modified " + label + " twice in a single render. This was unreliable in Ember 1.x and will be removed in Ember 2.0", false, { id: 'ember-views.render-double-modify', until: '3.0.0' });
         }
         _emberMetalRun_loop["default"].scheduleOnce('render', this, this.revalidate);
         return;
       }
 
-      _emberMetalCore["default"].deprecate("A property of " + this + " was modified inside the " + this._dispatching + " hook. You should never change properties on components, services or models during " + this._dispatching + " because it causes significant performance degradation.", !this._dispatching);
+      _emberMetalCore["default"].deprecate("A property of " + this + " was modified inside the " + this._dispatching + " hook. You should never change properties on components, services or models during " + this._dispatching + " because it causes significant performance degradation.", !this._dispatching, { id: 'ember-views.dispatching-modify-property', until: '3.0.0' });
 
       if (!this.scheduledRevalidation || this._dispatching) {
         this.scheduledRevalidation = true;
