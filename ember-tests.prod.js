@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+dee77242
+ * @version   2.3.0-canary+7584a77f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -24016,17 +24016,37 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here');
   });
 
-  QUnit.test('lookup of component takes priority over property', function () {
+  QUnit.test('non-block with properties on overridden in init', function () {
     var _EmberView$extend6;
+
+    owner.register('component:non-block', _emberViewsComponentsComponent.default.extend({
+      someProp: null,
+
+      init: function () {
+        this._super.apply(this, arguments);
+        this.someProp = 'value set in init';
+      }
+    }));
+    owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}}'));
+
+    view = _emberViewsViewsView.default.extend((_EmberView$extend6 = {}, _EmberView$extend6[_containerOwner.OWNER] = owner, _EmberView$extend6.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something passed when invoked"}}'), _EmberView$extend6)).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'In layout - someProp: value set in init');
+  });
+
+  QUnit.test('lookup of component takes priority over property', function () {
+    var _EmberView$extend7;
 
     expect(1);
 
     owner.register('template:components/some-component', _emberTemplateCompilerSystemCompile.default('some-component'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend6 = {}, _EmberView$extend6[_containerOwner.OWNER] = owner, _EmberView$extend6.template = _emberTemplateCompilerSystemCompile.default('{{some-prop}} {{some-component}}'), _EmberView$extend6.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend7 = {}, _EmberView$extend7[_containerOwner.OWNER] = owner, _EmberView$extend7.template = _emberTemplateCompilerSystemCompile.default('{{some-prop}} {{some-component}}'), _EmberView$extend7.context = {
       'some-component': 'not-some-component',
       'some-prop': 'some-prop'
-    }, _EmberView$extend6)).create();
+    }, _EmberView$extend7)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24034,15 +24054,15 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('component without dash is not looked up', function () {
-    var _EmberView$extend7;
+    var _EmberView$extend8;
 
     expect(1);
 
     owner.register('template:components/somecomponent', _emberTemplateCompilerSystemCompile.default('somecomponent'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend7 = {}, _EmberView$extend7[_containerOwner.OWNER] = owner, _EmberView$extend7.template = _emberTemplateCompilerSystemCompile.default('{{somecomponent}}'), _EmberView$extend7.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend8 = {}, _EmberView$extend8[_containerOwner.OWNER] = owner, _EmberView$extend8.template = _emberTemplateCompilerSystemCompile.default('{{somecomponent}}'), _EmberView$extend8.context = {
       'somecomponent': 'notsomecomponent'
-    }, _EmberView$extend7)).create();
+    }, _EmberView$extend8)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24050,7 +24070,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('rerendering component with attrs from parent', function () {
-    var _EmberView$extend8;
+    var _EmberView$extend9;
 
     var willUpdate = 0;
     var didReceiveAttrs = 0;
@@ -24066,7 +24086,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     }));
     owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend8 = {}, _EmberView$extend8[_containerOwner.OWNER] = owner, _EmberView$extend8.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp=view.someProp}}'), _EmberView$extend8.someProp = 'wycats', _EmberView$extend8)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend9 = {}, _EmberView$extend9[_containerOwner.OWNER] = owner, _EmberView$extend9.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp=view.someProp}}'), _EmberView$extend9.someProp = 'wycats', _EmberView$extend9)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24090,14 +24110,14 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('[DEPRECATED] non-block with properties on self', function () {
-    var _EmberView$extend9;
+    var _EmberView$extend10;
 
     // TODO: attrs
     // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
 
     owner.register('template:components/non-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend9 = {}, _EmberView$extend9[_containerOwner.OWNER] = owner, _EmberView$extend9.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something here"}}'), _EmberView$extend9)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend10 = {}, _EmberView$extend10[_containerOwner.OWNER] = owner, _EmberView$extend10.template = _emberTemplateCompilerSystemCompile.default('{{non-block someProp="something here"}}'), _EmberView$extend10)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24105,26 +24125,11 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('block with properties on attrs', function () {
-    var _EmberView$extend10;
+    var _EmberView$extend11;
 
     expect(1);
 
     owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{attrs.someProp}} - {{yield}}'));
-
-    view = _emberViewsViewsView.default.extend((_EmberView$extend10 = {}, _EmberView$extend10[_containerOwner.OWNER] = owner, _EmberView$extend10.template = _emberTemplateCompilerSystemCompile.default('{{#with-block someProp="something here"}}In template{{/with-block}}'), _EmberView$extend10)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
-  });
-
-  QUnit.test('[DEPRECATED] block with properties on self', function () {
-    var _EmberView$extend11;
-
-    // TODO: attrs
-    // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
-
-    owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}} - {{yield}}'));
 
     view = _emberViewsViewsView.default.extend((_EmberView$extend11 = {}, _EmberView$extend11[_containerOwner.OWNER] = owner, _EmberView$extend11.template = _emberTemplateCompilerSystemCompile.default('{{#with-block someProp="something here"}}In template{{/with-block}}'), _EmberView$extend11)).create();
 
@@ -24133,14 +24138,29 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
   });
 
-  QUnit.test('with ariaRole specified', function () {
+  QUnit.test('[DEPRECATED] block with properties on self', function () {
     var _EmberView$extend12;
+
+    // TODO: attrs
+    // expectDeprecation("You accessed the `someProp` attribute directly. Please use `attrs.someProp` instead.");
+
+    owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('In layout - someProp: {{someProp}} - {{yield}}'));
+
+    view = _emberViewsViewsView.default.extend((_EmberView$extend12 = {}, _EmberView$extend12[_containerOwner.OWNER] = owner, _EmberView$extend12.template = _emberTemplateCompilerSystemCompile.default('{{#with-block someProp="something here"}}In template{{/with-block}}'), _EmberView$extend12)).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'In layout - someProp: something here - In template');
+  });
+
+  QUnit.test('with ariaRole specified', function () {
+    var _EmberView$extend13;
 
     expect(1);
 
     owner.register('template:components/aria-test', _emberTemplateCompilerSystemCompile.default('Here!'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend12 = {}, _EmberView$extend12[_containerOwner.OWNER] = owner, _EmberView$extend12.template = _emberTemplateCompilerSystemCompile.default('{{aria-test id="aria-test" ariaRole="main"}}'), _EmberView$extend12)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend13 = {}, _EmberView$extend13[_containerOwner.OWNER] = owner, _EmberView$extend13.template = _emberTemplateCompilerSystemCompile.default('{{aria-test id="aria-test" ariaRole="main"}}'), _EmberView$extend13)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24148,7 +24168,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('`template` specified in a component is overridden by block', function () {
-    var _EmberView$extend13;
+    var _EmberView$extend14;
 
     expect(1);
 
@@ -24157,7 +24177,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       template: _emberTemplateCompilerSystemCompile.default('Oh, noes!')
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend13 = {}, _EmberView$extend13[_containerOwner.OWNER] = owner, _EmberView$extend13.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}Whoop, whoop!{{/with-block}}'), _EmberView$extend13)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend14 = {}, _EmberView$extend14[_containerOwner.OWNER] = owner, _EmberView$extend14.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}Whoop, whoop!{{/with-block}}'), _EmberView$extend14)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24165,13 +24185,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('hasBlock is true when block supplied', function () {
-    var _EmberView$extend14;
+    var _EmberView$extend15;
 
     expect(1);
 
     owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend14 = {}, _EmberView$extend14[_containerOwner.OWNER] = owner, _EmberView$extend14.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In template{{/with-block}}'), _EmberView$extend14)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend15 = {}, _EmberView$extend15[_containerOwner.OWNER] = owner, _EmberView$extend15.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In template{{/with-block}}'), _EmberView$extend15)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24179,13 +24199,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('hasBlock is false when no block supplied', function () {
-    var _EmberView$extend15;
+    var _EmberView$extend16;
 
     expect(1);
 
     owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}{{yield}}{{else}}No Block!{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend15 = {}, _EmberView$extend15[_containerOwner.OWNER] = owner, _EmberView$extend15.template = _emberTemplateCompilerSystemCompile.default('{{with-block}}'), _EmberView$extend15)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend16 = {}, _EmberView$extend16[_containerOwner.OWNER] = owner, _EmberView$extend16.template = _emberTemplateCompilerSystemCompile.default('{{with-block}}'), _EmberView$extend16)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24193,13 +24213,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('hasBlockParams is true when block param supplied', function () {
-    var _EmberView$extend16;
+    var _EmberView$extend17;
 
     expect(1);
 
     owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}{{yield this}} - In Component{{else}}{{yield}} No Block!{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend16 = {}, _EmberView$extend16[_containerOwner.OWNER] = owner, _EmberView$extend16.template = _emberTemplateCompilerSystemCompile.default('{{#with-block as |something|}}In template{{/with-block}}'), _EmberView$extend16)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend17 = {}, _EmberView$extend17[_containerOwner.OWNER] = owner, _EmberView$extend17.template = _emberTemplateCompilerSystemCompile.default('{{#with-block as |something|}}In template{{/with-block}}'), _EmberView$extend17)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24207,13 +24227,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('hasBlockParams is false when no block param supplied', function () {
-    var _EmberView$extend17;
+    var _EmberView$extend18;
 
     expect(1);
 
     owner.register('template:components/with-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}{{yield this}}{{else}}{{yield}} No Block Param!{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend17 = {}, _EmberView$extend17[_containerOwner.OWNER] = owner, _EmberView$extend17.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In block{{/with-block}}'), _EmberView$extend17)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend18 = {}, _EmberView$extend18[_containerOwner.OWNER] = owner, _EmberView$extend18.template = _emberTemplateCompilerSystemCompile.default('{{#with-block}}In block{{/with-block}}'), _EmberView$extend18)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24221,7 +24241,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('static named positional parameters', function () {
-    var _EmberView$extend18;
+    var _EmberView$extend19;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24230,7 +24250,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend18 = {}, _EmberView$extend18[_containerOwner.OWNER] = owner, _EmberView$extend18.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Quint" 4}}'), _EmberView$extend18)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend19 = {}, _EmberView$extend19[_containerOwner.OWNER] = owner, _EmberView$extend19.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Quint" 4}}'), _EmberView$extend19)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24238,7 +24258,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('dynamic named positional parameters', function () {
-    var _EmberView$extend19;
+    var _EmberView$extend20;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24248,10 +24268,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend19 = {}, _EmberView$extend19[_containerOwner.OWNER] = owner, _EmberView$extend19.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component myName myAge}}'), _EmberView$extend19.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend20 = {}, _EmberView$extend20[_containerOwner.OWNER] = owner, _EmberView$extend20.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component myName myAge}}'), _EmberView$extend20.context = {
       myName: 'Quint',
       myAge: 4
-    }, _EmberView$extend19)).create();
+    }, _EmberView$extend20)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24265,7 +24285,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('if a value is passed as a non-positional parameter, it takes precedence over the named one', function () {
-    var _EmberView$extend20;
+    var _EmberView$extend21;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24275,10 +24295,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend20 = {}, _EmberView$extend20[_containerOwner.OWNER] = owner, _EmberView$extend20.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component notMyName name=myName}}'), _EmberView$extend20.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend21 = {}, _EmberView$extend21[_containerOwner.OWNER] = owner, _EmberView$extend21.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component notMyName name=myName}}'), _EmberView$extend21.context = {
       myName: 'Quint',
       notMyName: 'Sergio'
-    }, _EmberView$extend20)).create();
+    }, _EmberView$extend21)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(view);
@@ -24286,26 +24306,6 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('static arbitrary number of positional parameters', function () {
-    var _EmberView$extend21;
-
-    var SampleComponent = _emberViewsComponentsComponent.default.extend();
-    SampleComponent.reopenClass({
-      positionalParams: 'names'
-    });
-
-    owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
-    owner.register('component:sample-component', SampleComponent);
-
-    view = _emberViewsViewsView.default.extend((_EmberView$extend21 = {}, _EmberView$extend21[_containerOwner.OWNER] = owner, _EmberView$extend21.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" id="args-3"}}{{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}{{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'), _EmberView$extend21)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-
-    equal(view.$('#args-3').text(), 'Foo4Bar');
-    equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
-    equal(view.$('#helper').text(), 'Foo4Bar5Baz');
-  });
-
-  QUnit.test('arbitrary positional parameter conflict with hash parameter is reported', function () {
     var _EmberView$extend22;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
@@ -24316,16 +24316,16 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend22 = {}, _EmberView$extend22[_containerOwner.OWNER] = owner, _EmberView$extend22.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}'), _EmberView$extend22.context = {
-      numbers: [1, 2, 3]
-    }, _EmberView$extend22)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend22 = {}, _EmberView$extend22[_containerOwner.OWNER] = owner, _EmberView$extend22.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" id="args-3"}}{{sample-component "Foo" 4 "Bar" 5 "Baz" id="args-5"}}{{component "sample-component" "Foo" 4 "Bar" 5 "Baz" id="helper"}}'), _EmberView$extend22)).create();
 
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(view);
-    }, 'You cannot specify positional parameters and the hash argument `names`.');
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$('#args-3').text(), 'Foo4Bar');
+    equal(view.$('#args-5').text(), 'Foo4Bar5Baz');
+    equal(view.$('#helper').text(), 'Foo4Bar5Baz');
   });
 
-  QUnit.test('can use hash parameter instead of arbitrary positional param [GH #12444]', function () {
+  QUnit.test('arbitrary positional parameter conflict with hash parameter is reported', function () {
     var _EmberView$extend23;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
@@ -24336,9 +24336,29 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend23 = {}, _EmberView$extend23[_containerOwner.OWNER] = owner, _EmberView$extend23.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component names=things id="args-3"}}'), _EmberView$extend23.context = {
-      things: ['Foo', 4, 'Bar']
+    view = _emberViewsViewsView.default.extend((_EmberView$extend23 = {}, _EmberView$extend23[_containerOwner.OWNER] = owner, _EmberView$extend23.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component "Foo" 4 "Bar" names=numbers id="args-3"}}'), _EmberView$extend23.context = {
+      numbers: [1, 2, 3]
     }, _EmberView$extend23)).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(view);
+    }, 'You cannot specify positional parameters and the hash argument `names`.');
+  });
+
+  QUnit.test('can use hash parameter instead of arbitrary positional param [GH #12444]', function () {
+    var _EmberView$extend24;
+
+    var SampleComponent = _emberViewsComponentsComponent.default.extend();
+    SampleComponent.reopenClass({
+      positionalParams: 'names'
+    });
+
+    owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.names as |name|}}{{name}}{{/each}}'));
+    owner.register('component:sample-component', SampleComponent);
+
+    view = _emberViewsViewsView.default.extend((_EmberView$extend24 = {}, _EmberView$extend24[_containerOwner.OWNER] = owner, _EmberView$extend24.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component names=things id="args-3"}}'), _EmberView$extend24.context = {
+      things: ['Foo', 4, 'Bar']
+    }, _EmberView$extend24)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24346,7 +24366,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('can use hash parameter instead of positional param', function () {
-    var _EmberView$extend24;
+    var _EmberView$extend25;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24356,9 +24376,9 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.first}} - {{attrs.second}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend24 = {}, _EmberView$extend24[_containerOwner.OWNER] = owner, _EmberView$extend24.layout = _emberTemplateCompilerSystemCompile.default('\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}\n\n    '), _EmberView$extend24.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend25 = {}, _EmberView$extend25[_containerOwner.OWNER] = owner, _EmberView$extend25.layout = _emberTemplateCompilerSystemCompile.default('\n      {{sample-component "one" "two" id="two-positional"}}\n      {{sample-component "one" second="two" id="one-positional"}}\n      {{sample-component first="one" second="two" id="no-positional"}}\n\n    '), _EmberView$extend25.context = {
       things: ['Foo', 4, 'Bar']
-    }, _EmberView$extend24)).create();
+    }, _EmberView$extend25)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24368,7 +24388,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('dynamic arbitrary number of positional parameters', function () {
-    var _EmberView$extend25;
+    var _EmberView$extend26;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24377,10 +24397,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{#each attrs.n as |name|}}{{name}}{{/each}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend25 = {}, _EmberView$extend25[_containerOwner.OWNER] = owner, _EmberView$extend25.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component user1 user2 id="direct"}}{{component "sample-component" user1 user2 id="helper"}}'), _EmberView$extend25.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend26 = {}, _EmberView$extend26[_containerOwner.OWNER] = owner, _EmberView$extend26.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component user1 user2 id="direct"}}{{component "sample-component" user1 user2 id="helper"}}'), _EmberView$extend26.context = {
       user1: 'Foo',
       user2: 4
-    }, _EmberView$extend25)).create();
+    }, _EmberView$extend26)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24403,7 +24423,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
-    var _EmberView$extend26;
+    var _EmberView$extend27;
 
     expect(1);
 
@@ -24418,13 +24438,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend26 = {}, _EmberView$extend26[_containerOwner.OWNER] = owner, _EmberView$extend26.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _EmberView$extend26)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend27 = {}, _EmberView$extend27[_containerOwner.OWNER] = owner, _EmberView$extend27.layout = _emberTemplateCompilerSystemCompile.default('{{sample-component}}'), _EmberView$extend27)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
   });
 
   QUnit.test('moduleName is available on _renderNode when no layout is present', function () {
-    var _EmberView$extend27;
+    var _EmberView$extend28;
 
     expect(1);
 
@@ -24435,15 +24455,15 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend27 = {}, _EmberView$extend27[_containerOwner.OWNER] = owner, _EmberView$extend27.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend28 = {}, _EmberView$extend28[_containerOwner.OWNER] = owner, _EmberView$extend28.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
       moduleName: templateModuleName
-    }), _EmberView$extend27)).create();
+    }), _EmberView$extend28)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
   });
 
   QUnit.test('{{component}} helper works with positional params', function () {
-    var _EmberView$extend28;
+    var _EmberView$extend29;
 
     var SampleComponent = _emberViewsComponentsComponent.default.extend();
     SampleComponent.reopenClass({
@@ -24453,10 +24473,10 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/sample-component', _emberTemplateCompilerSystemCompile.default('{{attrs.name}}{{attrs.age}}'));
     owner.register('component:sample-component', SampleComponent);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend28 = {}, _EmberView$extend28[_containerOwner.OWNER] = owner, _EmberView$extend28.layout = _emberTemplateCompilerSystemCompile.default('{{component "sample-component" myName myAge}}'), _EmberView$extend28.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend29 = {}, _EmberView$extend29[_containerOwner.OWNER] = owner, _EmberView$extend29.layout = _emberTemplateCompilerSystemCompile.default('{{component "sample-component" myName myAge}}'), _EmberView$extend29.context = {
       myName: 'Quint',
       myAge: 4
-    }, _EmberView$extend28)).create();
+    }, _EmberView$extend29)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Quint4');
@@ -24469,13 +24489,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('yield to inverse', function () {
-    var _EmberView$extend29;
+    var _EmberView$extend30;
 
     owner.register('template:components/my-if', _emberTemplateCompilerSystemCompile.default('{{#if predicate}}Yes:{{yield someValue}}{{else}}No:{{yield to="inverse"}}{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend29 = {}, _EmberView$extend29[_containerOwner.OWNER] = owner, _EmberView$extend29.layout = _emberTemplateCompilerSystemCompile.default('{{#my-if predicate=activated someValue=42 as |result|}}Hello{{result}}{{else}}Goodbye{{/my-if}}'), _EmberView$extend29.context = {
+    view = _emberViewsViewsView.default.extend((_EmberView$extend30 = {}, _EmberView$extend30[_containerOwner.OWNER] = owner, _EmberView$extend30.layout = _emberTemplateCompilerSystemCompile.default('{{#my-if predicate=activated someValue=42 as |result|}}Hello{{result}}{{else}}Goodbye{{/my-if}}'), _EmberView$extend30.context = {
       activated: true
-    }, _EmberView$extend29)).create();
+    }, _EmberView$extend30)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(_emberViewsSystemJquery.default('#qunit-fixture').text(), 'Yes:Hello42');
@@ -24487,11 +24507,11 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('parameterized hasBlock inverse', function () {
-    var _EmberView$extend30;
+    var _EmberView$extend31;
 
     owner.register('template:components/check-inverse', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlock "inverse")}}Yes{{else}}No{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend30 = {}, _EmberView$extend30[_containerOwner.OWNER] = owner, _EmberView$extend30.layout = _emberTemplateCompilerSystemCompile.default('{{#check-inverse id="expect-no"}}{{/check-inverse}}  {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'), _EmberView$extend30)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend31 = {}, _EmberView$extend31[_containerOwner.OWNER] = owner, _EmberView$extend31.layout = _emberTemplateCompilerSystemCompile.default('{{#check-inverse id="expect-no"}}{{/check-inverse}}  {{#check-inverse id="expect-yes"}}{{else}}{{/check-inverse}}'), _EmberView$extend31)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
@@ -24499,21 +24519,9 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('parameterized hasBlock default', function () {
-    var _EmberView$extend31;
-
-    owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlock)}}Yes{{else}}No{{/if}}'));
-
-    view = _emberViewsViewsView.default.extend((_EmberView$extend31 = {}, _EmberView$extend31[_containerOwner.OWNER] = owner, _EmberView$extend31.layout = _emberTemplateCompilerSystemCompile.default('{{check-block id="expect-no"}}  {{#check-block id="expect-yes"}}{{/check-block}}'), _EmberView$extend31)).create();
-
-    _emberRuntimeTestsUtils.runAppend(view);
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
-    equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
-  });
-
-  QUnit.test('non-expression hasBlock ', function () {
     var _EmberView$extend32;
 
-    owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}Yes{{else}}No{{/if}}'));
+    owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlock)}}Yes{{else}}No{{/if}}'));
 
     view = _emberViewsViewsView.default.extend((_EmberView$extend32 = {}, _EmberView$extend32[_containerOwner.OWNER] = owner, _EmberView$extend32.layout = _emberTemplateCompilerSystemCompile.default('{{check-block id="expect-no"}}  {{#check-block id="expect-yes"}}{{/check-block}}'), _EmberView$extend32)).create();
 
@@ -24522,22 +24530,22 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
   });
 
-  QUnit.test('parameterized hasBlockParams', function () {
+  QUnit.test('non-expression hasBlock ', function () {
     var _EmberView$extend33;
 
-    owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlockParams)}}Yes{{else}}No{{/if}}'));
+    owner.register('template:components/check-block', _emberTemplateCompilerSystemCompile.default('{{#if hasBlock}}Yes{{else}}No{{/if}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend33 = {}, _EmberView$extend33[_containerOwner.OWNER] = owner, _EmberView$extend33.layout = _emberTemplateCompilerSystemCompile.default('{{#check-params id="expect-no"}}{{/check-params}}  {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'), _EmberView$extend33)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend33 = {}, _EmberView$extend33[_containerOwner.OWNER] = owner, _EmberView$extend33.layout = _emberTemplateCompilerSystemCompile.default('{{check-block id="expect-no"}}  {{#check-block id="expect-yes"}}{{/check-block}}'), _EmberView$extend33)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
   });
 
-  QUnit.test('non-expression hasBlockParams', function () {
+  QUnit.test('parameterized hasBlockParams', function () {
     var _EmberView$extend34;
 
-    owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}Yes{{else}}No{{/if}}'));
+    owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if (hasBlockParams)}}Yes{{else}}No{{/if}}'));
 
     view = _emberViewsViewsView.default.extend((_EmberView$extend34 = {}, _EmberView$extend34[_containerOwner.OWNER] = owner, _EmberView$extend34.layout = _emberTemplateCompilerSystemCompile.default('{{#check-params id="expect-no"}}{{/check-params}}  {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'), _EmberView$extend34)).create();
 
@@ -24546,8 +24554,20 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
   });
 
-  QUnit.test('components in template of a yielding component should have the proper parentView', function () {
+  QUnit.test('non-expression hasBlockParams', function () {
     var _EmberView$extend35;
+
+    owner.register('template:components/check-params', _emberTemplateCompilerSystemCompile.default('{{#if hasBlockParams}}Yes{{else}}No{{/if}}'));
+
+    view = _emberViewsViewsView.default.extend((_EmberView$extend35 = {}, _EmberView$extend35[_containerOwner.OWNER] = owner, _EmberView$extend35.layout = _emberTemplateCompilerSystemCompile.default('{{#check-params id="expect-no"}}{{/check-params}}  {{#check-params id="expect-yes" as |foo|}}{{/check-params}}'), _EmberView$extend35)).create();
+
+    _emberRuntimeTestsUtils.runAppend(view);
+    equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-no').text(), 'No');
+    equal(_emberViewsSystemJquery.default('#qunit-fixture #expect-yes').text(), 'Yes');
+  });
+
+  QUnit.test('components in template of a yielding component should have the proper parentView', function () {
+    var _EmberView$extend36;
 
     var outer, innerTemplate, innerLayout;
 
@@ -24574,7 +24594,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner-in-layout}}{{yield}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend35 = {}, _EmberView$extend35[_containerOwner.OWNER] = owner, _EmberView$extend35.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend35)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend36 = {}, _EmberView$extend36[_containerOwner.OWNER] = owner, _EmberView$extend36.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend36)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24584,7 +24604,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('newly-added sub-components get correct parentView', function () {
-    var _EmberView$extend36;
+    var _EmberView$extend37;
 
     var outer, inner;
 
@@ -24602,7 +24622,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend36 = {}, _EmberView$extend36[_containerOwner.OWNER] = owner, _EmberView$extend36.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{#if view.showInner}}{{x-inner}}{{/if}}{{/x-outer}}'), _EmberView$extend36.showInner = false, _EmberView$extend36)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend37 = {}, _EmberView$extend37[_containerOwner.OWNER] = owner, _EmberView$extend37.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{#if view.showInner}}{{x-inner}}{{/if}}{{/x-outer}}'), _EmberView$extend37.showInner = false, _EmberView$extend37)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24615,7 +24635,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('components should receive the viewRegistry from the parent view', function () {
-    var _EmberView$extend37;
+    var _EmberView$extend38;
 
     var outer, innerTemplate, innerLayout;
 
@@ -24644,7 +24664,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     owner.register('template:components/x-outer', _emberTemplateCompilerSystemCompile.default('{{x-inner-in-layout}}{{yield}}'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend37 = {}, _EmberView$extend37[_containerOwner.OWNER] = owner, _EmberView$extend37._viewRegistry = viewRegistry, _EmberView$extend37.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend37)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend38 = {}, _EmberView$extend38[_containerOwner.OWNER] = owner, _EmberView$extend38._viewRegistry = viewRegistry, _EmberView$extend38.template = _emberTemplateCompilerSystemCompile.default('{{#x-outer}}{{x-inner-in-template}}{{/x-outer}}'), _EmberView$extend38)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24654,7 +24674,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('comopnent should rerender when a property is changed during children\'s rendering', function () {
-    var _EmberView$extend38;
+    var _EmberView$extend39;
 
     expectDeprecation(/modified value twice in a single render/);
 
@@ -24685,7 +24705,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     owner.register('template:components/x-middle', _emberTemplateCompilerSystemCompile.default('<div id="middle-value">{{value}}</div>{{yield}}'));
     owner.register('template:components/x-inner', _emberTemplateCompilerSystemCompile.default('<div id="inner-value">{{value}}</div>'));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend38 = {}, _EmberView$extend38[_containerOwner.OWNER] = owner, _EmberView$extend38.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$extend38)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend39 = {}, _EmberView$extend39[_containerOwner.OWNER] = owner, _EmberView$extend39.template = _emberTemplateCompilerSystemCompile.default('{{x-outer}}'), _EmberView$extend39)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24708,7 +24728,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('non-block with each rendering child components', function () {
-    var _EmberView$extend39;
+    var _EmberView$extend40;
 
     expect(2);
 
@@ -24717,7 +24737,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
 
     var items = _emberRuntimeSystemNative_array.A(['Tom', 'Dick', 'Harry']);
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend39 = {}, _EmberView$extend39[_containerOwner.OWNER] = owner, _EmberView$extend39.template = _emberTemplateCompilerSystemCompile.default('{{non-block items=view.items}}'), _EmberView$extend39.items = items, _EmberView$extend39)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend40 = {}, _EmberView$extend40[_containerOwner.OWNER] = owner, _EmberView$extend40.template = _emberTemplateCompilerSystemCompile.default('{{non-block items=view.items}}'), _EmberView$extend40.items = items, _EmberView$extend40)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24731,7 +24751,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('specifying classNames results in correct class', function (assert) {
-    var _EmberView$extend40;
+    var _EmberView$extend41;
 
     expect(3);
 
@@ -24745,7 +24765,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend40 = {}, _EmberView$extend40[_containerOwner.OWNER] = owner, _EmberView$extend40.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend40)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend41 = {}, _EmberView$extend41[_containerOwner.OWNER] = owner, _EmberView$extend41.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing classNames="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend41)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -24760,7 +24780,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
   });
 
   QUnit.test('specifying custom concatenatedProperties avoids clobbering', function (assert) {
-    var _EmberView$extend41;
+    var _EmberView$extend42;
 
     expect(1);
 
@@ -24774,7 +24794,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
       }
     }));
 
-    view = _emberViewsViewsView.default.extend((_EmberView$extend41 = {}, _EmberView$extend41[_containerOwner.OWNER] = owner, _EmberView$extend41.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing blahzz="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend41)).create();
+    view = _emberViewsViewsView.default.extend((_EmberView$extend42 = {}, _EmberView$extend42[_containerOwner.OWNER] = owner, _EmberView$extend42.template = _emberTemplateCompilerSystemCompile.default('{{#some-clicky-thing blahzz="baz"}}Click Me{{/some-clicky-thing}}'), _EmberView$extend42)).create();
 
     _emberRuntimeTestsUtils.runAppend(view);
 
@@ -25152,7 +25172,7 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
     });
 
     QUnit.test('moduleName is available on _renderNode when a layout is present', function () {
-      var _EmberView$extend42;
+      var _EmberView$extend43;
 
       expect(1);
 
@@ -25167,13 +25187,13 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         }
       }));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend42 = {}, _EmberView$extend42[_containerOwner.OWNER] = owner, _EmberView$extend42.layout = _emberTemplateCompilerSystemCompile.default('<sample-component />'), _EmberView$extend42)).create();
+      view = _emberViewsViewsView.default.extend((_EmberView$extend43 = {}, _EmberView$extend43[_containerOwner.OWNER] = owner, _EmberView$extend43.layout = _emberTemplateCompilerSystemCompile.default('<sample-component />'), _EmberView$extend43)).create();
 
       _emberRuntimeTestsUtils.runAppend(view);
     });
 
     QUnit.test('moduleName is available on _renderNode when no layout is present', function () {
-      var _EmberView$extend43;
+      var _EmberView$extend44;
 
       expect(1);
 
@@ -25184,9 +25204,9 @@ enifed('ember-htmlbars/tests/integration/component_invocation_test', ['exports',
         }
       }));
 
-      view = _emberViewsViewsView.default.extend((_EmberView$extend43 = {}, _EmberView$extend43[_containerOwner.OWNER] = owner, _EmberView$extend43.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
+      view = _emberViewsViewsView.default.extend((_EmberView$extend44 = {}, _EmberView$extend44[_containerOwner.OWNER] = owner, _EmberView$extend44.layout = _emberTemplateCompilerSystemCompile.default('{{#sample-component}}Derp{{/sample-component}}', {
         moduleName: templateModuleName
-      }), _EmberView$extend43)).create();
+      }), _EmberView$extend44)).create();
 
       _emberRuntimeTestsUtils.runAppend(view);
     });
@@ -51627,7 +51647,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+dee77242', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+7584a77f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
