@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+f76dd5fe
+ * @version   2.3.0-canary+3486f33c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1559,6 +1559,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
   exports.default = Container;
 });
 enifed('container/owner', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.getOwner = getOwner;
@@ -1566,10 +1571,60 @@ enifed('container/owner', ['exports', 'ember-metal/utils'], function (exports, _
   var OWNER = _emberMetalUtils.symbol('OWNER');
 
   exports.OWNER = OWNER;
+  /**
+    Framework objects in an Ember application (components, services, routes, etc.)
+    are created via a factory and dependency injection system. Each of these
+    objects is the responsibility of an "owner", which handled its
+    instantiation and manages its lifetime.
+  
+    `getOwner` fetches the owner object responsible for an instance. This can
+    be used to lookup or resolve other class instances, or register new factories
+    into the owner.
+  
+    For example, this component dynamically looks up a service based on the
+    `audioType` passed as an attribute:
+  
+    ```
+    // app/components/play-audio.js
+    import Ember from 'ember';
+  
+    // Usage:
+    //
+    //   {{play-audio audioType=model.audioType audioFile=model.file}}
+    //
+    export default Ember.Component.extend({
+      audioService: Ember.computed('audioType', function() {
+        let owner = Ember.getOwner(this);
+        return owner.lookup(`service:${this.get('audioType')}`);
+      }),
+      click() {
+        let player = this.get('audioService');
+        player.play(this.get('audioFile'));
+      }
+    });
+    ```
+  
+    @method getOwner
+    @param {Object} object A object with an owner.
+    @return {Object} an owner object.
+    @for Ember
+    @public
+  */
 
   function getOwner(object) {
     return object[OWNER];
   }
+
+  /**
+    `setOwner` forces a new owner on a given object instance. This is primarily
+    useful in some testing cases.
+  
+    @method setOwner
+    @param {Object} object A object with an owner.
+    @return {Object} an owner object.
+    @for Ember
+    @public
+  */
 
   function setOwner(object, owner) {
     object[OWNER] = owner;
@@ -4666,7 +4721,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+f76dd5fe
+    @version 2.3.0-canary+3486f33c
     @public
   */
 
@@ -4710,11 +4765,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+f76dd5fe'
+    @default '2.3.0-canary+3486f33c'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+f76dd5fe';
+  Ember.VERSION = '2.3.0-canary+3486f33c';
 
   /**
     The hash of environment variables used to control various configuration

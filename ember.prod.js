@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+f76dd5fe
+ * @version   2.3.0-canary+3486f33c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1557,6 +1557,11 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
   exports.default = Container;
 });
 enifed('container/owner', ['exports', 'ember-metal/utils'], function (exports, _emberMetalUtils) {
+  /**
+  @module ember
+  @submodule ember-runtime
+  */
+
   'use strict';
 
   exports.getOwner = getOwner;
@@ -1564,10 +1569,60 @@ enifed('container/owner', ['exports', 'ember-metal/utils'], function (exports, _
   var OWNER = _emberMetalUtils.symbol('OWNER');
 
   exports.OWNER = OWNER;
+  /**
+    Framework objects in an Ember application (components, services, routes, etc.)
+    are created via a factory and dependency injection system. Each of these
+    objects is the responsibility of an "owner", which handled its
+    instantiation and manages its lifetime.
+  
+    `getOwner` fetches the owner object responsible for an instance. This can
+    be used to lookup or resolve other class instances, or register new factories
+    into the owner.
+  
+    For example, this component dynamically looks up a service based on the
+    `audioType` passed as an attribute:
+  
+    ```
+    // app/components/play-audio.js
+    import Ember from 'ember';
+  
+    // Usage:
+    //
+    //   {{play-audio audioType=model.audioType audioFile=model.file}}
+    //
+    export default Ember.Component.extend({
+      audioService: Ember.computed('audioType', function() {
+        let owner = Ember.getOwner(this);
+        return owner.lookup(`service:${this.get('audioType')}`);
+      }),
+      click() {
+        let player = this.get('audioService');
+        player.play(this.get('audioFile'));
+      }
+    });
+    ```
+  
+    @method getOwner
+    @param {Object} object A object with an owner.
+    @return {Object} an owner object.
+    @for Ember
+    @public
+  */
 
   function getOwner(object) {
     return object[OWNER];
   }
+
+  /**
+    `setOwner` forces a new owner on a given object instance. This is primarily
+    useful in some testing cases.
+  
+    @method setOwner
+    @param {Object} object A object with an owner.
+    @return {Object} an owner object.
+    @for Ember
+    @public
+  */
 
   function setOwner(object, owner) {
     object[OWNER] = owner;
@@ -9364,7 +9419,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f76dd5fe';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+3486f33c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14987,7 +15042,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+f76dd5fe
+    @version 2.3.0-canary+3486f33c
     @public
   */
 
@@ -15031,11 +15086,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+f76dd5fe'
+    @default '2.3.0-canary+3486f33c'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+f76dd5fe';
+  Ember.VERSION = '2.3.0-canary+3486f33c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -28616,7 +28671,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+f76dd5fe';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+3486f33c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29103,7 +29158,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f76dd5fe';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+3486f33c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37866,7 +37921,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+f76dd5fe',
+        revision: 'Ember@2.3.0-canary+3486f33c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41887,7 +41942,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+f76dd5fe';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+3486f33c';
 
   /**
   @module ember
