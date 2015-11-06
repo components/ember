@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.10+223ddd2a
+ * @version   1.13.10+144caef4
  */
 
 (function() {
@@ -5170,7 +5170,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.10+223ddd2a
+    @version 1.13.10+144caef4
     @public
   */
 
@@ -5204,11 +5204,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.10+223ddd2a'
+    @default '1.13.10+144caef4'
     @static
     @public
   */
-  Ember.VERSION = '1.13.10+223ddd2a';
+  Ember.VERSION = '1.13.10+144caef4';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19849,6 +19849,11 @@ enifed("ember-runtime/mixins/sortable", ["exports", "ember-metal/core", "ember-m
       @private
     */
     sortFunction: _emberRuntimeCompare["default"],
+
+    init: function () {
+      this._super.apply(this, arguments);
+      _emberMetalCore["default"].deprecate("Ember.SortableMixin is deprecated and was used in " + this + ". Please use Ember.computed.sort instead.", this.isGenerated);
+    },
 
     orderBy: function (item1, item2) {
       var result = 0;
