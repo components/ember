@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+fa15725c
+ * @version   2.3.0-canary+f76dd5fe
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1354,17 +1354,17 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     return !!injections._dynamic;
   }
 
-  function buildInjections(container) {
+  function buildInjections() /* container, ...injections */{
     var hash = {};
 
     if (arguments.length > 1) {
-      var injectionArgs = Array.prototype.slice.call(arguments, 1);
+      var container = arguments[0];
       var injections = [];
       var injection;
 
-      for (var i = 0, l = injectionArgs.length; i < l; i++) {
-        if (injectionArgs[i]) {
-          injections = injections.concat(injectionArgs[i]);
+      for (var i = 1, l = arguments.length; i < l; i++) {
+        if (arguments[i]) {
+          injections = injections.concat(arguments[i]);
         }
       }
 
@@ -4666,7 +4666,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+fa15725c
+    @version 2.3.0-canary+f76dd5fe
     @public
   */
 
@@ -4710,11 +4710,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+fa15725c'
+    @default '2.3.0-canary+f76dd5fe'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+fa15725c';
+  Ember.VERSION = '2.3.0-canary+f76dd5fe';
 
   /**
     The hash of environment variables used to control various configuration
