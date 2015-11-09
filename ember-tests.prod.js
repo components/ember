@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+d38cadd9
+ * @version   2.3.0-canary+8fcc7140
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -615,34 +615,22 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     container.lookup('apple:main');
   });
 
-  if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-    QUnit.test('A deprecated `container` property is appended to every instantiated object', function () {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-      var PostController = _containerTestsTestHelpersFactory.default();
-      registry.register('controller:post', PostController);
-      var postController = container.lookup('controller:post');
+  QUnit.test('A deprecated `container` property is appended to every instantiated object', function () {
+    var registry = new _containerRegistry.default();
+    var container = registry.container();
+    var PostController = _containerTestsTestHelpersFactory.default();
+    registry.register('controller:post', PostController);
+    var postController = container.lookup('controller:post');
 
-      expectDeprecation(function () {
-        _emberMetalCore.default.get(postController, 'container');
-      }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+    expectDeprecation(function () {
+      _emberMetalCore.default.get(postController, 'container');
+    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
 
-      expectDeprecation(function () {
-        var c = postController.container;
-        strictEqual(c, container);
-      }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
-    });
-  } else {
-    QUnit.test('A `container` property is appended to every instantiated object', function () {
-      var registry = new _containerRegistry.default();
-      var container = registry.container();
-      var PostController = _containerTestsTestHelpersFactory.default();
-      registry.register('controller:post', PostController);
-      var postController = container.lookup('controller:post');
-
-      strictEqual(postController.container, container, '');
-    });
-  }
+    expectDeprecation(function () {
+      var c = postController.container;
+      strictEqual(c, container);
+    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+  });
 });
 enifed('container/tests/owner_test', ['exports', 'container/owner'], function (exports, _containerOwner) {
   'use strict';
@@ -51648,7 +51636,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+d38cadd9', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+8fcc7140', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
