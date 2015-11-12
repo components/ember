@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.10+144caef4
+ * @version   1.13.10+4566dc9c
  */
 
 (function() {
@@ -9702,7 +9702,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+144caef4';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+4566dc9c';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -16033,7 +16033,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.10+144caef4
+    @version 1.13.10+4566dc9c
     @public
   */
 
@@ -16067,11 +16067,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.10+144caef4'
+    @default '1.13.10+4566dc9c'
     @static
     @public
   */
-  Ember.VERSION = '1.13.10+144caef4';
+  Ember.VERSION = '1.13.10+4566dc9c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25114,7 +25114,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.10+144caef4';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.10+4566dc9c';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -25641,7 +25641,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+144caef4';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.10+4566dc9c';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -42644,7 +42644,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.10+144caef4',
+        revision: 'Ember@1.13.10+4566dc9c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -46313,6 +46313,8 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
   "use strict";
 
   exports["default"] = buildComponentTemplate;
+  exports.disableInputTypeChanging = disableInputTypeChanging;
+  exports.resetInputTypeChanging = resetInputTypeChanging;
 
   function buildComponentTemplate(_ref, attrs, content) {
     var component = _ref.component;
@@ -46341,7 +46343,7 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
       // element. We use `manualElement` to create a template that represents
       // the wrapping element and yields to the previous block.
       if (tagName !== '') {
-        var attributes = normalizeComponentAttributes(component, isAngleBracket, attrs);
+        var attributes = normalizeComponentAttributes(component, isAngleBracket, attrs, tagName);
         var elementTemplate = _htmlbarsRuntime.internal.manualElement(tagName, attributes);
         elementTemplate.meta = meta;
 
@@ -46356,6 +46358,32 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
     //   * the falsy value "" if set explicitly on the component
     //   * an actual tagName set explicitly on the component
     return { createdElement: !!tagName, block: blockToRender };
+  }
+
+  // Static flag used to see if we can mutate the type attribute on input elements. IE8
+  // does not support changing the type attribute after an element is inserted in
+  // a tree.
+  var isInputTypeAttributeMutable = (function () {
+    var docFragment = document.createDocumentFragment();
+    var mutableInputTypeTextElement = document.createElement('input');
+    mutableInputTypeTextElement.type = 'text';
+    try {
+      docFragment.appendChild(mutableInputTypeTextElement);
+      mutableInputTypeTextElement.setAttribute('type', 'password');
+    } catch (e) {
+      return false;
+    }
+    return true;
+  })();
+
+  var canChangeInputType = isInputTypeAttributeMutable;
+
+  function disableInputTypeChanging() {
+    canChangeInputType = false;
+  }
+
+  function resetInputTypeChanging() {
+    canChangeInputType = isInputTypeAttributeMutable;
   }
 
   function blockFor(template, options) {
@@ -46428,7 +46456,8 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
 
   // Takes a component and builds a normalized set of attribute
   // bindings consumable by HTMLBars' `attribute` hook.
-  function normalizeComponentAttributes(component, isAngleBracket, attrs) {
+  function normalizeComponentAttributes(component, isAngleBracket, attrs, tagName) {
+    var hardCodeType = tagName === 'input' && !canChangeInputType;
     var normalized = {};
     var attributeBindings = component.attributeBindings;
     var i, l;
@@ -46450,17 +46479,32 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
         if (colonIndex !== -1) {
           var attrProperty = attr.substring(0, colonIndex);
           attrName = attr.substring(colonIndex + 1);
-          expression = ['get', 'view.' + attrProperty];
+
+          if (attrName === 'type' && hardCodeType) {
+            expression = component.get(attrProperty) + '';
+          } else {
+            expression = ['get', 'view.' + attrProperty];
+          }
         } else if (attrs[attr]) {
           // TODO: For compatibility with 1.x, we probably need to `set`
           // the component's attribute here if it is a CP, but we also
           // probably want to suspend observers and allow the
           // willUpdateAttrs logic to trigger observers at the correct time.
           attrName = attr;
-          expression = ['value', attrs[attr]];
+
+          if (attrName === 'type' && hardCodeType) {
+            expression = _emberHtmlbarsHooksGetValue["default"](attrs[attr]) + '';
+          } else {
+            expression = ['value', attrs[attr]];
+          }
         } else {
           attrName = attr;
-          expression = ['get', 'view.' + attr];
+
+          if (attrName === 'type' && hardCodeType) {
+            expression = component.get(attr) + '';
+          } else {
+            expression = ['get', 'view.' + attr];
+          }
         }
 
         Ember.assert('You cannot use class as an attributeBinding, use classNameBindings instead.', attrName !== 'class');
@@ -47896,7 +47940,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.10+144caef4';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.10+4566dc9c';
 
   /**
   @module ember
@@ -49450,7 +49494,9 @@ enifed("ember-views/views/text_field", ["exports", "ember-metal/computed", "embe
     value: "",
 
     /**
-      The `type` attribute of the input element.
+      The `type` attribute of the input element. To remain compatible with IE8, this
+      cannot change after the element has been rendered. It is suggested to avoid using
+      a dynamic type attribute if you are supporting IE8 since it will be set once and never change.
        @property type
       @type String
       @default "text"

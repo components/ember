@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.10+144caef4
+ * @version   1.13.10+4566dc9c
  */
 
 (function() {
@@ -11218,7 +11218,7 @@ enifed("ember-htmlbars/tests/helpers/if_unless_test", ["exports", "ember-metal/r
     });
   
 });
-enifed("ember-htmlbars/tests/helpers/input_test", ["exports", "ember-metal/run_loop", "ember-metal/property_set", "ember-views/views/view", "ember-runtime/tests/utils", "ember-template-compiler/system/compile", "container/registry", "ember-views/component_lookup", "ember-views/views/text_field", "ember-views/views/checkbox", "ember-views/system/event_dispatcher"], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher) {
+enifed("ember-htmlbars/tests/helpers/input_test", ["exports", "ember-metal/run_loop", "ember-metal/property_set", "ember-views/views/view", "ember-runtime/tests/utils", "ember-template-compiler/system/compile", "container/registry", "ember-views/component_lookup", "ember-views/views/text_field", "ember-views/views/checkbox", "ember-views/system/event_dispatcher", "ember-views/system/build-component-template"], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _containerRegistry, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _emberViewsSystemBuildComponentTemplate) {
   "use strict";
 
   var view;
@@ -11474,6 +11474,48 @@ enifed("ember-htmlbars/tests/helpers/input_test", ["exports", "ember-metal/run_l
     });
 
     equal(view.$('input').attr('type'), 'text', "it changes after the type changes");
+  });
+
+  QUnit.module("{{input type='text'}} - dynamic type in IE8 safe environment", {
+    setup: function () {
+      commonSetup();
+
+      _emberViewsSystemBuildComponentTemplate.disableInputTypeChanging();
+
+      controller = {
+        someProperty: 'password',
+        ie8Safe: true
+      };
+
+      view = _emberViewsViewsView["default"].extend({
+        container: container,
+        controller: controller,
+        template: _emberTemplateCompilerSystemCompile["default"]('{{input type=someProperty}}')
+      }).create();
+
+      _emberRuntimeTestsUtils.runAppend(view);
+    },
+
+    teardown: function () {
+      _emberViewsSystemBuildComponentTemplate.resetInputTypeChanging();
+
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(container);
+    }
+  });
+
+  QUnit.test("should insert a text field into DOM", function () {
+    equal(view.$('input').attr('type'), 'password', "a bound property can be used to determine type in IE8.");
+  });
+
+  QUnit.test("should NOT change if the type changes", function () {
+    equal(view.$('input').attr('type'), 'password', "a bound property can be used to determine type in IE8.");
+
+    _emberMetalRun_loop["default"](function () {
+      _emberMetalProperty_set.set(controller, 'someProperty', 'text');
+    });
+
+    equal(view.$('input').attr('type'), 'password', "it does NOT change after the type changes in IE8");
   });
 
   QUnit.module("{{input}} - default type", {
@@ -48323,7 +48365,7 @@ enifed("ember-template-compiler/tests/system/compile_test", ["exports", "ember-t
 
     var actual = _emberTemplateCompilerSystemCompile["default"](templateString);
 
-    equal(actual.meta.revision, 'Ember@1.13.10+144caef4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@1.13.10+4566dc9c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
