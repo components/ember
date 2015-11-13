@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+04ddd6a8
+ * @version   2.3.0-canary+625c27fa
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51877,7 +51877,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+04ddd6a8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+625c27fa', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -55256,7 +55256,7 @@ enifed('ember-views/tests/views/collection_test', ['exports', 'ember-metal/core'
   });
 });
 // Ember.A
-enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/features', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalFeatures, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/system/service', 'ember-runtime/inject', 'ember-metal/property_get', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/features', 'ember-views/views/view', 'ember-views/components/component', 'ember-views/compat/attrs-proxy', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_set, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeSystemService, _emberRuntimeInject, _emberMetalProperty_get, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalFeatures, _emberViewsViewsView, _emberViewsComponentsComponent, _emberViewsCompatAttrsProxy, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
   var a_slice = Array.prototype.slice;
@@ -55548,6 +55548,8 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   });
 
   QUnit.test('throws an error if an event function is defined in a tagless component', function () {
+    var _Component$extend;
+
     app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
 
     _emberMetalRun_loop.default(function () {
@@ -55555,11 +55557,9 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
       appInstance.setupEventDispatcher();
     });
 
-    var TestComponent = _emberViewsComponentsComponent.default.extend({
-      tagName: '',
-      container: appInstance,
-      click: function () {}
-    });
+    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend = {
+      tagName: ''
+    }, _Component$extend[_containerOwner.OWNER] = appInstance, _Component$extend.click = function () {}, _Component$extend));
 
     expectAssertion(function () {
       TestComponent.create();
@@ -55567,6 +55567,8 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   });
 
   QUnit.test('throws an error if an Application custom event handler is defined in a tagless component', function () {
+    var _Component$extend2;
+
     app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', {
       rootElement: '#qunit-fixture',
       autoboot: false,
@@ -55580,11 +55582,9 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
       appInstance.setupEventDispatcher();
     });
 
-    var TestComponent = _emberViewsComponentsComponent.default.extend({
-      tagName: '',
-      container: appInstance,
-      sauce: function () {}
-    });
+    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend2 = {
+      tagName: ''
+    }, _Component$extend2[_containerOwner.OWNER] = appInstance, _Component$extend2.sauce = function () {}, _Component$extend2));
 
     expectAssertion(function () {
       TestComponent.create();
@@ -55592,6 +55592,8 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
   });
 
   QUnit.test('throws an error if an ApplicationInstance custom event handler is defined in a tagless component', function () {
+    var _Component$extend3;
+
     app = _emberMetalRun_loop.default(_emberApplicationSystemApplication.default, 'create', { rootElement: '#qunit-fixture', autoboot: false });
 
     _emberMetalRun_loop.default(function () {
@@ -55604,11 +55606,9 @@ enifed('ember-views/tests/views/component_test', ['exports', 'ember-metal/proper
       appInstance.setupEventDispatcher();
     });
 
-    var TestComponent = _emberViewsComponentsComponent.default.extend({
-      tagName: '',
-      container: appInstance,
-      hurts: function () {}
-    });
+    var TestComponent = _emberViewsComponentsComponent.default.extend((_Component$extend3 = {
+      tagName: ''
+    }, _Component$extend3[_containerOwner.OWNER] = appInstance, _Component$extend3.hurts = function () {}, _Component$extend3));
 
     expectAssertion(function () {
       TestComponent.create();
