@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+734350e1
+ * @version   2.3.0-canary+1250c6f3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1511,7 +1511,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       configurable: true,
       enumerable: false,
       get: function () {
-        _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0' });
+        _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
         return container;
       }
     });
@@ -4721,7 +4721,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+734350e1
+    @version 2.3.0-canary+1250c6f3
     @public
   */
 
@@ -4765,11 +4765,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+734350e1'
+    @default '2.3.0-canary+1250c6f3'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+734350e1';
+  Ember.VERSION = '2.3.0-canary+1250c6f3';
 
   /**
     The hash of environment variables used to control various configuration
