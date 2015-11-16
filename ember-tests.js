@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+04ec1c63
+ * @version   2.3.0-canary+f434c9fb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -93,7 +93,7 @@ var mainContext = this;
   }
 })();
 
-enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/test-helpers/factory', 'ember-metal/features'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsTestHelpersFactory, _emberMetalFeatures) {
+enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'container/registry', 'container/tests/test-helpers/factory', 'container/owner', 'ember-metal/features'], function (exports, _emberMetalCore, _containerRegistry, _containerTestsTestHelpersFactory, _containerOwner, _emberMetalFeatures) {
   'use strict';
 
   var originalModelInjections;
@@ -615,7 +615,7 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     container.lookup('apple:main');
   });
 
-  QUnit.test('A deprecated `container` property is appended to every instantiated object', function () {
+  QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
     var registry = new _containerRegistry.default();
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
@@ -629,6 +629,53 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     expectDeprecation(function () {
       var c = postController.container;
       strictEqual(c, container);
+    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+  });
+
+  QUnit.test('A deprecated `container` property is appended to every object instantiated from a non-extendable factory, and a fake container is available during instantiation.', function () {
+    expect(8);
+
+    var owner = {};
+    var registry = new _containerRegistry.default();
+    var container = registry.container({ owner: owner });
+
+    // Define a simple non-extendable factory
+    var PostController = function () {};
+    PostController.create = function (options) {
+      ok(options.container, 'fake container has been injected and is available during `create`.');
+
+      expectDeprecation(function () {
+        options.container.lookup('abc:one');
+      }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `lookup` instead.');
+
+      expectDeprecation(function () {
+        options.container.lookupFactory('abc:two');
+      }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `_lookupFactory` instead.');
+
+      // non-deprecated usage of `lookup` and `_lookupFactory`
+      owner.lookup = function (fullName) {
+        equal(fullName, 'abc:one', 'lookup on owner called properly');
+      };
+      owner._lookupFactory = function (fullName) {
+        equal(fullName, 'abc:two', '_lookupFactory on owner called properly');
+      };
+      var foundOwner = _containerOwner.getOwner(options);
+      foundOwner.lookup('abc:one');
+      foundOwner._lookupFactory('abc:two');
+
+      return new PostController(options);
+    };
+
+    registry.register('controller:post', PostController);
+    var postController = container.lookup('controller:post');
+
+    expectDeprecation(function () {
+      _emberMetalCore.default.get(postController, 'container');
+    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+
+    expectDeprecation(function () {
+      var c = postController.container;
+      strictEqual(c, container, 'Injected container is now regular (not fake) container, but access is still deprecated.');
     }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
   });
 });
@@ -51877,7 +51924,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+04ec1c63', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+f434c9fb', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

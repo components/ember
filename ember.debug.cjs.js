@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+04ec1c63
+ * @version   2.3.0-canary+f434c9fb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1182,7 +1182,7 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy) {
   'use strict';
 
   /**
@@ -1204,6 +1204,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     this.cache = _emberMetalDictionary.default(options && options.cache ? options.cache : null);
     this.factoryCache = _emberMetalDictionary.default(options && options.factoryCache ? options.factoryCache : null);
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
+
+    this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
   }
 
   Container.prototype = {
@@ -1412,6 +1414,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
       var injectedFactory = factory.extend(injections);
 
+      // TODO - remove all `container` injections when Ember reaches v3.0.0
+
       injectDeprecatedContainer(injectedFactory.prototype, container);
 
       injectedFactory.reopenClass(factoryInjections);
@@ -1437,9 +1441,6 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     injections._debugContainerKey = fullName;
 
     _containerOwner.setOwner(injections, container.owner);
-
-    // TODO - Inject a `FakeContainer` instead here. The `FakeContainer` will
-    // proxy all properties of the container with deprecations.
 
     return injections;
   }
@@ -1489,7 +1490,18 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
         // assume the factory was extendable
         // to create time injections
         // TODO: support new'ing for instantiation and merge injections for pure JS Functions
-        obj = factory.create(injectionsFor(container, fullName));
+        var injections = injectionsFor(container, fullName);
+
+        // Ensure that a container is available to an object during instantiation.
+        // TODO - remove when Ember reaches v3.0.0
+
+        // This "fake" container will be replaced after instantiation with a
+        // property that raises deprecations every time it is accessed.
+        injections.container = container._fakeContainerToInject;
+
+        obj = factory.create(injections);
+
+        // TODO - remove when Ember reaches v3.0.0
 
         injectDeprecatedContainer(obj, container);
       }
@@ -9994,7 +10006,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+04ec1c63';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f434c9fb';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15710,7 +15722,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+04ec1c63
+    @version 2.3.0-canary+f434c9fb
     @public
   */
 
@@ -15754,11 +15766,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+04ec1c63'
+    @default '2.3.0-canary+f434c9fb'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+04ec1c63';
+  Ember.VERSION = '2.3.0-canary+f434c9fb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29517,7 +29529,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+04ec1c63';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+f434c9fb';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30007,7 +30019,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+04ec1c63';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+f434c9fb';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32323,12 +32335,14 @@ enifed('ember-runtime/mixins/comparable', ['exports', 'ember-metal/mixin'], func
     compare: null
   });
 });
-enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalMixin) {
+enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop', 'ember-metal/debug', 'ember-metal/mixin'], function (exports, _emberMetalRun_loop, _emberMetalDebug, _emberMetalMixin) {
   /**
   @module ember
   @submodule ember-runtime
   */
   'use strict';
+
+  exports.buildFakeContainerWithDeprecations = buildFakeContainerWithDeprecations;
 
   /**
     ContainerProxyMixin is used to provide public access to specific
@@ -32404,6 +32418,31 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
       var _container__;
 
       return (_container__ = this.__container__)[name].apply(_container__, arguments);
+    };
+  }
+
+  function buildFakeContainerWithDeprecations(container) {
+    var fakeContainer = {};
+    var propertyMappings = {
+      lookup: 'lookup',
+      lookupFactory: '_lookupFactory'
+    };
+
+    for (var containerProperty in propertyMappings) {
+      fakeContainer[containerProperty] = buildFakeContainerFunction(container, containerProperty, propertyMappings[containerProperty]);
+    }
+
+    return fakeContainer;
+  }
+
+  function buildFakeContainerFunction(container, containerProperty, ownerProperty) {
+    return function () {
+      _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper to access the owner of this object and then call `' + ownerProperty + '` instead.', false, {
+        id: 'ember-application.injected-container',
+        until: '3.0.0',
+        url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access'
+      });
+      return container[containerProperty].apply(container, arguments);
     };
   }
 });
@@ -38855,7 +38894,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+04ec1c63',
+        revision: 'Ember@2.3.0-canary+f434c9fb',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44145,7 +44184,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+04ec1c63';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+f434c9fb';
 
   /**
   @module ember
