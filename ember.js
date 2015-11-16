@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+72a2b89d
+ * @version   2.3.0-canary+a3223359
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10006,7 +10006,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+a3223359';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -14938,22 +14938,20 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     computed property function. You can use this helper to define properties
     with mixins or via `Ember.defineProperty()`.
   
-    If you pass function as argument - it will be used as getter.
-    You can pass hash with two functions - instead of single function - as argument to provide both getter and setter.
-  
-    The `get` function should accept two parameters, `key` and `value`. If `value` is not
-    undefined you should set the `value` first. In either case return the
-    current value of the property.
-  
-    A computed property defined in this way might look like this:
+    If you pass a function as an argument, it will be used as a getter. A computed
+    property defined in this way might look like this:
   
     ```js
     let Person = Ember.Object.extend({
-      firstName: 'Betty',
-      lastName: 'Jones',
+      init() {
+        this._super(...arguments);
+  
+        this.firstName = 'Betty';
+        this.lastName = 'Jones';
+      },
   
       fullName: Ember.computed('firstName', 'lastName', function() {
-        return this.get('firstName') + ' ' + this.get('lastName');
+        return `${this.get('firstName')} ${this.get('lastName')}`;
       })
     });
   
@@ -14965,14 +14963,45 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     client.get('fullName'); // 'Betty Fuller'
     ```
   
+    You can pass a hash with two functions, `get` and `set`, as an
+    argument to provide both a getter and setter:
+  
+    ```js
+    let Person = Ember.Object.extend({
+      init() {
+        this._super(...arguments);
+  
+        this.firstName = 'Betty';
+        this.lastName = 'Jones';
+      },
+  
+      fullName: Ember.computed({
+        get(key) {
+          return `${this.get('firstName')} ${this.get('lastName')}`;
+        },
+        set(key, value) {
+          let [firstName, lastName] = value.split(/\s+/);
+          this.setProperties({ firstName, lastName });
+          return value;
+        }
+      });
+    })
+  
+    let client = Person.create();
+    client.get('firstName'); // 'Betty'
+  
+    client.set('fullName', 'Carroll Fuller');
+    client.get('firstName'); // 'Carroll'
+    ```
+  
+    The `set` function should accept two parameters, `key` and `value`. The value
+    returned from `set` will be the new value of the property.
+  
     _Note: This is the preferred way to define computed properties when writing third-party
     libraries that depend on or use Ember, since there is no guarantee that the user
-    will have prototype extensions enabled._
+    will have [prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/) enabled._
   
-    You might use this method if you disabled
-    [Prototype Extensions](http://emberjs.com/guides/configuring-ember/disabling-prototype-extensions/).
-    The alternative syntax might look like this
-    (if prototype extensions are enabled, which is the default behavior):
+    The alternative syntax, with prototype extensions, might look like:
   
     ```js
     fullName() {
@@ -15732,7 +15761,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+72a2b89d
+    @version 2.3.0-canary+a3223359
     @public
   */
 
@@ -15776,11 +15805,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+72a2b89d'
+    @default '2.3.0-canary+a3223359'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+72a2b89d';
+  Ember.VERSION = '2.3.0-canary+a3223359';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29542,7 +29571,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+a3223359';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30032,7 +30061,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+a3223359';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38964,7 +38993,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+72a2b89d',
+        revision: 'Ember@2.3.0-canary+a3223359',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44254,7 +44283,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+a3223359';
 
   /**
   @module ember
