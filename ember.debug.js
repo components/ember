@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+afdba0f3
+ * @version   2.3.0-canary+72a2b89d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10006,7 +10006,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+afdba0f3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15732,7 +15732,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+afdba0f3
+    @version 2.3.0-canary+72a2b89d
     @public
   */
 
@@ -15776,11 +15776,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+afdba0f3'
+    @default '2.3.0-canary+72a2b89d'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+afdba0f3';
+  Ember.VERSION = '2.3.0-canary+72a2b89d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18460,7 +18460,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
   @module ember
   @submodule ember-metal
   */
-
   exports.mixin = mixin;
   exports.default = Mixin;
   exports.required = required;
@@ -18950,6 +18949,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
       this.mixins = undefined;
     }
     this.ownerConstructor = undefined;
+    this._without = undefined;
+    this[_emberMetalUtils.GUID_KEY] = null;
+    this[_emberMetalUtils.GUID_KEY + '_name'] = null;
+    _emberMetalDebug.debugSeal(this);
   }
 
   Mixin._apply = applyMixin;
@@ -19116,6 +19119,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     }
     return ret;
   };
+
+  _emberMetalDebug.debugSeal(MixinPrototype);
 
   // returns the mixins currently applied to the specified object
   // TODO: Make Ember.mixin
@@ -29537,7 +29542,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+afdba0f3';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30027,7 +30032,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+afdba0f3';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36902,10 +36907,9 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
       paths[idx] = key;
 
       // If we have found an unprocessed class
-      if (obj && obj.toString === classToString) {
+      if (obj && obj.toString === classToString && !obj[NAME_KEY]) {
         // Replace the class' `toString` with the dot-separated path
         // and set its `NAME_KEY`
-        obj.toString = makeToString(paths.join('.'));
         obj[NAME_KEY] = paths.join('.');
 
         // Support nested namespaces
@@ -37164,44 +37168,21 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
     @return {Ember.NativeArray}
     @public
   */
-  var A = function (arr) {
-    if (arr === undefined) {
-      arr = [];
-    }
-    return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
-  };
+  var A;
 
-  /**
-    Activates the mixin on the Array.prototype if not already applied. Calling
-    this method more than once is safe. This will be called when ember is loaded
-    unless you have `Ember.EXTEND_PROTOTYPES` or `Ember.EXTEND_PROTOTYPES.Array`
-    set to `false`.
-  
-    Example
-  
-    ```js
-    if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Array) {
-      Ember.NativeArray.activate();
-    }
-    ```
-  
-    @method activate
-    @for Ember.NativeArray
-    @static
-    @return {void}
-    @private
-  */
-  NativeArray.activate = function () {
+  if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
-
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
     A = A = function (arr) {
       return arr || [];
     };
-  };
-
-  if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
-    NativeArray.activate();
+  } else {
+    exports.A = A = function (arr) {
+      if (arr === undefined) {
+        arr = [];
+      }
+      return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
+    };
   }
 
   _emberMetalCore.default.A = A;exports.A = A;
@@ -38983,7 +38964,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-canary+afdba0f3',
+        revision: 'Ember@2.3.0-canary+72a2b89d',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41290,6 +41271,11 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
 
   'use strict';
 
+  var KEY_EVENTS = {
+    13: 'insertNewline',
+    27: 'cancel'
+  };
+
   /**
     `TextSupport` is a shared mixin used by both `Ember.TextField` and
     `Ember.TextArea`. `TextSupport` adds a number of methods that allow you to
@@ -41443,7 +41429,7 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
     bubbles: false,
 
     interpretKeyEvents: function (event) {
-      var map = TextSupport.KEY_EVENTS;
+      var map = KEY_EVENTS;
       var method = map[event.keyCode];
 
       this._elementValueDidChange();
@@ -41572,11 +41558,6 @@ enifed('ember-views/mixins/text_support', ['exports', 'ember-metal/property_get'
       this.sendAction('key-down', _emberMetalProperty_get.get(this, 'value'), event);
     }
   });
-
-  TextSupport.KEY_EVENTS = {
-    13: 'insertNewline',
-    27: 'cancel'
-  };
 
   // In principle, this shouldn't be necessary, but the legacy
   // sendAction semantics for TextField are different from
@@ -44273,7 +44254,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+afdba0f3';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-canary+72a2b89d';
 
   /**
   @module ember

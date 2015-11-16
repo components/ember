@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+afdba0f3
+ * @version   2.3.0-canary+72a2b89d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4701,7 +4701,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-canary+afdba0f3
+    @version 2.3.0-canary+72a2b89d
     @public
   */
 
@@ -4745,11 +4745,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-canary+afdba0f3'
+    @default '2.3.0-canary+72a2b89d'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-canary+afdba0f3';
+  Ember.VERSION = '2.3.0-canary+72a2b89d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7429,7 +7429,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
   @module ember
   @submodule ember-metal
   */
-
   exports.mixin = mixin;
   exports.default = Mixin;
   exports.required = required;
@@ -7919,6 +7918,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
       this.mixins = undefined;
     }
     this.ownerConstructor = undefined;
+    this._without = undefined;
+    this[_emberMetalUtils.GUID_KEY] = null;
+    this[_emberMetalUtils.GUID_KEY + '_name'] = null;
+    _emberMetalDebug.debugSeal(this);
   }
 
   Mixin._apply = applyMixin;
@@ -8085,6 +8088,8 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     }
     return ret;
   };
+
+  _emberMetalDebug.debugSeal(MixinPrototype);
 
   // returns the mixins currently applied to the specified object
   // TODO: Make Ember.mixin
@@ -18927,10 +18932,9 @@ enifed('ember-runtime/system/namespace', ['exports', 'ember-metal/core', 'ember-
       paths[idx] = key;
 
       // If we have found an unprocessed class
-      if (obj && obj.toString === classToString) {
+      if (obj && obj.toString === classToString && !obj[NAME_KEY]) {
         // Replace the class' `toString` with the dot-separated path
         // and set its `NAME_KEY`
-        obj.toString = makeToString(paths.join('.'));
         obj[NAME_KEY] = paths.join('.');
 
         // Support nested namespaces
@@ -19189,44 +19193,21 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
     @return {Ember.NativeArray}
     @public
   */
-  var A = function (arr) {
-    if (arr === undefined) {
-      arr = [];
-    }
-    return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
-  };
+  var A;
 
-  /**
-    Activates the mixin on the Array.prototype if not already applied. Calling
-    this method more than once is safe. This will be called when ember is loaded
-    unless you have `Ember.EXTEND_PROTOTYPES` or `Ember.EXTEND_PROTOTYPES.Array`
-    set to `false`.
-  
-    Example
-  
-    ```js
-    if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.Array) {
-      Ember.NativeArray.activate();
-    }
-    ```
-  
-    @method activate
-    @for Ember.NativeArray
-    @static
-    @return {void}
-    @private
-  */
-  NativeArray.activate = function () {
+  if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
-
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
     A = A = function (arr) {
       return arr || [];
     };
-  };
-
-  if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
-    NativeArray.activate();
+  } else {
+    exports.A = A = function (arr) {
+      if (arr === undefined) {
+        arr = [];
+      }
+      return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
+    };
   }
 
   _emberMetalCore.default.A = A;exports.A = A;
