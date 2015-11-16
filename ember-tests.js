@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-canary+f434c9fb
+ * @version   2.3.0-canary+afdba0f3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -43,6 +43,15 @@ var mainContext = this;
     requirejs = require = requireModule = function(name) {
       return internalRequire(name, null);
     }
+    require['default'] = require;
+
+    function missingModule(name, referrerName) {
+      if (referrerName) {
+        throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
+      } else {
+        throw new Error('Could not find module ' + name);
+      }
+    }
 
     function internalRequire(name, referrerName) {
       var exports = seen[name];
@@ -54,11 +63,7 @@ var mainContext = this;
       exports = seen[name] = {};
 
       if (!registry[name]) {
-        if (referrerName) {
-          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
-        } else {
-          throw new Error('Could not find module ' + name);
-        }
+        missingModule(name, referrerName);
       }
 
       var mod = registry[name];
@@ -70,6 +75,8 @@ var mainContext = this;
       for (var i = 0; i < length; i++) {
         if (deps[i] === 'exports') {
           reified[i] = exports;
+        } else if (deps[i] === 'require') {
+          reified[i] = require;
         } else {
           reified[i] = internalRequire(deps[i], name);
         }
@@ -1386,20 +1393,21 @@ enifed('ember/tests/component_registration_test', ['exports', 'ember-metal/core'
 
   function cleanup() {
     _emberMetalRun_loop.default(function () {
-      if (App) {
-        App.destroy();
-      }
-      App = appInstance = null;
-      _emberMetalCore.default.TEMPLATES = {};
+      try {
+        if (App) {
+          App.destroy();
+        }
+        App = appInstance = null;
+      } finally {
+        _emberMetalCore.default.TEMPLATES = {};
 
-      cleanupHelpers();
+        cleanupHelpers();
+      }
     });
   }
 
   function cleanupHelpers() {
-    var currentHelpers = _emberRuntimeSystemNative_array.A(keys(_emberHtmlbarsHelpers.default));
-
-    currentHelpers.forEach(function (name) {
+    keys(_emberHtmlbarsHelpers.default).forEach(function (name) {
       if (!originalHelpers.contains(name)) {
         delete _emberHtmlbarsHelpers.default[name];
       }
@@ -6492,12 +6500,14 @@ enifed('ember/tests/routing/query_params_test', ['exports', 'ember-metal/core', 
   }
 
   function sharedTeardown() {
-    _emberMetalRun_loop.default(function () {
-      App.destroy();
-      App = null;
-
+    try {
+      _emberMetalRun_loop.default(function () {
+        App.destroy();
+        App = null;
+      });
+    } finally {
       _emberMetalCore.default.TEMPLATES = {};
-    });
+    }
   }
 
   QUnit.module('Routing with Query Params', {
@@ -39541,7 +39551,7 @@ enifed('ember-routing-views/tests/main_test', ['exports', 'ember-routing-views']
     link.get('currentWhen');
   });
 });
-enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberMetalComputed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
+enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-metal/computed', 'ember-metal/computed_macros', 'ember-runtime/computed/reduce_computed_macros', 'ember-metal/alias', 'ember-metal/properties', 'ember-runtime/system/object', 'ember-metal/tests/props_helper', 'ember-runtime/system/native_array'], function (exports, _emberMetalComputed, _emberMetalComputed_macros, _emberRuntimeComputedReduce_computed_macros, _emberMetalAlias, _emberMetalProperties, _emberRuntimeSystemObject, _emberMetalTestsProps_helper, _emberRuntimeSystemNative_array) {
   'use strict';
 
   QUnit.module('CP macros');
@@ -39817,7 +39827,7 @@ enifed('ember-runtime/tests/computed/computed_macros_test', ['exports', 'ember-m
 
   _emberMetalTestsProps_helper.testBoth('computed.collect', function (get, set) {
     var obj = { one: 'foo', two: 'bar', three: null };
-    _emberMetalProperties.defineProperty(obj, 'all', _emberMetalComputed_macros.collect('one', 'two', 'three', 'four'));
+    _emberMetalProperties.defineProperty(obj, 'all', _emberRuntimeComputedReduce_computed_macros.collect('one', 'two', 'three', 'four'));
 
     deepEqual(get(obj, 'all'), ['foo', 'bar', null, null], 'have all of them');
 
@@ -51924,7 +51934,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-canary+f434c9fb', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-canary+afdba0f3', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
