@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.2.0-beta.2"
+        "version": "v2.2.0"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -7784,7 +7784,7 @@
         {
             "file": "packages/ember-metal/lib/computed_macros.js",
             "line": 196,
-            "description": "A computed property which matches the original value for the\ndependent property against a given RegExp, returning `true`\nif they values matches the RegExp and `false` if it does not.\n\nExample\n\n```javascript\nvar User = Ember.Object.extend({\n  hasValidEmail: Ember.computed.match('email', /^.+@.+\\..+$/)\n});\n\nvar user = User.create({loggedIn: false});\n\nuser.get('hasValidEmail'); // false\nuser.set('email', '');\nuser.get('hasValidEmail'); // false\nuser.set('email', 'ember_hamster@example.com');\nuser.get('hasValidEmail'); // true\n```",
+            "description": "A computed property which matches the original value for the\ndependent property against a given RegExp, returning `true`\nif the value matches the RegExp and `false` if it does not.\n\nExample\n\n```javascript\nvar User = Ember.Object.extend({\n  hasValidEmail: Ember.computed.match('email', /^.+@.+\\..+$/)\n});\n\nvar user = User.create({loggedIn: false});\n\nuser.get('hasValidEmail'); // false\nuser.set('email', '');\nuser.get('hasValidEmail'); // false\nuser.set('email', 'ember_hamster@example.com');\nuser.get('hasValidEmail'); // true\n```",
             "itemtype": "method",
             "name": "match",
             "params": [
@@ -11260,7 +11260,7 @@
         },
         {
             "file": "packages/ember-routing-views/lib/components/link-to.js",
-            "line": 728,
+            "line": 751,
             "description": "The default href value to use while a link-to is loading.\nOnly applies when tagName is 'a'",
             "itemtype": "property",
             "name": "loadingHref",
