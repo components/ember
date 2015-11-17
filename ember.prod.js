@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.1.0
+ * @version   2.1.1
  */
 
 (function() {
@@ -6253,9 +6253,9 @@ enifed('ember-htmlbars/helpers/-legacy-each-with-keyword', ['exports', 'ember-vi
   function bindKeyword(self, keyword, item) {
     var _ref;
 
-    return (_ref = {
+    return _ref = {
       self: self
-    }, _ref[keyword] = item, _ref);
+    }, _ref[keyword] = item, _ref;
   }
 
   var deprecation = 'Using the context switching form of {{each}} is deprecated. Please use the keyword form (`{{#each items as |item|}}`) instead.';
@@ -8441,7 +8441,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/core', 'ember-
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -9491,7 +9491,9 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   function processNamedPositionalParameters(renderNode, positionalParams, params, attrs) {
     var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
 
-    for (var i = 0; i < positionalParams.length; i++) {
+    var limit = Math.min(params.length, positionalParams.length);
+
+    for (var i = 0; i < limit; i++) {
       var param = params[paramsStartIndex + i];
 
       
@@ -9500,6 +9502,13 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
   }
 
   function processRestPositionalParameters(renderNode, positionalParamsName, params, attrs) {
+    var nameInAttrs = (positionalParamsName in attrs);
+
+    // when no params are used, do not override the specified `attrs.stringParamName` value
+    if (params.length === 0 && nameInAttrs) {
+      return;
+    }
+
     // If there is already an attribute for that variable, do nothing
     
     var paramsStartIndex = renderNode.state.isComponentHelper ? 1 : 0;
@@ -11371,10 +11380,8 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/core', 'ember-run
   */
   function htmlSafe(str) {
     if (str === null || str === undefined) {
-      return '';
-    }
-
-    if (typeof str !== 'string') {
+      str = '';
+    } else if (typeof str !== 'string') {
       str = '' + str;
     }
     return new _htmlbarsUtil.SafeString(str);
@@ -14346,7 +14353,7 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @class Ember
     @static
-    @version 2.1.0
+    @version 2.1.1
     @public
   */
 
@@ -14380,11 +14387,11 @@ enifed('ember-metal/core', ['exports', 'ember-metal/assert'], function (exports,
   
     @property VERSION
     @type String
-    @default '2.1.0'
+    @default '2.1.1'
     @static
     @public
   */
-  Ember.VERSION = '2.1.0';
+  Ember.VERSION = '2.1.1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14665,6 +14672,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: true,
       isChrome: !!window.chrome && !window.opera,
       isFirefox: typeof InstallTrigger !== 'undefined',
+      isPhantom: !!window.callPhantom,
       location: window.location,
       history: window.history,
       userAgent: window.navigator.userAgent,
@@ -14675,6 +14683,7 @@ enifed('ember-metal/environment', ['exports', 'ember-metal/core'], function (exp
       hasDOM: false,
       isChrome: false,
       isFirefox: false,
+      isPhantom: false,
       location: null,
       history: null,
       userAgent: 'Lynx (textmode)',
@@ -20861,7 +20870,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
   var checkHasSuper = (function () {
     var sourceAvailable = (function () {
       return this;
-    }).toString().indexOf('return this;') > -1;
+    }).toString().indexOf('return this') > -1;
 
     if (sourceAvailable) {
       return function checkHasSuper(func) {
@@ -20874,6 +20883,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
     };
   })();
 
+  exports.checkHasSuper = checkHasSuper;
   function ROOT() {}
   ROOT.__hasSuper = false;
 
@@ -22561,7 +22571,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.0';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.1.1';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -22886,7 +22896,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
     queryParams: null,
 
     qualifiedRouteName: _emberMetalComputed.computed('targetRouteName', '_routing.currentState', function computeLinkToComponentQualifiedRouteName() {
-      var params = this.attrs.params.slice();
+      var params = _emberMetalProperty_get.get(this, 'params').slice();
       var lastParam = params[params.length - 1];
       if (lastParam && lastParam.isQueryParams) {
         params.pop();
@@ -22978,7 +22988,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/core',
       var attrs = this.attrs;
 
       // Do not mutate params in place
-      var params = attrs.params.slice();
+      var params = _emberMetalProperty_get.get(this, 'params').slice();
 
       
       if (attrs.disabledWhen) {
@@ -23042,7 +23052,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.0';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.1.1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36689,7 +36699,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         topLevel: detectTopLevel(program),
-        revision: 'Ember@2.1.0',
+        revision: 'Ember@2.1.1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -40142,7 +40152,7 @@ enifed('ember-views/views/component', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-runtime/mixins/mutable_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.0';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.1.1';
 
   /**
   @module ember
