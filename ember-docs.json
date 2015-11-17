@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.13.10"
+        "version": "1.13.11"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -14808,7 +14808,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/controllers/array_controller.js",
-            "line": 232,
+            "line": 234,
             "description": "Flag to mark as being \"virtual\". Used to keep this instance\nfrom participating in the parentController hierarchy.",
             "access": "private",
             "tagname": "",
@@ -17899,7 +17899,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/mixins/sortable.js",
-            "line": 162,
+            "line": 167,
             "description": "Overrides the default `arrangedContent` from `ArrayProxy` in order to sort by `sortFunction`.\nAlso sets up observers for each `sortProperty` on each item in the content Array.",
             "itemtype": "property",
             "name": "arrangedContent",
@@ -21376,7 +21376,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/component.js",
-            "line": 186,
+            "line": 188,
             "description": "Specifying a components `templateName` is deprecated without also\nproviding the `layout` or `layoutName` properties.",
             "deprecated": true,
             "itemtype": "property",
@@ -21390,7 +21390,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/component.js",
-            "line": 196,
+            "line": 198,
             "description": "If the component is currently inserted into the DOM of a parent view, this\nproperty will point to the controller of the parent view.",
             "itemtype": "property",
             "name": "targetObject",
@@ -21405,7 +21405,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/component.js",
-            "line": 212,
+            "line": 214,
             "description": "Calls a action passed to a component.\n\nFor example a component for playing or pausing music may translate click events\ninto action notifications of \"play\" or \"stop\" depending on some internal state\nof the component:\n\n```javascript\n// app/components/play-button.js\nexport default Ember.Component.extend({\n  click() {\n    if (this.get('isPlaying')) {\n      this.sendAction('play');\n    } else {\n      this.sendAction('stop');\n    }\n  }\n});\n```\n\nThe actions \"play\" and \"stop\" must be passed to this `play-button` component:\n\n```handlebars\n{{! app/templates/application.hbs }}\n{{play-button play=(action \"musicStarted\") stop=(action \"musicStopped\")}}\n```\n\nWhen the component receives a browser `click` event it translate this\ninteraction into application-specific semantics (\"play\" or \"stop\") and\ncalls the specified action.\n\n```javascript\n// app/controller/application.js\nexport default Ember.Controller.extend({\n  actions: {\n    musicStarted() {\n      // called when the play button is clicked\n      // and the music started playing\n    },\n    musicStopped() {\n      // called when the play button is clicked\n      // and the music stopped playing\n    }\n  }\n});\n```\n\nIf no action is passed to `sendAction` a default name of \"action\"\nis assumed.\n\n```javascript\n// app/components/next-button.js\nexport default Ember.Component.extend({\n  click() {\n    this.sendAction();\n  }\n});\n```\n\n```handlebars\n{{! app/templates/application.hbs }}\n{{next-button action=(action \"playNextSongInAlbum\")}}\n```\n\n```javascript\n// app/controllers/application.js\nApp.ApplicationController = Ember.Controller.extend({\n  actions: {\n    playNextSongInAlbum() {\n      ...\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "sendAction",
@@ -21432,7 +21432,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/component.js",
-            "line": 335,
+            "line": 337,
             "description": "Returns true when the component was invoked with a block template.\n\nExample (`hasBlock` will be `false`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{foo-bar}}\n\n{{! templates/components/foo-bar.js }}\n{{#if hasBlock}}\n  This will not be printed, because no block was provided\n{{/if}}\n```\n\nExample (`hasBlock` will be `true`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar}}\n  Hi!\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.js }}\n{{#if hasBlock}}\n  This will be printed because a block was provided\n  {{yield}}\n{{/if}}\n```",
             "access": "public",
             "tagname": "",
@@ -21448,7 +21448,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/component.js",
-            "line": 372,
+            "line": 374,
             "description": "Returns true when the component was invoked with a block parameter\nsupplied.\n\nExample (`hasBlockParams` will be `false`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar}}\n  No block parameter.\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.js }}\n{{#if hasBlockParams}}\n  This will not be printed, because no block was provided\n  {{yield this}}\n{{/if}}\n```\n\nExample (`hasBlockParams` will be `true`):\n\n```hbs\n{{! templates/application.hbs }}\n\n{{#foo-bar as |foo|}}\n  Hi!\n{{/foo-bar}}\n\n{{! templates/components/foo-bar.js }}\n{{#if hasBlockParams}}\n  This will be printed because a block was provided\n  {{yield this}}\n{{/if}}\n```",
             "access": "public",
             "tagname": "",
@@ -21694,7 +21694,7 @@
         {
             "file": "packages/ember-views/lib/views/text_field.js",
             "line": 100,
-            "description": "The `type` attribute of the input element.",
+            "description": "The `type` attribute of the input element. To remain compatible with IE8, this\ncannot change after the element has been rendered. It is suggested to avoid using\na dynamic type attribute if you are supporting IE8 since it will be set once and never change.",
             "itemtype": "property",
             "name": "type",
             "type": "String",
@@ -21708,7 +21708,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/text_field.js",
-            "line": 124,
+            "line": 126,
             "description": "The `size` of the text field in characters.",
             "itemtype": "property",
             "name": "size",
@@ -21723,7 +21723,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/text_field.js",
-            "line": 134,
+            "line": 136,
             "description": "The `pattern` attribute of input element.",
             "itemtype": "property",
             "name": "pattern",
@@ -21738,7 +21738,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/text_field.js",
-            "line": 144,
+            "line": 146,
             "description": "The `min` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
             "itemtype": "property",
             "name": "min",
@@ -21754,7 +21754,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/text_field.js",
-            "line": 155,
+            "line": 157,
             "description": "The `max` attribute of input element used with `type=\"number\"` or `type=\"range\"`.",
             "itemtype": "property",
             "name": "max",
@@ -22279,7 +22279,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1370,
+            "line": 1376,
             "description": "Removes the view from its `parentView`, if one is found. Otherwise\ndoes nothing.",
             "itemtype": "method",
             "name": "removeFromParent",
@@ -22296,7 +22296,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1388,
+            "line": 1394,
             "description": "You must call `destroy` on a view to destroy the view (and all of its\nchild views). This will remove the view from any parent node, then make\nsure that the DOM element managed by the view can be released by the\nmemory manager.",
             "itemtype": "method",
             "name": "destroy",
@@ -22309,7 +22309,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1421,
+            "line": 1427,
             "description": "Handle events from `Ember.EventDispatcher`",
             "itemtype": "method",
             "name": "handleEvent",
@@ -22334,7 +22334,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1433,
+            "line": 1439,
             "description": "Registers the view in the view registry, keyed on the view's `elementId`.\nThis is used by the EventDispatcher to locate the view in response to\nevents.\n\nThis method should only be called once the view has been inserted into the\nDOM.",
             "itemtype": "method",
             "name": "_register",
@@ -22347,7 +22347,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1449,
+            "line": 1455,
             "description": "Removes the view from the view registry. This should be called when the\nview is removed from DOM.",
             "itemtype": "method",
             "name": "_unregister",
@@ -22360,7 +22360,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/view.js",
-            "line": 1537,
+            "line": 1543,
             "description": "Global views hash",
             "itemtype": "property",
             "name": "views",
@@ -22397,11 +22397,11 @@
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/ember-views/lib/views/component.js:335"
+            "line": " packages/ember-views/lib/views/component.js:337"
         },
         {
             "message": "replacing incorrect tag: returns with return",
-            "line": " packages/ember-views/lib/views/component.js:372"
+            "line": " packages/ember-views/lib/views/component.js:374"
         },
         {
             "message": "Missing item type\nThe `ApplicationInstance` encapsulates all of the stateful aspects of a\nrunning `Application`.\n\nAt a high-level, we break application boot into two distinct phases:\n\n* Definition time, where all of the classes, templates, and other\n  dependencies are loaded (typically in the browser).\n* Run time, where we begin executing the application once everything\n  has loaded.\n\nDefinition time can be expensive and only needs to happen once since it is\nan idempotent operation. For example, between test runs and FastBoot\nrequests, the application stays the same. It is only the state that we want\nto reset.\n\nThat state is what the `ApplicationInstance` manages: it is responsible for\ncreating the container that contains all application state, and disposing of\nit once the particular test run or FastBoot request has finished.",
