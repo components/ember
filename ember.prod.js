@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.1
+ * @version   2.3.0-beta.1+cf240f3c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -7494,6 +7494,21 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
       var componentCell = stream.value();
       if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(componentCell)) {
         tagName = componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_PATH];
+
+        /*
+         * Processing positional params before merging into a hash must be done
+         * here to avoid problems with rest positional parameters rendered using
+         * the dot notation.
+         *
+         * Closure components (for the contextual component feature) do not
+         * actually keep the positional params, but process them at each level.
+         * Therefore, when rendering a closure component with the component
+         * helper we process the parameters and attributes and then merge those
+         * on top of the closure component attributes.
+         *
+         */
+        _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(componentCell, params, attrs);
+        params = [];
         attrs = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], attrs);
       }
     }
@@ -8323,6 +8338,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
 
   exports.default = closureComponent;
   exports.isComponentCell = isComponentCell;
+  exports.processPositionalParamsFromCell = processPositionalParamsFromCell;
   exports.mergeInNewHash = mergeInNewHash;
   var COMPONENT_REFERENCE = _emberMetalSymbol.default('COMPONENT_REFERENCE');
   exports.COMPONENT_REFERENCE = COMPONENT_REFERENCE;
@@ -8395,12 +8411,16 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   function createNestedClosureComponentCell(componentCell, params, hash) {
     var _ref;
 
+    // This needs to be done in each nesting level to avoid raising assertions
+    processPositionalParamsFromCell(componentCell, params, hash);
+
+    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = componentCell[COMPONENT_POSITIONAL_PARAMS], _ref[COMPONENT_CELL] = true, _ref;
+  }
+
+  function processPositionalParamsFromCell(componentCell, params, hash) {
     var positionalParams = componentCell[COMPONENT_POSITIONAL_PARAMS];
 
-    // This needs to be done in each nesting level to avoid raising assertions
     _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
-
-    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = positionalParams, _ref[COMPONENT_CELL] = true, _ref;
   }
 
   function createNewClosureComponentCell(env, componentPath, params, hash) {
@@ -8813,7 +8833,7 @@ enifed('ember-htmlbars/keywords/each', ['exports'], function (exports) {
     return false;
   }
 });
-enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/utils/extract-positional-params'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsUtilsExtractPositionalParams) {
+enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent) {
   'use strict';
 
   exports.default = {
@@ -8874,10 +8894,9 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
 
     if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(path)) {
       var closureComponent = env.hooks.getValue(path);
-      var positionalParams = closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_POSITIONAL_PARAMS];
 
       // This needs to be done in each nesting level to avoid raising assertions
-      _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
+      _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(closureComponent, params, hash);
       params = [];
       hash = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash);
     }
@@ -9388,7 +9407,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1+cf240f3c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -12305,9 +12324,9 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
   }
 
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
-    var isNamed = typeof positionalParams === 'string';
+    var isRest = typeof positionalParams === 'string';
 
-    if (isNamed) {
+    if (isRest) {
       processRestPositionalParameters(renderNode, positionalParams, params, attrs);
     } else {
       processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
@@ -15042,7 +15061,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.1
+    @version 2.3.0-beta.1+cf240f3c
     @public
   */
 
@@ -15086,11 +15105,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.1'
+    @default '2.3.0-beta.1+cf240f3c'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.1';
+  Ember.VERSION = '2.3.0-beta.1+cf240f3c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -28631,7 +28650,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.1+cf240f3c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29118,7 +29137,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1+cf240f3c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -37955,7 +37974,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.1',
+        revision: 'Ember@2.3.0-beta.1+cf240f3c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41970,7 +41989,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.1+cf240f3c';
 
   /**
   @module ember

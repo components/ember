@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.1
+ * @version   2.3.0-beta.1+cf240f3c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16434,8 +16434,28 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), expectedText, '-looked-up component rendered');
   });
 
-  QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
+  QUnit.test('renders with dot path and with rest positional parameters', function () {
     var _Component$extend18;
+
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: 'params'
+    });
+    owner.register('component:-looked-up', LookedUp);
+    var expectedText = 'Hodi';
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{params}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText "Hola"}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create({
+      expectedText: expectedText
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText + ',Hola', '-looked-up component rendered with rest params');
+  });
+
+  QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
+    var _Component$extend19;
 
     owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
 
@@ -16443,7 +16463,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
@@ -51934,7 +51954,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.1', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.1+cf240f3c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
