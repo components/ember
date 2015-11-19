@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+9c58ec64
+ * @version   2.4.0-canary+240b8c2f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13887,7 +13887,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
 enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-debug'], function (exports, _emberMetalCore, _emberMetalDebug, _emberDebug) {
   'use strict';
 
-  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableAll, origEnableOptional;
+  var oldWarn, oldRunInDebug, origEnvFeatures, origEnableOptional;
 
   function confirmWarns(expectedMsg) {
     var featuresWereStripped = true;
@@ -13916,7 +13916,6 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
       oldWarn = _emberMetalDebug.getDebugFunction('warn');
       oldRunInDebug = _emberMetalDebug.getDebugFunction('runInDebug');
       origEnvFeatures = _emberMetalCore.default.ENV.FEATURES;
-      origEnableAll = _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
     },
 
@@ -13924,25 +13923,13 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
       _emberMetalDebug.setDebugFunction('warn', oldWarn);
       _emberMetalDebug.setDebugFunction('runInDebug', oldRunInDebug);
       _emberMetalCore.default.ENV.FEATURES = origEnvFeatures;
-      _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = origEnableAll;
       _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
     }
-  });
-
-  QUnit.test('Setting Ember.ENV.ENABLE_ALL_FEATURES truthy in non-canary, debug build causes a warning', function () {
-    expect(1);
-
-    _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = true;
-    _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
-    _emberMetalCore.default.ENV.FEATURES = {};
-
-    confirmWarns('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.');
   });
 
   QUnit.test('Setting Ember.ENV.ENABLE_OPTIONAL_FEATURES truthy in non-canary, debug build causes a warning', function () {
     expect(1);
 
-    _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = false;
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = true;
     _emberMetalCore.default.ENV.FEATURES = {};
 
@@ -13952,7 +13939,6 @@ enifed('ember-debug/tests/warn_if_using_stripped_feature_flags_test', ['exports'
   QUnit.test('Enabling a FEATURES flag in non-canary, debug build causes a warning', function () {
     expect(1);
 
-    _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = false;
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
     _emberMetalCore.default.ENV.FEATURES = {
       'fred': true,
@@ -29709,12 +29695,11 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
 enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalAssign) {
   'use strict';
 
-  var origFeatures, origEnableAll, origEnableOptional;
+  var origFeatures, origEnableOptional;
 
   QUnit.module('isEnabled', {
     setup: function () {
       origFeatures = _emberMetalAssign.default({}, _emberMetalFeatures.FEATURES);
-      origEnableAll = _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES;
       origEnableOptional = _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES;
     },
 
@@ -29724,19 +29709,8 @@ enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember
       }
       _emberMetalAssign.default(_emberMetalFeatures.FEATURES, origFeatures);
 
-      _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = origEnableAll;
       _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = origEnableOptional;
     }
-  });
-
-  QUnit.test('ENV.ENABLE_ALL_FEATURES', function () {
-    _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = true;
-    _emberMetalFeatures.FEATURES['fred'] = false;
-    _emberMetalFeatures.FEATURES['wilma'] = null;
-
-    equal(_emberMetalFeatures.default('fred'), true, 'overrides features set to false');
-    equal(_emberMetalFeatures.default('wilma'), true, 'enables optional features');
-    equal(_emberMetalFeatures.default('betty'), true, 'enables non-specified features');
   });
 
   QUnit.test('ENV.ENABLE_OPTIONAL_FEATURES', function () {
@@ -29752,7 +29726,6 @@ enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember
   });
 
   QUnit.test('isEnabled without ENV options', function () {
-    _emberMetalCore.default.ENV.ENABLE_ALL_FEATURES = false;
     _emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES = false;
 
     _emberMetalFeatures.FEATURES['fred'] = false;
@@ -51709,7 +51682,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+9c58ec64', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+240b8c2f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
