@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f03eab41
+ * @version   2.4.0-canary+cfed4015
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1330,6 +1330,19 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       } else {
         resetCache(this);
       }
+    },
+
+    /**
+     Returns an object that can be used to provide an owner to a
+     manually created instance.
+      @private
+     @method ownerInjection
+     @returns { Object }
+    */
+    ownerInjection: function () {
+      var _ref;
+
+      return _ref = {}, _ref[_containerOwner.OWNER] = this.owner, _ref;
     }
   };
 
@@ -4730,7 +4743,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.4.0-canary+f03eab41
+    @version 2.4.0-canary+cfed4015
     @public
   */
 
@@ -4774,11 +4787,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+f03eab41'
+    @default '2.4.0-canary+cfed4015'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+f03eab41';
+  Ember.VERSION = '2.4.0-canary+cfed4015';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14456,6 +14469,23 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
      @property {Ember.Container} __container__
      */
     __container__: null,
+
+    /**
+     Returns an object that can be used to provide an owner to a
+     manually created instance.
+      Example:
+      ```
+     let owner = Ember.getOwner(this);
+      User.create(
+       owner.ownerInjection(),
+       { username: 'rwjblue' }
+     )
+     ```
+      @public
+     @method ownerInjection
+     @return {Object}
+    */
+    ownerInjection: containerAlias('ownerInjection'),
 
     /**
      Given a fullName return a corresponding instance.

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f03eab41
+ * @version   2.4.0-canary+cfed4015
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -620,6 +620,16 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
 
     container.lookup('apple:main');
     container.lookup('apple:main');
+  });
+
+  QUnit.test('An object with its owner pre-set should be returned from ownerInjection', function () {
+    var owner = {};
+    var registry = new _containerRegistry.default();
+    var container = registry.container({ owner: owner });
+
+    var result = container.ownerInjection();
+
+    equal(result[_containerOwner.OWNER], owner, 'owner is properly included');
   });
 
   QUnit.test('A deprecated `container` property is appended to every object instantiated from an extendable factory', function () {
@@ -44429,6 +44439,28 @@ enifed('ember-runtime/tests/mixins/comparable_test', ['exports', 'ember-metal/pr
     equal(_emberRuntimeCompare.default(r2, r1), 1);
   });
 });
+enifed('ember-runtime/tests/mixins/container_proxy_test', ['exports', 'container/owner', 'container/registry', 'container/container', 'ember-runtime/mixins/container_proxy', 'ember-runtime/system/object'], function (exports, _containerOwner, _containerRegistry, _containerContainer, _emberRuntimeMixinsContainer_proxy, _emberRuntimeSystemObject) {
+  'use strict';
+
+  QUnit.module('ember-runtime/mixins/container_proxy', {
+    setup: function () {
+      this.Owner = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsContainer_proxy.default);
+      this.instance = this.Owner.create();
+
+      var registry = new _containerRegistry.default();
+
+      this.instance.__container__ = new _containerContainer.default(registry, {
+        owner: this.instance
+      });
+    }
+  });
+
+  QUnit.test('provides ownerInjection helper method', function (assert) {
+    var result = this.instance.ownerInjection();
+
+    assert.equal(result[_containerOwner.OWNER], this.instance, 'returns an object with the OWNER symbol');
+  });
+});
 enifed('ember-runtime/tests/mixins/copyable_test', ['exports', 'ember-runtime/tests/suites/copyable', 'ember-runtime/mixins/copyable', 'ember-runtime/mixins/freezable', 'ember-runtime/system/object', 'ember-metal/utils', 'ember-metal/property_set', 'ember-metal/property_get'], function (exports, _emberRuntimeTestsSuitesCopyable, _emberRuntimeMixinsCopyable, _emberRuntimeMixinsFreezable, _emberRuntimeSystemObject, _emberMetalUtils, _emberMetalProperty_set, _emberMetalProperty_get) {
   'use strict';
 
@@ -51713,7 +51745,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+f03eab41', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+cfed4015', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
