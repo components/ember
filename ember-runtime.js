@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+4638cbcc
+ * @version   2.4.0-canary+ca85208a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4743,7 +4743,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.4.0-canary+4638cbcc
+    @version 2.4.0-canary+ca85208a
     @public
   */
 
@@ -4787,11 +4787,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+4638cbcc'
+    @default '2.4.0-canary+ca85208a'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+4638cbcc';
+  Ember.VERSION = '2.4.0-canary+ca85208a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8030,6 +8030,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
 
   MixinPrototype.applyPartial = function (obj) {
     return applyMixin(obj, [this], true);
+  };
+
+  MixinPrototype.toString = function Mixin_toString() {
+    return '(unknown mixin)';
   };
 
   function _detect(curMixin, targetMixin, seen) {
