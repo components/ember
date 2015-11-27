@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+e931fd79
+ * @version   2.4.0-canary+4638cbcc
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10037,7 +10037,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+e931fd79';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+4638cbcc';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15792,7 +15792,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.4.0-canary+e931fd79
+    @version 2.4.0-canary+4638cbcc
     @public
   */
 
@@ -15836,11 +15836,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+e931fd79'
+    @default '2.4.0-canary+4638cbcc'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+e931fd79';
+  Ember.VERSION = '2.4.0-canary+4638cbcc';
 
   /**
     The hash of environment variables used to control various configuration
@@ -26277,7 +26277,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         this.route('post', { path: '/posts/:post_id' });
       });
       ```
-       The model for the `post` route is `store.find('post', params.post_id)`.
+       The model for the `post` route is `store.findRecord('post', params.post_id)`.
        By default, if your route has a dynamic segment ending in `_id`:
        * The model class is determined from the segment (`post_id`'s
         class is `App.Post`)
@@ -26295,13 +26295,13 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       // no dynamic segment, model hook always called
       this.transitionTo('posts');
        // model passed in, so model hook not called
-      thePost = store.find('post', 1);
+      thePost = store.findRecord('post', 1);
       this.transitionTo('post', thePost);
        // integer passed in, model hook is called
       this.transitionTo('post', 1);
        // model id passed in, model hook is called
       // useful for forcing the hook to execute
-      thePost = store.find('post', 1);
+      thePost = store.findRecord('post', 1);
       this.transitionTo('post', thePost.id);
       ```
         This hook follows the asynchronous/promise semantics
@@ -26312,7 +26312,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        ```javascript
       App.PostRoute = Ember.Route.extend({
         model: function(params) {
-          return this.store.find('post', params.post_id);
+          return this.store.findRecord('post', params.post_id);
         }
       });
       ```
@@ -26479,7 +26479,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        ```javascript
       App.PhotosRoute = Ember.Route.extend({
         model: function() {
-          return this.store.find('photo');
+          return this.store.findAll('photo');
         },
          setupController: function (controller, model) {
           // Call _super for default behavior
@@ -29588,7 +29588,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+e931fd79';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+4638cbcc';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30078,7 +30078,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+e931fd79';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+4638cbcc';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39027,7 +39027,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+e931fd79',
+        revision: 'Ember@2.4.0-canary+4638cbcc',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44317,7 +44317,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+e931fd79';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+4638cbcc';
 
   /**
   @module ember
