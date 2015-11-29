@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2
+ * @version   2.3.0-beta.2+bc4ba7c3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4130,7 +4130,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2
+    @version 2.3.0-beta.2+bc4ba7c3
     @public
   */
 
@@ -4174,11 +4174,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2'
+    @default '2.3.0-beta.2+bc4ba7c3'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2';
+  Ember.VERSION = '2.3.0-beta.2+bc4ba7c3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12563,7 +12563,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.2',
+        revision: 'Ember@2.3.0-beta.2+bc4ba7c3',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -14216,7 +14216,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
     return {
       meta: template.meta,
       arity: template.arity,
-      yield: yieldArgs,
+      'yield': yieldArgs, // quoted since it's a reserved word, see issue #420
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
       raw: template,
 
@@ -14403,7 +14403,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
   function thisFor(options) {
     return {
       arity: options.template.arity,
-      yield: options.template.yield,
+      'yield': options.template.yield, // quoted since it's a reserved word, see issue #420
       yieldItem: options.template.yieldItem,
       yieldIn: options.template.yieldIn
     };
@@ -14892,7 +14892,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       return true;
     },
 
-    yield: function (morph, env, scope, params, hash, template, inverse, visitor) {
+    // quoted since it's a reserved word, see issue #420
+    'yield': function (morph, env, scope, params, hash, template, inverse, visitor) {
       // the current scope is provided purely for the creation of shadow
       // scopes; it should not be provided to user code.
 
@@ -18098,6 +18099,8 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "htmlbars-
       var attributes = _currentNode.attributes;
       var modifiers = _currentNode.modifiers;
 
+      validateStartTag(this.currentNode, this.tokenizer);
+
       var loc = _htmlbarsSyntaxBuilders.default.loc(this.tokenizer.tagLine, this.tokenizer.tagColumn);
       var element = _htmlbarsSyntaxBuilders.default.element(name, attributes, modifiers, [], loc);
       this.elementStack.push(element);
@@ -18216,22 +18219,23 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "htmlbars-
     return _htmlbarsSyntaxBuilders.default.concat(parts);
   }
 
-  function validateEndTag(tag, element, selfClosing) {
-    var error;
+  function validateStartTag(tag, tokenizer) {
+    // No support for <script> tags
+    if (tag.name === "script") {
+      throw new Error("`SCRIPT` tags are not allowed in HTMLBars templates (on line " + tokenizer.tagLine + ")");
+    }
+  }
 
+  function validateEndTag(tag, element, selfClosing) {
     if (_htmlbarsUtilVoidTagNames.default[tag.name] && !selfClosing) {
       // EngTag is also called by StartTag for void and self-closing tags (i.e.
       // <input> or <br />, so we need to check for that here. Otherwise, we would
       // throw an error for those cases.
-      error = "Invalid end tag " + formatEndTagInfo(tag) + " (void elements cannot have end tags).";
+      throw new Error("Invalid end tag " + formatEndTagInfo(tag) + " (void elements cannot have end tags).");
     } else if (element.tag === undefined) {
-      error = "Closing tag " + formatEndTagInfo(tag) + " without an open tag.";
+      throw new Error("Closing tag " + formatEndTagInfo(tag) + " without an open tag.");
     } else if (element.tag !== tag.name) {
-      error = "Closing tag " + formatEndTagInfo(tag) + " did not match last open tag `" + element.tag + "` (on line " + element.loc.start.line + ").";
-    }
-
-    if (error) {
-      throw new Error(error);
+      throw new Error("Closing tag " + formatEndTagInfo(tag) + " did not match last open tag `" + element.tag + "` (on line " + element.loc.start.line + ").");
     }
   }
 
@@ -19342,7 +19346,7 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
         // If we don't see the key in handledMorphs, it wasn't
         // yielded in and we can safely remove it from DOM.
         if (!(item.key in handledMorphs)) {
-          delete morphMap[item.key];
+          morphMap[item.key] = undefined;
           clearMorph(item, env, true);
           item.destroy();
         }
@@ -19405,7 +19409,7 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
 
     while (item) {
       var next = item.nextMorph;
-      delete morph.morphMap[item.key];
+      morph.morphMap[item.key] = undefined;
       clearMorph(item, env, true);
       item.destroy();
 
