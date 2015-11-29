@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.1
+ * @version   2.3.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1326,6 +1326,19 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       } else {
         resetCache(this);
       }
+    },
+
+    /**
+     Returns an object that can be used to provide an owner to a
+     manually created instance.
+      @private
+     @method ownerInjection
+     @returns { Object }
+    */
+    ownerInjection: function () {
+      var _ref;
+
+      return _ref = {}, _ref[_containerOwner.OWNER] = this.owner, _ref;
     }
   };
 
@@ -7482,20 +7495,35 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/debug', 'ember
   function componentHook(renderNode, env, scope, _tagName, params, attrs, templates, visitor) {
     var state = renderNode.getState();
 
-    // Determine if this is an initial render or a re-render
-    if (state.manager) {
-      state.manager.rerender(env, attrs, visitor);
-      return;
-    }
-
     var tagName = _tagName;
     if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(tagName)) {
       var stream = env.hooks.get(env, scope, tagName);
       var componentCell = stream.value();
       if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(componentCell)) {
         tagName = componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_PATH];
+
+        /*
+         * Processing positional params before merging into a hash must be done
+         * here to avoid problems with rest positional parameters rendered using
+         * the dot notation.
+         *
+         * Closure components (for the contextual component feature) do not
+         * actually keep the positional params, but process them at each level.
+         * Therefore, when rendering a closure component with the component
+         * helper we process the parameters and attributes and then merge those
+         * on top of the closure component attributes.
+         *
+         */
+        _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(componentCell, params, attrs);
+        params = [];
         attrs = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], attrs);
       }
+    }
+
+    // Determine if this is an initial render or a re-render
+    if (state.manager) {
+      state.manager.rerender(env, attrs, visitor);
+      return;
     }
 
     var isAngleBracket = false;
@@ -8323,6 +8351,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
 
   exports.default = closureComponent;
   exports.isComponentCell = isComponentCell;
+  exports.processPositionalParamsFromCell = processPositionalParamsFromCell;
   exports.mergeInNewHash = mergeInNewHash;
   var COMPONENT_REFERENCE = _emberMetalSymbol.default('COMPONENT_REFERENCE');
   exports.COMPONENT_REFERENCE = COMPONENT_REFERENCE;
@@ -8395,12 +8424,16 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   function createNestedClosureComponentCell(componentCell, params, hash) {
     var _ref;
 
+    // This needs to be done in each nesting level to avoid raising assertions
+    processPositionalParamsFromCell(componentCell, params, hash);
+
+    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = componentCell[COMPONENT_POSITIONAL_PARAMS], _ref[COMPONENT_CELL] = true, _ref;
+  }
+
+  function processPositionalParamsFromCell(componentCell, params, hash) {
     var positionalParams = componentCell[COMPONENT_POSITIONAL_PARAMS];
 
-    // This needs to be done in each nesting level to avoid raising assertions
     _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
-
-    return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = positionalParams, _ref[COMPONENT_CELL] = true, _ref;
   }
 
   function createNewClosureComponentCell(env, componentPath, params, hash) {
@@ -8813,7 +8846,7 @@ enifed('ember-htmlbars/keywords/each', ['exports'], function (exports) {
     return false;
   }
 });
-enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component', 'ember-htmlbars/utils/extract-positional-params'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent, _emberHtmlbarsUtilsExtractPositionalParams) {
+enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/assign', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberMetalAssign, _emberHtmlbarsKeywordsClosureComponent) {
   'use strict';
 
   exports.default = {
@@ -8874,10 +8907,9 @@ enifed('ember-htmlbars/keywords/element-component', ['exports', 'ember-metal/ass
 
     if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(path)) {
       var closureComponent = env.hooks.getValue(path);
-      var positionalParams = closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_POSITIONAL_PARAMS];
 
       // This needs to be done in each nesting level to avoid raising assertions
-      _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
+      _emberHtmlbarsKeywordsClosureComponent.processPositionalParamsFromCell(closureComponent, params, hash);
       params = [];
       hash = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(closureComponent[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash);
     }
@@ -9388,7 +9420,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -12305,9 +12337,9 @@ enifed('ember-htmlbars/utils/extract-positional-params', ['exports', 'ember-meta
   }
 
   function processPositionalParams(renderNode, positionalParams, params, attrs) {
-    var isNamed = typeof positionalParams === 'string';
+    var isRest = typeof positionalParams === 'string';
 
-    if (isNamed) {
+    if (isRest) {
       processRestPositionalParameters(renderNode, positionalParams, params, attrs);
     } else {
       processNamedPositionalParameters(renderNode, positionalParams, params, attrs);
@@ -15042,7 +15074,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.1
+    @version 2.3.0-beta.2
     @public
   */
 
@@ -15086,11 +15118,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.1'
+    @default '2.3.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.1';
+  Ember.VERSION = '2.3.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15115,12 +15147,12 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     Ember.ENV = {};
   }
 
-  Ember.config = Ember.config || {};
-
-  // We disable the RANGE API by default for performance reasons
-  if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
-    Ember.ENV.DISABLE_RANGE_API = true;
+  // ENABLE_ALL_FEATURES was documented, but you can't actually enable non optional features.
+  if (Ember.ENV.ENABLE_ALL_FEATURES) {
+    Ember.ENV.ENABLE_OPTIONAL_FEATURES = Ember.ENV.ENABLE_ALL_FEATURES;
   }
+
+  Ember.config = Ember.config || {};
 
   // ..........................................................
   // BOOTSTRAP
@@ -15161,17 +15193,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @public
   */
   Ember.LOG_STACKTRACE_ON_DEPRECATION = Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false;
-
-  /**
-    The `SHIM_ES5` property, when true, tells Ember to add ECMAScript 5 Array
-    shims to older browsers.
-  
-    @property SHIM_ES5
-    @type Boolean
-    @default Ember.EXTEND_PROTOTYPES
-    @public
-  */
-  Ember.SHIM_ES5 = Ember.ENV.SHIM_ES5 === false ? false : Ember.EXTEND_PROTOTYPES;
 
   /**
     The `LOG_VERSION` property, when true, tells Ember to log versions of all
@@ -15926,7 +15947,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
   
     You can define the following configuration options:
   
-    * `EmberENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
     * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
       enabled/disabled.
   
@@ -15941,9 +15961,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
 
-    if (_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES) {
-      return true;
-    } else if (featureValue === true || featureValue === false || featureValue === undefined) {
+    if (featureValue === true || featureValue === false || featureValue === undefined) {
       return featureValue;
     } else if (_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES) {
       return true;
@@ -18315,6 +18333,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
 
   MixinPrototype.applyPartial = function (obj) {
     return applyMixin(obj, [this], true);
+  };
+
+  MixinPrototype.toString = function Mixin_toString() {
+    return '(unknown mixin)';
   };
 
   function _detect(curMixin, targetMixin, seen) {
@@ -28631,7 +28653,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29118,7 +29140,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -31478,6 +31500,23 @@ enifed('ember-runtime/mixins/container_proxy', ['exports', 'ember-metal/run_loop
      @property {Ember.Container} __container__
      */
     __container__: null,
+
+    /**
+     Returns an object that can be used to provide an owner to a
+     manually created instance.
+      Example:
+      ```
+     let owner = Ember.getOwner(this);
+      User.create(
+       owner.ownerInjection(),
+       { username: 'rwjblue' }
+     )
+     ```
+      @public
+     @method ownerInjection
+     @return {Object}
+    */
+    ownerInjection: containerAlias('ownerInjection'),
 
     /**
      Given a fullName return a corresponding instance.
@@ -37955,7 +37994,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.1',
+        revision: 'Ember@2.3.0-beta.2',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41970,7 +42009,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2';
 
   /**
   @module ember
@@ -43506,6 +43545,11 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
   'use strict';
 
   /**
+  @module ember
+  @submodule ember-views
+  */
+
+  /**
     `Ember.View` is the class in Ember responsible for encapsulating templates of
     HTML content, combining templates with data to render as sections of a page's
     DOM, and registering and responding to user-initiated events.
@@ -44219,11 +44263,6 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
   exports.DeprecatedView = DeprecatedView;
 });
 // for the side effect of extending Ember.run.queues
-
-/**
-@module ember
-@submodule ember-views
-*/
 enifed('ember-views', ['exports', 'ember-runtime', 'ember-views/system/jquery', 'ember-views/system/utils', 'ember-views/system/ext', 'ember-views/views/states', 'ember-metal-views/renderer', 'ember-views/views/core_view', 'ember-views/views/view', 'ember-views/views/container_view', 'ember-views/views/collection_view', 'ember-views/components/component', 'ember-views/system/event_dispatcher', 'ember-views/mixins/view_target_action_support', 'ember-views/component_lookup', 'ember-views/views/checkbox', 'ember-views/mixins/text_support', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/select', 'ember-views/compat/metamorph_view', 'ember-views/views/legacy_each_view'], function (exports, _emberRuntime, _emberViewsSystemJquery, _emberViewsSystemUtils, _emberViewsSystemExt, _emberViewsViewsStates, _emberMetalViewsRenderer, _emberViewsViewsCore_view, _emberViewsViewsView, _emberViewsViewsContainer_view, _emberViewsViewsCollection_view, _emberViewsComponentsComponent, _emberViewsSystemEvent_dispatcher, _emberViewsMixinsView_target_action_support, _emberViewsComponent_lookup, _emberViewsViewsCheckbox, _emberViewsMixinsText_support, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsSelect, _emberViewsCompatMetamorph_view, _emberViewsViewsLegacy_each_view) {
   /**
   @module ember

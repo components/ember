@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.1
+ * @version   2.3.0-beta.2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1611,7 +1611,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   _emberMetalDebug.setDebugFunction('warn', _emberDebugWarn.default);
 
   /**
-    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+    Will call `Ember.warn()` if ENABLE_OPTIONAL_FEATURES or
     any specific FEATURES flag is truthy.
   
     This method is called automatically in debug canary builds.
@@ -1623,7 +1623,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
 
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
-      _emberMetalDebug.warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
       _emberMetalDebug.warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES, { id: 'ember-debug.feature-flag-with-features-stripped' });
 
       for (var key in FEATURES) {
@@ -1638,10 +1637,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
     // Complain if they're using FEATURE flags in builds other than canary
     _emberMetalFeatures.FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
-
-    if (_emberMetalFeatures.default('features-stripped-test')) {
-      exports.featuresWereStripped = featuresWereStripped = false;
-    }
 
     delete _emberMetalFeatures.FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(_emberMetalCore.default.ENV.FEATURES, featuresWereStripped);
@@ -4135,7 +4130,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.1
+    @version 2.3.0-beta.2
     @public
   */
 
@@ -4179,11 +4174,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.1'
+    @default '2.3.0-beta.2'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.1';
+  Ember.VERSION = '2.3.0-beta.2';
 
   /**
     The hash of environment variables used to control various configuration
@@ -4208,12 +4203,12 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     Ember.ENV = {};
   }
 
-  Ember.config = Ember.config || {};
-
-  // We disable the RANGE API by default for performance reasons
-  if ('undefined' === typeof Ember.ENV.DISABLE_RANGE_API) {
-    Ember.ENV.DISABLE_RANGE_API = true;
+  // ENABLE_ALL_FEATURES was documented, but you can't actually enable non optional features.
+  if (Ember.ENV.ENABLE_ALL_FEATURES) {
+    Ember.ENV.ENABLE_OPTIONAL_FEATURES = Ember.ENV.ENABLE_ALL_FEATURES;
   }
+
+  Ember.config = Ember.config || {};
 
   // ..........................................................
   // BOOTSTRAP
@@ -4254,17 +4249,6 @@ enifed('ember-metal/core', ['exports'], function (exports) {
     @public
   */
   Ember.LOG_STACKTRACE_ON_DEPRECATION = Ember.ENV.LOG_STACKTRACE_ON_DEPRECATION !== false;
-
-  /**
-    The `SHIM_ES5` property, when true, tells Ember to add ECMAScript 5 Array
-    shims to older browsers.
-  
-    @property SHIM_ES5
-    @type Boolean
-    @default Ember.EXTEND_PROTOTYPES
-    @public
-  */
-  Ember.SHIM_ES5 = Ember.ENV.SHIM_ES5 === false ? false : Ember.EXTEND_PROTOTYPES;
 
   /**
     The `LOG_VERSION` property, when true, tells Ember to log versions of all
@@ -5023,7 +5007,6 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
   
     You can define the following configuration options:
   
-    * `EmberENV.ENABLE_ALL_FEATURES` - force all features to be enabled.
     * `EmberENV.ENABLE_OPTIONAL_FEATURES` - enable any features that have not been explicitly
       enabled/disabled.
   
@@ -5038,9 +5021,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
   function isEnabled(feature) {
     var featureValue = FEATURES[feature];
 
-    if (_emberMetalCore.default.ENV.ENABLE_ALL_FEATURES) {
-      return true;
-    } else if (featureValue === true || featureValue === false || featureValue === undefined) {
+    if (featureValue === true || featureValue === false || featureValue === undefined) {
       return featureValue;
     } else if (_emberMetalCore.default.ENV.ENABLE_OPTIONAL_FEATURES) {
       return true;
@@ -5612,12 +5593,6 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
       }
     }
   };
-
-  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
-    Libraries.prototype.isRegistered = function (name) {
-      return !!this._getLibraryByName(name);
-    };
-  }
 
   exports.default = Libraries;
 });
@@ -6290,9 +6265,6 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
-    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
-    }
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -7436,6 +7408,10 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
 
   MixinPrototype.applyPartial = function (obj) {
     return applyMixin(obj, [this], true);
+  };
+
+  MixinPrototype.toString = function Mixin_toString() {
+    return '(unknown mixin)';
   };
 
   function _detect(curMixin, targetMixin, seen) {
@@ -11487,12 +11463,7 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
   _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
 
-  if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
-    _emberMetalCore.default.assign = Object.assign || _emberMetalAssign.default;
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  } else {
-    _emberMetalCore.default.merge = _emberMetalMerge.default;
-  }
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
 
   _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
   _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
@@ -12415,9 +12386,6 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
     if (lastComponentNode.type === 'ComponentNode') {
       componentCallback(lastComponentNode);
-    } else if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-      var component = elementCallback(lastComponentNode);
-      body.splice(lastIndex, 1, component);
     }
   }
 
@@ -12570,9 +12538,6 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports.default = function (_options) {
     var disableComponentGeneration = true;
-    if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-      disableComponentGeneration = false;
-    }
 
     var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -12598,7 +12563,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.1',
+        revision: 'Ember@2.3.0-beta.2',
         loc: program.loc,
         moduleName: options.moduleName
       };
