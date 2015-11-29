@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.1+a4a44030
+ * @version   2.3.0-beta.1+790f57b7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13965,8 +13965,39 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), expectedText + ',Hola', '-looked-up component rendered with rest params');
   });
 
-  QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
+  QUnit.test('renders with dot path and updates attributes', function () {
     var _Component$extend19;
+
+    owner.register('component:my-nested-component', _emberViewsComponentsComponent.default.extend({
+      didReceiveAttrs: function () {
+        this.set('myProp', this.getAttr('my-parent-attr'));
+      }
+    }));
+
+    owner.register('template:components/my-nested-component', _emberTemplateCompilerSystemCompile.default('<span id=\'nested-prop\'>{{myProp}}</span>'));
+
+    owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                             {{api.my-nested-component}}\n                           {{/my-component}}\n                           <br>\n                           <button onclick={{action \'changeValue\'}}>Change value</button>');
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19.myProp = 1, _Component$extend19.actions = {
+      changeValue: function () {
+        this.incrementProperty('myProp');
+      }
+    }, _Component$extend19)).create({});
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    component.$('button').click();
+
+    equal(component.$('#nested-prop').text(), '2', 'value got updated');
+
+    component.$('button').click();
+
+    equal(component.$('#nested-prop').text(), '3', 'value got updated again');
+  });
+
+  QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
+    var _Component$extend20;
 
     owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
 
@@ -13974,7 +14005,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
@@ -48630,7 +48661,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.1+a4a44030', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.1+790f57b7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
