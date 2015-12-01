@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+4c6ef677
+ * @version   2.4.0-canary+4593e27a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4758,7 +4758,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+4c6ef677
+    @version 2.4.0-canary+4593e27a
     @public
   */
 
@@ -4800,11 +4800,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+4c6ef677'
+    @default '2.4.0-canary+4593e27a'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+4c6ef677';
+  Ember.VERSION = '2.4.0-canary+4593e27a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19826,7 +19826,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       'action_name'.capitalize()       // 'Action_name'
       'css-class-name'.capitalize()    // 'Css-class-name'
       'my favorite items'.capitalize() // 'My favorite items'
-      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'
+      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/ownerInvoice'
       ```
        @method capitalize
       @param {String} str The string to capitalize.
