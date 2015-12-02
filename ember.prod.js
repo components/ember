@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f455bc9f
+ * @version   2.4.0-canary+3d1cf7b6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1712,7 +1712,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
   function Registry(options) {
     this.fallback = options && options.fallback ? options.fallback : null;
 
-    this.resolver = options && options.resolver ? options.resolver : function () {};
+    if (options && options.resolver) {
+      this.resolver = options.resolver;
+
+      if (typeof this.resolver === 'function') {
+        deprecateResolverFunction(this);
+      }
+    }
 
     this.registrations = _emberMetalDictionary.default(options && options.registrations ? options.registrations : null);
 
@@ -1739,9 +1745,10 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     fallback: null,
 
     /**
-     @private
+     An object that has a `resolve` method that resolves a name.
+      @private
      @property resolver
-     @type function
+     @type Resolver
      */
     resolver: null,
 
@@ -1920,7 +1927,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} described fullName
      */
     describe: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.lookupDescription) {
+        return this.resolver.lookupDescription(fullName);
+      } else if (this.fallback) {
+        return this.fallback.describe(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1931,7 +1944,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} normalized fullName
      */
     normalizeFullName: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.normalize) {
+        return this.resolver.normalize(fullName);
+      } else if (this.fallback) {
+        return this.fallback.normalizeFullName(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1953,7 +1972,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {function} toString function
      */
     makeToString: function (factory, fullName) {
-      return factory.toString();
+      if (this.resolver && this.resolver.makeToString) {
+        return this.resolver.makeToString(factory, fullName);
+      } else if (this.fallback) {
+        return this.fallback.makeToString(factory, fullName);
+      } else {
+        return factory.toString();
+      }
     },
 
     /**
@@ -2241,7 +2266,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver.knownForType) {
+      if (this.resolver && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
@@ -2320,6 +2345,12 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     }
   };
 
+  function deprecateResolverFunction(registry) {
+    registry.resolver = {
+      resolve: registry.resolver
+    };
+  }
+
   function resolve(registry, normalizedName) {
     var cached = registry._resolveCache[normalizedName];
     if (cached) {
@@ -2329,7 +2360,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       return;
     }
 
-    var resolved = registry.resolver(normalizedName) || registry.registrations[normalizedName];
+    var resolved = undefined;
+
+    if (registry.resolver) {
+      resolved = registry.resolver.resolve(normalizedName);
+    }
+
+    resolved = resolved || registry.registrations[normalizedName];
 
     if (resolved) {
       registry._resolveCache[normalizedName] = resolved;
@@ -3655,8 +3692,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       var registry = this.__registry__ = new _containerRegistry.default({
         fallback: applicationRegistry
       });
-      registry.normalizeFullName = applicationRegistry.normalizeFullName;
-      registry.makeToString = applicationRegistry.makeToString;
 
       // Create a per-instance container from the instance's registry
       this.__container__ = registry.container({ owner: this });
@@ -5215,13 +5250,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @public
     */
     buildRegistry: function (namespace) {
-      var registry = new _containerRegistry.default();
+      var registry = new _containerRegistry.default({
+        resolver: resolverFor(namespace)
+      });
 
       registry.set = _emberMetalProperty_set.set;
-      registry.resolver = resolverFor(namespace);
-      registry.normalizeFullName = registry.resolver.normalize;
-      registry.describe = registry.resolver.describe;
-      registry.makeToString = registry.resolver.makeToString;
 
       registry.optionsForType('component', { singleton: false });
       registry.optionsForType('view', { singleton: false });
@@ -5282,7 +5315,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.injection('service:-routing', 'router', 'router:main');
 
       // DEBUGGING
-      registry.register('resolver-for-debugging:main', registry.resolver.__resolver__, { instantiate: false });
+      registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
       registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
       registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
       // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
@@ -5311,39 +5344,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
   */
   function resolverFor(namespace) {
     var ResolverClass = namespace.get('Resolver') || _emberApplicationSystemResolver.default;
-    var resolver = ResolverClass.create({
+
+    return ResolverClass.create({
       namespace: namespace
     });
-
-    function resolve(fullName) {
-      return resolver.resolve(fullName);
-    }
-
-    resolve.describe = function (fullName) {
-      return resolver.lookupDescription(fullName);
-    };
-
-    resolve.makeToString = function (factory, fullName) {
-      return resolver.makeToString(factory, fullName);
-    };
-
-    resolve.normalize = function (fullName) {
-      if (resolver.normalize) {
-        return resolver.normalize(fullName);
-      }
-    };
-
-    resolve.knownForType = function knownForType(type) {
-      if (resolver.knownForType) {
-        return resolver.knownForType(type);
-      }
-    };
-
-    resolve.moduleBasedResolver = resolver.moduleBasedResolver;
-
-    resolve.__resolver__ = resolver;
-
-    return resolve;
   }
 
   function registerLibraries() {
@@ -9610,7 +9614,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+f455bc9f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+3d1cf7b6';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15118,7 +15122,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+f455bc9f
+    @version 2.4.0-canary+3d1cf7b6
     @public
   */
 
@@ -15160,11 +15164,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+f455bc9f'
+    @default '2.4.0-canary+3d1cf7b6'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+f455bc9f';
+  Ember.VERSION = '2.4.0-canary+3d1cf7b6';
 
   /**
     The hash of environment variables used to control various configuration
@@ -28759,7 +28763,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+f455bc9f';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+3d1cf7b6';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29259,7 +29263,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+f455bc9f';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+3d1cf7b6';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38109,7 +38113,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+f455bc9f',
+        revision: 'Ember@2.4.0-canary+3d1cf7b6',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42165,7 +42169,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+f455bc9f';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+3d1cf7b6';
 
   /**
   @module ember

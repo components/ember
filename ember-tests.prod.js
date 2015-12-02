@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f455bc9f
+ * @version   2.4.0-canary+3d1cf7b6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -417,9 +417,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
 
@@ -463,9 +465,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'view:post') {
-        return PostView;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'view:post') {
+          return PostView;
+        }
       }
     };
 
@@ -485,9 +489,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'view:post') {
-        return PostView;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'view:post') {
+          return PostView;
+        }
       }
     };
 
@@ -784,27 +790,29 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
   });
 
   QUnit.test('The registry can take a hook to resolve factories lazily', function () {
-    var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
-
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    var resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
   });
 
   QUnit.test('The registry respects the resolver hook for `has`', function () {
-    var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
-
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    var resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
+    var registry = new _container.Registry({ resolver: resolver });
 
     ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
   });
@@ -924,14 +932,18 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
 
     var registry = new _container.Registry();
 
-    registry.resolver = function () {
-      return 'bar';
+    registry.resolver = {
+      resolve: function () {
+        return 'bar';
+      }
     };
 
     var Bar = registry.resolve('models:bar');
 
-    registry.resolver = function () {
-      return 'not bar';
+    registry.resolver = {
+      resolve: function () {
+        return 'not bar';
+      }
     };
 
     equal(registry.resolve('models:bar'), Bar);
@@ -941,9 +953,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -958,9 +973,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -975,9 +993,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = {};
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -997,6 +1018,84 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var postController = container.lookup('controller:post');
 
     ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
+  });
+
+  QUnit.test('`describe` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      describe: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      lookupDescription: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
+  });
+
+  QUnit.test('`normalizeFullName` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      normalizeFullName: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      normalize: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
+  });
+
+  QUnit.test('`makeToString` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      makeToString: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      makeToString: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
   });
 
   QUnit.test('`resolve` can be handled by a fallback registry', function () {
@@ -1102,12 +1201,13 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
   QUnit.test('`knownForType` is called on the resolver if present', function () {
     expect(3);
 
-    function resolver() {}
-    resolver.knownForType = function (type) {
-      ok(true, 'knownForType called on the resolver');
-      equal(type, 'foo', 'the type was passed through');
+    var resolver = {
+      knownForType: function (type) {
+        ok(true, 'knownForType called on the resolver');
+        equal(type, 'foo', 'the type was passed through');
 
-      return { 'foo:yorp': true };
+        return { 'foo:yorp': true };
+      }
     };
 
     var registry = new _container.Registry({
@@ -1121,6 +1221,22 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
       'foo:yorp': true,
       'foo:bar-baz': true
     });
+  });
+
+  QUnit.test('A registry can be created with a deprecated `resolver` function instead of an object', function () {
+    expect(2);
+
+    var registry = undefined;
+
+    expectDeprecation(function () {
+      registry = new _container.Registry({
+        resolver: function (fullName) {
+          return fullName + '-resolved';
+        }
+      });
+    }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
+
+    equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
   });
 });
 enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
@@ -11051,7 +11167,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   QUnit.test('the default resolver looks up arbitrary types on the namespace', function () {
     application.FooManager = _emberRuntimeSystemObject.default.extend({});
 
-    detectEqual(application.FooManager, registry.resolver('manager:foo'), 'looks up FooManager on application');
+    detectEqual(application.FooManager, registry.resolve('manager:foo'), 'looks up FooManager on application');
   });
 
   QUnit.test('the default resolver resolves models on the namespace', function () {
@@ -11289,7 +11405,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('knownForType is not required to be present on the resolver', function () {
-    delete registry.resolver.__resolver__.knownForType;
+    delete registry.resolver.knownForType;
 
     registry.resolver.knownForType('helper', function () {});
 
@@ -36023,19 +36139,21 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   };
 
   function resolverFor(namespace) {
-    return function (fullName) {
-      var nameParts = fullName.split(':');
-      var type = nameParts[0];
-      var name = nameParts[1];
+    return {
+      resolve: function (fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0];
+        var name = nameParts[1];
 
-      if (name === 'basic') {
-        name = '';
-      }
-      var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
-      var factory = _emberMetalProperty_get.get(namespace, className);
+        if (name === 'basic') {
+          name = '';
+        }
+        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
+        var factory = _emberMetalProperty_get.get(namespace, className);
 
-      if (factory) {
-        return factory;
+        if (factory) {
+          return factory;
+        }
       }
     };
   }
@@ -39318,23 +39436,25 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'em
   'use strict';
 
   function resolverFor(namespace) {
-    return function (fullName) {
-      var nameParts = fullName.split(':');
-      var type = nameParts[0];
-      var name = nameParts[1];
+    return {
+      resolve: function (fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0];
+        var name = nameParts[1];
 
-      if (type === 'template') {
-        var templateName = _emberRuntimeSystemString.decamelize(name);
-        if (_emberMetalCore.default.TEMPLATES[templateName]) {
-          return _emberMetalCore.default.TEMPLATES[templateName];
+        if (type === 'template') {
+          var templateName = _emberRuntimeSystemString.decamelize(name);
+          if (_emberMetalCore.default.TEMPLATES[templateName]) {
+            return _emberMetalCore.default.TEMPLATES[templateName];
+          }
         }
-      }
 
-      var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
-      var factory = _emberMetalProperty_get.get(namespace, className);
+        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
+        var factory = _emberMetalProperty_get.get(namespace, className);
 
-      if (factory) {
-        return factory;
+        if (factory) {
+          return factory;
+        }
       }
     };
   }
@@ -51758,7 +51878,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+f455bc9f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+3d1cf7b6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
