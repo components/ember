@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3d1cf7b6
+ * @version   2.4.0-canary+3b2ac4c2
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10598,7 +10598,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 
     _emberMetalInstrumentation.unsubscribe(subscriber);
   });
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory) {
   'use strict';
 
   var app = undefined,
@@ -10721,6 +10721,29 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     };
 
     appInstance.setupEventDispatcher();
+  });
+
+  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+    });
+
+    var PostController = _containerTestsTestHelpersFactory.default();
+
+    appInstance.register('controller:post', PostController);
+
+    var postController1 = appInstance.lookup('controller:post');
+    assert.ok(postController1, 'lookup creates instance');
+
+    appInstance.unregister('controller:post');
+    appInstance.register('controller:post', PostController);
+
+    var postController2 = appInstance.lookup('controller:post');
+    assert.ok(postController2, 'lookup creates instance');
+
+    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because previous one was reset');
   });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
@@ -52123,7 +52146,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+3d1cf7b6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+3b2ac4c2', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
