@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3b2ac4c2
+ * @version   2.4.0-canary+f0dafd4d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4149,7 +4149,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+3b2ac4c2
+    @version 2.4.0-canary+f0dafd4d
     @public
   */
 
@@ -4191,11 +4191,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+3b2ac4c2'
+    @default '2.4.0-canary+f0dafd4d'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+3b2ac4c2';
+  Ember.VERSION = '2.4.0-canary+f0dafd4d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5015,7 +5015,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null, "ember-htmlbars-local-lookup": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -12628,7 +12628,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+3b2ac4c2',
+        revision: 'Ember@2.4.0-canary+f0dafd4d',
         loc: program.loc,
         moduleName: options.moduleName
       };
