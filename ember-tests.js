@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+bc4ba7c3
+ * @version   2.3.0-beta.2+59e00e7c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -404,9 +404,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostController = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
 
@@ -450,9 +452,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'view:post') {
-        return PostView;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'view:post') {
+          return PostView;
+        }
       }
     };
 
@@ -472,9 +476,11 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container();
     var PostView = _containerTestsTestHelpersFactory.default();
 
-    registry.resolver = function (fullName) {
-      if (fullName === 'view:post') {
-        return PostView;
+    registry.resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'view:post') {
+          return PostView;
+        }
       }
     };
 
@@ -771,27 +777,29 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
   });
 
   QUnit.test('The registry can take a hook to resolve factories lazily', function () {
-    var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
-
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    var resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
+    var registry = new _container.Registry({ resolver: resolver });
 
     strictEqual(registry.resolve('controller:post'), PostController, 'The correct factory was provided');
   });
 
   QUnit.test('The registry respects the resolver hook for `has`', function () {
-    var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
-
-    registry.resolver = function (fullName) {
-      if (fullName === 'controller:post') {
-        return PostController;
+    var resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'controller:post') {
+          return PostController;
+        }
       }
     };
+    var registry = new _container.Registry({ resolver: resolver });
 
     ok(registry.has('controller:post'), 'the `has` method uses the resolver hook');
   });
@@ -911,14 +919,18 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
 
     var registry = new _container.Registry();
 
-    registry.resolver = function () {
-      return 'bar';
+    registry.resolver = {
+      resolve: function () {
+        return 'bar';
+      }
     };
 
     var Bar = registry.resolve('models:bar');
 
-    registry.resolver = function () {
-      return 'not bar';
+    registry.resolver = {
+      resolve: function () {
+        return 'not bar';
+      }
     };
 
     equal(registry.resolve('models:bar'), Bar);
@@ -928,9 +940,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -945,9 +960,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = _containerTestsTestHelpersFactory.default();
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -962,9 +980,12 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var registry = new _container.Registry();
     var PostController = {};
     var resolveWasCalled = [];
-    registry.resolver = function (fullName) {
-      resolveWasCalled.push(fullName);
-      return PostController;
+
+    registry.resolver = {
+      resolve: function (fullName) {
+        resolveWasCalled.push(fullName);
+        return PostController;
+      }
     };
 
     deepEqual(resolveWasCalled, []);
@@ -984,6 +1005,84 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     var postController = container.lookup('controller:post');
 
     ok(postController instanceof PostController, 'The lookup is an instance of the registered factory');
+  });
+
+  QUnit.test('`describe` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      describe: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      lookupDescription: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.describe('controller:post'), 'controller:post-resolver', '`describe` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.describe('controller:post'), 'controller:post-fallback', '`describe` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.describe('controller:post'), 'controller:post', '`describe` by default returns argument.');
+  });
+
+  QUnit.test('`normalizeFullName` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      normalizeFullName: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      normalize: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post-resolver', '`normalizeFullName` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post-fallback', '`normalizeFullName` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.normalizeFullName('controller:post'), 'controller:post', '`normalizeFullName` by default returns argument.');
+  });
+
+  QUnit.test('`makeToString` will be handled by the resolver, then by the fallback registry, if available', function () {
+    var fallback = {
+      makeToString: function (fullName) {
+        return fullName + '-fallback';
+      }
+    };
+
+    var resolver = {
+      makeToString: function (fullName) {
+        return fullName + '-resolver';
+      }
+    };
+
+    var registry = new _container.Registry({ fallback: fallback, resolver: resolver });
+
+    equal(registry.makeToString('controller:post'), 'controller:post-resolver', '`makeToString` handled by the resolver first.');
+
+    registry.resolver = null;
+
+    equal(registry.makeToString('controller:post'), 'controller:post-fallback', '`makeToString` handled by fallback registry next.');
+
+    registry.fallback = null;
+
+    equal(registry.makeToString('controller:post'), 'controller:post', '`makeToString` by default returns argument.');
   });
 
   QUnit.test('`resolve` can be handled by a fallback registry', function () {
@@ -1089,12 +1188,13 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
   QUnit.test('`knownForType` is called on the resolver if present', function () {
     expect(3);
 
-    function resolver() {}
-    resolver.knownForType = function (type) {
-      ok(true, 'knownForType called on the resolver');
-      equal(type, 'foo', 'the type was passed through');
+    var resolver = {
+      knownForType: function (type) {
+        ok(true, 'knownForType called on the resolver');
+        equal(type, 'foo', 'the type was passed through');
 
-      return { 'foo:yorp': true };
+        return { 'foo:yorp': true };
+      }
     };
 
     var registry = new _container.Registry({
@@ -1108,6 +1208,22 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
       'foo:yorp': true,
       'foo:bar-baz': true
     });
+  });
+
+  QUnit.test('A registry can be created with a deprecated `resolver` function instead of an object', function () {
+    expect(2);
+
+    var registry = undefined;
+
+    expectDeprecation(function () {
+      registry = new _container.Registry({
+        resolver: function (fullName) {
+          return fullName + '-resolved';
+        }
+      });
+    }, 'Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.');
+
+    equal(registry.resolve('foo:bar'), 'foo:bar-resolved', '`resolve` still calls the deprecated function');
   });
 });
 enifed('container/tests/test-helpers/build-owner', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-runtime/mixins/container_proxy'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberRuntimeMixinsContainer_proxy) {
@@ -8014,7 +8130,7 @@ enifed('ember/tests/view_instrumentation_test', ['exports', 'ember-metal/core', 
     _emberMetalInstrumentation.unsubscribe(subscriber);
   });
 });
-enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery) {
+enifed('ember-application/tests/system/application_instance_test', ['exports', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-metal/run_loop', 'ember-views/system/jquery', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberMetalRun_loop, _emberViewsSystemJquery, _containerTestsTestHelpersFactory) {
   'use strict';
 
   var app = undefined,
@@ -8137,6 +8253,29 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     };
 
     appInstance.setupEventDispatcher();
+  });
+
+  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      appInstance = _emberApplicationSystemApplicationInstance.default.create({ application: app });
+    });
+
+    var PostController = _containerTestsTestHelpersFactory.default();
+
+    appInstance.register('controller:post', PostController);
+
+    var postController1 = appInstance.lookup('controller:post');
+    assert.ok(postController1, 'lookup creates instance');
+
+    appInstance.unregister('controller:post');
+    appInstance.register('controller:post', PostController);
+
+    var postController2 = appInstance.lookup('controller:post');
+    assert.ok(postController2, 'lookup creates instance');
+
+    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because previous one was reset');
   });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
@@ -8583,7 +8722,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   QUnit.test('the default resolver looks up arbitrary types on the namespace', function () {
     application.FooManager = _emberRuntimeSystemObject.default.extend({});
 
-    detectEqual(application.FooManager, registry.resolver('manager:foo'), 'looks up FooManager on application');
+    detectEqual(application.FooManager, registry.resolve('manager:foo'), 'looks up FooManager on application');
   });
 
   QUnit.test('the default resolver resolves models on the namespace', function () {
@@ -8821,7 +8960,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('knownForType is not required to be present on the resolver', function () {
-    delete registry.resolver.__resolver__.knownForType;
+    delete registry.resolver.knownForType;
 
     registry.resolver.knownForType('helper', function () {});
 
@@ -13760,8 +13899,25 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), 'Hodi', 'greeting is bound');
   });
 
-  QUnit.test('nested components overwrites named positional parameters', function () {
+  QUnit.test('updates when curried hash arguments is bound in block form', function () {
     var _Component$extend6;
+
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash comp=(component "-looked-up" greeting=greeting)) as |my|}}\n        {{#my.comp}}{{/my.comp}}\n      {{/with}}');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.template = template, _Component$extend6)).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text().trim(), '', '-looked-up component rendered');
+    _emberMetalRun_loop.default(function () {
+      component.set('greeting', 'Hodi');
+    });
+    equal(component.$().text().trim(), 'Hodi', 'greeting is bound');
+  });
+
+  QUnit.test('nested components overwrites named positional parameters', function () {
+    var _Component$extend7;
 
     var LookedUp = _emberViewsComponentsComponent.default.extend();
     LookedUp.reopenClass({
@@ -13772,20 +13928,20 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component\n          (component (component "-looked-up" "Sergio" 28)\n                     "Marvin" 21)\n          "Hodari"}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend6 = {}, _Component$extend6[_containerOwner.OWNER] = owner, _Component$extend6.template = template, _Component$extend6)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.template = template, _Component$extend7)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Hodari 21', '-looked-up component rendered');
   });
 
   QUnit.test('nested components overwrites hash parameters', function () {
-    var _Component$extend7;
+    var _Component$extend8;
 
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}} {{age}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component (component "-looked-up"\n                                  greeting="Hola" name="Dolores" age=33)\n                              greeting="Hej" name="Sigmundur")\n                    greeting=greeting}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend7 = {}, _Component$extend7[_containerOwner.OWNER] = owner, _Component$extend7.template = template, _Component$extend7.greeting = 'Hodi', _Component$extend7)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.template = template, _Component$extend8.greeting = 'Hodi', _Component$extend8)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -13793,7 +13949,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('bound outer named parameters get updated in the right scope', function () {
-    var _Component$extend8;
+    var _Component$extend9;
 
     var InnerComponent = _emberViewsComponentsComponent.default.extend();
     InnerComponent.reopenClass({
@@ -13810,14 +13966,14 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" outerName outerAge)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend8 = {}, _Component$extend8[_containerOwner.OWNER] = owner, _Component$extend8.template = template, _Component$extend8.outerName = 'Outer', _Component$extend8.outerAge = 28, _Component$extend8)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.template = template, _Component$extend9.outerName = 'Outer', _Component$extend9.outerAge = 28, _Component$extend9)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
   });
 
   QUnit.test('bound outer hash parameters get updated in the right scope', function () {
-    var _Component$extend9;
+    var _Component$extend10;
 
     var InnerComponent = _emberViewsComponentsComponent.default.extend();
     InnerComponent.reopenClass({
@@ -13832,31 +13988,13 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{name}} {{age}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component "-inner-component" (component "-looked-up" name=outerName age=outerAge)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend9 = {}, _Component$extend9[_containerOwner.OWNER] = owner, _Component$extend9.template = template, _Component$extend9.outerName = 'Outer', _Component$extend9.outerAge = 28, _Component$extend9)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.template = template, _Component$extend10.outerName = 'Outer', _Component$extend10.outerAge = 28, _Component$extend10)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Inner 28', '-looked-up component rendered');
   });
 
   QUnit.test('conflicting positional and hash parameters raise and assertion if in the same closure', function () {
-    var _Component$extend10;
-
-    var LookedUp = _emberViewsComponentsComponent.default.extend();
-    LookedUp.reopenClass({
-      positionalParams: ['name']
-    });
-    owner.register('component:-looked-up', LookedUp);
-    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
-
-    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend10 = {}, _Component$extend10[_containerOwner.OWNER] = owner, _Component$extend10.template = template, _Component$extend10)).create();
-
-    expectAssertion(function () {
-      _emberRuntimeTestsUtils.runAppend(component);
-    }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
-  });
-
-  QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
     var _Component$extend11;
 
     var LookedUp = _emberViewsComponentsComponent.default.extend();
@@ -13866,18 +14004,36 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('component:-looked-up', LookedUp);
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari" name="Sergio") "Hodari" greeting="Hodi"}}');
     component = _emberViewsComponentsComponent.default.extend((_Component$extend11 = {}, _Component$extend11[_containerOwner.OWNER] = owner, _Component$extend11.template = template, _Component$extend11)).create();
+
+    expectAssertion(function () {
+      _emberRuntimeTestsUtils.runAppend(component);
+    }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
+  });
+
+  QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
+    var _Component$extend12;
+
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
+    });
+    owner.register('component:-looked-up', LookedUp);
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.template = template, _Component$extend12)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
   });
 
   QUnit.test('raises an assertion when component path is null', function () {
-    var _Component$extend12;
+    var _Component$extend13;
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.template = template, _Component$extend12)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.template = template, _Component$extend13)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -13885,17 +14041,17 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('raises an assertion when component path is not a component name', function () {
-    var _Component$extend13, _Component$extend14;
+    var _Component$extend14, _Component$extend15;
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.template = template, _Component$extend13)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.template = template, _Component$extend14)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
     }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
 
     template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.template = template, _Component$extend14.compName = 'not-a-component', _Component$extend14)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.template = template, _Component$extend15.compName = 'not-a-component', _Component$extend15)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -13903,40 +14059,25 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('renders with dot path', function () {
-    var _Component$extend15;
+    var _Component$extend16;
 
     var expectedText = 'Hodi';
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.template = template, _Component$extend15)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.template = template, _Component$extend16)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), expectedText, '-looked-up component rendered');
   });
 
   QUnit.test('renders with dot path and attr', function () {
-    var _Component$extend16;
-
-    var expectedText = 'Hodi';
-    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.template = template, _Component$extend16)).create({
-      expectedText: expectedText
-    });
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), expectedText, '-looked-up component rendered');
-  });
-
-  QUnit.test('renders with dot path curried over attr', function () {
     var _Component$extend17;
 
     var expectedText = 'Hodi';
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
     component = _emberViewsComponentsComponent.default.extend((_Component$extend17 = {}, _Component$extend17[_containerOwner.OWNER] = owner, _Component$extend17.template = template, _Component$extend17)).create({
       expectedText: expectedText
     });
@@ -13945,8 +14086,23 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), expectedText, '-looked-up component rendered');
   });
 
-  QUnit.test('renders with dot path and with rest positional parameters', function () {
+  QUnit.test('renders with dot path curried over attr', function () {
     var _Component$extend18;
+
+    var expectedText = 'Hodi';
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create({
+      expectedText: expectedText
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
+
+  QUnit.test('renders with dot path and with rest positional parameters', function () {
+    var _Component$extend19;
 
     var LookedUp = _emberViewsComponentsComponent.default.extend();
     LookedUp.reopenClass({
@@ -13957,7 +14113,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{params}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText "Hola"}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create({
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create({
       expectedText: expectedText
     });
 
@@ -13966,7 +14122,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('renders with dot path and updates attributes', function () {
-    var _Component$extend19;
+    var _Component$extend20;
 
     owner.register('component:my-nested-component', _emberViewsComponentsComponent.default.extend({
       didReceiveAttrs: function () {
@@ -13979,11 +14135,11 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                             {{api.my-nested-component}}\n                           {{/my-component}}\n                           <br>\n                           <button onclick={{action \'changeValue\'}}>Change value</button>');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19.myProp = 1, _Component$extend19.actions = {
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20.myProp = 1, _Component$extend20.actions = {
       changeValue: function () {
         this.incrementProperty('myProp');
       }
-    }, _Component$extend19)).create({});
+    }, _Component$extend20)).create({});
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -13997,7 +14153,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
-    var _Component$extend20;
+    var _Component$extend21;
 
     owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
 
@@ -14005,7 +14161,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
@@ -33134,19 +33290,21 @@ enifed('ember-routing/tests/system/controller_for_test', ['exports', 'ember-meta
   };
 
   function resolverFor(namespace) {
-    return function (fullName) {
-      var nameParts = fullName.split(':');
-      var type = nameParts[0];
-      var name = nameParts[1];
+    return {
+      resolve: function (fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0];
+        var name = nameParts[1];
 
-      if (name === 'basic') {
-        name = '';
-      }
-      var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
-      var factory = _emberMetalProperty_get.get(namespace, className);
+        if (name === 'basic') {
+          name = '';
+        }
+        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
+        var factory = _emberMetalProperty_get.get(namespace, className);
 
-      if (factory) {
-        return factory;
+        if (factory) {
+          return factory;
+        }
       }
     };
   }
@@ -36429,23 +36587,25 @@ enifed('ember-routing-htmlbars/tests/utils', ['exports', 'ember-metal/core', 'em
   'use strict';
 
   function resolverFor(namespace) {
-    return function (fullName) {
-      var nameParts = fullName.split(':');
-      var type = nameParts[0];
-      var name = nameParts[1];
+    return {
+      resolve: function (fullName) {
+        var nameParts = fullName.split(':');
+        var type = nameParts[0];
+        var name = nameParts[1];
 
-      if (type === 'template') {
-        var templateName = _emberRuntimeSystemString.decamelize(name);
-        if (_emberMetalCore.default.TEMPLATES[templateName]) {
-          return _emberMetalCore.default.TEMPLATES[templateName];
+        if (type === 'template') {
+          var templateName = _emberRuntimeSystemString.decamelize(name);
+          if (_emberMetalCore.default.TEMPLATES[templateName]) {
+            return _emberMetalCore.default.TEMPLATES[templateName];
+          }
         }
-      }
 
-      var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
-      var factory = _emberMetalProperty_get.get(namespace, className);
+        var className = _emberRuntimeSystemString.classify(name) + _emberRuntimeSystemString.classify(type);
+        var factory = _emberMetalProperty_get.get(namespace, className);
 
-      if (factory) {
-        return factory;
+        if (factory) {
+          return factory;
+        }
       }
     };
   }
@@ -48906,7 +49066,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+bc4ba7c3', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+59e00e7c', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
