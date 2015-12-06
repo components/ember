@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+59e00e7c
+ * @version   2.3.0-beta.2+9f7d0aee
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13317,6 +13317,27 @@ enifed('ember-htmlbars/tests/attr_nodes/style_test', ['exports', 'ember-metal/de
   QUnit.test('specifying `<div style={{userValue}}></div>` works properly with a SafeString', function () {
     view = _emberViewsViewsView.default.create({
       userValue: new _emberHtmlbarsUtilsString.SafeString('width: 42px'),
+      template: _emberTemplateCompilerSystemCompile.default('<div style={{view.userValue}}></div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    deepEqual(warnings, []);
+  });
+
+  QUnit.test('null value do not generate htmlsafe warning', function () {
+    view = _emberViewsViewsView.default.create({
+      userValue: null,
+      template: _emberTemplateCompilerSystemCompile.default('<div style={{view.userValue}}></div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    deepEqual(warnings, []);
+  });
+
+  QUnit.test('undefined value do not generate htmlsafe warning', function () {
+    view = _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default('<div style={{view.userValue}}></div>')
     });
 
@@ -49066,7 +49087,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+59e00e7c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+9f7d0aee', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
