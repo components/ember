@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3561214e
+ * @version   2.4.0-canary+192fcebd
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11885,6 +11885,92 @@ enifed('ember-application/tests/system/dependency_injection_test', ['exports', '
     equal(person.get('fruit'), fruit);
 
     ok(application.Email.detectInstance(user.get('communication')));
+  });
+});
+enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember-application/system/engine', 'ember-application/system/engine-instance', 'ember-metal/run_loop', 'container/tests/test-helpers/factory'], function (exports, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance, _emberMetalRun_loop, _containerTestsTestHelpersFactory) {
+  'use strict';
+
+  var engine = undefined,
+      engineInstance = undefined;
+
+  QUnit.module('Ember.EngineInstance', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        engine = _emberApplicationSystemEngine.default.create({ router: null });
+      });
+    },
+
+    teardown: function () {
+      if (engineInstance) {
+        _emberMetalRun_loop.default(engineInstance, 'destroy');
+      }
+
+      if (engine) {
+        _emberMetalRun_loop.default(engine, 'destroy');
+      }
+    }
+  });
+
+  QUnit.test('an engine instance can be created based upon a base engine', function () {
+    _emberMetalRun_loop.default(function () {
+      engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+    });
+
+    ok(engineInstance, 'instance should be created');
+    equal(engineInstance.base, engine, 'base should be set to engine');
+  });
+
+  QUnit.test('unregistering a factory clears all cached instances of that factory', function (assert) {
+    assert.expect(3);
+
+    _emberMetalRun_loop.default(function () {
+      engineInstance = _emberApplicationSystemEngineInstance.default.create({ base: engine });
+    });
+
+    var PostController = _containerTestsTestHelpersFactory.default();
+
+    engineInstance.register('controller:post', PostController);
+
+    var postController1 = engineInstance.lookup('controller:post');
+    assert.ok(postController1, 'lookup creates instance');
+
+    engineInstance.unregister('controller:post');
+    engineInstance.register('controller:post', PostController);
+
+    var postController2 = engineInstance.lookup('controller:post');
+    assert.ok(postController2, 'lookup creates instance');
+
+    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because previous one was reset');
+  });
+});
+enifed('ember-application/tests/system/engine_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject) {
+  'use strict';
+
+  var engine = undefined;
+
+  QUnit.module('Ember.Engine', {
+    setup: function () {
+      _emberMetalRun_loop.default(function () {
+        engine = _emberApplicationSystemEngine.default.create();
+      });
+    },
+
+    teardown: function () {
+      if (engine) {
+        _emberMetalRun_loop.default(engine, 'destroy');
+      }
+    }
+  });
+
+  QUnit.test('acts like a namespace', function () {
+    var lookup = _emberMetalCore.default.lookup = {};
+
+    _emberMetalRun_loop.default(function () {
+      engine = lookup.TestEngine = _emberApplicationSystemEngine.default.create();
+    });
+
+    engine.Foo = _emberRuntimeSystemObject.default.extend();
+    equal(engine.Foo.toString(), 'TestEngine.Foo', 'Classes pick up their parent namespace');
   });
 });
 enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-views/system/jquery', 'ember-metal/features'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberViewsSystemJquery, _emberMetalFeatures) {
@@ -52632,7 +52718,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+3561214e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+192fcebd', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

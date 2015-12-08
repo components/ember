@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3561214e
+ * @version   2.4.0-canary+192fcebd
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3723,12 +3723,21 @@ enifed('ember/index', ['exports', 'ember-metal', 'ember-runtime', 'ember-views',
   @module ember
   */
 });
-enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application'], function (exports, _emberMetalCore, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication) {
+enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-runtime/system/lazy_load', 'ember-application/system/resolver', 'ember-application/system/application', 'ember-application/system/application-instance', 'ember-application/system/engine', 'ember-application/system/engine-instance'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberRuntimeSystemLazy_load, _emberApplicationSystemResolver, _emberApplicationSystemApplication, _emberApplicationSystemApplicationInstance, _emberApplicationSystemEngine, _emberApplicationSystemEngineInstance) {
   'use strict';
 
   _emberMetalCore.default.Application = _emberApplicationSystemApplication.default;
   _emberMetalCore.default.Resolver = _emberApplicationSystemResolver.Resolver;
   _emberMetalCore.default.DefaultResolver = _emberApplicationSystemResolver.default;
+
+  if (_emberMetalFeatures.default('ember-application-engines')) {
+    _emberMetalCore.default.Engine = _emberApplicationSystemEngine.default;
+
+    // Expose `EngineInstance` and `ApplicationInstance` for easy overriding.
+    // Reanalyze whether to continue exposing these after feature flag is removed.
+    _emberMetalCore.default.EngineInstance = _emberApplicationSystemEngineInstance.default;
+    _emberMetalCore.default.ApplicationInstance = _emberApplicationSystemApplicationInstance.default;
+  }
 
   _emberRuntimeSystemLazy_load.runLoadHooks('Ember.Application', _emberApplicationSystemApplication.default);
 });
@@ -3737,7 +3746,7 @@ enifed('ember-application/index', ['exports', 'ember-metal/core', 'ember-runtime
 @module ember
 @submodule ember-application
 */
-enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-runtime/system/object', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-runtime/mixins/container_proxy', 'ember-htmlbars/system/dom-helper', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'ember-metal-views/renderer', 'ember-metal/assign', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberRuntimeSystemObject, _emberMetalRun_loop, _emberMetalComputed, _emberRuntimeMixinsContainer_proxy, _emberHtmlbarsSystemDomHelper, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _emberMetalViewsRenderer, _emberMetalAssign, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery) {
+enifed('ember-application/system/application-instance', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/computed', 'ember-htmlbars/system/dom-helper', 'ember-runtime/mixins/registry_proxy', 'ember-metal-views/renderer', 'ember-metal/assign', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-views/system/jquery', 'ember-application/system/engine-instance'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalComputed, _emberHtmlbarsSystemDomHelper, _emberRuntimeMixinsRegistry_proxy, _emberMetalViewsRenderer, _emberMetalAssign, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberViewsSystemJquery, _emberApplicationSystemEngineInstance) {
   /**
   @module ember
   @submodule ember-application
@@ -3769,12 +3778,10 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
   
     @public
     @class Ember.ApplicationInstance
-    @extends Ember.Object
-    @uses RegistryProxyMixin
-    @uses ContainerProxyMixin
+    @extends Ember.EngineInstance
   */
 
-  var ApplicationInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
+  var ApplicationInstance = _emberApplicationSystemEngineInstance.default.extend({
     /**
       The `Application` for which this is an instance.
        @property {Ember.Application} application
@@ -3805,17 +3812,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     init: function () {
       this._super.apply(this, arguments);
 
-      var application = _emberMetalProperty_get.get(this, 'application');
-
-      // Create a per-instance registry that will use the application's registry
-      // as a fallback for resolving registrations.
-      var applicationRegistry = _emberMetalProperty_get.get(application, '__registry__');
-      var registry = this.__registry__ = new _containerRegistry.default({
-        fallback: applicationRegistry
-      });
-
-      // Create a per-instance container from the instance's registry
-      this.__container__ = registry.container({ owner: this });
+      var application = this.application;
 
       // Register this instance in the per-instance registry.
       //
@@ -3979,27 +3976,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       dispatcher.setup(customEvents, this.rootElement);
 
       return dispatcher;
-    },
-
-    /**
-      @private
-    */
-    willDestroy: function () {
-      this._super.apply(this, arguments);
-      _emberMetalRun_loop.default(this.__container__, 'destroy');
-    },
-
-    /**
-     Unregister a factory.
-      Overrides `RegistryProxy#unregister` in order to clear any cached instances
-     of the unregistered factory.
-      @public
-     @method unregister
-     @param {String} fullName
-     */
-    unregister: function (fullName) {
-      this.__container__.reset(fullName);
-      this._super.apply(this, arguments);
     }
   });
 
@@ -4264,22 +4240,12 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
 
   exports.default = ApplicationInstance;
 });
-enifed('ember-application/system/application', ['exports', 'dag-map', 'container/registry', 'ember-metal', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/empty_object', 'ember-runtime/system/lazy_load', 'ember-runtime/system/namespace', 'ember-application/system/resolver', 'ember-metal/run_loop', 'ember-metal/utils', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment', 'ember-runtime/ext/rsvp'], function (exports, _dagMap, _containerRegistry, _emberMetal, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEmpty_object, _emberRuntimeSystemLazy_load, _emberRuntimeSystemNamespace, _emberApplicationSystemResolver, _emberMetalRun_loop, _emberMetalUtils, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment, _emberRuntimeExtRsvp) {
+enifed('ember-application/system/application', ['exports', 'ember-metal', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/property_get', 'ember-runtime/system/lazy_load', 'ember-metal/run_loop', 'ember-runtime/controllers/controller', 'ember-metal-views/renderer', 'ember-htmlbars/system/dom-helper', 'ember-views/views/select', 'ember-routing-views/views/outlet', 'ember-views/views/view', 'ember-views/system/event_dispatcher', 'ember-views/system/jquery', 'ember-routing/system/route', 'ember-routing/system/router', 'ember-routing/location/hash_location', 'ember-routing/location/history_location', 'ember-routing/location/auto_location', 'ember-routing/location/none_location', 'ember-routing/system/cache', 'ember-application/system/application-instance', 'ember-views/views/text_field', 'ember-views/views/text_area', 'ember-views/views/checkbox', 'ember-views/views/legacy_each_view', 'ember-routing-views/components/link-to', 'ember-routing/services/routing', 'ember-extension-support/container_debug_adapter', 'ember-runtime/mixins/registry_proxy', 'ember-metal/environment', 'ember-runtime/ext/rsvp', 'ember-application/system/engine'], function (exports, _emberMetal, _emberMetalDebug, _emberMetalFeatures, _emberMetalProperty_get, _emberRuntimeSystemLazy_load, _emberMetalRun_loop, _emberRuntimeControllersController, _emberMetalViewsRenderer, _emberHtmlbarsSystemDomHelper, _emberViewsViewsSelect, _emberRoutingViewsViewsOutlet, _emberViewsViewsView, _emberViewsSystemEvent_dispatcher, _emberViewsSystemJquery, _emberRoutingSystemRoute, _emberRoutingSystemRouter, _emberRoutingLocationHash_location, _emberRoutingLocationHistory_location, _emberRoutingLocationAuto_location, _emberRoutingLocationNone_location, _emberRoutingSystemCache, _emberApplicationSystemApplicationInstance, _emberViewsViewsText_field, _emberViewsViewsText_area, _emberViewsViewsCheckbox, _emberViewsViewsLegacy_each_view, _emberRoutingViewsComponentsLinkTo, _emberRoutingServicesRouting, _emberExtensionSupportContainer_debug_adapter, _emberRuntimeMixinsRegistry_proxy, _emberMetalEnvironment, _emberRuntimeExtRsvp, _emberApplicationSystemEngine) {
   /**
   @module ember
   @submodule ember-application
   */
   'use strict';
-
-  function props(obj) {
-    var properties = [];
-
-    for (var key in obj) {
-      properties.push(key);
-    }
-
-    return properties;
-  }
 
   var librariesRegistered = false;
 
@@ -4435,12 +4401,12 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
   
     @class Application
     @namespace Ember
-    @extends Ember.Namespace
+    @extends Ember.Engine
     @uses RegistryProxyMixin
     @public
   */
 
-  var Application = _emberRuntimeSystemNamespace.default.extend(_emberRuntimeMixinsRegistry_proxy.default, {
+  var Application = _emberApplicationSystemEngine.default.extend({
     _suppressDeferredDeprecation: true,
 
     /**
@@ -4566,8 +4532,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
         this.$ = _emberViewsSystemJquery.default;
       }
 
-      this.buildRegistry();
-
       registerLibraries();
       logLibraryVersions();
 
@@ -4588,18 +4552,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     },
 
     /**
-      Build and configure the registry for the current application.
-       @private
-      @method buildRegistry
-      @return {Ember.Registry} the configured registry
-    */
-    buildRegistry: function () {
-      var registry = this.__registry__ = Application.buildRegistry(this);
-
-      return registry;
-    },
-
-    /**
       Create an ApplicationInstance for this application.
        @private
       @method buildInstance
@@ -4608,6 +4560,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     buildInstance: function () {
       var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
+      options.base = this;
       options.application = this;
       return _emberApplicationSystemApplicationInstance.default.create(options);
     },
@@ -4895,64 +4848,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
     /**
       @private
-      @method instanceInitializer
-    */
-    instanceInitializer: function (options) {
-      this.constructor.instanceInitializer(options);
-    },
-
-    /**
-      @private
-      @method runInitializers
-    */
-    runInitializers: function () {
-      var App = this;
-      this._runInitializer('initializers', function (name, initializer) {
-        _emberMetalDebug.assert('No application initializer named \'' + name + '\'', !!initializer);
-        if (initializer.initialize.length === 2) {
-          _emberMetalDebug.deprecate('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, {
-            id: 'ember-application.app-initializer-initialize-arguments',
-            until: '3.0.0',
-            url: 'http://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
-          });
-
-          initializer.initialize(App.__registry__, App);
-        } else {
-          initializer.initialize(App);
-        }
-      });
-    },
-
-    /**
-      @private
-      @since 1.12.0
-      @method runInstanceInitializers
-    */
-    runInstanceInitializers: function (instance) {
-      this._runInitializer('instanceInitializers', function (name, initializer) {
-        _emberMetalDebug.assert('No instance initializer named \'' + name + '\'', !!initializer);
-        initializer.initialize(instance);
-      });
-    },
-
-    _runInitializer: function (bucketName, cb) {
-      var initializersByName = _emberMetalProperty_get.get(this.constructor, bucketName);
-      var initializers = props(initializersByName);
-      var graph = new _dagMap.default();
-      var initializer;
-
-      for (var i = 0; i < initializers.length; i++) {
-        initializer = initializersByName[initializers[i]];
-        graph.addEdges(initializer.name, initializer, initializer.before, initializer.after);
-      }
-
-      graph.topsort(function (vertex) {
-        cb(vertex.name, vertex.value);
-      });
-    },
-
-    /**
-      @private
       @method didBecomeReady
     */
     didBecomeReady: function () {
@@ -5012,21 +4907,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       return this;
     },
 
-    /**
-      Set this to provide an alternate class to `Ember.DefaultResolver`
-        @deprecated Use 'Resolver' instead
-      @property resolver
-      @public
-    */
-    resolver: null,
-
-    /**
-      Set this to provide an alternate class to `Ember.DefaultResolver`
-       @property resolver
-      @public
-    */
-    Resolver: null,
-
     // This method must be moved to the application instance object
     willDestroy: function () {
       this._super.apply(this, arguments);
@@ -5042,10 +4922,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       if (this._globalsMode && this.__deprecatedInstance__) {
         this.__deprecatedInstance__.destroy();
       }
-    },
-
-    initializer: function (options) {
-      this.constructor.initializer(options);
     }
   });
 
@@ -5055,63 +4931,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     get: function () {
       return _emberRuntimeMixinsRegistry_proxy.buildFakeRegistryWithDeprecations(this, 'Application');
     }
-  });
-
-  Application.reopenClass({
-    /**
-      Instance initializers run after all initializers have run. Because
-      instance initializers run after the app is fully set up. We have access
-      to the store, container, and other items. However, these initializers run
-      after code has loaded and are not allowed to defer readiness.
-       Instance initializer receives an object which has the following attributes:
-      `name`, `before`, `after`, `initialize`. The only required attribute is
-      `initialize`, all others are optional.
-       * `name` allows you to specify under which name the instanceInitializer is
-      registered. This must be a unique name, as trying to register two
-      instanceInitializer with the same name will result in an error.
-       ```javascript
-      Ember.Application.instanceInitializer({
-        name: 'namedinstanceInitializer',
-         initialize: function(application) {
-          Ember.debug('Running namedInitializer!');
-        }
-      });
-      ```
-       * `before` and `after` are used to ensure that this initializer is ran prior
-      or after the one identified by the value. This value can be a single string
-      or an array of strings, referencing the `name` of other initializers.
-       * See Ember.Application.initializer for discussion on the usage of before
-      and after.
-       Example instanceInitializer to preload data into the store.
-       ```javascript
-      Ember.Application.initializer({
-        name: 'preload-data',
-         initialize: function(application) {
-          var userConfig, userConfigEncoded, store;
-          // We have a HTML escaped JSON representation of the user's basic
-          // configuration generated server side and stored in the DOM of the main
-          // index.html file. This allows the app to have access to a set of data
-          // without making any additional remote calls. Good for basic data that is
-          // needed for immediate rendering of the page. Keep in mind, this data,
-          // like all local models and data can be manipulated by the user, so it
-          // should not be relied upon for security or authorization.
-          //
-          // Grab the encoded data from the meta tag
-          userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');
-          // Unescape the text, then parse the resulting JSON into a real object
-          userConfig = JSON.parse(unescape(userConfigEncoded));
-          // Lookup the store
-          store = application.lookup('service:store');
-          // Push the encoded JSON into the store
-          store.pushPayload(userConfig);
-        }
-      });
-      ```
-       @method instanceInitializer
-      @param instanceInitializer
-      @public
-    */
-    instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer')
   });
 
   Application.reopen({
@@ -5279,6 +5098,346 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
   });
 
   Application.reopenClass({
+    /**
+      This creates a registry with the default Ember naming conventions.
+       It also configures the registry:
+       * registered views are created every time they are looked up (they are
+        not singletons)
+      * registered templates are not factories; the registered value is
+        returned directly.
+      * the router receives the application as its `namespace` property
+      * all controllers receive the router as their `target` and `controllers`
+        properties
+      * all controllers receive the application as their `namespace` property
+      * the application view receives the application controller as its
+        `controller` property
+      * the application view receives the application template as its
+        `defaultTemplate` property
+       @private
+      @method buildRegistry
+      @static
+      @param {Ember.Application} namespace the application for which to
+        build the registry
+      @return {Ember.Registry} the built registry
+      @public
+    */
+    buildRegistry: function (namespace) {
+      var registry = this._super.apply(this, arguments);
+
+      registry.optionsForType('component', { singleton: false });
+      registry.optionsForType('view', { singleton: false });
+      registry.optionsForType('template', { instantiate: false });
+
+      registry.register('application:main', namespace, { instantiate: false });
+
+      registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
+
+      registry.register('renderer:-dom', { create: function () {
+          return new _emberMetalViewsRenderer.default(new _emberHtmlbarsSystemDomHelper.default());
+        } });
+
+      registry.injection('view', 'renderer', 'renderer:-dom');
+      if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
+        registry.register('view:select', _emberViewsViewsSelect.default);
+      }
+      registry.register('view:-outlet', _emberRoutingViewsViewsOutlet.OutletView);
+
+      registry.register('-view-registry:main', { create: function () {
+          return {};
+        } });
+
+      registry.injection('view', '_viewRegistry', '-view-registry:main');
+
+      registry.register('view:toplevel', _emberViewsViewsView.default.extend());
+
+      registry.register('route:basic', _emberRoutingSystemRoute.default, { instantiate: false });
+      registry.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+
+      registry.injection('router:main', 'namespace', 'application:main');
+      registry.injection('view:-outlet', 'namespace', 'application:main');
+
+      registry.register('location:auto', _emberRoutingLocationAuto_location.default);
+      registry.register('location:hash', _emberRoutingLocationHash_location.default);
+      registry.register('location:history', _emberRoutingLocationHistory_location.default);
+      registry.register('location:none', _emberRoutingLocationNone_location.default);
+
+      registry.injection('controller', 'target', 'router:main');
+      registry.injection('controller', 'namespace', 'application:main');
+
+      registry.register('-bucket-cache:main', _emberRoutingSystemCache.default);
+      registry.injection('router', '_bucketCache', '-bucket-cache:main');
+      registry.injection('route', '_bucketCache', '-bucket-cache:main');
+      registry.injection('controller', '_bucketCache', '-bucket-cache:main');
+
+      registry.injection('route', 'router', 'router:main');
+
+      registry.register('component:-text-field', _emberViewsViewsText_field.default);
+      registry.register('component:-text-area', _emberViewsViewsText_area.default);
+      registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
+      registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
+      registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
+
+      // Register the routing service...
+      registry.register('service:-routing', _emberRoutingServicesRouting.default);
+      // Then inject the app router into it
+      registry.injection('service:-routing', 'router', 'router:main');
+
+      // DEBUGGING
+      registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
+      registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
+      registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
+      // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
+
+      registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
+
+      return registry;
+    }
+  });
+
+  function registerLibraries() {
+    if (!librariesRegistered) {
+      librariesRegistered = true;
+
+      if (_emberMetalEnvironment.default.hasDOM) {
+        _emberMetal.default.libraries.registerCoreLibrary('jQuery', _emberViewsSystemJquery.default().jquery);
+      }
+    }
+  }
+
+  function logLibraryVersions() {
+    if (_emberMetal.default.LOG_VERSION) {
+      // we only need to see this once per Application#init
+      _emberMetal.default.LOG_VERSION = false;
+      var libs = _emberMetal.default.libraries._registry;
+
+      var nameLengths = libs.map(function (item) {
+        return _emberMetalProperty_get.get(item, 'name.length');
+      });
+
+      var maxNameLength = Math.max.apply(this, nameLengths);
+
+      _emberMetalDebug.debug('-------------------------------');
+      for (var i = 0, l = libs.length; i < l; i++) {
+        var lib = libs[i];
+        var spaces = new Array(maxNameLength - lib.name.length + 1).join(' ');
+        _emberMetalDebug.debug([lib.name, spaces, ' : ', lib.version].join(''));
+      }
+      _emberMetalDebug.debug('-------------------------------');
+    }
+  }
+
+  exports.default = Application;
+});
+// Ember.libraries, LOG_VERSION, Namespace, BOOTED
+
+// Force-assign these flags to their default values when the feature is
+// disabled, this ensures we can rely on their values in other paths.
+enifed('ember-application/system/engine-instance', ['exports', 'ember-runtime/system/object', 'container/registry', 'ember-runtime/mixins/container_proxy', 'ember-runtime/mixins/registry_proxy', 'ember-metal/run_loop'], function (exports, _emberRuntimeSystemObject, _containerRegistry, _emberRuntimeMixinsContainer_proxy, _emberRuntimeMixinsRegistry_proxy, _emberMetalRun_loop) {
+  /**
+  @module ember
+  @submodule ember-application
+  */
+
+  'use strict';
+
+  /**
+    The `EngineInstance` encapsulates all of the stateful aspects of a
+    running `Engine`.
+  
+    @public
+    @class Ember.EngineInstance
+    @extends Ember.Object
+    @uses RegistryProxyMixin
+    @uses ContainerProxyMixin
+  */
+
+  var EngineInstance = _emberRuntimeSystemObject.default.extend(_emberRuntimeMixinsRegistry_proxy.default, _emberRuntimeMixinsContainer_proxy.default, {
+    /**
+      The base `Engine` for which this is an instance.
+       @property {Ember.Engine} engine
+      @private
+    */
+    base: null,
+
+    init: function () {
+      this._super.apply(this, arguments);
+
+      var base = this.base;
+
+      if (!base) {
+        base = this.application;
+        this.base = base;
+      }
+
+      // Create a per-instance registry that will use the application's registry
+      // as a fallback for resolving registrations.
+      var registry = this.__registry__ = new _containerRegistry.default({
+        fallback: base.__registry__
+      });
+
+      // Create a per-instance container from the instance's registry
+      this.__container__ = registry.container({ owner: this });
+    },
+
+    /**
+     Unregister a factory.
+      Overrides `RegistryProxy#unregister` in order to clear any cached instances
+     of the unregistered factory.
+      @public
+     @method unregister
+     @param {String} fullName
+     */
+    unregister: function (fullName) {
+      this.__container__.reset(fullName);
+      this._super.apply(this, arguments);
+    },
+
+    /**
+      @private
+    */
+    willDestroy: function () {
+      this._super.apply(this, arguments);
+      _emberMetalRun_loop.default(this.__container__, 'destroy');
+    }
+  });
+
+  exports.default = EngineInstance;
+});
+enifed('ember-application/system/engine', ['exports', 'ember-runtime/system/namespace', 'container/registry', 'ember-runtime/mixins/registry_proxy', 'dag-map', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/empty_object', 'ember-application/system/resolver', 'ember-application/system/engine-instance'], function (exports, _emberRuntimeSystemNamespace, _containerRegistry, _emberRuntimeMixinsRegistry_proxy, _dagMap, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalDebug, _emberMetalUtils, _emberMetalEmpty_object, _emberApplicationSystemResolver, _emberApplicationSystemEngineInstance) {
+  /**
+  @module ember
+  @submodule ember-application
+  */
+  'use strict';
+
+  function props(obj) {
+    var properties = [];
+
+    for (var key in obj) {
+      properties.push(key);
+    }
+
+    return properties;
+  }
+
+  /**
+    The `Engine` class contains core functionality for both applications and
+    engines.
+  
+    Each engine manages a registry that's used for dependency injection and
+    exposed through `RegistryProxy`.
+  
+    Engines also manage initializers and instance initializers.
+  
+    Engines can spawn `EngineInstance` instances via `buildInstance()`.
+  
+    @class Engine
+    @namespace Ember
+    @extends Ember.Namespace
+    @uses RegistryProxy
+    @public
+  */
+  var Engine = _emberRuntimeSystemNamespace.default.extend(_emberRuntimeMixinsRegistry_proxy.default, {
+    init: function () {
+      this._super.apply(this, arguments);
+
+      this.buildRegistry();
+    },
+
+    /**
+      Create an EngineInstance for this application.
+       @private
+      @method buildInstance
+      @return {Ember.EngineInstance} the application instance
+    */
+    buildInstance: function () {
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      options.base = this;
+      return _emberApplicationSystemEngineInstance.default.create(options);
+    },
+
+    /**
+      Build and configure the registry for the current application.
+       @private
+      @method buildRegistry
+      @return {Ember.Registry} the configured registry
+    */
+    buildRegistry: function () {
+      var registry = this.__registry__ = this.constructor.buildRegistry(this);
+
+      return registry;
+    },
+
+    /**
+      @private
+      @method initializer
+    */
+    initializer: function (options) {
+      this.constructor.initializer(options);
+    },
+
+    /**
+      @private
+      @method instanceInitializer
+    */
+    instanceInitializer: function (options) {
+      this.constructor.instanceInitializer(options);
+    },
+
+    /**
+      @private
+      @method runInitializers
+    */
+    runInitializers: function () {
+      var _this = this;
+
+      this._runInitializer('initializers', function (name, initializer) {
+        _emberMetalDebug.assert('No application initializer named \'' + name + '\'', !!initializer);
+        if (initializer.initialize.length === 2) {
+          _emberMetalDebug.deprecate('The `initialize` method for Application initializer \'' + name + '\' should take only one argument - `App`, an instance of an `Application`.', false, {
+            id: 'ember-application.app-initializer-initialize-arguments',
+            until: '3.0.0',
+            url: 'http://emberjs.com/deprecations/v2.x/#toc_initializer-arity'
+          });
+
+          initializer.initialize(_this.__registry__, _this);
+        } else {
+          initializer.initialize(_this);
+        }
+      });
+    },
+
+    /**
+      @private
+      @since 1.12.0
+      @method runInstanceInitializers
+    */
+    runInstanceInitializers: function (instance) {
+      this._runInitializer('instanceInitializers', function (name, initializer) {
+        _emberMetalDebug.assert('No instance initializer named \'' + name + '\'', !!initializer);
+        initializer.initialize(instance);
+      });
+    },
+
+    _runInitializer: function (bucketName, cb) {
+      var initializersByName = _emberMetalProperty_get.get(this.constructor, bucketName);
+      var initializers = props(initializersByName);
+      var graph = new _dagMap.default();
+      var initializer;
+
+      for (var i = 0; i < initializers.length; i++) {
+        initializer = initializersByName[initializers[i]];
+        graph.addEdges(initializer.name, initializer, initializer.before, initializer.after);
+      }
+
+      graph.topsort(function (vertex) {
+        cb(vertex.name, vertex.value);
+      });
+    }
+  });
+
+  Engine.reopenClass({
     initializers: new _emberMetalEmpty_object.default(),
     instanceInitializers: new _emberMetalEmpty_object.default(),
 
@@ -5377,6 +5536,61 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     initializer: buildInitializerMethod('initializers', 'initializer'),
 
     /**
+      Instance initializers run after all initializers have run. Because
+      instance initializers run after the app is fully set up. We have access
+      to the store, container, and other items. However, these initializers run
+      after code has loaded and are not allowed to defer readiness.
+       Instance initializer receives an object which has the following attributes:
+      `name`, `before`, `after`, `initialize`. The only required attribute is
+      `initialize`, all others are optional.
+       * `name` allows you to specify under which name the instanceInitializer is
+      registered. This must be a unique name, as trying to register two
+      instanceInitializer with the same name will result in an error.
+       ```javascript
+      Ember.Application.instanceInitializer({
+        name: 'namedinstanceInitializer',
+         initialize: function(application) {
+          Ember.debug('Running namedInitializer!');
+        }
+      });
+      ```
+       * `before` and `after` are used to ensure that this initializer is ran prior
+      or after the one identified by the value. This value can be a single string
+      or an array of strings, referencing the `name` of other initializers.
+       * See Ember.Application.initializer for discussion on the usage of before
+      and after.
+       Example instanceInitializer to preload data into the store.
+       ```javascript
+      Ember.Application.initializer({
+        name: 'preload-data',
+         initialize: function(application) {
+          var userConfig, userConfigEncoded, store;
+          // We have a HTML escaped JSON representation of the user's basic
+          // configuration generated server side and stored in the DOM of the main
+          // index.html file. This allows the app to have access to a set of data
+          // without making any additional remote calls. Good for basic data that is
+          // needed for immediate rendering of the page. Keep in mind, this data,
+          // like all local models and data can be manipulated by the user, so it
+          // should not be relied upon for security or authorization.
+          //
+          // Grab the encoded data from the meta tag
+          userConfigEncoded = Ember.$('head meta[name=app-user-config]').attr('content');
+          // Unescape the text, then parse the resulting JSON into a real object
+          userConfig = JSON.parse(unescape(userConfigEncoded));
+          // Lookup the store
+          store = application.lookup('service:store');
+          // Push the encoded JSON into the store
+          store.pushPayload(userConfig);
+        }
+      });
+      ```
+       @method instanceInitializer
+      @param instanceInitializer
+      @public
+    */
+    instanceInitializer: buildInitializerMethod('instanceInitializers', 'instance initializer'),
+
+    /**
       This creates a registry with the default Ember naming conventions.
        It also configures the registry:
        * registered views are created every time they are looked up (they are
@@ -5406,74 +5620,23 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
 
       registry.set = _emberMetalProperty_set.set;
 
-      registry.optionsForType('component', { singleton: false });
-      registry.optionsForType('view', { singleton: false });
-      registry.optionsForType('template', { instantiate: false });
-
-      registry.register('application:main', namespace, { instantiate: false });
-
-      registry.register('controller:basic', _emberRuntimeControllersController.default, { instantiate: false });
-
-      registry.register('renderer:-dom', { create: function () {
-          return new _emberMetalViewsRenderer.default(new _emberHtmlbarsSystemDomHelper.default());
-        } });
-
-      registry.injection('view', 'renderer', 'renderer:-dom');
-      if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-        registry.register('view:select', _emberViewsViewsSelect.default);
-      }
-      registry.register('view:-outlet', _emberRoutingViewsViewsOutlet.OutletView);
-
-      registry.register('-view-registry:main', { create: function () {
-          return {};
-        } });
-
-      registry.injection('view', '_viewRegistry', '-view-registry:main');
-
-      registry.register('view:toplevel', _emberViewsViewsView.default.extend());
-
-      registry.register('route:basic', _emberRoutingSystemRoute.default, { instantiate: false });
-      registry.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
-
-      registry.injection('router:main', 'namespace', 'application:main');
-      registry.injection('view:-outlet', 'namespace', 'application:main');
-
-      registry.register('location:auto', _emberRoutingLocationAuto_location.default);
-      registry.register('location:hash', _emberRoutingLocationHash_location.default);
-      registry.register('location:history', _emberRoutingLocationHistory_location.default);
-      registry.register('location:none', _emberRoutingLocationNone_location.default);
-
-      registry.injection('controller', 'target', 'router:main');
-      registry.injection('controller', 'namespace', 'application:main');
-
-      registry.register('-bucket-cache:main', _emberRoutingSystemCache.default);
-      registry.injection('router', '_bucketCache', '-bucket-cache:main');
-      registry.injection('route', '_bucketCache', '-bucket-cache:main');
-      registry.injection('controller', '_bucketCache', '-bucket-cache:main');
-
-      registry.injection('route', 'router', 'router:main');
-
-      registry.register('component:-text-field', _emberViewsViewsText_field.default);
-      registry.register('component:-text-area', _emberViewsViewsText_area.default);
-      registry.register('component:-checkbox', _emberViewsViewsCheckbox.default);
-      registry.register('view:-legacy-each', _emberViewsViewsLegacy_each_view.default);
-      registry.register('component:link-to', _emberRoutingViewsComponentsLinkTo.default);
-
-      // Register the routing service...
-      registry.register('service:-routing', _emberRoutingServicesRouting.default);
-      // Then inject the app router into it
-      registry.injection('service:-routing', 'router', 'router:main');
-
-      // DEBUGGING
-      registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
-      registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
-      registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
-      // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
-
-      registry.register('container-debug-adapter:main', _emberExtensionSupportContainer_debug_adapter.default);
-
       return registry;
-    }
+    },
+
+    /**
+      Set this to provide an alternate class to `Ember.DefaultResolver`
+        @deprecated Use 'Resolver' instead
+      @property resolver
+      @public
+    */
+    resolver: null,
+
+    /**
+      Set this to provide an alternate class to `Ember.DefaultResolver`
+       @property resolver
+      @public
+    */
+    Resolver: null
   });
 
   /**
@@ -5500,38 +5663,6 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     });
   }
 
-  function registerLibraries() {
-    if (!librariesRegistered) {
-      librariesRegistered = true;
-
-      if (_emberMetalEnvironment.default.hasDOM) {
-        _emberMetal.default.libraries.registerCoreLibrary('jQuery', _emberViewsSystemJquery.default().jquery);
-      }
-    }
-  }
-
-  function logLibraryVersions() {
-    if (_emberMetal.default.LOG_VERSION) {
-      // we only need to see this once per Application#init
-      _emberMetal.default.LOG_VERSION = false;
-      var libs = _emberMetal.default.libraries._registry;
-
-      var nameLengths = libs.map(function (item) {
-        return _emberMetalProperty_get.get(item, 'name.length');
-      });
-
-      var maxNameLength = Math.max.apply(this, nameLengths);
-
-      _emberMetalDebug.debug('-------------------------------');
-      for (var i = 0, l = libs.length; i < l; i++) {
-        var lib = libs[i];
-        var spaces = new Array(maxNameLength - lib.name.length + 1).join(' ');
-        _emberMetalDebug.debug([lib.name, spaces, ' : ', lib.version].join(''));
-      }
-      _emberMetalDebug.debug('-------------------------------');
-    }
-  }
-
   function buildInitializerMethod(bucketName, humanName) {
     return function (initializer) {
       // If this is the first initializer being added to a subclass, we are going to reopen the class
@@ -5552,12 +5683,8 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
     };
   }
 
-  exports.default = Application;
+  exports.default = Engine;
 });
-// Ember.libraries, LOG_VERSION, Namespace, BOOTED
-
-// Force-assign these flags to their default values when the feature is
-// disabled, this ensures we can rely on their values in other paths.
 enifed('ember-application/system/resolver', ['exports', 'ember-metal/debug', 'ember-metal/property_get', 'ember-runtime/system/string', 'ember-runtime/system/object', 'ember-runtime/system/namespace', 'ember-htmlbars/helpers', 'ember-application/utils/validate-type', 'ember-metal/dictionary', 'ember-htmlbars/template_registry'], function (exports, _emberMetalDebug, _emberMetalProperty_get, _emberRuntimeSystemString, _emberRuntimeSystemObject, _emberRuntimeSystemNamespace, _emberHtmlbarsHelpers, _emberApplicationUtilsValidateType, _emberMetalDictionary, _emberHtmlbarsTemplate_registry) {
   /**
   @module ember
@@ -10394,7 +10521,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+3561214e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+192fcebd';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16087,7 +16214,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+3561214e
+    @version 2.4.0-canary+192fcebd
     @public
   */
 
@@ -16129,11 +16256,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+3561214e'
+    @default '2.4.0-canary+192fcebd'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+3561214e';
+  Ember.VERSION = '2.4.0-canary+192fcebd';
 
   /**
     The hash of environment variables used to control various configuration
@@ -16953,7 +17080,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-metal-ember-assign":null,"ember-htmlbars-local-lookup":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({"features-stripped-test":null,"ember-htmlbars-component-generation":null,"ember-routing-route-configured-query-params":null,"ember-libraries-isregistered":null,"ember-routing-routable-components":null,"ember-metal-ember-assign":null,"ember-htmlbars-local-lookup":null,"ember-application-engines":null}, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -29910,7 +30037,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+3561214e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+192fcebd';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30413,7 +30540,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+3561214e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+192fcebd';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39352,7 +39479,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+3561214e',
+        revision: 'Ember@2.4.0-canary+192fcebd',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44683,7 +44810,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+3561214e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+192fcebd';
 
   /**
   @module ember
