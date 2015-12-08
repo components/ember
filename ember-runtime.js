@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+839e765a
+ * @version   2.4.0-canary+3771c93d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4906,7 +4906,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+839e765a
+    @version 2.4.0-canary+3771c93d
     @public
   */
 
@@ -4948,11 +4948,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+839e765a'
+    @default '2.4.0-canary+3771c93d'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+839e765a';
+  Ember.VERSION = '2.4.0-canary+3771c93d';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18689,14 +18689,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     eachComputedProperty: function (callback, binding) {
-      var property, name;
+      var property;
       var empty = {};
 
       var properties = _emberMetalProperty_get.get(this, '_computedProperties');
 
       for (var i = 0, length = properties.length; i < length; i++) {
         property = properties[i];
-        name = property.name;
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
