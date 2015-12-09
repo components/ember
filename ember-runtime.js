@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+9f7d0aee
+ * @version   2.3.0-beta.2+66baeadb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4781,7 +4781,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2+9f7d0aee
+    @version 2.3.0-beta.2+66baeadb
     @public
   */
 
@@ -4825,11 +4825,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2+9f7d0aee'
+    @default '2.3.0-beta.2+66baeadb'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2+9f7d0aee';
+  Ember.VERSION = '2.3.0-beta.2+66baeadb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -18455,14 +18455,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     eachComputedProperty: function (callback, binding) {
-      var property, name;
+      var property;
       var empty = {};
 
       var properties = _emberMetalProperty_get.get(this, '_computedProperties');
 
       for (var i = 0, length = properties.length; i < length; i++) {
         property = properties[i];
-        name = property.name;
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
@@ -19374,7 +19373,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function () {
+      fullName: function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
@@ -19537,7 +19536,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
   }
 
   function fmt(str, formats) {
-    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
+    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
     return _fmt.apply(undefined, arguments);
   }
 
@@ -19606,7 +19605,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       @param {Array} formats An array of parameters to interpolate into string.
       @return {String} formatted string
       @public
-      @deprecated Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');
+      @deprecated Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings
     */
     fmt: fmt,
 

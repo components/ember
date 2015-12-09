@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+9f7d0aee
+ * @version   2.3.0-beta.2+66baeadb
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3016,6 +3016,8 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
   }
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
+  /*globals module*/
+
   "use strict";
 
   var doc = typeof document === 'undefined' ? false : document;
@@ -3166,6 +3168,8 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
     }
     this.canClone = canClone;
     this.namespace = null;
+
+    installEnvironmentSpecificMethods(this);
   }
 
   var prototype = DOMHelper.prototype;
@@ -3565,17 +3569,53 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
     return fragment;
   };
 
+  var URL;
   var parsingNode;
 
-  // Used to determine whether a URL needs to be sanitized.
-  prototype.protocolForURL = function (url) {
+  function installEnvironmentSpecificMethods(domHelper) {
+    var protocol = browserProtocolForURL.call(domHelper, 'foobar:baz');
+
+    // Test to see if our DOM implementation parses
+    // and normalizes URLs.
+    if (protocol === 'foobar:') {
+      // Swap in the method that doesn't do this test now that
+      // we know it works.
+      domHelper.protocolForURL = browserProtocolForURL;
+    } else if (typeof module === 'object' && typeof module.require === 'function') {
+      // Otherwise, we need to fall back to our own URL parsing.
+      // Global `require` is shadowed by Ember's loader so we have to use the fully
+      // qualified `module.require`.
+      URL = module.require('url');
+      domHelper.protocolForURL = nodeProtocolForURL;
+    } else {
+      throw new Error("DOM Helper could not find valid URL parsing mechanism");
+    }
+
+    // A SimpleDOM-specific extension that allows us to place HTML directly
+    // into the DOM tree, for when the output target is always serialized HTML.
+    if (domHelper.document.createRawHTMLSection) {
+      domHelper.setMorphHTML = nodeSetMorphHTML;
+    }
+  }
+
+  function nodeSetMorphHTML(morph, html) {
+    var section = this.document.createRawHTMLSection(html);
+    morph.setNode(section);
+  }
+
+  function browserProtocolForURL(url) {
     if (!parsingNode) {
       parsingNode = this.document.createElement('a');
     }
 
     parsingNode.href = url;
     return parsingNode.protocol;
-  };
+  }
+
+  function nodeProtocolForURL(url) {
+    var protocol = URL.parse(url).protocol;
+    return protocol === null ? ':' : protocol;
+  }
 
   exports.default = DOMHelper;
 });
@@ -10067,7 +10107,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+9f7d0aee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+66baeadb';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15814,7 +15854,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2+9f7d0aee
+    @version 2.3.0-beta.2+66baeadb
     @public
   */
 
@@ -15858,11 +15898,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2+9f7d0aee'
+    @default '2.3.0-beta.2+66baeadb'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2+9f7d0aee';
+  Ember.VERSION = '2.3.0-beta.2+66baeadb';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25380,7 +25420,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        ```javascript
       App.ArticlesRoute = Ember.Route.extend({
         // ...
-         resetController: function (controller, isExiting, transition) {
+         resetController: function(controller, isExiting, transition) {
           if (isExiting) {
             controller.set('page', 1);
           }
@@ -26474,7 +26514,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         model: function() {
           return this.store.find('photo');
         },
-         setupController: function (controller, model) {
+         setupController: function(controller, model) {
           // Call _super for default behavior
           this._super(controller, model);
           // Implement your custom setup after
@@ -29571,7 +29611,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2+9f7d0aee';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2+66baeadb';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30061,7 +30101,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+9f7d0aee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+66baeadb';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36389,14 +36429,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     eachComputedProperty: function (callback, binding) {
-      var property, name;
+      var property;
       var empty = {};
 
       var properties = _emberMetalProperty_get.get(this, '_computedProperties');
 
       for (var i = 0, length = properties.length; i < length; i++) {
         property = properties[i];
-        name = property.name;
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
@@ -37308,7 +37347,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function () {
+      fullName: function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
@@ -37471,7 +37510,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
   }
 
   function fmt(str, formats) {
-    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
+    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
     return _fmt.apply(undefined, arguments);
   }
 
@@ -37540,7 +37579,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       @param {Array} formats An array of parameters to interpolate into string.
       @return {String} formatted string
       @public
-      @deprecated Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');
+      @deprecated Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings
     */
     fmt: fmt,
 
@@ -39004,7 +39043,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.2+9f7d0aee',
+        revision: 'Ember@2.3.0-beta.2+66baeadb',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44294,7 +44333,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2+9f7d0aee';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2+66baeadb';
 
   /**
   @module ember
