@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+cb980bc8
+ * @version   2.4.0-canary+b3ce376f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -42831,7 +42831,7 @@ enifed('ember-runtime/tests/legacy_1x/mixins/observable/observable_test', ['expo
   
     * Added ObservableObject which applies the Ember.Observable mixin.
     * Changed reference to Ember.T_FUNCTION to 'function'
-    * Changed all references to sc_super to this._super.apply(this, arguments)
+    * Changed all references to sc_super to this._super(...arguments)
     * Changed Ember.objectForPropertyPath() to Ember.getPath()
     * Removed allPropertiesDidChange test - no longer supported
     * Changed test that uses 'ObjectE' as path to 'objectE' to reflect new
@@ -43929,7 +43929,7 @@ enifed('ember-runtime/tests/legacy_1x/system/binding_test', ['exports', 'ember-m
   
     * Changed call calls for obj.bind(...) to bind(obj, ...);
   
-    * Changed all calls to sc_super() to this._super.apply(this, arguments)
+    * Changed all calls to sc_super() to this._super(...arguments)
   
     * Changed all calls to disconnect() to pass the root object.
   
@@ -52473,7 +52473,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+cb980bc8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+b3ce376f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+cb980bc8
+ * @version   2.4.0-canary+b3ce376f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4906,7 +4906,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+cb980bc8
+    @version 2.4.0-canary+b3ce376f
     @public
   */
 
@@ -4948,11 +4948,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+cb980bc8'
+    @default '2.4.0-canary+b3ce376f'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+cb980bc8';
+  Ember.VERSION = '2.4.0-canary+b3ce376f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -8294,7 +8294,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     //filters will be created as a separate array during the object's initialization
     App.Filterable = Ember.Mixin.create({
       init: function() {
-        this._super.apply(this, arguments);
+        this._super(...arguments);
         this.set("filters", Ember.A());
       }
     });
@@ -14064,7 +14064,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
         }
       });
       ```
-       It is also possible to call `this._super.apply(this, arguments)` from within an
+       It is also possible to call `this._super(...arguments)` from within an
       action handler if it overrides a handler defined on a parent
       class or mixin:
        Take for example the following routes:
@@ -14080,7 +14080,7 @@ enifed('ember-runtime/mixins/action_handler', ['exports', 'ember-metal/debug', '
         actions: {
           debugRouteInformation: function() {
             // also call the debugRouteInformation of mixed in App.DebugRoute
-            this._super.apply(this, arguments);
+            this._super(...arguments);
              // show additional annoyance
             window.alert(...);
           }
@@ -18335,7 +18335,7 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
        // alerts 'Name is Steve'.
       ```
        NOTE: If you do override `init` for a framework class like `Ember.View`,
-      be sure to call `this._super.apply(this, arguments)` in your
+      be sure to call `this._super(...arguments)` in your
       `init` declaration! If you don't, Ember may not have an opportunity to
       do important setup work, and you'll see strange behavior in your
       application.
@@ -19500,7 +19500,7 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
       classNames: ['pagination'],
   
       init: function() {
-        this._super.apply(this, arguments);
+        this._super(...arguments);
         if (!this.get('content')) {
           this.set('content', Ember.A());
         }
