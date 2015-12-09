@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+8fbcf6dd
+ * @version   2.4.0-canary+cb980bc8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4906,7 +4906,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+8fbcf6dd
+    @version 2.4.0-canary+cb980bc8
     @public
   */
 
@@ -4948,11 +4948,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+8fbcf6dd'
+    @default '2.4.0-canary+cb980bc8'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+8fbcf6dd';
+  Ember.VERSION = '2.4.0-canary+cb980bc8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -19607,7 +19607,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function () {
+      fullName: function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
