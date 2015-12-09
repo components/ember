@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+b3ce376f
+ * @version   2.4.0-canary+31eadb4d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1573,7 +1573,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
         // TODO - remove when Ember reaches v3.0.0
         if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-          injectDeprecatedContainer(obj, container);
+          if (!Object.isFrozen(obj) && 'container' in obj) {
+            injectDeprecatedContainer(obj, container);
+          }
         }
       }
 
@@ -4906,7 +4908,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+b3ce376f
+    @version 2.4.0-canary+31eadb4d
     @public
   */
 
@@ -4948,11 +4950,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+b3ce376f'
+    @default '2.4.0-canary+31eadb4d'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+b3ce376f';
+  Ember.VERSION = '2.4.0-canary+31eadb4d';
 
   /**
     The hash of environment variables used to control various configuration

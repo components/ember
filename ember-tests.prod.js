@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+b3ce376f
+ * @version   2.4.0-canary+31eadb4d
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -676,7 +676,10 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var container = registry.container({ owner: owner });
 
     // Define a simple non-extendable factory
-    var PostController = function () {};
+    var PostController = function (options) {
+      this.container = options.container;
+    };
+
     PostController.create = function (options) {
       ok(options.container, 'fake container has been injected and is available during `create`.');
 
@@ -713,6 +716,46 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
       var c = postController.container;
       strictEqual(c, container, 'Injected container is now regular (not fake) container, but access is still deprecated.');
     }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
+  });
+
+  QUnit.test('A deprecated `container` property is only set on a non-extendable factory instance if `container` is present and writable.', function () {
+    expect(2);
+
+    var owner = {};
+    var registry = new _containerRegistry.default();
+    var container = registry.container({ owner: owner });
+
+    // Define a non-extendable factory that is frozen after `create`
+    var PostController = function () {};
+    PostController.create = function () {
+      var instance = new PostController();
+
+      Object.seal(instance);
+
+      return instance;
+    };
+
+    registry.register('controller:post', PostController);
+    var postController = container.lookup('controller:post');
+
+    equal(postController.container, undefined, 'container was not added');
+
+    var OtherController = function () {
+      this.container = 'foo';
+    };
+
+    OtherController.create = function () {
+      var instance = new OtherController();
+
+      Object.freeze(instance);
+
+      return instance;
+    };
+
+    registry.register('controller:other', OtherController);
+    var otherController = container.lookup('controller:other');
+
+    equal(otherController.container, 'foo', 'container was not added');
   });
 
   if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
@@ -52473,7 +52516,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+b3ce376f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+31eadb4d', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
