@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+d5b6ab78
+ * @version   2.3.0-beta.2+41030996
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3018,7 +3018,7 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
   }
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
-  /*globals module*/
+  /*globals module, URL*/
 
   "use strict";
 
@@ -3571,7 +3571,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
     return fragment;
   };
 
-  var URL;
+  var nodeURL;
   var parsingNode;
 
   function installEnvironmentSpecificMethods(domHelper) {
@@ -3583,11 +3583,15 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
       // Swap in the method that doesn't do this test now that
       // we know it works.
       domHelper.protocolForURL = browserProtocolForURL;
+    } else if (typeof URL === 'object') {
+      // URL globally provided, likely from FastBoot's sandbox
+      nodeURL = URL;
+      domHelper.protocolForURL = nodeProtocolForURL;
     } else if (typeof module === 'object' && typeof module.require === 'function') {
       // Otherwise, we need to fall back to our own URL parsing.
       // Global `require` is shadowed by Ember's loader so we have to use the fully
       // qualified `module.require`.
-      URL = module.require('url');
+      nodeURL = module.require('url');
       domHelper.protocolForURL = nodeProtocolForURL;
     } else {
       throw new Error("DOM Helper could not find valid URL parsing mechanism");
@@ -3615,7 +3619,7 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
   }
 
   function nodeProtocolForURL(url) {
-    var protocol = URL.parse(url).protocol;
+    var protocol = nodeURL.parse(url).protocol;
     return protocol === null ? ':' : protocol;
   }
 
@@ -10109,7 +10113,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+d5b6ab78';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+41030996';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15856,7 +15860,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2+d5b6ab78
+    @version 2.3.0-beta.2+41030996
     @public
   */
 
@@ -15900,11 +15904,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2+d5b6ab78'
+    @default '2.3.0-beta.2+41030996'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2+d5b6ab78';
+  Ember.VERSION = '2.3.0-beta.2+41030996';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29613,7 +29617,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2+d5b6ab78';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2+41030996';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30103,7 +30107,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+d5b6ab78';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2+41030996';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39045,7 +39049,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.2+d5b6ab78',
+        revision: 'Ember@2.3.0-beta.2+41030996',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44335,7 +44339,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2+d5b6ab78';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2+41030996';
 
   /**
   @module ember
