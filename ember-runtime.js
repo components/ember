@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+fbab176e
+ * @version   2.4.0-canary+2a269add
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4908,7 +4908,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+fbab176e
+    @version 2.4.0-canary+2a269add
     @public
   */
 
@@ -4950,11 +4950,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+fbab176e'
+    @default '2.4.0-canary+2a269add'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+fbab176e';
+  Ember.VERSION = '2.4.0-canary+2a269add';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20019,14 +20019,14 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
   /**
     Returns true if the passed object is an array or Array-like.
   
-    Ember Array Protocol:
+    Objects are considered Array-like if any of the following are true:
   
-      - the object has an objectAt property
       - the object is a native Array
+      - the object has an objectAt property
       - the object is an Object, and has a length property
   
     Unlike `Ember.typeOf` this method returns true even if the passed object is
-    not formally array but appears to be array-like (i.e. implements `Ember.Array`)
+    not formally an array but appears to be array-like (i.e. implements `Ember.Array`)
   
     ```javascript
     Ember.isArray();                                          // false
@@ -20063,7 +20063,7 @@ enifed('ember-runtime/utils', ['exports', 'ember-runtime/mixins/array', 'ember-r
   }
 
   /**
-    Returns a consistent type for the passed item.
+    Returns a consistent type for the passed object.
   
     Use this instead of the built-in `typeof` to get the type of an item.
     It will return the same result across all browsers and includes a bit
