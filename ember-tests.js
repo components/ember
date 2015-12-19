@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+9a4b10a8
+ * @version   2.3.0-beta.2+455f3f65
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -743,6 +743,28 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     var otherController = container.lookup('controller:other');
 
     equal(otherController.container, 'foo', 'container was not added');
+  });
+
+  QUnit.test('An extendable factory can provide `container` upon create, with a deprecation', function (assert) {
+    var registry = new _containerRegistry.default();
+    var container = registry.container();
+
+    registry.register('controller:post', _containerTestsTestHelpersFactory.default());
+
+    var PostController = container.lookupFactory('controller:post');
+
+    var postController = undefined;
+
+    expectDeprecation(function () {
+      postController = PostController.create({
+        container: 'foo'
+      });
+    }, /Providing the \`container\` property to .+ is deprecated. Please use \`Ember.setOwner\` or \`owner.ownerInjection\(\)\` instead to provide an owner to the instance being created/);
+
+    expectDeprecation(function () {
+      var c = postController.container;
+      assert.equal(c, 'foo', 'the `container` provided to `.create`was used');
+    }, 'Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.');
   });
 });
 enifed('container/tests/owner_test', ['exports', 'container/owner'], function (exports, _containerOwner) {
@@ -49151,7 +49173,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+9a4b10a8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+455f3f65', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
