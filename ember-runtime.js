@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+5db59d87
+ * @version   2.4.0-canary+01b11079
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1202,8 +1202,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
+
+  var CONTAINER_OVERRIDE = _emberMetalSymbol.default('CONTAINER_OVERRIDE');
 
   /**
    A container used to instantiate and cache objects.
@@ -1227,6 +1229,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
     if (_emberMetalFeatures.default('ember-container-inject-owner')) {
       this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
+      this[CONTAINER_OVERRIDE] = undefined;
     }
   }
 
@@ -1590,7 +1593,15 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       enumerable: false,
       get: function () {
         _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-        return container;
+        return this[CONTAINER_OVERRIDE] || container;
+      },
+
+      set: function (value) {
+        _emberMetalDebug.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
+        this[CONTAINER_OVERRIDE] = value;
+
+        return value;
       }
     });
   }
@@ -4908,7 +4919,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+5db59d87
+    @version 2.4.0-canary+01b11079
     @public
   */
 
@@ -4950,11 +4961,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+5db59d87'
+    @default '2.4.0-canary+01b11079'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+5db59d87';
+  Ember.VERSION = '2.4.0-canary+01b11079';
 
   /**
     The hash of environment variables used to control various configuration
