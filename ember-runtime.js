@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+38630ef1
+ * @version   2.4.0-canary+5db59d87
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4908,7 +4908,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+38630ef1
+    @version 2.4.0-canary+5db59d87
     @public
   */
 
@@ -4950,11 +4950,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+38630ef1'
+    @default '2.4.0-canary+5db59d87'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+38630ef1';
+  Ember.VERSION = '2.4.0-canary+5db59d87';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5879,7 +5879,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
   _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
   _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
   // END IMPORTS
 
@@ -13736,6 +13735,7 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
+  EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
 
   _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;

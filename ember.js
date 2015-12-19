@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+38630ef1
+ * @version   2.4.0-canary+5db59d87
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10567,7 +10567,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+5db59d87';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16260,7 +16260,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+38630ef1
+    @version 2.4.0-canary+5db59d87
     @public
   */
 
@@ -16302,11 +16302,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+38630ef1'
+    @default '2.4.0-canary+5db59d87'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+38630ef1';
+  Ember.VERSION = '2.4.0-canary+5db59d87';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17231,7 +17231,6 @@ enifed('ember-metal/index', ['exports', 'require', 'ember-metal/core', 'ember-me
   _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
   _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
   _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
   // END IMPORTS
 
@@ -30083,7 +30082,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+5db59d87';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30586,7 +30585,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+5db59d87';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32036,6 +32035,7 @@ enifed('ember-runtime/index', ['exports', 'ember-metal', 'ember-runtime/is-equal
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
+  EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
 
   _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
@@ -39542,7 +39542,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+38630ef1',
+        revision: 'Ember@2.4.0-canary+5db59d87',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44873,7 +44873,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+5db59d87';
 
   /**
   @module ember
