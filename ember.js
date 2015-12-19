@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2
+ * @version   2.3.0-beta.3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1189,8 +1189,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
+
+  var CONTAINER_OVERRIDE = _emberMetalSymbol.default('CONTAINER_OVERRIDE');
 
   /**
    A container used to instantiate and cache objects.
@@ -1213,6 +1215,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     this.validationCache = _emberMetalDictionary.default(options && options.validationCache ? options.validationCache : null);
 
     this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
+    this[CONTAINER_OVERRIDE] = undefined;
   }
 
   Container.prototype = {
@@ -1523,7 +1526,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
         // TODO - remove when Ember reaches v3.0.0
 
-        injectDeprecatedContainer(obj, container);
+        if (!Object.isFrozen(obj) && 'container' in obj) {
+          injectDeprecatedContainer(obj, container);
+        }
       }
 
       return obj;
@@ -1537,7 +1542,15 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       enumerable: false,
       get: function () {
         _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-        return container;
+        return this[CONTAINER_OVERRIDE] || container;
+      },
+
+      set: function (value) {
+        _emberMetalDebug.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
+        this[CONTAINER_OVERRIDE] = value;
+
+        return value;
       }
     });
   }
@@ -1676,7 +1689,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
   function Registry(options) {
     this.fallback = options && options.fallback ? options.fallback : null;
 
-    this.resolver = options && options.resolver ? options.resolver : function () {};
+    if (options && options.resolver) {
+      this.resolver = options.resolver;
+
+      if (typeof this.resolver === 'function') {
+        deprecateResolverFunction(this);
+      }
+    }
 
     this.registrations = _emberMetalDictionary.default(options && options.registrations ? options.registrations : null);
 
@@ -1703,9 +1722,10 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     fallback: null,
 
     /**
-     @private
+     An object that has a `resolve` method that resolves a name.
+      @private
      @property resolver
-     @type function
+     @type Resolver
      */
     resolver: null,
 
@@ -1887,7 +1907,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} described fullName
      */
     describe: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.lookupDescription) {
+        return this.resolver.lookupDescription(fullName);
+      } else if (this.fallback) {
+        return this.fallback.describe(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1898,7 +1924,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} normalized fullName
      */
     normalizeFullName: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.normalize) {
+        return this.resolver.normalize(fullName);
+      } else if (this.fallback) {
+        return this.fallback.normalizeFullName(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1920,7 +1952,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {function} toString function
      */
     makeToString: function (factory, fullName) {
-      return factory.toString();
+      if (this.resolver && this.resolver.makeToString) {
+        return this.resolver.makeToString(factory, fullName);
+      } else if (this.fallback) {
+        return this.fallback.makeToString(factory, fullName);
+      } else {
+        return factory.toString();
+      }
     },
 
     /**
@@ -2211,7 +2249,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver.knownForType) {
+      if (this.resolver && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
@@ -2291,6 +2329,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     }
   };
 
+  function deprecateResolverFunction(registry) {
+    _emberMetalDebug.deprecate('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    registry.resolver = {
+      resolve: registry.resolver
+    };
+  }
+
   function resolve(registry, normalizedName) {
     var cached = registry._resolveCache[normalizedName];
     if (cached) {
@@ -2300,7 +2345,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       return;
     }
 
-    var resolved = registry.resolver(normalizedName) || registry.registrations[normalizedName];
+    var resolved = undefined;
+
+    if (registry.resolver) {
+      resolved = registry.resolver.resolve(normalizedName);
+    }
+
+    resolved = resolved || registry.registrations[normalizedName];
 
     if (resolved) {
       registry._resolveCache[normalizedName] = resolved;
@@ -2978,6 +3029,8 @@ enifed('dom-helper/prop', ['exports'], function (exports) {
   }
 });
 enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-helper/build-html-dom", "dom-helper/classes", "dom-helper/prop"], function (exports, _htmlbarsRuntimeMorph, _morphAttr, _domHelperBuildHtmlDom, _domHelperClasses, _domHelperProp) {
+  /*globals module, URL*/
+
   "use strict";
 
   var doc = typeof document === 'undefined' ? false : document;
@@ -3128,6 +3181,8 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
     }
     this.canClone = canClone;
     this.namespace = null;
+
+    installEnvironmentSpecificMethods(this);
   }
 
   var prototype = DOMHelper.prototype;
@@ -3527,17 +3582,57 @@ enifed("dom-helper", ["exports", "htmlbars-runtime/morph", "morph-attr", "dom-he
     return fragment;
   };
 
+  var nodeURL;
   var parsingNode;
 
-  // Used to determine whether a URL needs to be sanitized.
-  prototype.protocolForURL = function (url) {
+  function installEnvironmentSpecificMethods(domHelper) {
+    var protocol = browserProtocolForURL.call(domHelper, 'foobar:baz');
+
+    // Test to see if our DOM implementation parses
+    // and normalizes URLs.
+    if (protocol === 'foobar:') {
+      // Swap in the method that doesn't do this test now that
+      // we know it works.
+      domHelper.protocolForURL = browserProtocolForURL;
+    } else if (typeof URL === 'object') {
+      // URL globally provided, likely from FastBoot's sandbox
+      nodeURL = URL;
+      domHelper.protocolForURL = nodeProtocolForURL;
+    } else if (typeof module === 'object' && typeof module.require === 'function') {
+      // Otherwise, we need to fall back to our own URL parsing.
+      // Global `require` is shadowed by Ember's loader so we have to use the fully
+      // qualified `module.require`.
+      nodeURL = module.require('url');
+      domHelper.protocolForURL = nodeProtocolForURL;
+    } else {
+      throw new Error("DOM Helper could not find valid URL parsing mechanism");
+    }
+
+    // A SimpleDOM-specific extension that allows us to place HTML directly
+    // into the DOM tree, for when the output target is always serialized HTML.
+    if (domHelper.document.createRawHTMLSection) {
+      domHelper.setMorphHTML = nodeSetMorphHTML;
+    }
+  }
+
+  function nodeSetMorphHTML(morph, html) {
+    var section = this.document.createRawHTMLSection(html);
+    morph.setNode(section);
+  }
+
+  function browserProtocolForURL(url) {
     if (!parsingNode) {
       parsingNode = this.document.createElement('a');
     }
 
     parsingNode.href = url;
     return parsingNode.protocol;
-  };
+  }
+
+  function nodeProtocolForURL(url) {
+    var protocol = nodeURL.parse(url).protocol;
+    return protocol === null ? ':' : protocol;
+  }
 
   exports.default = DOMHelper;
 });
@@ -3617,8 +3712,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       var registry = this.__registry__ = new _containerRegistry.default({
         fallback: applicationRegistry
       });
-      registry.normalizeFullName = applicationRegistry.normalizeFullName;
-      registry.makeToString = applicationRegistry.makeToString;
 
       // Create a per-instance container from the instance's registry
       this.__container__ = registry.container({ owner: this });
@@ -3793,6 +3886,19 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     willDestroy: function () {
       this._super.apply(this, arguments);
       _emberMetalRun_loop.default(this.__container__, 'destroy');
+    },
+
+    /**
+     Unregister a factory.
+      Overrides `RegistryProxy#unregister` in order to clear any cached instances
+     of the unregistered factory.
+      @public
+     @method unregister
+     @param {String} fullName
+     */
+    unregister: function (fullName) {
+      this.__container__.reset(fullName);
+      this._super.apply(this, arguments);
     }
   });
 
@@ -5193,13 +5299,11 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       @public
     */
     buildRegistry: function (namespace) {
-      var registry = new _containerRegistry.default();
+      var registry = new _containerRegistry.default({
+        resolver: resolverFor(namespace)
+      });
 
       registry.set = _emberMetalProperty_set.set;
-      registry.resolver = resolverFor(namespace);
-      registry.normalizeFullName = registry.resolver.normalize;
-      registry.describe = registry.resolver.describe;
-      registry.makeToString = registry.resolver.makeToString;
 
       registry.optionsForType('component', { singleton: false });
       registry.optionsForType('view', { singleton: false });
@@ -5260,7 +5364,7 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
       registry.injection('service:-routing', 'router', 'router:main');
 
       // DEBUGGING
-      registry.register('resolver-for-debugging:main', registry.resolver.__resolver__, { instantiate: false });
+      registry.register('resolver-for-debugging:main', registry.resolver, { instantiate: false });
       registry.injection('container-debug-adapter:main', 'resolver', 'resolver-for-debugging:main');
       registry.injection('data-adapter:main', 'containerDebugAdapter', 'container-debug-adapter:main');
       // Custom resolver authors may want to register their own ContainerDebugAdapter with this key
@@ -5289,39 +5393,10 @@ enifed('ember-application/system/application', ['exports', 'dag-map', 'container
   */
   function resolverFor(namespace) {
     var ResolverClass = namespace.get('Resolver') || _emberApplicationSystemResolver.default;
-    var resolver = ResolverClass.create({
+
+    return ResolverClass.create({
       namespace: namespace
     });
-
-    function resolve(fullName) {
-      return resolver.resolve(fullName);
-    }
-
-    resolve.describe = function (fullName) {
-      return resolver.lookupDescription(fullName);
-    };
-
-    resolve.makeToString = function (factory, fullName) {
-      return resolver.makeToString(factory, fullName);
-    };
-
-    resolve.normalize = function (fullName) {
-      if (resolver.normalize) {
-        return resolver.normalize(fullName);
-      }
-    };
-
-    resolve.knownForType = function knownForType(type) {
-      if (resolver.knownForType) {
-        return resolver.knownForType(type);
-      }
-    };
-
-    resolve.moduleBasedResolver = resolver.moduleBasedResolver;
-
-    resolve.__resolver__ = resolver;
-
-    return resolve;
   }
 
   function registerLibraries() {
@@ -7824,7 +7899,7 @@ enifed('ember-htmlbars/helpers/with', ['exports', 'ember-views/streams/should_di
     for semantic clarity as it allows you to retain default scope or to reference a property from another
     `{{with}}` block.
   
-    If the aliased property is "falsey", for example: `false`, `undefined` `null`, `""`, `0` or
+    If the aliased property is "falsey", for example: `false`, `undefined` `null`, `""`, `0`, NaN or
     an empty array, the block will not be rendered.
   
     ```handlebars
@@ -8704,7 +8779,7 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-htmlbars/system/
     return { value: helperStream.value() };
   }
 });
-enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-metal/streams/utils'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberMetalStreamsUtils) {
+enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/utils/subscribe', 'ember-runtime/utils', 'ember-metal/streams/utils', 'ember-htmlbars/system/lookup-helper', 'ember-htmlbars/keywords/closure-component'], function (exports, _emberHtmlbarsUtilsSubscribe, _emberRuntimeUtils, _emberMetalStreamsUtils, _emberHtmlbarsSystemLookupHelper, _emberHtmlbarsKeywordsClosureComponent) {
   /**
   @module ember
   @submodule ember-htmlbars
@@ -8731,6 +8806,22 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
           params[0] = shouldDisplay(params[0]);break;
         case 'each':
           params[0] = eachParam(params[0]);break;
+      }
+    }
+
+    // If has a dot in the path, we need to subscribe to the arguments in the
+    // closure component as well.
+
+    if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(path)) {
+      var stream = env.hooks.get(env, scope, path);
+      var componentCell = stream.value();
+
+      if (_emberHtmlbarsKeywordsClosureComponent.isComponentCell(componentCell)) {
+        var closureAttrs = _emberHtmlbarsKeywordsClosureComponent.mergeInNewHash(componentCell[_emberHtmlbarsKeywordsClosureComponent.COMPONENT_HASH], hash);
+
+        for (var key in closureAttrs) {
+          _emberHtmlbarsUtilsSubscribe.default(renderNode, env, scope, closureAttrs[key]);
+        }
       }
     }
 
@@ -10033,7 +10124,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -10938,7 +11029,7 @@ enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exp
 
   exports.default = keywords;
 });
-enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom-helper'], function (exports, _emberMetalDebug, _domHelper) {
+enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom-helper', 'ember-metal/is_none'], function (exports, _emberMetalDebug, _domHelper, _emberMetalIs_none) {
   'use strict';
 
   var HTMLBarsAttrMorph = _domHelper.default.prototype.AttrMorphClass;
@@ -10957,7 +11048,7 @@ enifed('ember-htmlbars/morphs/attr-morph', ['exports', 'ember-metal/debug', 'dom
   function deprecateEscapedStyle(morph, value) {
     _emberMetalDebug.warn(styleWarning, (function (name, value, escaped) {
       // SafeString
-      if (value && value.toHTML) {
+      if (_emberMetalIs_none.default(value) || value && value.toHTML) {
         return true;
       }
 
@@ -15780,7 +15871,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2
+    @version 2.3.0-beta.3
     @public
   */
 
@@ -15824,11 +15915,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2'
+    @default '2.3.0-beta.3'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2';
+  Ember.VERSION = '2.3.0-beta.3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17244,6 +17335,12 @@ enifed('ember-metal/libraries', ['exports', 'ember-metal/debug', 'ember-metal/fe
     }
   };
 
+  if (_emberMetalFeatures.default('ember-libraries-isregistered')) {
+    Libraries.prototype.isRegistered = function (name) {
+      return !!this._getLibraryByName(name);
+    };
+  }
+
   exports.default = Libraries;
 });
 enifed('ember-metal/logger', ['exports', 'ember-metal/core', 'ember-metal/error'], function (exports, _emberMetalCore, _emberMetalError) {
@@ -17915,6 +18012,9 @@ enifed('ember-metal/merge', ['exports', 'ember-metal/debug', 'ember-metal/featur
   */
 
   function merge(original, updates) {
+    if (_emberMetalFeatures.default('ember-metal-ember-assign')) {
+      _emberMetalDebug.deprecate('Usage of `Ember.merge` is deprecated, use `Ember.assign` instead.', false, { id: 'ember-metal.merge', until: '3.0.0' });
+    }
 
     if (!updates || typeof updates !== 'object') {
       return original;
@@ -23260,7 +23360,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
   _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
   _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
   // END IMPORTS
 
@@ -25346,7 +25445,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
        ```javascript
       App.ArticlesRoute = Ember.Route.extend({
         // ...
-         resetController: function (controller, isExiting, transition) {
+         resetController: function(controller, isExiting, transition) {
           if (isExiting) {
             controller.set('page', 1);
           }
@@ -26440,7 +26539,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
         model: function() {
           return this.store.find('photo');
         },
-         setupController: function (controller, model) {
+         setupController: function(controller, model) {
           // Call _super for default behavior
           this._super(controller, model);
           // Implement your custom setup after
@@ -29537,7 +29636,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.2';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.3';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30027,7 +30126,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.2';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36355,14 +36454,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     eachComputedProperty: function (callback, binding) {
-      var property, name;
+      var property;
       var empty = {};
 
       var properties = _emberMetalProperty_get.get(this, '_computedProperties');
 
       for (var i = 0, length = properties.length; i < length; i++) {
         property = properties[i];
-        name = property.name;
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
@@ -37274,7 +37372,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function () {
+      fullName: function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
@@ -37437,7 +37535,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
   }
 
   function fmt(str, formats) {
-    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
+    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
     return _fmt.apply(undefined, arguments);
   }
 
@@ -37506,7 +37604,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       @param {Array} formats An array of parameters to interpolate into string.
       @return {String} formatted string
       @public
-      @deprecated Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');
+      @deprecated Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings
     */
     fmt: fmt,
 
@@ -37640,7 +37738,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       'action_name'.capitalize()       // 'Action_name'
       'css-class-name'.capitalize()    // 'Css-class-name'
       'my favorite items'.capitalize() // 'My favorite items'
-      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'
+      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/ownerInvoice'
       ```
        @method capitalize
       @param {String} str The string to capitalize.
@@ -37861,6 +37959,7 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'em
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
+  EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
 
   _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
@@ -38793,6 +38892,9 @@ enifed('ember-template-compiler/plugins/transform-top-level-components', ['expor
 
     if (lastComponentNode.type === 'ComponentNode') {
       componentCallback(lastComponentNode);
+    } else if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+      var component = elementCallback(lastComponentNode);
+      body.splice(lastIndex, 1, component);
     }
   }
 
@@ -38945,6 +39047,9 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
   exports.default = function (_options) {
     var disableComponentGeneration = true;
+    if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
+      disableComponentGeneration = false;
+    }
 
     var options = undefined;
     // When calling `Ember.Handlebars.compile()` a second argument of `true`
@@ -38970,7 +39075,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.2',
+        revision: 'Ember@2.3.0-beta.3',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44260,7 +44365,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.2';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.3';
 
   /**
   @module ember
@@ -46874,7 +46979,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
     return {
       meta: template.meta,
       arity: template.arity,
-      yield: yieldArgs,
+      'yield': yieldArgs, // quoted since it's a reserved word, see issue #420
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
       raw: template,
 
@@ -47061,7 +47166,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
   function thisFor(options) {
     return {
       arity: options.template.arity,
-      yield: options.template.yield,
+      'yield': options.template.yield, // quoted since it's a reserved word, see issue #420
       yieldItem: options.template.yieldItem,
       yieldIn: options.template.yieldIn
     };
@@ -47550,7 +47655,8 @@ enifed("htmlbars-runtime/hooks", ["exports", "htmlbars-runtime/render", "morph-r
       return true;
     },
 
-    yield: function (morph, env, scope, params, hash, template, inverse, visitor) {
+    // quoted since it's a reserved word, see issue #420
+    'yield': function (morph, env, scope, params, hash, template, inverse, visitor) {
       // the current scope is provided purely for the creation of shadow
       // scopes; it should not be provided to user code.
 
@@ -49050,7 +49156,7 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
         // If we don't see the key in handledMorphs, it wasn't
         // yielded in and we can safely remove it from DOM.
         if (!(item.key in handledMorphs)) {
-          delete morphMap[item.key];
+          morphMap[item.key] = undefined;
           clearMorph(item, env, true);
           item.destroy();
         }
@@ -49113,7 +49219,7 @@ enifed("htmlbars-util/template-utils", ["exports", "htmlbars-util/morph-utils", 
 
     while (item) {
       var next = item.nextMorph;
-      delete morph.morphMap[item.key];
+      morph.morphMap[item.key] = undefined;
       clearMorph(item, env, true);
       item.destroy();
 

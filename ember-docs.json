@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.3.0-beta.2"
+        "version": "v2.3.0-beta.3"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -2573,7 +2573,7 @@
             "submodule": "ember-application",
             "namespace": "@Ember.ApplicationInstance",
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 347,
+            "line": 360,
             "description": "A list of boot-time configuration options for customizing the behavior of\nan `Ember.ApplicationInstance`.\n\nThis is an interface class that exists purely to document the available\noptions; you do not need to construct it manually. Simply pass a regular\nJavaScript object containing the desired options into methods that require\none of these options object:\n\n```javascript\nMyApp.visit(\"/\", { location: \"none\", rootElement: \"#container\" });\n```\n\nNot all combinations of the supported options are valid. See the documentation\non `Ember.Application#visit` for the supported configurations.\n\nInternal, experimental or otherwise unstable flags are marked as private.",
             "access": "public",
             "tagname": ""
@@ -3007,7 +3007,7 @@
             "submodule": "ember-metal",
             "namespace": "",
             "file": "packages/ember-metal/lib/main.js",
-            "line": 306,
+            "line": 304,
             "access": "private",
             "tagname": ""
         },
@@ -3837,7 +3837,7 @@
             "namespace": "Ember",
             "file": "packages/ember-runtime/lib/system/object_proxy.js",
             "line": 4,
-            "description": "`Ember.ObjectProxy` forwards all properties not defined by the proxy itself\nto a proxied `content` object.\n\n```javascript\nobject = Ember.Object.create({\n  name: 'Foo'\n});\n\nproxy = Ember.ObjectProxy.create({\n  content: object\n});\n\n// Access and change existing properties\nproxy.get('name')          // 'Foo'\nproxy.set('name', 'Bar');\nobject.get('name')         // 'Bar'\n\n// Create new 'description' property on `object`\nproxy.set('description', 'Foo is a whizboo baz');\nobject.get('description')  // 'Foo is a whizboo baz'\n```\n\nWhile `content` is unset, setting a property to be delegated will throw an\nError.\n\n```javascript\nproxy = Ember.ObjectProxy.create({\n  content: null,\n  flag: null\n});\nproxy.set('flag', true);\nproxy.get('flag');         // true\nproxy.get('foo');          // undefined\nproxy.set('foo', 'data');  // throws Error\n```\n\nDelegated properties can be bound to and will change when content is updated.\n\nComputed properties on the proxy itself can depend on delegated properties.\n\n```javascript\nProxyWithComputedProperty = Ember.ObjectProxy.extend({\n  fullName: function () {\n    var firstName = this.get('firstName'),\n        lastName = this.get('lastName');\n    if (firstName && lastName) {\n      return firstName + ' ' + lastName;\n    }\n    return firstName || lastName;\n  }.property('firstName', 'lastName')\n});\n\nproxy = ProxyWithComputedProperty.create();\n\nproxy.get('fullName');  // undefined\nproxy.set('content', {\n  firstName: 'Tom', lastName: 'Dale'\n}); // triggers property change for fullName on proxy\n\nproxy.get('fullName');  // 'Tom Dale'\n```",
+            "description": "`Ember.ObjectProxy` forwards all properties not defined by the proxy itself\nto a proxied `content` object.\n\n```javascript\nobject = Ember.Object.create({\n  name: 'Foo'\n});\n\nproxy = Ember.ObjectProxy.create({\n  content: object\n});\n\n// Access and change existing properties\nproxy.get('name')          // 'Foo'\nproxy.set('name', 'Bar');\nobject.get('name')         // 'Bar'\n\n// Create new 'description' property on `object`\nproxy.set('description', 'Foo is a whizboo baz');\nobject.get('description')  // 'Foo is a whizboo baz'\n```\n\nWhile `content` is unset, setting a property to be delegated will throw an\nError.\n\n```javascript\nproxy = Ember.ObjectProxy.create({\n  content: null,\n  flag: null\n});\nproxy.set('flag', true);\nproxy.get('flag');         // true\nproxy.get('foo');          // undefined\nproxy.set('foo', 'data');  // throws Error\n```\n\nDelegated properties can be bound to and will change when content is updated.\n\nComputed properties on the proxy itself can depend on delegated properties.\n\n```javascript\nProxyWithComputedProperty = Ember.ObjectProxy.extend({\n  fullName: function() {\n    var firstName = this.get('firstName'),\n        lastName = this.get('lastName');\n    if (firstName && lastName) {\n      return firstName + ' ' + lastName;\n    }\n    return firstName || lastName;\n  }.property('firstName', 'lastName')\n});\n\nproxy = ProxyWithComputedProperty.create();\n\nproxy.get('fullName');  // undefined\nproxy.set('content', {\n  firstName: 'Tom', lastName: 'Dale'\n}); // triggers property change for fullName on proxy\n\nproxy.get('fullName');  // 'Tom Dale'\n```",
             "extends": "Ember._ProxyMixin",
             "access": "public",
             "tagname": ""
@@ -4922,7 +4922,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 118,
+            "line": 116,
             "description": "Initialize the `Ember.ApplicationInstance` and return a promise that resolves\nwith the instance itself when the boot process is complete.\n\nThe primary task here is to run any registered instance initializers.\n\nSee the documentation on `BootOptions` for the options it takes.",
             "access": "private",
             "tagname": "",
@@ -4944,7 +4944,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 139,
+            "line": 137,
             "description": "Unfortunately, a lot of existing code assumes booting an instance is\nsynchronous – specifically, a lot of tests assumes the last call to\n`app.advanceReadiness()` or `app.reset()` will result in a new instance\nbeing fully-booted when the current runloop completes.\n\nWe would like new code (like the `visit` API) to stop making this assumption,\nso we created the asynchronous version above that returns a promise. But until\nwe have migrated all the code, we would have to expose this method for use\n*internally* in places where we need to boot an instance synchronously.",
             "access": "private",
             "tagname": "",
@@ -4954,7 +4954,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 203,
+            "line": 201,
             "description": "This hook is called by the root-most Route (a.k.a. the ApplicationRoute)\nwhen it has finished creating the root View. By default, we simply take the\nview and append it to the `rootElement` specified on the Application.\n\nIn cases like FastBoot and testing, we can override this hook and implement\ncustom behavior, such as serializing to a string and sending over an HTTP\nsocket rather than appending to DOM.",
             "params": [
                 {
@@ -4971,7 +4971,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 219,
+            "line": 217,
             "description": "Tells the router to start routing. The router will ask the location for the\ncurrent URL of the page to determine the initial URL to start routing to.\nTo start the app at a specific URL, call `handleURL` instead.",
             "access": "private",
             "tagname": "",
@@ -4981,7 +4981,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 232,
+            "line": 230,
             "access": "private",
             "tagname": "Sets up the router, initializing the child router and configuring the\nlocation before routing begins.\n\nBecause setup should only occur once, multiple calls to `setupRouter`\nbeyond the first call have no effect.",
             "class": "Ember.ApplicationInstance",
@@ -4990,7 +4990,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 249,
+            "line": 247,
             "description": "Directs the router to route to a particular URL. This is useful in tests,\nfor example, to tell the app to start at a particular URL.",
             "params": [
                 {
@@ -5007,7 +5007,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 263,
+            "line": 261,
             "access": "private",
             "tagname": "",
             "class": "Ember.ApplicationInstance",
@@ -5016,7 +5016,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 277,
+            "line": 275,
             "access": "private",
             "tagname": "",
             "class": "Ember.ApplicationInstance",
@@ -5025,7 +5025,26 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 288,
+            "line": 283,
+            "description": "Unregister a factory.\n\nOverrides `RegistryProxy#unregister` in order to clear any cached instances\nof the unregistered factory.",
+            "access": "public",
+            "tagname": "",
+            "itemtype": "method",
+            "name": "unregister",
+            "params": [
+                {
+                    "name": "fullName",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "class": "Ember.ApplicationInstance",
+            "module": "ember",
+            "submodule": "ember-application"
+        },
+        {
+            "file": "packages/ember-application/lib/system/application-instance.js",
+            "line": 301,
             "description": "Returns the current URL of the app instance. This is useful when your\napp does not update the browsers URL bar (i.e. it uses the `'none'`\nlocation adapter).",
             "access": "public",
             "tagname": "",
@@ -5039,7 +5058,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 304,
+            "line": 317,
             "description": "Navigate the instance to a particular URL. This is useful in tests, for\nexample, or to tell the app to start at a particular URL. This method\nreturns a promise that resolves with the app instance when the transition\nis complete, or rejects if the transion was aborted due to an error.",
             "access": "public",
             "tagname": "",
@@ -5060,7 +5079,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 370,
+            "line": 383,
             "description": "Provide a specific instance of jQuery. This is useful in conjunction with\nthe `document` option, as it allows you to use a copy of `jQuery` that is\nappropriately bound to the foreign `document` (e.g. a jsdom).\n\nThis is highly experimental and support very incomplete at the moment.",
             "itemtype": "property",
             "name": "jQuery",
@@ -5075,7 +5094,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 384,
+            "line": 397,
             "description": "Interactive mode: whether we need to set up event delegation and invoke\nlifecycle callbacks on Components.",
             "itemtype": "property",
             "name": "isInteractive",
@@ -5090,7 +5109,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 395,
+            "line": 408,
             "description": "Run in a full browser environment.\n\nWhen this flag is set to `false`, it will disable most browser-specific\nand interactive features. Specifically:\n\n* It does not use `jQuery` to append the root view; the `rootElement`\n  (either specified as a subsequent option or on the application itself)\n  must already be an `Element` in the given `document` (as opposed to a\n  string selector).\n\n* It does not set up an `EventDispatcher`.\n\n* It does not run any `Component` lifecycle hooks (such as `didInsertElement`).\n\n* It sets the `location` option to `\"none\"`. (If you would like to use\n  the location adapter specified in the app's router instead, you can also\n  specify `{ location: null }` to specifically opt-out.)",
             "itemtype": "property",
             "name": "isBrowser",
@@ -5105,7 +5124,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 431,
+            "line": 444,
             "description": "Disable rendering completely.\n\nWhen this flag is set to `true`, it will disable the entire rendering\npipeline. Essentially, this puts the app into \"routing-only\" mode. No\ntemplates will be rendered, and no Components will be created.",
             "itemtype": "property",
             "name": "shouldRender",
@@ -5120,7 +5139,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 454,
+            "line": 467,
             "description": "If present, render into the given `Document` object instead of the\nglobal `window.document` object.\n\nIn practice, this is only useful in non-browser environment or in\nnon-interactive mode, because Ember's `jQuery` dependency is\nimplicitly bound to the current document, causing event delegation\nto not work properly when the app is rendered into a foreign\ndocument object (such as an iframe's `contentDocument`).\n\nIn non-browser mode, this could be a \"`Document`-like\" object as\nEmber only interact with a small subset of the DOM API in non-\ninteractive mode. While the exact requirements have not yet been\nformalized, the `SimpleDOM` library's implementation is known to\nwork.",
             "itemtype": "property",
             "name": "document",
@@ -5135,7 +5154,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 481,
+            "line": 494,
             "description": "If present, overrides the application's `rootElement` property on\nthe instance. This is useful for testing environment, where you\nmight want to append the root view to a fixture area.\n\nIn non-browser mode, because Ember does not have access to jQuery,\nthis options must be specified as a DOM `Element` object instead of\na selector string.\n\nSee the documentation on `Ember.Applications`'s `rootElement` for\ndetails.",
             "itemtype": "property",
             "name": "rootElement",
@@ -5150,7 +5169,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
-            "line": 506,
+            "line": 519,
             "description": "If present, overrides the router's `location` property with this\nvalue. This is useful for environments where trying to modify the\nURL would be inappropriate.",
             "itemtype": "property",
             "name": "location",
@@ -5566,7 +5585,7 @@
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
-            "line": 1417,
+            "line": 1415,
             "description": "This function defines the default lookup rules for container lookups:\n\n* templates are looked up on `Ember.TEMPLATES`\n* other names are looked up on the application after classifying the name.\n  For example, `controller:post` looks up `App.PostController` by default.\n* if the default lookup fails, look for registered classes on the container\n\nThis allows the application to register default injections in the container\nthat could be overridden by the normal naming convention.",
             "access": "private",
             "tagname": "",
@@ -6765,7 +6784,7 @@
         {
             "file": "packages/ember-htmlbars/lib/helpers/with.js",
             "line": 8,
-            "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0` or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
+            "description": "Use the `{{with}}` helper when you want to alias a property to a new name. This is helpful\nfor semantic clarity as it allows you to retain default scope or to reference a property from another\n`{{with}}` block.\n\nIf the aliased property is \"falsey\", for example: `false`, `undefined` `null`, `\"\"`, `0`, NaN or\nan empty array, the block will not be rendered.\n\n```handlebars\n{{! Will only render if user.posts contains items}}\n{{#with user.posts as |blogPosts|}}\n  <div class=\"notice\">\n    There are {{blogPosts.length}} blog posts written by {{user.name}}.\n  </div>\n  {{#each blogPosts as |post|}}\n    <li>{{post.title}}</li>\n  {{/each}}\n{{/with}}\n```\n\nWithout the `as` operator, it would be impossible to reference `user.name` in the example above.\n\nNOTE: The alias should not reuse a name from the bound property path.\nFor example: `{{#with foo.bar as |foo|}}` is not supported because it attempts to alias using\nthe first part of the property path, `foo`. Instead, use `{{#with foo.bar as |baz|}}`.",
             "itemtype": "method",
             "name": "with",
             "params": [
@@ -8876,7 +8895,7 @@
         },
         {
             "file": "packages/ember-metal/lib/main.js",
-            "line": 334,
+            "line": 332,
             "description": "A function may be assigned to `Ember.onerror` to be called when Ember\ninternals encounter an error. This is useful for specialized error handling\nand reporting code.\n\n```javascript\nEmber.onerror = function(error) {\n  Em.$.ajax('/report-error', 'POST', {\n    stack: error.stack,\n    otherInformation: 'whatever app state you want to provide'\n  });\n};\n```\n\nInternally, `Ember.onerror` is used as Backburner's error handler.",
             "itemtype": "event",
             "name": "onerror",
@@ -12199,7 +12218,7 @@
         {
             "file": "packages/ember-routing/lib/system/route.js",
             "line": 406,
-            "description": "A hook you can use to reset controller values either when the model\nchanges or the route is exiting.\n\n```javascript\nApp.ArticlesRoute = Ember.Route.extend({\n  // ...\n\n  resetController: function (controller, isExiting, transition) {\n    if (isExiting) {\n      controller.set('page', 1);\n    }\n  }\n});\n```",
+            "description": "A hook you can use to reset controller values either when the model\nchanges or the route is exiting.\n\n```javascript\nApp.ArticlesRoute = Ember.Route.extend({\n  // ...\n\n  resetController: function(controller, isExiting, transition) {\n    if (isExiting) {\n      controller.set('page', 1);\n    }\n  }\n});\n```",
             "itemtype": "method",
             "name": "resetController",
             "params": [
@@ -12836,7 +12855,7 @@
         {
             "file": "packages/ember-routing/lib/system/route.js",
             "line": 1609,
-            "description": "A hook you can use to setup the controller for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook.\n\nBy default, the `setupController` hook sets the `model` property of\nthe controller to the `model`.\n\nIf you implement the `setupController` hook in your Route, it will\nprevent this default behavior. If you want to preserve that behavior\nwhen implementing your `setupController` function, make sure to call\n`_super`:\n\n```javascript\nApp.PhotosRoute = Ember.Route.extend({\n  model: function() {\n    return this.store.find('photo');\n  },\n\n  setupController: function (controller, model) {\n    // Call _super for default behavior\n    this._super(controller, model);\n    // Implement your custom setup after\n    this.controllerFor('application').set('showingPhotos', true);\n  }\n});\n```\n\nThe provided controller will be one resolved based on the name\nof this route.\n\nIf no explicit controller is defined, Ember will automatically create one.\n\nAs an example, consider the router:\n\n```javascript\nApp.Router.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n```\n\nFor the `post` route, a controller named `App.PostController` would\nbe used if it is defined. If it is not defined, a basic `Ember.Controller`\ninstance would be used.\n\nExample\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  setupController: function(controller, model) {\n    controller.set('model', model);\n  }\n});\n```",
+            "description": "A hook you can use to setup the controller for the current route.\n\nThis method is called with the controller for the current route and the\nmodel supplied by the `model` hook.\n\nBy default, the `setupController` hook sets the `model` property of\nthe controller to the `model`.\n\nIf you implement the `setupController` hook in your Route, it will\nprevent this default behavior. If you want to preserve that behavior\nwhen implementing your `setupController` function, make sure to call\n`_super`:\n\n```javascript\nApp.PhotosRoute = Ember.Route.extend({\n  model: function() {\n    return this.store.find('photo');\n  },\n\n  setupController: function(controller, model) {\n    // Call _super for default behavior\n    this._super(controller, model);\n    // Implement your custom setup after\n    this.controllerFor('application').set('showingPhotos', true);\n  }\n});\n```\n\nThe provided controller will be one resolved based on the name\nof this route.\n\nIf no explicit controller is defined, Ember will automatically create one.\n\nAs an example, consider the router:\n\n```javascript\nApp.Router.map(function() {\n  this.route('post', { path: '/posts/:post_id' });\n});\n```\n\nFor the `post` route, a controller named `App.PostController` would\nbe used if it is defined. If it is not defined, a basic `Ember.Controller`\ninstance would be used.\n\nExample\n\n```javascript\nApp.PostRoute = Ember.Route.extend({\n  setupController: function(controller, model) {\n    controller.set('model', model);\n  }\n});\n```",
             "itemtype": "method",
             "name": "setupController",
             "params": [
@@ -17089,7 +17108,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 904,
+            "line": 903,
             "description": "Provides lookup-time type validation for injected properties.",
             "access": "private",
             "tagname": "",
@@ -17102,7 +17121,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/system/core_object.js",
-            "line": 913,
+            "line": 912,
             "description": "Returns a hash of property names and container names that injected\nproperties will lookup on the container lazily.",
             "itemtype": "method",
             "name": "_lazyInjections",
@@ -17230,7 +17249,7 @@
             "access": "public",
             "tagname": "",
             "deprecated": true,
-            "deprecationMessage": "Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');",
+            "deprecationMessage": "Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings",
             "class": "Ember.String",
             "module": "ember",
             "submodule": "ember-runtime",
@@ -17412,7 +17431,7 @@
         {
             "file": "packages/ember-runtime/lib/system/string.js",
             "line": 319,
-            "description": "Returns the Capitalized form of a string\n\n```javascript\n'innerHTML'.capitalize()         // 'InnerHTML'\n'action_name'.capitalize()       // 'Action_name'\n'css-class-name'.capitalize()    // 'Css-class-name'\n'my favorite items'.capitalize() // 'My favorite items'\n'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'\n```",
+            "description": "Returns the Capitalized form of a string\n\n```javascript\n'innerHTML'.capitalize()         // 'InnerHTML'\n'action_name'.capitalize()       // 'Action_name'\n'css-class-name'.capitalize()    // 'Css-class-name'\n'my favorite items'.capitalize() // 'My favorite items'\n'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/ownerInvoice'\n```",
             "itemtype": "method",
             "name": "capitalize",
             "params": [
@@ -17559,7 +17578,7 @@
         },
         {
             "file": "packages/ember-runtime/lib/main.js",
-            "line": 160,
+            "line": 162,
             "description": "Defines the hash of localized strings for the current language. Used by\nthe `Ember.String.loc()` helper. To localize, add string values to this\nhash.",
             "itemtype": "property",
             "name": "STRINGS",
@@ -20177,39 +20196,39 @@
         },
         {
             "message": "Missing item type\nUnfortunately, a lot of existing code assumes booting an instance is\nsynchronous – specifically, a lot of tests assumes the last call to\n`app.advanceReadiness()` or `app.reset()` will result in a new instance\nbeing fully-booted when the current runloop completes.\n\nWe would like new code (like the `visit` API) to stop making this assumption,\nso we created the asynchronous version above that returns a promise. But until\nwe have migrated all the code, we would have to expose this method for use\n*internally* in places where we need to boot an instance synchronously.",
-            "line": " packages/ember-application/lib/system/application-instance.js:139"
+            "line": " packages/ember-application/lib/system/application-instance.js:137"
         },
         {
             "message": "Missing item type\nThis hook is called by the root-most Route (a.k.a. the ApplicationRoute)\nwhen it has finished creating the root View. By default, we simply take the\nview and append it to the `rootElement` specified on the Application.\n\nIn cases like FastBoot and testing, we can override this hook and implement\ncustom behavior, such as serializing to a string and sending over an HTTP\nsocket rather than appending to DOM.",
-            "line": " packages/ember-application/lib/system/application-instance.js:203"
+            "line": " packages/ember-application/lib/system/application-instance.js:201"
         },
         {
             "message": "Missing item type\nTells the router to start routing. The router will ask the location for the\ncurrent URL of the page to determine the initial URL to start routing to.\nTo start the app at a specific URL, call `handleURL` instead.",
-            "line": " packages/ember-application/lib/system/application-instance.js:219"
+            "line": " packages/ember-application/lib/system/application-instance.js:217"
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-application/lib/system/application-instance.js:232"
+            "line": " packages/ember-application/lib/system/application-instance.js:230"
         },
         {
             "message": "Missing item type\nDirects the router to route to a particular URL. This is useful in tests,\nfor example, to tell the app to start at a particular URL.",
-            "line": " packages/ember-application/lib/system/application-instance.js:249"
+            "line": " packages/ember-application/lib/system/application-instance.js:247"
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-application/lib/system/application-instance.js:263"
+            "line": " packages/ember-application/lib/system/application-instance.js:261"
         },
         {
             "message": "Missing item type",
-            "line": " packages/ember-application/lib/system/application-instance.js:277"
+            "line": " packages/ember-application/lib/system/application-instance.js:275"
         },
         {
             "message": "Missing item type\nReturns the current URL of the app instance. This is useful when your\napp does not update the browsers URL bar (i.e. it uses the `'none'`\nlocation adapter).",
-            "line": " packages/ember-application/lib/system/application-instance.js:288"
+            "line": " packages/ember-application/lib/system/application-instance.js:301"
         },
         {
             "message": "Missing item type\nNavigate the instance to a particular URL. This is useful in tests, for\nexample, or to tell the app to start at a particular URL. This method\nreturns a promise that resolves with the app instance when the transition\nis complete, or rejects if the transion was aborted due to an error.",
-            "line": " packages/ember-application/lib/system/application-instance.js:304"
+            "line": " packages/ember-application/lib/system/application-instance.js:317"
         },
         {
             "message": "Missing item type\nUnfortunately, a lot of existing code assumes the booting process is\n\"synchronous\". Specifically, a lot of tests assumes the last call to\n`app.advanceReadiness()` or `app.reset()` will result in the app being\nfully-booted when the current runloop completes.\n\nWe would like new code (like the `visit` API) to stop making this assumption,\nso we created the asynchronous version above that returns a promise. But until\nwe have migrated all the code, we would have to expose this method for use\n*internally* in places where we need to boot an app \"synchronously\".",

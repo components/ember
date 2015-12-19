@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2
+ * @version   2.3.0-beta.3
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1189,8 +1189,10 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
     clearTimeout(item[2]);
   }
 });
-enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy) {
+enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/dictionary', 'ember-metal/features', 'container/owner', 'ember-runtime/mixins/container_proxy', 'ember-metal/symbol'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalDictionary, _emberMetalFeatures, _containerOwner, _emberRuntimeMixinsContainer_proxy, _emberMetalSymbol) {
   'use strict';
+
+  var CONTAINER_OVERRIDE = _emberMetalSymbol.default('CONTAINER_OVERRIDE');
 
   /**
    A container used to instantiate and cache objects.
@@ -1214,6 +1216,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
     if (_emberMetalFeatures.default('ember-container-inject-owner')) {
       this._fakeContainerToInject = _emberRuntimeMixinsContainer_proxy.buildFakeContainerWithDeprecations(this);
+      this[CONTAINER_OVERRIDE] = undefined;
     }
   }
 
@@ -1531,7 +1534,9 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
 
         // TODO - remove when Ember reaches v3.0.0
         if (_emberMetalFeatures.default('ember-container-inject-owner')) {
-          injectDeprecatedContainer(obj, container);
+          if (!Object.isFrozen(obj) && 'container' in obj) {
+            injectDeprecatedContainer(obj, container);
+          }
         }
       }
 
@@ -1546,7 +1551,15 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       enumerable: false,
       get: function () {
         _emberMetalDebug.deprecate('Using the injected `container` is deprecated. Please use the `getOwner` helper instead to access the owner of this object.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
-        return container;
+        return this[CONTAINER_OVERRIDE] || container;
+      },
+
+      set: function (value) {
+        _emberMetalDebug.deprecate('Providing the `container` property to ' + this + ' is deprecated. Please use `Ember.setOwner` or `owner.ownerInjection()` instead to provide an owner to the instance being created.', false, { id: 'ember-application.injected-container', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_injected-container-access' });
+
+        this[CONTAINER_OVERRIDE] = value;
+
+        return value;
       }
     });
   }
@@ -1685,7 +1698,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
   function Registry(options) {
     this.fallback = options && options.fallback ? options.fallback : null;
 
-    this.resolver = options && options.resolver ? options.resolver : function () {};
+    if (options && options.resolver) {
+      this.resolver = options.resolver;
+
+      if (typeof this.resolver === 'function') {
+        deprecateResolverFunction(this);
+      }
+    }
 
     this.registrations = _emberMetalDictionary.default(options && options.registrations ? options.registrations : null);
 
@@ -1712,9 +1731,10 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     fallback: null,
 
     /**
-     @private
+     An object that has a `resolve` method that resolves a name.
+      @private
      @property resolver
-     @type function
+     @type Resolver
      */
     resolver: null,
 
@@ -1896,7 +1916,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} described fullName
      */
     describe: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.lookupDescription) {
+        return this.resolver.lookupDescription(fullName);
+      } else if (this.fallback) {
+        return this.fallback.describe(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1907,7 +1933,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {string} normalized fullName
      */
     normalizeFullName: function (fullName) {
-      return fullName;
+      if (this.resolver && this.resolver.normalize) {
+        return this.resolver.normalize(fullName);
+      } else if (this.fallback) {
+        return this.fallback.normalizeFullName(fullName);
+      } else {
+        return fullName;
+      }
     },
 
     /**
@@ -1929,7 +1961,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
      @return {function} toString function
      */
     makeToString: function (factory, fullName) {
-      return factory.toString();
+      if (this.resolver && this.resolver.makeToString) {
+        return this.resolver.makeToString(factory, fullName);
+      } else if (this.fallback) {
+        return this.fallback.makeToString(factory, fullName);
+      } else {
+        return factory.toString();
+      }
     },
 
     /**
@@ -2220,7 +2258,7 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
         fallbackKnown = this.fallback.knownForType(type);
       }
 
-      if (this.resolver.knownForType) {
+      if (this.resolver && this.resolver.knownForType) {
         resolverKnown = this.resolver.knownForType(type);
       }
 
@@ -2300,6 +2338,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
     }
   };
 
+  function deprecateResolverFunction(registry) {
+    _emberMetalDebug.deprecate('Passing a `resolver` function into a Registry is deprecated. Please pass in a Resolver object with a `resolve` method.', false, { id: 'ember-application.registry-resolver-as-function', until: '3.0.0', url: 'http://emberjs.com/deprecations/v2.x#toc_registry-resolver-as-function' });
+    registry.resolver = {
+      resolve: registry.resolver
+    };
+  }
+
   function resolve(registry, normalizedName) {
     var cached = registry._resolveCache[normalizedName];
     if (cached) {
@@ -2309,7 +2354,13 @@ enifed('container/registry', ['exports', 'ember-metal/debug', 'ember-metal/dicti
       return;
     }
 
-    var resolved = registry.resolver(normalizedName) || registry.registrations[normalizedName];
+    var resolved = undefined;
+
+    if (registry.resolver) {
+      resolved = registry.resolver.resolve(normalizedName);
+    }
+
+    resolved = resolved || registry.registrations[normalizedName];
 
     if (resolved) {
       registry._resolveCache[normalizedName] = resolved;
@@ -4743,7 +4794,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2
+    @version 2.3.0-beta.3
     @public
   */
 
@@ -4787,11 +4838,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2'
+    @default '2.3.0-beta.3'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2';
+  Ember.VERSION = '2.3.0-beta.3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11969,7 +12020,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
   _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
   _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
   // END IMPORTS
 
@@ -18417,14 +18467,13 @@ enifed('ember-runtime/system/core_object', ['exports', 'ember-metal/debug', 'emb
       @private
     */
     eachComputedProperty: function (callback, binding) {
-      var property, name;
+      var property;
       var empty = {};
 
       var properties = _emberMetalProperty_get.get(this, '_computedProperties');
 
       for (var i = 0, length = properties.length; i < length; i++) {
         property = properties[i];
-        name = property.name;
         callback.call(binding || this, property.name, property.meta || empty);
       }
     }
@@ -19336,7 +19385,7 @@ enifed('ember-runtime/system/object_proxy', ['exports', 'ember-runtime/system/ob
   
     ```javascript
     ProxyWithComputedProperty = Ember.ObjectProxy.extend({
-      fullName: function () {
+      fullName: function() {
         var firstName = this.get('firstName'),
             lastName = this.get('lastName');
         if (firstName && lastName) {
@@ -19499,7 +19548,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
   }
 
   function fmt(str, formats) {
-    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'https://babeljs.io/docs/learn-es6/#template-strings' });
+    _emberMetalDebug.deprecate('Ember.String.fmt is deprecated, use ES6 template strings instead.', false, { id: 'ember-string-utils.fmt', until: '3.0.0', url: 'http://babeljs.io/docs/learn-es2015/#template-strings' });
     return _fmt.apply(undefined, arguments);
   }
 
@@ -19568,7 +19617,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       @param {Array} formats An array of parameters to interpolate into string.
       @return {String} formatted string
       @public
-      @deprecated Use ES6 template strings instead: https://babeljs.io/docs/learn-es6/#template-strings');
+      @deprecated Use ES6 template strings instead: http://babeljs.io/docs/learn-es2015/#template-strings
     */
     fmt: fmt,
 
@@ -19702,7 +19751,7 @@ enifed('ember-runtime/system/string', ['exports', 'ember-metal/debug', 'ember-me
       'action_name'.capitalize()       // 'Action_name'
       'css-class-name'.capitalize()    // 'Css-class-name'
       'my favorite items'.capitalize() // 'My favorite items'
-      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/OwnerInvoice'
+      'privateDocs/ownerInvoice'.capitalize(); // 'PrivateDocs/ownerInvoice'
       ```
        @method capitalize
       @param {String} str The string to capitalize.
@@ -19923,6 +19972,7 @@ enifed('ember-runtime', ['exports', 'ember-metal', 'ember-runtime/is-equal', 'em
   EmComputed.uniq = _emberRuntimeComputedReduce_computed_macros.uniq;
   EmComputed.union = _emberRuntimeComputedReduce_computed_macros.union;
   EmComputed.intersect = _emberRuntimeComputedReduce_computed_macros.intersect;
+  EmComputed.collect = _emberRuntimeComputedReduce_computed_macros.collect;
 
   _emberMetal.default.String = _emberRuntimeSystemString.default;
   _emberMetal.default.Object = _emberRuntimeSystemObject.default;
