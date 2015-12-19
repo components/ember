@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+41030996
+ * @version   2.3.0-beta.2+9a4b10a8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4130,7 +4130,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.2+41030996
+    @version 2.3.0-beta.2+9a4b10a8
     @public
   */
 
@@ -4174,11 +4174,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.2+41030996'
+    @default '2.3.0-beta.2+9a4b10a8'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.2+41030996';
+  Ember.VERSION = '2.3.0-beta.2+9a4b10a8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11325,7 +11325,6 @@ enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/debug', 'embe
   _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
   _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
   _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
   // END IMPORTS
 
@@ -12563,7 +12562,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.2+41030996',
+        revision: 'Ember@2.3.0-beta.2+9a4b10a8',
         loc: program.loc,
         moduleName: options.moduleName
       };

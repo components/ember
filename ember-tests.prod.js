@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.2+41030996
+ * @version   2.3.0-beta.2+9a4b10a8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -41120,6 +41120,27 @@ enifed('ember-runtime/tests/legacy_1x/system/run_loop_test', ['exports', 'ember-
     equal(MyApp.second.get('output'), 'change');
   });
 });
+enifed('ember-runtime/tests/main_test', ['exports', 'ember-runtime'], function (exports, _emberRuntime) {
+  'use strict';
+
+  QUnit.module('ember-runtime/main');
+
+  QUnit.test('Ember.computed.collect', function () {
+    var MyObj = _emberRuntime.default.Object.extend({
+      props: _emberRuntime.default.computed.collect('foo', 'bar', 'baz')
+    });
+
+    var myObj = MyObj.create({
+      foo: 3,
+      bar: 5,
+      baz: 'asdf'
+    });
+
+    var propsValue = myObj.get('props');
+
+    deepEqual(propsValue, [3, 5, 'asdf']);
+  });
+});
 enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/computed', 'ember-metal/tests/props_helper', 'ember-runtime/tests/suites/array', 'ember-runtime/system/object', 'ember-runtime/mixins/array', 'ember-runtime/system/native_array'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalObserver, _emberMetalMixin, _emberMetalComputed, _emberMetalTestsProps_helper, _emberRuntimeTestsSuitesArray, _emberRuntimeSystemObject, _emberRuntimeMixinsArray, _emberRuntimeSystemNative_array) {
   'use strict';
 
@@ -48885,7 +48906,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+41030996', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0-beta.2+9a4b10a8', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
