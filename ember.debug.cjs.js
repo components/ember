@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+2a269add
+ * @version   2.4.0-canary+dfbdbea0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -10567,7 +10567,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+2a269add';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+dfbdbea0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16260,7 +16260,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+2a269add
+    @version 2.4.0-canary+dfbdbea0
     @public
   */
 
@@ -16302,11 +16302,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+2a269add'
+    @default '2.4.0-canary+dfbdbea0'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+2a269add';
+  Ember.VERSION = '2.4.0-canary+dfbdbea0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -30084,7 +30084,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+2a269add';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+dfbdbea0';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30587,7 +30587,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+2a269add';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+dfbdbea0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -32174,16 +32174,34 @@ enifed('ember-runtime/inject', ['exports', 'ember-metal/debug', 'ember-metal/inj
 });
 enifed('ember-runtime/is-equal', ['exports'], function (exports) {
   /**
-    Compares two objects, returning true if they are logically equal. This is
-    a deeper comparison than a simple triple equal. For sets it will compare the
-    internal objects. For any other object that implements `isEqual()` it will
-    respect that method.
+    Compares two objects, returning true if they are equal.
   
     ```javascript
     Ember.isEqual('hello', 'hello');                   // true
     Ember.isEqual(1, 2);                               // false
+    ```
+  
+    `isEqual` is a more specific comparison than a triple equal comparison.
+    It will call the `isEqual` instance method on the objects being
+    compared, allowing finer control over when objects should be considered
+    equal to each other.
+  
+    ```javascript
+    let Person = Ember.Object.extend({
+      isEqual(other) { return this.ssn == other.ssn; }
+    });
+  
+    let personA = Person.create({name: 'Muhammad Ali', ssn: '123-45-6789'});
+    let personB = Person.create({name: 'Cassius Clay', ssn: '123-45-6789'});
+  
+    Ember.isEqual(personA, personB); // true
+    ```
+  
+    Due to the expense of array comparisons, collections will never be equal to
+    each other even if each of their items are equal to each other.
+  
+    ```javascript
     Ember.isEqual([4, 2], [4, 2]);                     // false
-    Ember.isEqual({ isEqual() { return true;} }, null) // true
     ```
   
     @method isEqual
@@ -39525,7 +39543,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+2a269add',
+        revision: 'Ember@2.4.0-canary+dfbdbea0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44856,7 +44874,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+2a269add';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+dfbdbea0';
 
   /**
   @module ember
