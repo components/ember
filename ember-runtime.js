@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c3deac3d
+ * @version   2.4.0-canary+38630ef1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4908,7 +4908,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+c3deac3d
+    @version 2.4.0-canary+38630ef1
     @public
   */
 
@@ -4950,11 +4950,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+c3deac3d'
+    @default '2.4.0-canary+38630ef1'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+c3deac3d';
+  Ember.VERSION = '2.4.0-canary+38630ef1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -14520,7 +14520,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
         called just after the array is modified.
        Both callbacks will be passed the observed object, starting index of the
-      change as well a a count of the items to be removed and added. You can use
+      change as well as a count of the items to be removed and added. You can use
       these callbacks to optionally inspect the array during the change, clear
       caches, or do any other bookkeeping necessary.
        In addition to passing a target, you can also include an options hash
@@ -17208,7 +17208,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     proxy.get('isFulfilled') //=> false
     ```
   
-    When the the $.getJSON completes, and the promise is fulfilled
+    When the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
   
     ```javascript

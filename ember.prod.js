@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c3deac3d
+ * @version   2.4.0-canary+38630ef1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9946,7 +9946,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+c3deac3d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -11623,7 +11623,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-views/component_loo
   /**
     Find templates stored in the head tag as script tags and make them available
     to `Ember.CoreView` in the global `Ember.TEMPLATES` object. This will be run
-    as as jQuery DOM-ready callback.
+    as a jQuery DOM-ready callback.
   
     Script tags with `text/x-handlebars` will be compiled
     with Ember's template compiler and are suitable for use as a view's template.
@@ -15546,7 +15546,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+c3deac3d
+    @version 2.4.0-canary+38630ef1
     @public
   */
 
@@ -15588,11 +15588,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+c3deac3d'
+    @default '2.4.0-canary+38630ef1'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+c3deac3d';
+  Ember.VERSION = '2.4.0-canary+38630ef1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29014,8 +29014,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
     ### Keeping a link active for other routes
   
     If you need a link to be 'active' even when it doesn't match
-    the current route, you can use the the `current-when`
-    argument.
+    the current route, you can use the `current-when` argument.
   
     ```handlebars
     {{#link-to 'photoGallery' current-when='photos'}}
@@ -29188,7 +29187,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+c3deac3d';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29688,7 +29687,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+c3deac3d';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -31892,7 +31891,7 @@ enifed('ember-runtime/mixins/array', ['exports', 'ember-metal/core', 'ember-meta
       * `arrayDidChange(observedObj, start, removeCount, addCount)` - This method will be
         called just after the array is modified.
        Both callbacks will be passed the observed object, starting index of the
-      change as well a a count of the items to be removed and added. You can use
+      change as well as a count of the items to be removed and added. You can use
       these callbacks to optionally inspect the array during the change, clear
       caches, or do any other bookkeeping necessary.
        In addition to passing a target, you can also include an options hash
@@ -34571,7 +34570,7 @@ enifed('ember-runtime/mixins/promise_proxy', ['exports', 'ember-metal/property_g
     proxy.get('isFulfilled') //=> false
     ```
   
-    When the the $.getJSON completes, and the promise is fulfilled
+    When the $.getJSON completes, and the promise is fulfilled
     with json, the life cycle attributes will update accordingly.
   
     ```javascript
@@ -38555,7 +38554,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+c3deac3d',
+        revision: 'Ember@2.4.0-canary+38630ef1',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42611,7 +42610,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+c3deac3d';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+38630ef1';
 
   /**
   @module ember
@@ -44328,7 +44327,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     <div id="ember1" class="ember-view disabled"></div>
     ```
   
-    Updates to the the value of a class name binding will result in automatic
+    Updates to the value of a class name binding will result in automatic
     update of the  HTML `class` attribute in the view's rendered HTML
     representation. If the value becomes `false` or `undefined` the class name
     will be removed.
@@ -44425,7 +44424,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     });
     ```
   
-    Updates to the the property of an attribute binding will result in automatic
+    Updates to the property of an attribute binding will result in automatic
     update of the  HTML attribute in the view's rendered HTML representation.
   
     `attributeBindings` is a concatenated property. See [Ember.Object](/api/classes/Ember.Object.html)
@@ -44609,7 +44608,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     ```javascript
     AView = Ember.View.extend({
       click: function(event) {
-        // will be called when when an instance's
+        // will be called when an instance's
         // rendered element is clicked
       }
     });
@@ -44630,7 +44629,7 @@ enifed('ember-views/views/view', ['exports', 'ember-metal/core', 'ember-metal/de
     AView = Ember.View.extend({
       eventManager: Ember.Object.create({
         doubleClick: function(event, view) {
-          // will be called when when an instance's
+          // will be called when an instance's
           // rendered element or any rendering
           // of this view's descendant
           // elements is clicked
