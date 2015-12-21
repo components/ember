@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+01b11079
+ * @version   2.4.0-canary+c3a8dcd4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16947,7 +16947,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     }, 'You cannot specify both a positional param (at position 0) and the hash argument `name`.');
   });
 
-  QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
+  QUnit.test('conflicting positional and hash parameters does not raise and assertion if rerendered', function () {
     var _Component$extend12;
 
     var LookedUp = _emberViewsComponentsComponent.default.extend();
@@ -16957,18 +16957,42 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('component:-looked-up', LookedUp);
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
 
+    var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" name greeting="Hodi")}}');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.template = template, _Component$extend12.name = 'Hodari', _Component$extend12)).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), 'Hodi Hodari', 'component is rendered');
+
+    _emberMetalRun_loop.default(function () {
+      return component.set('name', 'Sergio');
+    });
+
+    equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
+  });
+
+  QUnit.test('conflicting positional and hash parameters does not raise and assertion if in the different closure', function () {
+    var _Component$extend13;
+
+    var LookedUp = _emberViewsComponentsComponent.default.extend();
+    LookedUp.reopenClass({
+      positionalParams: ['name']
+    });
+    owner.register('component:-looked-up', LookedUp);
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{greeting}} {{name}}'));
+
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component "-looked-up" "Hodari") name="Sergio" greeting="Hodi"}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend12 = {}, _Component$extend12[_containerOwner.OWNER] = owner, _Component$extend12.template = template, _Component$extend12)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.template = template, _Component$extend13)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Hodi Sergio', 'component is rendered');
   });
 
   QUnit.test('raises an assertion when component path is null', function () {
-    var _Component$extend13;
+    var _Component$extend14;
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component lookupComponent)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend13 = {}, _Component$extend13[_containerOwner.OWNER] = owner, _Component$extend13.template = template, _Component$extend13)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.template = template, _Component$extend14)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -16976,17 +17000,17 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('raises an assertion when component path is not a component name', function () {
-    var _Component$extend14, _Component$extend15;
+    var _Component$extend15, _Component$extend16;
 
     var template = _emberTemplateCompilerSystemCompile.default('{{component (component "not-a-component")}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend14 = {}, _Component$extend14[_containerOwner.OWNER] = owner, _Component$extend14.template = template, _Component$extend14)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.template = template, _Component$extend15)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
     }, 'The component helper cannot be used without a valid component name. You used "not-a-component" via (component "not-a-component")');
 
     template = _emberTemplateCompilerSystemCompile.default('{{component (component compName)}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend15 = {}, _Component$extend15[_containerOwner.OWNER] = owner, _Component$extend15.template = template, _Component$extend15.compName = 'not-a-component', _Component$extend15)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.template = template, _Component$extend16.compName = 'not-a-component', _Component$extend16)).create();
 
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(component);
@@ -16994,40 +17018,25 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('renders with dot path', function () {
-    var _Component$extend16;
+    var _Component$extend17;
 
     var expectedText = 'Hodi';
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default(expectedText));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend16 = {}, _Component$extend16[_containerOwner.OWNER] = owner, _Component$extend16.template = template, _Component$extend16)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend17 = {}, _Component$extend17[_containerOwner.OWNER] = owner, _Component$extend17.template = template, _Component$extend17)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), expectedText, '-looked-up component rendered');
   });
 
   QUnit.test('renders with dot path and attr', function () {
-    var _Component$extend17;
-
-    var expectedText = 'Hodi';
-    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
-
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend17 = {}, _Component$extend17[_containerOwner.OWNER] = owner, _Component$extend17.template = template, _Component$extend17)).create({
-      expectedText: expectedText
-    });
-
-    _emberRuntimeTestsUtils.runAppend(component);
-    equal(component.$().text(), expectedText, '-looked-up component rendered');
-  });
-
-  QUnit.test('renders with dot path curried over attr', function () {
     var _Component$extend18;
 
     var expectedText = 'Hodi';
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
 
-    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText=expectedText}}{{/with}}');
     component = _emberViewsComponentsComponent.default.extend((_Component$extend18 = {}, _Component$extend18[_containerOwner.OWNER] = owner, _Component$extend18.template = template, _Component$extend18)).create({
       expectedText: expectedText
     });
@@ -17036,8 +17045,23 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), expectedText, '-looked-up component rendered');
   });
 
-  QUnit.test('renders with dot path and with rest positional parameters', function () {
+  QUnit.test('renders with dot path curried over attr', function () {
     var _Component$extend19;
+
+    var expectedText = 'Hodi';
+    owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{expectedText}}'));
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up" expectedText=expectedText)) as |object|}}{{object.lookedup}}{{/with}}');
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create({
+      expectedText: expectedText
+    });
+
+    _emberRuntimeTestsUtils.runAppend(component);
+    equal(component.$().text(), expectedText, '-looked-up component rendered');
+  });
+
+  QUnit.test('renders with dot path and with rest positional parameters', function () {
+    var _Component$extend20;
 
     var LookedUp = _emberViewsComponentsComponent.default.extend();
     LookedUp.reopenClass({
@@ -17048,7 +17072,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/-looked-up', _emberTemplateCompilerSystemCompile.default('{{params}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash lookedup=(component "-looked-up")) as |object|}}{{object.lookedup expectedText "Hola"}}{{/with}}');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend19 = {}, _Component$extend19[_containerOwner.OWNER] = owner, _Component$extend19.template = template, _Component$extend19)).create({
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20)).create({
       expectedText: expectedText
     });
 
@@ -17057,7 +17081,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('renders with dot path and updates attributes', function () {
-    var _Component$extend20;
+    var _Component$extend21;
 
     owner.register('component:my-nested-component', _emberViewsComponentsComponent.default.extend({
       didReceiveAttrs: function () {
@@ -17070,11 +17094,11 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                             {{api.my-nested-component}}\n                           {{/my-component}}\n                           <br>\n                           <button onclick={{action \'changeValue\'}}>Change value</button>');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend20 = {}, _Component$extend20[_containerOwner.OWNER] = owner, _Component$extend20.template = template, _Component$extend20.myProp = 1, _Component$extend20.actions = {
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21.myProp = 1, _Component$extend21.actions = {
       changeValue: function () {
         this.incrementProperty('myProp');
       }
-    }, _Component$extend20)).create({});
+    }, _Component$extend21)).create({});
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -17088,7 +17112,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
-    var _Component$extend21;
+    var _Component$extend22;
 
     owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
 
@@ -17096,7 +17120,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend22 = {}, _Component$extend22[_containerOwner.OWNER] = owner, _Component$extend22.template = template, _Component$extend22)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
@@ -52559,7 +52583,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+01b11079', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+c3a8dcd4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
