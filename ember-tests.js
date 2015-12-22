@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c3a8dcd4
+ * @version   2.4.0-canary+f367e7a5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16729,7 +16729,7 @@ enifed('ember-htmlbars/tests/helpers/-html-safe-test', ['exports', 'ember-metal/
     });
   }
 });
-enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember-runtime/tests/utils', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-metal/run_loop', 'ember-metal/features', 'ember-metal/is_empty', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberRuntimeTestsUtils, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberMetalRun_loop, _emberMetalFeatures, _emberMetalIs_empty, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var component = undefined,
@@ -17080,8 +17080,33 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     equal(component.$().text(), expectedText + ',Hola', '-looked-up component rendered with rest params');
   });
 
-  QUnit.test('renders with dot path and updates attributes', function () {
+  QUnit.test('renders with dot path and rest parameter does not leak', function () {
     var _Component$extend21;
+
+    var value = false;
+    var MyComponent = _emberViewsComponentsComponent.default.extend({
+      didReceiveAttrs: function () {
+        value = this.getAttr('value');
+      }
+    });
+
+    MyComponent.reopenClass({
+      positionalParams: ['value']
+    });
+
+    owner.register('component:my-component', MyComponent);
+
+    var template = _emberTemplateCompilerSystemCompile.default('{{#with (hash my-component=(component \'my-component\')) as |c|}}\n        {{c.my-component }}\n       {{/with}}');
+
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21)).create();
+
+    _emberRuntimeTestsUtils.runAppend(component);
+
+    ok(_emberMetalIs_empty.default(value), 'value is an empty parameter');
+  });
+
+  QUnit.test('renders with dot path and updates attributes', function () {
+    var _Component$extend22;
 
     owner.register('component:my-nested-component', _emberViewsComponentsComponent.default.extend({
       didReceiveAttrs: function () {
@@ -17094,11 +17119,11 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
     owner.register('template:components/my-component', _emberTemplateCompilerSystemCompile.default('{{yield (hash my-nested-component=(component \'my-nested-component\' my-parent-attr=attrs.my-attr))}}'));
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#my-component my-attr=myProp as |api|}}\n                             {{api.my-nested-component}}\n                           {{/my-component}}\n                           <br>\n                           <button onclick={{action \'changeValue\'}}>Change value</button>');
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend21 = {}, _Component$extend21[_containerOwner.OWNER] = owner, _Component$extend21.template = template, _Component$extend21.myProp = 1, _Component$extend21.actions = {
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend22 = {}, _Component$extend22[_containerOwner.OWNER] = owner, _Component$extend22.template = template, _Component$extend22.myProp = 1, _Component$extend22.actions = {
       changeValue: function () {
         this.incrementProperty('myProp');
       }
-    }, _Component$extend21)).create({});
+    }, _Component$extend22)).create({});
 
     _emberRuntimeTestsUtils.runAppend(component);
 
@@ -17112,7 +17137,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
   });
 
   QUnit.test('adding parameters to a closure component\'s instance does not add it to other instances', function (assert) {
-    var _Component$extend22;
+    var _Component$extend23;
 
     owner.register('template:components/select-box', _emberTemplateCompilerSystemCompile.default('{{yield (hash option=(component "select-box-option"))}}'));
 
@@ -17120,7 +17145,7 @@ enifed('ember-htmlbars/tests/helpers/closure_component_test', ['exports', 'ember
 
     var template = _emberTemplateCompilerSystemCompile.default('{{#select-box as |sb|}}{{sb.option label="Foo"}}{{sb.option}}{{/select-box}}');
 
-    component = _emberViewsComponentsComponent.default.extend((_Component$extend22 = {}, _Component$extend22[_containerOwner.OWNER] = owner, _Component$extend22.template = template, _Component$extend22)).create();
+    component = _emberViewsComponentsComponent.default.extend((_Component$extend23 = {}, _Component$extend23[_containerOwner.OWNER] = owner, _Component$extend23.template = template, _Component$extend23)).create();
 
     _emberRuntimeTestsUtils.runAppend(component);
     equal(component.$().text(), 'Foo', 'there is only one Foo');
@@ -52828,7 +52853,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+c3a8dcd4', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+f367e7a5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
