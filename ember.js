@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f367e7a5
+ * @version   2.4.0-canary+2d622f12
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3987,7 +3987,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     */
     startRouting: function () {
       var router = _emberMetalProperty_get.get(this, 'router');
-      router.startRouting(isResolverModuleBased(this));
+      router.startRouting();
       this._didSetupRouter = true;
     },
 
@@ -4005,7 +4005,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
       this._didSetupRouter = true;
 
       var router = _emberMetalProperty_get.get(this, 'router');
-      router.setupRouter(isResolverModuleBased(this));
+      router.setupRouter();
     },
 
     /**
@@ -4264,10 +4264,6 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     env.options = this;
     return env;
   };
-
-  function isResolverModuleBased(applicationInstance) {
-    return !!applicationInstance.application.__registry__.resolver.moduleBasedResolver;
-  }
 
   Object.defineProperty(ApplicationInstance.prototype, 'container', {
     configurable: true,
@@ -10581,7 +10577,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+f367e7a5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+2d622f12';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -16274,7 +16270,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+f367e7a5
+    @version 2.4.0-canary+2d622f12
     @public
   */
 
@@ -16316,11 +16312,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+f367e7a5'
+    @default '2.4.0-canary+2d622f12'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+f367e7a5';
+  Ember.VERSION = '2.4.0-canary+2d622f12';
 
   /**
     The hash of environment variables used to control various configuration
@@ -25334,7 +25330,9 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug'], function (e
     this.enableLoadingSubstates = options && options.enableLoadingSubstates;
     this.matches = [];
     this.explicitIndex = undefined;
+    this.options = options;
   }
+
   exports.default = DSL;
 
   DSL.prototype = {
@@ -25366,9 +25364,7 @@ enifed('ember-routing/system/dsl', ['exports', 'ember-metal/debug'], function (e
 
       if (callback) {
         var fullName = getFullName(this, name, options.resetNamespace);
-        var dsl = new DSL(fullName, {
-          enableLoadingSubstates: this.enableLoadingSubstates
-        });
+        var dsl = new DSL(fullName, this.options);
 
         createRoute(dsl, 'loading');
         createRoute(dsl, 'error', { path: dummyErrorRoute });
@@ -27607,6 +27603,8 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-metal/debug', 'ember-metal/error', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/properties', 'ember-metal/empty_object', 'ember-metal/computed', 'ember-metal/assign', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-runtime/mixins/evented', 'ember-routing/system/dsl', 'ember-routing/location/api', 'ember-routing/utils', 'ember-routing/system/router_state', 'container/owner', 'router', 'router/transition'], function (exports, _emberMetalLogger, _emberMetalDebug, _emberMetalError, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalProperties, _emberMetalEmpty_object, _emberMetalComputed, _emberMetalAssign, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberRuntimeMixinsEvented, _emberRoutingSystemDsl, _emberRoutingLocationApi, _emberRoutingUtils, _emberRoutingSystemRouter_state, _containerOwner, _router4, _routerTransition) {
   'use strict';
 
+  exports.triggerEvent = triggerEvent;
+
   function K() {
     return this;
   }
@@ -27649,7 +27647,7 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
     */
     rootURL: '/',
 
-    _initRouterJs: function (moduleBasedResolver) {
+    _initRouterJs: function () {
       var router = this.router = new _router4.default();
       router.triggerEvent = triggerEvent;
 
@@ -27657,19 +27655,13 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       router._triggerWillLeave = K;
 
       var dslCallbacks = this.constructor.dslCallbacks || [K];
-      var dsl = new _emberRoutingSystemDsl.default(null, {
-        enableLoadingSubstates: !!moduleBasedResolver
+      var dsl = this._buildDSL();
+
+      dsl.route('application', { path: '/', resetNamespace: true, overrideNameAssertion: true }, function () {
+        for (var i = 0; i < dslCallbacks.length; i++) {
+          dslCallbacks[i].call(this);
+        }
       });
-
-      function generateDSL() {
-        this.route('application', { path: '/', resetNamespace: true, overrideNameAssertion: true }, function () {
-          for (var i = 0; i < dslCallbacks.length; i++) {
-            dslCallbacks[i].call(this);
-          }
-        });
-      }
-
-      generateDSL.call(dsl);
 
       if (_emberMetalProperty_get.get(this, 'namespace.LOG_TRANSITIONS_INTERNAL')) {
         router.log = _emberMetalLogger.default.debug;
@@ -27678,7 +27670,17 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       router.map(dsl.generate());
     },
 
+    _buildDSL: function () {
+      var moduleBasedResolver = this._hasModuleBasedResolver();
+
+      return new _emberRoutingSystemDsl.default(null, {
+        enableLoadingSubstates: !!moduleBasedResolver
+      });
+    },
+
     init: function () {
+      this._super.apply(this, arguments);
+
       this._activeViews = {};
       this._qpCache = new _emberMetalEmpty_object.default();
       this._resetQueuedQueryParameterChanges();
@@ -27703,6 +27705,22 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       return _emberMetalProperty_get.get(this, 'location').getURL();
     }),
 
+    _hasModuleBasedResolver: function () {
+      var owner = _containerOwner.getOwner(this);
+
+      if (!owner) {
+        return false;
+      }
+
+      var resolver = owner.application && owner.application.__registry__ && owner.application.__registry__.resolver;
+
+      if (!resolver) {
+        return false;
+      }
+
+      return !!resolver.moduleBasedResolver;
+    },
+
     /**
       Initializes the current router instance and sets up the change handling
       event listeners used by the instances `location` implementation.
@@ -27711,10 +27729,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
        @method startRouting
       @private
     */
-    startRouting: function (moduleBasedResolver) {
+    startRouting: function () {
       var initialURL = _emberMetalProperty_get.get(this, 'initialURL');
 
-      if (this.setupRouter(moduleBasedResolver)) {
+      if (this.setupRouter()) {
         if (typeof initialURL === 'undefined') {
           initialURL = _emberMetalProperty_get.get(this, 'location').getURL();
         }
@@ -27725,10 +27743,10 @@ enifed('ember-routing/system/router', ['exports', 'ember-metal/logger', 'ember-m
       }
     },
 
-    setupRouter: function (moduleBasedResolver) {
+    setupRouter: function () {
       var _this = this;
 
-      this._initRouterJs(moduleBasedResolver);
+      this._initRouterJs();
       this._setupLocation();
 
       var router = this.router;
@@ -30096,7 +30114,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+f367e7a5';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+2d622f12';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30599,7 +30617,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+f367e7a5';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+2d622f12';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -39556,7 +39574,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+f367e7a5',
+        revision: 'Ember@2.4.0-canary+2d622f12',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44887,7 +44905,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+f367e7a5';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+2d622f12';
 
   /**
   @module ember

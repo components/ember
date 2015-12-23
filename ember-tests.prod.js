@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+f367e7a5
+ * @version   2.4.0-canary+2d622f12
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -37038,8 +37038,13 @@ enifed('ember-routing/tests/system/dsl_test', ['exports', 'ember-routing/system/
       this.route('blork');
     });
 
-    var router = Router.create();
-    router._initRouterJs(true);
+    var router = Router.create({
+      _hasModuleBasedResolver: function () {
+        return true;
+      }
+    });
+
+    router._initRouterJs();
 
     ok(router.router.recognizer.names['blork'], 'main route was created');
     ok(router.router.recognizer.names['blork_loading'], 'loading route was added');
@@ -52608,7 +52613,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+f367e7a5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+2d622f12', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
