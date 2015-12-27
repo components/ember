@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+2d622f12
+ * @version   2.4.0-canary+91b0ebb9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -5496,7 +5496,7 @@ asyncTest("The Special page returning an error fires the error hook on SpecialRo
 
   handleURLRejectsWith('/specials/1', 'Setup error');
 });
-*/QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,promise,resolve;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new _emberRuntimeExtRsvp.default.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setup:function(){throw 'Setup error';},actions:{error:function(reason){equal(reason,'Setup error','SpecialRoute#error received the error thrown from setup');}}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalRun_loop.default(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberRuntimeExtRsvp.default.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason,'Setup error','error was correctly passed to custom ApplicationRoute handler');}};App.ApplicationRoute = _emberRoutingSystemRoute.default.extend(attrs);App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalRun_loop.default(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden',function(){testOverridableErrorHandler('actions');});asyncTest('Moving from one page to another triggers the correct callbacks',function(){expect(3);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberRuntimeSystemObject.default.extend();App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.home = _emberTemplateCompiler.compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = _emberTemplateCompiler.compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());var transition=handleURL('/');_emberMetalRun_loop.default(function(){transition.then(function(){equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});_emberMetalRun_loop.default.later(function(){_emberRuntimeExtRsvp.default.resolve(promiseContext);},1);return router.transitionTo('special',promiseContext);}).then(function(result){deepEqual(router.location.path,'/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('special',{path:'/specials/:menu_item_id',resetNamespace:true});});});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});var menuItem;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});App.RootRoute = _emberRoutingSystemRoute.default.extend({model:function(){rootModel++;return this._super.apply(this,arguments);},serialize:function(){rootSerialize++;return this._super.apply(this,arguments);},setupController:function(){rootSetup++;},renderTemplate:function(){rootRender++;}});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES['root/index'] = _emberTemplateCompiler.compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = _emberTemplateCompiler.compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = _emberTemplateCompiler.compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');equal(rootSetup,1,'The root setup was triggered');equal(rootRender,1,'The root render was triggered');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called');router = container.lookup('router:main');_emberMetalRun_loop.default(function(){var menuItem=App.MenuItem.create({id:1});_emberMetalRun_loop.default.later(function(){_emberRuntimeExtRsvp.default.resolve(menuItem);},1);router.transitionTo('special',menuItem).then(function(result){equal(rootSetup,1,'The root setup was not triggered again');equal(rootRender,1,'The root render was not triggered again');equal(rootSerialize,0,'The root serialize was not called'); // TODO: Should this be changed?
+*/QUnit.test('The Special page returning an error invokes SpecialRoute\'s error handler',function(){Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,promise,resolve;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});promise = new _emberRuntimeExtRsvp.default.Promise(function(res){resolve = res;});return promise;}});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setup:function(){throw 'Setup error';},actions:{error:function(reason){equal(reason,'Setup error','SpecialRoute#error received the error thrown from setup');return true;}}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalRun_loop.default(function(){resolve(menuItem);});});function testOverridableErrorHandler(handlersName){expect(2);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});var menuItem,resolve;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return new _emberRuntimeExtRsvp.default.Promise(function(res){resolve = res;});}});var attrs={};attrs[handlersName] = {error:function(reason){equal(reason,'Setup error','error was correctly passed to custom ApplicationRoute handler');return true;}};App.ApplicationRoute = _emberRoutingSystemRoute.default.extend(attrs);App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setup:function(){throw 'Setup error';}});bootApplication();handleURLRejectsWith('/specials/1','Setup error');_emberMetalRun_loop.default(function(){resolve(menuItem);});}QUnit.test('ApplicationRoute\'s default error handler can be overridden',function(){testOverridableErrorHandler('actions');});asyncTest('Moving from one page to another triggers the correct callbacks',function(){expect(3);Router.map(function(){this.route('home',{path:'/'});this.route('special',{path:'/specials/:menu_item_id'});});App.MenuItem = _emberRuntimeSystemObject.default.extend();App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES.home = _emberTemplateCompiler.compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = _emberTemplateCompiler.compile('<p>{{model.id}}</p>');bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());var transition=handleURL('/');_emberMetalRun_loop.default(function(){transition.then(function(){equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');var promiseContext=App.MenuItem.create({id:1});_emberMetalRun_loop.default.later(function(){_emberRuntimeExtRsvp.default.resolve(promiseContext);},1);return router.transitionTo('special',promiseContext);}).then(function(result){deepEqual(router.location.path,'/specials/1');QUnit.start();});});});asyncTest('Nested callbacks are not exited when moving to siblings',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('special',{path:'/specials/:menu_item_id',resetNamespace:true});});});var currentPath;App.ApplicationController = _emberRuntimeControllersController.default.extend({currentPathDidChange:_emberMetalCore.default.observer('currentPath',function(){currentPath = _emberMetalProperty_get.get(this,'currentPath');})});var menuItem;App.MenuItem = _emberRuntimeSystemObject.default.extend();App.MenuItem.reopenClass({find:function(id){menuItem = App.MenuItem.create({id:id});return menuItem;}});App.LoadingRoute = _emberRoutingSystemRoute.default.extend({});App.RootRoute = _emberRoutingSystemRoute.default.extend({model:function(){rootModel++;return this._super.apply(this,arguments);},serialize:function(){rootSerialize++;return this._super.apply(this,arguments);},setupController:function(){rootSetup++;},renderTemplate:function(){rootRender++;}});App.HomeRoute = _emberRoutingSystemRoute.default.extend({});App.SpecialRoute = _emberRoutingSystemRoute.default.extend({setupController:function(controller,model){_emberMetalProperty_set.set(controller,'model',model);}});_emberMetalCore.default.TEMPLATES['root/index'] = _emberTemplateCompiler.compile('<h3>Home</h3>');_emberMetalCore.default.TEMPLATES.special = _emberTemplateCompiler.compile('<p>{{model.id}}</p>');_emberMetalCore.default.TEMPLATES.loading = _emberTemplateCompiler.compile('<p>LOADING!</p>');var rootSetup=0;var rootRender=0;var rootModel=0;var rootSerialize=0;bootApplication();registry.register('controller:special',_emberRuntimeControllersController.default.extend());equal(_emberViewsSystemJquery.default('h3','#qunit-fixture').text(),'Home','The app is now in the initial state');equal(rootSetup,1,'The root setup was triggered');equal(rootRender,1,'The root render was triggered');equal(rootSerialize,0,'The root serialize was not called');equal(rootModel,1,'The root model was called');router = container.lookup('router:main');_emberMetalRun_loop.default(function(){var menuItem=App.MenuItem.create({id:1});_emberMetalRun_loop.default.later(function(){_emberRuntimeExtRsvp.default.resolve(menuItem);},1);router.transitionTo('special',menuItem).then(function(result){equal(rootSetup,1,'The root setup was not triggered again');equal(rootRender,1,'The root render was not triggered again');equal(rootSerialize,0,'The root serialize was not called'); // TODO: Should this be changed?
 equal(rootModel,1,'The root model was called again');deepEqual(router.location.path,'/specials/1');equal(currentPath,'root.special');QUnit.start();});});});QUnit.asyncTest('Events are triggered on the controller if a matching action name is implemented',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberRoutingSystemRoute.default.extend({model:function(){return model;},actions:{showStuff:function(obj){stateIsNotCalled = false;}}});_emberMetalCore.default.TEMPLATES.home = _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberRuntimeControllersController.default.extend({actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});registry.register('controller:home',controller);bootApplication();var actionId=_emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId[0];var event=new _emberViewsSystemJquery.default.Event('click');action.handler(event);});QUnit.asyncTest('Events are triggered on the current state when defined in `actions` object',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};App.HomeRoute = _emberRoutingSystemRoute.default.extend({model:function(){return model;},actions:{showStuff:function(obj){ok(this instanceof App.HomeRoute,'the handler is an App.HomeRoute'); // Using Ember.copy removes any private Ember vars which older IE would be confused by
 deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId2=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId2[0];var event=new _emberViewsSystemJquery.default.Event('click');action.handler(event);});QUnit.asyncTest('Events defined in `actions` object are triggered on the current state when routes are nested',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model={name:'Tom Dale'};App.RootRoute = _emberRoutingSystemRoute.default.extend({actions:{showStuff:function(obj){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute'); // Using Ember.copy removes any private Ember vars which older IE would be confused by
 deepEqual(_emberMetalCore.default.copy(obj,true),{name:'Tom Dale'},'the context is correct');QUnit.start();}}});App.RootIndexRoute = _emberRoutingSystemRoute.default.extend({model:function(){return model;}});_emberMetalCore.default.TEMPLATES['root/index'] = _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{model.name}}</a>');bootApplication();var actionId=_emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId3=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId3[0];var event=new _emberViewsSystemJquery.default.Event('click');action.handler(event);});QUnit.test('Events can be handled by inherited event handlers',function(){expect(4);App.SuperRoute = _emberRoutingSystemRoute.default.extend({actions:{foo:function(){ok(true,'foo');},bar:function(msg){equal(msg,'HELLO');}}});App.RouteMixin = _emberMetalCore.default.Mixin.create({actions:{bar:function(msg){equal(msg,'HELLO');this._super(msg);}}});App.IndexRoute = App.SuperRoute.extend(App.RouteMixin,{actions:{baz:function(){ok(true,'baz');}}});bootApplication();router.send('foo');router.send('bar','HELLO');router.send('baz');});QUnit.asyncTest('Actions are not triggered on the controller if a matching action name is implemented as a method',function(){Router.map(function(){this.route('home',{path:'/'});});var model={name:'Tom Dale'};var stateIsNotCalled=true;App.HomeRoute = _emberRoutingSystemRoute.default.extend({model:function(){return model;},actions:{showStuff:function(context){ok(stateIsNotCalled,'an event on the state is not triggered');deepEqual(context,{name:'Tom Dale'},'an event with context is passed');QUnit.start();}}});_emberMetalCore.default.TEMPLATES.home = _emberTemplateCompiler.compile('<a {{action \'showStuff\' model}}>{{name}}</a>');var controller=_emberRuntimeControllersController.default.extend({showStuff:function(context){stateIsNotCalled = false;ok(stateIsNotCalled,'an event on the state is not triggered');}});registry.register('controller:home',controller);bootApplication();var actionId=_emberViewsSystemJquery.default('#qunit-fixture a').data('ember-action');var _ActionManager$registeredActions$actionId4=_emberViewsSystemAction_manager.default.registeredActions[actionId];var action=_ActionManager$registeredActions$actionId4[0];var event=new _emberViewsSystemJquery.default.Event('click');action.handler(event);});QUnit.asyncTest('actions can be triggered with multiple arguments',function(){Router.map(function(){this.route('root',{path:'/'},function(){this.route('index',{path:'/'});});});var model1={name:'Tilde'};var model2={name:'Tom Dale'};App.RootRoute = _emberRoutingSystemRoute.default.extend({actions:{showStuff:function(obj1,obj2){ok(this instanceof App.RootRoute,'the handler is an App.HomeRoute'); // Using Ember.copy removes any private Ember vars which older IE would be confused by
@@ -10453,6 +10453,282 @@ enifed('ember/tests/routing/substates_test', ['exports', 'ember-metal/core', 'em
 
     var appController = container.lookup('controller:application');
     equal(appController.get('currentPath'), 'grandma.error', 'Initial route fully loaded');
+  });
+
+  QUnit.test('Error events that aren\'t bubbled don\t throw application assertions', function () {
+    expect(2);
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+      actions: {
+        error: function (err) {
+          equal(err.msg, 'did it broke?');
+          return false;
+        }
+      }
+    });
+
+    bootApplication('/grandma/mom/sally');
+  });
+
+  QUnit.test('Non-bubbled errors that re-throw aren\'t swallowed', function () {
+    expect(2);
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+      actions: {
+        error: function (err) {
+          // returns undefined which is falsey
+          throw err;
+        }
+      }
+    });
+
+    throws(function () {
+      bootApplication('/grandma/mom/sally');
+    }, function (err) {
+      return err.msg === 'did it broke?';
+    });
+  });
+
+  QUnit.test('Handled errors that re-throw aren\'t swallowed', function () {
+    expect(4);
+
+    var handledError;
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+          this.route('this-route-throws');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+      actions: {
+        error: function (err) {
+          step(2, 'MomSallyRoute#error');
+
+          handledError = err;
+
+          this.transitionTo('mom.this-route-throws');
+
+          // Marks error as handled
+          return false;
+        }
+      }
+    });
+
+    App.MomThisRouteThrowsRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(3, 'MomThisRouteThrows#model');
+
+        throw handledError;
+      }
+    });
+
+    throws(function () {
+      bootApplication('/grandma/mom/sally');
+    }, function (err) {
+      return err.msg === 'did it broke?';
+    });
+  });
+
+  QUnit.test('Handled errors that bubble can be handled at a higher level', function () {
+    expect(4);
+
+    var handledError;
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomRoute = _emberMetalCore.default.Route.extend({
+      actions: {
+        error: function (err) {
+          step(3, 'MomRoute#error');
+
+          equal(err, handledError, 'error handled and rebubbled is handleable at heigher route');
+        }
+      }
+    });
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+
+      actions: {
+        error: function (err) {
+          step(2, 'MomSallyRoute#error');
+
+          handledError = err;
+
+          return true;
+        }
+      }
+    });
+
+    bootApplication('/grandma/mom/sally');
+  });
+
+  QUnit.test('errors that are bubbled are thrown at a higher level if not handled', function () {
+    expect(3);
+
+    var handledError;
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+
+      actions: {
+        error: function (err) {
+          step(2, 'MomSallyRoute#error');
+
+          handledError = err;
+
+          return true;
+        }
+      }
+    });
+
+    throws(function () {
+      bootApplication('/grandma/mom/sally');
+    }, function (err) {
+      return err.msg === 'did it broke?';
+    }, 'Correct error was thrown');
+  });
+
+  QUnit.test('Handled errors that are thrown through rejection aren\'t swallowed', function () {
+    expect(4);
+
+    var handledError;
+
+    templates['grandma'] = 'GRANDMA {{outlet}}';
+
+    Router.map(function () {
+      this.route('grandma', function () {
+        this.route('mom', { resetNamespace: true }, function () {
+          this.route('sally');
+          this.route('this-route-throws');
+        });
+      });
+    });
+
+    App.ApplicationController = _emberMetalCore.default.Controller.extend();
+
+    App.MomSallyRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(1, 'MomSallyRoute#model');
+
+        return _emberMetalCore.default.RSVP.reject({
+          msg: 'did it broke?'
+        });
+      },
+      actions: {
+        error: function (err) {
+          step(2, 'MomSallyRoute#error');
+
+          handledError = err;
+
+          this.transitionTo('mom.this-route-throws');
+
+          // Marks error as handled
+          return false;
+        }
+      }
+    });
+
+    App.MomThisRouteThrowsRoute = _emberMetalCore.default.Route.extend({
+      model: function () {
+        step(3, 'MomThisRouteThrows#model');
+
+        return _emberMetalCore.default.RSVP.reject(handledError);
+      }
+    });
+
+    throws(function () {
+      bootApplication('/grandma/mom/sally');
+    }, function (err) {
+      return err.msg === 'did it broke?';
+    });
   });
 
   QUnit.test('Setting a query param during a slow transition should work', function () {
@@ -52858,7 +53134,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+2d622f12', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+91b0ebb9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
