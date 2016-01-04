@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+d9673825
+ * @version   2.4.0-canary+90d51dc9
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -38866,6 +38866,82 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
   });
 
+  QUnit.test('handles whitelisted bound modifier keys', function () {
+    var eventHandlerWasCalled = false;
+    var shortcutHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      altKey: 'alt',
+      anyKey: 'any',
+      actions: {
+        edit: function () {
+          eventHandlerWasCalled = true;
+        },
+        shortcut: function () {
+          shortcutHandlerWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=altKey}}>click me</a> <div {{action "shortcut" allowedKeys=anyKey}}>click me too</div>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var actionId = view.$('a[data-ember-action]').attr('data-ember-action');
+
+    ok(_emberViewsSystemAction_manager.default.registeredActions[actionId], 'The action was registered');
+
+    var e = _emberViewsSystemJquery.default.Event('click');
+    e.altKey = true;
+    view.$('a').trigger(e);
+
+    ok(eventHandlerWasCalled, 'The event handler was called');
+
+    e = _emberViewsSystemJquery.default.Event('click');
+    e.ctrlKey = true;
+    view.$('div').trigger(e);
+
+    ok(shortcutHandlerWasCalled, 'The "any" shortcut\'s event handler was called');
+  });
+
+  QUnit.test('handles whitelisted bound modifier keys with current value', function (assert) {
+    var editHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      acceptedKeys: 'alt',
+      actions: {
+        edit: function () {
+          editHandlerWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a href="#" {{action "edit" allowedKeys=acceptedKeys}}>click me</a>')
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    var e = _emberViewsSystemJquery.default.Event('click');
+    e.altKey = true;
+    view.$('a').trigger(e);
+
+    ok(editHandlerWasCalled, 'event handler was called');
+
+    editHandlerWasCalled = false;
+    _emberMetalRun_loop.default(function () {
+      controller.set('acceptedKeys', '');
+    });
+
+    view.$('a').trigger(e);
+
+    ok(!editHandlerWasCalled, 'event handler was not called');
+  });
+
   QUnit.test('should be able to use action more than once for the same event within a view', function () {
     var editWasCalled = false;
     var deleteWasCalled = false;
@@ -38958,6 +39034,96 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
 
     equal(editWasCalled, false, 'The edit action was not called');
     equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
+  });
+
+  QUnit.test('the event should not bubble if `bubbles=false` is passed bound', function () {
+    var editWasCalled = false;
+    var deleteWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      isFalse: false,
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        },
+        'delete': function () {
+          deleteWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=isFalse}}>edit</a><a id="delete" href="#" {{action "delete" bubbles=isFalse}}>delete</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$('#delete').trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, true, 'The delete action was called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = deleteWasCalled = originalEventHandlerWasCalled = false;
+
+    view.$().trigger('click');
+
+    equal(editWasCalled, false, 'The edit action was not called');
+    equal(deleteWasCalled, false, 'The delete action was not called');
+    equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
+  });
+
+  QUnit.test('the event bubbling depend on the bound parameter', function () {
+    var editWasCalled = false;
+    var originalEventHandlerWasCalled = false;
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      shouldBubble: false,
+      actions: {
+        edit: function () {
+          editWasCalled = true;
+        }
+      }
+    }).create();
+
+    view = _emberViewsViewsView.default.create({
+      controller: controller,
+      template: _emberTemplateCompilerSystemCompile.default('<a id="edit" href="#" {{action "edit" bubbles=shouldBubble}}>edit</a>'),
+      click: function () {
+        originalEventHandlerWasCalled = true;
+      }
+    });
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was called');
+    equal(originalEventHandlerWasCalled, false, 'The original event handler was not called');
+
+    editWasCalled = originalEventHandlerWasCalled = false;
+
+    _emberMetalRun_loop.default(function () {
+      controller.set('shouldBubble', true);
+    });
+
+    view.$('#edit').trigger('click');
+
+    equal(editWasCalled, true, 'The edit action was not called');
     equal(originalEventHandlerWasCalled, true, 'The original event handler was called');
   });
 
@@ -39622,6 +39788,38 @@ enifed('ember-routing-htmlbars/tests/helpers/element_action_test', ['exports', '
     view.$('a').trigger(event);
 
     equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+  });
+
+  QUnit.test('should respect preventDefault option if provided bound', function () {
+    view = _emberViewsViewsView.default.create({
+      template: _emberTemplateCompilerSystemCompile.default('<a {{action \'show\' preventDefault=shouldPreventDefault}}>Hi</a>')
+    });
+
+    var controller = _emberRuntimeControllersController.default.extend({
+      shouldPreventDefault: false,
+      actions: {
+        show: function () {}
+      }
+    }).create();
+
+    _emberMetalRun_loop.default(function () {
+      view.set('controller', controller);
+      _emberRuntimeTestsUtils.runAppend(view);
+    });
+
+    var event = _emberViewsSystemJquery.default.Event('click');
+    view.$('a').trigger(event);
+
+    equal(event.isDefaultPrevented(), false, 'should not preventDefault');
+
+    _emberMetalRun_loop.default(function () {
+      controller.set('shouldPreventDefault', true);
+    });
+
+    event = _emberViewsSystemJquery.default.Event('click');
+    view.$('a').trigger(event);
+
+    equal(event.isDefaultPrevented(), true, 'should preventDefault');
   });
 
   QUnit.module('ember-routing-htmlbars: action helper - action target without `controller`', {
@@ -53134,7 +53332,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+d9673825', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+90d51dc9', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
