@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+56ac6a3e
+ * @version   2.4.0-canary+c213c2c8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4919,7 +4919,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+56ac6a3e
+    @version 2.4.0-canary+c213c2c8
     @public
   */
 
@@ -4961,11 +4961,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+56ac6a3e'
+    @default '2.4.0-canary+c213c2c8'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+56ac6a3e';
+  Ember.VERSION = '2.4.0-canary+c213c2c8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12355,26 +12355,57 @@ enifed('ember-runtime/compare', ['exports', 'ember-runtime/utils', 'ember-runtim
   //
   // the spaceship operator
   //
+  //                      `. ___
+  //                     __,' __`.                _..----....____
+  //         __...--.'``;.   ,.   ;``--..__     .'    ,-._    _.-'
+  //   _..-''-------'   `'   `'   `'     O ``-''._   (,;') _,'
+  // ,'________________                          \`-._`-','
+  //  `._              ```````````------...___   '-.._'-:
+  //     ```--.._      ,.                     ````--...__\-.
+  //             `.--. `-` "INFINTIY IS LESS     ____    |  |`
+  //               `. `.   THAN BEYOND"        ,'`````.  ;  ;`
+  //                 `._`.        __________   `.      \'__/`
+  //                    `-:._____/______/___/____`.     \  `
+  //                                |       `._    `.    \
+  //                                `._________`-.   `.   `.___
+  //                                              SSt  `------'`
   function spaceship(a, b) {
     var diff = a - b;
     return (diff > 0) - (diff < 0);
   }
 
   /**
-   This will compare two javascript values of possibly different types.
-   It will tell you which one is greater than the other by returning:
+   Compares two javascript values and returns:
   
     - -1 if the first is smaller than the second,
     - 0 if both are equal,
     - 1 if the first is greater than the second.
   
-   The order is calculated based on `Ember.ORDER_DEFINITION`, if types are different.
-   In case they have the same type an appropriate comparison for this type is made.
-  
     ```javascript
     Ember.compare('hello', 'hello');  // 0
     Ember.compare('abc', 'dfg');      // -1
     Ember.compare(2, 1);              // 1
+    ```
+  
+   If the types of the two objects are different precedence occurs in the
+   following order, with types earlier in the list considered `<` types
+   later in the list:
+  
+    - undefined
+    - null
+    - boolean
+    - number
+    - string
+    - array
+    - object
+    - instance
+    - function
+    - class
+    - date
+  
+    ```javascript
+    Ember.compare('hello', 50);       // 1
+    Ember.compare(50, 'hello');       // -1
     ```
   
    @method compare
