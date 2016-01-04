@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c213c2c8
+ * @version   2.4.0-canary+d9673825
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9965,7 +9965,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+c213c2c8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+d9673825';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15565,7 +15565,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+c213c2c8
+    @version 2.4.0-canary+d9673825
     @public
   */
 
@@ -15607,11 +15607,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+c213c2c8'
+    @default '2.4.0-canary+d9673825'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+c213c2c8';
+  Ember.VERSION = '2.4.0-canary+d9673825';
 
   /**
     The hash of environment variables used to control various configuration
@@ -26547,6 +26547,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     var LOG_VIEW_LOOKUPS = _emberMetalProperty_get.get(route.router, 'namespace.LOG_VIEW_LOOKUPS');
     var into = options && options.into && options.into.replace(/\//g, '.');
     var outlet = options && options.outlet || 'main';
+    var owner = _containerOwner.getOwner(route);
 
     if (name) {
       name = name.replace(/\//g, '.');
@@ -26558,15 +26559,15 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
 
     if (!controller) {
       if (namePassed) {
-        controller = _containerOwner.getOwner(route).lookup('controller:' + name) || route.controllerName || route.routeName;
+        controller = owner.lookup('controller:' + name) || route.controllerName || route.routeName;
       } else {
-        controller = route.controllerName || _containerOwner.getOwner(route).lookup('controller:' + name);
+        controller = route.controllerName || owner.lookup('controller:' + name);
       }
     }
 
     if (typeof controller === 'string') {
       var controllerName = controller;
-      controller = _containerOwner.getOwner(route).lookup('controller:' + controllerName);
+      controller = owner.lookup('controller:' + controllerName);
       if (!controller) {
         throw new _emberMetalError.default('You passed `controller: \'' + controllerName + '\'` into the `render` method, but no such controller could be found.');
       }
@@ -26580,7 +26581,6 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       controller.set('model', options.model);
     }
 
-    var owner = _containerOwner.getOwner(route);
     viewName = options && options.view || namePassed && name || route.viewName || name;
     ViewClass = owner._lookupFactory('view:' + viewName);
     template = owner.lookup('template:' + templateName);
@@ -26591,6 +26591,7 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
     }
 
     var renderOptions = {
+      owner: owner,
       into: into,
       outlet: outlet,
       name: name,
@@ -29256,7 +29257,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+c213c2c8';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+d9673825';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29756,7 +29757,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+c213c2c8';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+d9673825';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38655,7 +38656,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+c213c2c8',
+        revision: 'Ember@2.4.0-canary+d9673825',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42711,7 +42712,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+c213c2c8';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+d9673825';
 
   /**
   @module ember
