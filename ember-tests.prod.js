@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3b2c0871
+ * @version   2.4.0-canary+c2248aa8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -12027,10 +12027,14 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
     var found = registry.resolver.knownForType('helper');
 
-    deepEqual(found, {
-      'helper:foo-bar': true,
-      'helper:baz-qux': true
-    });
+    // using `Object.keys` and manually confirming values over using `deepEqual`
+    // due to an issue in QUnit (through at least 1.20.0) that are unable to properly compare
+    // objects with an `undefined` constructor (like ember-metal/empty_object)
+    var foundKeys = Object.keys(found);
+
+    deepEqual(foundKeys, ['helper:foo-bar', 'helper:baz-qux']);
+    ok(found['helper:foo-bar']);
+    ok(found['helper:baz-qux']);
   });
 
   QUnit.test('knownForType is not required to be present on the resolver', function () {
@@ -53087,7 +53091,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+3b2c0871', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+c2248aa8', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
