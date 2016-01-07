@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+9926caa1
+ * @version   2.4.0-canary+a364b39e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4149,7 +4149,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+9926caa1
+    @version 2.4.0-canary+a364b39e
     @public
   */
 
@@ -4191,11 +4191,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+9926caa1'
+    @default '2.4.0-canary+a364b39e'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+9926caa1';
+  Ember.VERSION = '2.4.0-canary+a364b39e';
 
   /**
     The hash of environment variables used to control various configuration
@@ -9501,7 +9501,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
 
   /**
     Cancels a scheduled item. Must be a value returned by `run.later()`,
-    `run.once()`, `run.next()`, `run.debounce()`, or
+    `run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or
     `run.throttle()`.
   
     ```javascript
@@ -9516,6 +9516,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
     }, 500);
   
     run.cancel(runLater);
+  
+    var runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {
+      // will not be executed
+    });
+  
+    run.cancel(runScheduleOnce);
   
     var runOnce = run.once(myContext, function() {
       // will not be executed
@@ -12649,7 +12655,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+9926caa1',
+        revision: 'Ember@2.4.0-canary+a364b39e',
         loc: program.loc,
         moduleName: options.moduleName
       };
