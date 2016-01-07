@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c2248aa8
+ * @version   2.4.0-canary+9926caa1
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4919,7 +4919,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+c2248aa8
+    @version 2.4.0-canary+9926caa1
     @public
   */
 
@@ -4961,11 +4961,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+c2248aa8'
+    @default '2.4.0-canary+9926caa1'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+c2248aa8';
+  Ember.VERSION = '2.4.0-canary+9926caa1';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12107,6 +12107,14 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
   }
 
   if (_emberMetalFeatures.default('mandatory-setter')) {
+    // It is true, the following code looks quite WAT. But have no fear, It
+    // exists purely to improve development ergonomics and is removed from
+    // ember.min.js and ember.prod.js builds.
+    //
+    // Some further context: Once a property is watched by ember, bypassing `set`
+    // for mutation, will bypass observation. This code exists to assert when
+    // that occurs, and attempt to provide more helpful feedback. The alternative
+    // is tricky to debug partially observable properties.
     lookupDescriptor = function lookupDescriptor(obj, keyName) {
       var current = obj;
       while (current) {
@@ -12164,6 +12172,14 @@ enifed('ember-metal/watch_key', ['exports', 'ember-metal/features', 'ember-metal
       }
 
       if (_emberMetalFeatures.default('mandatory-setter')) {
+        // It is true, the following code looks quite WAT. But have no fear, It
+        // exists purely to improve development ergonomics and is removed from
+        // ember.min.js and ember.prod.js builds.
+        //
+        // Some further context: Once a property is watched by ember, bypassing `set`
+        // for mutation, will bypass observation. This code exists to assert when
+        // that occurs, and attempt to provide more helpful feedback. The alternative
+        // is tricky to debug partially observable properties.
         if (!desc && keyName in obj) {
           Object.defineProperty(obj, keyName, {
             configurable: true,
