@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+a364b39e
+ * @version   2.4.0-canary+10ab23d8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -53336,7 +53336,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+a364b39e', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+10ab23d8', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -63318,7 +63318,7 @@ enifed('ember-views/tests/views/view_test', ['exports', 'ember-metal/computed', 
     _emberViewsViewsView.default.reopen = originalReopen;
   });
 });
-enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
+enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer/index", "htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizerIndex, _htmlbarsUtilArrayUtils) {
   "use strict";
 
   exports.equalInnerHTML = equalInnerHTML;
@@ -63358,7 +63358,7 @@ enifed("htmlbars-test-helpers", ["exports", "simple-html-tokenizer", "htmlbars-u
       div.appendChild(fragmentOrHtml.cloneNode(true));
     }
 
-    return { tokens: _simpleHtmlTokenizer.tokenize(div.innerHTML), html: div.innerHTML };
+    return { tokens: _simpleHtmlTokenizerIndex.tokenize(div.innerHTML), html: div.innerHTML };
   }
 
   function equalTokens(fragment, html, message) {
