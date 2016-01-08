@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.11+e2873422
+ * @version   1.13.11+8cc0fca7
  */
 
 (function() {
@@ -3299,7 +3299,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.11+e2873422
+    @version 1.13.11+8cc0fca7
     @public
   */
 
@@ -3333,11 +3333,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.11+e2873422'
+    @default '1.13.11+8cc0fca7'
     @static
     @public
   */
-  Ember.VERSION = '1.13.11+e2873422';
+  Ember.VERSION = '1.13.11+8cc0fca7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12663,7 +12663,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.11+e2873422',
+        revision: 'Ember@1.13.11+8cc0fca7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -14484,7 +14484,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     return {
       meta: template.meta,
       arity: template.arity,
-      yield: yieldArgs,
+      "yield": yieldArgs,
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
       yieldIn: yieldInShadowTemplate(template, env, scope, morph, renderState, visitor),
       raw: template,
@@ -14720,7 +14720,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   function thisFor(options) {
     return {
       arity: options.template.arity,
-      yield: options.template.yield,
+      "yield": options.template["yield"],
       yieldItem: options.template.yieldItem,
       yieldIn: options.template.yieldIn
     };
@@ -15207,7 +15207,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       return true;
     },
 
-    yield: function (morph, env, scope, params, hash, template, inverse, visitor) {
+    "yield": function (morph, env, scope, params, hash, template, inverse, visitor) {
       // the current scope is provided purely for the creation of shadow
       // scopes; it should not be provided to user code.
 

@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.13.11+e2873422
+ * @version   1.13.11+8cc0fca7
  */
 
 (function() {
@@ -6265,7 +6265,7 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
   function HandlebarsCompatibleHelper(fn) {
     this.helperFunction = function helperFunc(params, hash, options, env, scope) {
       var param, fnResult;
-      var hasBlock = options.template && options.template.yield;
+      var hasBlock = options.template && options.template["yield"];
 
       var handlebarsOptions = {
         hash: {},
@@ -6277,12 +6277,12 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
 
       if (hasBlock) {
         handlebarsOptions.fn = function () {
-          options.template.yield();
+          options.template["yield"]();
         };
 
-        if (options.inverse.yield) {
+        if (options.inverse["yield"]) {
           handlebarsOptions.inverse = function () {
-            options.inverse.yield();
+            options.inverse["yield"]();
           };
         }
       }
@@ -6314,7 +6314,7 @@ enifed("ember-htmlbars/compat/helper", ["exports", "ember-htmlbars/helpers", "em
 
       if (options.element) {
                 applyAttributes(env.dom, options.element, fnResult);
-      } else if (!options.template.yield) {
+      } else if (!options.template["yield"]) {
         return fnResult;
       }
     };
@@ -6916,8 +6916,8 @@ enifed("ember-htmlbars/helpers/-legacy-each-with-controller", ["exports", "ember
 
     // TODO: Correct falsy semantics
     if (!list || _emberMetalProperty_get.get(list, 'length') === 0) {
-      if (blocks.inverse.yield) {
-        blocks.inverse.yield();
+      if (blocks.inverse["yield"]) {
+        blocks.inverse["yield"]();
       }
       return;
     }
@@ -6966,8 +6966,8 @@ enifed("ember-htmlbars/helpers/-legacy-each-with-keyword", ["exports", "ember-me
         var key = _emberHtmlbarsUtilsDecodeEachKey["default"](item, keyPath, i);
         blocks.template.yieldItem(key, [item, i], self);
       });
-    } else if (blocks.inverse.yield) {
-      blocks.inverse.yield();
+    } else if (blocks.inverse["yield"]) {
+      blocks.inverse["yield"]();
     }
   }
 
@@ -7271,8 +7271,8 @@ enifed("ember-htmlbars/helpers/each", ["exports", "ember-metal/enumerable_utils"
 
         blocks.template.yieldItem(key, [item, i], self);
       });
-    } else if (blocks.inverse.yield) {
-      blocks.inverse.yield();
+    } else if (blocks.inverse["yield"]) {
+      blocks.inverse["yield"]();
     }
   }
 
@@ -7364,14 +7364,14 @@ enifed("ember-htmlbars/helpers/if_unless", ["exports", "ember-metal/core", "embe
     
     
     if (truthy) {
-      if (options.template.yield) {
-        options.template.yield();
+      if (options.template["yield"]) {
+        options.template["yield"]();
       } else {
         return params[1];
       }
     } else {
-      if (options.inverse.yield) {
-        options.inverse.yield();
+      if (options.inverse["yield"]) {
+        options.inverse["yield"]();
       } else {
         return params[2];
       }
@@ -7509,7 +7509,7 @@ enifed("ember-htmlbars/helpers/with", ["exports", "ember-htmlbars/utils/normaliz
       }
 
       if (preserveContext) {
-        this.yield([params[0]]);
+        this["yield"]([params[0]]);
       } else {
         var _self = _emberHtmlbarsUtilsNormalizeSelf["default"](params[0]);
         if (hash.controller) {
@@ -7520,10 +7520,10 @@ enifed("ember-htmlbars/helpers/with", ["exports", "ember-htmlbars/utils/normaliz
           };
         }
 
-        this.yield([], _self);
+        this["yield"]([], _self);
       }
-    } else if (options.inverse && options.inverse.yield) {
-      options.inverse.yield([]);
+    } else if (options.inverse && options.inverse["yield"]) {
+      options.inverse["yield"]([]);
     }
   }
 });
@@ -9249,7 +9249,7 @@ enifed("ember-htmlbars/keywords/partial", ["exports", "ember-views/system/lookup
       }
 
       _htmlbarsRuntime.internal.hostBlock(renderNode, env, scope, found.raw, null, null, visitor, function (options) {
-        options.templates.template.yield();
+        options.templates.template["yield"]();
       });
     }
   };
@@ -9285,7 +9285,7 @@ enifed("ember-htmlbars/keywords/real_outlet", ["exports", "ember-metal/property_
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.11+e2873422';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.11+8cc0fca7';
 
   exports["default"] = {
     willRender: function (renderNode, env) {
@@ -15555,7 +15555,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 1.13.11+e2873422
+    @version 1.13.11+8cc0fca7
     @public
   */
 
@@ -15589,11 +15589,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '1.13.11+e2873422'
+    @default '1.13.11+8cc0fca7'
     @static
     @public
   */
-  Ember.VERSION = '1.13.11+e2873422';
+  Ember.VERSION = '1.13.11+8cc0fca7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24486,7 +24486,7 @@ enifed("ember-routing-views/views/link", ["exports", "ember-metal/core", "ember-
 
   "use strict";
 
-  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.11+e2873422';
+  _emberHtmlbarsTemplatesLinkTo["default"].meta.revision = 'Ember@1.13.11+8cc0fca7';
 
   var linkComponentClassNameBindings = ['active', 'loading', 'disabled'];
   
@@ -25006,7 +25006,7 @@ enifed("ember-routing-views/views/outlet", ["exports", "ember-views/views/view",
 
   "use strict";
 
-  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.11+e2873422';
+  _emberHtmlbarsTemplatesTopLevelView["default"].meta.revision = 'Ember@1.13.11+8cc0fca7';
 
   var CoreOutletView = _emberViewsViewsView["default"].extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView["default"],
@@ -41878,7 +41878,7 @@ enifed("ember-template-compiler/system/compile_options", ["exports", "ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@1.13.11+e2873422',
+        revision: 'Ember@1.13.11+8cc0fca7',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -44556,10 +44556,6 @@ enifed("ember-views/system/build-component-template", ["exports", "htmlbars-runt
       normalizeClasses(attrs.classBinding.split(' '), normalizedClass);
     }
 
-    if (attrs.classNames) {
-      normalizedClass.push(['value', attrs.classNames]);
-    }
-
     if (classNames) {
       for (i = 0, l = classNames.length; i < l; i++) {
         normalizedClass.push(classNames[i]);
@@ -45906,7 +45902,7 @@ enifed("ember-views/views/component", ["exports", "ember-metal/core", "ember-vie
 enifed("ember-views/views/container_view", ["exports", "ember-metal/core", "ember-runtime/mixins/mutable_array", "ember-views/views/view", "ember-metal/property_get", "ember-metal/property_set", "ember-metal/enumerable_utils", "ember-metal/mixin", "ember-metal/events", "ember-htmlbars/templates/container-view"], function (exports, _emberMetalCore, _emberRuntimeMixinsMutable_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalEnumerable_utils, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   "use strict";
 
-  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.11+e2873422';
+  _emberHtmlbarsTemplatesContainerView["default"].meta.revision = 'Ember@1.13.11+8cc0fca7';
 
   /**
   @module ember
@@ -49427,7 +49423,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
     return {
       meta: template.meta,
       arity: template.arity,
-      yield: yieldArgs,
+      "yield": yieldArgs,
       yieldItem: yieldItem(template, env, scope, morph, renderState, visitor),
       yieldIn: yieldInShadowTemplate(template, env, scope, morph, renderState, visitor),
       raw: template,
@@ -49663,7 +49659,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
   function thisFor(options) {
     return {
       arity: options.template.arity,
-      yield: options.template.yield,
+      "yield": options.template["yield"],
       yieldItem: options.template.yieldItem,
       yieldIn: options.template.yieldIn
     };
@@ -50150,7 +50146,7 @@ enifed("htmlbars-runtime/hooks", ["exports", "./render", "../morph-range/morph-l
       return true;
     },
 
-    yield: function (morph, env, scope, params, hash, template, inverse, visitor) {
+    "yield": function (morph, env, scope, params, hash, template, inverse, visitor) {
       // the current scope is provided purely for the creation of shadow
       // scopes; it should not be provided to user code.
 
