@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0-beta.3+2356dd6e
+ * @version   2.3.0-beta.3+48502ef0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3964,7 +3964,7 @@ enifed('ember-application/system/application-instance', ['exports', 'ember-metal
     on `Ember.Application#visit` for the supported configurations.
      Internal, experimental or otherwise unstable flags are marked as private.
      @class BootOptions
-    @namespace @Ember.ApplicationInstance
+    @namespace Ember.ApplicationInstance
     @public
   */
   BootOptions = function BootOptions() {
@@ -6986,7 +6986,7 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_di
     of the base Handlebars `{{#each}}` helper.
   
     The default behavior of `{{#each}}` is to yield its inner block once for every
-    item in an array.
+    item in an array passing the item as the first block parameter.
   
     ```javascript
     var developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];
@@ -7009,6 +7009,16 @@ enifed('ember-htmlbars/helpers/each', ['exports', 'ember-views/streams/should_di
     {{#each developerNames key="@index" as |name|}}
       {{name}}
     {{/each}}
+    ```
+  
+    During iteration, the index of each item in the array is provided as a second block parameter.
+  
+    ```handlebars
+    <ul>
+      {{#each people as |person index|}}
+        <li>Hello, {{person.name}}! You're number {{index}} in line</li>
+      {{/each}}
+    </ul>
     ```
   
     ### Specifying Keys
@@ -9512,7 +9522,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3+2356dd6e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3+48502ef0';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15166,7 +15176,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0-beta.3+2356dd6e
+    @version 2.3.0-beta.3+48502ef0
     @public
   */
 
@@ -15210,11 +15220,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0-beta.3+2356dd6e'
+    @default '2.3.0-beta.3+48502ef0'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0-beta.3+2356dd6e';
+  Ember.VERSION = '2.3.0-beta.3+48502ef0';
 
   /**
     The hash of environment variables used to control various configuration
@@ -20226,7 +20236,7 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
 
   /**
     Cancels a scheduled item. Must be a value returned by `run.later()`,
-    `run.once()`, `run.next()`, `run.debounce()`, or
+    `run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or
     `run.throttle()`.
   
     ```javascript
@@ -20241,6 +20251,12 @@ enifed('ember-metal/run_loop', ['exports', 'ember-metal/core', 'ember-metal/debu
     }, 500);
   
     run.cancel(runLater);
+  
+    var runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {
+      // will not be executed
+    });
+  
+    run.cancel(runScheduleOnce);
   
     var runOnce = run.once(myContext, function() {
       // will not be executed
@@ -28024,7 +28040,7 @@ enifed('ember-routing-htmlbars/keywords/closure-action', ['exports', 'ember-meta
     return closureAction;
   }
 });
-enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/run_loop', 'ember-views/streams/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalRun_loop, _emberViewsStreamsUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
+enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-metal/debug', 'ember-metal/utils', 'ember-metal/streams/utils', 'ember-metal/run_loop', 'ember-views/streams/utils', 'ember-views/system/utils', 'ember-views/system/action_manager'], function (exports, _emberMetalDebug, _emberMetalUtils, _emberMetalStreamsUtils, _emberMetalRun_loop, _emberViewsStreamsUtils, _emberViewsSystemUtils, _emberViewsSystemAction_manager) {
   'use strict';
 
   exports.default = {
@@ -28101,15 +28117,15 @@ enifed('ember-routing-htmlbars/keywords/element-action', ['exports', 'ember-meta
     actions.push({
       eventName: eventName,
       handler: function (event) {
-        if (!isAllowedEvent(event, allowedKeys)) {
+        if (!isAllowedEvent(event, _emberMetalStreamsUtils.read(allowedKeys))) {
           return true;
         }
 
-        if (preventDefault !== false) {
+        if (_emberMetalStreamsUtils.read(preventDefault) !== false) {
           event.preventDefault();
         }
 
-        if (bubbles === false) {
+        if (_emberMetalStreamsUtils.read(bubbles) === false) {
           event.stopPropagation();
         }
 
@@ -28773,7 +28789,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.3+2356dd6e';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0-beta.3+48502ef0';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29260,7 +29276,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3+2356dd6e';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0-beta.3+48502ef0';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38114,7 +38130,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0-beta.3+2356dd6e',
+        revision: 'Ember@2.3.0-beta.3+48502ef0',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -41481,7 +41497,7 @@ enifed('ember-views/system/ext', ['exports', 'ember-metal/run_loop'], function (
   _emberMetalRun_loop.default._addQueue('render', 'actions');
   _emberMetalRun_loop.default._addQueue('afterRender', 'render');
 });
-enifed('ember-views/system/jquery', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalDebug, _emberMetalEnvironment) {
+enifed('ember-views/system/jquery', ['exports', 'ember-metal/core', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalEnvironment) {
   'use strict';
 
   var jQuery;
@@ -42129,7 +42145,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.3+2356dd6e';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0-beta.3+48502ef0';
 
   /**
   @module ember
