@@ -1,11 +1,16 @@
 {
   "name": "ember",
+  "version": "2.2.1",
   "license": "MIT",
-  "version": "2.2.0",
+  "homepage": "https://github.com/emberjs/ember.js",
   "main": [
     "./ember.debug.js",
     "./ember-template-compiler.js"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emberjs/ember.js.git"
+  },
   "dependencies": {
     "jquery": ">= 1.7.0 < 2.2.0"
   }
