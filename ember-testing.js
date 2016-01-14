@@ -1,120 +1,33 @@
-/*!
- * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2015 Tilde Inc. and contributors
- *            Portions Copyright 2006-2011 Strobe Inc.
- *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
- * @license   Licensed under MIT license
- *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.2
- */
+requireModule("ember-testing");
 
-(function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
-var mainContext = this;
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
+  'use strict';
 
-(function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+  var deprecationLevels = {
+    RAISE: _emberMetalUtils.symbol('RAISE'),
+    LOG: _emberMetalUtils.symbol('LOG'),
+    SILENCE: _emberMetalUtils.symbol('SILENCE')
+  };
 
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
-
-  if (typeof Ember === 'undefined') { Ember = {}; };
-
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
-      } else {
-        value.deps = deps;
-        value.callback = callback;
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: _emberMetalDictionary.default(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
       }
-
-      registry[name] = value;
-    };
-
-    requirejs = eriuqer = requireModule = function(name) {
-      return internalRequire(name, null);
+      return level;
     }
-
-    function internalRequire(name, referrerName) {
-      var exports = seen[name];
-
-      if (exports !== undefined) {
-        return exports;
-      }
-
-      exports = seen[name] = {};
-
-      if (!registry[name]) {
-        if (referrerName) {
-          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
-        } else {
-          throw new Error('Could not find module ' + name);
-        }
-      }
-
-      var mod = registry[name];
-      var deps = mod.deps;
-      var callback = mod.callback;
-      var reified = [];
-      var length = deps.length;
-
-      for (var i=0; i<length; i++) {
-        if (deps[i] === 'exports') {
-          reified.push(exports);
-        } else {
-          reified.push(internalRequire(resolve(deps[i], name), name));
-        }
-      }
-
-      callback.apply(this, reified);
-
-      return exports;
-    };
-
-    function resolve(child, name) {
-      if (child.charAt(0) !== '.') {
-        return child;
-      }
-      var parts = child.split('/');
-      var parentBase = name.split('/').slice(0, -1);
-
-      for (var i=0, l=parts.length; i<l; i++) {
-        var part = parts[i];
-
-        if (part === '..') {
-          parentBase.pop();
-        } else if (part === '.') {
-          continue;
-        } else {
-          parentBase.push(part);
-        }
-      }
-
-      return parentBase.join('/');
-    }
-
-    requirejs._eak_seen = registry;
-
-    Ember.__loader = {
-      define: enifed,
-      require: eriuqer,
-      registry: registry
-    };
-  } else {
-    enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
-  }
-})();
-
+  };
+});
 enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   /*global __fail__*/
 
@@ -441,51 +354,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
     _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 });
-enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
-  'use strict';
-
-  var deprecationLevels = {
-    RAISE: _emberMetalUtils.symbol('RAISE'),
-    LOG: _emberMetalUtils.symbol('LOG'),
-    SILENCE: _emberMetalUtils.symbol('SILENCE')
-  };
-
-  exports.deprecationLevels = deprecationLevels;
-  exports.default = {
-    defaultLevel: deprecationLevels.LOG,
-    individualLevels: _emberMetalDictionary.default(null),
-    setDefaultLevel: function (level) {
-      this.defaultLevel = level;
-    },
-    setLevel: function (id, level) {
-      this.individualLevels[id] = level;
-    },
-    getLevel: function (id) {
-      var level = this.individualLevels[id];
-      if (!level) {
-        level = this.defaultLevel;
-      }
-      return level;
-    }
-  };
-});
-enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
-  'use strict';
-
-  // adds helpers to helpers object in Test
-
-  /**
-    @module ember
-    @submodule ember-testing
-  */
-
-  _emberMetalCore.default.Test = _emberTestingTest.default;
-  _emberMetalCore.default.Test.Adapter = _emberTestingAdaptersAdapter.default;
-  _emberMetalCore.default.Test.QUnitAdapter = _emberTestingAdaptersQunit.default;
-  _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
-});
-// to setup initializer
-// to handle various edge cases
 enifed('ember-testing/adapters/adapter', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
   'use strict';
 
@@ -1708,6 +1576,137 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
 
   exports.default = Test;
 });
-requireModule("ember-testing");
+enifed('ember-testing', ['exports', 'ember-metal/core', 'ember-testing/initializers', 'ember-testing/support', 'ember-testing/setup_for_testing', 'ember-testing/test', 'ember-testing/adapters/adapter', 'ember-testing/adapters/qunit', 'ember-testing/helpers'], function (exports, _emberMetalCore, _emberTestingInitializers, _emberTestingSupport, _emberTestingSetup_for_testing, _emberTestingTest, _emberTestingAdaptersAdapter, _emberTestingAdaptersQunit, _emberTestingHelpers) {
+  'use strict';
 
+  // adds helpers to helpers object in Test
+
+  /**
+    @module ember
+    @submodule ember-testing
+  */
+
+  _emberMetalCore.default.Test = _emberTestingTest.default;
+  _emberMetalCore.default.Test.Adapter = _emberTestingAdaptersAdapter.default;
+  _emberMetalCore.default.Test.QUnitAdapter = _emberTestingAdaptersQunit.default;
+  _emberMetalCore.default.setupForTesting = _emberTestingSetup_for_testing.default;
+});
+// to setup initializer
+// to handle various edge cases
+(function() {
+})();
+/*!
+ * @overview  Ember - JavaScript Application Framework
+ * @copyright Copyright 2011-2015 Tilde Inc. and contributors
+ *            Portions Copyright 2006-2011 Strobe Inc.
+ *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
+ * @license   Licensed under MIT license
+ *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
+ * @version   2.0.3
+ */
+
+var enifed, requireModule, eriuqer, requirejs, Ember;
+var mainContext = this;
+
+(function() {
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; };
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requirejs = eriuqer = requireModule = function(name) {
+      return internalRequire(name, null);
+    }
+
+    function internalRequire(name, referrerName) {
+      var exports = seen[name];
+
+      if (exports !== undefined) {
+        return exports;
+      }
+
+      exports = seen[name] = {};
+
+      if (!registry[name]) {
+        if (referrerName) {
+          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
+        } else {
+          throw new Error('Could not find module ' + name);
+        }
+      }
+
+      var mod = registry[name];
+      var deps = mod.deps;
+      var callback = mod.callback;
+      var reified = [];
+      var length = deps.length;
+
+      for (var i=0; i<length; i++) {
+        if (deps[i] === 'exports') {
+          reified.push(exports);
+        } else {
+          reified.push(internalRequire(resolve(deps[i], name), name));
+        }
+      }
+
+      callback.apply(this, reified);
+
+      return exports;
+    };
+
+    function resolve(child, name) {
+      if (child.charAt(0) !== '.') {
+        return child;
+      }
+      var parts = child.split('/');
+      var parentBase = name.split('/').slice(0, -1);
+
+      for (var i=0, l=parts.length; i<l; i++) {
+        var part = parts[i];
+
+        if (part === '..') {
+          parentBase.pop();
+        } else if (part === '.') {
+          continue;
+        } else {
+          parentBase.push(part);
+        }
+      }
+
+      return parentBase.join('/');
+    }
+
+    requirejs._eak_seen = registry;
+
+    Ember.__loader = {
+      define: enifed,
+      require: eriuqer,
+      registry: registry
+    };
+  } else {
+    enifed = Ember.__loader.define;
+    requirejs = eriuqer = requireModule = Ember.__loader.require;
+  }
 })();

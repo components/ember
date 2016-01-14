@@ -1,120 +1,418 @@
-/*!
- * @overview  Ember - JavaScript Application Framework
- * @copyright Copyright 2011-2015 Tilde Inc. and contributors
- *            Portions Copyright 2006-2011 Strobe Inc.
- *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
- * @license   Licensed under MIT license
- *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.0.2
- */
+enifed("backburner/binary-search", ["exports"], function (exports) {
+  "use strict";
 
-(function() {
-var enifed, requireModule, eriuqer, requirejs, Ember;
-var mainContext = this;
+  exports.default = binarySearch;
 
-(function() {
-  var isNode = typeof window === 'undefined' &&
-    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+  function binarySearch(time, timers) {
+    var start = 0;
+    var end = timers.length - 2;
+    var middle, l;
 
-  if (!isNode) {
-    Ember = this.Ember = this.Ember || {};
-  }
+    while (start < end) {
+      // since timers is an array of pairs 'l' will always
+      // be an integer
+      l = (end - start) / 2;
 
-  if (typeof Ember === 'undefined') { Ember = {}; };
+      // compensate for the index in case even number
+      // of pairs inside timers
+      middle = start + l - l % 2;
 
-  if (typeof Ember.__loader === 'undefined') {
-    var registry = {};
-    var seen = {};
-
-    enifed = function(name, deps, callback) {
-      var value = { };
-
-      if (!callback) {
-        value.deps = [];
-        value.callback = deps;
+      if (time >= timers[middle]) {
+        start = middle + 2;
       } else {
-        value.deps = deps;
-        value.callback = callback;
+        end = middle;
       }
-
-      registry[name] = value;
-    };
-
-    requirejs = eriuqer = requireModule = function(name) {
-      return internalRequire(name, null);
     }
 
-    function internalRequire(name, referrerName) {
-      var exports = seen[name];
-
-      if (exports !== undefined) {
-        return exports;
-      }
-
-      exports = seen[name] = {};
-
-      if (!registry[name]) {
-        if (referrerName) {
-          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
-        } else {
-          throw new Error('Could not find module ' + name);
-        }
-      }
-
-      var mod = registry[name];
-      var deps = mod.deps;
-      var callback = mod.callback;
-      var reified = [];
-      var length = deps.length;
-
-      for (var i=0; i<length; i++) {
-        if (deps[i] === 'exports') {
-          reified.push(exports);
-        } else {
-          reified.push(internalRequire(resolve(deps[i], name), name));
-        }
-      }
-
-      callback.apply(this, reified);
-
-      return exports;
-    };
-
-    function resolve(child, name) {
-      if (child.charAt(0) !== '.') {
-        return child;
-      }
-      var parts = child.split('/');
-      var parentBase = name.split('/').slice(0, -1);
-
-      for (var i=0, l=parts.length; i<l; i++) {
-        var part = parts[i];
-
-        if (part === '..') {
-          parentBase.pop();
-        } else if (part === '.') {
-          continue;
-        } else {
-          parentBase.push(part);
-        }
-      }
-
-      return parentBase.join('/');
-    }
-
-    requirejs._eak_seen = registry;
-
-    Ember.__loader = {
-      define: enifed,
-      require: eriuqer,
-      registry: registry
-    };
-  } else {
-    enifed = Ember.__loader.define;
-    requirejs = eriuqer = requireModule = Ember.__loader.require;
+    return time >= timers[start] ? start + 2 : start;
   }
-})();
+});
+enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], function (exports, _utils, _queue) {
+  'use strict';
 
+  exports.default = DeferredActionQueues;
+
+  function DeferredActionQueues(queueNames, options) {
+    var queues = this.queues = {};
+    this.queueNames = queueNames = queueNames || [];
+
+    this.options = options;
+
+    _utils.each(queueNames, function (queueName) {
+      queues[queueName] = new _queue.default(queueName, options[queueName], options);
+    });
+  }
+
+  function noSuchQueue(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
+  }
+
+  function noSuchMethod(name) {
+    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
+  }
+
+  DeferredActionQueues.prototype = {
+    schedule: function (name, target, method, args, onceFlag, stack) {
+      var queues = this.queues;
+      var queue = queues[name];
+
+      if (!queue) {
+        noSuchQueue(name);
+      }
+
+      if (!method) {
+        noSuchMethod(name);
+      }
+
+      if (onceFlag) {
+        return queue.pushUnique(target, method, args, stack);
+      } else {
+        return queue.push(target, method, args, stack);
+      }
+    },
+
+    flush: function () {
+      var queues = this.queues;
+      var queueNames = this.queueNames;
+      var queueName, queue, queueItems, priorQueueNameIndex;
+      var queueNameIndex = 0;
+      var numberOfQueues = queueNames.length;
+      var options = this.options;
+
+      while (queueNameIndex < numberOfQueues) {
+        queueName = queueNames[queueNameIndex];
+        queue = queues[queueName];
+
+        var numberOfQueueItems = queue._queue.length;
+
+        if (numberOfQueueItems === 0) {
+          queueNameIndex++;
+        } else {
+          queue.flush(false /* async */);
+          queueNameIndex = 0;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/platform', ['exports'], function (exports) {
+  // In IE 6-8, try/finally doesn't work without a catch.
+  // Unfortunately, this is impossible to test for since wrapping it in a parent try/catch doesn't trigger the bug.
+  // This tests for another broken try/catch behavior that only exhibits in the same versions of IE.
+  'use strict';
+
+  var needsIETryCatchFix = (function (e, x) {
+    try {
+      x();
+    } catch (e) {} // jshint ignore:line
+    return !!e;
+  })();
+
+  exports.needsIETryCatchFix = needsIETryCatchFix;
+  var platform;
+
+  /* global self */
+  if (typeof self === 'object') {
+    platform = self;
+
+    /* global global */
+  } else if (typeof global === 'object') {
+      platform = global;
+    } else {
+      throw new Error('no global: `self` or `global` found');
+    }
+
+  exports.default = platform;
+});
+enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
+  'use strict';
+
+  exports.default = Queue;
+
+  function Queue(name, options, globalOptions) {
+    this.name = name;
+    this.globalOptions = globalOptions || {};
+    this.options = options;
+    this._queue = [];
+    this.targetQueues = {};
+    this._queueBeingFlushed = undefined;
+  }
+
+  Queue.prototype = {
+    push: function (target, method, args, stack) {
+      var queue = this._queue;
+      queue.push(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUniqueWithoutGuid: function (target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = queue.length; i < l; i += 4) {
+        var currentTarget = queue[i];
+        var currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue[i + 2] = args; // replace args
+          queue[i + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      queue.push(target, method, args, stack);
+    },
+
+    targetQueue: function (targetQueue, target, method, args, stack) {
+      var queue = this._queue;
+
+      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
+        var currentMethod = targetQueue[i];
+        var currentIndex = targetQueue[i + 1];
+
+        if (currentMethod === method) {
+          queue[currentIndex + 2] = args; // replace args
+          queue[currentIndex + 3] = stack; // replace stack
+          return;
+        }
+      }
+
+      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
+    },
+
+    pushUniqueWithGuid: function (guid, target, method, args, stack) {
+      var hasLocalQueue = this.targetQueues[guid];
+
+      if (hasLocalQueue) {
+        this.targetQueue(hasLocalQueue, target, method, args, stack);
+      } else {
+        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
+      }
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    pushUnique: function (target, method, args, stack) {
+      var queue = this._queue,
+          currentTarget,
+          currentMethod,
+          i,
+          l;
+      var KEY = this.globalOptions.GUID_KEY;
+
+      if (target && KEY) {
+        var guid = target[KEY];
+        if (guid) {
+          return this.pushUniqueWithGuid(guid, target, method, args, stack);
+        }
+      }
+
+      this.pushUniqueWithoutGuid(target, method, args, stack);
+
+      return {
+        queue: this,
+        target: target,
+        method: method
+      };
+    },
+
+    invoke: function (target, method, args, _, _errorRecordedForStack) {
+      if (args && args.length > 0) {
+        method.apply(target, args);
+      } else {
+        method.call(target);
+      }
+    },
+
+    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
+      try {
+        if (args && args.length > 0) {
+          method.apply(target, args);
+        } else {
+          method.call(target);
+        }
+      } catch (error) {
+        onError(error, errorRecordedForStack);
+      }
+    },
+
+    flush: function (sync) {
+      var queue = this._queue;
+      var length = queue.length;
+
+      if (length === 0) {
+        return;
+      }
+
+      var globalOptions = this.globalOptions;
+      var options = this.options;
+      var before = options && options.before;
+      var after = options && options.after;
+      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
+      var target, method, args, errorRecordedForStack;
+      var invoke = onError ? this.invokeWithOnError : this.invoke;
+
+      this.targetQueues = Object.create(null);
+      var queueItems = this._queueBeingFlushed = this._queue.slice();
+      this._queue = [];
+
+      if (before) {
+        before();
+      }
+
+      for (var i = 0; i < length; i += 4) {
+        target = queueItems[i];
+        method = queueItems[i + 1];
+        args = queueItems[i + 2];
+        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
+
+        if (_utils.isString(method)) {
+          method = target[method];
+        }
+
+        // method could have been nullified / canceled during flush
+        if (method) {
+          //
+          //    ** Attention intrepid developer **
+          //
+          //    To find out the stack of this task when it was scheduled onto
+          //    the run loop, add the following to your app.js:
+          //
+          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
+          //
+          //    Once that is in place, when you are at a breakpoint and navigate
+          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
+          //    which will be the captured stack when this job was scheduled.
+          //
+          invoke(target, method, args, onError, errorRecordedForStack);
+        }
+      }
+
+      if (after) {
+        after();
+      }
+
+      this._queueBeingFlushed = undefined;
+
+      if (sync !== false && this._queue.length > 0) {
+        // check if new items have been added
+        this.flush(true);
+      }
+    },
+
+    cancel: function (actionToCancel) {
+      var queue = this._queue,
+          currentTarget,
+          currentMethod,
+          i,
+          l;
+      var target = actionToCancel.target;
+      var method = actionToCancel.method;
+      var GUID_KEY = this.globalOptions.GUID_KEY;
+
+      if (GUID_KEY && this.targetQueues && target) {
+        var targetQueue = this.targetQueues[target[GUID_KEY]];
+
+        if (targetQueue) {
+          for (i = 0, l = targetQueue.length; i < l; i++) {
+            if (targetQueue[i] === method) {
+              targetQueue.splice(i, 1);
+            }
+          }
+        }
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          queue.splice(i, 4);
+          return true;
+        }
+      }
+
+      // if not found in current queue
+      // could be in the queue that is being flushed
+      queue = this._queueBeingFlushed;
+
+      if (!queue) {
+        return;
+      }
+
+      for (i = 0, l = queue.length; i < l; i += 4) {
+        currentTarget = queue[i];
+        currentMethod = queue[i + 1];
+
+        if (currentTarget === target && currentMethod === method) {
+          // don't mess with array during flush
+          // just nullify the method
+          queue[i + 1] = null;
+          return true;
+        }
+      }
+    }
+  };
+});
+enifed('backburner/utils', ['exports'], function (exports) {
+  'use strict';
+
+  exports.each = each;
+  exports.isString = isString;
+  exports.isFunction = isFunction;
+  exports.isNumber = isNumber;
+  exports.isCoercableNumber = isCoercableNumber;
+  exports.wrapInTryCatch = wrapInTryCatch;
+  var NUMBER = /\d+/;
+
+  function each(collection, callback) {
+    for (var i = 0; i < collection.length; i++) {
+      callback(collection[i]);
+    }
+  }
+
+  // Date.now is not available in browsers < IE9
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
+  var now = Date.now || function () {
+    return new Date().getTime();
+  };
+
+  exports.now = now;
+
+  function isString(suspect) {
+    return typeof suspect === 'string';
+  }
+
+  function isFunction(suspect) {
+    return typeof suspect === 'function';
+  }
+
+  function isNumber(suspect) {
+    return typeof suspect === 'number';
+  }
+
+  function isCoercableNumber(number) {
+    return isNumber(number) || NUMBER.test(number);
+  }
+
+  function wrapInTryCatch(func) {
+    return function () {
+      try {
+        return func.apply(this, arguments);
+      } catch (e) {
+        throw e;
+      }
+    };
+  }
+});
 enifed('backburner', ['exports', './backburner/utils', './backburner/platform', './backburner/binary-search', './backburner/deferred-action-queues'], function (exports, _backburnerUtils, _backburnerPlatform, _backburnerBinarySearch, _backburnerDeferredActionQueues) {
   'use strict';
 
@@ -745,420 +1043,36 @@ enifed('backburner', ['exports', './backburner/utils', './backburner/platform', 
     return index;
   }
 });
-enifed("backburner/binary-search", ["exports"], function (exports) {
-  "use strict";
+requireModule("ember-debug");
+requireModule("ember-template-compiler");
 
-  exports.default = binarySearch;
-
-  function binarySearch(time, timers) {
-    var start = 0;
-    var end = timers.length - 2;
-    var middle, l;
-
-    while (start < end) {
-      // since timers is an array of pairs 'l' will always
-      // be an integer
-      l = (end - start) / 2;
-
-      // compensate for the index in case even number
-      // of pairs inside timers
-      middle = start + l - l % 2;
-
-      if (time >= timers[middle]) {
-        start = middle + 2;
-      } else {
-        end = middle;
-      }
-    }
-
-    return time >= timers[start] ? start + 2 : start;
-  }
-});
-enifed('backburner/deferred-action-queues', ['exports', './utils', './queue'], function (exports, _utils, _queue) {
+enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
   'use strict';
 
-  exports.default = DeferredActionQueues;
-
-  function DeferredActionQueues(queueNames, options) {
-    var queues = this.queues = {};
-    this.queueNames = queueNames = queueNames || [];
-
-    this.options = options;
-
-    _utils.each(queueNames, function (queueName) {
-      queues[queueName] = new _queue.default(queueName, options[queueName], options);
-    });
-  }
-
-  function noSuchQueue(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') that doesn\'t exist');
-  }
-
-  function noSuchMethod(name) {
-    throw new Error('You attempted to schedule an action in a queue (' + name + ') for a method that doesn\'t exist');
-  }
-
-  DeferredActionQueues.prototype = {
-    schedule: function (name, target, method, args, onceFlag, stack) {
-      var queues = this.queues;
-      var queue = queues[name];
-
-      if (!queue) {
-        noSuchQueue(name);
-      }
-
-      if (!method) {
-        noSuchMethod(name);
-      }
-
-      if (onceFlag) {
-        return queue.pushUnique(target, method, args, stack);
-      } else {
-        return queue.push(target, method, args, stack);
-      }
-    },
-
-    flush: function () {
-      var queues = this.queues;
-      var queueNames = this.queueNames;
-      var queueName, queue, queueItems, priorQueueNameIndex;
-      var queueNameIndex = 0;
-      var numberOfQueues = queueNames.length;
-      var options = this.options;
-
-      while (queueNameIndex < numberOfQueues) {
-        queueName = queueNames[queueNameIndex];
-        queue = queues[queueName];
-
-        var numberOfQueueItems = queue._queue.length;
-
-        if (numberOfQueueItems === 0) {
-          queueNameIndex++;
-        } else {
-          queue.flush(false /* async */);
-          queueNameIndex = 0;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/platform', ['exports'], function (exports) {
-  // In IE 6-8, try/finally doesn't work without a catch.
-  // Unfortunately, this is impossible to test for since wrapping it in a parent try/catch doesn't trigger the bug.
-  // This tests for another broken try/catch behavior that only exhibits in the same versions of IE.
-  'use strict';
-
-  var needsIETryCatchFix = (function (e, x) {
-    try {
-      x();
-    } catch (e) {} // jshint ignore:line
-    return !!e;
-  })();
-
-  exports.needsIETryCatchFix = needsIETryCatchFix;
-  var platform;
-
-  /* global self */
-  if (typeof self === 'object') {
-    platform = self;
-
-    /* global global */
-  } else if (typeof global === 'object') {
-      platform = global;
-    } else {
-      throw new Error('no global: `self` or `global` found');
-    }
-
-  exports.default = platform;
-});
-enifed('backburner/queue', ['exports', './utils'], function (exports, _utils) {
-  'use strict';
-
-  exports.default = Queue;
-
-  function Queue(name, options, globalOptions) {
-    this.name = name;
-    this.globalOptions = globalOptions || {};
-    this.options = options;
-    this._queue = [];
-    this.targetQueues = {};
-    this._queueBeingFlushed = undefined;
-  }
-
-  Queue.prototype = {
-    push: function (target, method, args, stack) {
-      var queue = this._queue;
-      queue.push(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUniqueWithoutGuid: function (target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = queue.length; i < l; i += 4) {
-        var currentTarget = queue[i];
-        var currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue[i + 2] = args; // replace args
-          queue[i + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      queue.push(target, method, args, stack);
-    },
-
-    targetQueue: function (targetQueue, target, method, args, stack) {
-      var queue = this._queue;
-
-      for (var i = 0, l = targetQueue.length; i < l; i += 2) {
-        var currentMethod = targetQueue[i];
-        var currentIndex = targetQueue[i + 1];
-
-        if (currentMethod === method) {
-          queue[currentIndex + 2] = args; // replace args
-          queue[currentIndex + 3] = stack; // replace stack
-          return;
-        }
-      }
-
-      targetQueue.push(method, queue.push(target, method, args, stack) - 4);
-    },
-
-    pushUniqueWithGuid: function (guid, target, method, args, stack) {
-      var hasLocalQueue = this.targetQueues[guid];
-
-      if (hasLocalQueue) {
-        this.targetQueue(hasLocalQueue, target, method, args, stack);
-      } else {
-        this.targetQueues[guid] = [method, this._queue.push(target, method, args, stack) - 4];
-      }
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    pushUnique: function (target, method, args, stack) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
-      var KEY = this.globalOptions.GUID_KEY;
-
-      if (target && KEY) {
-        var guid = target[KEY];
-        if (guid) {
-          return this.pushUniqueWithGuid(guid, target, method, args, stack);
-        }
-      }
-
-      this.pushUniqueWithoutGuid(target, method, args, stack);
-
-      return {
-        queue: this,
-        target: target,
-        method: method
-      };
-    },
-
-    invoke: function (target, method, args, _, _errorRecordedForStack) {
-      if (args && args.length > 0) {
-        method.apply(target, args);
-      } else {
-        method.call(target);
-      }
-    },
-
-    invokeWithOnError: function (target, method, args, onError, errorRecordedForStack) {
-      try {
-        if (args && args.length > 0) {
-          method.apply(target, args);
-        } else {
-          method.call(target);
-        }
-      } catch (error) {
-        onError(error, errorRecordedForStack);
-      }
-    },
-
-    flush: function (sync) {
-      var queue = this._queue;
-      var length = queue.length;
-
-      if (length === 0) {
-        return;
-      }
-
-      var globalOptions = this.globalOptions;
-      var options = this.options;
-      var before = options && options.before;
-      var after = options && options.after;
-      var onError = globalOptions.onError || globalOptions.onErrorTarget && globalOptions.onErrorTarget[globalOptions.onErrorMethod];
-      var target, method, args, errorRecordedForStack;
-      var invoke = onError ? this.invokeWithOnError : this.invoke;
-
-      this.targetQueues = Object.create(null);
-      var queueItems = this._queueBeingFlushed = this._queue.slice();
-      this._queue = [];
-
-      if (before) {
-        before();
-      }
-
-      for (var i = 0; i < length; i += 4) {
-        target = queueItems[i];
-        method = queueItems[i + 1];
-        args = queueItems[i + 2];
-        errorRecordedForStack = queueItems[i + 3]; // Debugging assistance
-
-        if (_utils.isString(method)) {
-          method = target[method];
-        }
-
-        // method could have been nullified / canceled during flush
-        if (method) {
-          //
-          //    ** Attention intrepid developer **
-          //
-          //    To find out the stack of this task when it was scheduled onto
-          //    the run loop, add the following to your app.js:
-          //
-          //    Ember.run.backburner.DEBUG = true; // NOTE: This slows your app, don't leave it on in production.
-          //
-          //    Once that is in place, when you are at a breakpoint and navigate
-          //    here in the stack explorer, you can look at `errorRecordedForStack.stack`,
-          //    which will be the captured stack when this job was scheduled.
-          //
-          invoke(target, method, args, onError, errorRecordedForStack);
-        }
-      }
-
-      if (after) {
-        after();
-      }
-
-      this._queueBeingFlushed = undefined;
-
-      if (sync !== false && this._queue.length > 0) {
-        // check if new items have been added
-        this.flush(true);
-      }
-    },
-
-    cancel: function (actionToCancel) {
-      var queue = this._queue,
-          currentTarget,
-          currentMethod,
-          i,
-          l;
-      var target = actionToCancel.target;
-      var method = actionToCancel.method;
-      var GUID_KEY = this.globalOptions.GUID_KEY;
-
-      if (GUID_KEY && this.targetQueues && target) {
-        var targetQueue = this.targetQueues[target[GUID_KEY]];
-
-        if (targetQueue) {
-          for (i = 0, l = targetQueue.length; i < l; i++) {
-            if (targetQueue[i] === method) {
-              targetQueue.splice(i, 1);
-            }
-          }
-        }
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          queue.splice(i, 4);
-          return true;
-        }
-      }
-
-      // if not found in current queue
-      // could be in the queue that is being flushed
-      queue = this._queueBeingFlushed;
-
-      if (!queue) {
-        return;
-      }
-
-      for (i = 0, l = queue.length; i < l; i += 4) {
-        currentTarget = queue[i];
-        currentMethod = queue[i + 1];
-
-        if (currentTarget === target && currentMethod === method) {
-          // don't mess with array during flush
-          // just nullify the method
-          queue[i + 1] = null;
-          return true;
-        }
-      }
-    }
-  };
-});
-enifed('backburner/utils', ['exports'], function (exports) {
-  'use strict';
-
-  exports.each = each;
-  exports.isString = isString;
-  exports.isFunction = isFunction;
-  exports.isNumber = isNumber;
-  exports.isCoercableNumber = isCoercableNumber;
-  exports.wrapInTryCatch = wrapInTryCatch;
-  var NUMBER = /\d+/;
-
-  function each(collection, callback) {
-    for (var i = 0; i < collection.length; i++) {
-      callback(collection[i]);
-    }
-  }
-
-  // Date.now is not available in browsers < IE9
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now#Compatibility
-  var now = Date.now || function () {
-    return new Date().getTime();
+  var deprecationLevels = {
+    RAISE: _emberMetalUtils.symbol('RAISE'),
+    LOG: _emberMetalUtils.symbol('LOG'),
+    SILENCE: _emberMetalUtils.symbol('SILENCE')
   };
 
-  exports.now = now;
-
-  function isString(suspect) {
-    return typeof suspect === 'string';
-  }
-
-  function isFunction(suspect) {
-    return typeof suspect === 'function';
-  }
-
-  function isNumber(suspect) {
-    return typeof suspect === 'number';
-  }
-
-  function isCoercableNumber(number) {
-    return isNumber(number) || NUMBER.test(number);
-  }
-
-  function wrapInTryCatch(func) {
-    return function () {
-      try {
-        return func.apply(this, arguments);
-      } catch (e) {
-        throw e;
+  exports.deprecationLevels = deprecationLevels;
+  exports.default = {
+    defaultLevel: deprecationLevels.LOG,
+    individualLevels: _emberMetalDictionary.default(null),
+    setDefaultLevel: function (level) {
+      this.defaultLevel = level;
+    },
+    setLevel: function (id, level) {
+      this.individualLevels[id] = level;
+    },
+    getLevel: function (id) {
+      var level = this.individualLevels[id];
+      if (!level) {
+        level = this.defaultLevel;
       }
-    };
-  }
+      return level;
+    }
+  };
 });
 enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/error', 'ember-metal/logger', 'ember-debug/deprecation-manager', 'ember-metal/environment'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalError, _emberMetalLogger, _emberDebugDeprecationManager, _emberMetalEnvironment) {
   /*global __fail__*/
@@ -1485,242 +1399,6 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/features', 'e
   if (runningNonEmberDebugJS) {
     _emberMetalCore.default.warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
-});
-enifed('ember-debug/deprecation-manager', ['exports', 'ember-metal/dictionary', 'ember-metal/utils'], function (exports, _emberMetalDictionary, _emberMetalUtils) {
-  'use strict';
-
-  var deprecationLevels = {
-    RAISE: _emberMetalUtils.symbol('RAISE'),
-    LOG: _emberMetalUtils.symbol('LOG'),
-    SILENCE: _emberMetalUtils.symbol('SILENCE')
-  };
-
-  exports.deprecationLevels = deprecationLevels;
-  exports.default = {
-    defaultLevel: deprecationLevels.LOG,
-    individualLevels: _emberMetalDictionary.default(null),
-    setDefaultLevel: function (level) {
-      this.defaultLevel = level;
-    },
-    setLevel: function (id, level) {
-      this.individualLevels[id] = level;
-    },
-    getLevel: function (id) {
-      var level = this.individualLevels[id];
-      if (!level) {
-        level = this.defaultLevel;
-      }
-      return level;
-    }
-  };
-});
-enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
-  /**
-  @module ember
-  @submodule ember-metal
-  */
-
-  // BEGIN IMPORTS
-  'use strict';
-
-  _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
-  _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
-  _emberMetalComputed.computed.none = _emberMetalComputed_macros.none;
-  _emberMetalComputed.computed.not = _emberMetalComputed_macros.not;
-  _emberMetalComputed.computed.bool = _emberMetalComputed_macros.bool;
-  _emberMetalComputed.computed.match = _emberMetalComputed_macros.match;
-  _emberMetalComputed.computed.equal = _emberMetalComputed_macros.equal;
-  _emberMetalComputed.computed.gt = _emberMetalComputed_macros.gt;
-  _emberMetalComputed.computed.gte = _emberMetalComputed_macros.gte;
-  _emberMetalComputed.computed.lt = _emberMetalComputed_macros.lt;
-  _emberMetalComputed.computed.lte = _emberMetalComputed_macros.lte;
-  _emberMetalComputed.computed.alias = _emberMetalAlias.default;
-  _emberMetalComputed.computed.oneWay = _emberMetalComputed_macros.oneWay;
-  _emberMetalComputed.computed.reads = _emberMetalComputed_macros.oneWay;
-  _emberMetalComputed.computed.readOnly = _emberMetalComputed_macros.readOnly;
-  _emberMetalComputed.computed.defaultTo = _emberMetalComputed_macros.defaultTo;
-  _emberMetalComputed.computed.deprecatingAlias = _emberMetalComputed_macros.deprecatingAlias;
-  _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
-  _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
-  _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
-  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
-
-  // END IMPORTS
-
-  // BEGIN EXPORTS
-  var EmberInstrumentation = _emberMetalCore.default.Instrumentation = {};
-  EmberInstrumentation.instrument = _emberMetalInstrumentation.instrument;
-  EmberInstrumentation.subscribe = _emberMetalInstrumentation.subscribe;
-  EmberInstrumentation.unsubscribe = _emberMetalInstrumentation.unsubscribe;
-  EmberInstrumentation.reset = _emberMetalInstrumentation.reset;
-
-  _emberMetalCore.default.instrument = _emberMetalInstrumentation.instrument;
-  _emberMetalCore.default.subscribe = _emberMetalInstrumentation.subscribe;
-
-  _emberMetalCore.default._Cache = _emberMetalCache.default;
-
-  _emberMetalCore.default.generateGuid = _emberMetalUtils.generateGuid;
-  _emberMetalCore.default.GUID_KEY = _emberMetalUtils.GUID_KEY;
-  _emberMetalCore.default.platform = {
-    defineProperty: true,
-    hasPropertyAccessors: true
-  };
-
-  _emberMetalCore.default.Error = _emberMetalError.default;
-  _emberMetalCore.default.guidFor = _emberMetalUtils.guidFor;
-  _emberMetalCore.default.META_DESC = _emberMetalUtils.META_DESC;
-  _emberMetalCore.default.EMPTY_META = _emberMetalUtils.EMPTY_META;
-  _emberMetalCore.default.meta = _emberMetalUtils.meta;
-  _emberMetalCore.default.inspect = _emberMetalUtils.inspect;
-  _emberMetalCore.default.tryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
-  _emberMetalCore.default.makeArray = _emberMetalUtils.makeArray;
-  _emberMetalCore.default.canInvoke = _emberMetalUtils.canInvoke;
-  _emberMetalCore.default.tryInvoke = _emberMetalUtils.tryInvoke;
-  _emberMetalCore.default.wrap = _emberMetalUtils.wrap;
-  _emberMetalCore.default.apply = _emberMetalUtils.apply;
-  _emberMetalCore.default.applyStr = _emberMetalUtils.applyStr;
-  _emberMetalCore.default.uuid = _emberMetalUtils.uuid;
-
-  _emberMetalCore.default.Logger = _emberMetalLogger.default;
-
-  _emberMetalCore.default.get = _emberMetalProperty_get.get;
-  _emberMetalCore.default.getWithDefault = _emberMetalProperty_get.getWithDefault;
-  _emberMetalCore.default.normalizeTuple = _emberMetalProperty_get.normalizeTuple;
-  _emberMetalCore.default._getPath = _emberMetalProperty_get._getPath;
-
-  _emberMetalCore.default.on = _emberMetalEvents.on;
-  _emberMetalCore.default.addListener = _emberMetalEvents.addListener;
-  _emberMetalCore.default.removeListener = _emberMetalEvents.removeListener;
-  _emberMetalCore.default._suspendListener = _emberMetalEvents.suspendListener;
-  _emberMetalCore.default._suspendListeners = _emberMetalEvents.suspendListeners;
-  _emberMetalCore.default.sendEvent = _emberMetalEvents.sendEvent;
-  _emberMetalCore.default.hasListeners = _emberMetalEvents.hasListeners;
-  _emberMetalCore.default.watchedEvents = _emberMetalEvents.watchedEvents;
-  _emberMetalCore.default.listenersFor = _emberMetalEvents.listenersFor;
-  _emberMetalCore.default.accumulateListeners = _emberMetalEvents.accumulateListeners;
-
-  _emberMetalCore.default._ObserverSet = _emberMetalObserver_set.default;
-
-  _emberMetalCore.default.propertyWillChange = _emberMetalProperty_events.propertyWillChange;
-  _emberMetalCore.default.propertyDidChange = _emberMetalProperty_events.propertyDidChange;
-  _emberMetalCore.default.overrideChains = _emberMetalProperty_events.overrideChains;
-  _emberMetalCore.default.beginPropertyChanges = _emberMetalProperty_events.beginPropertyChanges;
-  _emberMetalCore.default.endPropertyChanges = _emberMetalProperty_events.endPropertyChanges;
-  _emberMetalCore.default.changeProperties = _emberMetalProperty_events.changeProperties;
-
-  _emberMetalCore.default.defineProperty = _emberMetalProperties.defineProperty;
-
-  _emberMetalCore.default.set = _emberMetalProperty_set.set;
-  _emberMetalCore.default.trySet = _emberMetalProperty_set.trySet;
-
-  _emberMetalCore.default.OrderedSet = _emberMetalMap.OrderedSet;
-  _emberMetalCore.default.Map = _emberMetalMap.Map;
-  _emberMetalCore.default.MapWithDefault = _emberMetalMap.MapWithDefault;
-
-  _emberMetalCore.default.getProperties = _emberMetalGet_properties.default;
-  _emberMetalCore.default.setProperties = _emberMetalSet_properties.default;
-
-  _emberMetalCore.default.watchKey = _emberMetalWatch_key.watchKey;
-  _emberMetalCore.default.unwatchKey = _emberMetalWatch_key.unwatchKey;
-
-  _emberMetalCore.default.flushPendingChains = _emberMetalChains.flushPendingChains;
-  _emberMetalCore.default.removeChainWatcher = _emberMetalChains.removeChainWatcher;
-  _emberMetalCore.default._ChainNode = _emberMetalChains.ChainNode;
-  _emberMetalCore.default.finishChains = _emberMetalChains.finishChains;
-
-  _emberMetalCore.default.watchPath = _emberMetalWatch_path.watchPath;
-  _emberMetalCore.default.unwatchPath = _emberMetalWatch_path.unwatchPath;
-
-  _emberMetalCore.default.watch = _emberMetalWatching.watch;
-  _emberMetalCore.default.isWatching = _emberMetalWatching.isWatching;
-  _emberMetalCore.default.unwatch = _emberMetalWatching.unwatch;
-  _emberMetalCore.default.rewatch = _emberMetalWatching.rewatch;
-  _emberMetalCore.default.destroy = _emberMetalWatching.destroy;
-
-  _emberMetalCore.default.expandProperties = _emberMetalExpand_properties.default;
-
-  _emberMetalCore.default.ComputedProperty = _emberMetalComputed.ComputedProperty;
-  _emberMetalCore.default.computed = _emberMetalComputed.computed;
-  _emberMetalCore.default.cacheFor = _emberMetalComputed.cacheFor;
-
-  _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
-  _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
-  _emberMetalCore.default.removeObserver = _emberMetalObserver.removeObserver;
-  _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
-  _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
-
-  _emberMetalCore.default.IS_BINDING = _emberMetalMixin.IS_BINDING;
-  _emberMetalCore.default.required = _emberMetalMixin.required;
-  _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
-  _emberMetalCore.default.observer = _emberMetalMixin.observer;
-  _emberMetalCore.default.immediateObserver = _emberMetalMixin._immediateObserver;
-  _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
-  _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
-
-  _emberMetalCore.default.bind = _emberMetalBinding.bind;
-  _emberMetalCore.default.Binding = _emberMetalBinding.Binding;
-  _emberMetalCore.default.isGlobalPath = _emberMetalBinding.isGlobalPath;
-
-  _emberMetalCore.default.run = _emberMetalRun_loop.default;
-
-  /**
-  @class Backburner
-  @for Ember
-  @private
-  */
-  _emberMetalCore.default.Backburner = _backburner.default;
-  // this is the new go forward, once Ember Data updates to using `_Backburner` we
-  // can remove the non-underscored version.
-  _emberMetalCore.default._Backburner = _backburner.default;
-
-  _emberMetalCore.default.libraries = new _emberMetalLibraries.default();
-  _emberMetalCore.default.libraries.registerCoreLibrary('Ember', _emberMetalCore.default.VERSION);
-
-  _emberMetalCore.default.isNone = _emberMetalIs_none.default;
-  _emberMetalCore.default.isEmpty = _emberMetalIs_empty.default;
-  _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
-  _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
-
-  _emberMetalCore.default.merge = _emberMetalMerge.default;
-
-  _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
-  _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
-
-  /**
-    A function may be assigned to `Ember.onerror` to be called when Ember
-    internals encounter an error. This is useful for specialized error handling
-    and reporting code.
-  
-    ```javascript
-    Ember.onerror = function(error) {
-      Em.$.ajax('/report-error', 'POST', {
-        stack: error.stack,
-        otherInformation: 'whatever app state you want to provide'
-      });
-    };
-    ```
-  
-    Internally, `Ember.onerror` is used as Backburner's error handler.
-  
-    @event onerror
-    @for Ember
-    @param {Exception} error the error object
-    @public
-  */
-  _emberMetalCore.default.onerror = null;
-  // END EXPORTS
-
-  // do this for side-effects of updating Ember.assert, warn, etc when
-  // ember-debug is present
-  // This needs to be called before any deprecateFunc
-  if (_emberMetalCore.default.__loader.registry['ember-debug']) {
-    requireModule('ember-debug');
-  }
-
-  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
-  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
-
-  exports.default = _emberMetalCore.default;
 });
 enifed('ember-metal/alias', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/core', 'ember-metal/error', 'ember-metal/properties', 'ember-metal/computed', 'ember-metal/utils', 'ember-metal/dependent_keys'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalCore, _emberMetalError, _emberMetalProperties, _emberMetalComputed, _emberMetalUtils, _emberMetalDependent_keys) {
   'use strict';
@@ -4059,7 +3737,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.0.2
+    @version 2.0.3
     @public
   */
 
@@ -4093,11 +3771,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.0.2'
+    @default '2.0.3'
     @static
     @public
   */
-  Ember.VERSION = '2.0.2';
+  Ember.VERSION = '2.0.3';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11069,40 +10747,213 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
+enifed('ember-metal', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/merge', 'ember-metal/instrumentation', 'ember-metal/utils', 'ember-metal/error', 'ember-metal/cache', 'ember-metal/logger', 'ember-metal/property_get', 'ember-metal/events', 'ember-metal/observer_set', 'ember-metal/property_events', 'ember-metal/properties', 'ember-metal/property_set', 'ember-metal/map', 'ember-metal/get_properties', 'ember-metal/set_properties', 'ember-metal/watch_key', 'ember-metal/chains', 'ember-metal/watch_path', 'ember-metal/watching', 'ember-metal/expand_properties', 'ember-metal/computed', 'ember-metal/alias', 'ember-metal/computed_macros', 'ember-metal/observer', 'ember-metal/mixin', 'ember-metal/binding', 'ember-metal/run_loop', 'ember-metal/libraries', 'ember-metal/is_none', 'ember-metal/is_empty', 'ember-metal/is_blank', 'ember-metal/is_present', 'backburner', 'ember-metal/streams/utils', 'ember-metal/streams/stream'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalMerge, _emberMetalInstrumentation, _emberMetalUtils, _emberMetalError, _emberMetalCache, _emberMetalLogger, _emberMetalProperty_get, _emberMetalEvents, _emberMetalObserver_set, _emberMetalProperty_events, _emberMetalProperties, _emberMetalProperty_set, _emberMetalMap, _emberMetalGet_properties, _emberMetalSet_properties, _emberMetalWatch_key, _emberMetalChains, _emberMetalWatch_path, _emberMetalWatching, _emberMetalExpand_properties, _emberMetalComputed, _emberMetalAlias, _emberMetalComputed_macros, _emberMetalObserver, _emberMetalMixin, _emberMetalBinding, _emberMetalRun_loop, _emberMetalLibraries, _emberMetalIs_none, _emberMetalIs_empty, _emberMetalIs_blank, _emberMetalIs_present, _backburner, _emberMetalStreamsUtils, _emberMetalStreamsStream) {
+  /**
+  @module ember
+  @submodule ember-metal
+  */
+
+  // BEGIN IMPORTS
   'use strict';
 
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformItemClass.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
-  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default);
+  _emberMetalComputed.computed.empty = _emberMetalComputed_macros.empty;
+  _emberMetalComputed.computed.notEmpty = _emberMetalComputed_macros.notEmpty;
+  _emberMetalComputed.computed.none = _emberMetalComputed_macros.none;
+  _emberMetalComputed.computed.not = _emberMetalComputed_macros.not;
+  _emberMetalComputed.computed.bool = _emberMetalComputed_macros.bool;
+  _emberMetalComputed.computed.match = _emberMetalComputed_macros.match;
+  _emberMetalComputed.computed.equal = _emberMetalComputed_macros.equal;
+  _emberMetalComputed.computed.gt = _emberMetalComputed_macros.gt;
+  _emberMetalComputed.computed.gte = _emberMetalComputed_macros.gte;
+  _emberMetalComputed.computed.lt = _emberMetalComputed_macros.lt;
+  _emberMetalComputed.computed.lte = _emberMetalComputed_macros.lte;
+  _emberMetalComputed.computed.alias = _emberMetalAlias.default;
+  _emberMetalComputed.computed.oneWay = _emberMetalComputed_macros.oneWay;
+  _emberMetalComputed.computed.reads = _emberMetalComputed_macros.oneWay;
+  _emberMetalComputed.computed.readOnly = _emberMetalComputed_macros.readOnly;
+  _emberMetalComputed.computed.defaultTo = _emberMetalComputed_macros.defaultTo;
+  _emberMetalComputed.computed.deprecatingAlias = _emberMetalComputed_macros.deprecatingAlias;
+  _emberMetalComputed.computed.and = _emberMetalComputed_macros.and;
+  _emberMetalComputed.computed.or = _emberMetalComputed_macros.or;
+  _emberMetalComputed.computed.any = _emberMetalComputed_macros.any;
+  _emberMetalComputed.computed.collect = _emberMetalComputed_macros.collect;
 
-  if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
-  } else {
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
-    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewHelper.default);
+  // END IMPORTS
+
+  // BEGIN EXPORTS
+  var EmberInstrumentation = _emberMetalCore.default.Instrumentation = {};
+  EmberInstrumentation.instrument = _emberMetalInstrumentation.instrument;
+  EmberInstrumentation.subscribe = _emberMetalInstrumentation.subscribe;
+  EmberInstrumentation.unsubscribe = _emberMetalInstrumentation.unsubscribe;
+  EmberInstrumentation.reset = _emberMetalInstrumentation.reset;
+
+  _emberMetalCore.default.instrument = _emberMetalInstrumentation.instrument;
+  _emberMetalCore.default.subscribe = _emberMetalInstrumentation.subscribe;
+
+  _emberMetalCore.default._Cache = _emberMetalCache.default;
+
+  _emberMetalCore.default.generateGuid = _emberMetalUtils.generateGuid;
+  _emberMetalCore.default.GUID_KEY = _emberMetalUtils.GUID_KEY;
+  _emberMetalCore.default.platform = {
+    defineProperty: true,
+    hasPropertyAccessors: true
+  };
+
+  _emberMetalCore.default.Error = _emberMetalError.default;
+  _emberMetalCore.default.guidFor = _emberMetalUtils.guidFor;
+  _emberMetalCore.default.META_DESC = _emberMetalUtils.META_DESC;
+  _emberMetalCore.default.EMPTY_META = _emberMetalUtils.EMPTY_META;
+  _emberMetalCore.default.meta = _emberMetalUtils.meta;
+  _emberMetalCore.default.inspect = _emberMetalUtils.inspect;
+  _emberMetalCore.default.tryCatchFinally = _emberMetalUtils.deprecatedTryCatchFinally;
+  _emberMetalCore.default.makeArray = _emberMetalUtils.makeArray;
+  _emberMetalCore.default.canInvoke = _emberMetalUtils.canInvoke;
+  _emberMetalCore.default.tryInvoke = _emberMetalUtils.tryInvoke;
+  _emberMetalCore.default.wrap = _emberMetalUtils.wrap;
+  _emberMetalCore.default.apply = _emberMetalUtils.apply;
+  _emberMetalCore.default.applyStr = _emberMetalUtils.applyStr;
+  _emberMetalCore.default.uuid = _emberMetalUtils.uuid;
+
+  _emberMetalCore.default.Logger = _emberMetalLogger.default;
+
+  _emberMetalCore.default.get = _emberMetalProperty_get.get;
+  _emberMetalCore.default.getWithDefault = _emberMetalProperty_get.getWithDefault;
+  _emberMetalCore.default.normalizeTuple = _emberMetalProperty_get.normalizeTuple;
+  _emberMetalCore.default._getPath = _emberMetalProperty_get._getPath;
+
+  _emberMetalCore.default.on = _emberMetalEvents.on;
+  _emberMetalCore.default.addListener = _emberMetalEvents.addListener;
+  _emberMetalCore.default.removeListener = _emberMetalEvents.removeListener;
+  _emberMetalCore.default._suspendListener = _emberMetalEvents.suspendListener;
+  _emberMetalCore.default._suspendListeners = _emberMetalEvents.suspendListeners;
+  _emberMetalCore.default.sendEvent = _emberMetalEvents.sendEvent;
+  _emberMetalCore.default.hasListeners = _emberMetalEvents.hasListeners;
+  _emberMetalCore.default.watchedEvents = _emberMetalEvents.watchedEvents;
+  _emberMetalCore.default.listenersFor = _emberMetalEvents.listenersFor;
+  _emberMetalCore.default.accumulateListeners = _emberMetalEvents.accumulateListeners;
+
+  _emberMetalCore.default._ObserverSet = _emberMetalObserver_set.default;
+
+  _emberMetalCore.default.propertyWillChange = _emberMetalProperty_events.propertyWillChange;
+  _emberMetalCore.default.propertyDidChange = _emberMetalProperty_events.propertyDidChange;
+  _emberMetalCore.default.overrideChains = _emberMetalProperty_events.overrideChains;
+  _emberMetalCore.default.beginPropertyChanges = _emberMetalProperty_events.beginPropertyChanges;
+  _emberMetalCore.default.endPropertyChanges = _emberMetalProperty_events.endPropertyChanges;
+  _emberMetalCore.default.changeProperties = _emberMetalProperty_events.changeProperties;
+
+  _emberMetalCore.default.defineProperty = _emberMetalProperties.defineProperty;
+
+  _emberMetalCore.default.set = _emberMetalProperty_set.set;
+  _emberMetalCore.default.trySet = _emberMetalProperty_set.trySet;
+
+  _emberMetalCore.default.OrderedSet = _emberMetalMap.OrderedSet;
+  _emberMetalCore.default.Map = _emberMetalMap.Map;
+  _emberMetalCore.default.MapWithDefault = _emberMetalMap.MapWithDefault;
+
+  _emberMetalCore.default.getProperties = _emberMetalGet_properties.default;
+  _emberMetalCore.default.setProperties = _emberMetalSet_properties.default;
+
+  _emberMetalCore.default.watchKey = _emberMetalWatch_key.watchKey;
+  _emberMetalCore.default.unwatchKey = _emberMetalWatch_key.unwatchKey;
+
+  _emberMetalCore.default.flushPendingChains = _emberMetalChains.flushPendingChains;
+  _emberMetalCore.default.removeChainWatcher = _emberMetalChains.removeChainWatcher;
+  _emberMetalCore.default._ChainNode = _emberMetalChains.ChainNode;
+  _emberMetalCore.default.finishChains = _emberMetalChains.finishChains;
+
+  _emberMetalCore.default.watchPath = _emberMetalWatch_path.watchPath;
+  _emberMetalCore.default.unwatchPath = _emberMetalWatch_path.unwatchPath;
+
+  _emberMetalCore.default.watch = _emberMetalWatching.watch;
+  _emberMetalCore.default.isWatching = _emberMetalWatching.isWatching;
+  _emberMetalCore.default.unwatch = _emberMetalWatching.unwatch;
+  _emberMetalCore.default.rewatch = _emberMetalWatching.rewatch;
+  _emberMetalCore.default.destroy = _emberMetalWatching.destroy;
+
+  _emberMetalCore.default.expandProperties = _emberMetalExpand_properties.default;
+
+  _emberMetalCore.default.ComputedProperty = _emberMetalComputed.ComputedProperty;
+  _emberMetalCore.default.computed = _emberMetalComputed.computed;
+  _emberMetalCore.default.cacheFor = _emberMetalComputed.cacheFor;
+
+  _emberMetalCore.default.addObserver = _emberMetalObserver.addObserver;
+  _emberMetalCore.default.observersFor = _emberMetalObserver.observersFor;
+  _emberMetalCore.default.removeObserver = _emberMetalObserver.removeObserver;
+  _emberMetalCore.default._suspendObserver = _emberMetalObserver._suspendObserver;
+  _emberMetalCore.default._suspendObservers = _emberMetalObserver._suspendObservers;
+
+  _emberMetalCore.default.IS_BINDING = _emberMetalMixin.IS_BINDING;
+  _emberMetalCore.default.required = _emberMetalMixin.required;
+  _emberMetalCore.default.aliasMethod = _emberMetalMixin.aliasMethod;
+  _emberMetalCore.default.observer = _emberMetalMixin.observer;
+  _emberMetalCore.default.immediateObserver = _emberMetalMixin._immediateObserver;
+  _emberMetalCore.default.mixin = _emberMetalMixin.mixin;
+  _emberMetalCore.default.Mixin = _emberMetalMixin.Mixin;
+
+  _emberMetalCore.default.bind = _emberMetalBinding.bind;
+  _emberMetalCore.default.Binding = _emberMetalBinding.Binding;
+  _emberMetalCore.default.isGlobalPath = _emberMetalBinding.isGlobalPath;
+
+  _emberMetalCore.default.run = _emberMetalRun_loop.default;
+
+  /**
+  @class Backburner
+  @for Ember
+  @private
+  */
+  _emberMetalCore.default.Backburner = _backburner.default;
+  // this is the new go forward, once Ember Data updates to using `_Backburner` we
+  // can remove the non-underscored version.
+  _emberMetalCore.default._Backburner = _backburner.default;
+
+  _emberMetalCore.default.libraries = new _emberMetalLibraries.default();
+  _emberMetalCore.default.libraries.registerCoreLibrary('Ember', _emberMetalCore.default.VERSION);
+
+  _emberMetalCore.default.isNone = _emberMetalIs_none.default;
+  _emberMetalCore.default.isEmpty = _emberMetalIs_empty.default;
+  _emberMetalCore.default.isBlank = _emberMetalIs_blank.default;
+  _emberMetalCore.default.isPresent = _emberMetalIs_present.default;
+
+  _emberMetalCore.default.merge = _emberMetalMerge.default;
+
+  _emberMetalCore.default.FEATURES = _emberMetalFeatures.FEATURES;
+  _emberMetalCore.default.FEATURES.isEnabled = _emberMetalFeatures.default;
+
+  /**
+    A function may be assigned to `Ember.onerror` to be called when Ember
+    internals encounter an error. This is useful for specialized error handling
+    and reporting code.
+  
+    ```javascript
+    Ember.onerror = function(error) {
+      Em.$.ajax('/report-error', 'POST', {
+        stack: error.stack,
+        otherInformation: 'whatever app state you want to provide'
+      });
+    };
+    ```
+  
+    Internally, `Ember.onerror` is used as Backburner's error handler.
+  
+    @event onerror
+    @for Ember
+    @param {Exception} error the error object
+    @public
+  */
+  _emberMetalCore.default.onerror = null;
+  // END EXPORTS
+
+  // do this for side-effects of updating Ember.assert, warn, etc when
+  // ember-debug is present
+  // This needs to be called before any deprecateFunc
+  if (_emberMetalCore.default.__loader.registry['ember-debug']) {
+    requireModule('ember-debug');
   }
 
-  exports._Ember = _emberMetal.default;
-  exports.precompile = _emberTemplateCompilerSystemPrecompile.default;
-  exports.compile = _emberTemplateCompilerSystemCompile.default;
-  exports.template = _emberTemplateCompilerSystemTemplate.default;
-  exports.registerPlugin = _emberTemplateCompilerPlugins.registerPlugin;
-});
+  _emberMetalCore.default.create = _emberMetalCore.default.deprecateFunc('Ember.create is deprecated in favor of Object.create', { id: 'ember-metal.ember-create', until: '3.0.0' }, Object.create);
+  _emberMetalCore.default.keys = _emberMetalCore.default.deprecateFunc('Ember.keys is deprecated in favor of Object.keys', { id: 'ember-metal.ember.keys', until: '3.0.0' }, Object.keys);
 
-// used for adding Ember.Handlebars.compile for backwards compat
-enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template'], function (exports, _emberMetalCore, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate) {
-  'use strict';
-
-  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
-
-  EmberHandlebars.precompile = _emberTemplateCompilerCompatPrecompile.default;
-  EmberHandlebars.compile = _emberTemplateCompilerSystemCompile.default;
-  EmberHandlebars.template = _emberTemplateCompilerSystemTemplate.default;
+  exports.default = _emberMetalCore.default;
 });
 enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-metal/core', 'ember-template-compiler/system/compile_options'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCompile_options) {
   /**
@@ -11131,39 +10982,14 @@ enifed('ember-template-compiler/compat/precompile', ['exports', 'ember-metal/cor
     return compileFunc(string, _emberTemplateCompilerSystemCompile_options.default());
   };
 });
-enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-
-  /**
-   @private
-   @property helpers
-  */
+enifed('ember-template-compiler/compat', ['exports', 'ember-metal/core', 'ember-template-compiler/compat/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template'], function (exports, _emberMetalCore, _emberTemplateCompilerCompatPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate) {
   'use strict';
 
-  exports.registerPlugin = registerPlugin;
-  var plugins = {
-    ast: []
-  };
+  var EmberHandlebars = _emberMetalCore.default.Handlebars = _emberMetalCore.default.Handlebars || {};
 
-  /**
-    Adds an AST plugin to be used by Ember.HTMLBars.compile.
-  
-    @private
-    @method registerASTPlugin
-  */
-
-  function registerPlugin(type, Plugin) {
-    if (!plugins[type]) {
-      throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
-    }
-
-    plugins[type].push(Plugin);
-  }
-
-  exports.default = plugins;
+  EmberHandlebars.precompile = _emberTemplateCompilerCompatPrecompile.default;
+  EmberHandlebars.compile = _emberTemplateCompilerSystemCompile.default;
+  EmberHandlebars.template = _emberTemplateCompilerSystemTemplate.default;
 });
 enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
@@ -11931,6 +11757,40 @@ enifed('ember-template-compiler/plugins/transform-old-class-binding-syntax', ['e
     return segments;
   }
 });
+enifed('ember-template-compiler/plugins', ['exports'], function (exports) {
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  /**
+   @private
+   @property helpers
+  */
+  'use strict';
+
+  exports.registerPlugin = registerPlugin;
+  var plugins = {
+    ast: []
+  };
+
+  /**
+    Adds an AST plugin to be used by Ember.HTMLBars.compile.
+  
+    @private
+    @method registerASTPlugin
+  */
+
+  function registerPlugin(type, Plugin) {
+    if (!plugins[type]) {
+      throw new Error('Attempting to register "' + Plugin + '" as "' + type + '" which is not a valid HTMLBars plugin type.');
+    }
+
+    plugins[type].push(Plugin);
+  }
+
+  exports.default = plugins;
+});
 enifed('ember-template-compiler/system/calculate-location-display', ['exports'], function (exports) {
   'use strict';
 
@@ -12038,7 +11898,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
 
     options.buildMeta = function buildMeta(program) {
       return {
-        revision: 'Ember@2.0.2',
+        revision: 'Ember@2.0.3',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -12107,13 +11967,32 @@ enifed('ember-template-compiler/system/template', ['exports', 'htmlbars-runtime/
     return templateSpec;
   };
 });
-enifed("htmlbars-compiler", ["exports", "./htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
-  "use strict";
+enifed('ember-template-compiler', ['exports', 'ember-metal', 'ember-template-compiler/system/precompile', 'ember-template-compiler/system/compile', 'ember-template-compiler/system/template', 'ember-template-compiler/plugins', 'ember-template-compiler/plugins/transform-old-binding-syntax', 'ember-template-compiler/plugins/transform-old-class-binding-syntax', 'ember-template-compiler/plugins/transform-item-class', 'ember-template-compiler/plugins/transform-component-attrs-into-mut', 'ember-template-compiler/plugins/transform-component-curly-to-readonly', 'ember-template-compiler/plugins/transform-angle-bracket-components', 'ember-template-compiler/plugins/transform-input-on-to-onEvent', 'ember-template-compiler/plugins/transform-each-into-collection', 'ember-template-compiler/plugins/assert-no-view-and-controller-paths', 'ember-template-compiler/plugins/assert-no-view-helper', 'ember-template-compiler/compat'], function (exports, _emberMetal, _emberTemplateCompilerSystemPrecompile, _emberTemplateCompilerSystemCompile, _emberTemplateCompilerSystemTemplate, _emberTemplateCompilerPlugins, _emberTemplateCompilerPluginsTransformOldBindingSyntax, _emberTemplateCompilerPluginsTransformOldClassBindingSyntax, _emberTemplateCompilerPluginsTransformItemClass, _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut, _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly, _emberTemplateCompilerPluginsTransformAngleBracketComponents, _emberTemplateCompilerPluginsTransformInputOnToOnEvent, _emberTemplateCompilerPluginsTransformEachIntoCollection, _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths, _emberTemplateCompilerPluginsAssertNoViewHelper, _emberTemplateCompilerCompat) {
+  'use strict';
 
-  exports.compile = _htmlbarsCompilerCompiler.compile;
-  exports.compileSpec = _htmlbarsCompilerCompiler.compileSpec;
-  exports.template = _htmlbarsCompilerCompiler.template;
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldBindingSyntax.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformOldClassBindingSyntax.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformItemClass.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentAttrsIntoMut.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformComponentCurlyToReadonly.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformAngleBracketComponents.default);
+  _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformInputOnToOnEvent.default);
+
+  if (_emberMetal.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT) {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsTransformEachIntoCollection.default);
+  } else {
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewAndControllerPaths.default);
+    _emberTemplateCompilerPlugins.registerPlugin('ast', _emberTemplateCompilerPluginsAssertNoViewHelper.default);
+  }
+
+  exports._Ember = _emberMetal.default;
+  exports.precompile = _emberTemplateCompilerSystemPrecompile.default;
+  exports.compile = _emberTemplateCompilerSystemCompile.default;
+  exports.template = _emberTemplateCompilerSystemTemplate.default;
+  exports.registerPlugin = _emberTemplateCompilerPlugins.registerPlugin;
 });
+
+// used for adding Ember.Handlebars.compile for backwards compat
 enifed("htmlbars-compiler/compiler", ["exports", "../htmlbars-syntax/parser", "./template-compiler", "../htmlbars-runtime/hooks", "../htmlbars-runtime/render"], function (exports, _htmlbarsSyntaxParser, _templateCompiler, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender) {
   /*jshint evil:true*/
   "use strict";
@@ -13393,23 +13272,12 @@ enifed("htmlbars-compiler/utils", ["exports"], function (exports) {
     }
   }
 });
-enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', './htmlbars-runtime/expression-visitor', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeExpressionVisitor, _htmlbarsRuntimeHooks2) {
-  'use strict';
+enifed("htmlbars-compiler", ["exports", "./htmlbars-compiler/compiler"], function (exports, _htmlbarsCompilerCompiler) {
+  "use strict";
 
-  var internal = {
-    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
-    manualElement: _htmlbarsRuntimeRender.manualElement,
-    hostBlock: _htmlbarsRuntimeHooks2.hostBlock,
-    continueBlock: _htmlbarsRuntimeHooks2.continueBlock,
-    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks2.hostYieldWithShadowTemplate,
-    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
-    validateChildMorphs: _htmlbarsRuntimeExpressionVisitor.validateChildMorphs,
-    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
-  };
-
-  exports.hooks = _htmlbarsRuntimeHooks.default;
-  exports.render = _htmlbarsRuntimeRender.default;
-  exports.internal = internal;
+  exports.compile = _htmlbarsCompilerCompiler.compile;
+  exports.compileSpec = _htmlbarsCompilerCompiler.compileSpec;
+  exports.template = _htmlbarsCompilerCompiler.template;
 });
 enifed("htmlbars-runtime/expression-visitor", ["exports", "../htmlbars-util/object-utils", "../htmlbars-util/morph-utils"], function (exports, _htmlbarsUtilObjectUtils, _htmlbarsUtilMorphUtils) {
   "use strict";
@@ -15282,14 +15150,23 @@ enifed("htmlbars-runtime/render", ["exports", "../htmlbars-util/array-utils", ".
     return fragment;
   }
 });
-enifed("htmlbars-syntax", ["exports", "./htmlbars-syntax/builders", "./htmlbars-syntax/parser", "./htmlbars-syntax/generation/print", "./htmlbars-syntax/traversal/traverse", "./htmlbars-syntax/traversal/walker"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser, _htmlbarsSyntaxGenerationPrint, _htmlbarsSyntaxTraversalTraverse, _htmlbarsSyntaxTraversalWalker) {
-  "use strict";
+enifed('htmlbars-runtime', ['exports', './htmlbars-runtime/hooks', './htmlbars-runtime/render', '../htmlbars-util/morph-utils', '../htmlbars-util/template-utils', './htmlbars-runtime/expression-visitor', 'htmlbars-runtime/hooks'], function (exports, _htmlbarsRuntimeHooks, _htmlbarsRuntimeRender, _htmlbarsUtilMorphUtils, _htmlbarsUtilTemplateUtils, _htmlbarsRuntimeExpressionVisitor, _htmlbarsRuntimeHooks2) {
+  'use strict';
 
-  exports.builders = _htmlbarsSyntaxBuilders.default;
-  exports.parse = _htmlbarsSyntaxParser.default;
-  exports.print = _htmlbarsSyntaxGenerationPrint.default;
-  exports.traverse = _htmlbarsSyntaxTraversalTraverse.default;
-  exports.Walker = _htmlbarsSyntaxTraversalWalker.default;
+  var internal = {
+    blockFor: _htmlbarsUtilTemplateUtils.blockFor,
+    manualElement: _htmlbarsRuntimeRender.manualElement,
+    hostBlock: _htmlbarsRuntimeHooks2.hostBlock,
+    continueBlock: _htmlbarsRuntimeHooks2.continueBlock,
+    hostYieldWithShadowTemplate: _htmlbarsRuntimeHooks2.hostYieldWithShadowTemplate,
+    visitChildren: _htmlbarsUtilMorphUtils.visitChildren,
+    validateChildMorphs: _htmlbarsRuntimeExpressionVisitor.validateChildMorphs,
+    clearMorph: _htmlbarsUtilTemplateUtils.clearMorph
+  };
+
+  exports.hooks = _htmlbarsRuntimeHooks.default;
+  exports.render = _htmlbarsRuntimeRender.default;
+  exports.internal = internal;
 });
 enifed("htmlbars-syntax/builders", ["exports"], function (exports) {
   // Statements
@@ -17226,95 +17103,6 @@ enifed('htmlbars-syntax/handlebars/utils', ['exports'], function (exports) {
     return (contextPath ? contextPath + '.' : '') + id;
   }
 });
-enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../htmlbars-syntax", "../simple-html-tokenizer/evented-tokenizer", "../simple-html-tokenizer/entity-parser", "../simple-html-tokenizer/char-refs/full", "./parser/handlebars-node-visitors", "./parser/tokenizer-event-handlers"], function (exports, _handlebarsCompilerBase, _htmlbarsSyntax, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerEntityParser, _simpleHtmlTokenizerCharRefsFull, _parserHandlebarsNodeVisitors, _parserTokenizerEventHandlers) {
-  "use strict";
-
-  exports.preprocess = preprocess;
-  exports.Parser = Parser;
-
-  function preprocess(html, options) {
-    var ast = typeof html === 'object' ? html : _handlebarsCompilerBase.parse(html);
-    var combined = new Parser(html, options).acceptNode(ast);
-
-    if (options && options.plugins && options.plugins.ast) {
-      for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
-        var plugin = new options.plugins.ast[i](options);
-
-        plugin.syntax = _htmlbarsSyntax;
-
-        combined = plugin.transform(combined);
-      }
-    }
-
-    return combined;
-  }
-
-  exports.default = preprocess;
-
-  var entityParser = new _simpleHtmlTokenizerEntityParser.default(_simpleHtmlTokenizerCharRefsFull.default);
-
-  function Parser(source, options) {
-    this.options = options || {};
-    this.elementStack = [];
-    this.tokenizer = new _simpleHtmlTokenizerEventedTokenizer.default(this, entityParser);
-
-    this.currentNode = null;
-    this.currentAttribute = null;
-
-    if (typeof source === 'string') {
-      this.source = source.split(/(?:\r\n?|\n)/g);
-    }
-  }
-
-  for (var key in _parserHandlebarsNodeVisitors.default) {
-    Parser.prototype[key] = _parserHandlebarsNodeVisitors.default[key];
-  }
-
-  for (var key in _parserTokenizerEventHandlers.default) {
-    Parser.prototype[key] = _parserTokenizerEventHandlers.default[key];
-  }
-
-  Parser.prototype.acceptNode = function (node) {
-    return this[node.type](node);
-  };
-
-  Parser.prototype.currentElement = function () {
-    return this.elementStack[this.elementStack.length - 1];
-  };
-
-  Parser.prototype.sourceForMustache = function (mustache) {
-    var firstLine = mustache.loc.start.line - 1;
-    var lastLine = mustache.loc.end.line - 1;
-    var currentLine = firstLine - 1;
-    var firstColumn = mustache.loc.start.column + 2;
-    var lastColumn = mustache.loc.end.column - 2;
-    var string = [];
-    var line;
-
-    if (!this.source) {
-      return '{{' + mustache.path.id.original + '}}';
-    }
-
-    while (currentLine < lastLine) {
-      currentLine++;
-      line = this.source[currentLine];
-
-      if (currentLine === firstLine) {
-        if (firstLine === lastLine) {
-          string.push(line.slice(firstColumn, lastColumn));
-        } else {
-          string.push(line.slice(firstColumn));
-        }
-      } else if (currentLine === lastLine) {
-        string.push(line.slice(0, lastColumn));
-      } else {
-        string.push(line);
-      }
-    }
-
-    return string.join('\n');
-  };
-});
 enifed("htmlbars-syntax/parser/handlebars-node-visitors", ["exports", "../builders", "../utils"], function (exports, _builders, _utils) {
   "use strict";
 
@@ -17750,6 +17538,95 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "../../htm
     return "`" + tag.name + "` (on line " + tag.loc.end.line + ")";
   }
 });
+enifed("htmlbars-syntax/parser", ["exports", "./handlebars/compiler/base", "../htmlbars-syntax", "../simple-html-tokenizer/evented-tokenizer", "../simple-html-tokenizer/entity-parser", "../simple-html-tokenizer/char-refs/full", "./parser/handlebars-node-visitors", "./parser/tokenizer-event-handlers"], function (exports, _handlebarsCompilerBase, _htmlbarsSyntax, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerEntityParser, _simpleHtmlTokenizerCharRefsFull, _parserHandlebarsNodeVisitors, _parserTokenizerEventHandlers) {
+  "use strict";
+
+  exports.preprocess = preprocess;
+  exports.Parser = Parser;
+
+  function preprocess(html, options) {
+    var ast = typeof html === 'object' ? html : _handlebarsCompilerBase.parse(html);
+    var combined = new Parser(html, options).acceptNode(ast);
+
+    if (options && options.plugins && options.plugins.ast) {
+      for (var i = 0, l = options.plugins.ast.length; i < l; i++) {
+        var plugin = new options.plugins.ast[i](options);
+
+        plugin.syntax = _htmlbarsSyntax;
+
+        combined = plugin.transform(combined);
+      }
+    }
+
+    return combined;
+  }
+
+  exports.default = preprocess;
+
+  var entityParser = new _simpleHtmlTokenizerEntityParser.default(_simpleHtmlTokenizerCharRefsFull.default);
+
+  function Parser(source, options) {
+    this.options = options || {};
+    this.elementStack = [];
+    this.tokenizer = new _simpleHtmlTokenizerEventedTokenizer.default(this, entityParser);
+
+    this.currentNode = null;
+    this.currentAttribute = null;
+
+    if (typeof source === 'string') {
+      this.source = source.split(/(?:\r\n?|\n)/g);
+    }
+  }
+
+  for (var key in _parserHandlebarsNodeVisitors.default) {
+    Parser.prototype[key] = _parserHandlebarsNodeVisitors.default[key];
+  }
+
+  for (var key in _parserTokenizerEventHandlers.default) {
+    Parser.prototype[key] = _parserTokenizerEventHandlers.default[key];
+  }
+
+  Parser.prototype.acceptNode = function (node) {
+    return this[node.type](node);
+  };
+
+  Parser.prototype.currentElement = function () {
+    return this.elementStack[this.elementStack.length - 1];
+  };
+
+  Parser.prototype.sourceForMustache = function (mustache) {
+    var firstLine = mustache.loc.start.line - 1;
+    var lastLine = mustache.loc.end.line - 1;
+    var currentLine = firstLine - 1;
+    var firstColumn = mustache.loc.start.column + 2;
+    var lastColumn = mustache.loc.end.column - 2;
+    var string = [];
+    var line;
+
+    if (!this.source) {
+      return '{{' + mustache.path.id.original + '}}';
+    }
+
+    while (currentLine < lastLine) {
+      currentLine++;
+      line = this.source[currentLine];
+
+      if (currentLine === firstLine) {
+        if (firstLine === lastLine) {
+          string.push(line.slice(firstColumn, lastColumn));
+        } else {
+          string.push(line.slice(firstColumn));
+        }
+      } else if (currentLine === lastLine) {
+        string.push(line.slice(0, lastColumn));
+      } else {
+        string.push(line);
+      }
+    }
+
+    return string.join('\n');
+  };
+});
 enifed("htmlbars-syntax/traversal/errors", ["exports"], function (exports) {
   "use strict";
 
@@ -18098,6 +17975,15 @@ enifed('htmlbars-syntax/utils', ['exports', '../htmlbars-util/array-utils'], fun
     }
   }
 });
+enifed("htmlbars-syntax", ["exports", "./htmlbars-syntax/builders", "./htmlbars-syntax/parser", "./htmlbars-syntax/generation/print", "./htmlbars-syntax/traversal/traverse", "./htmlbars-syntax/traversal/walker"], function (exports, _htmlbarsSyntaxBuilders, _htmlbarsSyntaxParser, _htmlbarsSyntaxGenerationPrint, _htmlbarsSyntaxTraversalTraverse, _htmlbarsSyntaxTraversalWalker) {
+  "use strict";
+
+  exports.builders = _htmlbarsSyntaxBuilders.default;
+  exports.parse = _htmlbarsSyntaxParser.default;
+  exports.print = _htmlbarsSyntaxGenerationPrint.default;
+  exports.traverse = _htmlbarsSyntaxTraversalTraverse.default;
+  exports.Walker = _htmlbarsSyntaxTraversalWalker.default;
+});
 enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../htmlbars-util/array-utils"], function (exports, _simpleHtmlTokenizer, _htmlbarsUtilArrayUtils) {
   "use strict";
 
@@ -18224,16 +18110,6 @@ enifed("htmlbars-test-helpers", ["exports", "../simple-html-tokenizer", "../html
       return el[textProperty];
     }
   }
-});
-enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-util/handlebars/utils', './htmlbars-util/namespaces', './htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
-  'use strict';
-
-  exports.SafeString = _htmlbarsUtilSafeString.default;
-  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
-  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
-  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
-  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
-  exports.dump = _htmlbarsUtilMorphUtils.dump;
 });
 enifed('htmlbars-util/array-utils', ['exports'], function (exports) {
   'use strict';
@@ -18841,6 +18717,273 @@ enifed("htmlbars-util/void-tag-names", ["exports", "./array-utils"], function (e
 
   exports.default = voidMap;
 });
+enifed('htmlbars-util', ['exports', './htmlbars-util/safe-string', './htmlbars-util/handlebars/utils', './htmlbars-util/namespaces', './htmlbars-util/morph-utils'], function (exports, _htmlbarsUtilSafeString, _htmlbarsUtilHandlebarsUtils, _htmlbarsUtilNamespaces, _htmlbarsUtilMorphUtils) {
+  'use strict';
+
+  exports.SafeString = _htmlbarsUtilSafeString.default;
+  exports.escapeExpression = _htmlbarsUtilHandlebarsUtils.escapeExpression;
+  exports.getAttrNamespace = _htmlbarsUtilNamespaces.getAttrNamespace;
+  exports.validateChildMorphs = _htmlbarsUtilMorphUtils.validateChildMorphs;
+  exports.linkParams = _htmlbarsUtilMorphUtils.linkParams;
+  exports.dump = _htmlbarsUtilMorphUtils.dump;
+});
+(function() {
+})();
+/*!
+ * @overview  Ember - JavaScript Application Framework
+ * @copyright Copyright 2011-2015 Tilde Inc. and contributors
+ *            Portions Copyright 2006-2011 Strobe Inc.
+ *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
+ * @license   Licensed under MIT license
+ *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
+ * @version   2.0.3
+ */
+
+var enifed, requireModule, eriuqer, requirejs, Ember;
+var mainContext = this;
+
+(function() {
+  var isNode = typeof window === 'undefined' &&
+    typeof process !== 'undefined' && {}.toString.call(process) === '[object process]';
+
+  if (!isNode) {
+    Ember = this.Ember = this.Ember || {};
+  }
+
+  if (typeof Ember === 'undefined') { Ember = {}; };
+
+  if (typeof Ember.__loader === 'undefined') {
+    var registry = {};
+    var seen = {};
+
+    enifed = function(name, deps, callback) {
+      var value = { };
+
+      if (!callback) {
+        value.deps = [];
+        value.callback = deps;
+      } else {
+        value.deps = deps;
+        value.callback = callback;
+      }
+
+      registry[name] = value;
+    };
+
+    requirejs = eriuqer = requireModule = function(name) {
+      return internalRequire(name, null);
+    }
+
+    function internalRequire(name, referrerName) {
+      var exports = seen[name];
+
+      if (exports !== undefined) {
+        return exports;
+      }
+
+      exports = seen[name] = {};
+
+      if (!registry[name]) {
+        if (referrerName) {
+          throw new Error('Could not find module ' + name + ' required by: ' + referrerName);
+        } else {
+          throw new Error('Could not find module ' + name);
+        }
+      }
+
+      var mod = registry[name];
+      var deps = mod.deps;
+      var callback = mod.callback;
+      var reified = [];
+      var length = deps.length;
+
+      for (var i=0; i<length; i++) {
+        if (deps[i] === 'exports') {
+          reified.push(exports);
+        } else {
+          reified.push(internalRequire(resolve(deps[i], name), name));
+        }
+      }
+
+      callback.apply(this, reified);
+
+      return exports;
+    };
+
+    function resolve(child, name) {
+      if (child.charAt(0) !== '.') {
+        return child;
+      }
+      var parts = child.split('/');
+      var parentBase = name.split('/').slice(0, -1);
+
+      for (var i=0, l=parts.length; i<l; i++) {
+        var part = parts[i];
+
+        if (part === '..') {
+          parentBase.pop();
+        } else if (part === '.') {
+          continue;
+        } else {
+          parentBase.push(part);
+        }
+      }
+
+      return parentBase.join('/');
+    }
+
+    requirejs._eak_seen = registry;
+
+    Ember.__loader = {
+      define: enifed,
+      require: eriuqer,
+      registry: registry
+    };
+  } else {
+    enifed = Ember.__loader.define;
+    requirejs = eriuqer = requireModule = Ember.__loader.require;
+  }
+})();
+
+enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _utils) {
+  'use strict';
+
+  function MorphList() {
+    // morph graph
+    this.firstChildMorph = null;
+    this.lastChildMorph = null;
+
+    this.mountedMorph = null;
+  }
+
+  var prototype = MorphList.prototype;
+
+  prototype.clear = function MorphList$clear() {
+    var current = this.firstChildMorph;
+
+    while (current) {
+      var next = current.nextMorph;
+      current.previousMorph = null;
+      current.nextMorph = null;
+      current.parentMorphList = null;
+      current = next;
+    }
+
+    this.firstChildMorph = this.lastChildMorph = null;
+  };
+
+  prototype.destroy = function MorphList$destroy() {};
+
+  prototype.appendMorph = function MorphList$appendMorph(morph) {
+    this.insertBeforeMorph(morph, null);
+  };
+
+  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
+    if (morph.parentMorphList !== null) {
+      morph.unlink();
+    }
+    if (referenceMorph && referenceMorph.parentMorphList !== this) {
+      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
+    }
+
+    var mountedMorph = this.mountedMorph;
+
+    if (mountedMorph) {
+
+      var parentNode = mountedMorph.firstNode.parentNode;
+      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
+
+      _utils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
+
+      // was not in list mode replace current content
+      if (!this.firstChildMorph) {
+        _utils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
+      }
+    }
+
+    morph.parentMorphList = this;
+
+    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
+    if (previousMorph) {
+      previousMorph.nextMorph = morph;
+      morph.previousMorph = previousMorph;
+    } else {
+      this.firstChildMorph = morph;
+    }
+
+    if (referenceMorph) {
+      referenceMorph.previousMorph = morph;
+      morph.nextMorph = referenceMorph;
+    } else {
+      this.lastChildMorph = morph;
+    }
+
+    this.firstChildMorph._syncFirstNode();
+    this.lastChildMorph._syncLastNode();
+  };
+
+  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
+    if (morph.parentMorphList !== this) {
+      throw new Error("Cannot remove a morph from a parent it is not inside of");
+    }
+
+    morph.destroy();
+  };
+
+  exports.default = MorphList;
+});
+enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (exports, _morphList) {
+  'use strict';
+
+  (function (root, factory) {
+    if (typeof enifed === 'function' && enifed.amd) {
+      enifed([], factory);
+    } else if (typeof exports === 'object') {
+      module.exports = factory();
+    } else {
+      root.MorphList = factory();
+    }
+  })(undefined, function () {
+    return _morphList.default;
+  });
+});
+enifed("morph-range/utils", ["exports"], function (exports) {
+  // inclusive of both nodes
+  "use strict";
+
+  exports.clear = clear;
+  exports.insertBefore = insertBefore;
+
+  function clear(parentNode, firstNode, lastNode) {
+    if (!parentNode) {
+      return;
+    }
+
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.removeChild(node);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
+
+  function insertBefore(parentNode, firstNode, lastNode, refNode) {
+    var node = firstNode;
+    var nextNode;
+    do {
+      nextNode = node.nextSibling;
+      parentNode.insertBefore(node, refNode);
+      if (node === lastNode) {
+        break;
+      }
+      node = nextNode;
+    } while (node);
+  }
+});
 enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _morphRangeUtils) {
   'use strict';
 
@@ -18899,8 +19042,8 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
           return this.setNode(content);
         }
         /* Handlebars.SafeString */
-        if (typeof content.string === 'string') {
-          return this.setHTML(content.string);
+        if (typeof content.toHTML === 'function') {
+          return this.setHTML(content.toHTML());
         }
         if (this.parseTextAsHTML) {
           return this.setHTML(content.toString());
@@ -19104,159 +19247,6 @@ enifed('morph-range', ['exports', './morph-range/utils'], function (exports, _mo
   };
 
   exports.default = Morph;
-});
-enifed('morph-range/morph-list', ['exports', './utils'], function (exports, _utils) {
-  'use strict';
-
-  function MorphList() {
-    // morph graph
-    this.firstChildMorph = null;
-    this.lastChildMorph = null;
-
-    this.mountedMorph = null;
-  }
-
-  var prototype = MorphList.prototype;
-
-  prototype.clear = function MorphList$clear() {
-    var current = this.firstChildMorph;
-
-    while (current) {
-      var next = current.nextMorph;
-      current.previousMorph = null;
-      current.nextMorph = null;
-      current.parentMorphList = null;
-      current = next;
-    }
-
-    this.firstChildMorph = this.lastChildMorph = null;
-  };
-
-  prototype.destroy = function MorphList$destroy() {};
-
-  prototype.appendMorph = function MorphList$appendMorph(morph) {
-    this.insertBeforeMorph(morph, null);
-  };
-
-  prototype.insertBeforeMorph = function MorphList$insertBeforeMorph(morph, referenceMorph) {
-    if (morph.parentMorphList !== null) {
-      morph.unlink();
-    }
-    if (referenceMorph && referenceMorph.parentMorphList !== this) {
-      throw new Error('The morph before which the new morph is to be inserted is not a child of this morph.');
-    }
-
-    var mountedMorph = this.mountedMorph;
-
-    if (mountedMorph) {
-
-      var parentNode = mountedMorph.firstNode.parentNode;
-      var referenceNode = referenceMorph ? referenceMorph.firstNode : mountedMorph.lastNode.nextSibling;
-
-      _utils.insertBefore(parentNode, morph.firstNode, morph.lastNode, referenceNode);
-
-      // was not in list mode replace current content
-      if (!this.firstChildMorph) {
-        _utils.clear(this.mountedMorph.firstNode.parentNode, this.mountedMorph.firstNode, this.mountedMorph.lastNode);
-      }
-    }
-
-    morph.parentMorphList = this;
-
-    var previousMorph = referenceMorph ? referenceMorph.previousMorph : this.lastChildMorph;
-    if (previousMorph) {
-      previousMorph.nextMorph = morph;
-      morph.previousMorph = previousMorph;
-    } else {
-      this.firstChildMorph = morph;
-    }
-
-    if (referenceMorph) {
-      referenceMorph.previousMorph = morph;
-      morph.nextMorph = referenceMorph;
-    } else {
-      this.lastChildMorph = morph;
-    }
-
-    this.firstChildMorph._syncFirstNode();
-    this.lastChildMorph._syncLastNode();
-  };
-
-  prototype.removeChildMorph = function MorphList$removeChildMorph(morph) {
-    if (morph.parentMorphList !== this) {
-      throw new Error("Cannot remove a morph from a parent it is not inside of");
-    }
-
-    morph.destroy();
-  };
-
-  exports.default = MorphList;
-});
-enifed('morph-range/morph-list.umd', ['exports', './morph-list'], function (exports, _morphList) {
-  'use strict';
-
-  (function (root, factory) {
-    if (typeof enifed === 'function' && enifed.amd) {
-      enifed([], factory);
-    } else if (typeof exports === 'object') {
-      module.exports = factory();
-    } else {
-      root.MorphList = factory();
-    }
-  })(undefined, function () {
-    return _morphList.default;
-  });
-});
-enifed("morph-range/utils", ["exports"], function (exports) {
-  // inclusive of both nodes
-  "use strict";
-
-  exports.clear = clear;
-  exports.insertBefore = insertBefore;
-
-  function clear(parentNode, firstNode, lastNode) {
-    if (!parentNode) {
-      return;
-    }
-
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.removeChild(node);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
-  }
-
-  function insertBefore(parentNode, firstNode, lastNode, refNode) {
-    var node = firstNode;
-    var nextNode;
-    do {
-      nextNode = node.nextSibling;
-      parentNode.insertBefore(node, refNode);
-      if (node === lastNode) {
-        break;
-      }
-      node = nextNode;
-    } while (node);
-  }
-});
-enifed('simple-html-tokenizer', ['exports', './simple-html-tokenizer/evented-tokenizer', './simple-html-tokenizer/tokenizer', './simple-html-tokenizer/tokenize', './simple-html-tokenizer/generator', './simple-html-tokenizer/generate', './simple-html-tokenizer/tokens'], function (exports, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerTokenizer, _simpleHtmlTokenizerTokenize, _simpleHtmlTokenizerGenerator, _simpleHtmlTokenizerGenerate, _simpleHtmlTokenizerTokens) {
-  /*jshint boss:true*/
-  'use strict';
-
-  exports.EventedTokenizer = _simpleHtmlTokenizerEventedTokenizer.default;
-  exports.Tokenizer = _simpleHtmlTokenizerTokenizer.default;
-  exports.tokenize = _simpleHtmlTokenizerTokenize.default;
-  exports.Generator = _simpleHtmlTokenizerGenerator.default;
-  exports.generate = _simpleHtmlTokenizerGenerate.default;
-  exports.StartTag = _simpleHtmlTokenizerTokens.StartTag;
-  exports.EndTag = _simpleHtmlTokenizerTokens.EndTag;
-  exports.Chars = _simpleHtmlTokenizerTokens.Chars;
-  exports.Comment = _simpleHtmlTokenizerTokens.Comment;
 });
 enifed("simple-html-tokenizer/char-refs/full", ["exports"], function (exports) {
   "use strict";
@@ -22125,10 +22115,20 @@ enifed("simple-html-tokenizer/utils", ["exports"], function (exports) {
     return input.replace(/\r\n?/g, "\n");
   }
 });
-requireModule("ember-debug");
-requireModule("ember-template-compiler");
+enifed('simple-html-tokenizer', ['exports', './simple-html-tokenizer/evented-tokenizer', './simple-html-tokenizer/tokenizer', './simple-html-tokenizer/tokenize', './simple-html-tokenizer/generator', './simple-html-tokenizer/generate', './simple-html-tokenizer/tokens'], function (exports, _simpleHtmlTokenizerEventedTokenizer, _simpleHtmlTokenizerTokenizer, _simpleHtmlTokenizerTokenize, _simpleHtmlTokenizerGenerator, _simpleHtmlTokenizerGenerate, _simpleHtmlTokenizerTokens) {
+  /*jshint boss:true*/
+  'use strict';
 
-})();
+  exports.EventedTokenizer = _simpleHtmlTokenizerEventedTokenizer.default;
+  exports.Tokenizer = _simpleHtmlTokenizerTokenizer.default;
+  exports.tokenize = _simpleHtmlTokenizerTokenize.default;
+  exports.Generator = _simpleHtmlTokenizerGenerator.default;
+  exports.generate = _simpleHtmlTokenizerGenerate.default;
+  exports.StartTag = _simpleHtmlTokenizerTokens.StartTag;
+  exports.EndTag = _simpleHtmlTokenizerTokens.EndTag;
+  exports.Chars = _simpleHtmlTokenizerTokens.Chars;
+  exports.Comment = _simpleHtmlTokenizerTokens.Comment;
+});
 ;
 if (typeof exports === "object") {
   module.exports = Ember.__loader.require("ember-template-compiler");
