@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c5492eab
+ * @version   2.4.0-canary+ce42e009
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -385,7 +385,16 @@ enifed('container/tests/container_test', ['exports', 'ember-metal/core', 'contai
     registry.register('user:current', null, { instantiate: false });
     registry.injection('controller:application', 'currentUser', 'user:current');
 
-    equal(container.lookup('controller:application').currentUser, null);
+    strictEqual(container.lookup('controller:application').currentUser, null);
+  });
+
+  QUnit.test('The container returns same value each time even if the value is falsy', function () {
+    var registry = new _containerRegistry.default();
+    var container = registry.container();
+
+    registry.register('falsy:value', null, { instantiate: false });
+
+    strictEqual(container.lookup('falsy:value'), container.lookup('falsy:value'));
   });
 
   QUnit.test('Destroying the container destroys any cached singletons', function () {
@@ -873,6 +882,27 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     registry.register('controller:post', PostController);
 
     deepEqual(registry.resolve('controller:post'), registry.resolve('controller:post'), 'The return of resolve is always the same');
+  });
+
+  QUnit.test('The registered value returned from resolve is the same value each time even if the value is falsy', function () {
+    var registry = new _container.Registry();
+
+    registry.register('falsy:value', null, { instantiate: false });
+
+    strictEqual(registry.resolve('falsy:value'), registry.resolve('falsy:value'), 'The return of resolve is always the same');
+  });
+
+  QUnit.test('The value returned from resolver is the same value as the original value even if the value is falsy', function () {
+    var resolver = {
+      resolve: function (fullName) {
+        if (fullName === 'falsy:value') {
+          return null;
+        }
+      }
+    };
+    var registry = new _container.Registry({ resolver: resolver });
+
+    strictEqual(registry.resolve('falsy:value'), null);
   });
 
   QUnit.test('A registered factory returns true for `has` if an item is registered', function () {
@@ -53091,7 +53121,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+c5492eab', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+ce42e009', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

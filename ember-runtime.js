@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+c5492eab
+ * @version   2.4.0-canary+ce42e009
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1384,7 +1384,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
       }
     }
 
-    if (container.cache[fullName] && options.singleton !== false) {
+    if (container.cache[fullName] !== undefined && options.singleton !== false) {
       return container.cache[fullName];
     }
 
@@ -2496,7 +2496,7 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
     }
 
     var cached = registry._resolveCache[normalizedName];
-    if (cached) {
+    if (cached !== undefined) {
       return cached;
     }
     if (registry._failCache[normalizedName]) {
@@ -2509,12 +2509,14 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
       resolved = registry.resolver.resolve(normalizedName);
     }
 
-    resolved = resolved || registry.registrations[normalizedName];
+    if (resolved === undefined) {
+      resolved = registry.registrations[normalizedName];
+    }
 
-    if (resolved) {
-      registry._resolveCache[normalizedName] = resolved;
-    } else {
+    if (resolved === undefined) {
       registry._failCache[normalizedName] = true;
+    } else {
+      registry._resolveCache[normalizedName] = resolved;
     }
 
     return resolved;
@@ -4919,7 +4921,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+c5492eab
+    @version 2.4.0-canary+ce42e009
     @public
   */
 
@@ -4961,11 +4963,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+c5492eab'
+    @default '2.4.0-canary+ce42e009'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+c5492eab';
+  Ember.VERSION = '2.4.0-canary+ce42e009';
 
   /**
     The hash of environment variables used to control various configuration
