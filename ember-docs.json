@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.11.1"
+        "version": "1.11.4"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -4036,7 +4036,7 @@
             "submodule": "ember-views",
             "namespace": "Ember",
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 96,
+            "line": 82,
             "description": "The `Ember.Select` view class renders a\n[select](https://developer.mozilla.org/en/HTML/Element/select) HTML element,\nallowing the user to choose from a list of options.\n\nThe text and `value` property of each `<option>` element within the\n`<select>` element are populated from the objects in the `Element.Select`'s\n`content` property. The underlying data object of the selected `<option>` is\nstored in the `Element.Select`'s `value` property.\n\n## The Content Property (array of strings)\n\nThe simplest version of an `Ember.Select` takes an array of strings as its\n`content` property. The string will be used as both the `value` property and\nthe inner text of each `<option>` element inside the rendered `<select>`.\n\nExample:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  names: [\"Yehuda\", \"Tom\"]\n});\n```\n\n```handlebars\n{{view \"select\" content=names}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```\n\nYou can control which `<option>` is selected through the `Ember.Select`'s\n`value` property:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  selectedName: 'Tom',\n  names: [\"Yehuda\", \"Tom\"]\n});\n```\n\n```handlebars\n{{view \"select\" content=names value=selectedName}}\n```\n\nWould result in the following HTML with the `<option>` for 'Tom' selected:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\" selected=\"selected\">Tom</option>\n</select>\n```\n\nA user interacting with the rendered `<select>` to choose \"Yehuda\" would\nupdate the value of `selectedName` to \"Yehuda\".\n\n## The Content Property (array of Objects)\n\nAn `Ember.Select` can also take an array of JavaScript or Ember objects as\nits `content` property.\n\nWhen using objects you need to tell the `Ember.Select` which property should\nbe accessed on each object to supply the `value` attribute of the `<option>`\nand which property should be used to supply the element text.\n\nThe `optionValuePath` option is used to specify the path on each object to\nthe desired property for the `value` attribute. The `optionLabelPath`\nspecifies the path on each object to the desired property for the\nelement's text. Both paths must reference each object itself as `content`:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  programmers: [\n    {firstName: \"Yehuda\", id: 1},\n    {firstName: \"Tom\",    id: 2}\n  ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\">Tom</option>\n</select>\n```\n\nThe `value` attribute of the selected `<option>` within an `Ember.Select`\ncan be bound to a property on another object:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  programmers: [\n    {firstName: \"Yehuda\", id: 1},\n    {firstName: \"Tom\",    id: 2}\n  ],\n  currentProgrammer: {\n    id: 2\n  }\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"\n       value=currentProgrammer.id}}\n```\n\nWould result in the following HTML with a selected option:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\" selected=\"selected\">Tom</option>\n</select>\n```\n\nInteracting with the rendered element by selecting the first option\n('Yehuda') will update the `id` of `currentProgrammer`\nto match the `value` property of the newly selected `<option>`.\n\nAlternatively, you can control selection through the underlying objects\nused to render each object by binding the `selection` option. When the selected\n`<option>` is changed, the property path provided to `selection`\nwill be updated to match the content object of the rendered `<option>`\nelement:\n\n```javascript\n\nvar yehuda = {firstName: \"Yehuda\", id: 1, bff4eva: 'tom'}\nvar tom = {firstName: \"Tom\", id: 2, bff4eva: 'yehuda'};\n\nApp.ApplicationController = Ember.ObjectController.extend({\n  selectedPerson: tom,\n  programmers: [ yehuda, tom ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       optionValuePath=\"content.id\"\n       optionLabelPath=\"content.firstName\"\n       selection=selectedPerson}}\n```\n\nWould result in the following HTML with a selected option:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"1\">Yehuda</option>\n  <option value=\"2\" selected=\"selected\">Tom</option>\n</select>\n```\n\nInteracting with the rendered element by selecting the first option\n('Yehuda') will update the `selectedPerson` to match the object of\nthe newly selected `<option>`. In this case it is the first object\nin the `programmers`\n\n## Supplying a Prompt\n\nA `null` value for the `Ember.Select`'s `value` or `selection` property\nresults in there being no `<option>` with a `selected` attribute:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  selectedProgrammer: null,\n  programmers: [\"Yehuda\", \"Tom\"]\n});\n```\n\n``` handlebars\n{{view \"select\"\n       content=programmers\n       value=selectedProgrammer\n}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```\n\nAlthough `selectedProgrammer` is `null` and no `<option>`\nhas a `selected` attribute the rendered HTML will display the\nfirst item as though it were selected. You can supply a string\nvalue for the `Ember.Select` to display when there is no selection\nwith the `prompt` option:\n\n```javascript\nApp.ApplicationController = Ember.ObjectController.extend({\n  selectedProgrammer: null,\n  programmers: [ \"Yehuda\", \"Tom\" ]\n});\n```\n\n```handlebars\n{{view \"select\"\n       content=programmers\n       value=selectedProgrammer\n       prompt=\"Please select a name\"\n}}\n```\n\nWould result in the following HTML:\n\n```html\n<select class=\"ember-select\">\n  <option>Please select a name</option>\n  <option value=\"Yehuda\">Yehuda</option>\n  <option value=\"Tom\">Tom</option>\n</select>\n```",
             "extends": "Ember.View"
         },
@@ -19900,7 +19900,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 345,
+            "line": 331,
             "description": "The `multiple` attribute of the select element. Indicates whether multiple\noptions can be selected.",
             "itemtype": "property",
             "name": "multiple",
@@ -19913,7 +19913,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 355,
+            "line": 341,
             "description": "The `disabled` attribute of the select element. Indicates whether\nthe element is disabled from interactions.",
             "itemtype": "property",
             "name": "disabled",
@@ -19926,7 +19926,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 365,
+            "line": 351,
             "description": "The `required` attribute of the select element. Indicates whether\na selected option is required for form validation.",
             "itemtype": "property",
             "name": "required",
@@ -19940,7 +19940,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 376,
+            "line": 362,
             "description": "The list of options.\n\nIf `optionLabelPath` and `optionValuePath` are not overridden, this should\nbe a list of strings, which will serve simultaneously as labels and values.\n\nOtherwise, this should be a list of objects. For instance:\n\n```javascript\nvar App = Ember.Application.create();\nvar App.MySelect = Ember.Select.extend({\n  content: Ember.A([\n      { id: 1, firstName: 'Yehuda' },\n      { id: 2, firstName: 'Tom' }\n    ]),\n  optionLabelPath: 'content.firstName',\n  optionValuePath: 'content.id'\n});\n```",
             "itemtype": "property",
             "name": "content",
@@ -19953,7 +19953,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 402,
+            "line": 388,
             "description": "When `multiple` is `false`, the element of `content` that is currently\nselected, if any.\n\nWhen `multiple` is `true`, an array of such elements.",
             "itemtype": "property",
             "name": "selection",
@@ -19966,7 +19966,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 414,
+            "line": 400,
             "description": "In single selection mode (when `multiple` is `false`), value can be used to\nget the current selection's value or set the selection by its value.\n\nIt is not currently supported in multiple selection mode.",
             "itemtype": "property",
             "name": "value",
@@ -19979,7 +19979,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 430,
+            "line": 416,
             "description": "If given, a top-most dummy option will be rendered to serve as a user\nprompt.",
             "itemtype": "property",
             "name": "prompt",
@@ -19992,7 +19992,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 440,
+            "line": 426,
             "description": "The path of the option labels. See [content](/api/classes/Ember.Select.html#property_content).",
             "itemtype": "property",
             "name": "optionLabelPath",
@@ -20005,7 +20005,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 449,
+            "line": 435,
             "description": "The path of the option values. See [content](/api/classes/Ember.Select.html#property_content).",
             "itemtype": "property",
             "name": "optionValuePath",
@@ -20018,7 +20018,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 458,
+            "line": 444,
             "description": "The path of the option group.\nWhen this property is used, `content` should be sorted by `optionGroupPath`.",
             "itemtype": "property",
             "name": "optionGroupPath",
@@ -20031,7 +20031,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 468,
+            "line": 454,
             "description": "The view class for optgroup.",
             "itemtype": "property",
             "name": "groupView",
@@ -20044,7 +20044,7 @@
         },
         {
             "file": "packages/ember-views/lib/views/select.js",
-            "line": 498,
+            "line": 484,
             "description": "The view class for option.",
             "itemtype": "property",
             "name": "optionView",

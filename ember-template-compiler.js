@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.11.1
+ * @version   1.11.4
  */
 
 (function() {
@@ -133,7 +133,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
 
     @class Ember
     @static
-    @version 1.11.1
+    @version 1.11.4
   */
 
   if ('undefined' === typeof Ember) {
@@ -161,10 +161,10 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   /**
     @property VERSION
     @type String
-    @default '1.11.1'
+    @default '1.11.4'
     @static
   */
-  Ember.VERSION = '1.11.1';
+  Ember.VERSION = '1.11.4';
 
   /**
     Standard environmental variables. You can define these in a global `EmberENV`
@@ -557,6 +557,28 @@ enifed('ember-template-compiler/plugins/transform-with-as-to-hash', ['exports'],
   exports['default'] = TransformWithAsToHash;
 
 });
+enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
+
+  'use strict';
+
+  /**
+  @module ember
+  @submodule ember-template-compiler
+  */
+
+  exports['default'] = function() {
+    var disableComponentGeneration = true;
+    
+    return {
+      revision: 'Ember@1.11.4',
+
+      disableComponentGeneration: disableComponentGeneration,
+
+      plugins: plugins['default']
+    };
+  }
+
+});
 enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-compiler/system/compile_options', 'ember-template-compiler/system/template'], function (exports, compileOptions, template) {
 
   'use strict';
@@ -579,28 +601,6 @@ enifed('ember-template-compiler/system/compile', ['exports', 'ember-template-com
     var templateSpec = compile(templateString, compileOptions['default']());
 
     return template['default'](templateSpec);
-  }
-
-});
-enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-metal/core', 'ember-template-compiler/plugins'], function (exports, Ember, plugins) {
-
-  'use strict';
-
-  /**
-  @module ember
-  @submodule ember-template-compiler
-  */
-
-  exports['default'] = function() {
-    var disableComponentGeneration = true;
-    
-    return {
-      revision: 'Ember@1.11.1',
-
-      disableComponentGeneration: disableComponentGeneration,
-
-      plugins: plugins['default']
-    };
   }
 
 });
@@ -1555,7 +1555,7 @@ enifed("htmlbars-compiler/template-compiler",
 
     function TemplateCompiler(options) {
       this.options = options || {};
-      this.revision = this.options.revision || "HTMLBars@v0.11.2";
+      this.revision = this.options.revision || "HTMLBars@v0.11.2-1";
       this.fragmentOpcodeCompiler = new FragmentOpcodeCompiler();
       this.fragmentCompiler = new FragmentJavaScriptCompiler();
       this.hydrationOpcodeCompiler = new HydrationOpcodeCompiler();
