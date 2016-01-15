@@ -5,7 +5,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   1.12.0
+ * @version   1.12.2
  */
 
 (function() {
@@ -116,20 +116,10 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
 
   exports._warnIfUsingStrippedFeatureFlags = _warnIfUsingStrippedFeatureFlags;
 
-  /**
-    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
-    any specific FEATURES flag is truthy.
-
-    This method is called automatically in debug canary builds.
-
-    @private
-    @method _warnIfUsingStrippedFeatureFlags
-    @return {void}
-  */
   Ember['default'].assert = function (desc, test) {
     var throwAssertion;
 
-    if (utils.typeOf(test) === "function") {
+    if (utils.typeOf(test) === 'function') {
       throwAssertion = !test();
     } else {
       throwAssertion = !test;
@@ -152,7 +142,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].warn = function (message, test) {
     if (!test) {
       Logger['default'].warn("WARNING: " + message);
-      if ("trace" in Logger['default']) {
+      if ('trace' in Logger['default']) {
         Logger['default'].trace();
       }
     }
@@ -189,7 +179,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].deprecate = function (message, test, options) {
     var noDeprecation;
 
-    if (typeof test === "function") {
+    if (typeof test === 'function') {
       noDeprecation = test();
     } else {
       noDeprecation = test;
@@ -213,23 +203,23 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
     }
 
     if (arguments.length === 3) {
-      Ember['default'].assert("options argument to Ember.deprecate should be an object", options && typeof options === "object");
+      Ember['default'].assert('options argument to Ember.deprecate should be an object', options && typeof options === 'object');
       if (options.url) {
-        message += " See " + options.url + " for more details.";
+        message += ' See ' + options.url + ' for more details.';
       }
     }
 
     if (Ember['default'].LOG_STACKTRACE_ON_DEPRECATION && error.stack) {
       var stack;
-      var stackStr = "";
+      var stackStr = '';
 
-      if (error["arguments"]) {
+      if (error['arguments']) {
         // Chrome
-        stack = error.stack.replace(/^\s+at\s+/gm, "").replace(/^([^\(]+?)([\n$])/gm, "{anonymous}($1)$2").replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, "{anonymous}($1)").split("\n");
+        stack = error.stack.replace(/^\s+at\s+/gm, '').replace(/^([^\(]+?)([\n$])/gm, '{anonymous}($1)$2').replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}($1)').split('\n');
         stack.shift();
       } else {
         // Firefox
-        stack = error.stack.replace(/(?:\n@:0)?\s+$/m, "").replace(/^\(/gm, "{anonymous}(").split("\n");
+        stack = error.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^\(/gm, '{anonymous}(').split('\n');
       }
 
       stackStr = "\n    " + stack.slice(2).join("\n    ");
@@ -285,14 +275,26 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   Ember['default'].runInDebug = function (func) {
     func();
   };
+
+  /**
+    Will call `Ember.warn()` if ENABLE_ALL_FEATURES, ENABLE_OPTIONAL_FEATURES, or
+    any specific FEATURES flag is truthy.
+
+    This method is called automatically in debug canary builds.
+
+    @private
+    @method _warnIfUsingStrippedFeatureFlags
+    @return {void}
+  */
+
   function _warnIfUsingStrippedFeatureFlags(FEATURES, featuresWereStripped) {
     if (featuresWereStripped) {
-      Ember['default'].warn("Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_ALL_FEATURES);
-      Ember['default'].warn("Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.", !Ember['default'].ENV.ENABLE_OPTIONAL_FEATURES);
+      Ember['default'].warn('Ember.ENV.ENABLE_ALL_FEATURES is only available in canary builds.', !Ember['default'].ENV.ENABLE_ALL_FEATURES);
+      Ember['default'].warn('Ember.ENV.ENABLE_OPTIONAL_FEATURES is only available in canary builds.', !Ember['default'].ENV.ENABLE_OPTIONAL_FEATURES);
 
       for (var key in FEATURES) {
-        if (FEATURES.hasOwnProperty(key) && key !== "isEnabled") {
-          Ember['default'].warn("FEATURE[\"" + key + "\"] is set as enabled, but FEATURE flags are only available in canary builds.", !FEATURES[key]);
+        if (FEATURES.hasOwnProperty(key) && key !== 'isEnabled') {
+          Ember['default'].warn('FEATURE["' + key + '"] is set as enabled, but FEATURE flags are only available in canary builds.', !FEATURES[key]);
         }
       }
     }
@@ -300,29 +302,29 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
 
   if (!Ember['default'].testing) {
     // Complain if they're using FEATURE flags in builds other than canary
-    Ember['default'].FEATURES["features-stripped-test"] = true;
+    Ember['default'].FEATURES['features-stripped-test'] = true;
     var featuresWereStripped = true;
 
     
-    delete Ember['default'].FEATURES["features-stripped-test"];
+    delete Ember['default'].FEATURES['features-stripped-test'];
     _warnIfUsingStrippedFeatureFlags(Ember['default'].ENV.FEATURES, featuresWereStripped);
 
     // Inform the developer about the Ember Inspector if not installed.
-    var isFirefox = typeof InstallTrigger !== "undefined";
+    var isFirefox = typeof InstallTrigger !== 'undefined';
     var isChrome = environment['default'].isChrome;
 
-    if (typeof window !== "undefined" && (isFirefox || isChrome) && window.addEventListener) {
+    if (typeof window !== 'undefined' && (isFirefox || isChrome) && window.addEventListener) {
       window.addEventListener("load", function () {
         if (document.documentElement && document.documentElement.dataset && !document.documentElement.dataset.emberExtension) {
           var downloadURL;
 
           if (isChrome) {
-            downloadURL = "https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi";
+            downloadURL = 'https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi';
           } else if (isFirefox) {
-            downloadURL = "https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/";
+            downloadURL = 'https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/';
           }
 
-          Ember['default'].debug("For more advanced debugging, install the Ember Inspector from " + downloadURL);
+          Ember['default'].debug('For more advanced debugging, install the Ember Inspector from ' + downloadURL);
         }
       }, false);
     }
@@ -338,7 +340,7 @@ enifed('ember-debug', ['exports', 'ember-metal/core', 'ember-metal/utils', 'embe
   */
   var runningNonEmberDebugJS = false;
   if (runningNonEmberDebugJS) {
-    Ember['default'].warn("Please use `ember.debug.js` instead of `ember.js` for development and debugging.");
+    Ember['default'].warn('Please use `ember.debug.js` instead of `ember.js` for development and debugging.');
   }
 
   exports.runningNonEmberDebugJS = runningNonEmberDebugJS;
@@ -438,32 +440,32 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   var asyncHelper = Test['default'].registerAsyncHelper;
 
   function currentRouteName(app) {
-    var appController = app.__container__.lookup("controller:application");
+    var appController = app.__container__.lookup('controller:application');
 
-    return property_get.get(appController, "currentRouteName");
+    return property_get.get(appController, 'currentRouteName');
   }
 
   function currentPath(app) {
-    var appController = app.__container__.lookup("controller:application");
+    var appController = app.__container__.lookup('controller:application');
 
-    return property_get.get(appController, "currentPath");
+    return property_get.get(appController, 'currentPath');
   }
 
   function currentURL(app) {
-    var router = app.__container__.lookup("router:main");
+    var router = app.__container__.lookup('router:main');
 
-    return property_get.get(router, "location").getURL();
+    return property_get.get(router, 'location').getURL();
   }
 
   function pauseTest() {
     Test['default'].adapter.asyncStart();
-    return new Ember['default'].RSVP.Promise(function () {}, "TestAdapter paused promise");
+    return new Ember['default'].RSVP.Promise(function () {}, 'TestAdapter paused promise');
   }
 
   function focus(el) {
-    if (el && el.is(":input, [contenteditable=true]")) {
-      var type = el.prop("type");
-      if (type !== "checkbox" && type !== "radio" && type !== "hidden") {
+    if (el && el.is(':input, [contenteditable=true]')) {
+      var type = el.prop('type');
+      if (type !== 'checkbox' && type !== 'radio' && type !== 'hidden') {
         run['default'](el, function () {
           // Firefox does not trigger the `focusin` event if the window
           // does not have focus. If the document doesn't have focus just
@@ -471,7 +473,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
           if (!document.hasFocus || document.hasFocus()) {
             this.focus();
           } else {
-            this.trigger("focusin");
+            this.trigger('focusin');
           }
         });
       }
@@ -479,15 +481,17 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   }
 
   function visit(app, url) {
-    var router = app.__container__.lookup("router:main");
+    var router = app.__container__.lookup('router:main');
+    app.boot().then(function () {
+      router.location.setURL(url);
+    });
 
     if (app._readinessDeferrals > 0) {
-      router["initialURL"] = url;
-      run['default'](app, "advanceReadiness");
-      delete router["initialURL"];
+      router['initialURL'] = url;
+      run['default'](app, 'advanceReadiness');
+      delete router['initialURL'];
     } else {
-      router.location.setURL(url);
-      run['default'](app.__deprecatedInstance__, "handleURL", url);
+      run['default'](app.__deprecatedInstance__, 'handleURL', url);
     }
 
     return app.testHelpers.wait();
@@ -495,23 +499,23 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function click(app, selector, context) {
     var $el = app.testHelpers.findWithAssert(selector, context);
-    run['default']($el, "mousedown");
+    run['default']($el, 'mousedown');
 
     focus($el);
 
-    run['default']($el, "mouseup");
-    run['default']($el, "click");
+    run['default']($el, 'mouseup');
+    run['default']($el, 'click');
 
     return app.testHelpers.wait();
   }
 
   function check(app, selector, context) {
     var $el = app.testHelpers.findWithAssert(selector, context);
-    var type = $el.prop("type");
+    var type = $el.prop('type');
 
-    Ember['default'].assert("To check '" + selector + "', the input must be a checkbox", type === "checkbox");
+    Ember['default'].assert('To check \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
 
-    if (!$el.prop("checked")) {
+    if (!$el.prop('checked')) {
       app.testHelpers.click(selector, context);
     }
 
@@ -520,11 +524,11 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function uncheck(app, selector, context) {
     var $el = app.testHelpers.findWithAssert(selector, context);
-    var type = $el.prop("type");
+    var type = $el.prop('type');
 
-    Ember['default'].assert("To uncheck '" + selector + "', the input must be a checkbox", type === "checkbox");
+    Ember['default'].assert('To uncheck \'' + selector + '\', the input must be a checkbox', type === 'checkbox');
 
-    if ($el.prop("checked")) {
+    if ($el.prop('checked')) {
       app.testHelpers.click(selector, context);
     }
 
@@ -566,7 +570,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
     var event = jQuery['default'].Event(type, options);
 
-    run['default']($el, "trigger", event);
+    run['default']($el, 'trigger', event);
 
     return app.testHelpers.wait();
   }
@@ -574,7 +578,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   function keyEvent(app, selector, contextOrType, typeOrKeyCode, keyCode) {
     var context, type;
 
-    if (typeof keyCode === "undefined") {
+    if (typeof keyCode === 'undefined') {
       context = null;
       keyCode = typeOrKeyCode;
       type = contextOrType;
@@ -588,7 +592,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function fillIn(app, selector, contextOrText, text) {
     var $el, context;
-    if (typeof text === "undefined") {
+    if (typeof text === 'undefined') {
       text = contextOrText;
     } else {
       context = contextOrText;
@@ -611,7 +615,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
 
   function find(app, selector, context) {
     var $el;
-    context = context || property_get.get(app, "rootElement");
+    context = context || property_get.get(app, 'rootElement');
     $el = app.$(selector, context);
 
     return $el;
@@ -625,7 +629,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
     return new RSVP['default'].Promise(function (resolve) {
       // Every 10ms, poll for the async thing to have finished
       var watcher = setInterval(function () {
-        var router = app.__container__.lookup("router:main");
+        var router = app.__container__.lookup('router:main');
 
         // 1. If the router is loading, keep polling
         var routerIsLoading = router.router && !!router.router.activeTransition;
@@ -675,7 +679,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @param {String} url the name of the route
   * @return {RSVP.Promise}
   */
-  asyncHelper("visit", visit);
+  asyncHelper('visit', visit);
 
   /**
   * Clicks an element and triggers any actions triggered by the element's `click`
@@ -693,7 +697,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @param {String} selector jQuery selector for finding element on the DOM
   * @return {RSVP.Promise}
   */
-  asyncHelper("click", click);
+  asyncHelper('click', click);
 
     /**
   * Simulates a key event, e.g. `keypress`, `keydown`, `keyup` with the desired keyCode
@@ -713,7 +717,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @return {RSVP.Promise}
   * @since 1.5.0
   */
-  asyncHelper("keyEvent", keyEvent);
+  asyncHelper('keyEvent', keyEvent);
 
   /**
   * Fills in an input element with some text.
@@ -732,7 +736,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @param {String} text text to place inside the input element
   * @return {RSVP.Promise}
   */
-  asyncHelper("fillIn", fillIn);
+  asyncHelper('fillIn', fillIn);
 
   /**
   * Finds an element in the context of the app's container element. A simple alias
@@ -748,7 +752,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @param {String} selector jQuery string selector for element lookup
   * @return {Object} jQuery object representing the results of the query
   */
-  helper("find", find);
+  helper('find', find);
 
   /**
   * Like `find`, but throws an error if the element selector returns no results.
@@ -765,7 +769,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   * @return {Object} jQuery object representing the results of the query
   * @throws {Error} throws error if jQuery object returned has a length of 0
   */
-  helper("findWithAssert", findWithAssert);
+  helper('findWithAssert', findWithAssert);
 
   /**
     Causes the run loop to process any pending events. This is used to ensure that
@@ -790,8 +794,8 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
     @param {Object} value The value to be returned.
     @return {RSVP.Promise}
   */
-  asyncHelper("wait", wait);
-  asyncHelper("andThen", andThen);
+  asyncHelper('wait', wait);
+  asyncHelper('andThen', andThen);
 
   /**
     Returns the currently active route name.
@@ -810,7 +814,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @return {Object} The name of the currently active route.
   @since 1.5.0
   */
-  helper("currentRouteName", currentRouteName);
+  helper('currentRouteName', currentRouteName);
 
   /**
     Returns the current path.
@@ -829,7 +833,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @return {Object} The currently active path.
   @since 1.5.0
   */
-  helper("currentPath", currentPath);
+  helper('currentPath', currentPath);
 
   /**
     Returns the current URL.
@@ -848,7 +852,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
   @return {Object} The currently active URL.
   @since 1.5.0
   */
-  helper("currentURL", currentURL);
+  helper('currentURL', currentURL);
 
   /**
    Pauses the current test - this is useful for debugging while testing or for test-driving.
@@ -867,7 +871,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
    @method pauseTest
    @return {Object} A promise that will never resolve
    */
-  helper("pauseTest", pauseTest);
+  helper('pauseTest', pauseTest);
 
   /**
     Triggers the given DOM event on the element identified by the provided selector.
@@ -893,7 +897,7 @@ enifed('ember-testing/helpers', ['ember-metal/core', 'ember-metal/property_get',
    @return {RSVP.Promise}
    @since 1.5.0
   */
-  asyncHelper("triggerEvent", triggerEvent);
+  asyncHelper('triggerEvent', triggerEvent);
 
 });
 enifed('ember-testing/initializers', ['ember-runtime/system/lazy_load'], function (lazy_load) {
@@ -922,18 +926,6 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
   'use strict';
 
 
-
-  /**
-    Sets Ember up for testing. This is useful to perform
-    basic setup steps in order to unit test.
-
-    Use `App.setupForTesting` to perform integration tests (full
-    application testing).
-
-    @method setupForTesting
-    @namespace Ember
-    @since 1.5.0
-  */
   exports['default'] = setupForTesting;
   var Test, requests;
 
@@ -950,9 +942,21 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     }
     Test.pendingAjaxRequests = requests.length;
   }
+
+  /**
+    Sets Ember up for testing. This is useful to perform
+    basic setup steps in order to unit test.
+
+    Use `App.setupForTesting` to perform integration tests (full
+    application testing).
+
+    @method setupForTesting
+    @namespace Ember
+    @since 1.5.0
+  */
   function setupForTesting() {
     if (!Test) {
-      Test = requireModule("ember-testing/test")["default"];
+      Test = requireModule('ember-testing/test')['default'];
     }
 
     Ember['default'].testing = true;
@@ -965,10 +969,10 @@ enifed('ember-testing/setup_for_testing', ['exports', 'ember-metal/core', 'ember
     requests = [];
     Test.pendingAjaxRequests = requests.length;
 
-    jQuery['default'](document).off("ajaxSend", incrementAjaxPendingRequests);
-    jQuery['default'](document).off("ajaxComplete", decrementAjaxPendingRequests);
-    jQuery['default'](document).on("ajaxSend", incrementAjaxPendingRequests);
-    jQuery['default'](document).on("ajaxComplete", decrementAjaxPendingRequests);
+    jQuery['default'](document).off('ajaxSend', incrementAjaxPendingRequests);
+    jQuery['default'](document).off('ajaxComplete', decrementAjaxPendingRequests);
+    jQuery['default'](document).on('ajaxSend', incrementAjaxPendingRequests);
+    jQuery['default'](document).on('ajaxComplete', decrementAjaxPendingRequests);
   }
 
 });
@@ -987,7 +991,7 @@ enifed('ember-testing/support', ['ember-metal/core', 'ember-views/system/jquery'
     @method testCheckboxClick
   */
   function testCheckboxClick(handler) {
-    $("<input type=\"checkbox\">").css({ position: "absolute", left: "-1000px", top: "-1000px" }).appendTo("body").on("click", handler).trigger("click").remove();
+    $('<input type="checkbox">').css({ position: 'absolute', left: '-1000px', top: '-1000px' }).appendTo('body').on('click', handler).trigger('click').remove();
   }
 
   if (environment['default'].hasDOM) {
@@ -1353,7 +1357,7 @@ enifed('ember-testing/test', ['exports', 'ember-metal/core', 'ember-metal/run_lo
       this.testing = true;
 
       this.Router.reopen({
-        location: "none"
+        location: 'none'
       });
     },
 
