@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+6de89a95
+ * @version   2.4.0-canary+ee426b09
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -18358,6 +18358,68 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-runtime
     expectAssertion(function () {
       _emberRuntimeTestsUtils.runAppend(view);
     }, /You cannot use 'dashless' as a component name. Component names must contain a hyphen./);
+  });
+
+  QUnit.test('positional parameters does not clash when rendering different components', function (assert) {
+    var _EmberView$create11;
+
+    owner.register('component:normal-message', _emberViewsComponentsComponent.default.extend({
+      something: null
+    }).reopenClass({
+      positionalParams: ['something']
+    }));
+
+    owner.register('component:alternative-message', _emberViewsComponentsComponent.default.extend({
+      something: null
+    }).reopenClass({
+      positionalParams: ['something']
+    }));
+
+    owner.register('template:components/normal-message', _emberTemplateCompilerSystemCompile.default('Say: {{something}}!'));
+    owner.register('template:components/alternative-message', _emberTemplateCompilerSystemCompile.default('---: {{something}}!'));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create11 = {}, _EmberView$create11[_containerOwner.OWNER] = owner, _EmberView$create11.messageType = 'normal-message', _EmberView$create11.message = 'Hello', _EmberView$create11.template = _emberTemplateCompilerSystemCompile.default('{{component view.messageType view.message}}'), _EmberView$create11));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Say: Hello!');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'messageType', 'alternative-message');
+    });
+
+    equal(view.$().text(), '---: Hello!');
+  });
+
+  QUnit.test('positional parameters does not pollute the attributes when changing components', function (assert) {
+    var _EmberView$create12;
+
+    owner.register('component:normal-message', _emberViewsComponentsComponent.default.extend({
+      something: null
+    }).reopenClass({
+      positionalParams: ['something']
+    }));
+
+    owner.register('component:alternative-message', _emberViewsComponentsComponent.default.extend({
+      something: 'Another'
+    }).reopenClass({
+      positionalParams: ['somethingElse']
+    }));
+
+    owner.register('template:components/normal-message', _emberTemplateCompilerSystemCompile.default('Say: {{something}}!'));
+    owner.register('template:components/alternative-message', _emberTemplateCompilerSystemCompile.default('---: {{something}} {{somethingElse}}!'));
+
+    view = _emberViewsViewsView.default.create((_EmberView$create12 = {}, _EmberView$create12[_containerOwner.OWNER] = owner, _EmberView$create12.messageType = 'normal-message', _EmberView$create12.message = 'Hello', _EmberView$create12.template = _emberTemplateCompilerSystemCompile.default('{{component view.messageType view.message}}'), _EmberView$create12));
+
+    _emberRuntimeTestsUtils.runAppend(view);
+
+    equal(view.$().text(), 'Say: Hello!');
+
+    _emberMetalRun_loop.default(function () {
+      _emberMetalProperty_set.set(view, 'messageType', 'alternative-message');
+    });
+
+    equal(view.$().text(), '---: Another Hello!');
   });
 });
 enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -53145,7 +53207,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+6de89a95', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+ee426b09', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
