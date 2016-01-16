@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+3bf93e16
+ * @version   2.4.0-canary+4ce4cb6a
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4921,7 +4921,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+3bf93e16
+    @version 2.4.0-canary+4ce4cb6a
     @public
   */
 
@@ -4963,11 +4963,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+3bf93e16'
+    @default '2.4.0-canary+4ce4cb6a'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+3bf93e16';
+  Ember.VERSION = '2.4.0-canary+4ce4cb6a';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13362,19 +13362,21 @@ enifed('ember-runtime/copy', ['exports', 'ember-metal/debug', 'ember-runtime/sys
   }
 
   /**
-    Creates a clone of the passed object. This function can take just about
-    any type of object and create a clone of it, including primitive values
-    (which are not actually cloned because they are immutable).
+    Creates a shallow copy of the passed object. A deep copy of the object is
+    returned if the optional `deep` argument is `true`.
   
-    If the passed object implements the `copy()` method, then this function
-    will simply call that method and return the result. Please see
-    `Ember.Copyable` for further details.
+    If the passed object implements the `Ember.Copyable` interface, then this
+    function will delegate to the object's `copy()` method and return the
+    result. See `Ember.Copyable` for further details.
+  
+    For primitive values (which are immutable in JavaScript), the passed object
+    is simply returned.
   
     @method copy
     @for Ember
     @param {Object} obj The object to clone
-    @param {Boolean} deep If true, a deep copy of the object is made
-    @return {Object} The cloned object
+    @param {Boolean} [deep=false] If true, a deep copy of the object is made.
+    @return {Object} The copied object
     @public
   */
 
