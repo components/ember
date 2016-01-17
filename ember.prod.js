@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+4ce4cb6a
+ * @version   2.4.0-canary+325e9e3c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9979,7 +9979,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+4ce4cb6a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+325e9e3c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15581,7 +15581,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-canary+4ce4cb6a
+    @version 2.4.0-canary+325e9e3c
     @public
   */
 
@@ -15623,11 +15623,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-canary+4ce4cb6a'
+    @default '2.4.0-canary+325e9e3c'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-canary+4ce4cb6a';
+  Ember.VERSION = '2.4.0-canary+325e9e3c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -29308,7 +29308,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+4ce4cb6a';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.4.0-canary+325e9e3c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29808,7 +29808,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+4ce4cb6a';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.4.0-canary+325e9e3c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -38709,7 +38709,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.4.0-canary+4ce4cb6a',
+        revision: 'Ember@2.4.0-canary+325e9e3c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42771,7 +42771,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+4ce4cb6a';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.4.0-canary+325e9e3c';
 
   /**
   @module ember
@@ -47970,8 +47970,8 @@ enifed('morph-range', ['exports', 'morph-range/utils'], function (exports, _morp
           return this.setNode(content);
         }
         /* Handlebars.SafeString */
-        if (typeof content.string === 'string') {
-          return this.setHTML(content.string);
+        if (typeof content.toHTML === 'function') {
+          return this.setHTML(content.toHTML());
         }
         if (this.parseTextAsHTML) {
           return this.setHTML(content.toString());
