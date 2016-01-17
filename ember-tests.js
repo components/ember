@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-canary+325e9e3c
+ * @version   2.4.0-canary+7b072fc4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -923,7 +923,7 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
 
     throws(function () {
       registry.typeInjection('controller', 'injected', 'controller:post');
-    }, 'Cannot inject a `controller:post` on other controller(s).');
+    }, /Cannot inject a `controller:post` on other controller\(s\)\./);
   });
 
   QUnit.test('The registry can take a hook to resolve factories lazily', function () {
@@ -993,7 +993,7 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
     registry.register('controller:post', PostController);
     throws(function () {
       registry.resolve('post');
-    }, 'TypeError: Invalid Fullname, expected: `type:name` got: post');
+    }, /TypeError: Invalid Fullname, expected: `type:name` got: post/);
   });
 
   QUnit.test('The registry normalizes names when injecting', function () {
@@ -1041,7 +1041,7 @@ enifed('container/tests/registry_test', ['exports', 'ember-metal/core', 'contain
 
     throws(function () {
       registry.register('controller:apple', SecondApple);
-    }, 'Cannot re-register: `controller:apple`, as it has already been resolved.');
+    }, /Cannot re-register: `controller:apple`, as it has already been resolved\./);
 
     strictEqual(registry.resolve('controller:apple'), FirstApple);
   });
@@ -53452,7 +53452,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-canary+325e9e3c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-canary+7b072fc4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
