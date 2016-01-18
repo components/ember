@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "1.13.11"
+        "version": "1.13.13"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -20525,7 +20525,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/legacy_view_support.js",
-            "line": 42,
+            "line": 32,
             "description": "Removes all children from the `parentView`.",
             "itemtype": "method",
             "name": "removeAllChildren",
@@ -20542,7 +20542,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/legacy_view_support.js",
-            "line": 61,
+            "line": 51,
             "description": "Return the nearest ancestor whose parent is an instance of\n`klass`.",
             "itemtype": "method",
             "name": "nearestChildOf",
@@ -20566,7 +20566,7 @@
         },
         {
             "file": "packages/ember-views/lib/mixins/legacy_view_support.js",
-            "line": 82,
+            "line": 72,
             "description": "Return the nearest ancestor that is an instance of the provided\nclass.",
             "itemtype": "method",
             "name": "nearestInstanceOf",
