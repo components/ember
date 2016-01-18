@@ -3,7 +3,7 @@
         "name": "The Ember API",
         "description": "The Ember API: a framework for building ambitious web applications",
         "url": "http://emberjs.com/",
-        "version": "v2.3.0-beta.3"
+        "version": "v2.3.0"
     },
     "files": {
         "bower_components/rsvp/lib/rsvp/promise/all.js": {
@@ -169,11 +169,11 @@
             },
             "classes": {
                 "Ember.ApplicationInstance": 1,
-                "@Ember.ApplicationInstance.BootOptions": 1
+                "Ember.ApplicationInstance.BootOptions": 1
             },
             "fors": {},
             "namespaces": {
-                "@Ember.ApplicationInstance": 1
+                "Ember.ApplicationInstance": 1
             }
         },
         "packages/ember-application/lib/system/application.js": {
@@ -2078,7 +2078,7 @@
                 "RSVP.EventTarget": 1,
                 "RSVP.Promise": 1,
                 "Ember.ApplicationInstance": 1,
-                "@Ember.ApplicationInstance.BootOptions": 1,
+                "Ember.ApplicationInstance.BootOptions": 1,
                 "Ember.Application": 1,
                 "Ember.DefaultResolver": 1,
                 "Ember": 1,
@@ -2180,7 +2180,7 @@
                 "String": 1
             },
             "namespaces": {
-                "@Ember.ApplicationInstance": 1,
+                "Ember.ApplicationInstance": 1,
                 "Ember": 1,
                 "Ember.Instrumentation": 1,
                 "Ember.Test": 1
@@ -2194,14 +2194,14 @@
             "submodules": {},
             "classes": {
                 "Ember.ApplicationInstance": 1,
-                "@Ember.ApplicationInstance.BootOptions": 1,
+                "Ember.ApplicationInstance.BootOptions": 1,
                 "Ember.Application": 1,
                 "Ember.DefaultResolver": 1
             },
             "fors": {},
             "is_submodule": 1,
             "namespaces": {
-                "@Ember.ApplicationInstance": 1,
+                "Ember.ApplicationInstance": 1,
                 "Ember": 1
             },
             "module": "ember",
@@ -2383,7 +2383,7 @@
             "module": "ember",
             "namespace": "",
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 36,
+            "line": 39,
             "description": "Ember.Location returns an instance of the correct implementation of\nthe `location` API.\n\n## Implementations\n\nYou can pass an implementation name (`hash`, `history`, `none`) to force a\nparticular implementation to be used in your application.\n\n### HashLocation\n\nUsing `HashLocation` results in URLs with a `#` (hash sign) separating the\nserver side URL portion of the URL from the portion that is used by Ember.\nThis relies upon the `hashchange` event existing in the browser.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'hash'\n});\n```\n\nThis will result in a posts.new url of `/#/posts/new`.\n\n### HistoryLocation\n\nUsing `HistoryLocation` results in URLs that are indistinguishable from a\nstandard URL. This relies upon the browser's `history` API.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'history'\n});\n```\n\nThis will result in a posts.new url of `/posts/new`.\n\nKeep in mind that your server must serve the Ember app at all the routes you\ndefine.\n\n### AutoLocation\n\nUsing `AutoLocation`, the router will use the best Location class supported by\nthe browser it is running in.\n\nBrowsers that support the `history` API will use `HistoryLocation`, those that\ndo not, but still support the `hashchange` event will use `HashLocation`, and\nin the rare case neither is supported will use `NoneLocation`.\n\nExample:\n\n```javascript\nApp.Router.map(function() {\n  this.route('posts', function() {\n    this.route('new');\n  });\n});\n\nApp.Router.reopen({\n  location: 'auto'\n});\n```\n\nThis will result in a posts.new url of `/posts/new` for modern browsers that\nsupport the `history` api or `/#/posts/new` for older ones, like Internet\nExplorer 9 and below.\n\nWhen a user visits a link to your application, they will be automatically\nupgraded or downgraded to the appropriate `Location` class, with the URL\ntransformed accordingly, if needed.\n\nKeep in mind that since some of your users will use `HistoryLocation`, your\nserver must serve the Ember app at all the routes you define.\n\n### NoneLocation\n\nUsing `NoneLocation` causes Ember to not store the applications URL state\nin the actual URL. This is generally used for testing purposes, and is one\nof the changes made when calling `App.setupForTesting()`.\n\n## Location API\n\nEach location implementation must provide the following methods:\n\n* implementation: returns the string name used to reference the implementation.\n* getURL: returns the current URL.\n* setURL(path): sets the current URL.\n* replaceURL(path): replace the current URL (optional).\n* onUpdateURL(callback): triggers the callback when the URL changes.\n* formatURL(url): formats `url` to be placed into `href` attribute.\n* detect() (optional): instructs the location to do any feature detection\n    necessary. If the location needs to redirect to a different URL, it\n    can cancel routing by setting the `cancelRouterSetup` property on itself\n    to `false`.\n\nCalling setURL or replaceURL will not trigger onUpdateURL callbacks."
         },
         "ember-views": {
@@ -2561,9 +2561,9 @@
                 "ContainerProxyMixin"
             ]
         },
-        "@Ember.ApplicationInstance.BootOptions": {
-            "name": "@Ember.ApplicationInstance.BootOptions",
-            "shortname": "@Ember.ApplicationInstance.BootOptions",
+        "Ember.ApplicationInstance.BootOptions": {
+            "name": "Ember.ApplicationInstance.BootOptions",
+            "shortname": "Ember.ApplicationInstance.BootOptions",
             "classitems": [],
             "plugins": [],
             "extensions": [],
@@ -2571,7 +2571,7 @@
             "extension_for": [],
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance",
+            "namespace": "Ember.ApplicationInstance",
             "file": "packages/ember-application/lib/system/application-instance.js",
             "line": 360,
             "description": "A list of boot-time configuration options for customizing the behavior of\nan `Ember.ApplicationInstance`.\n\nThis is an interface class that exists purely to document the available\noptions; you do not need to construct it manually. Simply pass a regular\nJavaScript object containing the desired options into methods that require\none of these options object:\n\n```javascript\nMyApp.visit(\"/\", { location: \"none\", rootElement: \"#container\" });\n```\n\nNot all combinations of the supported options are valid. See the documentation\non `Ember.Application#visit` for the supported configurations.\n\nInternal, experimental or otherwise unstable flags are marked as private.",
@@ -3337,7 +3337,7 @@
             "submodule": "ember-routing",
             "namespace": "Ember",
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 36,
+            "line": 39,
             "description": "The `Ember.Router` class manages the application state and URLs. Refer to\nthe [routing guide](http://emberjs.com/guides/routing/) for documentation.",
             "extends": "Ember.Object",
             "uses": [
@@ -5087,10 +5087,10 @@
             "default": "auto-detected",
             "access": "private",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5102,10 +5102,10 @@
             "default": "auto-detected",
             "access": "private",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5117,10 +5117,10 @@
             "default": "auto-detected",
             "access": "public",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5132,10 +5132,10 @@
             "default": "true",
             "access": "public",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5147,10 +5147,10 @@
             "default": "the global `document` object",
             "access": "public",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5162,10 +5162,10 @@
             "default": "null",
             "access": "public",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application-instance.js",
@@ -5177,10 +5177,10 @@
             "default": "null",
             "access": "public",
             "tagname": "",
-            "class": "@Ember.ApplicationInstance.BootOptions",
+            "class": "Ember.ApplicationInstance.BootOptions",
             "module": "ember",
             "submodule": "ember-application",
-            "namespace": "@Ember.ApplicationInstance"
+            "namespace": "Ember.ApplicationInstance"
         },
         {
             "file": "packages/ember-application/lib/system/application.js",
@@ -6684,7 +6684,7 @@
         {
             "file": "packages/ember-htmlbars/lib/helpers/each.js",
             "line": 9,
-            "description": "The `{{#each}}` helper loops over elements in a collection. It is an extension\nof the base Handlebars `{{#each}}` helper.\n\nThe default behavior of `{{#each}}` is to yield its inner block once for every\nitem in an array.\n\n```javascript\nvar developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];\n```\n\n```handlebars\n{{#each developers key=\"name\" as |person|}}\n  {{person.name}}\n  {{! `this` is whatever it was outside the #each }}\n{{/each}}\n```\n\nThe same rules apply to arrays of primitives.\n\n```javascript\nvar developerNames = ['Yehuda', 'Tom', 'Paul']\n```\n\n```handlebars\n{{#each developerNames key=\"@index\" as |name|}}\n  {{name}}\n{{/each}}\n```\n\n### Specifying Keys\n\nThe `key` option is used to tell Ember how to determine if the array being\niterated over with `{{#each}}` has changed between renders. By helping Ember\ndetect that some elements in the array are the same, DOM elements can be\nre-used, significantly improving rendering speed.\n\nFor example, here's the `{{#each}}` helper with its `key` set to `id`:\n\n```handlebars\n{{#each model key=\"id\" as |item|}}\n{{/each}}\n```\n\nWhen this `{{#each}}` re-renders, Ember will match up the previously rendered\nitems (and reorder the generated DOM elements) based on each item's `id`\nproperty.\n\nBy default the item's own reference is used.\n\n### {{else}} condition\n\n`{{#each}}` can have a matching `{{else}}`. The contents of this block will render\nif the collection is empty.\n\n```handlebars\n{{#each developers as |person|}}\n  {{person.name}}\n{{else}}\n  <p>Sorry, nobody is available for this task.</p>\n{{/each}}\n```",
+            "description": "The `{{#each}}` helper loops over elements in a collection. It is an extension\nof the base Handlebars `{{#each}}` helper.\n\nThe default behavior of `{{#each}}` is to yield its inner block once for every\nitem in an array passing the item as the first block parameter.\n\n```javascript\nvar developers = [{name: 'Yehuda'},{name: 'Tom'}, {name: 'Paul'}];\n```\n\n```handlebars\n{{#each developers key=\"name\" as |person|}}\n  {{person.name}}\n  {{! `this` is whatever it was outside the #each }}\n{{/each}}\n```\n\nThe same rules apply to arrays of primitives.\n\n```javascript\nvar developerNames = ['Yehuda', 'Tom', 'Paul']\n```\n\n```handlebars\n{{#each developerNames key=\"@index\" as |name|}}\n  {{name}}\n{{/each}}\n```\n\nDuring iteration, the index of each item in the array is provided as a second block parameter.\n\n```handlebars\n<ul>\n  {{#each people as |person index|}}\n    <li>Hello, {{person.name}}! You're number {{index}} in line</li>\n  {{/each}}\n</ul>\n```\n\n### Specifying Keys\n\nThe `key` option is used to tell Ember how to determine if the array being\niterated over with `{{#each}}` has changed between renders. By helping Ember\ndetect that some elements in the array are the same, DOM elements can be\nre-used, significantly improving rendering speed.\n\nFor example, here's the `{{#each}}` helper with its `key` set to `id`:\n\n```handlebars\n{{#each model key=\"id\" as |item|}}\n{{/each}}\n```\n\nWhen this `{{#each}}` re-renders, Ember will match up the previously rendered\nitems (and reorder the generated DOM elements) based on each item's `id`\nproperty.\n\nBy default the item's own reference is used.\n\n### {{else}} condition\n\n`{{#each}}` can have a matching `{{else}}`. The contents of this block will render\nif the collection is empty.\n\n```handlebars\n{{#each developers as |person|}}\n  {{person.name}}\n{{else}}\n  <p>Sorry, nobody is available for this task.</p>\n{{/each}}\n```",
             "itemtype": "method",
             "name": "each",
             "access": "public",
@@ -10369,7 +10369,7 @@
         {
             "file": "packages/ember-metal/lib/run_loop.js",
             "line": 468,
-            "description": "Cancels a scheduled item. Must be a value returned by `run.later()`,\n`run.once()`, `run.next()`, `run.debounce()`, or\n`run.throttle()`.\n\n```javascript\nvar runNext = run.next(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runNext);\n\nvar runLater = run.later(myContext, function() {\n  // will not be executed\n}, 500);\n\nrun.cancel(runLater);\n\nvar runOnce = run.once(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runOnce);\n\nvar throttle = run.throttle(myContext, function() {\n  // will not be executed\n}, 1, false);\n\nrun.cancel(throttle);\n\nvar debounce = run.debounce(myContext, function() {\n  // will not be executed\n}, 1);\n\nrun.cancel(debounce);\n\nvar debounceImmediate = run.debounce(myContext, function() {\n  // will be executed since we passed in true (immediate)\n}, 100, true);\n\n// the 100ms delay until this method can be called again will be cancelled\nrun.cancel(debounceImmediate);\n```",
+            "description": "Cancels a scheduled item. Must be a value returned by `run.later()`,\n`run.once()`, `run.scheduleOnce()`, `run.next()`, `run.debounce()`, or\n`run.throttle()`.\n\n```javascript\nvar runNext = run.next(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runNext);\n\nvar runLater = run.later(myContext, function() {\n  // will not be executed\n}, 500);\n\nrun.cancel(runLater);\n\nvar runScheduleOnce = run.scheduleOnce('afterRender', myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runScheduleOnce);\n\nvar runOnce = run.once(myContext, function() {\n  // will not be executed\n});\n\nrun.cancel(runOnce);\n\nvar throttle = run.throttle(myContext, function() {\n  // will not be executed\n}, 1, false);\n\nrun.cancel(throttle);\n\nvar debounce = run.debounce(myContext, function() {\n  // will not be executed\n}, 1);\n\nrun.cancel(debounce);\n\nvar debounceImmediate = run.debounce(myContext, function() {\n  // will be executed since we passed in true (immediate)\n}, 100, true);\n\n// the 100ms delay until this method can be called again will be cancelled\nrun.cancel(debounceImmediate);\n```",
             "itemtype": "method",
             "name": "cancel",
             "params": [
@@ -10391,7 +10391,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 521,
+            "line": 527,
             "description": "Delay calling the target method until the debounce period has elapsed\nwith no additional debounce calls. If `debounce` is called again before\nthe specified time has elapsed, the timer is reset and the entire period\nmust pass again before the target method is called.\n\nThis method should be used when an event may be called multiple times\nbut the action should only be called once when the event is done firing.\nA common example is for scroll events where you only want updates to\nhappen once scrolling has ceased.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nvar myContext = { name: 'debounce' };\n\nrun.debounce(myContext, whoRan, 150);\n\n// less than 150ms passes\nrun.debounce(myContext, whoRan, 150);\n\n// 150ms passes\n// whoRan is invoked with context myContext\n// console logs 'debounce ran.' one time.\n```\n\nImmediate allows you to run the function immediately, but debounce\nother calls for this function until the wait time has elapsed. If\n`debounce` is called again before the specified time has elapsed,\nthe timer is reset and the entire period must pass again before\nthe method can be called again.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nvar myContext = { name: 'debounce' };\n\nrun.debounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 100ms passes\nrun.debounce(myContext, whoRan, 150, true);\n\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\nrun.debounce(myContext, whoRan, 150, true);\n\n// console logs 'debounce ran.' one time immediately.\n// 150ms passes and nothing else is logged to the console and\n// the debouncee is no longer being watched\n\n```",
             "itemtype": "method",
             "name": "debounce",
@@ -10436,7 +10436,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 594,
+            "line": 600,
             "description": "Ensure that the target method is never called more frequently than\nthe specified spacing period. The target method is called immediately.\n\n```javascript\nfunction whoRan() {\n  console.log(this.name + ' ran.');\n}\n\nvar myContext = { name: 'throttle' };\n\nrun.throttle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n\n// 50ms passes\nrun.throttle(myContext, whoRan, 150);\n\n// 50ms passes\nrun.throttle(myContext, whoRan, 150);\n\n// 150ms passes\nrun.throttle(myContext, whoRan, 150);\n// whoRan is invoked with context myContext\n// console logs 'throttle ran.'\n```",
             "itemtype": "method",
             "name": "throttle",
@@ -10481,7 +10481,7 @@
         },
         {
             "file": "packages/ember-metal/lib/run_loop.js",
-            "line": 648,
+            "line": 654,
             "description": "Add a new named queue after the specified queue.\n\nThe queue to add will only be added once.",
             "itemtype": "method",
             "name": "_addQueue",
@@ -13061,7 +13061,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 47,
+            "line": 50,
             "description": "The `location` property determines the type of URL's that your\napplication will use.\n\nThe following location types are currently available:\n\n* `history` - use the browser's history API to make the URLs look just like any standard URL\n* `hash` - use `#` to separate the server part of the URL from the Ember part: `/blog/#/posts/new`\n* `none` - do not store the Ember URL in the actual browser URL (mainly used for testing)\n* `auto` - use the best option based on browser capabilites: `history` if possible, then `hash` if possible, otherwise `none`\n\nNote: If using ember-cli, this value is defaulted to `auto` by the `locationType` setting of `/config/environment.js`",
             "itemtype": "property",
             "name": "location",
@@ -13078,7 +13078,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 67,
+            "line": 70,
             "description": "Represents the URL of the root of the application, often '/'. This prefix is\nassumed on all routes defined on this router.",
             "itemtype": "property",
             "name": "rootURL",
@@ -13092,7 +13092,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 121,
+            "line": 125,
             "description": "Represents the current URL.",
             "itemtype": "method",
             "name": "url",
@@ -13109,7 +13109,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 132,
+            "line": 136,
             "description": "Initializes the current router instance and sets up the change handling\nevent listeners used by the instances `location` implementation.\n\nA property named `initialURL` will be used to determine the initial URL.\nIf no value is found `/` will be used.",
             "itemtype": "method",
             "name": "startRouting",
@@ -13122,7 +13122,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 178,
+            "line": 182,
             "description": "Handles updating the paths and notifying any listeners of the URL\nchange.\n\nTriggers the router level `didTransition` hook.\n\nFor example, to notify google analytics when the route changes,\nyou could use this hook.  (Note: requires also including GA scripts, etc.)\n\n```javascript\nvar Router = Ember.Router.extend({\n  location: config.locationType,\n\n  didTransition: function() {\n    this._super(...arguments);\n\n    return ga('send', 'pageview', {\n        'page': this.get('url'),\n        'title': this.get('url')\n      });\n  }\n});\n```",
             "itemtype": "method",
             "name": "didTransition",
@@ -13136,7 +13136,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 259,
+            "line": 263,
             "description": "Handles notifying any listeners of an impending URL\nchange.\n\nTriggers the router level `willTransition` hook.",
             "itemtype": "method",
             "name": "willTransition",
@@ -13150,7 +13150,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 327,
+            "line": 330,
             "description": "Determines if the supplied route is currently active.",
             "itemtype": "method",
             "name": "isActive",
@@ -13173,7 +13173,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 340,
+            "line": 343,
             "description": "An alternative form of `isActive` that doesn't require\nmanual concatenation of the arguments into a single\narray.",
             "itemtype": "method",
             "name": "isActiveIntent",
@@ -13205,7 +13205,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 361,
+            "line": 364,
             "description": "Does this router instance have the given route.",
             "itemtype": "method",
             "name": "hasRoute",
@@ -13222,7 +13222,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 372,
+            "line": 375,
             "description": "Resets the state of the router by clearing the current route\nhandlers and deactivating them.",
             "access": "private",
             "tagname": "",
@@ -13235,7 +13235,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 615,
+            "line": 618,
             "description": "Returns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
             "access": "private",
             "tagname": "",
@@ -13246,7 +13246,7 @@
         },
         {
             "file": "packages/ember-routing/lib/system/router.js",
-            "line": 935,
+            "line": 957,
             "description": "The `Router.map` function allows you to define mappings from URLs to routes\nin your application. These mappings are defined within the\nsupplied callback function using `this.route`.\n\nThe first parameter is the name of the route which is used by default as the\npath name as well.\n\nThe second parameter is the optional options hash. Available options are:\n  * `path`: allows you to provide your own path as well as mark dynamic\n    segments.\n  * `resetNamespace`: false by default; when nesting routes, ember will\n    combine the route names to form the fully-qualified route name, which is\n    used with `{{link-to}}` or manually transitioning to routes. Setting\n    `resetNamespace: true` will cause the route not to inherit from its\n    parent route's names. This is handy for resources which can be accessed\n    in multiple places as well as preventing extremely long route names.\n    Keep in mind that the actual URL path behavior is still retained.\n\nThe third parameter is a function, which can be used to nest routes.\nNested routes, by default, will have the parent route tree's route name and\npath prepended to it's own.\n\n```javascript\nApp.Router.map(function(){\n  this.route('post', { path: '/post/:post_id' }, function() {\n    this.route('edit');\n    this.route('comments', { resetNamespace: true }, function() {\n      this.route('new');\n    });\n  });\n});\n```\n\nFor more detailed documentation and examples please see\n[the guides](http://emberjs.com/guides/routing/defining-your-routes/).",
             "itemtype": "method",
             "name": "map",
@@ -20288,7 +20288,7 @@
         },
         {
             "message": "Missing item type\nReturns a merged query params meta object for a given route.\nUseful for asking a route what its known query params are.",
-            "line": " packages/ember-routing/lib/system/router.js:615"
+            "line": " packages/ember-routing/lib/system/router.js:618"
         },
         {
             "message": "Missing item type",
