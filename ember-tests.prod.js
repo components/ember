@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0
+ * @version   2.3.0+af8fb7e5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -13538,6 +13538,7 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
     multipartTemplate: _emberTemplateCompilerSystemCompile.default('<iframe src=\'{{protocol}}{{path}}\'></iframe>') }];
 
   for (var i = 0, l = badTags.length; i < l; i++) {
+    /* jshint -W083 */
     (function () {
       var subject = badTags[i];
 
@@ -13592,7 +13593,8 @@ enifed('ember-htmlbars/tests/attr_nodes/sanitized_test', ['exports', 'ember-view
 
         equal(view.element.firstChild.getAttribute(subject.attr), 'unsafe:javascript://example.com', 'attribute is output');
       });
-    })(); //jshint ignore:line
+    })();
+    /* jshint +W083 */
   }
   // jscs:enable disallowTrailingWhitespace
 });
@@ -39313,7 +39315,6 @@ enifed('ember-runtime/tests/ext/mixin_test', ['exports', 'ember-metal/property_s
   });
 });
 enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-runtime/ext/rsvp'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberRuntimeExtRsvp) {
-  /* global Promise:true */
   'use strict';
 
   QUnit.module('Ember.RSVP');
@@ -39335,7 +39336,6 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
 
   var asyncStarted = 0;
   var asyncEnded = 0;
-  var Promise = _emberRuntimeExtRsvp.default.Promise;
 
   var EmberTest;
   var EmberTesting;
@@ -39377,7 +39377,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     equal(asyncStarted, 0);
     equal(asyncEnded, 0);
 
-    var user = Promise.resolve({
+    var user = _emberRuntimeExtRsvp.default.Promise.resolve({
       name: 'tomster'
     });
 
@@ -39390,7 +39390,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
 
       equal(user.name, 'tomster');
 
-      return Promise.resolve(1).then(function () {
+      return _emberRuntimeExtRsvp.default.Promise.resolve(1).then(function () {
         equal(asyncStarted, 1);
         equal(asyncEnded, 1);
       });
@@ -39398,7 +39398,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
       equal(asyncStarted, 1);
       equal(asyncEnded, 1);
 
-      return new Promise(function (resolve) {
+      return new _emberRuntimeExtRsvp.default.Promise(function (resolve) {
         QUnit.stop(); // raw async, we must inform the test framework manually
         setTimeout(function () {
           QUnit.start(); // raw async, we must inform the test framework manually
@@ -39587,7 +39587,7 @@ enifed('ember-runtime/tests/ext/rsvp_test', ['exports', 'ember-metal/core', 'emb
     // it depends on the locality of `user#1`
     var store = {
       find: function () {
-        return Promise.resolve(1);
+        return _emberRuntimeExtRsvp.default.Promise.resolve(1);
       }
     };
 
@@ -49427,7 +49427,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.3.0', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.3.0+af8fb7e5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
