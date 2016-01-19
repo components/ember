@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-beta.1
+ * @version   2.4.0-beta.1+56f3e0ac
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4921,7 +4921,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-beta.1
+    @version 2.4.0-beta.1+56f3e0ac
     @public
   */
 
@@ -4963,11 +4963,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-beta.1'
+    @default '2.4.0-beta.1+56f3e0ac'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-beta.1';
+  Ember.VERSION = '2.4.0-beta.1+56f3e0ac';
 
   /**
     The hash of environment variables used to control various configuration
@@ -13559,8 +13559,6 @@ enifed('ember-runtime/ext/function', ['exports', 'ember-metal/core', 'ember-meta
 });
 // Ember.EXTEND_PROTOTYPES
 enifed('ember-runtime/ext/rsvp', ['exports', 'ember-metal/core', 'require', 'ember-metal/debug', 'ember-metal/logger', 'ember-metal/run_loop', 'rsvp'], function (exports, _emberMetalCore, _require, _emberMetalDebug, _emberMetalLogger, _emberMetalRun_loop, _rsvp) {
-  /* globals RSVP:true */
-
   'use strict';
 
   exports.onerrorDefault = onerrorDefault;
