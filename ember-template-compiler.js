@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+551a2312
+ * @version   2.5.0-canary+c54ecab5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4149,7 +4149,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+551a2312
+    @version 2.5.0-canary+c54ecab5
     @public
   */
 
@@ -4191,11 +4191,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+551a2312'
+    @default '2.5.0-canary+c54ecab5'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+551a2312';
+  Ember.VERSION = '2.5.0-canary+c54ecab5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11639,10 +11639,12 @@ enifed('ember-template-compiler/index', ['exports', 'ember-metal', 'ember-templa
 enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function AssertNoViewAndControllerPaths(options) {
+  function AssertNoViewAndControllerPaths() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -11717,10 +11719,12 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
 enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function AssertNoViewHelper(options) {
+  function AssertNoViewHelper() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -11916,10 +11920,12 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   */
   'use strict';
 
-  function TransformEachInToHash(options) {
+  function TransformEachInToHash() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -12048,10 +12054,12 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
     @private
     @class TransformInputOnToOnEvent
   */
-  function TransformInputOnToOnEvent(options) {
+  function TransformInputOnToOnEvent() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -12554,8 +12562,8 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
 
   exports.default = calculateLocationDisplay;
 
-  function calculateLocationDisplay(moduleName, _loc) {
-    var loc = _loc || {};
+  function calculateLocationDisplay(moduleName) {
+    var loc = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var _ref = loc.start || {};
 
@@ -12660,7 +12668,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+551a2312',
+        revision: 'Ember@2.5.0-canary+c54ecab5',
         loc: program.loc,
         moduleName: options.moduleName
       };

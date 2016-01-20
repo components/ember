@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+551a2312
+ * @version   2.5.0-canary+c54ecab5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16936,13 +16936,13 @@ enifed('ember-htmlbars/tests/glimmer-component/render-test', ['exports', 'ember-
   function renderComponent(tag, component) {
     var _View$extend;
 
-    var params = component.params;
-    var hash = component.hash;
+    var _component$params = component.params;
+    var params = _component$params === undefined ? [] : _component$params;
+    var _component$hash = component.hash;
+    var hash = _component$hash === undefined ? {} : _component$hash;
     var yielded = component.yielded;
     var implementation = component.implementation;
 
-    params = params || [];
-    hash = hash || {};
     var stringParams = params.join(' ');
     var stringHash = Object.keys(hash).map(function (key) {
       return key + '=' + hash[key];
@@ -21731,10 +21731,12 @@ enifed('ember-htmlbars/tests/helpers/input_test', ['exports', 'ember-metal/run_l
 enifed('ember-htmlbars/tests/helpers/loc_test', ['exports', 'ember-metal/core', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils'], function (exports, _emberMetalCore, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils) {
   'use strict';
 
-  function buildView(template, context) {
+  function buildView(template) {
+    var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
     return _emberViewsViewsView.default.create({
       template: _emberTemplateCompilerSystemCompile.default(template),
-      context: context || {}
+      context: context
     });
   }
 
@@ -37786,8 +37788,8 @@ enifed('ember-routing/tests/system/router_test', ['exports', 'ember-routing/loca
 
   var owner;
 
-  function createRouter(settings, options) {
-    options = options || {};
+  function createRouter(settings) {
+    var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var CustomRouter = _emberRoutingSystemRouter.default.extend();
     var router = CustomRouter.create(settings);
@@ -45453,8 +45455,10 @@ enifed('ember-runtime/tests/mixins/array_test', ['exports', 'ember-metal/propert
 
     _content: null,
 
-    init: function (ary) {
-      this._content = ary || [];
+    init: function () {
+      var ary = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+      this._content = ary;
     },
 
     // some methods to modify the array so we can test changes.  Note that
@@ -45988,8 +45992,10 @@ enifed('ember-runtime/tests/mixins/enumerable_test', ['exports', 'ember-runtime/
 
     _content: null,
 
-    init: function (ary) {
-      this._content = ary || [];
+    init: function () {
+      var ary = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+      this._content = ary;
     },
 
     addObject: function (obj) {
@@ -46341,8 +46347,10 @@ enifed('ember-runtime/tests/mixins/mutable_array_test', ['exports', 'ember-metal
 
     _content: null,
 
-    init: function (ary) {
-      this._content = _emberRuntimeSystemNative_array.A(ary || []);
+    init: function () {
+      var ary = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+      this._content = _emberRuntimeSystemNative_array.A(ary);
     },
 
     replace: function (idx, amt, objects) {
@@ -53207,7 +53215,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+551a2312', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+c54ecab5', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

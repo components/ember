@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+551a2312
+ * @version   2.5.0-canary+c54ecab5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1367,9 +1367,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     return container.registry.getOption(fullName, 'singleton') !== false;
   }
 
-  function lookup(container, _fullName, _options) {
-    var options = _options || {};
-    var fullName = _fullName;
+  function lookup(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
       if (options.source) {
@@ -1435,10 +1434,10 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     return hash;
   }
 
-  function factoryFor(container, _fullName, _options) {
-    var options = _options || {};
+  function factoryFor(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
     var registry = container.registry;
-    var fullName = _fullName;
 
     if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
       if (options.source) {
@@ -1887,7 +1886,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @param {Function} factory
      @param {Object} options
      */
-    register: function (fullName, factory, options) {
+    register: function (fullName, factory) {
+      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
       _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       if (factory === undefined) {
@@ -1902,7 +1903,7 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
 
       delete this._failCache[normalizedName];
       this.registrations[normalizedName] = factory;
-      this._options[normalizedName] = options || {};
+      this._options[normalizedName] = options;
     },
 
     /**
@@ -2096,8 +2097,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @param {String} fullName
      @param {Object} options
      */
-    options: function (fullName, _options) {
-      var options = _options || {};
+    options: function (fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       var normalizedName = this.normalize(fullName);
       this._options[normalizedName] = options;
     },
@@ -10601,7 +10603,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+551a2312';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+c54ecab5';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -11646,15 +11648,14 @@ enifed('ember-htmlbars/node-managers/component-node-manager', ['exports', 'ember
 
     var tagName = options.tagName;
     var params = options.params;
-    var attrs = options.attrs;
+    var _options$attrs = options.attrs;
+    var attrs = _options$attrs === undefined ? {} : _options$attrs;
     var parentView = options.parentView;
     var parentScope = options.parentScope;
     var isAngleBracket = options.isAngleBracket;
     var component = options.component;
     var layout = options.layout;
     var templates = options.templates;
-
-    attrs = attrs || {};
 
     component = component || (isAngleBracket ? _emberHtmlbarsGlimmerComponent.default : _emberViewsComponentsComponent.default);
 
@@ -16295,7 +16296,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+551a2312
+    @version 2.5.0-canary+c54ecab5
     @public
   */
 
@@ -16337,11 +16338,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+551a2312'
+    @default '2.5.0-canary+c54ecab5'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+551a2312';
+  Ember.VERSION = '2.5.0-canary+c54ecab5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -30202,7 +30203,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+551a2312';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+c54ecab5';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -30705,7 +30706,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+551a2312';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+c54ecab5';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -36152,8 +36153,9 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-metal/co
     @return {Boolean} true if the action was sent successfully and did not return false
     @private
     */
-    triggerAction: function (opts) {
-      opts = opts || {};
+    triggerAction: function () {
+      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
       var action = opts.action || _emberMetalProperty_get.get(this, 'action');
       var target = opts.target || _emberMetalProperty_get.get(this, 'targetObject');
       var actionContext = opts.actionContext;
@@ -37983,14 +37985,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function (arr) {
-      return arr || [];
+    A = A = function () {
+      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      return arr;
     };
   } else {
-    exports.A = A = function (arr) {
-      if (arr === undefined) {
-        arr = [];
-      }
+    exports.A = A = function () {
+      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
       return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
     };
   }
@@ -38672,10 +38674,12 @@ enifed('ember-template-compiler/index', ['exports', 'ember-metal', 'ember-templa
 enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function AssertNoViewAndControllerPaths(options) {
+  function AssertNoViewAndControllerPaths() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -38750,10 +38754,12 @@ enifed('ember-template-compiler/plugins/assert-no-view-and-controller-paths', ['
 enifed('ember-template-compiler/plugins/assert-no-view-helper', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-template-compiler/system/calculate-location-display'], function (exports, _emberMetalCore, _emberMetalDebug, _emberTemplateCompilerSystemCalculateLocationDisplay) {
   'use strict';
 
-  function AssertNoViewHelper(options) {
+  function AssertNoViewHelper() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -38949,10 +38955,12 @@ enifed('ember-template-compiler/plugins/transform-each-in-to-hash', ['exports'],
   */
   'use strict';
 
-  function TransformEachInToHash(options) {
+  function TransformEachInToHash() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -39081,10 +39089,12 @@ enifed('ember-template-compiler/plugins/transform-input-on-to-onEvent', ['export
     @private
     @class TransformInputOnToOnEvent
   */
-  function TransformInputOnToOnEvent(options) {
+  function TransformInputOnToOnEvent() {
+    var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     // set later within HTMLBars to the syntax package
     this.syntax = null;
-    this.options = options || {};
+    this.options = options;
   }
 
   /**
@@ -39587,8 +39597,8 @@ enifed('ember-template-compiler/system/calculate-location-display', ['exports'],
 
   exports.default = calculateLocationDisplay;
 
-  function calculateLocationDisplay(moduleName, _loc) {
-    var loc = _loc || {};
+  function calculateLocationDisplay(moduleName) {
+    var loc = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     var _ref = loc.start || {};
 
@@ -39693,7 +39703,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+551a2312',
+        revision: 'Ember@2.5.0-canary+c54ecab5',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42437,7 +42447,9 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/d
       @return {Ember.View} new instance
       @private
     */
-    createChildView: function (maybeViewClass, _attrs) {
+    createChildView: function (maybeViewClass) {
+      var attrs = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       if (!maybeViewClass) {
         throw new TypeError('createChildViews first argument must exist');
       }
@@ -42448,7 +42460,6 @@ enifed('ember-views/mixins/view_child_views_support', ['exports', 'ember-metal/d
         return maybeViewClass;
       }
 
-      var attrs = _attrs || {};
       var view;
 
       attrs.parentView = this;
@@ -45033,7 +45044,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+551a2312';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+c54ecab5';
 
   /**
   @module ember

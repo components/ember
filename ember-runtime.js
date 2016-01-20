@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+551a2312
+ * @version   2.5.0-canary+c54ecab5
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1369,9 +1369,8 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     return container.registry.getOption(fullName, 'singleton') !== false;
   }
 
-  function lookup(container, _fullName, _options) {
-    var options = _options || {};
-    var fullName = _fullName;
+  function lookup(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
       if (options.source) {
@@ -1437,10 +1436,10 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     return hash;
   }
 
-  function factoryFor(container, _fullName, _options) {
-    var options = _options || {};
+  function factoryFor(container, fullName) {
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
     var registry = container.registry;
-    var fullName = _fullName;
 
     if (_emberMetalFeatures.default('ember-htmlbars-local-lookup')) {
       if (options.source) {
@@ -1896,7 +1895,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @param {Function} factory
      @param {Object} options
      */
-    register: function (fullName, factory, options) {
+    register: function (fullName, factory) {
+      var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
       _emberMetalDebug.assert('fullName must be a proper full name', this.validateFullName(fullName));
 
       if (factory === undefined) {
@@ -1911,7 +1912,7 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
 
       delete this._failCache[normalizedName];
       this.registrations[normalizedName] = factory;
-      this._options[normalizedName] = options || {};
+      this._options[normalizedName] = options;
     },
 
     /**
@@ -2105,8 +2106,9 @@ enifed('container/registry', ['exports', 'ember-metal/features', 'ember-metal/de
      @param {String} fullName
      @param {Object} options
      */
-    options: function (fullName, _options) {
-      var options = _options || {};
+    options: function (fullName) {
+      var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
       var normalizedName = this.normalize(fullName);
       this._options[normalizedName] = options;
     },
@@ -4921,7 +4923,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+551a2312
+    @version 2.5.0-canary+c54ecab5
     @public
   */
 
@@ -4963,11 +4965,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+551a2312'
+    @default '2.5.0-canary+c54ecab5'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+551a2312';
+  Ember.VERSION = '2.5.0-canary+c54ecab5';
 
   /**
     The hash of environment variables used to control various configuration
@@ -17780,8 +17782,9 @@ enifed('ember-runtime/mixins/target_action_support', ['exports', 'ember-metal/co
     @return {Boolean} true if the action was sent successfully and did not return false
     @private
     */
-    triggerAction: function (opts) {
-      opts = opts || {};
+    triggerAction: function () {
+      var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
       var action = opts.action || _emberMetalProperty_get.get(this, 'action');
       var target = opts.target || _emberMetalProperty_get.get(this, 'targetObject');
       var actionContext = opts.actionContext;
@@ -19615,14 +19618,14 @@ enifed('ember-runtime/system/native_array', ['exports', 'ember-metal/core', 'emb
   if (_emberMetalCore.default.EXTEND_PROTOTYPES === true || _emberMetalCore.default.EXTEND_PROTOTYPES.Array) {
     NativeArray.apply(Array.prototype);
     exports. // ES6TODO: Setting A onto the object returned by ember-metal/core to avoid circles
-    A = A = function (arr) {
-      return arr || [];
+    A = A = function () {
+      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+      return arr;
     };
   } else {
-    exports.A = A = function (arr) {
-      if (arr === undefined) {
-        arr = [];
-      }
+    exports.A = A = function () {
+      var arr = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
       return _emberRuntimeMixinsArray.default.detect(arr) ? arr : NativeArray.apply(arr);
     };
   }
