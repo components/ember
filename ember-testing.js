@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c54ecab5
+ * @version   2.5.0-canary+bb163d0e
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -761,15 +761,15 @@ enifed('ember-testing/helpers', ['exports', 'ember-metal/property_get', 'ember-m
   var asyncHelper = _emberTestingTest.default.registerAsyncHelper;
 
   function currentRouteName(app) {
-    var appController = app.__container__.lookup('controller:application');
+    var routingService = app.__container__.lookup('service:-routing');
 
-    return _emberMetalProperty_get.get(appController, 'currentRouteName');
+    return _emberMetalProperty_get.get(routingService, 'currentRouteName');
   }
 
   function currentPath(app) {
-    var appController = app.__container__.lookup('controller:application');
+    var routingService = app.__container__.lookup('service:-routing');
 
-    return _emberMetalProperty_get.get(appController, 'currentPath');
+    return _emberMetalProperty_get.get(routingService, 'currentPath');
   }
 
   function currentURL(app) {
