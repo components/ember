@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+bb163d0e
+ * @version   2.5.0-canary+48562e67
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -3817,7 +3817,6 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     var args;
 
     var addArg = function (property) {
-      _emberMetalDebug.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.computed(\'' + property + '\', function() {});` to `Ember.computed(\'' + property.slice(0, -6) + '.[]\', function() {})`.'), property.slice(-5) !== '@each');
       args.push(property);
     };
 
@@ -4923,7 +4922,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+bb163d0e
+    @version 2.5.0-canary+48562e67
     @public
   */
 
@@ -4965,11 +4964,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+bb163d0e'
+    @default '2.5.0-canary+48562e67'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+bb163d0e';
+  Ember.VERSION = '2.5.0-canary+48562e67';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5712,6 +5711,8 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
 
   var SPLIT_REGEX = /\{|\}/;
 
+  var END_WITH_EACH_REGEX = /\.@each$/;
+
   /**
     Expands `pattern`, invoking `callback` for each expansion.
   
@@ -5756,10 +5757,10 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
       });
 
       properties.forEach(function (property) {
-        callback(property.join(''));
+        callback(property.join('').replace(END_WITH_EACH_REGEX, '.[]'));
       });
     } else {
-      callback(pattern);
+      callback(pattern.replace(END_WITH_EACH_REGEX, '.[]'));
     }
   }
 
@@ -8637,8 +8638,6 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     var paths;
 
     var addWatchedProperty = function (path) {
-      _emberMetalDebug.assert('Depending on arrays using a dependent key ending with `@each` is no longer supported. ' + ('Please refactor from `Ember.observer(\'' + path + '\', function() {});` to `Ember.observer(\'' + path.slice(0, -6) + '.[]\', function() {})`.'), path.slice(-5) !== '@each');
-
       paths.push(path);
     };
     var _paths = args.slice(0, -1);
