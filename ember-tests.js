@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+48562e67
+ * @version   2.5.0-canary+0a366915
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -30045,6 +30045,26 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-runtime/system/obje
     deepEqual(cp._dependentKeys, ['qux', 'zoopa.[]']);
   });
 
+  QUnit.test('defining a computed property with a dependent key more than one level deep beyond @each is not supported', function () {
+    var warning = 'Dependent keys containing @each only work one level deep. ' + 'You cannot use nested forms like todos.@each.owner.name or todos.@each.owner.@each.name. ' + 'Please create an intermediary computed property.';
+
+    expectNoWarning(function () {
+      _emberMetalComputed.computed('todos', function () {});
+    });
+
+    expectNoWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner', function () {});
+    });
+
+    expectWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner.name', function () {});
+    }, warning);
+
+    expectWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner.@each.name', function () {});
+    }, warning);
+  });
+
   var objA, objB;
   QUnit.module('computed should inherit through prototype', {
     setup: function () {
@@ -53460,7 +53480,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+48562e67', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+0a366915', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

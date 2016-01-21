@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+48562e67
+ * @version   2.5.0-canary+0a366915
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -2816,6 +2816,8 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
 
   function UNDEFINED() {}
 
+  var DEEP_EACH_REGEX = /\.@each\.[^.]+\./;
+
   // ..........................................................
   // COMPUTED PROPERTY
   //
@@ -3043,6 +3045,7 @@ enifed('ember-metal/computed', ['exports', 'ember-metal/debug', 'ember-metal/pro
     var args;
 
     var addArg = function (property) {
+      _emberMetalDebug.warn('Dependent keys containing @each only work one level deep. ' + 'You cannot use nested forms like todos.@each.owner.name or todos.@each.owner.@each.name. ' + 'Please create an intermediary computed property.', DEEP_EACH_REGEX.test(property) === false, { id: 'ember-metal.computed-deep-each' });
       args.push(property);
     };
 
@@ -4148,7 +4151,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+48562e67
+    @version 2.5.0-canary+0a366915
     @public
   */
 
@@ -4190,11 +4193,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+48562e67'
+    @default '2.5.0-canary+0a366915'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+48562e67';
+  Ember.VERSION = '2.5.0-canary+0a366915';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12667,7 +12670,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+48562e67',
+        revision: 'Ember@2.5.0-canary+0a366915',
         loc: program.loc,
         moduleName: options.moduleName
       };
