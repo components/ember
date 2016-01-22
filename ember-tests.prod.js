@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-beta.1+56f3e0ac
+ * @version   2.4.0-beta.1+7fbca9c0
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -25613,9 +25613,21 @@ enifed('ember-metal/tests/accessors/mandatory_setters_test', ['exports', 'ember-
   QUnit.module('mandatory-setters');
 
   function hasMandatorySetter(object, property) {
+    try {
+      return Object.getOwnPropertyDescriptor(object, property).set.isMandatorySetter === true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function hasMetaValue(object, property) {
     return _emberMetalMeta.meta(object).hasInValues(property);
   }
 });
+
+// make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
+
+// make sure the descriptor remains correct (nothing funky, like a redefined, happened in the setter);
 enifed('ember-metal/tests/accessors/normalize_tuple_test', ['exports', 'ember-metal/core', 'ember-metal/property_get'], function (exports, _emberMetalCore, _emberMetalProperty_get) {
   /*globals Foo:true, $foo:true */
   'use strict';
@@ -26424,14 +26436,34 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-runtime/system/obje
     equal(_emberMetalProperty_get.get(obj, 'foo'), 'computed bar', 'should return new value');
   });
 
-  QUnit.test('defining a computed property with a dependent key ending with @each is deprecated', function () {
-    expectAssertion(function () {
-      _emberMetalComputed.computed('blazo.@each', function () {});
-    }, 'Depending on arrays using a dependent key ending with `@each` is no longer supported. Please refactor from `Ember.computed(\'blazo.@each\', function() {});` to `Ember.computed(\'blazo.[]\', function() {})`.');
+  QUnit.test('defining a computed property with a dependent key ending with @each is expanded to []', function () {
+    var cp = _emberMetalComputed.computed('blazo.@each', function () {});
 
-    expectAssertion(function () {
-      _emberMetalComputed.computed('qux', 'zoopa.@each', function () {});
-    }, 'Depending on arrays using a dependent key ending with `@each` is no longer supported. Please refactor from `Ember.computed(\'zoopa.@each\', function() {});` to `Ember.computed(\'zoopa.[]\', function() {})`.');
+    deepEqual(cp._dependentKeys, ['blazo.[]']);
+
+    cp = _emberMetalComputed.computed('qux', 'zoopa.@each', function () {});
+
+    deepEqual(cp._dependentKeys, ['qux', 'zoopa.[]']);
+  });
+
+  QUnit.test('defining a computed property with a dependent key more than one level deep beyond @each is not supported', function () {
+    var warning = 'Dependent keys containing @each only work one level deep. ' + 'You cannot use nested forms like todos.@each.owner.name or todos.@each.owner.@each.name. ' + 'Please create an intermediary computed property.';
+
+    expectNoWarning(function () {
+      _emberMetalComputed.computed('todos', function () {});
+    });
+
+    expectNoWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner', function () {});
+    });
+
+    expectWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner.name', function () {});
+    }, warning);
+
+    expectWarning(function () {
+      _emberMetalComputed.computed('todos.@each.owner.@each.name', function () {});
+    }, warning);
   });
 
   var objA, objB;
@@ -27988,6 +28020,175 @@ enifed('ember-metal/tests/is_present_test', ['exports', 'ember-metal/is_present'
     equal(true, _emberMetalIs_present.default({}), 'for an empty Object');
     equal(false, _emberMetalIs_present.default(object), 'for an Object that has zero \'length\'');
     equal(true, _emberMetalIs_present.default([1, 2, 3]), 'for a non-empty array');
+  });
+});
+enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalObserver) {
+  'use strict';
+
+  function K() {
+    return this;
+  }
+
+  QUnit.module('Fetch Keys ');
+
+  QUnit.test('should get a key array for a specified object', function () {
+    var object1 = {};
+
+    object1.names = 'Rahul';
+    object1.age = '23';
+    object1.place = 'Mangalore';
+
+    var object2 = Object.keys(object1);
+
+    deepEqual(object2, ['names', 'age', 'place']);
+  });
+
+  // This test is for IE8.
+  QUnit.test('should get a key array for property that is named the same as prototype property', function () {
+    var object1 = {
+      toString: function () {}
+    };
+
+    var object2 = Object.keys(object1);
+
+    deepEqual(object2, ['toString']);
+  });
+
+  QUnit.test('should not contain properties declared in the prototype', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    deepEqual(Object.keys(beer), []);
+  });
+
+  QUnit.test('should return properties that were set after object creation', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalProperty_set.set(beer, 'brand', 'big daddy');
+
+    deepEqual(Object.keys(beer), ['brand']);
+  });
+
+  QUnit.module('Keys behavior with observers');
+
+  QUnit.test('should not leak properties on the prototype', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', K);
+    deepEqual(Object.keys(beer), []);
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+  });
+
+  QUnit.test('observing a non existent property', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'brand', K);
+
+    deepEqual(Object.keys(beer), []);
+
+    _emberMetalProperty_set.set(beer, 'brand', 'Corona');
+    deepEqual(Object.keys(beer), ['brand']);
+
+    _emberMetalObserver.removeObserver(beer, 'brand', K);
+  });
+
+  QUnit.test('with observers switched on and off', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', K);
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+
+    deepEqual(Object.keys(beer), []);
+  });
+
+  QUnit.test('observers switched on and off with setter in between (observed property is not shadowing)', function () {
+    function Beer() {}
+
+    var beer = new Beer();
+    _emberMetalProperty_set.set(beer, 'type', 'ale');
+    deepEqual(Object.keys(beer), ['type'], 'only set');
+
+    var otherBeer = new Beer();
+    _emberMetalObserver.addObserver(otherBeer, 'type', K);
+    _emberMetalProperty_set.set(otherBeer, 'type', 'ale');
+    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+
+    var yetAnotherBeer = new Beer();
+    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', K);
+    _emberMetalProperty_set.set(yetAnotherBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeOjbserver');
+
+    var itsMyLastBeer = new Beer();
+    _emberMetalProperty_set.set(itsMyLastBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
+  });
+
+  QUnit.test('observers switched on and off with setter in between (observed property is shadowing one on the prototype)', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+    _emberMetalProperty_set.set(beer, 'type', 'ale');
+    deepEqual(Object.keys(beer), ['type'], 'after set');
+
+    var otherBeer = new Beer();
+    _emberMetalObserver.addObserver(otherBeer, 'type', K);
+    _emberMetalProperty_set.set(otherBeer, 'type', 'ale');
+    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+
+    var yetAnotherBeer = new Beer();
+    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', K);
+    _emberMetalProperty_set.set(yetAnotherBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
+
+    var itsMyLastBeer = new Beer();
+    _emberMetalProperty_set.set(itsMyLastBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
+  });
+
+  QUnit.test('observers switched on and off with setter in between', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', K);
+    _emberMetalProperty_set.set(beer, 'type', 'ale');
+
+    deepEqual(Object.keys(beer), ['type']);
+  });
+
+  QUnit.test('observer switched on and off and then setter', function () {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+
+    _emberMetalObserver.addObserver(beer, 'type', K);
+    _emberMetalObserver.removeObserver(beer, 'type', K);
+
+    deepEqual(Object.keys(beer), [], 'addObserver -> removeObserver');
+    _emberMetalProperty_set.set(beer, 'type', 'ale');
+
+    deepEqual(Object.keys(beer), ['type'], 'addObserver -> removeObserver -> set');
   });
 });
 enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
@@ -32726,6 +32927,18 @@ enifed('ember-metal/tests/watching/unwatch_test', ['exports', 'ember-metal/tests
     equal(willCount, 0, 'should NOT have invoked willCount');
     equal(didCount, 0, 'should NOT have invoked didCount');
   });
+
+  _emberMetalTestsProps_helper.testBoth('unwatching should not destroy non MANDATORY_SETTER descriptor', function (get, set) {
+    var obj = { get foo() {
+        return 'RUN';
+      } };
+
+    equal(obj.foo, 'RUN', 'obj.foo');
+    _emberMetalWatching.watch(obj, 'foo');
+    equal(obj.foo, 'RUN', 'obj.foo after watch');
+    _emberMetalWatching.unwatch(obj, 'foo');
+    equal(obj.foo, 'RUN', 'obj.foo after unwatch');
+  });
 });
 enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/tests/props_helper', 'ember-metal/events', 'ember-metal/watching'], function (exports, _emberMetalCore, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalTestsProps_helper, _emberMetalEvents, _emberMetalWatching) {
   'use strict';
@@ -32987,6 +33200,39 @@ enifed('ember-metal/tests/watching/watch_test', ['exports', 'ember-metal/core', 
 
     equal(get(arr, 'length'), 10, 'should get new value');
     equal(arr.length, 10, 'property should be accessible on arr');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('watch + ES5 getter', function (get) {
+    var parent = { b: 1 };
+    var child = {
+      get b() {
+        return parent.b;
+      }
+    };
+
+    equal(parent.b, 1, 'parent.b should be 1');
+    equal(child.b, 1, 'child.b should be 1');
+    equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1');
+
+    _emberMetalWatching.watch(child, 'b');
+
+    equal(parent.b, 1, 'parent.b should be 1 (after watch)');
+    equal(child.b, 1, 'child.b should be 1  (after watch)');
+
+    equal(get(child, 'b'), 1, 'Ember.get(child, "b") should be 1 (after watch)');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('watch + Ember.set + no-descriptor', function (get, set) {
+    var child = {};
+
+    equal(child.b, undefined, 'child.b ');
+    equal(get(child, 'b'), undefined, 'Ember.get(child, "b")');
+
+    _emberMetalWatching.watch(child, 'b');
+    set(child, 'b', 1);
+
+    equal(child.b, 1, 'child.b (after watch)');
+    equal(get(child, 'b'), 1, 'Ember.get(child, "b") (after watch)');
   });
 });
 enifed('ember-routing/tests/location/auto_location_test', ['exports', 'ember-metal/property_get', 'ember-metal/run_loop', 'ember-metal/assign', 'ember-routing/location/auto_location', 'ember-routing/location/history_location', 'ember-routing/location/hash_location', 'ember-routing/location/none_location', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalProperty_get, _emberMetalRun_loop, _emberMetalAssign, _emberRoutingLocationAuto_location, _emberRoutingLocationHistory_location, _emberRoutingLocationHash_location, _emberRoutingLocationNone_location, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -49784,7 +50030,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.4.0-beta.1+56f3e0ac', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.4.0-beta.1+7fbca9c0', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
