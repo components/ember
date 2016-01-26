@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+76e9c595
+ * @version   2.5.0-canary+fe3ed837
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4925,7 +4925,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+76e9c595
+    @version 2.5.0-canary+fe3ed837
     @public
   */
 
@@ -4967,11 +4967,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+76e9c595'
+    @default '2.5.0-canary+fe3ed837'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+76e9c595';
+  Ember.VERSION = '2.5.0-canary+fe3ed837';
 
   /**
     The hash of environment variables used to control various configuration
@@ -15011,13 +15011,10 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
        For example, when a Handlebars template uses the `{{action}}` helper,
       it will attempt to send the action to the view's controller's `target`.
        By default, the value of the target property is set to the router, and
-      is injected when a controller is instantiated. This injection is defined
-      in Ember.Application#buildContainer, and is applied as part of the
-      applications initialization process. It can also be set after a controller
-      has been instantiated, for instance when using the render helper in a
-      template, or when a controller is used as an `itemController`. In most
-      cases the `target` property will automatically be set to the logical
-      consumer of actions for the controller.
+      is injected when a controller is instantiated. This injection is applied
+      as part of the application's initialization process. In most cases the
+      `target` property will automatically be set to the logical consumer of
+      actions for the controller.
        @property target
       @default null
       @public
