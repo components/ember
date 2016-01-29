@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+046e933f
+ * @version   2.5.0-canary+b63d5a50
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4925,7 +4925,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+046e933f
+    @version 2.5.0-canary+b63d5a50
     @public
   */
 
@@ -4967,11 +4967,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+046e933f'
+    @default '2.5.0-canary+b63d5a50'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+046e933f';
+  Ember.VERSION = '2.5.0-canary+b63d5a50';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5799,7 +5799,7 @@ enifed('ember-metal/features', ['exports', 'ember-metal/core', 'ember-metal/assi
     @since 1.1.0
     @public
   */
-  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null, "ember-htmlbars-local-lookup": null, "ember-application-engines": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
+  var FEATURES = _emberMetalAssign.default({ "features-stripped-test": null, "ember-htmlbars-component-generation": null, "ember-routing-route-configured-query-params": null, "ember-libraries-isregistered": null, "ember-routing-routable-components": null, "ember-metal-ember-assign": null, "ember-htmlbars-local-lookup": null, "ember-application-engines": null, "ember-glimmer": null }, _emberMetalCore.default.ENV.FEATURES);exports.FEATURES = FEATURES;
   // jshint ignore:line
 
   /**
@@ -21645,6 +21645,8 @@ enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'],
 
   exports.default = denodeify;
 
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
   function Result() {
     this.value = undefined;
   }
@@ -21875,7 +21877,7 @@ enifed('rsvp/node', ['exports', 'rsvp/promise', 'rsvp/-internal', 'rsvp/utils'],
       }
     };
 
-    fn.__proto__ = nodeFunc;
+    _defaults(fn, nodeFunc);
 
     return fn;
   }

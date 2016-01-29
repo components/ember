@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+046e933f
+ * @version   2.5.0-canary+b63d5a50
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15009,9 +15009,11 @@ enifed('ember-dev/test-helper/debug', ['exports', 'ember-dev/test-helper/method-
 enifed('ember-dev/test-helper/deprecation', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   var DeprecationAssert = (function (_DebugAssert) {
     _inherits(DeprecationAssert, _DebugAssert);
@@ -15420,9 +15422,11 @@ enifed('ember-dev/test-helper/utils', ['exports'], function (exports) {
 enifed('ember-dev/test-helper/warning', ['exports', 'ember-dev/test-helper/debug', 'ember-dev/test-helper/utils'], function (exports, _emberDevTestHelperDebug, _emberDevTestHelperUtils) {
   'use strict';
 
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
   var WarningAssert = (function (_DebugAssert) {
     _inherits(WarningAssert, _DebugAssert);
@@ -15777,6 +15781,18 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     release();
     _emberMetalProperty_set.set(post, 'title', 'New Title');
     equal(updatesCalled, 1, 'Release function removes observers');
+  });
+});
+enifed('ember-glimmer/tests/dummy_test', ['exports'], function (exports) {
+  'use strict';
+
+  QUnit.module('ember-glimmer: main');
+
+  QUnit.test('dummy test', function () {
+    // The test runner will exit with error if we don't have any tests in the
+    // package, so this is to convince the runner that everything is okay.
+    // Remove me once we started testing real things.
+    ok(true, 'it works');
   });
 });
 enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
@@ -53461,7 +53477,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+046e933f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+b63d5a50', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
