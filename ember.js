@@ -7290,6 +7290,7 @@ enifed('glimmer-runtime/index', ['exports', 'glimmer-runtime/lib/syntax', 'glimm
   exports.ComponentManager = _glimmerRuntimeLibComponentInterfaces.ComponentManager;
   exports.ComponentDefinition = _glimmerRuntimeLibComponentInterfaces.ComponentDefinition;
   exports.DOMHelper = _glimmerRuntimeLibDom.default;
+  exports.IDOMHepler = _glimmerRuntimeLibDom.DOMHelper;
   exports.isWhitespace = _glimmerRuntimeLibDom.isWhitespace;
   exports.ElementStack = _glimmerRuntimeLibBuilder.ElementStack;
 });
@@ -10633,6 +10634,7 @@ enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds'], fun
         })(DOMHelper);
     })(doc);
     exports.default = helper;
+    exports.DOMHelper = DOMHelper;
 });
 
 enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/references', 'glimmer-reference', 'glimmer-util'], function (exports, _glimmerRuntimeLibReferences, _glimmerReference, _glimmerUtil) {
@@ -15906,7 +15908,7 @@ enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers
         return env.compile(template);
     }
     function commonSetup() {
-        env = new _glimmerTestHelpers.TestEnvironment(window.document); // TODO: Support SimpleDOM
+        env = new _glimmerTestHelpers.TestEnvironment(); // TODO: Support SimpleDOM
         env.registerBasicComponent('my-component', MyComponent, "<div>{{yield}}</div>");
         root = rootElement();
     }
@@ -17674,7 +17676,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         return env.getDOM().createElement('div', document.body);
     }
     function commonSetup() {
-        env = new _glimmerTestHelpers.TestEnvironment(window.document); // TODO: Support SimpleDOM
+        env = new _glimmerTestHelpers.TestEnvironment(); // TODO: Support SimpleDOM
         root = rootElement();
     }
     function render(template, self) {
@@ -18353,7 +18355,7 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         return env.getDOM().createElement('div', document.body);
     }
     function commonSetup() {
-        env = new _glimmerTestHelpers.TestEnvironment(window.document); // TODO: Support SimpleDOM
+        env = new _glimmerTestHelpers.TestEnvironment(); // TODO: Support SimpleDOM
         root = rootElement();
         root.setAttribute('debug-root', 'true');
     }
@@ -19815,12 +19817,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var TestEnvironment = (function (_Environment) {
         _inherits(TestEnvironment, _Environment);
 
-        function TestEnvironment() {
-            var doc = arguments.length <= 0 || arguments[0] === undefined ? document : arguments[0];
-
+        function TestEnvironment(dom) {
             _classCallCheck(this, TestEnvironment);
 
-            _Environment.call(this, new _glimmerRuntime.DOMHelper(doc), _glimmerReference.Meta);
+            _Environment.call(this, dom || new _glimmerRuntime.DOMHelper(document), _glimmerReference.Meta);
             this.helpers = {};
             this.components = _glimmerUtil.dict();
             this.registerHelper("if", function (_ref7) {
