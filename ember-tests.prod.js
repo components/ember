@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+b8786bad
+ * @version   2.5.0-canary+d619a074
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15783,152 +15783,17 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case'], function (exports, _emberGlimmerTestsUtilsTestCase) {
+enifed('ember-glimmer/tests/dummy_test', ['exports'], function (exports) {
   'use strict';
 
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+  QUnit.module('ember-glimmer: main');
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  _emberGlimmerTestsUtilsTestCase.moduleFor('Content tests', (function (_RenderingTest) {
-    _inherits(_class, _RenderingTest);
-
-    function _class() {
-      _classCallCheck(this, _class);
-
-      _RenderingTest.apply(this, arguments);
-    }
-
-    _class.prototype['TEST: it can render static content'] = function TESTItCanRenderStaticContent() {
-      this.render('hello');
-      this.assertText('hello');
-    };
-
-    return _class;
-  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
-});
-enifed('ember-glimmer/tests/utils/environment', ['exports', 'glimmer-test-helpers'], function (exports, _glimmerTestHelpers) {
-  'use strict';
-
-  exports.default = _glimmerTestHelpers.TestEnvironment;
-});
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'glimmer-runtime', 'ember-glimmer/ember-metal-views', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _glimmerRuntime, _emberGlimmerEmberMetalViews, _emberGlimmerEmberTemplateCompilerSystemCompile) {
-  'use strict';
-
-  exports.DOMHelper = _glimmerRuntime.DOMHelper;
-  exports.Renderer = _emberGlimmerEmberMetalViews.Renderer;
-  exports.compile = _emberGlimmerEmberTemplateCompilerSystemCompile.default;
-});
-enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports) {
-  'use strict';
-
-  exports.default = 'glimmer';
-});
-enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery) {
-  'use strict';
-
-  exports.moduleFor = moduleFor;
-
-  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-  var packageTag = _emberGlimmerTestsUtilsPackageName.default.toUpperCase() + ': ';
-
-  function moduleFor(description, TestClass) {
-    var context = undefined;
-
-    QUnit.module(description, {
-      setup: function () {
-        context = new TestClass();
-      },
-
-      teardown: function () {
-        context.teardown();
-      }
-    });
-
-    Object.keys(TestClass.prototype).forEach(function (name) {
-      if (name.indexOf('TEST: ') === 0) {
-        QUnit.test(name.slice(5), function (assert) {
-          return context[name](assert);
-        });
-      } else if (name.indexOf('SKIP: ') === 0) {
-        QUnit.skip(name.slice(5), function (assert) {
-          return context[name](assert);
-        });
-      } else if (name.indexOf(packageTag) === 0) {
-        QUnit.test(name.slice(packageTag.length), function (assert) {
-          return context[name](assert);
-        });
-      }
-    });
-  }
-
-  var assert = QUnit.assert;
-
-  var TestCase = (function () {
-    function TestCase() {
-      _classCallCheck(this, TestCase);
-    }
-
-    TestCase.prototype.teardown = function teardown() {};
-
-    return TestCase;
-  })();
-
-  exports.TestCase = TestCase;
-
-  var RenderingTest = (function (_TestCase) {
-    _inherits(RenderingTest, _TestCase);
-
-    function RenderingTest() {
-      _classCallCheck(this, RenderingTest);
-
-      _TestCase.call(this);
-      var dom = new _emberGlimmerTestsUtilsHelpers.DOMHelper(document);
-      var env = this.env = new _emberGlimmerTestsUtilsEnvironment.default(dom);
-      this.renderer = new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
-      this.component = null;
-    }
-
-    RenderingTest.prototype.teardown = function teardown() {
-      if (this.component) {
-        _emberRuntimeTestsUtils.runDestroy(this.component);
-      }
-    };
-
-    RenderingTest.prototype.render = function render(templateStr) {
-      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-      var env = this.env;
-      var renderer = this.renderer;
-
-      var attrs = Object.assign({}, context, {
-        renderer: renderer,
-        template: _emberGlimmerTestsUtilsHelpers.compile(templateStr, { env: env })
-      });
-
-      this.component = _emberViewsComponentsComponent.default.create(attrs);
-
-      _emberRuntimeTestsUtils.runAppend(this.component);
-    };
-
-    RenderingTest.prototype.rerender = function rerender() {
-      this.component.rerender();
-    };
-
-    RenderingTest.prototype.assertText = function assertText(text) {
-      assert.strictEqual(_emberViewsSystemJquery.default('#qunit-fixture').text(), text, '#qunit-fixture contents');
-    };
-
-    return RenderingTest;
-  })(TestCase);
-
-  exports.RenderingTest = RenderingTest;
+  QUnit.test('dummy test', function () {
+    // The test runner will exit with error if we don't have any tests in the
+    // package, so this is to convince the runner that everything is okay.
+    // Remove me once we started testing real things.
+    ok(true, 'it works');
+  });
 });
 enifed('ember-htmlbars/tests/attr_nodes/boolean_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-template-compiler/system/compile', 'htmlbars-test-helpers'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberTemplateCompilerSystemCompile, _htmlbarsTestHelpers) {
   'use strict';
@@ -16155,7 +16020,7 @@ enifed('ember-htmlbars/tests/attr_nodes/class_test', ['exports', 'ember-views/vi
     strictEqual(view.element.firstChild.className, 'r b a c', 'classes are in the right order');
   });
 });
-enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViews, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
+enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/views/view', 'ember-metal/run_loop', 'ember-runtime/system/object', 'ember-template-compiler/system/compile', 'ember-metal-views/renderer', 'htmlbars-test-helpers', 'ember-htmlbars/env', 'ember-runtime/tests/utils'], function (exports, _emberViewsViewsView, _emberMetalRun_loop, _emberRuntimeSystemObject, _emberTemplateCompilerSystemCompile, _emberMetalViewsRenderer, _htmlbarsTestHelpers, _emberHtmlbarsEnv, _emberRuntimeTestsUtils) {
   'use strict';
 
   var view, originalSetAttribute, setAttributeCalls, renderer;
@@ -16347,7 +16212,7 @@ enifed('ember-htmlbars/tests/attr_nodes/data_test', ['exports', 'ember-views/vie
 
   QUnit.module('ember-htmlbars: {{attribute}} helper -- setAttribute', {
     setup: function () {
-      renderer = new _emberMetalViews.Renderer(_emberHtmlbarsEnv.domHelper);
+      renderer = new _emberMetalViewsRenderer.default(_emberHtmlbarsEnv.domHelper);
 
       originalSetAttribute = _emberHtmlbarsEnv.domHelper.setAttribute;
       _emberHtmlbarsEnv.domHelper.setAttribute = function (element, name, value) {
@@ -53612,7 +53477,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+b8786bad', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+d619a074', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
