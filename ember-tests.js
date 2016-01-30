@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+e07d3cf5
+ * @version   2.5.0-canary+40405b58
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15826,7 +15826,7 @@ enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports)
 
   exports.default = 'glimmer';
 });
-enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery) {
+enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign) {
   'use strict';
 
   exports.moduleFor = moduleFor;
@@ -15907,7 +15907,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       var env = this.env;
       var renderer = this.renderer;
 
-      var attrs = Object.assign({}, context, {
+      var attrs = _emberMetalAssign.default({}, context, {
         renderer: renderer,
         template: _emberGlimmerTestsUtilsHelpers.compile(templateStr, { env: env })
       });
@@ -54061,7 +54061,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+e07d3cf5', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+40405b58', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
