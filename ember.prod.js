@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0+941794ac
+ * @version   2.3.0+667a2a6b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -9522,7 +9522,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0+941794ac';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0+667a2a6b';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -15176,7 +15176,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0+941794ac
+    @version 2.3.0+667a2a6b
     @public
   */
 
@@ -15220,11 +15220,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0+941794ac'
+    @default '2.3.0+667a2a6b'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0+941794ac';
+  Ember.VERSION = '2.3.0+667a2a6b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -24733,6 +24733,10 @@ enifed('ember-routing/system/route', ['exports', 'ember-metal/core', 'ember-meta
       subsequent `willTransition` actions to fire for the redirecting
       transition, you must first explicitly call
       `transition.abort()`.
+       To allow the `willTransition` event to continue bubbling to the parent
+      route, use `return true;`. When the `willTransition` method has a
+      return value of `true` then the parent route's `willTransition` method
+      will be fired, enabling "bubbling" behavior for the event.
        @event willTransition
       @param {Transition} transition
       @public
@@ -28790,7 +28794,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0+941794ac';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.3.0+667a2a6b';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -29277,7 +29281,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0+941794ac';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.3.0+667a2a6b';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -31753,13 +31757,10 @@ enifed('ember-runtime/mixins/controller', ['exports', 'ember-metal/mixin', 'embe
        For example, when a Handlebars template uses the `{{action}}` helper,
       it will attempt to send the action to the view's controller's `target`.
        By default, the value of the target property is set to the router, and
-      is injected when a controller is instantiated. This injection is defined
-      in Ember.Application#buildContainer, and is applied as part of the
-      applications initialization process. It can also be set after a controller
-      has been instantiated, for instance when using the render helper in a
-      template, or when a controller is used as an `itemController`. In most
-      cases the `target` property will automatically be set to the logical
-      consumer of actions for the controller.
+      is injected when a controller is instantiated. This injection is applied
+      as part of the application's initialization process. In most cases the
+      `target` property will automatically be set to the logical consumer of
+      actions for the controller.
        @property target
       @default null
       @public
@@ -38129,7 +38130,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0+941794ac',
+        revision: 'Ember@2.3.0+667a2a6b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -42148,7 +42149,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0+941794ac';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.3.0+667a2a6b';
 
   /**
   @module ember
@@ -47079,8 +47080,16 @@ enifed("morph-attr", ["exports", "morph-attr/sanitize-attribute-value", "dom-hel
 
   function updateProperty(value) {
     if (this._renderedInitially === true || !_domHelperProp.isAttrRemovalValue(value)) {
-      // do not render if initial value is undefined or null
-      this.domHelper.setPropertyStrict(this.element, this.attrName, value);
+      var element = this.element;
+      var attrName = this.attrName;
+
+      if (attrName === 'value' && element.tagName === 'INPUT' && element.value === value) {
+        // Do nothing. Attempts to avoid accidently changing the input cursor location.
+        // See https://github.com/tildeio/htmlbars/pull/447 for more details.
+      } else {
+          // do not render if initial value is undefined or null
+          this.domHelper.setPropertyStrict(element, attrName, value);
+        }
     }
 
     this._renderedInitially = true;

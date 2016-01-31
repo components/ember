@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.3.0+941794ac
+ * @version   2.3.0+667a2a6b
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4129,7 +4129,7 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @class Ember
     @static
-    @version 2.3.0+941794ac
+    @version 2.3.0+667a2a6b
     @public
   */
 
@@ -4173,11 +4173,11 @@ enifed('ember-metal/core', ['exports'], function (exports) {
   
     @property VERSION
     @type String
-    @default '2.3.0+941794ac'
+    @default '2.3.0+667a2a6b'
     @static
     @public
   */
-  Ember.VERSION = '2.3.0+941794ac';
+  Ember.VERSION = '2.3.0+667a2a6b';
 
   /**
     The hash of environment variables used to control various configuration
@@ -12567,7 +12567,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.3.0+941794ac',
+        revision: 'Ember@2.3.0+667a2a6b',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -18194,10 +18194,10 @@ enifed("htmlbars-syntax/parser/tokenizer-event-handlers", ["exports", "htmlbars-
       if (isQuoted) {
         return assembleConcatenatedValue(parts);
       } else {
-        if (parts.length === 1) {
+        if (parts.length === 1 || parts.length === 2 && parts[1] === '/') {
           return parts[0];
         } else {
-          throw new Error("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace or a '>' character (on line " + line + ")"));
+          throw new Error("An unquoted attribute value must be a string or a mustache, " + "preceeded by whitespace or a '=' character, and " + ("followed by whitespace, a '>' character or a '/>' (on line " + line + ")"));
         }
       }
     } else {
