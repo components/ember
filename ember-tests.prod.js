@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+b915feaf
+ * @version   2.5.0-canary+d1553aa8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -27076,6 +27076,179 @@ enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'ember
     equal(component.$().text(), 'Robert Jackson');
   });
 });
+enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
+  'use strict';
+
+  var view = undefined,
+      controller = undefined,
+      owner = undefined,
+      $input = undefined,
+      input = undefined;
+
+  function commonSetup() {
+    owner = _containerTestsTestHelpersBuildOwner.default();
+    owner.register('component:-text-field', _emberViewsViewsText_field.default);
+    owner.register('component:-checkbox', _emberViewsViewsCheckbox.default);
+    owner.register('component-lookup:main', _emberViewsComponent_lookup.default);
+    owner.register('event_dispatcher:main', _emberViewsSystemEvent_dispatcher.default);
+
+    var dispatcher = owner.lookup('event_dispatcher:main');
+    dispatcher.setup({}, '#qunit-fixture');
+  }
+
+  QUnit.module('<input>', {
+    setup: function () {
+      var _View$extend;
+
+      commonSetup();
+
+      controller = {
+        value: 'hello',
+        placeholder: 'Enter some text',
+        name: 'some-name',
+        max: 30,
+        size: 30,
+        tab: 5
+      };
+
+      view = _emberViewsViewsView.default.extend((_View$extend = {}, _View$extend[_containerOwner.OWNER] = owner, _View$extend.controller = controller, _View$extend.template = _emberTemplateCompilerSystemCompile.default('<input value={{value}}\n                                disabled={{disabled}}\n                                placeholder={{placeholder}}\n                                name={{name}}\n                                maxlength={{max}}\n                                size={{size}}\n                                tabindex={{tab}}>'), _View$extend)).create();
+
+      _emberRuntimeTestsUtils.runAppend(view);
+
+      $input = view.$('input');
+      input = $input[0];
+    },
+
+    teardown: function () {
+      _emberRuntimeTestsUtils.runDestroy(view);
+      _emberRuntimeTestsUtils.runDestroy(owner);
+    }
+  });
+
+  QUnit.test('should insert a text field into DOM', function (assert) {
+    assert.equal($input.length, 1, 'A single text field was inserted');
+  });
+
+  QUnit.test('should become disabled if the disabled attribute is true', function (assert) {
+    assert.ok($input.is(':not(:disabled)'), 'There are no disabled text fields');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'disabled', true);
+    });
+
+    assert.ok($input.is(':disabled'), 'The text field is disabled');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'disabled', false);
+    });
+
+    assert.ok($input.is(':not(:disabled)'), 'There are no disabled text fields');
+  });
+
+  QUnit.test('input value is updated when setting value property of view', function (assert) {
+    assert.equal($input.val(), 'hello', 'renders text field with value');
+
+    var id = $input.prop('id');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'value', 'bye!');
+    });
+
+    assert.equal($input.val(), 'bye!', 'updates text field after value changes');
+    assert.equal($input.prop('id'), id, 'the component hasn\'t changed');
+  });
+
+  QUnit.test('input placeholder is updated when setting placeholder property of view', function (assert) {
+    assert.equal($input.attr('placeholder'), 'Enter some text', 'renders text field with placeholder');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'placeholder', 'Text, please enter it');
+    });
+
+    assert.equal($input.attr('placeholder'), 'Text, please enter it', 'updates text field after placeholder changes');
+  });
+
+  QUnit.test('input name is updated when setting name property of view', function (assert) {
+    assert.equal($input.attr('name'), 'some-name', 'renders text field with name');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'name', 'other-name');
+    });
+
+    assert.equal($input.attr('name'), 'other-name', 'updates text field after name changes');
+  });
+
+  QUnit.test('input maxlength is updated when setting maxlength property of view', function (assert) {
+    assert.equal($input.attr('maxlength'), '30', 'renders text field with maxlength');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'max', 40);
+    });
+
+    assert.equal($input.attr('maxlength'), '40', 'updates text field after maxlength changes');
+  });
+
+  QUnit.test('input size is updated when setting size property of view', function (assert) {
+    assert.equal($input.attr('size'), '30', 'renders text field with size');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'size', 40);
+    });
+
+    assert.equal($input.attr('size'), '40', 'updates text field after size changes');
+  });
+
+  QUnit.test('input tabindex is updated when setting tabindex property of view', function (assert) {
+    assert.equal($input.attr('tabindex'), '5', 'renders text field with the tabindex');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'tab', 3);
+    });
+
+    assert.equal($input.attr('tabindex'), '3', 'updates text field after tabindex changes');
+  });
+
+  QUnit.test('cursor position is not lost when updating content', function (assert) {
+    _emberMetalRun_loop.default(function (_) {
+      // Since we can't simulate an actual keypress we can not do a proper integration test.
+      // Instead, we will simulate the underlying issue caused by the keypress by
+      // desyncing the attr morph's last know value from the DOM and re-setting the
+      // controller's value to the input's current value.
+
+      input.value = 'hola';
+      input.selectionStart = 1;
+      input.selectionEnd = 3;
+
+      _emberMetalProperty_set.set(controller, 'value', 'hola');
+    });
+
+    assert.equal(input.selectionStart, 1, 'cursor position was not lost');
+    assert.equal(input.selectionEnd, 3, 'cursor position was not lost');
+  });
+
+  QUnit.test('input can be updated multiple times', function (assert) {
+    assert.equal($input.val(), 'hello', 'precondition - renders text field with value');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'value', '');
+    });
+    assert.equal($input.val(), '', 'updates first time');
+
+    // Simulates setting the input to the same value as it already is which won't cause a rerender
+    _emberMetalRun_loop.default(function (_) {
+      return input.value = 'derp';
+    });
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'value', 'derp');
+    });
+    assert.equal($input.val(), 'derp', 'updates second time');
+
+    _emberMetalRun_loop.default(function (_) {
+      return _emberMetalProperty_set.set(controller, 'value', '');
+    });
+    assert.equal($input.val(), '', 'updates third time');
+  });
+});
 enifed('ember-htmlbars/tests/integration/local-lookup-test', ['exports', 'ember-metal/features', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalFeatures, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -53612,7 +53785,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+b915feaf', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+d1553aa8', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
