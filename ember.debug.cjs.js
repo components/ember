@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+f9ef8c34
+ * @version   2.5.0-canary+7935cf1c
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+f9ef8c34
+ * @version   2.5.0-canary+7935cf1c
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -7205,7 +7205,7 @@ enifed("simple-html-tokenizer/utils", ["exports"], function (exports) {
   }
 });
 //# sourceMappingURL=glimmer-compiler.amd.map
-enifed('glimmer-runtime/index', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/template', 'glimmer-runtime/lib/symbol-table', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/compiler', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/expressions', 'glimmer-runtime/lib/compiled/expressions/args', 'glimmer-runtime/lib/compiled/expressions/value', 'glimmer-runtime/lib/compiled/opcodes/lists', 'glimmer-runtime/lib/vm', 'glimmer-runtime/lib/environment', 'glimmer-runtime/lib/component/interfaces', 'glimmer-runtime/lib/dom', 'glimmer-runtime/lib/builder'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibTemplate, _glimmerRuntimeLibSymbolTable, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibCompiler, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledExpressions, _glimmerRuntimeLibCompiledExpressionsArgs, _glimmerRuntimeLibCompiledExpressionsValue, _glimmerRuntimeLibCompiledOpcodesLists, _glimmerRuntimeLibVm, _glimmerRuntimeLibEnvironment, _glimmerRuntimeLibComponentInterfaces, _glimmerRuntimeLibDom, _glimmerRuntimeLibBuilder) {
+enifed('glimmer-runtime/index', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/template', 'glimmer-runtime/lib/symbol-table', 'glimmer-runtime/lib/references', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/compiler', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/expressions', 'glimmer-runtime/lib/compiled/expressions/args', 'glimmer-runtime/lib/compiled/expressions/value', 'glimmer-runtime/lib/compiled/opcodes/lists', 'glimmer-runtime/lib/vm', 'glimmer-runtime/lib/environment', 'glimmer-runtime/lib/component/interfaces', 'glimmer-runtime/lib/dom', 'glimmer-runtime/lib/builder'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibTemplate, _glimmerRuntimeLibSymbolTable, _glimmerRuntimeLibReferences, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibCompiler, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledExpressions, _glimmerRuntimeLibCompiledExpressionsArgs, _glimmerRuntimeLibCompiledExpressionsValue, _glimmerRuntimeLibCompiledOpcodesLists, _glimmerRuntimeLibVm, _glimmerRuntimeLibEnvironment, _glimmerRuntimeLibComponentInterfaces, _glimmerRuntimeLibDom, _glimmerRuntimeLibBuilder) {
   'use strict';
 
   exports.Syntax = _glimmerRuntimeLibSyntax.default;
@@ -7217,6 +7217,7 @@ enifed('glimmer-runtime/index', ['exports', 'glimmer-runtime/lib/syntax', 'glimm
   exports.isAttribute = _glimmerRuntimeLibSyntax.isAttribute;
   exports.Template = _glimmerRuntimeLibTemplate.default;
   exports.SymbolTable = _glimmerRuntimeLibSymbolTable.default;
+  exports.ConditionalReference = _glimmerRuntimeLibReferences.ConditionalReference;
   exports.Templates = _glimmerRuntimeLibSyntaxCore.Templates;
   exports.Append = _glimmerRuntimeLibSyntaxCore.Append;
   exports.Unknown = _glimmerRuntimeLibSyntaxCore.Unknown;
@@ -10101,7 +10102,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
         }
 
         TestOpcode.prototype.evaluate = function evaluate(vm) {
-            vm.frame.setCondition(vm.frame.getOperand());
+            vm.frame.setCondition(vm.env.toConditionalReference(vm.frame.getOperand()));
         };
 
         TestOpcode.prototype.toJSON = function toJSON() {
@@ -10164,7 +10165,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
         JumpIfOpcode.prototype.evaluate = function evaluate(vm) {
             var reference = vm.frame.getCondition();
             var value = reference.value();
-            if (value && !(Array.isArray(value) && value.length === 0)) {
+            if (value) {
                 _JumpOpcode.prototype.evaluate.call(this, vm);
                 vm.updateWith(new Assert(reference));
             } else {
@@ -10194,7 +10195,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
         JumpUnlessOpcode.prototype.evaluate = function evaluate(vm) {
             var reference = vm.frame.getCondition();
             var value = reference.value();
-            if (value && !(Array.isArray(value) && value.length === 0)) {
+            if (value) {
                 vm.updateWith(new Assert(reference));
             } else {
                 _JumpOpcode2.prototype.evaluate.call(this, vm);
@@ -10718,6 +10719,10 @@ enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/refer
             this.meta = meta;
         }
 
+        Environment.prototype.toConditionalReference = function toConditionalReference(reference) {
+            return new _glimmerRuntimeLibReferences.ConditionalReference(reference);
+        };
+
         Environment.prototype.getDOM = function getDOM() {
             return this.dom;
         };
@@ -10858,6 +10863,34 @@ enifed('glimmer-runtime/lib/references', ['exports', 'glimmer-reference'], funct
     })(_glimmerReference.ConstReference);
 
     exports.PrimitiveReference = PrimitiveReference;
+
+    var ConditionalReference = (function () {
+        function ConditionalReference(inner) {
+            _classCallCheck(this, ConditionalReference);
+
+            this.inner = inner;
+        }
+
+        ConditionalReference.prototype.value = function value() {
+            return this.toBool(this.inner.value());
+        };
+
+        ConditionalReference.prototype.toBool = function toBool(value) {
+            return !!value;
+        };
+
+        ConditionalReference.prototype.isDirty = function isDirty() {
+            return this.inner.isDirty();
+        };
+
+        ConditionalReference.prototype.destroy = function destroy() {
+            return this.inner.destroy();
+        };
+
+        return ConditionalReference;
+    })();
+
+    exports.ConditionalReference = ConditionalReference;
     var NULL_REFERENCE = new PrimitiveReference(null);
     exports.NULL_REFERENCE = NULL_REFERENCE;
 });
@@ -18437,6 +18470,18 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "And then dirtying");
         QUnit.notStrictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
     });
+    test('The if helper should consider an empty array falsy', function () {
+        var object = { condition: [], value: 'hello world' };
+        var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/if}}</div>');
+        var result = render(template, object);
+        _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>');
+        object.condition.push('thing');
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
+        object.condition.pop();
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>');
+    });
     test("a simple implementation of a dirtying rerender without inverse", function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{/if}}</div>');
@@ -18448,6 +18493,42 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         object.condition = true;
         result.rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is true, the morph repopulates");
+    });
+    test('The unless helper without inverse', function () {
+        var object = { condition: true, value: 'hello world' };
+        var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{/unless}}</div>');
+        var result = render(template, object);
+        _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "Initial render");
+        object.condition = false;
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the morph becomes populated");
+        object.condition = true;
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "If the condition is true, the morph unpopulated");
+    });
+    test('The unless helper with inverse', function () {
+        var object = { condition: true, value: 'hello world' };
+        var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/unless}}</div>');
+        var result = render(template, object);
+        _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "Initial render");
+        object.condition = false;
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the default renders");
+        object.condition = true;
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "If the condition is true, the inverse renders");
+    });
+    test('The unless helper should consider an empty array falsy', function () {
+        var object = { condition: [], value: 'hello world' };
+        var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/unless}}</div>');
+        var result = render(template, object);
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
+        object.condition.push(1);
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "If the condition is true, the inverse renders");
+        object.condition.pop();
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the default renders");
     });
     test("a conditional that is false on the first run", function (assert) {
         var object = { condition: false, value: 'hello world' };
@@ -18478,6 +18559,15 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         object.person.name.first = "Godfreak";
         result.rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>GodfreakOuter</div>', "After updating");
+    });
+    test("The with helper should consider an empty array falsy", function (assert) {
+        var object = { condition: [] };
+        var template = compile("<div>{{#with condition as |c|}}{{c.length}}{{/with}}</div>");
+        var result = render(template, object);
+        _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "Initial render");
+        object.condition.push(1);
+        result.rerender();
+        _glimmerTestHelpers.equalTokens(root, '<div>1</div>', "After updating");
     });
     test("block helpers whose template has a morph at the edge", function () {
         var template = compile("{{#identity}}{{value}}{{/identity}}");
@@ -19814,6 +19904,26 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
     var EMBERISH_CURLY_COMPONENT_MANAGER = new EmberishCurlyComponentManager();
 
+    var EmberishConditionalReference = (function (_ConditionalReference) {
+        _inherits(EmberishConditionalReference, _ConditionalReference);
+
+        function EmberishConditionalReference() {
+            _classCallCheck(this, EmberishConditionalReference);
+
+            _ConditionalReference.apply(this, arguments);
+        }
+
+        EmberishConditionalReference.prototype.toBool = function toBool(value) {
+            if (Array.isArray(value)) {
+                return value.length > 0;
+            } else {
+                return _ConditionalReference.prototype.toBool.call(this, value);
+            }
+        };
+
+        return EmberishConditionalReference;
+    })(_glimmerRuntime.ConditionalReference);
+
     var TestEnvironment = (function (_Environment) {
         _inherits(TestEnvironment, _Environment);
 
@@ -19861,6 +19971,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return this.registerComponent(name, definition);
         };
 
+        TestEnvironment.prototype.toConditionalReference = function toConditionalReference(reference) {
+            return new EmberishConditionalReference(reference);
+        };
+
         TestEnvironment.prototype.statement = function statement(_statement) {
             var type = _statement.type;
             var block = type === 'block' ? _statement : null;
@@ -19903,6 +20017,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                         return new IfSyntax({ args: block.args, templates: block.templates });
                     case 'with':
                         return new WithSyntax({ args: block.args, templates: block.templates });
+                    case 'unless':
+                        return new UnlessSyntax({ args: block.args, templates: block.templates });
                 }
             }
             if (isSimple && (append || block)) {
@@ -20299,16 +20415,72 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return RenderInverseIdentitySyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var IfSyntax = (function (_StatementSyntax5) {
-        _inherits(IfSyntax, _StatementSyntax5);
+    var UnlessSyntax = (function (_StatementSyntax5) {
+        _inherits(UnlessSyntax, _StatementSyntax5);
 
-        function IfSyntax(_ref16) {
+        function UnlessSyntax(_ref16) {
             var args = _ref16.args;
             var templates = _ref16.templates;
 
-            _classCallCheck(this, IfSyntax);
+            _classCallCheck(this, UnlessSyntax);
 
             _StatementSyntax5.call(this);
+            this.type = "unless-statement";
+            this.isStatic = false;
+            this.args = args;
+            this.templates = templates;
+        }
+
+        UnlessSyntax.prototype.prettyPrint = function prettyPrint() {
+            return "#unless " + this.args.prettyPrint();
+        };
+
+        UnlessSyntax.prototype.compile = function compile(compiler, env) {
+            //        Enter(BEGIN, END)
+            // BEGIN: Noop
+            //        PutArgs
+            //        Test
+            //        JumpIf(ELSE)
+            //        Evaluate(default)
+            //        JumpOpcode(END)
+            // ELSE:  Noop
+            //        Evalulate(inverse)
+            // END:   Noop
+            //        Exit
+            var BEGIN = new _glimmerRuntime.LabelOpcode({ label: "BEGIN" });
+            var ELSE = new _glimmerRuntime.LabelOpcode({ label: "ELSE" });
+            var END = new _glimmerRuntime.LabelOpcode({ label: "END" });
+            compiler.append(new _glimmerRuntime.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
+            compiler.append(new _glimmerRuntime.TestOpcode());
+            if (this.templates.inverse) {
+                compiler.append(new _glimmerRuntime.JumpIfOpcode({ target: ELSE }));
+                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+                compiler.append(new _glimmerRuntime.JumpOpcode({ target: END }));
+                compiler.append(ELSE);
+                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
+            } else {
+                compiler.append(new _glimmerRuntime.JumpIfOpcode({ target: END }));
+                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+            }
+            compiler.append(END);
+            compiler.append(new _glimmerRuntime.ExitOpcode());
+        };
+
+        return UnlessSyntax;
+    })(_glimmerRuntime.StatementSyntax);
+
+    var IfSyntax = (function (_StatementSyntax6) {
+        _inherits(IfSyntax, _StatementSyntax6);
+
+        function IfSyntax(_ref17) {
+            var args = _ref17.args;
+            var templates = _ref17.templates;
+
+            _classCallCheck(this, IfSyntax);
+
+            _StatementSyntax6.call(this);
             this.type = "if-statement";
             this.isStatic = false;
             this.args = args;
@@ -20355,16 +20527,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return IfSyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var WithSyntax = (function (_StatementSyntax6) {
-        _inherits(WithSyntax, _StatementSyntax6);
+    var WithSyntax = (function (_StatementSyntax7) {
+        _inherits(WithSyntax, _StatementSyntax7);
 
-        function WithSyntax(_ref17) {
-            var args = _ref17.args;
-            var templates = _ref17.templates;
+        function WithSyntax(_ref18) {
+            var args = _ref18.args;
+            var templates = _ref18.templates;
 
             _classCallCheck(this, WithSyntax);
 
-            _StatementSyntax6.call(this);
+            _StatementSyntax7.call(this);
             this.type = "with-statement";
             this.isStatic = false;
             this.args = args;
@@ -31257,7 +31429,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+f9ef8c34';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+7935cf1c';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -36952,7 +37124,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+f9ef8c34
+    @version 2.5.0-canary+7935cf1c
     @public
   */
 
@@ -36994,11 +37166,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+f9ef8c34'
+    @default '2.5.0-canary+7935cf1c'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+f9ef8c34';
+  Ember.VERSION = '2.5.0-canary+7935cf1c';
 
   /**
     The hash of environment variables used to control various configuration
@@ -50920,7 +51092,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+f9ef8c34';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+7935cf1c';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51423,7 +51595,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+f9ef8c34';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+7935cf1c';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -60417,7 +60589,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+f9ef8c34',
+        revision: 'Ember@2.5.0-canary+7935cf1c',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -65758,7 +65930,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+f9ef8c34';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+7935cf1c';
 
   /**
   @module ember
