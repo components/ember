@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+7935cf1c
+ * @version   2.5.0-canary+d209c7d7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -30566,7 +30566,7 @@ enifed('ember-metal/tests/computed_test', ['exports', 'ember-runtime/system/obje
   });
 
   _emberMetalTestsProps_helper.testBoth('throws assertion if brace expansion notation has spaces', function (get, set) {
-    throws(function () {
+    expectAssertion(function () {
       _emberMetalProperties.defineProperty(obj, 'roo', _emberMetalComputed.computed(function (key) {
         count++;
         return 'roo ' + count;
@@ -31325,6 +31325,22 @@ enifed('ember-metal/tests/expand_properties_test', ['exports', 'ember-metal/expa
 
     var expected = ['a.d.e', 'a.d.f', 'b.d.e', 'b.d.f', 'c.d.e', 'c.d.f'];
     deepEqual(expected.sort(), foundProperties.sort());
+  });
+
+  QUnit.test('A pattern must be a string', function () {
+    expect(1);
+
+    expectAssertion(function () {
+      _emberMetalExpand_properties.default([], addProperty);
+    }, /A computed property key must be a string/);
+  });
+
+  QUnit.test('A pattern must not contain a space', function () {
+    expect(1);
+
+    expectAssertion(function () {
+      _emberMetalExpand_properties.default('a, b', addProperty);
+    }, /Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"/);
   });
 });
 enifed('ember-metal/tests/features_test', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-metal/assign'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberMetalAssign) {
@@ -53785,7 +53801,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+7935cf1c', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+d209c7d7', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

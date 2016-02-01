@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+7935cf1c
+ * @version   2.5.0-canary+d209c7d7
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4925,7 +4925,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+7935cf1c
+    @version 2.5.0-canary+d209c7d7
     @public
   */
 
@@ -4967,11 +4967,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+7935cf1c'
+    @default '2.5.0-canary+d209c7d7'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+7935cf1c';
+  Ember.VERSION = '2.5.0-canary+d209c7d7';
 
   /**
     The hash of environment variables used to control various configuration
@@ -5702,7 +5702,7 @@ enifed('ember-metal/events', ['exports', 'ember-metal/debug', 'ember-metal/utils
     return func;
   }
 });
-enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], function (exports, _emberMetalError) {
+enifed('ember-metal/expand_properties', ['exports', 'ember-metal/debug'], function (exports, _emberMetalDebug) {
   'use strict';
 
   exports.default = expandProperties;
@@ -5713,7 +5713,6 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
   */
 
   var SPLIT_REGEX = /\{|\}/;
-
   var END_WITH_EACH_REGEX = /\.@each$/;
 
   /**
@@ -5745,25 +5744,21 @@ enifed('ember-metal/expand_properties', ['exports', 'ember-metal/error'], functi
   */
 
   function expandProperties(pattern, callback) {
-    if (pattern.indexOf(' ') > -1) {
-      throw new _emberMetalError.default('Brace expanded properties cannot contain spaces, e.g. \'user.{firstName, lastName}\' should be \'user.{firstName,lastName}\'');
+    _emberMetalDebug.assert('A computed property key must be a string', typeof pattern === 'string');
+    _emberMetalDebug.assert('Brace expanded properties cannot contain spaces, e.g. "user.{firstName, lastName}" should be "user.{firstName,lastName}"', pattern.indexOf(' ') === -1);
+
+    var parts = pattern.split(SPLIT_REGEX);
+    var properties = [parts];
+
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      if (part.indexOf(',') >= 0) {
+        properties = duplicateAndReplace(properties, part.split(','), i);
+      }
     }
 
-    if ('string' === typeof pattern) {
-      var parts = pattern.split(SPLIT_REGEX);
-      var properties = [parts];
-
-      parts.forEach(function (part, index) {
-        if (part.indexOf(',') >= 0) {
-          properties = duplicateAndReplace(properties, part.split(','), index);
-        }
-      });
-
-      properties.forEach(function (property) {
-        callback(property.join('').replace(END_WITH_EACH_REGEX, '.[]'));
-      });
-    } else {
-      callback(pattern.replace(END_WITH_EACH_REGEX, '.[]'));
+    for (var i = 0; i < properties.length; i++) {
+      callback(properties[i].join('').replace(END_WITH_EACH_REGEX, '.[]'));
     }
   }
 
