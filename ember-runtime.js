@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.4.0-beta.1+c5271d91
+ * @version   2.4.0-beta.1+e7f26569
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -210,19 +210,8 @@ enifed('backburner/deferred-action-queues', ['exports', 'backburner/utils', 'bac
   };
 });
 enifed('backburner/platform', ['exports'], function (exports) {
-  // In IE 6-8, try/finally doesn't work without a catch.
-  // Unfortunately, this is impossible to test for since wrapping it in a parent try/catch doesn't trigger the bug.
-  // This tests for another broken try/catch behavior that only exhibits in the same versions of IE.
   'use strict';
 
-  var needsIETryCatchFix = (function (e, x) {
-    try {
-      x();
-    } catch (e) {} // jshint ignore:line
-    return !!e;
-  })();
-
-  exports.needsIETryCatchFix = needsIETryCatchFix;
   var platform;
 
   /* global self */
@@ -549,9 +538,6 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       _this._runExpiredTimers();
     };
   }
-
-  // ms of delay before we conclude a timeout was lost
-  var TIMEOUT_STALLED_THRESHOLD = 1000;
 
   Backburner.prototype = {
     begin: function () {
@@ -914,8 +900,6 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
         return fn;
       }
 
-      this._reinstallStalledTimerTimeout();
-
       // find position to insert
       var i = _backburnerBinarySearch.default(executeAt, this._timers);
 
@@ -1112,21 +1096,6 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
       this._installTimerTimeout();
     },
 
-    _reinstallStalledTimerTimeout: function () {
-      if (!this._timerTimeoutId) {
-        return;
-      }
-      // if we have a timer we should always have a this._timerTimeoutId
-      var minExpiresAt = this._timers[0];
-      var delay = _backburnerUtils.now() - minExpiresAt;
-      // threshold of a second before we assume that the currently
-      // installed timeout will not run, so we don't constantly reinstall
-      // timeouts that are delayed but good still
-      if (delay < TIMEOUT_STALLED_THRESHOLD) {
-        return;
-      }
-    },
-
     _reinstallTimerTimeout: function () {
       this._clearTimerTimeout();
       this._installTimerTimeout();
@@ -1154,14 +1123,6 @@ enifed('backburner', ['exports', 'backburner/utils', 'backburner/platform', 'bac
   Backburner.prototype.schedule = Backburner.prototype.defer;
   Backburner.prototype.scheduleOnce = Backburner.prototype.deferOnce;
   Backburner.prototype.later = Backburner.prototype.setTimeout;
-
-  if (_backburnerPlatform.needsIETryCatchFix) {
-    var originalRun = Backburner.prototype.run;
-    Backburner.prototype.run = _backburnerUtils.wrapInTryCatch(originalRun);
-
-    var originalEnd = Backburner.prototype.end;
-    Backburner.prototype.end = _backburnerUtils.wrapInTryCatch(originalEnd);
-  }
 
   function getOnError(options) {
     return options.onError || options.onErrorTarget && options.onErrorTarget[options.onErrorMethod];
@@ -4923,7 +4884,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.4.0-beta.1+c5271d91
+    @version 2.4.0-beta.1+e7f26569
     @public
   */
 
@@ -4965,11 +4926,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.4.0-beta.1+c5271d91'
+    @default '2.4.0-beta.1+e7f26569'
     @static
     @public
   */
-  Ember.VERSION = '2.4.0-beta.1+c5271d91';
+  Ember.VERSION = '2.4.0-beta.1+e7f26569';
 
   /**
     The hash of environment variables used to control various configuration
