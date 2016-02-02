@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+4864b2bb
+ * @version   2.5.0-canary+abdc05f8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+4864b2bb
+ * @version   2.5.0-canary+abdc05f8
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -28084,10 +28084,10 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed("ember-glimmer/ember-metal-views/index", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-glimmer/ember-metal-views/index', ['exports'], function (exports) {
+  'use strict';
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
   var Renderer = (function () {
     function Renderer(domHelper) {
@@ -28106,12 +28106,32 @@ enifed("ember-glimmer/ember-metal-views/index", ["exports"], function (exports) 
       var env = this._env;
 
       env.begin();
-      view.template.render({ view: view }, env, { appendTo: target });
+      var result = view.template.render(view, env, { appendTo: target });
       env.commit();
+
+      // FIXME: Store this somewhere else
+      view['_renderResult'] = result;
+
+      // FIXME: This should happen inside `env.commit()`
+      view._transitionTo('inDOM');
+    };
+
+    Renderer.prototype.rerender = function rerender(view) {
+      view['_renderResult'].rerender();
+    };
+
+    Renderer.prototype.remove = function remove(view) {
+      view._transitionTo('destroying');
+      view.destroy();
     };
 
     Renderer.prototype.componentInitAttrs = function componentInitAttrs() {
       // TODO: Remove me
+    };
+
+    Renderer.prototype.ensureViewNotRendering = function ensureViewNotRendering() {
+      // TODO: Implement this
+      // throw new Error('Something you did caused a view to re-render after it rendered but before it was inserted into the DOM.');
     };
 
     return Renderer;
@@ -31390,7 +31410,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+4864b2bb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+abdc05f8';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -37085,7 +37105,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+4864b2bb
+    @version 2.5.0-canary+abdc05f8
     @public
   */
 
@@ -37127,11 +37147,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+4864b2bb'
+    @default '2.5.0-canary+abdc05f8'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+4864b2bb';
+  Ember.VERSION = '2.5.0-canary+abdc05f8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -44552,7 +44572,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
     }
   }
 });
-enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-views/system/build-component-template', 'ember-metal/environment'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberViewsSystemBuildComponentTemplate, _emberMetalEnvironment) {
+enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/assign', 'ember-metal/set_properties', 'ember-views/system/build-component-template', 'ember-metal/environment', 'htmlbars-runtime'], function (exports, _emberMetalRun_loop, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalAssign, _emberMetalSet_properties, _emberViewsSystemBuildComponentTemplate, _emberMetalEnvironment, _htmlbarsRuntime) {
   'use strict';
 
   exports.Renderer = Renderer;
@@ -44780,6 +44800,20 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
 
   Renderer.prototype.componentWillRender = function (component) {
     component.trigger('willRender');
+  };
+
+  Renderer.prototype.rerender = function (view) {
+    var renderNode = view._renderNode;
+
+    renderNode.isDirty = true;
+    _htmlbarsRuntime.internal.visitChildren(renderNode.childNodes, function (node) {
+      if (node.getState().manager) {
+        node.shouldReceiveAttrs = true;
+      }
+      node.isDirty = true;
+    });
+
+    renderNode.ownerNode.emberView.scheduleRevalidate(renderNode, view.toString(), 'rerendering');
   };
 
   Renderer.prototype.remove = function (view, shouldDestroy) {
@@ -51048,7 +51082,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+4864b2bb';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+abdc05f8';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51551,7 +51585,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+4864b2bb';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+abdc05f8';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -60545,7 +60579,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+4864b2bb',
+        revision: 'Ember@2.5.0-canary+abdc05f8',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -65886,7 +65920,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+4864b2bb';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+abdc05f8';
 
   /**
   @module ember
@@ -67117,7 +67151,7 @@ enifed('ember-views/views/states/destroying', ['exports', 'ember-metal/assign', 
 
   exports.default = destroying;
 });
-enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/assign', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-metal/property_get', 'htmlbars-runtime'], function (exports, _emberViewsViewsStatesDefault, _emberMetalAssign, _emberViewsSystemJquery, _emberMetalRun_loop, _emberMetalProperty_get, _htmlbarsRuntime) {
+enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/states/default', 'ember-metal/assign', 'ember-views/system/jquery', 'ember-metal/run_loop', 'ember-metal/property_get'], function (exports, _emberViewsViewsStatesDefault, _emberMetalAssign, _emberViewsSystemJquery, _emberMetalRun_loop, _emberMetalProperty_get) {
   'use strict';
 
   var hasElement = Object.create(_emberViewsViewsStatesDefault.default);
@@ -67143,18 +67177,7 @@ enifed('ember-views/views/states/has_element', ['exports', 'ember-views/views/st
     // deferred to allow bindings to synchronize.
     rerender: function (view) {
       view.renderer.ensureViewNotRendering(view);
-
-      var renderNode = view._renderNode;
-
-      renderNode.isDirty = true;
-      _htmlbarsRuntime.internal.visitChildren(renderNode.childNodes, function (node) {
-        if (node.getState().manager) {
-          node.shouldReceiveAttrs = true;
-        }
-        node.isDirty = true;
-      });
-
-      renderNode.ownerNode.emberView.scheduleRevalidate(renderNode, view.toString(), 'rerendering');
+      view.renderer.rerender(view);
     },
 
     cleanup: function (view) {
