@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+abdc05f8
+ * @version   2.5.0-canary+0b96dcee
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -35482,7 +35482,7 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     _emberMetalObserver.addObserver(yetAnotherBeer, 'type', _emberMetalCore.K);
     set(yetAnotherBeer, 'type', 'ale');
     _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
-    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeOjbserver');
+    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
 
     var itsMyLastBeer = new Beer();
     set(itsMyLastBeer, 'type', 'ale');
@@ -54294,7 +54294,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+abdc05f8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+0b96dcee', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
