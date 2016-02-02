@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+d209c7d7
+ * @version   2.5.0-canary+62dcd4b6
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -32177,175 +32177,6 @@ enifed('ember-metal/tests/is_present_test', ['exports', 'ember-metal/is_present'
     equal(true, _emberMetalIs_present.default([1, 2, 3]), 'for a non-empty array');
   });
 });
-enifed('ember-metal/tests/keys_test', ['exports', 'ember-metal/property_set', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalObserver) {
-  'use strict';
-
-  function K() {
-    return this;
-  }
-
-  QUnit.module('Fetch Keys ');
-
-  QUnit.test('should get a key array for a specified object', function () {
-    var object1 = {};
-
-    object1.names = 'Rahul';
-    object1.age = '23';
-    object1.place = 'Mangalore';
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['names', 'age', 'place']);
-  });
-
-  // This test is for IE8.
-  QUnit.test('should get a key array for property that is named the same as prototype property', function () {
-    var object1 = {
-      toString: function () {}
-    };
-
-    var object2 = Object.keys(object1);
-
-    deepEqual(object2, ['toString']);
-  });
-
-  QUnit.test('should not contain properties declared in the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('should return properties that were set after object creation', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalProperty_set.set(beer, 'brand', 'big daddy');
-
-    deepEqual(Object.keys(beer), ['brand']);
-  });
-
-  QUnit.module('Keys behavior with observers');
-
-  QUnit.test('should not leak properties on the prototype', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    deepEqual(Object.keys(beer), []);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-  });
-
-  QUnit.test('observing a non existent property', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'brand', K);
-
-    deepEqual(Object.keys(beer), []);
-
-    _emberMetalProperty_set.set(beer, 'brand', 'Corona');
-    deepEqual(Object.keys(beer), ['brand']);
-
-    _emberMetalObserver.removeObserver(beer, 'brand', K);
-  });
-
-  QUnit.test('with observers switched on and off', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), []);
-  });
-
-  QUnit.test('observers switched on and off with setter in between (observed property is not shadowing)', function () {
-    function Beer() {}
-
-    var beer = new Beer();
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-    deepEqual(Object.keys(beer), ['type'], 'only set');
-
-    var otherBeer = new Beer();
-    _emberMetalObserver.addObserver(otherBeer, 'type', K);
-    _emberMetalProperty_set.set(otherBeer, 'type', 'ale');
-    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
-
-    var yetAnotherBeer = new Beer();
-    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', K);
-    _emberMetalProperty_set.set(yetAnotherBeer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeOjbserver');
-
-    var itsMyLastBeer = new Beer();
-    _emberMetalProperty_set.set(itsMyLastBeer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
-  });
-
-  QUnit.test('observers switched on and off with setter in between (observed property is shadowing one on the prototype)', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-    deepEqual(Object.keys(beer), ['type'], 'after set');
-
-    var otherBeer = new Beer();
-    _emberMetalObserver.addObserver(otherBeer, 'type', K);
-    _emberMetalProperty_set.set(otherBeer, 'type', 'ale');
-    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
-
-    var yetAnotherBeer = new Beer();
-    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', K);
-    _emberMetalProperty_set.set(yetAnotherBeer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
-
-    var itsMyLastBeer = new Beer();
-    _emberMetalProperty_set.set(itsMyLastBeer, 'type', 'ale');
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
-  });
-
-  QUnit.test('observers switched on and off with setter in between', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-
-    deepEqual(Object.keys(beer), ['type']);
-  });
-
-  QUnit.test('observer switched on and off and then setter', function () {
-    function Beer() {}
-    Beer.prototype.type = 'ipa';
-
-    var beer = new Beer();
-
-    _emberMetalObserver.addObserver(beer, 'type', K);
-    _emberMetalObserver.removeObserver(beer, 'type', K);
-
-    deepEqual(Object.keys(beer), [], 'addObserver -> removeObserver');
-    _emberMetalProperty_set.set(beer, 'type', 'ale');
-
-    deepEqual(Object.keys(beer), ['type'], 'addObserver -> removeObserver -> set');
-  });
-});
 enifed('ember-metal/tests/libraries_test', ['exports', 'ember-metal/debug', 'ember-metal/features', 'ember-metal/libraries'], function (exports, _emberMetalDebug, _emberMetalFeatures, _emberMetalLibraries) {
   /* globals EmberDev */
   'use strict';
@@ -35462,6 +35293,55 @@ enifed('ember-metal/tests/observer_test', ['exports', 'ember-metal/core', 'ember
     set(beer, 'type', 'ale');
 
     deepEqual(Object.keys(beer), ['type']);
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observers switched on and off with setter in between (observed property is not shadowing)', function (get, set) {
+    function Beer() {}
+
+    var beer = new Beer();
+    set(beer, 'type', 'ale');
+    deepEqual(Object.keys(beer), ['type'], 'only set');
+
+    var otherBeer = new Beer();
+    _emberMetalObserver.addObserver(otherBeer, 'type', _emberMetalCore.K);
+    set(otherBeer, 'type', 'ale');
+    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+
+    var yetAnotherBeer = new Beer();
+    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', _emberMetalCore.K);
+    set(yetAnotherBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeOjbserver');
+
+    var itsMyLastBeer = new Beer();
+    set(itsMyLastBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
+  });
+
+  _emberMetalTestsProps_helper.testBoth('observers switched on and off with setter in between (observed property is shadowing one on the prototype)', function (get, set) {
+    function Beer() {}
+    Beer.prototype.type = 'ipa';
+
+    var beer = new Beer();
+    set(beer, 'type', 'ale');
+    deepEqual(Object.keys(beer), ['type'], 'after set');
+
+    var otherBeer = new Beer();
+    _emberMetalObserver.addObserver(otherBeer, 'type', _emberMetalCore.K);
+    set(otherBeer, 'type', 'ale');
+    deepEqual(Object.keys(otherBeer), ['type'], 'addObserver -> set');
+
+    var yetAnotherBeer = new Beer();
+    _emberMetalObserver.addObserver(yetAnotherBeer, 'type', _emberMetalCore.K);
+    set(yetAnotherBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(yetAnotherBeer), ['type'], 'addObserver -> set -> removeObserver');
+
+    var itsMyLastBeer = new Beer();
+    set(itsMyLastBeer, 'type', 'ale');
+    _emberMetalObserver.removeObserver(beer, 'type', _emberMetalCore.K);
+    deepEqual(Object.keys(itsMyLastBeer), ['type'], 'set -> removeObserver');
   });
 });
 enifed('ember-metal/tests/performance_test', ['exports', 'ember-metal/property_set', 'ember-metal/property_get', 'ember-metal/computed', 'ember-metal/properties', 'ember-metal/property_events', 'ember-metal/observer'], function (exports, _emberMetalProperty_set, _emberMetalProperty_get, _emberMetalComputed, _emberMetalProperties, _emberMetalProperty_events, _emberMetalObserver) {
@@ -54250,7 +54130,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+d209c7d7', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+62dcd4b6', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
