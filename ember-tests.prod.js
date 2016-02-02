@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+62dcd4b6
+ * @version   2.5.0-canary+821cb2f4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -51835,8 +51835,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     deepEqual(_emberRuntimeSystemObject.default.create(), o);
   });
 });
-
-// Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
 enifed('ember-runtime/tests/system/object/destroy_test', ['exports', 'ember-metal/features', 'ember-metal/run_loop', 'ember-metal/mixin', 'ember-metal/property_set', 'ember-metal/binding', 'ember-metal/property_events', 'ember-metal/tests/props_helper', 'ember-runtime/system/object', 'ember-metal/meta'], function (exports, _emberMetalFeatures, _emberMetalRun_loop, _emberMetalMixin, _emberMetalProperty_set, _emberMetalBinding, _emberMetalProperty_events, _emberMetalTestsProps_helper, _emberRuntimeSystemObject, _emberMetalMeta) {
   'use strict';
 
@@ -53681,7 +53679,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+62dcd4b6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+821cb2f4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

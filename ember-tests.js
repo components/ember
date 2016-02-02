@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+62dcd4b6
+ * @version   2.5.0-canary+821cb2f4
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -52169,13 +52169,6 @@ enifed('ember-runtime/tests/system/object/create_test', ['exports', 'ember-metal
     var o = MyClass.create({ foo: 'bar', bar: 'baz' });
     equal(o.get('foo'), 'bar');
 
-    // Catch IE8 where Object.getOwnPropertyDescriptor exists but only works on DOM elements
-    try {
-      Object.getOwnPropertyDescriptor({}, 'foo');
-    } catch (e) {
-      return;
-    }
-
     var descriptor = Object.getOwnPropertyDescriptor(o, 'foo');
     ok(descriptor.set, 'Mandatory setter was setup');
 
@@ -54130,7 +54123,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+62dcd4b6', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+821cb2f4', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
