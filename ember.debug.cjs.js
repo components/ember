@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+0b96dcee
+ * @version   2.5.0-canary+1b4ab395
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+0b96dcee
+ * @version   2.5.0-canary+1b4ab395
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -2503,10 +2503,6 @@ enifed("glimmer-util/lib/list-utils", ["exports"], function (exports) {
 
     exports.ListNode = ListNode;
 
-    function clone(node) {
-        return node.clone();
-    }
-
     var LinkedList = (function () {
         function LinkedList() {
             _classCallCheck(this, LinkedList);
@@ -3489,7 +3485,6 @@ enifed("glimmer-compiler/lib/template-compiler", ["exports", "glimmer-compiler/l
         TemplateCompiler.prototype.attr = function attr(_ref10) {
             var path = _ref10[0];
             var parts = path.parts;
-            var data = path.data;
 
             this.opcode('attr', path, parts);
         };
@@ -7725,6 +7720,86 @@ enifed('glimmer-runtime/lib/builder', ['exports', 'glimmer-util', 'glimmer-runti
     })();
 });
 
+enifed('glimmer-runtime/lib/compat/inner-html-fix', ['exports', 'glimmer-runtime/lib/bounds'], function (exports, _glimmerRuntimeLibBounds) {
+    'use strict';
+
+    exports.default = applyInnerHTMLFix;
+
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+    // Patch:    innerHTML Fix
+    // Browsers: IE9
+    // Reason:   IE9 don't allow us to set innerHTML on col, colgroup, frameset,
+    //           html, style, table, tbody, tfoot, thead, title, tr.
+    // Fix:      Wrap the innerHTML we are about to set in its parents, apply the
+    //           wrapped innerHTML on a div, then move the unwrapped nodes into the
+    //           target position.
+
+    function applyInnerHTMLFix(document, DOMHelperClass) {
+        if (!document) return DOMHelperClass;
+        var table = document.createElement('table');
+        try {
+            table.innerHTML = '<tbody></tbody>';
+        } catch (e) {} finally {
+            if (table.childNodes.length !== 0) {
+                // It worked as expected, no fix required
+                return DOMHelperClass;
+            }
+        }
+        var innerHTMLWrapper = {
+            colgroup: { depth: 2, before: '<table><colgroup>', after: '</colgroup></table>' },
+            table: { depth: 1, before: '<table>', after: '</table>' },
+            tbody: { depth: 2, before: '<table><tbody>', after: '</tbody></table>' },
+            tfoot: { depth: 2, before: '<table><tfoot>', after: '</tfoot></table>' },
+            thead: { depth: 2, before: '<table><thead>', after: '</thead></table>' },
+            tr: { depth: 3, before: '<table><tbody><tr>', after: '</tr></tbody></table>' }
+        };
+        var div = document.createElement('div');
+        return (function (_DOMHelperClass) {
+            _inherits(DOMHelperWithInnerHTMLFix, _DOMHelperClass);
+
+            function DOMHelperWithInnerHTMLFix() {
+                _classCallCheck(this, DOMHelperWithInnerHTMLFix);
+
+                _DOMHelperClass.apply(this, arguments);
+            }
+
+            DOMHelperWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, nextSibling, html) {
+                if (html === null || html === '') {
+                    return _DOMHelperClass.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
+                }
+                var parentTag = parent.tagName.toLowerCase();
+                var wrapper = innerHTMLWrapper[parentTag];
+                if (wrapper === undefined) {
+                    return _DOMHelperClass.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
+                }
+                var wrappedHtml = wrapper.before + html + wrapper.after;
+                div.innerHTML = wrappedHtml;
+                var parentNode = div;
+                for (var i = 0; i < wrapper.depth; i++) {
+                    parentNode = parentNode.childNodes[0];
+                }
+                var first = undefined,
+                    last = undefined,
+                    current = undefined;
+                first = current = parentNode.childNodes[0];
+                while (current) {
+                    last = current;
+                    parent.insertBefore(current, nextSibling);
+                    current = current.nextSibling;
+                }
+                return new _glimmerRuntimeLibBounds.ConcreteBounds(parent, first, last);
+            };
+
+            return DOMHelperWithInnerHTMLFix;
+        })(DOMHelperClass);
+    }
+});
+
 enifed('glimmer-runtime/lib/compiled/blocks', ['exports', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/symbol-table', 'glimmer-runtime/lib/compiler'], function (exports, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibSymbolTable, _glimmerRuntimeLibCompiler) {
     'use strict';
 
@@ -8516,9 +8591,9 @@ enifed('glimmer-runtime/lib/compiled/expressions/ref', ['exports', 'glimmer-runt
             var lookup = this.lookup;
 
             if (lookup.length) {
-                return '$' + symbol + '(' + this.debug + ').' + this.lookup.join('.');
+                return '$' + symbol + '(' + debug + ').' + lookup.join('.');
             } else {
-                return '$' + symbol + '(' + this.debug + ').' + this.lookup.join('.');
+                return '$' + symbol + '(' + debug + ').' + lookup.join('.');
             }
         };
 
@@ -8651,7 +8726,7 @@ enifed("glimmer-runtime/lib/compiled/expressions", ["exports"], function (export
     exports.CompiledExpression = CompiledExpression;
 });
 
-enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-util', 'glimmer-reference'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerUtil, _glimmerReference) {
+enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-runtime/lib/opcodes', 'glimmer-util'], function (exports, _glimmerRuntimeLibOpcodes, _glimmerUtil) {
     'use strict';
 
     function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -8688,7 +8763,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
             var args = rawArgs.evaluate(vm);
             var manager = definition.manager;
             var component = manager.create(definition, args.named);
-            var selfRef = new _glimmerReference.UpdatableReference(manager.getSelf(component));
+            var selfRef = vm.env.rootReferenceFor(manager.getSelf(component));
             var callerScope = vm.scope();
             // pass through the list of outer attributes to shadow from the
             // invocation site, as well as the component definition as internal
@@ -8777,7 +8852,7 @@ enifed('glimmer-runtime/lib/compiled/opcodes/component', ['exports', 'glimmer-ru
             var args = vm.frame.getArgs();
             var internal = args.internal;
             var shadow = internal['shadow'];
-            var definition = internal['definition'];
+            // let definition: ComponentDefinition<any> = internal['definition'];
             var named = args.named;
             if (!shadow) return;
             shadow.forEach(function (name) {
@@ -9519,12 +9594,14 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
 
         EnterListOpcode.prototype.toJSON = function toJSON() {
             var slice = this.slice;
+            var type = this.type;
+            var _guid = this._guid;
 
-            var begin = this.slice.head();
-            var end = this.slice.tail();
+            var begin = slice.head();
+            var end = slice.tail();
             return {
-                guid: this._guid,
-                type: this.type,
+                guid: _guid,
+                type: type,
                 args: [JSON.stringify(begin.inspect()), JSON.stringify(end.inspect())]
             };
         };
@@ -9574,12 +9651,14 @@ enifed('glimmer-runtime/lib/compiled/opcodes/lists', ['exports', 'glimmer-runtim
 
         EnterWithKeyOpcode.prototype.toJSON = function toJSON() {
             var slice = this.slice;
+            var _guid = this._guid;
+            var type = this.type;
 
-            var begin = this.slice.head();
-            var end = this.slice.tail();
+            var begin = slice.head();
+            var end = slice.tail();
             return {
-                guid: this._guid,
-                type: this.type,
+                guid: _guid,
+                type: type,
                 args: [JSON.stringify(begin.inspect()), JSON.stringify(end.inspect())]
             };
         };
@@ -9805,9 +9884,6 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
         };
 
         PutValueOpcode.prototype.toJSON = function toJSON() {
-            if (typeof this.expression.toJSON() !== 'string') {
-                debugger;
-            }
             return {
                 guid: this._guid,
                 type: this.type,
@@ -9984,12 +10060,14 @@ enifed('glimmer-runtime/lib/compiled/opcodes/vm', ['exports', 'glimmer-runtime/l
 
         EnterOpcode.prototype.toJSON = function toJSON() {
             var slice = this.slice;
+            var type = this.type;
+            var _guid = this._guid;
 
-            var begin = this.slice.head();
-            var end = this.slice.tail();
+            var begin = slice.head();
+            var end = slice.tail();
             return {
-                guid: this._guid,
-                type: this.type,
+                guid: _guid,
+                type: type,
                 args: [JSON.stringify(begin.inspect()), JSON.stringify(end.inspect())]
             };
         };
@@ -10462,14 +10540,10 @@ enifed("glimmer-runtime/lib/component/interfaces", ["exports"], function (export
     exports.ComponentDefinition = ComponentDefinition;
 });
 
-enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds'], function (exports, _glimmerRuntimeLibBounds) {
+enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds', 'glimmer-runtime/lib/compat/inner-html-fix'], function (exports, _glimmerRuntimeLibBounds, _glimmerRuntimeLibCompatInnerHtmlFix) {
     'use strict';
 
     exports.isWhitespace = isWhitespace;
-
-    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
-
-    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
 
     function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
@@ -10568,72 +10642,8 @@ enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds'], fun
     })();
 
     var helper = DOMHelper;
-    var doc = typeof document === 'undefined' ? false : document;
-    // Patch:    innerHTML Fix
-    // Browsers: IE9
-    // Reason:   IE9 don't allow us to set innerHTML on col, colgroup, frameset,
-    //           html, style, table, tbody, tfoot, thead, title, tr.
-    // Fix:      Wrap the innerHTML we are about to set in its parents, apply the
-    //           wrapped innerHTML on a div, then move the unwrapped nodes into the
-    //           target position.
-    doc && (function applyInnerHTMLFix(document) {
-        var table = document.createElement('table');
-        try {
-            table.innerHTML = '<tbody></tbody>';
-        } catch (e) {} finally {
-            if (table.childNodes.length !== 0) {
-                // It worked as expected, no fix required
-                return;
-            }
-        }
-        var innerHTMLWrapper = {
-            colgroup: { depth: 2, before: '<table><colgroup>', after: '</colgroup></table>' },
-            table: { depth: 1, before: '<table>', after: '</table>' },
-            tbody: { depth: 2, before: '<table><tbody>', after: '</tbody></table>' },
-            tfoot: { depth: 2, before: '<table><tfoot>', after: '</tfoot></table>' },
-            thead: { depth: 2, before: '<table><thead>', after: '</thead></table>' },
-            tr: { depth: 3, before: '<table><tbody><tr>', after: '</tr></tbody></table>' }
-        };
-        var div = document.createElement('div');
-        helper = (function (_DOMHelper) {
-            _inherits(DOMHelperWithInnerHTMLFix, _DOMHelper);
-
-            function DOMHelperWithInnerHTMLFix() {
-                _classCallCheck(this, DOMHelperWithInnerHTMLFix);
-
-                _DOMHelper.apply(this, arguments);
-            }
-
-            DOMHelperWithInnerHTMLFix.prototype.insertHTMLBefore = function insertHTMLBefore(parent, nextSibling, html) {
-                if (html === null || html === '') {
-                    return _DOMHelper.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
-                }
-                var parentTag = parent.tagName.toLowerCase();
-                var wrapper = innerHTMLWrapper[parentTag];
-                if (wrapper === undefined) {
-                    return _DOMHelper.prototype.insertHTMLBefore.call(this, parent, nextSibling, html);
-                }
-                var wrappedHtml = wrapper.before + html + wrapper.after;
-                div.innerHTML = wrappedHtml;
-                var parentNode = div;
-                for (var i = 0; i < wrapper.depth; i++) {
-                    parentNode = parentNode.childNodes[0];
-                }
-                var first = undefined,
-                    last = undefined,
-                    current = undefined;
-                first = current = parentNode.childNodes[0];
-                while (current) {
-                    last = current;
-                    parent.insertBefore(current, nextSibling);
-                    current = current.nextSibling;
-                }
-                return new _glimmerRuntimeLibBounds.ConcreteBounds(parent, first, last);
-            };
-
-            return DOMHelperWithInnerHTMLFix;
-        })(DOMHelper);
-    })(doc);
+    var doc = typeof document === 'undefined' ? undefined : document;
+    helper = _glimmerRuntimeLibCompatInnerHtmlFix.default(doc, DOMHelper);
     exports.default = helper;
     exports.DOMHelper = DOMHelper;
 });
@@ -11176,8 +11186,6 @@ enifed('glimmer-runtime/lib/syntax/core', ['exports', 'glimmer-runtime/lib/synta
     function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
     function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
-
-    var EMPTY_ARRAY = Object.freeze([]);
 
     var Block = (function (_StatementSyntax) {
         _inherits(Block, _StatementSyntax);
@@ -12599,7 +12607,7 @@ enifed("glimmer-runtime/lib/syntax", ["exports"], function (exports) {
     }
 });
 
-enifed('glimmer-runtime/lib/template', ['exports', 'glimmer-reference', 'glimmer-runtime/lib/builder', 'glimmer-runtime/lib/vm/append', 'glimmer-runtime/lib/scanner'], function (exports, _glimmerReference, _glimmerRuntimeLibBuilder, _glimmerRuntimeLibVmAppend, _glimmerRuntimeLibScanner) {
+enifed('glimmer-runtime/lib/template', ['exports', 'glimmer-runtime/lib/builder', 'glimmer-runtime/lib/vm/append', 'glimmer-runtime/lib/scanner'], function (exports, _glimmerRuntimeLibBuilder, _glimmerRuntimeLibVmAppend, _glimmerRuntimeLibScanner) {
     'use strict';
 
     function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -12631,7 +12639,7 @@ enifed('glimmer-runtime/lib/template', ['exports', 'glimmer-reference', 'glimmer
             var blockArguments = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
             var elementStack = new _glimmerRuntimeLibBuilder.ElementStack({ dom: env.getDOM(), parentNode: options.appendTo, nextSibling: null });
-            var vm = _glimmerRuntimeLibVmAppend.default.initial(env, { self: new _glimmerReference.UpdatableReference(self), elementStack: elementStack, size: this.raw.symbolTable.size });
+            var vm = _glimmerRuntimeLibVmAppend.default.initial(env, { self: self, elementStack: elementStack, size: this.raw.symbolTable.size });
             this.raw.compile(env);
             return vm.execute(this.raw.ops);
         };
@@ -12834,7 +12842,6 @@ enifed('glimmer-runtime/lib/vm/append', ['exports', 'glimmer-util', 'glimmer-run
             var updatingOpcodeStack = this.updatingOpcodeStack;
             var env = this.env;
 
-            var self = this.scope().getSelf();
             elementStack.startBounds();
             updatingOpcodeStack.push(new _glimmerUtil.LinkedList());
             frame.push(opcodes);
@@ -12849,10 +12856,9 @@ enifed('glimmer-runtime/lib/vm/append', ['exports', 'glimmer-util', 'glimmer-run
             }
             _glimmerUtil.LOGGER.debug("[VM] Completed program execution");
             return new _glimmerRuntimeLibVmRenderResult.default({
-                env: this.env,
-                updating: this.updatingOpcodeStack.pop(),
-                bounds: elementStack.finishBounds(),
-                self: self // PathReference -> UpdatableReference
+                env: env,
+                updating: updatingOpcodeStack.pop(),
+                bounds: elementStack.finishBounds()
             });
         };
 
@@ -12869,7 +12875,6 @@ enifed('glimmer-runtime/lib/vm/append', ['exports', 'glimmer-util', 'glimmer-run
         };
 
         VM.prototype.invokeLayout = function invokeLayout(_ref3) {
-            var shadow = _ref3.shadow;
             var args = _ref3.args;
             var definition = _ref3.definition;
             var templates = _ref3.templates;
@@ -13077,26 +13082,20 @@ enifed("glimmer-runtime/lib/vm/render-result", ["exports", "glimmer-runtime/lib/
             var env = _ref.env;
             var updating = _ref.updating;
             var bounds = _ref.bounds;
-            var self = _ref.self;
 
             _classCallCheck(this, RenderResult);
 
             this.env = env;
             this.updating = updating;
             this.bounds = bounds;
-            this.self = self;
         }
 
-        RenderResult.prototype.rerender = function rerender(newSelf) {
+        RenderResult.prototype.rerender = function rerender() {
             var env = this.env;
             var updating = this.updating;
-            var self = this.self;
 
             env.begin();
             var vm = new _glimmerRuntimeLibVmUpdate.default(env);
-            if (newSelf !== undefined) {
-                self.update(newSelf);
-            }
             vm.execute(updating, this);
             env.commit();
         };
@@ -13218,7 +13217,9 @@ enifed('glimmer-runtime/lib/vm/update', ['exports', 'glimmer-runtime/lib/bounds'
             var begin = this.ops.head();
             var end = this.ops.tail();
             var details = _glimmerUtil.dict();
-            details["guid"] = "" + this._guid;
+            details["guid"] = '' + this._guid;
+            details["begin"] = begin.inspect();
+            details["end"] = end.inspect();
             return {
                 guid: this._guid,
                 type: this.type,
@@ -15924,16 +15925,17 @@ enifed('glimmer-reference/tests/reference-test', ['exports', 'glimmer-reference'
     }
 });
 
-enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers'], function (exports, _glimmerTestHelpers) {
-    'use strict';
+enifed("glimmer-runtime/tests/component-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
+    "use strict";
 
-    var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+    var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
     var env = undefined,
         root = undefined,
-        result = undefined;
+        result = undefined,
+        self = undefined;
     function rootElement() {
         return env.getDOM().createElement('div', document.body);
     }
@@ -15948,14 +15950,16 @@ enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers
     function render(template) {
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-        result = template.render(context, env, { appendTo: root });
+        self = new _glimmerReference.UpdatableReference(context);
+        result = template.render(self, env, { appendTo: root });
         assertInvariants(result);
         return result;
     }
     function rerender() {
         var context = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-        result.rerender(context);
+        self.update(context);
+        result.rerender();
     }
     function assertInvariants(result) {
         strictEqual(result.firstNode(), root.firstChild, "The firstNode of the result is the same as the root's firstChild");
@@ -15973,7 +15977,7 @@ enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers
         }
 
         _createClass(MyComponent, [{
-            key: 'testing',
+            key: "testing",
             get: function () {
                 if (this.attrs.color === 'red') {
                     return '123';
@@ -16010,7 +16014,7 @@ enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers
         _glimmerTestHelpers.equalTokens(root, "<div color='green'><p>green</p>hello!</div>");
     });
     function testError(layout, expected) {
-        QUnit.skip('\'' + layout + '\' produces an error like ' + expected, function (assert) {
+        QUnit.skip("'" + layout + "' produces an error like " + expected, function (assert) {
             env.registerBasicComponent('my-component', MyComponent, layout);
             var template = compile("<my-component>hello!</my-component>");
             assert.throws(function () {
@@ -16029,14 +16033,15 @@ enifed('glimmer-runtime/tests/component-test', ['exports', 'glimmer-test-helpers
 enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object", "glimmer-test-helpers", "glimmer-util", "glimmer-reference"], function (exports, _glimmerObject, _glimmerTestHelpers, _glimmerUtil, _glimmerReference) {
     "use strict";
 
-    var _templateObject = _taggedTemplateLiteralLoose(["\n      <div>\n        <foo-bar />\n        <foo-bar baz={{zomg}} />\n      </div>"], ["\n      <div>\n        <foo-bar />\n        <foo-bar baz={{zomg}} />\n      </div>"]),
-        _templateObject2 = _taggedTemplateLiteralLoose(["\n        <p>foo bar baz</p>\n        <p>foo bar zomg</p>"], ["\n        <p>foo bar baz</p>\n        <p>foo bar zomg</p>"]),
-        _templateObject3 = _taggedTemplateLiteralLoose(["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"], ["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"]),
-        _templateObject4 = _taggedTemplateLiteralLoose(["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"], ["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"]),
-        _templateObject5 = _taggedTemplateLiteralLoose(["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"], ["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"]),
-        _templateObject6 = _taggedTemplateLiteralLoose(["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"], ["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"]),
-        _templateObject7 = _taggedTemplateLiteralLoose(["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"], ["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"]),
-        _templateObject8 = _taggedTemplateLiteralLoose(["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"], ["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"]);
+    var _templateObject = _taggedTemplateLiteralLoose(["{{#with @a as |item|}}{{@a}}: {{item}}, {{#with @b as |item|}}\n                     {{@b}}: {{item}}, {{#with @c as |item|}}{{@c}}: {{item}}{{/with}}{{/with}}{{/with}}"], ["{{#with @a as |item|}}{{@a}}: {{item}}, {{#with @b as |item|}}\n                     {{@b}}: {{item}}, {{#with @c as |item|}}{{@c}}: {{item}}{{/with}}{{/with}}{{/with}}"]),
+        _templateObject2 = _taggedTemplateLiteralLoose(["\n      <div>\n        <foo-bar />\n        <foo-bar baz={{zomg}} />\n      </div>"], ["\n      <div>\n        <foo-bar />\n        <foo-bar baz={{zomg}} />\n      </div>"]),
+        _templateObject3 = _taggedTemplateLiteralLoose(["\n        <p>foo bar baz</p>\n        <p>foo bar zomg</p>"], ["\n        <p>foo bar baz</p>\n        <p>foo bar zomg</p>"]),
+        _templateObject4 = _taggedTemplateLiteralLoose(["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"], ["\n      {{#each items key=\"id\" as |item|}}\n        <sub-item name={{item.id}} />\n      {{/each}}"]),
+        _templateObject5 = _taggedTemplateLiteralLoose(["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"], ["\n      <aside>{{@item.id}}:\n        {{#if @item.visible}}\n          {{#each @item.subitems key=\"id\" as |subitem|}}\n             <sub-item name={{subitem.id}} />\n          {{/each}}\n        {{/if}}\n      </aside>"]),
+        _templateObject6 = _taggedTemplateLiteralLoose(["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"], ["\n        <article>{{#each items key=\"id\" as |item|}}\n          <my-item item={{item}} />\n        {{/each}}</article>"]),
+        _templateObject7 = _taggedTemplateLiteralLoose(["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"], ["\n        <aside>0:<p>0.0</p><p>0.1</p><!----></aside>\n        <aside>1:<!----></aside>\n        <aside>2:<p>2.0</p><p>2.1</p><!----></aside>\n        <!---->"]),
+        _templateObject8 = _taggedTemplateLiteralLoose(["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"], ["<div>{{sample-component \"Foo\" 4 \"Bar\" id=\"args-3\"}}\n      {{sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"args-5\"}}\n      {{!sample-component \"Foo\" 4 \"Bar\" 5 \"Baz\" id=\"helper\"}}</div>"]),
+        _templateObject9 = _taggedTemplateLiteralLoose(["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"], ["\n      <div>\n        {{x-curly}}\n        {{x-curly}}\n        <x-glimmer />\n        <x-glimmer />\n        {{x-curly}}\n        <x-glimmer />\n      </div>"]);
 
     function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
 
@@ -16057,7 +16062,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
 
         EmberishRootView.prototype.appendTo = function appendTo(selector) {
             var element = this.parent = document.querySelector(selector);
-            this._result = this.template.render(this, this.env, { appendTo: element, hostOptions: { component: this } });
+            var self = new _glimmerReference.UpdatableReference(this);
+            this._result = this.template.render(self, this.env, { appendTo: element, hostOptions: { component: this } });
             this.element = element.firstElementChild;
         };
 
@@ -16066,10 +16072,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
 
             if (context) {
                 this.setProperties(context);
-                this._result.rerender(this);
-            } else {
-                this._result.rerender();
             }
+            this._result.rerender();
             this.element = this.parent.firstElementChild;
         };
 
@@ -16293,7 +16297,6 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                 });
             });
         }
-        var keys = Object.keys(attrs);
         if (!kind || kind === 'glimmer') {
             var test = skip === 'glimmer' ? QUnit.skip : QUnit.test;
             test("glimmer: " + title, function (assert) {
@@ -16306,7 +16309,6 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                 }
                 var layoutBody = glimmerTag('aside', layoutOptions);
                 env.registerEmberishGlimmerComponent('test-component', _glimmerTestHelpers.EmberishGlimmerComponent, " " + layoutBody + "<!-- hi -->");
-                if (!invokeAs) debugger;
                 var invocation = glimmerTag('test-component', invokeAs);
                 assert.ok(true, "generated layout: " + layoutBody);
                 assert.ok(true, "generated invocation: " + invocation);
@@ -16542,7 +16544,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     _module("Components - generic - attrs");
     _module("Components - integration - scope");
     testComponent('correct scope - conflicting local names', {
-        layout: '{{#with @a as |item|}}{{@a}}: {{item}}, {{#with @b as |item|}}{{@b}}: {{item}}, {{#with @c as |item|}}{{@c}}: {{item}}{{/with}}{{/with}}{{/with}}',
+        layout: _glimmerTestHelpers.stripTight(_templateObject),
         invokeAs: { props: { a: '"A"', b: '"B"', c: '"C"' } },
         expected: 'A: A, B: B, C: C'
     });
@@ -16569,8 +16571,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         })(_glimmerTestHelpers.BasicComponent);
 
         env.registerBasicComponent('foo-bar', FooBar, "<p>{{foo}} {{bar}} {{baz}}</p>");
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject), { zomg: "zomg" });
-        _glimmerTestHelpers.equalsElement(view.element, 'div', {}, _glimmerTestHelpers.stripTight(_templateObject2));
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject2), { zomg: "zomg" });
+        _glimmerTestHelpers.equalsElement(view.element, 'div', {}, _glimmerTestHelpers.stripTight(_templateObject3));
     });
     QUnit.test('correct scope - simple', function (assert) {
         env.registerBasicComponent('sub-item', _glimmerTestHelpers.BasicComponent, "<p>{{@name}}</p>");
@@ -16581,12 +16583,12 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                 id: subitemId++
             });
         }
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject3), { items: subitems });
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject4), { items: subitems });
         _glimmerTestHelpers.equalsElement(view.element, 'p', {}, '0');
     });
     QUnit.test('correct scope - complex', function (assert) {
         env.registerBasicComponent('sub-item', _glimmerTestHelpers.BasicComponent, "<p>{{@name}}</p>");
-        env.registerBasicComponent('my-item', _glimmerTestHelpers.BasicComponent, _glimmerTestHelpers.stripTight(_templateObject4));
+        env.registerBasicComponent('my-item', _glimmerTestHelpers.BasicComponent, _glimmerTestHelpers.stripTight(_templateObject5));
         var itemId = 0;
         var items = [];
         for (var i = 0; i < 3; i++) {
@@ -16603,8 +16605,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
                 subitems: subitems
             });
         }
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject5), { items: items });
-        _glimmerTestHelpers.equalsElement(view.element, 'article', {}, _glimmerTestHelpers.stripTight(_templateObject6));
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject6), { items: items });
+        _glimmerTestHelpers.equalsElement(view.element, 'article', {}, _glimmerTestHelpers.stripTight(_templateObject7));
     });
     QUnit.test('correct scope - self', function (assert) {
         var FooBar = (function (_BasicComponent2) {
@@ -16624,8 +16626,8 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
         })(_glimmerTestHelpers.BasicComponent);
 
         env.registerBasicComponent('foo-bar', FooBar, "<p>{{foo}} {{bar}} {{baz}}</p>");
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject), { zomg: "zomg" });
-        _glimmerTestHelpers.equalsElement(view.element, 'div', {}, _glimmerTestHelpers.stripTight(_templateObject2));
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject2), { zomg: "zomg" });
+        _glimmerTestHelpers.equalsElement(view.element, 'div', {}, _glimmerTestHelpers.stripTight(_templateObject3));
     });
     _module('Curly Components - positional arguments');
     QUnit.skip('static named positional parameters', function () {
@@ -16682,7 +16684,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
             positionalParams: 'names'
         });
         env.registerEmberishCurlyComponent('sample-component', SampleComponent, '{{#each names as |name|}}{{name}}{{/each}}');
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject7));
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject8));
         var first = view.element.firstChild;
         var second = first.nextSibling;
         // let third = <Element>second.nextSibling;
@@ -16842,7 +16844,7 @@ enifed("glimmer-runtime/tests/ember-component-test", ["exports", "glimmer-object
     QUnit.test('emberish component should have unique IDs', function (assert) {
         env.registerEmberishCurlyComponent('x-curly', null, '');
         env.registerEmberishGlimmerComponent('x-glimmer', null, '<div></div>');
-        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject8));
+        appendViewFor(_glimmerTestHelpers.stripTight(_templateObject9));
         _glimmerTestHelpers.equalsElement(view.element.childNodes[0], 'div', { id: _glimmerTestHelpers.regex(/^ember\d*$/), class: 'ember-view' }, '');
         _glimmerTestHelpers.equalsElement(view.element.childNodes[1], 'div', { id: _glimmerTestHelpers.regex(/^ember\d*$/), class: 'ember-view' }, '');
         _glimmerTestHelpers.equalsElement(view.element.childNodes[2], 'div', { id: _glimmerTestHelpers.regex(/^ember\d*$/), class: 'ember-view' }, '');
@@ -17687,7 +17689,7 @@ enifed("glimmer-runtime/tests/extern", ["exports"], function (exports) {
   "use strict";
 });
 
-enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", "glimmer-test-helpers"], function (exports, _glimmerUtil, _glimmerTestHelpers) {
+enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerUtil, _glimmerTestHelpers, _glimmerReference) {
     "use strict";
 
     var env = undefined,
@@ -17713,7 +17715,7 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
         root = rootElement();
     }
     function render(template, self) {
-        return template.render(self, env, { appendTo: root });
+        return template.render(new _glimmerReference.UpdatableReference(self), env, { appendTo: root });
     }
     function _module(name) {
         return QUnit.module(name, {
@@ -18370,17 +18372,19 @@ enifed("glimmer-runtime/tests/initial-render-test", ["exports", "glimmer-util", 
     if (document.createElement('div').namespaceURI) {}
 });
 
-enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'], function (exports, _glimmerTestHelpers) {
-    'use strict';
+enifed("glimmer-runtime/tests/updating-test", ["exports", "glimmer-test-helpers", "glimmer-reference"], function (exports, _glimmerTestHelpers, _glimmerReference) {
+    "use strict";
 
-    var _templateObject = _taggedTemplateLiteralLoose(['<ul><li class=\'mmun\'>Martin Muñoz</li><li class=\'krisselden\'>Kristoph Selden</li>\n        <li class=\'mixonic\'>Matthew Beale</li><!----></ul>'], ['<ul><li class=\'mmun\'>Martin Muñoz</li><li class=\'krisselden\'>Kristoph Selden</li>\n        <li class=\'mixonic\'>Matthew Beale</li><!----></ul>']),
-        _templateObject2 = _taggedTemplateLiteralLoose(['<ul><li class=\'mmun\'>Martin Muñoz</li><li class=\'stefanpenner\'>Stefan Penner</li>\n        <li class=\'rwjblue\'>Robert Jackson</li><!----></ul>'], ['<ul><li class=\'mmun\'>Martin Muñoz</li><li class=\'stefanpenner\'>Stefan Penner</li>\n        <li class=\'rwjblue\'>Robert Jackson</li><!----></ul>']);
+    var _templateObject = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kristoph Selden</li>\n        <li class='mixonic'>Matthew Beale</li><!----></ul>"]),
+        _templateObject2 = _taggedTemplateLiteralLoose(["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li><!----></ul>"], ["<ul><li class='mmun'>Martin Muñoz</li><li class='stefanpenner'>Stefan Penner</li>\n        <li class='rwjblue'>Robert Jackson</li><!----></ul>"]);
 
     function _taggedTemplateLiteralLoose(strings, raw) { strings.raw = raw; return strings; }
 
     var hooks = undefined,
         root = undefined;
     var env = undefined;
+    var self = undefined;
+    var result = undefined;
     function compile(template) {
         return env.compile(template);
     }
@@ -18395,9 +18399,16 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
     function render(template) {
         var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-        var result = template.render(context, env, { appendTo: root });
+        self = new _glimmerReference.UpdatableReference(context);
+        result = template.render(self, env, { appendTo: root });
         assertInvariants(result);
         return result;
+    }
+    function rerender() {
+        var context = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+
+        if (context !== null) self.update(context);
+        result.rerender();
     }
     QUnit.module("Updating", {
         setup: commonSetup
@@ -18405,28 +18416,28 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
     test("updating a single curly", function () {
         var object = { value: 'hello world' };
         var template = compile('<div><p>{{value}}</p></div>');
-        var result = render(template, object);
+        render(template, object);
         var valueNode = root.firstChild.firstChild.firstChild;
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "no change");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
         object.value = 'goodbye world';
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>goodbye world</p></div>', "After updating and dirtying");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
     });
     test("updating a single trusting curly", function () {
         var object = { value: '<p>hello world</p>' };
         var template = compile('<div>{{{value}}}</div>');
-        var result = render(template, object);
+        render(template, object);
         var valueNode = root.firstChild.firstChild.firstChild;
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "no change");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
         object.value = '<span>goodbye world</span>';
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><span>goodbye world</span></div>', "After updating and dirtying");
         notStrictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was blown away");
     });
@@ -18436,143 +18447,142 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         var b = '<p>B</p>';
         var object = { value: a };
         var template = compile('<div>{{{value}}}</div>');
-        var result = render(template, object);
-        var valueNode = root.firstChild.firstChild.firstChild;
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><p>A</p></div>', "Initial render");
         object.value = b;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>B</p></div>', "Updating");
         // Change it back
         object.value = a;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>A</p></div>', "Updating");
         // Change it back
         object.value = b;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>B</p></div>', "Updating");
     });
     test("a simple implementation of a dirtying rerender", function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         var valueNode = root.firstChild.firstChild.firstChild;
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "After dirtying but not updating");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
         // Even though the #if was stable, a dirty child node is updated
         object.value = 'goodbye world';
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>goodbye world</p></div>', "After updating and dirtying");
         strictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "And then dirtying");
         QUnit.notStrictEqual(root.firstChild.firstChild.firstChild, valueNode, "The text node was not blown away");
     });
     test('The if helper should consider an empty array falsy', function () {
         var object = { condition: [], value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>');
         object.condition.push('thing');
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
         object.condition.pop();
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>');
     });
     test("a simple implementation of a dirtying rerender without inverse", function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "If the condition is false, the morph becomes empty");
         object.condition = true;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is true, the morph repopulates");
     });
     test('The unless helper without inverse', function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{/unless}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "Initial render");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the morph becomes populated");
         object.condition = true;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "If the condition is true, the morph unpopulated");
     });
     test('The unless helper with inverse', function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/unless}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "Initial render");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the default renders");
         object.condition = true;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "If the condition is true, the inverse renders");
     });
     test('The unless helper should consider an empty array falsy', function () {
         var object = { condition: [], value: 'hello world' };
         var template = compile('<div>{{#unless condition}}<p>{{value}}</p>{{else}}<p>Nothing</p>{{/unless}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "Initial render");
         object.condition.push(1);
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>Nothing</p></div>', "If the condition is true, the inverse renders");
         object.condition.pop();
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is false, the default renders");
     });
     test("a conditional that is false on the first run", function (assert) {
         var object = { condition: false, value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "Initial render");
         object.condition = true;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><p>hello world</p></div>', "If the condition is true, the morph populates");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "If the condition is false, the morph is empty");
     });
     test("block arguments", function (assert) {
         var template = compile("<div>{{#with person.name.first as |f|}}{{f}}{{/with}}</div>");
         var object = { person: { name: { first: "Godfrey", last: "Chan" } } };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div>Godfrey</div>', "Initial render");
         object.person.name.first = "Godfreak";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>Godfreak</div>', "After updating");
     });
     test("block arguments (ensure balanced push/pop)", function (assert) {
         var template = compile("<div>{{#with person.name.first as |f|}}{{f}}{{/with}}{{f}}</div>");
         var object = { person: { name: { first: "Godfrey", last: "Chan" } }, f: "Outer" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div>GodfreyOuter</div>', "Initial render");
         object.person.name.first = "Godfreak";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>GodfreakOuter</div>', "After updating");
     });
     test("The with helper should consider an empty array falsy", function (assert) {
         var object = { condition: [] };
         var template = compile("<div>{{#with condition as |c|}}{{c.length}}{{/with}}</div>");
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, '<div><!----></div>', "Initial render");
         object.condition.push(1);
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>1</div>', "After updating");
     });
     test("block helpers whose template has a morph at the edge", function () {
         var template = compile("{{#identity}}{{value}}{{/identity}}");
         var object = { value: "hello world" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, 'hello world');
         var firstNode = result.firstNode();
         equal(firstNode.nodeType, 3, "the first node of the helper should be a text node");
@@ -18580,20 +18590,20 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         strictEqual(firstNode.nextSibling, null, "there should only be one nodes");
     });
     function assertInvariants(result, msg) {
-        strictEqual(result.firstNode(), root.firstChild, 'The firstNode of the result is the same as the root\'s firstChild' + (msg ? ': ' + msg : ''));
-        strictEqual(result.lastNode(), root.lastChild, 'The lastNode of the result is the same as the root\'s lastChild' + (msg ? ': ' + msg : ''));
+        strictEqual(result.firstNode(), root.firstChild, "The firstNode of the result is the same as the root's firstChild" + (msg ? ': ' + msg : ''));
+        strictEqual(result.lastNode(), root.lastChild, "The lastNode of the result is the same as the root's lastChild" + (msg ? ': ' + msg : ''));
     }
     test("clean content doesn't get blown away", function () {
         var template = compile("<div>{{value}}</div>");
         var object = { value: "hello" };
-        var result = render(template, object);
+        render(template, object);
         var textNode = result.firstNode().firstChild;
         equal(textNode.nodeValue, "hello");
         object.value = "goodbye";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>goodbye</div>');
         object.value = "hello";
-        result.rerender();
+        rerender();
         textNode = root.firstChild.firstChild;
         equal(textNode.nodeValue, "hello");
     });
@@ -18603,135 +18613,135 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         });
         var template = compile("<div>{{capitalize value}}</div>");
         var object = { value: "hello" };
-        var result = render(template, object);
+        render(template, object);
         var textNode = result.firstNode().firstChild;
         equal(textNode.nodeValue, "HELLO");
         object.value = "goodbye";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>GOODBYE</div>');
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, '<div>GOODBYE</div>');
         // Checks normalized value, not raw value
         object.value = "GoOdByE";
-        result.rerender();
+        rerender();
         textNode = root.firstChild.firstChild;
         equal(textNode.nodeValue, "GOODBYE");
     });
     test("class attribute follow the normal dirtying rules", function () {
         var template = compile("<div class='{{value}}'>hello</div>");
         var object = { value: "world" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div class='world'>hello</div>", "Initial render");
         object.value = "universe";
-        result.rerender(); // without setting the node to dirty
+        rerender(); // without setting the node to dirty
         _glimmerTestHelpers.equalTokens(root, "<div class='universe'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='universe'>hello</div>", "Revalidating after dirtying");
         object.value = "world";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='world'>hello</div>", "Revalidating after dirtying");
     });
     test("class attribute w/ concat follow the normal dirtying rules", function () {
         var template = compile("<div class='hello {{value}}'>hello</div>");
         var object = { value: "world" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
         object.value = "universe";
-        result.rerender(); // without setting the node to dirty
+        rerender(); // without setting the node to dirty
         _glimmerTestHelpers.equalTokens(root, "<div class='hello universe'>hello</div>");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello universe'>hello</div>");
         object.value = "world";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div class='hello world'>hello</div>");
     });
     test("attribute nodes follow the normal dirtying rules", function () {
         var template = compile("<div data-value='{{value}}'>hello</div>");
         var object = { value: "world" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div data-value='world'>hello</div>", "Initial render");
         object.value = "universe";
-        result.rerender(); // without setting the node to dirty
+        rerender(); // without setting the node to dirty
         _glimmerTestHelpers.equalTokens(root, "<div data-value='universe'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='universe'>hello</div>", "Revalidating after dirtying");
         object.value = "world";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='world'>hello</div>", "Revalidating after dirtying");
     });
     test("attribute nodes w/ concat follow the normal dirtying rules", function () {
         var template = compile("<div data-value='hello {{value}}'>hello</div>");
         var object = { value: "world" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
         object.value = "universe";
-        result.rerender(); // without setting the node to dirty
+        rerender(); // without setting the node to dirty
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello universe'>hello</div>");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello universe'>hello</div>");
         object.value = "world";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div data-value='hello world'>hello</div>");
     });
     test("namespaced attribute nodes follow the normal dirtying rules", function () {
         var template = compile("<div xml:lang='{{lang}}'>hello</div>");
         var object = { lang: "en-us" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
         object.lang = "en-uk";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
     });
     test("namespaced attribute nodes w/ concat follow the normal dirtying rules", function () {
         var template = compile("<div xml:lang='en-{{locale}}'>hello</div>");
         var object = { locale: "us" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-us'>hello</div>", "Initial render");
         object.locale = "uk";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div xml:lang='en-uk'>hello</div>", "Revalidating after dirtying");
     });
     test("non-standard namespaced attribute nodes follow the normal dirtying rules", function () {
         var template = compile("<div epub:type='{{type}}'>hello</div>");
         var object = { type: "dedication" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication'>hello</div>", "Initial render");
         object.type = "backmatter";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='backmatter'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='backmatter'>hello</div>", "Revalidating after dirtying");
     });
     test("non-standard namespaced attribute nodes w/ concat follow the normal dirtying rules", function () {
         var template = compile("<div epub:type='dedication {{type}}'>hello</div>");
         var object = { type: "backmatter" };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication backmatter'>hello</div>", "Initial render");
         object.type = "index";
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication index'>hello</div>", "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div epub:type='dedication index'>hello</div>", "Revalidating after dirtying");
     });
     test("property nodes follow the normal dirtying rules", function () {
         var template = compile("<div foo={{value}}>hello</div>");
         var object = { value: true };
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div>hello</div>", "Initial render");
         strictEqual(root.firstChild['foo'], true, "Initial render");
         object.value = false;
-        result.rerender(); // without setting the node to dirty
+        rerender(); // without setting the node to dirty
         _glimmerTestHelpers.equalTokens(root, "<div>hello</div>", "Revalidating without dirtying");
         strictEqual(root.firstChild['foo'], false, "Revalidating without dirtying");
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div>hello</div>", "Revalidating after dirtying");
         strictEqual(root.firstChild['foo'], false, "Revalidating after dirtying");
         object.value = true;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div>hello</div>", "Revalidating after dirtying");
         strictEqual(root.firstChild['foo'], true, "Revalidating after dirtying");
     });
@@ -18740,18 +18750,18 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
         var tom = { key: "1", name: "Tom Dale", "class": "tomdale" };
         var yehuda = { key: "2", name: "Yehuda Katz", "class": "wycats" };
         var object = { list: [tom, yehuda] };
-        var result = render(template, object);
+        render(template, object);
         assertInvariants(result, "initial render");
-        result.rerender();
+        rerender();
         assertInvariants(result, "after no-op rerender");
         object = { list: [yehuda, tom] };
-        result.rerender(object);
+        rerender(object);
         assertInvariants(result, "after reordering");
         object = { list: [tom] };
-        result.rerender(object);
+        rerender(object);
         assertInvariants(result, "after deleting from the front");
         object = { list: [] };
-        result.rerender(object);
+        rerender(object);
         assertInvariants(result, "after emptying the list");
     });
     testEachHelper("An implementation of #each using block params", "<ul>{{#each list key='key' as |item|}}<li class='{{item.class}}'>{{item.name}}</li>{{/each}}</ul>");
@@ -18764,7 +18774,7 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             var tom = { key: "1", name: "Tom Dale", "class": "tomdale" };
             var yehuda = { key: "2", name: "Yehuda Katz", "class": "wycats" };
             var object = { list: [tom, yehuda] };
-            var result = render(template, object);
+            render(template, object);
             var itemNode = getItemNode('tomdale');
             var nameNode = getNameNode('tomdale');
             _glimmerTestHelpers.equalTokens(root, "<ul><li class='tomdale'>Tom Dale</li><li class='wycats'>Yehuda Katz</li><!----></ul>", "Initial render");
@@ -18781,11 +18791,11 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "2", name: "Kris Selden", "class": "krisselden" }] };
             rerender(object);
             assertStableNodes('mmun', "after changing the list entries, but with stable keys");
-            _glimmerTestHelpers.equalTokens(root, '<ul><li class=\'mmun\'>Martin Muñoz</li><li class=\'krisselden\'>Kris Selden</li><!----></ul>', 'After changing the list entries, but with stable keys');
+            _glimmerTestHelpers.equalTokens(root, "<ul><li class='mmun'>Martin Muñoz</li><li class='krisselden'>Kris Selden</li><!----></ul>", "After changing the list entries, but with stable keys");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "2", name: "Kristoph Selden", "class": "krisselden" }, { key: "3", name: "Matthew Beale", "class": "mixonic" }] };
             rerender(object);
             assertStableNodes('mmun', "after adding an additional entry");
-            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject), 'After adding an additional entry');
+            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject), "After adding an additional entry");
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "3", name: "Matthew Beale", "class": "mixonic" }] };
             rerender(object);
             assertStableNodes('mmun', "after removing the middle entry");
@@ -18793,7 +18803,7 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "4", name: "Stefan Penner", "class": "stefanpenner" }, { key: "5", name: "Robert Jackson", "class": "rwjblue" }] };
             rerender(object);
             assertStableNodes('mmun', "after adding two more entries");
-            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject2), 'After adding two more entries');
+            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject2), "After adding two more entries");
             // New node for stability check
             itemNode = getItemNode('rwjblue');
             nameNode = getNameNode('rwjblue');
@@ -18804,7 +18814,7 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             object = { list: [{ key: "1", name: "Martin Muñoz", "class": "mmun" }, { key: "4", name: "Stefan Penner", "class": "stefanpenner" }, { key: "5", name: "Robert Jackson", "class": "rwjblue" }] };
             rerender(object);
             assertStableNodes('rwjblue', "after adding back entries");
-            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject2), 'After adding back entries');
+            _glimmerTestHelpers.equalTokens(root, _glimmerTestHelpers.stripTight(_templateObject2), "After adding back entries");
             // New node for stability check
             itemNode = getItemNode('mmun');
             nameNode = getNameNode('mmun');
@@ -18816,9 +18826,6 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             rerender(object);
             strictEqual(root.firstChild.firstChild.nodeType, 8, "there are no li's after removing the remaining entry");
             _glimmerTestHelpers.equalTokens(root, "<ul><!----></ul>", "After removing the remaining entries");
-            function rerender(context) {
-                result.rerender(context);
-            }
             function assertStableNodes(className, message) {
                 strictEqual(getItemNode(className), itemNode, "The item node has not changed " + message);
                 strictEqual(getNameNode(className), nameNode, "The name node has not changed " + message);
@@ -18861,14 +18868,14 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
     QUnit.skip("Pruned render nodes invoke a cleanup hook when replaced", function () {
         var object = { condition: true, value: 'hello world', falsy: "Nothing" };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{else}}<p>{{falsy}}</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div><p>hello world</p></div>");
         object.condition = false;
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 1, "cleanup hook was invoked once");
         strictEqual(destroyedRenderNode.lastValue, 'hello world', "The correct render node is passed in");
         object.condition = true;
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 2, "cleanup hook was invoked again");
         strictEqual(destroyedRenderNode.lastValue, 'Nothing', "The correct render node is passed in");
     });
@@ -18879,54 +18886,54 @@ enifed('glimmer-runtime/tests/updating-test', ['exports', 'glimmer-test-helpers'
             list: [{ key: "1", word: 'Hello' }, { key: "2", word: 'World' }]
         };
         var template = compile('<div>{{#if condition}}{{#each list as |item|}}<p>{{item.word}}</p>{{/each}}{{else}}<p>{{falsy}}</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div><p>Hello</p><p>World</p></div>");
         object.condition = false;
-        result.rerender();
+        rerender();
         _glimmerTestHelpers.equalTokens(root, "<div><p>Nothing</p></div>");
         strictEqual(destroyedRenderNodeCount, 5, "cleanup hook was invoked for each morph");
         object.condition = true;
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 6, "cleanup hook was invoked again");
     });
     QUnit.skip("Pruned render nodes invoke a cleanup hook when cleared", function () {
         var object = { condition: true, value: 'hello world' };
         var template = compile('<div>{{#if condition}}<p>{{value}}</p>{{/if}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div><p>hello world</p></div>");
         object.condition = false;
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 1, "cleanup hook was invoked once");
         strictEqual(destroyedRenderNode.lastValue, 'hello world', "The correct render node is passed in");
         object.condition = true;
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 1, "cleanup hook was not invoked again");
     });
     QUnit.skip("Pruned lists invoke a cleanup hook when removing elements", function () {
         var object = { list: [{ key: "1", word: "hello" }, { key: "2", word: "world" }] };
         var template = compile('<div>{{#each list as |item|}}<p>{{item.word}}</p>{{/each}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div><p>hello</p><p>world</p></div>");
         object.list.pop();
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 2, "cleanup hook was invoked once for the wrapper morph and once for the {{item.word}}");
         strictEqual(destroyedRenderNode.lastValue, "world", "The correct render node is passed in");
         object.list.pop();
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 4, "cleanup hook was invoked once for the wrapper morph and once for the {{item.word}}");
         strictEqual(destroyedRenderNode.lastValue, "hello", "The correct render node is passed in");
     });
     QUnit.skip("Pruned lists invoke a cleanup hook on their subtrees when removing elements", function () {
         var object = { list: [{ key: "1", word: "hello" }, { key: "2", word: "world" }] };
         var template = compile('<div>{{#each list as |item|}}<p>{{#if item.word}}{{item.word}}{{/if}}</p>{{/each}}</div>');
-        var result = render(template, object);
+        render(template, object);
         _glimmerTestHelpers.equalTokens(root, "<div><p>hello</p><p>world</p></div>");
         object.list.pop();
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 3, "cleanup hook was invoked once for the wrapper morph and once for the {{item.word}}");
         strictEqual(destroyedRenderNode.lastValue, "world", "The correct render node is passed in");
         object.list.pop();
-        result.rerender();
+        rerender();
         strictEqual(destroyedRenderNodeCount, 6, "cleanup hook was invoked once for the wrapper morph and once for the {{item.word}}");
         strictEqual(destroyedRenderNode.lastValue, "hello", "The correct render node is passed in");
     });
@@ -19703,19 +19710,11 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return _GlimmerObject.create.call(this, args);
         };
 
-        EmberishCurlyComponent.prototype.didInitAttrs = function didInitAttrs(_ref) {
-            var attrs = _ref.attrs;
-        };
+        EmberishCurlyComponent.prototype.didInitAttrs = function didInitAttrs(options) {};
 
-        EmberishCurlyComponent.prototype.didUpdateAttrs = function didUpdateAttrs(_ref2) {
-            var oldAttrs = _ref2.oldAttrs;
-            var newAttrs = _ref2.newAttrs;
-        };
+        EmberishCurlyComponent.prototype.didUpdateAttrs = function didUpdateAttrs(diff) {};
 
-        EmberishCurlyComponent.prototype.didReceiveAttrs = function didReceiveAttrs(_ref3) {
-            var oldAttrs = _ref3.oldAttrs;
-            var newAttrs = _ref3.newAttrs;
-        };
+        EmberishCurlyComponent.prototype.didReceiveAttrs = function didReceiveAttrs(diff) {};
 
         EmberishCurlyComponent.prototype.willInsertElement = function willInsertElement() {};
 
@@ -19752,19 +19751,11 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             return _GlimmerObject2.create.call(this, args);
         };
 
-        EmberishGlimmerComponent.prototype.didInitAttrs = function didInitAttrs(_ref4) {
-            var attrs = _ref4.attrs;
-        };
+        EmberishGlimmerComponent.prototype.didInitAttrs = function didInitAttrs(options) {};
 
-        EmberishGlimmerComponent.prototype.didUpdateAttrs = function didUpdateAttrs(_ref5) {
-            var oldAttrs = _ref5.oldAttrs;
-            var newAttrs = _ref5.newAttrs;
-        };
+        EmberishGlimmerComponent.prototype.didUpdateAttrs = function didUpdateAttrs(diff) {};
 
-        EmberishGlimmerComponent.prototype.didReceiveAttrs = function didReceiveAttrs(_ref6) {
-            var oldAttrs = _ref6.oldAttrs;
-            var newAttrs = _ref6.newAttrs;
-        };
+        EmberishGlimmerComponent.prototype.didReceiveAttrs = function didReceiveAttrs(diff) {};
 
         EmberishGlimmerComponent.prototype.willInsertElement = function willInsertElement() {};
 
@@ -19933,16 +19924,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _Environment.call(this, dom || new _glimmerRuntime.DOMHelper(document), _glimmerReference.Meta);
             this.helpers = {};
             this.components = _glimmerUtil.dict();
-            this.registerHelper("if", function (_ref7) {
-                var cond = _ref7[0];
-                var yes = _ref7[1];
-                var no = _ref7[2];
+            this.registerHelper("if", function (_ref) {
+                var cond = _ref[0];
+                var yes = _ref[1];
+                var no = _ref[2];
                 return cond ? yes : no;
             });
-            this.registerHelper("unless", function (_ref8) {
-                var cond = _ref8[0];
-                var yes = _ref8[1];
-                var no = _ref8[2];
+            this.registerHelper("unless", function (_ref2) {
+                var cond = _ref2[0];
+                var yes = _ref2[1];
+                var no = _ref2[2];
                 return cond ? no : yes;
             });
         }
@@ -19969,6 +19960,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         TestEnvironment.prototype.registerEmberishGlimmerComponent = function registerEmberishGlimmerComponent(name, Component, layout) {
             var definition = new EmberishGlimmerComponentDefinition(name, EMBERISH_GLIMMER_COMPONENT_MANAGER, Component, layout);
             return this.registerComponent(name, definition);
+        };
+
+        TestEnvironment.prototype.rootReferenceFor = function rootReferenceFor(object) {
+            return new _glimmerReference.UpdatableReference(object);
         };
 
         TestEnvironment.prototype.toConditionalReference = function toConditionalReference(reference) {
@@ -20065,10 +20060,10 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var CurlyComponentSyntax = (function (_StatementSyntax) {
         _inherits(CurlyComponentSyntax, _StatementSyntax);
 
-        function CurlyComponentSyntax(_ref9) {
-            var args = _ref9.args;
-            var definition = _ref9.definition;
-            var templates = _ref9.templates;
+        function CurlyComponentSyntax(_ref3) {
+            var args = _ref3.args;
+            var definition = _ref3.definition;
+            var templates = _ref3.templates;
 
             _classCallCheck(this, CurlyComponentSyntax);
 
@@ -20103,13 +20098,13 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
 
         GenericComponentDefinition.prototype.getLayout = function getLayout(env) {
             if (!this.compiledLayout) {
-                this.compiledLayout = env.compileLayout(this.layout);
+                this.compiledLayout = _glimmerTestHelpersLibHelpers.compileLayout(this.layout, { env: env });
             }
             return this.compiledLayout;
         };
 
-        GenericComponentDefinition.prototype.compile = function compile(_ref10) {
-            var env = _ref10.env;
+        GenericComponentDefinition.prototype.compile = function compile(_ref4) {
+            var env = _ref4.env;
 
             var _getLayout = this.getLayout(env);
 
@@ -20216,8 +20211,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _GenericComponentDefinition2.apply(this, arguments);
         }
 
-        EmberishCurlyComponentDefinition.prototype.compile = function compile(_ref11) {
-            var env = _ref11.env;
+        EmberishCurlyComponentDefinition.prototype.compile = function compile(_ref5) {
+            var env = _ref5.env;
 
             var tag = 'div';
             var body = this.getLayout(env).program;
@@ -20239,9 +20234,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
             _GenericComponentDefinition3.apply(this, arguments);
         }
 
-        EmberishGlimmerComponentDefinition.prototype.compile = function compile(_ref12) {
-            var env = _ref12.env;
-            var symbolTable = _ref12.symbolTable;
+        EmberishGlimmerComponentDefinition.prototype.compile = function compile(_ref6) {
+            var env = _ref6.env;
+            var symbolTable = _ref6.symbolTable;
 
             var _GenericComponentDefinition3$prototype$compile$call = _GenericComponentDefinition3.prototype.compile.call(this, { env: env, symbolTable: symbolTable });
 
@@ -20316,9 +20311,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var EachSyntax = (function (_StatementSyntax2) {
         _inherits(EachSyntax, _StatementSyntax2);
 
-        function EachSyntax(_ref13) {
-            var args = _ref13.args;
-            var templates = _ref13.templates;
+        function EachSyntax(_ref7) {
+            var args = _ref7.args;
+            var templates = _ref7.templates;
 
             _classCallCheck(this, EachSyntax);
 
@@ -20374,9 +20369,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var IdentitySyntax = (function (_StatementSyntax3) {
         _inherits(IdentitySyntax, _StatementSyntax3);
 
-        function IdentitySyntax(_ref14) {
-            var args = _ref14.args;
-            var templates = _ref14.templates;
+        function IdentitySyntax(_ref8) {
+            var args = _ref8.args;
+            var templates = _ref8.templates;
 
             _classCallCheck(this, IdentitySyntax);
 
@@ -20396,9 +20391,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var RenderInverseIdentitySyntax = (function (_StatementSyntax4) {
         _inherits(RenderInverseIdentitySyntax, _StatementSyntax4);
 
-        function RenderInverseIdentitySyntax(_ref15) {
-            var args = _ref15.args;
-            var templates = _ref15.templates;
+        function RenderInverseIdentitySyntax(_ref9) {
+            var args = _ref9.args;
+            var templates = _ref9.templates;
 
             _classCallCheck(this, RenderInverseIdentitySyntax);
 
@@ -20418,9 +20413,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var UnlessSyntax = (function (_StatementSyntax5) {
         _inherits(UnlessSyntax, _StatementSyntax5);
 
-        function UnlessSyntax(_ref16) {
-            var args = _ref16.args;
-            var templates = _ref16.templates;
+        function UnlessSyntax(_ref10) {
+            var args = _ref10.args;
+            var templates = _ref10.templates;
 
             _classCallCheck(this, UnlessSyntax);
 
@@ -20474,9 +20469,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var IfSyntax = (function (_StatementSyntax6) {
         _inherits(IfSyntax, _StatementSyntax6);
 
-        function IfSyntax(_ref17) {
-            var args = _ref17.args;
-            var templates = _ref17.templates;
+        function IfSyntax(_ref11) {
+            var args = _ref11.args;
+            var templates = _ref11.templates;
 
             _classCallCheck(this, IfSyntax);
 
@@ -20530,9 +20525,9 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
     var WithSyntax = (function (_StatementSyntax7) {
         _inherits(WithSyntax, _StatementSyntax7);
 
-        function WithSyntax(_ref18) {
-            var args = _ref18.args;
-            var templates = _ref18.templates;
+        function WithSyntax(_ref12) {
+            var args = _ref12.args;
+            var templates = _ref12.templates;
 
             _classCallCheck(this, WithSyntax);
 
@@ -28084,7 +28079,7 @@ enifed('ember-extension-support/index', ['exports', 'ember-metal/core', 'ember-e
   _emberMetalCore.default.DataAdapter = _emberExtensionSupportData_adapter.default;
   _emberMetalCore.default.ContainerDebugAdapter = _emberExtensionSupportContainer_debug_adapter.default;
 });
-enifed('ember-glimmer/ember-metal-views/index', ['exports'], function (exports) {
+enifed('ember-glimmer/ember-metal-views/index', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
   'use strict';
 
   function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
@@ -28104,9 +28099,10 @@ enifed('ember-glimmer/ember-metal-views/index', ['exports'], function (exports) 
 
     Renderer.prototype.appendTo = function appendTo(view, target) {
       var env = this._env;
+      var self = new _emberGlimmerEnvironment.RootReference(view);
 
       env.begin();
-      var result = view.template.render(view, env, { appendTo: target });
+      var result = view.template.render(self, env, { appendTo: target });
       env.commit();
 
       // FIXME: Store this somewhere else
@@ -28173,8 +28169,100 @@ enifed("ember-glimmer/ember-template-compiler/system/template", ["exports"], fun
     return JSON.parse(templateSpec);
   }
 });
-enifed("ember-glimmer", ["exports"], function (exports) {
-  "use strict";
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberMetalProperty_get) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  // @implements PathReference
+
+  var RootReference = (function () {
+    function RootReference(value) {
+      _classCallCheck(this, RootReference);
+
+      this._value = value;
+    }
+
+    // @implements PathReference
+
+    RootReference.prototype.value = function value() {
+      return this._value;
+    };
+
+    RootReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    RootReference.prototype.get = function get(propertyKey) {
+      return new PropertyReference(this, propertyKey);
+    };
+
+    RootReference.prototype.destroy = function destroy() {};
+
+    return RootReference;
+  })();
+
+  exports.RootReference = RootReference;
+
+  var PropertyReference = (function () {
+    function PropertyReference(parentReference, propertyKey) {
+      _classCallCheck(this, PropertyReference);
+
+      this._parentReference = parentReference;
+      this._propertyKey = propertyKey;
+    }
+
+    PropertyReference.prototype.value = function value() {
+      return _emberMetalProperty_get.get(this._parentReference.value(), this._propertyKey);
+    };
+
+    PropertyReference.prototype.isDirty = function isDirty() {
+      return true;
+    };
+
+    PropertyReference.prototype.get = function get(propertyKey) {
+      return new PropertyReference(this, propertyKey);
+    };
+
+    PropertyReference.prototype.destroy = function destroy() {};
+
+    return PropertyReference;
+  })();
+
+  var _default = (function (_Environment) {
+    _inherits(_default, _Environment);
+
+    function _default() {
+      _classCallCheck(this, _default);
+
+      _Environment.apply(this, arguments);
+    }
+
+    _default.prototype.hasComponentDefinition = function hasComponentDefinition() {
+      return false;
+    };
+
+    _default.prototype.hasHelper = function hasHelper() {
+      return false;
+    };
+
+    _default.prototype.rootReferenceFor = function rootReferenceFor(value) {
+      return new RootReference(value);
+    };
+
+    return _default;
+  })(_glimmerRuntime.Environment);
+
+  exports.default = _default;
+});
+enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
+  'use strict';
+
+  exports.Environment = _emberGlimmerEnvironment.default;
 });
 enifed('ember-htmlbars/compat', ['exports', 'ember-metal/core', 'ember-htmlbars/utils/string'], function (exports, _emberMetalCore, _emberHtmlbarsUtilsString) {
   'use strict';
@@ -31410,7 +31498,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+0b96dcee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+1b4ab395';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -37105,7 +37193,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+0b96dcee
+    @version 2.5.0-canary+1b4ab395
     @public
   */
 
@@ -37147,11 +37235,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+0b96dcee'
+    @default '2.5.0-canary+1b4ab395'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+0b96dcee';
+  Ember.VERSION = '2.5.0-canary+1b4ab395';
 
   /**
     The hash of environment variables used to control various configuration
@@ -51082,7 +51170,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+0b96dcee';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+1b4ab395';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51585,7 +51673,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+0b96dcee';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+1b4ab395';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -60579,7 +60667,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+0b96dcee',
+        revision: 'Ember@2.5.0-canary+1b4ab395',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -65920,7 +66008,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+0b96dcee';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+1b4ab395';
 
   /**
   @module ember

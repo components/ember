@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+0b96dcee
+ * @version   2.5.0-canary+1b4ab395
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15783,7 +15783,7 @@ enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-met
     equal(updatesCalled, 1, 'Release function removes observers');
   });
 });
-enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -15872,6 +15872,65 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       this.assertSameNode(text1, text4);
     };
 
+    _class2.prototype['@test it can render a dynamic text node with deeply nested paths'] = function testItCanRenderADynamicTextNodeWithDeeplyNestedPaths() {
+      this.render('{{a.b.c.d.e.f}}', {
+        a: { b: { c: { d: { e: { f: 'hello' } } } } }
+      });
+      var text1 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.rerender();
+      var text2 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text2);
+
+      _emberMetalProperty_set.set(this.context, 'a.b.c.d.e.f', 'goodbye');
+
+      this.rerender();
+      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
+
+      this.assertSameNode(text1, text3);
+
+      _emberMetalProperty_set.set(this.context, 'a.b.c.d.e.f', 'hello');
+
+      this.rerender();
+      var text4 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text4);
+    };
+
+    _class2.prototype['@test it can render a dynamic text node where the value is a computed property'] = function testItCanRenderADynamicTextNodeWhereTheValueIsAComputedProperty() {
+      var Formatter = _emberRuntimeSystemObject.default.extend({
+        formattedMessage: _emberMetalComputed.computed('message', function () {
+          return this.get('message').toUpperCase();
+        })
+      });
+
+      var m = Formatter.create({ message: 'hello' });
+
+      this.render('{{m.formattedMessage}}', { m: m });
+
+      var text1 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.rerender();
+      var text2 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.assertSameNode(text1, text2);
+
+      _emberMetalProperty_set.set(m, 'message', 'goodbye');
+
+      this.rerender();
+      var text3 = this.assertTextNode(this.firstChild, 'GOODBYE');
+
+      this.assertSameNode(text1, text3);
+
+      _emberMetalProperty_set.set(m, 'message', 'hello');
+
+      this.rerender();
+      var text4 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.assertSameNode(text1, text4);
+    };
+
     _class2.prototype['@test it can render a dynamic element'] = function testItCanRenderADynamicElement() {
       this.render('<p>{{message}}</p>', {
         message: 'hello'
@@ -15934,10 +15993,10 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
-enifed('ember-glimmer/tests/utils/environment', ['exports', 'glimmer-test-helpers'], function (exports, _glimmerTestHelpers) {
+enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], function (exports, _emberGlimmer) {
   'use strict';
 
-  exports.default = _glimmerTestHelpers.TestEnvironment;
+  exports.default = _emberGlimmer.Environment;
 });
 enifed('ember-glimmer/tests/utils/helpers', ['exports', 'glimmer-runtime', 'ember-glimmer/ember-metal-views', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _glimmerRuntime, _emberGlimmerEmberMetalViews, _emberGlimmerEmberTemplateCompilerSystemCompile) {
   'use strict';
@@ -53850,7 +53909,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+0b96dcee', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+1b4ab395', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
