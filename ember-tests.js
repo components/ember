@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+1b4ab395
+ * @version   2.5.0-canary+687f2812
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -54148,6 +54148,53 @@ enifed('ember-runtime/tests/utils', ['exports', 'ember-metal/run_loop'], functio
 enifed("ember-template-compiler/tests/main_test", ["exports"], function (exports) {
   "use strict";
 });
+enifed('ember-template-compiler/tests/plugins/assert-no-each-in-test', ['exports', 'ember-metal/core', 'ember-template-compiler'], function (exports, _emberMetalCore, _emberTemplateCompiler) {
+  'use strict';
+
+  var legacyViewSupportOriginalValue = undefined;
+
+  QUnit.module('ember-template-compiler: assert-no-each-in-test without legacy view support', {
+    setup: function () {
+      legacyViewSupportOriginalValue = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = false;
+    },
+
+    teardown: function () {
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = legacyViewSupportOriginalValue;
+    }
+  });
+
+  QUnit.test('{{#each foo in bar}} is not allowed', function () {
+    expect(1);
+
+    expectAssertion(function () {
+      _emberTemplateCompiler.compile('{{#each person in people}}{{person.name}}{{/each}}', {
+        moduleName: 'foo/bar/baz'
+      });
+    }, 'Using {{#each person in people}} (\'foo/bar/baz\' @ L1:C0) is no longer supported in Ember 2.0+, please use {{#each people as |person|}}');
+  });
+
+  QUnit.module('ember-template-compiler: assert-no-each-in-test with legacy view support', {
+    setup: function () {
+      legacyViewSupportOriginalValue = _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT;
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = true;
+    },
+
+    teardown: function () {
+      _emberMetalCore.default.ENV._ENABLE_LEGACY_VIEW_SUPPORT = legacyViewSupportOriginalValue;
+    }
+  });
+
+  QUnit.test('{{#each foo in bar}} is allowed', function () {
+    expect(1);
+
+    _emberTemplateCompiler.compile('{{#each person in people}}{{person.name}}{{/each}}', {
+      moduleName: 'foo/bar/baz'
+    });
+
+    ok(true);
+  });
+});
 enifed('ember-template-compiler/tests/plugins/transform-each-into-collection-test', ['exports', 'ember-template-compiler', 'ember-htmlbars/tests/utils', 'ember-template-compiler/plugins/transform-each-into-collection'], function (exports, _emberTemplateCompiler, _emberHtmlbarsTestsUtils, _emberTemplateCompilerPluginsTransformEachIntoCollection) {
   'use strict';
 
@@ -54353,7 +54400,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+1b4ab395', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+687f2812', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
