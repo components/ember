@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c703cf62
+ * @version   2.5.0-canary+651bea46
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -15802,21 +15802,31 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     }
 
     _class.prototype['@test it can render a static text node'] = function testItCanRenderAStaticTextNode() {
+      var _this = this;
+
       this.render('hello');
       var text1 = this.assertTextNode(this.firstChild, 'hello');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this.rerender();
+      });
+
       var text2 = this.assertTextNode(this.firstChild, 'hello');
 
       this.assertSameNode(text1, text2);
     };
 
     _class.prototype['@test it can render a static element'] = function testItCanRenderAStaticElement() {
+      var _this2 = this;
+
       this.render('<p>hello</p>');
       var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this2.rerender();
+      });
+
       var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
 
@@ -15825,12 +15835,17 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     };
 
     _class.prototype['@test it can render a static template'] = function testItCanRenderAStaticTemplate() {
+      var _this3 = this;
+
       var template = '\n      <div class="header">\n        <h1>Welcome to Ember.js</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use Ember.js?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s Ember.js</li>\n        </ol>\n      </div>\n      <div class="footer">\n        Ember.js is free, open source and always will be.\n      </div>\n    ';
 
       this.render(template);
       this.assertHTML(template);
 
-      this.rerender();
+      this.inZone(function () {
+        return _this3.rerender();
+      });
+
       this.assertHTML(template);
     };
 
@@ -15847,58 +15862,74 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     }
 
     _class2.prototype['@test it can render a dynamic text node'] = function testItCanRenderADynamicTextNode() {
+      var _this4 = this;
+
       this.render('{{message}}', {
         message: 'hello'
       });
       var text1 = this.assertTextNode(this.firstChild, 'hello');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this4.rerender();
+      });
+
       var text2 = this.assertTextNode(this.firstChild, 'hello');
 
       this.assertSameNode(text1, text2);
 
-      _emberMetalProperty_set.set(this.context, 'message', 'goodbye');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
+      });
 
-      this.rerender();
       var text3 = this.assertTextNode(this.firstChild, 'goodbye');
 
       this.assertSameNode(text1, text3);
 
-      _emberMetalProperty_set.set(this.context, 'message', 'hello');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
+      });
 
-      this.rerender();
       var text4 = this.assertTextNode(this.firstChild, 'hello');
 
       this.assertSameNode(text1, text4);
     };
 
     _class2.prototype['@test it can render a dynamic text node with deeply nested paths'] = function testItCanRenderADynamicTextNodeWithDeeplyNestedPaths() {
+      var _this5 = this;
+
       this.render('{{a.b.c.d.e.f}}', {
         a: { b: { c: { d: { e: { f: 'hello' } } } } }
       });
       var text1 = this.assertTextNode(this.firstChild, 'hello');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this5.rerender();
+      });
+
       var text2 = this.assertTextNode(this.firstChild, 'hello');
 
       this.assertSameNode(text1, text2);
 
-      _emberMetalProperty_set.set(this.context, 'a.b.c.d.e.f', 'goodbye');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
+      });
 
-      this.rerender();
       var text3 = this.assertTextNode(this.firstChild, 'goodbye');
 
       this.assertSameNode(text1, text3);
 
-      _emberMetalProperty_set.set(this.context, 'a.b.c.d.e.f', 'hello');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'hello');
+      });
 
-      this.rerender();
       var text4 = this.assertTextNode(this.firstChild, 'hello');
 
       this.assertSameNode(text1, text4);
     };
 
     _class2.prototype['@test it can render a dynamic text node where the value is a computed property'] = function testItCanRenderADynamicTextNodeWhereTheValueIsAComputedProperty() {
+      var _this6 = this;
+
       var Formatter = _emberRuntimeSystemObject.default.extend({
         formattedMessage: _emberMetalComputed.computed('message', function () {
           return this.get('message').toUpperCase();
@@ -15911,52 +15942,64 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
 
       var text1 = this.assertTextNode(this.firstChild, 'HELLO');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this6.rerender();
+      });
+
       var text2 = this.assertTextNode(this.firstChild, 'HELLO');
 
       this.assertSameNode(text1, text2);
 
-      _emberMetalProperty_set.set(m, 'message', 'goodbye');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(m, 'message', 'goodbye');
+      });
 
-      this.rerender();
       var text3 = this.assertTextNode(this.firstChild, 'GOODBYE');
 
       this.assertSameNode(text1, text3);
 
-      _emberMetalProperty_set.set(m, 'message', 'hello');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(m, 'message', 'hello');
+      });
 
-      this.rerender();
       var text4 = this.assertTextNode(this.firstChild, 'HELLO');
 
       this.assertSameNode(text1, text4);
     };
 
     _class2.prototype['@test it can render a dynamic element'] = function testItCanRenderADynamicElement() {
+      var _this7 = this;
+
       this.render('<p>{{message}}</p>', {
         message: 'hello'
       });
       var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
 
-      this.rerender();
+      this.inZone(function () {
+        return _this7.rerender();
+      });
+
       var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
 
       this.assertSameNode(p1, p2);
       this.assertSameNode(text1, text2);
 
-      _emberMetalProperty_set.set(this.context, 'message', 'goodbye');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
+      });
 
-      this.rerender();
       var p3 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text3 = this.assertTextNode(this.firstChild.firstChild, 'goodbye');
 
       this.assertSameNode(p1, p3);
       this.assertSameNode(text1, text3);
 
-      _emberMetalProperty_set.set(this.context, 'message', 'hello');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
+      });
 
-      this.rerender();
       var p4 = this.assertElement(this.firstChild, { tagName: 'p' });
       var text4 = this.assertTextNode(this.firstChild.firstChild, 'hello');
 
@@ -15965,6 +16008,8 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     };
 
     _class2.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
+      var _this8 = this;
+
       var template = '\n      <div class="header">\n        <h1>Welcome to {{framework}}</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use {{framework}}?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s {{framework}}</li>\n        </ol>\n      </div>\n      <div class="footer">\n        {{framework}} is free, open source and always will be.\n      </div>\n    ';
 
       var ember = '\n      <div class="header">\n        <h1>Welcome to Ember.js</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use Ember.js?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s Ember.js</li>\n        </ol>\n      </div>\n      <div class="footer">\n        Ember.js is free, open source and always will be.\n      </div>\n    ';
@@ -15976,17 +16021,22 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
       });
       this.assertHTML(ember);
 
-      this.rerender();
+      this.inZone(function () {
+        return _this8.rerender();
+      });
+
       this.assertHTML(ember);
 
-      _emberMetalProperty_set.set(this.context, 'framework', 'React');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'framework', 'React');
+      });
 
-      this.rerender();
       this.assertHTML(react);
 
-      _emberMetalProperty_set.set(this.context, 'framework', 'Ember.js');
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'framework', 'Ember.js');
+      });
 
-      this.rerender();
       this.assertHTML(ember);
     };
 
@@ -16010,7 +16060,7 @@ enifed('ember-glimmer/tests/utils/package-name', ['exports'], function (exports)
 
   exports.default = 'glimmer';
 });
-enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'glimmer-test-helpers', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _glimmerTestHelpers, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign) {
+enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/utils/package-name', 'ember-glimmer/tests/utils/environment', 'ember-glimmer/tests/utils/helpers', 'glimmer-test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberGlimmerTestsUtilsPackageName, _emberGlimmerTestsUtilsEnvironment, _emberGlimmerTestsUtilsHelpers, _glimmerTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
   'use strict';
 
   var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -16028,7 +16078,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
   function moduleFor(description, TestClass) {
     var context = undefined;
 
-    QUnit.module(description, {
+    QUnit.module('[' + _emberGlimmerTestsUtilsPackageName.default + '] ' + description, {
       setup: function () {
         context = new TestClass();
       },
@@ -16059,6 +16109,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 
   var TextNode = window.Text;
   var HTMLElement = window.HTMLElement;
+  var Comment = window.Comment;
 
   var TestCase = (function () {
     function TestCase() {
@@ -16072,6 +16123,18 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 
   exports.TestCase = TestCase;
 
+  function isMarker(node) {
+    if (node instanceof Comment && node.textContent === '') {
+      return true;
+    }
+
+    if (node instanceof TextNode && node.textContent === '') {
+      return true;
+    }
+
+    return false;
+  }
+
   var RenderingTest = (function (_TestCase) {
     _inherits(RenderingTest, _TestCase);
 
@@ -16084,6 +16147,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       this.renderer = new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.component = null;
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
+      this.owner = _containerTestsTestHelpersBuildOwner.default();
     }
 
     RenderingTest.prototype.teardown = function teardown() {
@@ -16093,14 +16157,16 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     };
 
     RenderingTest.prototype.render = function render(templateStr) {
+      var _assign;
+
       var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
       var env = this.env;
       var renderer = this.renderer;
+      var owner = this.owner;
 
-      var attrs = _emberMetalAssign.default({}, context, {
-        renderer: renderer,
-        template: _emberGlimmerTestsUtilsHelpers.compile(templateStr, { env: env })
-      });
+      var attrs = _emberMetalAssign.default({}, context, (_assign = {
+        tagName: ''
+      }, _assign[_containerOwner.OWNER] = owner, _assign.renderer = renderer, _assign.template = _emberGlimmerTestsUtilsHelpers.compile(templateStr, { env: env }), _assign));
 
       this.component = _emberViewsComponentsComponent.default.create(attrs);
 
@@ -16109,6 +16175,21 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
 
     RenderingTest.prototype.rerender = function rerender() {
       this.component.rerender();
+    };
+
+    // The callback represents user code called by the browser, known as a "zone". It is
+    // equivalent to the concept of an Ember "run loop".
+    //
+    // For (a lot) more information, see the TC39 proposal:
+    // https://docs.google.com/presentation/d/1H3E2ToJ8VHgZS8eS6bRv-vg5OksObj5wv6gyzJJwOK0
+
+    RenderingTest.prototype.inZone = function inZone(callback) {
+      var _this = this;
+
+      _emberMetalRun_loop.default(function () {
+        callback();
+        _this.component.rerender();
+      });
     };
 
     RenderingTest.prototype.assertText = function assertText(text) {
@@ -16124,7 +16205,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
         throw new Error('Expecting a text node, but got ' + node);
       }
 
-      assert.strictEqual(text, node.textContent, 'node.textContent');
+      assert.strictEqual(node.textContent, text, 'node.textContent');
     };
 
     RenderingTest.prototype.assertElement = function assertElement(node, _ref) {
@@ -16136,7 +16217,7 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
         throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
       }
 
-      assert.strictEqual(tagName.toUpperCase(), node.tagName, 'node.tagName');
+      assert.strictEqual(node.tagName, tagName.toUpperCase(), 'node.tagName');
     };
 
     RenderingTest.prototype.assertSameNode = function assertSameNode(node1, node2) {
@@ -16151,7 +16232,13 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
     }, {
       key: 'firstChild',
       get: function () {
-        return this.element.firstChild;
+        var node = this.element.firstChild;
+
+        while (node && isMarker(node)) {
+          node = node.nextSibling;
+        }
+
+        return node;
       }
     }]);
 
@@ -27151,6 +27238,266 @@ enifed('ember-htmlbars/tests/integration/component_lifecycle_test', ['exports', 
   // from inside the attrs hash out into state and passes it as attrs into a child
   // component. The hooks should run correctly.
 });
+enifed('ember-htmlbars/tests/integration/content-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set', 'ember-metal/computed', 'ember-runtime/system/object'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set, _emberMetalComputed, _emberRuntimeSystemObject) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Static content tests', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test it can render a static text node'] = function testItCanRenderAStaticTextNode() {
+      var _this = this;
+
+      this.render('hello');
+      var text1 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.inZone(function () {
+        return _this.rerender();
+      });
+
+      var text2 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text2);
+    };
+
+    _class.prototype['@test it can render a static element'] = function testItCanRenderAStaticElement() {
+      var _this2 = this;
+
+      this.render('<p>hello</p>');
+      var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+
+      this.inZone(function () {
+        return _this2.rerender();
+      });
+
+      var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+
+      this.assertSameNode(p1, p2);
+      this.assertSameNode(text1, text2);
+    };
+
+    _class.prototype['@test it can render a static template'] = function testItCanRenderAStaticTemplate() {
+      var _this3 = this;
+
+      var template = '\n      <div class="header">\n        <h1>Welcome to Ember.js</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use Ember.js?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s Ember.js</li>\n        </ol>\n      </div>\n      <div class="footer">\n        Ember.js is free, open source and always will be.\n      </div>\n    ';
+
+      this.render(template);
+      this.assertHTML(template);
+
+      this.inZone(function () {
+        return _this3.rerender();
+      });
+
+      this.assertHTML(template);
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Dynamic content tests', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test it can render a dynamic text node'] = function testItCanRenderADynamicTextNode() {
+      var _this4 = this;
+
+      this.render('{{message}}', {
+        message: 'hello'
+      });
+      var text1 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.inZone(function () {
+        return _this4.rerender();
+      });
+
+      var text2 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text2);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', 'goodbye');
+      });
+
+      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
+
+      this.assertSameNode(text1, text3);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'message', 'hello');
+      });
+
+      var text4 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text4);
+    };
+
+    _class2.prototype['@test it can render a dynamic text node with deeply nested paths'] = function testItCanRenderADynamicTextNodeWithDeeplyNestedPaths() {
+      var _this5 = this;
+
+      this.render('{{a.b.c.d.e.f}}', {
+        a: { b: { c: { d: { e: { f: 'hello' } } } } }
+      });
+      var text1 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.inZone(function () {
+        return _this5.rerender();
+      });
+
+      var text2 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text2);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'goodbye');
+      });
+
+      var text3 = this.assertTextNode(this.firstChild, 'goodbye');
+
+      this.assertSameNode(text1, text3);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'a.b.c.d.e.f', 'hello');
+      });
+
+      var text4 = this.assertTextNode(this.firstChild, 'hello');
+
+      this.assertSameNode(text1, text4);
+    };
+
+    _class2.prototype['@test it can render a dynamic text node where the value is a computed property'] = function testItCanRenderADynamicTextNodeWhereTheValueIsAComputedProperty() {
+      var _this6 = this;
+
+      var Formatter = _emberRuntimeSystemObject.default.extend({
+        formattedMessage: _emberMetalComputed.computed('message', function () {
+          return this.get('message').toUpperCase();
+        })
+      });
+
+      var m = Formatter.create({ message: 'hello' });
+
+      this.render('{{m.formattedMessage}}', { m: m });
+
+      var text1 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.inZone(function () {
+        return _this6.rerender();
+      });
+
+      var text2 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.assertSameNode(text1, text2);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(m, 'message', 'goodbye');
+      });
+
+      var text3 = this.assertTextNode(this.firstChild, 'GOODBYE');
+
+      this.assertSameNode(text1, text3);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(m, 'message', 'hello');
+      });
+
+      var text4 = this.assertTextNode(this.firstChild, 'HELLO');
+
+      this.assertSameNode(text1, text4);
+    };
+
+    _class2.prototype['@test it can render a dynamic element'] = function testItCanRenderADynamicElement() {
+      var _this7 = this;
+
+      this.render('<p>{{message}}</p>', {
+        message: 'hello'
+      });
+      var p1 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text1 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+
+      this.inZone(function () {
+        return _this7.rerender();
+      });
+
+      var p2 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text2 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+
+      this.assertSameNode(p1, p2);
+      this.assertSameNode(text1, text2);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'goodbye');
+      });
+
+      var p3 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text3 = this.assertTextNode(this.firstChild.firstChild, 'goodbye');
+
+      this.assertSameNode(p1, p3);
+      this.assertSameNode(text1, text3);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this7.context, 'message', 'hello');
+      });
+
+      var p4 = this.assertElement(this.firstChild, { tagName: 'p' });
+      var text4 = this.assertTextNode(this.firstChild.firstChild, 'hello');
+
+      this.assertSameNode(p1, p4);
+      this.assertSameNode(text1, text4);
+    };
+
+    _class2.prototype['@test it can render a dynamic template'] = function testItCanRenderADynamicTemplate() {
+      var _this8 = this;
+
+      var template = '\n      <div class="header">\n        <h1>Welcome to {{framework}}</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use {{framework}}?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s {{framework}}</li>\n        </ol>\n      </div>\n      <div class="footer">\n        {{framework}} is free, open source and always will be.\n      </div>\n    ';
+
+      var ember = '\n      <div class="header">\n        <h1>Welcome to Ember.js</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use Ember.js?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s Ember.js</li>\n        </ol>\n      </div>\n      <div class="footer">\n        Ember.js is free, open source and always will be.\n      </div>\n    ';
+
+      var react = '\n      <div class="header">\n        <h1>Welcome to React</h1>\n      </div>\n      <div class="body">\n        <h2>Why you should use React?</h2>\n        <ol>\n          <li>It\'s great</li>\n          <li>It\'s awesome</li>\n          <li>It\'s React</li>\n        </ol>\n      </div>\n      <div class="footer">\n        React is free, open source and always will be.\n      </div>\n    ';
+
+      this.render(template, {
+        framework: 'Ember.js'
+      });
+      this.assertHTML(ember);
+
+      this.inZone(function () {
+        return _this8.rerender();
+      });
+
+      this.assertHTML(ember);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'framework', 'React');
+      });
+
+      this.assertHTML(react);
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this8.context, 'framework', 'Ember.js');
+      });
+
+      this.assertHTML(ember);
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/escape_integration_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler/system/compile', 'ember-metal/property_set', 'ember-runtime/tests/utils'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompilerSystemCompile, _emberMetalProperty_set, _emberRuntimeTestsUtils) {
   'use strict';
 
@@ -29166,6 +29513,29 @@ enifed('ember-htmlbars/tests/system/render_env_test', ['exports', 'ember-views/v
     ok(extractEnv(components.child) instanceof _emberHtmlbarsSystemRenderEnv.default, 'rerender: {{child-component}} environment should be an instance of RenderEnv');
   });
 });
+enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports) {
+  "use strict";
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  var Environment = function Environment() {
+    _classCallCheck(this, Environment);
+  };
+
+  exports.default = Environment;
+});
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/system/dom-helper', 'ember-metal-views', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsSystemDomHelper, _emberMetalViews, _emberTemplateCompilerSystemCompile) {
+  'use strict';
+
+  exports.DOMHelper = _emberHtmlbarsSystemDomHelper.default;
+  exports.Renderer = _emberMetalViews.Renderer;
+  exports.compile = _emberTemplateCompilerSystemCompile.default;
+});
+enifed('ember-htmlbars/tests/utils/package-name', ['exports'], function (exports) {
+  'use strict';
+
+  exports.default = 'htmlbars';
+});
 enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe-string', 'ember-htmlbars/utils/string'], function (exports, _htmlbarsUtilSafeString, _emberHtmlbarsUtilsString) {
   'use strict';
 
@@ -29190,6 +29560,193 @@ enifed('ember-htmlbars/tests/utils/string_test', ['exports', 'htmlbars-util/safe
     equal(safeString instanceof _htmlbarsUtilSafeString.default, true, 'should be a SafeString');
     equal(safeString.toString(), '', 'should return an empty string');
   });
+});
+enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests/utils/package-name', 'ember-htmlbars/tests/utils/environment', 'ember-htmlbars/tests/utils/helpers', 'glimmer-test-helpers', 'ember-metal/run_loop', 'ember-runtime/tests/utils', 'ember-views/components/component', 'ember-views/system/jquery', 'ember-metal/assign', 'container/owner', 'container/tests/test-helpers/build-owner'], function (exports, _emberHtmlbarsTestsUtilsPackageName, _emberHtmlbarsTestsUtilsEnvironment, _emberHtmlbarsTestsUtilsHelpers, _glimmerTestHelpers, _emberMetalRun_loop, _emberRuntimeTestsUtils, _emberViewsComponentsComponent, _emberViewsSystemJquery, _emberMetalAssign, _containerOwner, _containerTestsTestHelpersBuildOwner) {
+  'use strict';
+
+  var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+  exports.moduleFor = moduleFor;
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  var packageTag = '@' + _emberHtmlbarsTestsUtilsPackageName.default + ' ';
+
+  function moduleFor(description, TestClass) {
+    var context = undefined;
+
+    QUnit.module('[' + _emberHtmlbarsTestsUtilsPackageName.default + '] ' + description, {
+      setup: function () {
+        context = new TestClass();
+      },
+
+      teardown: function () {
+        context.teardown();
+      }
+    });
+
+    Object.keys(TestClass.prototype).forEach(function (name) {
+      if (name.indexOf('@test ') === 0) {
+        QUnit.test(name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf('@skip ') === 0) {
+        QUnit.skip(name.slice(5), function (assert) {
+          return context[name](assert);
+        });
+      } else if (name.indexOf(packageTag) === 0) {
+        QUnit.test(name.slice(packageTag.length), function (assert) {
+          return context[name](assert);
+        });
+      }
+    });
+  }
+
+  var assert = QUnit.assert;
+
+  var TextNode = window.Text;
+  var HTMLElement = window.HTMLElement;
+  var Comment = window.Comment;
+
+  var TestCase = (function () {
+    function TestCase() {
+      _classCallCheck(this, TestCase);
+    }
+
+    TestCase.prototype.teardown = function teardown() {};
+
+    return TestCase;
+  })();
+
+  exports.TestCase = TestCase;
+
+  function isMarker(node) {
+    if (node instanceof Comment && node.textContent === '') {
+      return true;
+    }
+
+    if (node instanceof TextNode && node.textContent === '') {
+      return true;
+    }
+
+    return false;
+  }
+
+  var RenderingTest = (function (_TestCase) {
+    _inherits(RenderingTest, _TestCase);
+
+    function RenderingTest() {
+      _classCallCheck(this, RenderingTest);
+
+      _TestCase.call(this);
+      var dom = new _emberHtmlbarsTestsUtilsHelpers.DOMHelper(document);
+      var env = this.env = new _emberHtmlbarsTestsUtilsEnvironment.default(dom);
+      this.renderer = new _emberHtmlbarsTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
+      this.component = null;
+      this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
+      this.owner = _containerTestsTestHelpersBuildOwner.default();
+    }
+
+    RenderingTest.prototype.teardown = function teardown() {
+      if (this.component) {
+        _emberRuntimeTestsUtils.runDestroy(this.component);
+      }
+    };
+
+    RenderingTest.prototype.render = function render(templateStr) {
+      var _assign;
+
+      var context = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+      var env = this.env;
+      var renderer = this.renderer;
+      var owner = this.owner;
+
+      var attrs = _emberMetalAssign.default({}, context, (_assign = {
+        tagName: ''
+      }, _assign[_containerOwner.OWNER] = owner, _assign.renderer = renderer, _assign.template = _emberHtmlbarsTestsUtilsHelpers.compile(templateStr, { env: env }), _assign));
+
+      this.component = _emberViewsComponentsComponent.default.create(attrs);
+
+      _emberRuntimeTestsUtils.runAppend(this.component);
+    };
+
+    RenderingTest.prototype.rerender = function rerender() {
+      this.component.rerender();
+    };
+
+    // The callback represents user code called by the browser, known as a "zone". It is
+    // equivalent to the concept of an Ember "run loop".
+    //
+    // For (a lot) more information, see the TC39 proposal:
+    // https://docs.google.com/presentation/d/1H3E2ToJ8VHgZS8eS6bRv-vg5OksObj5wv6gyzJJwOK0
+
+    RenderingTest.prototype.inZone = function inZone(callback) {
+      var _this = this;
+
+      _emberMetalRun_loop.default(function () {
+        callback();
+        _this.component.rerender();
+      });
+    };
+
+    RenderingTest.prototype.assertText = function assertText(text) {
+      assert.strictEqual(_emberViewsSystemJquery.default(this.element).text(), text, '#qunit-fixture content');
+    };
+
+    RenderingTest.prototype.assertHTML = function assertHTML(html) {
+      _glimmerTestHelpers.equalTokens(this.element, html, '#qunit-fixture content');
+    };
+
+    RenderingTest.prototype.assertTextNode = function assertTextNode(node, text) {
+      if (!(node instanceof TextNode)) {
+        throw new Error('Expecting a text node, but got ' + node);
+      }
+
+      assert.strictEqual(node.textContent, text, 'node.textContent');
+    };
+
+    RenderingTest.prototype.assertElement = function assertElement(node, _ref) {
+      var _ref$ElementType = _ref.ElementType;
+      var ElementType = _ref$ElementType === undefined ? HTMLElement : _ref$ElementType;
+      var tagName = _ref.tagName;
+
+      if (!(node instanceof ElementType)) {
+        throw new Error('Expecting a ' + ElementType.name + ', but got ' + node);
+      }
+
+      assert.strictEqual(node.tagName, tagName.toUpperCase(), 'node.tagName');
+    };
+
+    RenderingTest.prototype.assertSameNode = function assertSameNode(node1, node2) {
+      assert.strictEqual(node1, node2, 'DOM node stability');
+    };
+
+    _createClass(RenderingTest, [{
+      key: 'context',
+      get: function () {
+        return this.component;
+      }
+    }, {
+      key: 'firstChild',
+      get: function () {
+        var node = this.element.firstChild;
+
+        while (node && isMarker(node)) {
+          node = node.nextSibling;
+        }
+
+        return node;
+      }
+    }]);
+
+    return RenderingTest;
+  })(TestCase);
+
+  exports.RenderingTest = RenderingTest;
 });
 enifed('ember-htmlbars/tests/utils', ['exports', 'ember-htmlbars/keywords', 'ember-template-compiler/plugins'], function (exports, _emberHtmlbarsKeywords, _emberTemplateCompilerPlugins) {
   'use strict';
@@ -53956,7 +54513,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+c703cf62', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+651bea46', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
