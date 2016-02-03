@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+687f2812
+ * @version   2.5.0-canary+9b004bac
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -5501,7 +5501,7 @@ asyncTest("The Special page returning an error fires the error hook on SpecialRo
 
   var menuItem;
 
-  App.MenuItem = Ember.Object.extend(Ember.DeferredMixin);
+  App.MenuItem = Ember.Object.extend();
   App.MenuItem.reopenClass({
     find: function(id) {
       menuItem = App.MenuItem.create({ id: id });
@@ -53956,7 +53956,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+687f2812', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+9b004bac', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
