@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+f821c320
+ * @version   2.5.0-canary+5c2e7191
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+f821c320
+ * @version   2.5.0-canary+5c2e7191
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -10648,7 +10648,7 @@ enifed('glimmer-runtime/lib/dom', ['exports', 'glimmer-runtime/lib/bounds', 'gli
     exports.DOMHelper = DOMHelper;
 });
 
-enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/references', 'glimmer-reference', 'glimmer-util'], function (exports, _glimmerRuntimeLibReferences, _glimmerReference, _glimmerUtil) {
+enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/references', 'glimmer-reference', 'glimmer-util', 'glimmer-runtime/lib/syntax/core', 'glimmer-runtime/lib/syntax/builtins/if', 'glimmer-runtime/lib/syntax/builtins/unless'], function (exports, _glimmerRuntimeLibReferences, _glimmerReference, _glimmerUtil, _glimmerRuntimeLibSyntaxCore, _glimmerRuntimeLibSyntaxBuiltinsIf, _glimmerRuntimeLibSyntaxBuiltinsUnless) {
     'use strict';
 
     exports.helper = helper;
@@ -10746,6 +10746,47 @@ enifed('glimmer-runtime/lib/environment', ['exports', 'glimmer-runtime/lib/refer
         };
 
         Environment.prototype.statement = function statement(_statement) {
+            var type = _statement.type;
+            var block = type === 'block' ? _statement : null;
+            var append = type === 'append' ? _statement : null;
+            var named = undefined;
+            var args = undefined;
+            var path = undefined;
+            var unknown = undefined;
+            var helper = undefined;
+            if (block) {
+                args = block.args;
+                named = args.named;
+                path = block.path;
+            } else if (append && append.value.type === 'unknown') {
+                unknown = append.value;
+                args = _glimmerRuntimeLibSyntaxCore.Args.empty();
+                named = _glimmerRuntimeLibSyntaxCore.NamedArgs.empty();
+                path = unknown.ref.path();
+            } else if (append && append.value.type === 'helper') {
+                helper = append.value;
+                args = helper.args;
+                named = args.named;
+                path = helper.ref.path();
+            }
+            var key = undefined,
+                isSimple = undefined;
+            if (path) {
+                isSimple = path.length === 1;
+                key = path[0];
+            }
+            if (isSimple && block) {
+                switch (key) {
+                    // case 'each':
+                    //   return new EachSyntax({ args: block.args, templates: block.templates });
+                    case 'if':
+                        return new _glimmerRuntimeLibSyntaxBuiltinsIf.default({ args: block.args, templates: block.templates });
+                    // case 'with':
+                    //   return new WithSyntax({ args: block.args, templates: block.templates });
+                    case 'unless':
+                        return new _glimmerRuntimeLibSyntaxBuiltinsUnless.default({ args: block.args, templates: block.templates });
+                }
+            }
             return _statement;
         };
 
@@ -11176,6 +11217,142 @@ enifed("glimmer-runtime/lib/symbols", ["exports"], function (exports) {
 
   var TRUSTED_STRING = "trusted string [id=7d10c13d-cdf5-45f4-8859-b09ce16517c2]";
   exports.TRUSTED_STRING = TRUSTED_STRING;
+});
+
+enifed('glimmer-runtime/lib/syntax/builtins/if', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/opcodes/vm'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledOpcodesVm) {
+    'use strict';
+
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+    var IfSyntax = (function (_StatementSyntax) {
+        _inherits(IfSyntax, _StatementSyntax);
+
+        function IfSyntax(_ref) {
+            var args = _ref.args;
+            var templates = _ref.templates;
+
+            _classCallCheck(this, IfSyntax);
+
+            _StatementSyntax.call(this);
+            this.type = "if-statement";
+            this.isStatic = false;
+            this.args = args;
+            this.templates = templates;
+        }
+
+        IfSyntax.prototype.prettyPrint = function prettyPrint() {
+            return '#if ' + this.args.prettyPrint();
+        };
+
+        IfSyntax.prototype.compile = function compile(compiler, env) {
+            //        Enter(BEGIN, END)
+            // BEGIN: Noop
+            //        PutArgs
+            //        Test
+            //        JumpUnless(ELSE)
+            //        Evaluate(default)
+            //        Jump(END)
+            // ELSE:  Noop
+            //        Evalulate(inverse)
+            // END:   Noop
+            //        Exit
+            var BEGIN = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN" });
+            var ELSE = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "ELSE" });
+            var END = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END" });
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.TestOpcode());
+            if (this.templates.inverse) {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: ELSE }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpOpcode({ target: END }));
+                compiler.append(ELSE);
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
+            } else {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpUnlessOpcode({ target: END }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+            }
+            compiler.append(END);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
+        };
+
+        return IfSyntax;
+    })(_glimmerRuntimeLibSyntax.Statement);
+
+    exports.default = IfSyntax;
+});
+
+enifed('glimmer-runtime/lib/syntax/builtins/unless', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/opcodes/vm'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledOpcodesVm) {
+    'use strict';
+
+    function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+    function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+    function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+    var UnlessSyntax = (function (_StatementSyntax) {
+        _inherits(UnlessSyntax, _StatementSyntax);
+
+        function UnlessSyntax(_ref) {
+            var args = _ref.args;
+            var templates = _ref.templates;
+
+            _classCallCheck(this, UnlessSyntax);
+
+            _StatementSyntax.call(this);
+            this.type = "unless-statement";
+            this.isStatic = false;
+            this.args = args;
+            this.templates = templates;
+        }
+
+        UnlessSyntax.prototype.prettyPrint = function prettyPrint() {
+            return '#unless ' + this.args.prettyPrint();
+        };
+
+        UnlessSyntax.prototype.compile = function compile(compiler, env) {
+            //        Enter(BEGIN, END)
+            // BEGIN: Noop
+            //        PutArgs
+            //        Test
+            //        JumpIf(ELSE)
+            //        Evaluate(default)
+            //        Jump(END)
+            // ELSE:  Noop
+            //        Evalulate(inverse)
+            // END:   Noop
+            //        Exit
+            var BEGIN = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "BEGIN" });
+            var ELSE = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "ELSE" });
+            var END = new _glimmerRuntimeLibCompiledOpcodesVm.LabelOpcode({ label: "END" });
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EnterOpcode({ begin: BEGIN, end: END }));
+            compiler.append(BEGIN);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.TestOpcode());
+            if (this.templates.inverse) {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpIfOpcode({ target: ELSE }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpOpcode({ target: END }));
+                compiler.append(ELSE);
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
+            } else {
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.JumpIfOpcode({ target: END }));
+                compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.EvaluateOpcode({ debug: "default", block: this.templates.default }));
+            }
+            compiler.append(END);
+            compiler.append(new _glimmerRuntimeLibCompiledOpcodesVm.ExitOpcode());
+        };
+
+        return UnlessSyntax;
+    })(_glimmerRuntimeLibSyntax.Statement);
+
+    exports.default = UnlessSyntax;
 });
 
 enifed('glimmer-runtime/lib/syntax/core', ['exports', 'glimmer-runtime/lib/syntax', 'glimmer-runtime/lib/compiled/blocks', 'glimmer-runtime/lib/opcodes', 'glimmer-runtime/lib/compiled/opcodes/vm', 'glimmer-runtime/lib/compiled/opcodes/component', 'glimmer-runtime/lib/syntax/expressions', 'glimmer-runtime/lib/compiled/expressions/args', 'glimmer-runtime/lib/compiled/expressions/value', 'glimmer-runtime/lib/compiled/expressions/ref', 'glimmer-runtime/lib/compiled/expressions/helper', 'glimmer-runtime/lib/compiled/expressions/concat', 'glimmer-reference', 'glimmer-util', 'glimmer-runtime/lib/compiled/opcodes/dom', 'glimmer-runtime/lib/compiled/opcodes/content'], function (exports, _glimmerRuntimeLibSyntax, _glimmerRuntimeLibCompiledBlocks, _glimmerRuntimeLibOpcodes, _glimmerRuntimeLibCompiledOpcodesVm, _glimmerRuntimeLibCompiledOpcodesComponent, _glimmerRuntimeLibSyntaxExpressions, _glimmerRuntimeLibCompiledExpressionsArgs, _glimmerRuntimeLibCompiledExpressionsValue, _glimmerRuntimeLibCompiledExpressionsRef, _glimmerRuntimeLibCompiledExpressionsHelper, _glimmerRuntimeLibCompiledExpressionsConcat, _glimmerReference, _glimmerUtil, _glimmerRuntimeLibCompiledOpcodesDom, _glimmerRuntimeLibCompiledOpcodesContent) {
@@ -20008,12 +20185,8 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
                         return new RenderInverseIdentitySyntax({ args: block.args, templates: block.templates });
                     case 'each':
                         return new EachSyntax({ args: block.args, templates: block.templates });
-                    case 'if':
-                        return new IfSyntax({ args: block.args, templates: block.templates });
                     case 'with':
                         return new WithSyntax({ args: block.args, templates: block.templates });
-                    case 'unless':
-                        return new UnlessSyntax({ args: block.args, templates: block.templates });
                 }
             }
             if (isSimple && (append || block)) {
@@ -20410,128 +20583,16 @@ enifed("glimmer-test-helpers/lib/environment", ["exports", "glimmer-runtime", "g
         return RenderInverseIdentitySyntax;
     })(_glimmerRuntime.StatementSyntax);
 
-    var UnlessSyntax = (function (_StatementSyntax5) {
-        _inherits(UnlessSyntax, _StatementSyntax5);
+    var WithSyntax = (function (_StatementSyntax5) {
+        _inherits(WithSyntax, _StatementSyntax5);
 
-        function UnlessSyntax(_ref10) {
+        function WithSyntax(_ref10) {
             var args = _ref10.args;
             var templates = _ref10.templates;
 
-            _classCallCheck(this, UnlessSyntax);
-
-            _StatementSyntax5.call(this);
-            this.type = "unless-statement";
-            this.isStatic = false;
-            this.args = args;
-            this.templates = templates;
-        }
-
-        UnlessSyntax.prototype.prettyPrint = function prettyPrint() {
-            return "#unless " + this.args.prettyPrint();
-        };
-
-        UnlessSyntax.prototype.compile = function compile(compiler, env) {
-            //        Enter(BEGIN, END)
-            // BEGIN: Noop
-            //        PutArgs
-            //        Test
-            //        JumpIf(ELSE)
-            //        Evaluate(default)
-            //        JumpOpcode(END)
-            // ELSE:  Noop
-            //        Evalulate(inverse)
-            // END:   Noop
-            //        Exit
-            var BEGIN = new _glimmerRuntime.LabelOpcode({ label: "BEGIN" });
-            var ELSE = new _glimmerRuntime.LabelOpcode({ label: "ELSE" });
-            var END = new _glimmerRuntime.LabelOpcode({ label: "END" });
-            compiler.append(new _glimmerRuntime.EnterOpcode({ begin: BEGIN, end: END }));
-            compiler.append(BEGIN);
-            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntime.TestOpcode());
-            if (this.templates.inverse) {
-                compiler.append(new _glimmerRuntime.JumpIfOpcode({ target: ELSE }));
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-                compiler.append(new _glimmerRuntime.JumpOpcode({ target: END }));
-                compiler.append(ELSE);
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
-            } else {
-                compiler.append(new _glimmerRuntime.JumpIfOpcode({ target: END }));
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-            }
-            compiler.append(END);
-            compiler.append(new _glimmerRuntime.ExitOpcode());
-        };
-
-        return UnlessSyntax;
-    })(_glimmerRuntime.StatementSyntax);
-
-    var IfSyntax = (function (_StatementSyntax6) {
-        _inherits(IfSyntax, _StatementSyntax6);
-
-        function IfSyntax(_ref11) {
-            var args = _ref11.args;
-            var templates = _ref11.templates;
-
-            _classCallCheck(this, IfSyntax);
-
-            _StatementSyntax6.call(this);
-            this.type = "if-statement";
-            this.isStatic = false;
-            this.args = args;
-            this.templates = templates;
-        }
-
-        IfSyntax.prototype.prettyPrint = function prettyPrint() {
-            return "#if " + this.args.prettyPrint();
-        };
-
-        IfSyntax.prototype.compile = function compile(compiler, env) {
-            //        Enter(BEGIN, END)
-            // BEGIN: Noop
-            //        PutArgs
-            //        Test
-            //        JumpUnless(ELSE)
-            //        Evaluate(default)
-            //        Jump(END)
-            // ELSE:  Noop
-            //        Evalulate(inverse)
-            // END:   Noop
-            //        Exit
-            var BEGIN = new _glimmerRuntime.LabelOpcode({ label: "BEGIN" });
-            var ELSE = new _glimmerRuntime.LabelOpcode({ label: "ELSE" });
-            var END = new _glimmerRuntime.LabelOpcode({ label: "END" });
-            compiler.append(new _glimmerRuntime.EnterOpcode({ begin: BEGIN, end: END }));
-            compiler.append(BEGIN);
-            compiler.append(new _glimmerRuntime.PutArgsOpcode({ args: this.args.compile(compiler, env) }));
-            compiler.append(new _glimmerRuntime.TestOpcode());
-            if (this.templates.inverse) {
-                compiler.append(new _glimmerRuntime.JumpUnlessOpcode({ target: ELSE }));
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-                compiler.append(new _glimmerRuntime.JumpOpcode({ target: END }));
-                compiler.append(ELSE);
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "inverse", block: this.templates.inverse }));
-            } else {
-                compiler.append(new _glimmerRuntime.JumpUnlessOpcode({ target: END }));
-                compiler.append(new _glimmerRuntime.EvaluateOpcode({ debug: "default", block: this.templates.default }));
-            }
-            compiler.append(END);
-            compiler.append(new _glimmerRuntime.ExitOpcode());
-        };
-
-        return IfSyntax;
-    })(_glimmerRuntime.StatementSyntax);
-
-    var WithSyntax = (function (_StatementSyntax7) {
-        _inherits(WithSyntax, _StatementSyntax7);
-
-        function WithSyntax(_ref12) {
-            var args = _ref12.args;
-            var templates = _ref12.templates;
-
             _classCallCheck(this, WithSyntax);
 
-            _StatementSyntax7.call(this);
+            _StatementSyntax5.call(this);
             this.type = "with-statement";
             this.isStatic = false;
             this.args = args;
@@ -31029,7 +31090,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+f821c320';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -36632,7 +36693,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+f821c320
+    @version 2.5.0-canary+5c2e7191
     @public
   */
 
@@ -36674,11 +36735,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+f821c320'
+    @default '2.5.0-canary+5c2e7191'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+f821c320';
+  Ember.VERSION = '2.5.0-canary+5c2e7191';
 
   /**
     The hash of environment variables used to control various configuration
@@ -50425,7 +50486,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+f821c320';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -50925,7 +50986,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+f821c320';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -59799,7 +59860,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+f821c320',
+        revision: 'Ember@2.5.0-canary+5c2e7191',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -63866,7 +63927,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+f821c320';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
 
   /**
   @module ember

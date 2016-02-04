@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+f821c320
+ * @version   2.5.0-canary+5c2e7191
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16061,7 +16061,7 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test htmlbars it concats static arguments'] = function testHtmlbarsItConcatsStaticArguments() {
+    _class.prototype['@test it concats static arguments'] = function testItConcatsStaticArguments() {
       this.render('{{concat "foo" " " "bar" " " "baz"}}');
       this.assertText('foo bar baz');
     };
@@ -16072,6 +16072,12 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.render('{{concat first second}}', {
         first: 'one',
         second: 'two'
+      });
+
+      this.assertText('onetwo');
+
+      this.inZone(function () {
+        return _this.rerender();
       });
 
       this.assertText('onetwo');
@@ -16102,6 +16108,12 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('onetwothreefour');
 
       this.inZone(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('onetwothreefour');
+
+      this.inZone(function () {
         _emberMetalProperty_set.set(_this2.context, 'first', 'five');
         _emberMetalProperty_set.set(_this2.context, 'third', 'six');
       });
@@ -16126,6 +16138,12 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
       this.assertText('Truthy!');
 
       this.inZone(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('Truthy!');
+
+      this.inZone(function () {
         return _emberMetalProperty_set.set(_this3.context, 'first', 'three');
       });
 
@@ -16133,6 +16151,204 @@ enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember
     };
 
     return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
+enifed('ember-glimmer/tests/integration/syntax/if-unless-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test The `{{#if}}` syntax renders and hides the given block based on the conditional'] = function testTheIfSyntaxRendersAndHidesTheGivenBlockBasedOnTheConditional() {
+      var _this = this;
+
+      this.render('{{#if cond1}}1{{/if}}{{#if cond2}}2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('1');
+
+      this.inZone(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('1');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
+      });
+
+      this.assertText('');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', true);
+      });
+
+      this.assertText('12');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', false);
+      });
+
+      this.assertText('1');
+    };
+
+    _class.prototype['@test The `{{#if}}` syntax renders the corresponding block based on the conditional'] = function testTheIfSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this2 = this;
+
+      this.render('{{#if cond1}}T1{{else}}F1{{/if}}{{#if cond2}}T2{{else}}F2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this2.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this2.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    _class.prototype['@test The `{{#if}}` syntax works with syntax renders the corresponding block based on the conditional'] = function testTheIfSyntaxWorksWithSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this3 = this;
+
+      this.render('{{#if cond1}}T1{{else}}F1{{/if}}{{#if cond2}}T2{{else}}F2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this3.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this3.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this3.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this3.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test The `{{#unless}}` syntax renders and hides the given block based on the conditional'] = function testTheUnlessSyntaxRendersAndHidesTheGivenBlockBasedOnTheConditional() {
+      var _this4 = this;
+
+      this.render('{{#unless cond1}}1{{/unless}}{{#unless cond2}}2{{/unless}}', { cond1: true, cond2: false });
+      this.assertText('2');
+
+      this.inZone(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'cond2', true);
+      });
+
+      this.assertText('');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this4.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this4.context, 'cond2', false);
+      });
+
+      this.assertText('12');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this4.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this4.context, 'cond2', false);
+      });
+
+      this.assertText('2');
+    };
+
+    _class2.prototype['@test The `{{#unless}}` syntax renders the corresponding block based on the conditional'] = function testTheUnlessSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this5 = this;
+
+      this.render('{{#unless cond1}}F1{{else}}T1{{/unless}}{{#unless cond2}}F2{{else}}T2{{/unless}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this5.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this5.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this5.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this5.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], function (exports, _emberGlimmer) {
@@ -27698,7 +27914,7 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       _RenderingTest.apply(this, arguments);
     }
 
-    _class.prototype['@test htmlbars it concats static arguments'] = function testHtmlbarsItConcatsStaticArguments() {
+    _class.prototype['@test it concats static arguments'] = function testItConcatsStaticArguments() {
       this.render('{{concat "foo" " " "bar" " " "baz"}}');
       this.assertText('foo bar baz');
     };
@@ -27709,6 +27925,12 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.render('{{concat first second}}', {
         first: 'one',
         second: 'two'
+      });
+
+      this.assertText('onetwo');
+
+      this.inZone(function () {
+        return _this.rerender();
       });
 
       this.assertText('onetwo');
@@ -27739,6 +27961,12 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.assertText('onetwothreefour');
 
       this.inZone(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('onetwothreefour');
+
+      this.inZone(function () {
         _emberMetalProperty_set.set(_this2.context, 'first', 'five');
         _emberMetalProperty_set.set(_this2.context, 'third', 'six');
       });
@@ -27758,6 +27986,12 @@ enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'embe
       this.render('{{#if (x-eq (concat first second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
         first: 'one',
         second: 'two'
+      });
+
+      this.assertText('Truthy!');
+
+      this.inZone(function () {
+        return _this3.rerender();
       });
 
       this.assertText('Truthy!');
@@ -28818,6 +29052,204 @@ enifed('ember-htmlbars/tests/integration/select_in_template_test', ['exports', '
     equal(selectEl.selectedIndex, 1, 'The DOM is updated to reflect the new selection');
     equal(select.$('option:eq(1)').prop('selected'), true, 'selected property is set to proper option');
   });
+});
+enifed('ember-htmlbars/tests/integration/syntax/if-unless-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#if}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test The `{{#if}}` syntax renders and hides the given block based on the conditional'] = function testTheIfSyntaxRendersAndHidesTheGivenBlockBasedOnTheConditional() {
+      var _this = this;
+
+      this.render('{{#if cond1}}1{{/if}}{{#if cond2}}2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('1');
+
+      this.inZone(function () {
+        return _this.rerender();
+      });
+
+      this.assertText('1');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'cond1', false);
+      });
+
+      this.assertText('');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', true);
+      });
+
+      this.assertText('12');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this.context, 'cond2', false);
+      });
+
+      this.assertText('1');
+    };
+
+    _class.prototype['@test The `{{#if}}` syntax renders the corresponding block based on the conditional'] = function testTheIfSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this2 = this;
+
+      this.render('{{#if cond1}}T1{{else}}F1{{/if}}{{#if cond2}}T2{{else}}F2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this2.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this2.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this2.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this2.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    _class.prototype['@test The `{{#if}}` syntax works with syntax renders the corresponding block based on the conditional'] = function testTheIfSyntaxWorksWithSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this3 = this;
+
+      this.render('{{#if cond1}}T1{{else}}F1{{/if}}{{#if cond2}}T2{{else}}F2{{/if}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this3.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this3.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this3.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this3.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this3.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Syntax test: {{#unless}}', (function (_RenderingTest2) {
+    _inherits(_class2, _RenderingTest2);
+
+    function _class2() {
+      _classCallCheck(this, _class2);
+
+      _RenderingTest2.apply(this, arguments);
+    }
+
+    _class2.prototype['@test The `{{#unless}}` syntax renders and hides the given block based on the conditional'] = function testTheUnlessSyntaxRendersAndHidesTheGivenBlockBasedOnTheConditional() {
+      var _this4 = this;
+
+      this.render('{{#unless cond1}}1{{/unless}}{{#unless cond2}}2{{/unless}}', { cond1: true, cond2: false });
+      this.assertText('2');
+
+      this.inZone(function () {
+        return _this4.rerender();
+      });
+
+      this.assertText('2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this4.context, 'cond2', true);
+      });
+
+      this.assertText('');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this4.context, 'cond1', false);
+        _emberMetalProperty_set.set(_this4.context, 'cond2', false);
+      });
+
+      this.assertText('12');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this4.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this4.context, 'cond2', false);
+      });
+
+      this.assertText('2');
+    };
+
+    _class2.prototype['@test The `{{#unless}}` syntax renders the corresponding block based on the conditional'] = function testTheUnlessSyntaxRendersTheCorrespondingBlockBasedOnTheConditional() {
+      var _this5 = this;
+
+      this.render('{{#unless cond1}}F1{{else}}T1{{/unless}}{{#unless cond2}}F2{{else}}T2{{/unless}}', { cond1: true, cond2: false });
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _this5.rerender();
+      });
+
+      this.assertText('T1F2');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this5.context, 'cond1', false);
+      });
+
+      this.assertText('F1F2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this5.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this5.context, 'cond2', true);
+      });
+
+      this.assertText('T1T2');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this5.context, 'cond1', true);
+        _emberMetalProperty_set.set(_this5.context, 'cond2', false);
+      });
+
+      this.assertText('T1F2');
+    };
+
+    return _class2;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
 });
 enifed('ember-htmlbars/tests/integration/tagless_views_rerender_test', ['exports', 'ember-metal/run_loop', 'ember-views/views/view', 'ember-template-compiler', 'ember-runtime/tests/utils', 'ember-runtime/system/native_array'], function (exports, _emberMetalRun_loop, _emberViewsViewsView, _emberTemplateCompiler, _emberRuntimeTestsUtils, _emberRuntimeSystemNative_array) {
   'use strict';
@@ -55084,7 +55516,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+f821c320', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+5c2e7191', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
