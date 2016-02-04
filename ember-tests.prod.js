@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+c0c0d83f
+ * @version   2.5.0-canary+f821c320
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -54640,7 +54640,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+c0c0d83f', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+f821c320', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
