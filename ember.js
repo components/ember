@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+651bea46
+ * @version   2.5.0-canary+c0c0d83f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+651bea46
+ * @version   2.5.0-canary+c0c0d83f
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -28169,7 +28169,7 @@ enifed("ember-glimmer/ember-template-compiler/system/template", ["exports"], fun
     return JSON.parse(templateSpec);
   }
 });
-enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get'], function (exports, _glimmerRuntime, _emberMetalProperty_get) {
+enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/property_get', 'ember-glimmer/helpers/concat'], function (exports, _glimmerRuntime, _emberMetalProperty_get, _emberGlimmerHelpersConcat) {
   'use strict';
 
   function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
@@ -28233,6 +28233,10 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
     return PropertyReference;
   })();
 
+  var helpers = {
+    concat: _emberGlimmerHelpersConcat.default
+  };
+
   var _default = (function (_Environment) {
     _inherits(_default, _Environment);
 
@@ -28246,8 +28250,12 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
       return false;
     };
 
-    _default.prototype.hasHelper = function hasHelper() {
-      return false;
+    _default.prototype.hasHelper = function hasHelper(name) {
+      return typeof helpers[name[0]] === 'function';
+    };
+
+    _default.prototype.lookupHelper = function lookupHelper(name) {
+      return helpers[name[0]];
     };
 
     _default.prototype.rootReferenceFor = function rootReferenceFor(value) {
@@ -28258,6 +28266,156 @@ enifed('ember-glimmer/environment', ['exports', 'glimmer-runtime', 'ember-metal/
   })(_glimmerRuntime.Environment);
 
   exports.default = _default;
+});
+enifed('ember-glimmer/helper', ['exports', 'ember-runtime/system/object'], function (exports, _emberRuntimeSystemObject) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  'use strict';
+
+  exports.helper = helper;
+
+  /**
+    Ember Helpers are functions that can compute values, and are used in templates.
+    For example, this code calls a helper named `format-currency`:
+  
+    ```handlebars
+    <div>{{format-currency cents currency="$"}}</div>
+    ```
+  
+    Additionally a helper can be called as a nested helper (sometimes called a
+    subexpression). In this example, the computed value of a helper is passed
+    to a component named `show-money`:
+  
+    ```handlebars
+    {{show-money amount=(format-currency cents currency="$")}}
+    ```
+  
+    Helpers defined using a class must provide a `compute` function. For example:
+  
+    ```js
+    export default Ember.Helper.extend({
+      compute(params, hash) {
+        let cents = params[0];
+        let currency = hash.currency;
+        return `${currency}${cents * 0.01}`;
+      }
+    });
+    ```
+  
+    Each time the input to a helper changes, the `compute` function will be
+    called again.
+  
+    As instances, these helpers also have access to the container an will accept
+    injected dependencies.
+  
+    Additionally, class helpers can call `recompute` to force a new computation.
+  
+    @class Ember.Helper
+    @public
+    @since 1.13.0
+  */
+  var Helper = _emberRuntimeSystemObject.default.extend({
+    isHelperInstance: true,
+
+    /**
+      On a class-based helper, it may be useful to force a recomputation of that
+      helpers value. This is akin to `rerender` on a component.
+       For example, this component will rerender when the `currentUser` on a
+      session service changes:
+       ```js
+      // app/helpers/current-user-email.js
+      export default Ember.Helper.extend({
+        session: Ember.inject.service(),
+        onNewUser: Ember.observer('session.currentUser', function() {
+          this.recompute();
+        }),
+        compute() {
+          return this.get('session.currentUser.email');
+        }
+      });
+      ```
+       @method recompute
+      @public
+      @since 1.13.0
+    */
+    recompute: function () {}
+
+    /**
+      Override this function when writing a class-based helper.
+       @method compute
+      @param {Array} params The positional arguments to the helper
+      @param {Object} hash The named arguments to the helper
+      @public
+      @since 1.13.0
+    */
+  });
+
+  Helper.reopenClass({
+    isHelperFactory: true
+  });
+
+  /**
+    In many cases, the ceremony of a full `Ember.Helper` class is not required.
+    The `helper` method create pure-function helpers without instances. For
+    example:
+  
+    ```js
+    // app/helpers/format-currency.js
+    export default Ember.Helper.helper(function(params, hash) {
+      let cents = params[0];
+      let currency = hash.currency;
+      return `${currency}${cents * 0.01}`;
+    });
+    ```
+  
+    @static
+    @param {Function} helper The helper function
+    @method helper
+    @public
+    @since 1.13.0
+  */
+
+  function helper(helperFn) {
+    return {
+      isHelperInstance: true,
+      compute: helperFn
+    };
+  }
+
+  exports.default = Helper;
+});
+enifed('ember-glimmer/helpers/concat', ['exports'], function (exports) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
+    Concatenates the given arguments into a string.
+  
+    Example:
+  
+    ```handlebars
+    {{some-component name=(concat firstName " " lastName)}}
+  
+    {{! would pass name="<first name value> <last name value>" to the component}}
+    ```
+  
+    @public
+    @method concat
+    @for Ember.Templates.helpers
+    @since 1.13.0
+  */
+  'use strict';
+
+  exports.default = concat;
+
+  function concat(args) {
+    return args.join('');
+  }
 });
 enifed('ember-glimmer', ['exports', 'ember-glimmer/environment'], function (exports, _emberGlimmerEnvironment) {
   'use strict';
@@ -28479,36 +28637,6 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
 
   exports.default = Helper;
 });
-enifed('ember-htmlbars/helpers/-concat', ['exports'], function (exports) {
-  /**
-  @module ember
-  @submodule ember-templates
-  */
-
-  /**
-    Concatenates input params together.
-  
-    Example:
-  
-    ```handlebars
-    {{some-component name=(concat firstName " " lastName)}}
-  
-    {{! would pass name="<first name value> <last name value>" to the component}}
-    ```
-  
-    @public
-    @method concat
-    @for Ember.Templates.helpers
-    @since 1.13.0
-  */
-  'use strict';
-
-  exports.default = concat;
-
-  function concat(params) {
-    return params.join('');
-  }
-});
 enifed('ember-htmlbars/helpers/-html-safe', ['exports', 'htmlbars-util/safe-string'], function (exports, _htmlbarsUtilSafeString) {
   'use strict';
 
@@ -28681,6 +28809,36 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
         } else {
             return null;
           }
+  }
+});
+enifed('ember-htmlbars/helpers/concat', ['exports'], function (exports) {
+  /**
+  @module ember
+  @submodule ember-templates
+  */
+
+  /**
+    Concatenates the given arguments into a string.
+  
+    Example:
+  
+    ```handlebars
+    {{some-component name=(concat firstName " " lastName)}}
+  
+    {{! would pass name="<first name value> <last name value>" to the component}}
+    ```
+  
+    @public
+    @method concat
+    @for Ember.Templates.helpers
+    @since 1.13.0
+  */
+  'use strict';
+
+  exports.default = concat;
+
+  function concat(args) {
+    return args.join('');
   }
 });
 enifed('ember-htmlbars/helpers/each-in', ['exports', 'ember-views/streams/should_display'], function (exports, _emberViewsStreamsShould_display) {
@@ -30237,7 +30395,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
     view.ownerView._destroyingSubtreeForView = view;
   }
 });
-enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/-concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/template_registry', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsTemplate_registry, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
+enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-metal/features', 'ember-template-compiler', 'ember-htmlbars/system/make_bound_helper', 'ember-htmlbars/helpers', 'ember-htmlbars/helpers/if_unless', 'ember-htmlbars/helpers/with', 'ember-htmlbars/helpers/loc', 'ember-htmlbars/helpers/log', 'ember-htmlbars/helpers/each', 'ember-htmlbars/helpers/each-in', 'ember-htmlbars/helpers/-normalize-class', 'ember-htmlbars/helpers/concat', 'ember-htmlbars/helpers/-join-classes', 'ember-htmlbars/helpers/-legacy-each-with-controller', 'ember-htmlbars/helpers/-legacy-each-with-keyword', 'ember-htmlbars/helpers/-html-safe', 'ember-htmlbars/helpers/hash', 'ember-htmlbars/system/dom-helper', 'ember-htmlbars/helper', 'ember-htmlbars/glimmer-component', 'ember-htmlbars/template_registry', 'ember-htmlbars/system/bootstrap', 'ember-htmlbars/compat'], function (exports, _emberMetalCore, _emberMetalFeatures, _emberTemplateCompiler, _emberHtmlbarsSystemMake_bound_helper, _emberHtmlbarsHelpers, _emberHtmlbarsHelpersIf_unless, _emberHtmlbarsHelpersWith, _emberHtmlbarsHelpersLoc, _emberHtmlbarsHelpersLog, _emberHtmlbarsHelpersEach, _emberHtmlbarsHelpersEachIn, _emberHtmlbarsHelpersNormalizeClass, _emberHtmlbarsHelpersConcat, _emberHtmlbarsHelpersJoinClasses, _emberHtmlbarsHelpersLegacyEachWithController, _emberHtmlbarsHelpersLegacyEachWithKeyword, _emberHtmlbarsHelpersHtmlSafe, _emberHtmlbarsHelpersHash, _emberHtmlbarsSystemDomHelper, _emberHtmlbarsHelper, _emberHtmlbarsGlimmerComponent, _emberHtmlbarsTemplate_registry, _emberHtmlbarsSystemBootstrap, _emberHtmlbarsCompat) {
   /**
     Ember templates are executed by [HTMLBars](https://github.com/tildeio/htmlbars),
     an HTML-friendly version of [Handlebars](http://handlebarsjs.com/). Any valid Handlebars syntax is valid in an Ember template.
@@ -30363,10 +30521,6 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-metal/feat
     registerPlugin: _emberTemplateCompiler.registerPlugin,
     DOMHelper: _emberHtmlbarsSystemDomHelper.default
   };
-
-  if (_emberMetalFeatures.default('ember-htmlbars-component-generation')) {
-    _emberMetalCore.default.GlimmerComponent = _emberHtmlbarsGlimmerComponent.default;
-  }
 
   _emberHtmlbarsHelper.default.helper = _emberHtmlbarsHelper.helper;
   _emberMetalCore.default.Helper = _emberHtmlbarsHelper.default;
@@ -31498,7 +31652,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+651bea46';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+c0c0d83f';
 
   /**
     The `{{outlet}}` helper lets you specify where a child routes will render in
@@ -37193,7 +37347,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+651bea46
+    @version 2.5.0-canary+c0c0d83f
     @public
   */
 
@@ -37235,11 +37389,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+651bea46'
+    @default '2.5.0-canary+c0c0d83f'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+651bea46';
+  Ember.VERSION = '2.5.0-canary+c0c0d83f';
 
   /**
     The hash of environment variables used to control various configuration
@@ -51170,7 +51324,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+651bea46';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+c0c0d83f';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -51673,7 +51827,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+651bea46';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+c0c0d83f';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -60638,7 +60792,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+651bea46',
+        revision: 'Ember@2.5.0-canary+c0c0d83f',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -65979,7 +66133,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+651bea46';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+c0c0d83f';
 
   /**
   @module ember

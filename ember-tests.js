@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+651bea46
+ * @version   2.5.0-canary+c0c0d83f
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -16043,14 +16043,108 @@ enifed('ember-glimmer/tests/integration/content-test', ['exports', 'ember-glimme
     return _class2;
   })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
 });
+enifed('ember-glimmer/tests/integration/helpers/concat-test', ['exports', 'ember-glimmer/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberGlimmerTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberGlimmerTestsUtilsTestCase.moduleFor('Helpers test: {{concat}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test htmlbars it concats static arguments'] = function testHtmlbarsItConcatsStaticArguments() {
+      this.render('{{concat "foo" " " "bar" " " "baz"}}');
+      this.assertText('foo bar baz');
+    };
+
+    _class.prototype['@test it updates for bound arguments'] = function testItUpdatesForBoundArguments() {
+      var _this = this;
+
+      this.render('{{concat first second}}', {
+        first: 'one',
+        second: 'two'
+      });
+
+      this.assertText('onetwo');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'first', 'three');
+      });
+
+      this.assertText('threetwo');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'second', 'four');
+      });
+
+      this.assertText('threefour');
+    };
+
+    _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
+      var _this2 = this;
+
+      this.render('{{concat (concat first second) (concat third fourth)}}', {
+        first: 'one',
+        second: 'two',
+        third: 'three',
+        fourth: 'four'
+      });
+
+      this.assertText('onetwothreefour');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'first', 'five');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'six');
+      });
+
+      this.assertText('fivetwosixfour');
+    };
+
+    _class.prototype['@htmlbars it can be used as input for other helpers'] = function htmlbarsItCanBeUsedAsInputForOtherHelpers() {
+      var _this3 = this;
+
+      this.registerHelper('x-eq', function (_ref) {
+        var actual = _ref[0];
+        var expected = _ref[1];
+        return actual === expected;
+      });
+
+      this.render('{{#if (x-eq (concat first second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
+        first: 'one',
+        second: 'two'
+      });
+
+      this.assertText('Truthy!');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'first', 'three');
+      });
+
+      this.assertText('False');
+    };
+
+    return _class;
+  })(_emberGlimmerTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-glimmer/tests/utils/environment', ['exports', 'ember-glimmer'], function (exports, _emberGlimmer) {
   'use strict';
 
   exports.default = _emberGlimmer.Environment;
 });
-enifed('ember-glimmer/tests/utils/helpers', ['exports', 'glimmer-runtime', 'ember-glimmer/ember-metal-views', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _glimmerRuntime, _emberGlimmerEmberMetalViews, _emberGlimmerEmberTemplateCompilerSystemCompile) {
+enifed('ember-glimmer/tests/utils/helpers', ['exports', 'ember-glimmer/helper', 'glimmer-runtime', 'ember-glimmer/ember-metal-views', 'ember-glimmer/ember-template-compiler/system/compile'], function (exports, _emberGlimmerHelper, _glimmerRuntime, _emberGlimmerEmberMetalViews, _emberGlimmerEmberTemplateCompilerSystemCompile) {
   'use strict';
 
+  exports.Helper = _emberGlimmerHelper.default;
+  exports.helper = _emberGlimmerHelper.helper;
   exports.DOMHelper = _glimmerRuntime.DOMHelper;
   exports.Renderer = _emberGlimmerEmberMetalViews.Renderer;
   exports.compile = _emberGlimmerEmberTemplateCompilerSystemCompile.default;
@@ -16147,12 +16241,14 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
       this.renderer = new _emberGlimmerTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.component = null;
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
-      this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      owner.registerOptionsForType('helper', { instantiate: false });
     }
 
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
+        _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
     };
 
@@ -16190,6 +16286,10 @@ enifed('ember-glimmer/tests/utils/test-case', ['exports', 'ember-glimmer/tests/u
         callback();
         _this.component.rerender();
       });
+    };
+
+    RenderingTest.prototype.registerHelper = function registerHelper(name, func) {
+      this.owner.register('helper:' + name, _emberGlimmerTestsUtilsHelpers.helper(func));
     };
 
     RenderingTest.prototype.assertText = function assertText(text) {
@@ -18890,79 +18990,6 @@ enifed('ember-htmlbars/tests/helpers/component_test', ['exports', 'ember-runtime
     });
 
     equal(view.$().text(), '---: Another Hello!');
-  });
-});
-enifed('ember-htmlbars/tests/helpers/concat-test', ['exports', 'ember-metal/run_loop', 'ember-views/components/component', 'ember-template-compiler/system/compile', 'ember-htmlbars/helper', 'ember-runtime/tests/utils', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberViewsComponentsComponent, _emberTemplateCompilerSystemCompile, _emberHtmlbarsHelper, _emberRuntimeTestsUtils, _containerTestsTestHelpersBuildOwner, _containerOwner) {
-  'use strict';
-
-  var component, owner;
-
-  QUnit.module('ember-htmlbars: {{concat}} helper', {
-    setup: function () {
-      owner = _containerTestsTestHelpersBuildOwner.default();
-      owner.registerOptionsForType('helper', { instantiate: false });
-    },
-
-    teardown: function () {
-      _emberRuntimeTestsUtils.runDestroy(owner);
-      _emberRuntimeTestsUtils.runDestroy(component);
-    }
-  });
-
-  QUnit.test('concats provided params', function () {
-    var _Component$create;
-
-    component = _emberViewsComponentsComponent.default.create((_Component$create = {}, _Component$create[_containerOwner.OWNER] = owner, _Component$create.layout = _emberTemplateCompilerSystemCompile.default('{{concat "foo" " " "bar" " " "baz"}}'), _Component$create));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'foo bar baz');
-  });
-
-  QUnit.test('updates for bound params', function () {
-    var _Component$create2;
-
-    component = _emberViewsComponentsComponent.default.create((_Component$create2 = {}, _Component$create2[_containerOwner.OWNER] = owner, _Component$create2.firstParam = 'one', _Component$create2.secondParam = 'two', _Component$create2.layout = _emberTemplateCompilerSystemCompile.default('{{concat firstParam secondParam}}'), _Component$create2));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'onetwo');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('firstParam', 'three');
-    });
-
-    equal(component.$().text(), 'threetwo');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('secondParam', 'four');
-    });
-
-    equal(component.$().text(), 'threefour');
-  });
-
-  QUnit.test('can be used as a sub-expression', function () {
-    var _Component$create3;
-
-    function eq(_ref) {
-      var actual = _ref[0];
-      var expected = _ref[1];
-
-      return actual === expected;
-    }
-    owner.register('helper:x-eq', _emberHtmlbarsHelper.helper(eq));
-
-    component = _emberViewsComponentsComponent.default.create((_Component$create3 = {}, _Component$create3[_containerOwner.OWNER] = owner, _Component$create3.firstParam = 'one', _Component$create3.secondParam = 'two', _Component$create3.layout = _emberTemplateCompilerSystemCompile.default('{{#if (x-eq (concat firstParam secondParam) "onetwo")}}Truthy!{{else}}False{{/if}}'), _Component$create3));
-
-    _emberRuntimeTestsUtils.runAppend(component);
-
-    equal(component.$().text(), 'Truthy!');
-
-    _emberMetalRun_loop.default(function () {
-      component.set('firstParam', 'three');
-    });
-
-    equal(component.$().text(), 'False');
   });
 });
 enifed('ember-htmlbars/tests/helpers/custom_helper_test', ['exports', 'ember-views/components/component', 'ember-htmlbars/helper', 'ember-template-compiler/system/compile', 'ember-runtime/tests/utils', 'ember-metal/run_loop', 'ember-views/component_lookup', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberViewsComponentsComponent, _emberHtmlbarsHelper, _emberTemplateCompilerSystemCompile, _emberRuntimeTestsUtils, _emberMetalRun_loop, _emberViewsComponent_lookup, _containerTestsTestHelpersBuildOwner, _containerOwner) {
@@ -27653,6 +27680,98 @@ enifed('ember-htmlbars/tests/integration/helper-lookup-test', ['exports', 'ember
     equal(component.$().text(), 'Robert Jackson');
   });
 });
+enifed('ember-htmlbars/tests/integration/helpers/concat-test', ['exports', 'ember-htmlbars/tests/utils/test-case', 'ember-metal/property_set'], function (exports, _emberHtmlbarsTestsUtilsTestCase, _emberMetalProperty_set) {
+  'use strict';
+
+  function _defaults(obj, defaults) { var keys = Object.getOwnPropertyNames(defaults); for (var i = 0; i < keys.length; i++) { var key = keys[i]; var value = Object.getOwnPropertyDescriptor(defaults, key); if (value && value.configurable && obj[key] === undefined) { Object.defineProperty(obj, key, value); } } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+  function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : _defaults(subClass, superClass); }
+
+  _emberHtmlbarsTestsUtilsTestCase.moduleFor('Helpers test: {{concat}}', (function (_RenderingTest) {
+    _inherits(_class, _RenderingTest);
+
+    function _class() {
+      _classCallCheck(this, _class);
+
+      _RenderingTest.apply(this, arguments);
+    }
+
+    _class.prototype['@test htmlbars it concats static arguments'] = function testHtmlbarsItConcatsStaticArguments() {
+      this.render('{{concat "foo" " " "bar" " " "baz"}}');
+      this.assertText('foo bar baz');
+    };
+
+    _class.prototype['@test it updates for bound arguments'] = function testItUpdatesForBoundArguments() {
+      var _this = this;
+
+      this.render('{{concat first second}}', {
+        first: 'one',
+        second: 'two'
+      });
+
+      this.assertText('onetwo');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'first', 'three');
+      });
+
+      this.assertText('threetwo');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this.context, 'second', 'four');
+      });
+
+      this.assertText('threefour');
+    };
+
+    _class.prototype['@test it can be used as a sub-expression'] = function testItCanBeUsedAsASubExpression() {
+      var _this2 = this;
+
+      this.render('{{concat (concat first second) (concat third fourth)}}', {
+        first: 'one',
+        second: 'two',
+        third: 'three',
+        fourth: 'four'
+      });
+
+      this.assertText('onetwothreefour');
+
+      this.inZone(function () {
+        _emberMetalProperty_set.set(_this2.context, 'first', 'five');
+        _emberMetalProperty_set.set(_this2.context, 'third', 'six');
+      });
+
+      this.assertText('fivetwosixfour');
+    };
+
+    _class.prototype['@htmlbars it can be used as input for other helpers'] = function htmlbarsItCanBeUsedAsInputForOtherHelpers() {
+      var _this3 = this;
+
+      this.registerHelper('x-eq', function (_ref) {
+        var actual = _ref[0];
+        var expected = _ref[1];
+        return actual === expected;
+      });
+
+      this.render('{{#if (x-eq (concat first second) "onetwo")}}Truthy!{{else}}False{{/if}}', {
+        first: 'one',
+        second: 'two'
+      });
+
+      this.assertText('Truthy!');
+
+      this.inZone(function () {
+        return _emberMetalProperty_set.set(_this3.context, 'first', 'three');
+      });
+
+      this.assertText('False');
+    };
+
+    return _class;
+  })(_emberHtmlbarsTestsUtilsTestCase.RenderingTest));
+});
 enifed('ember-htmlbars/tests/integration/input_test', ['exports', 'ember-metal/run_loop', 'ember-metal/property_set', 'ember-views/views/view', 'ember-runtime/tests/utils', 'ember-template-compiler/system/compile', 'ember-views/component_lookup', 'ember-views/views/text_field', 'ember-views/views/checkbox', 'ember-views/system/event_dispatcher', 'container/tests/test-helpers/build-owner', 'container/owner'], function (exports, _emberMetalRun_loop, _emberMetalProperty_set, _emberViewsViewsView, _emberRuntimeTestsUtils, _emberTemplateCompilerSystemCompile, _emberViewsComponent_lookup, _emberViewsViewsText_field, _emberViewsViewsCheckbox, _emberViewsSystemEvent_dispatcher, _containerTestsTestHelpersBuildOwner, _containerOwner) {
   'use strict';
 
@@ -29524,9 +29643,11 @@ enifed("ember-htmlbars/tests/utils/environment", ["exports"], function (exports)
 
   exports.default = Environment;
 });
-enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/system/dom-helper', 'ember-metal-views', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsSystemDomHelper, _emberMetalViews, _emberTemplateCompilerSystemCompile) {
+enifed('ember-htmlbars/tests/utils/helpers', ['exports', 'ember-htmlbars/helper', 'ember-htmlbars/system/dom-helper', 'ember-metal-views', 'ember-template-compiler/system/compile'], function (exports, _emberHtmlbarsHelper, _emberHtmlbarsSystemDomHelper, _emberMetalViews, _emberTemplateCompilerSystemCompile) {
   'use strict';
 
+  exports.Helper = _emberHtmlbarsHelper.default;
+  exports.helper = _emberHtmlbarsHelper.helper;
   exports.DOMHelper = _emberHtmlbarsSystemDomHelper.default;
   exports.Renderer = _emberMetalViews.Renderer;
   exports.compile = _emberTemplateCompilerSystemCompile.default;
@@ -29648,12 +29769,14 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
       this.renderer = new _emberHtmlbarsTestsUtilsHelpers.Renderer(dom, { destinedForDOM: true, env: env });
       this.component = null;
       this.element = _emberViewsSystemJquery.default('#qunit-fixture')[0];
-      this.owner = _containerTestsTestHelpersBuildOwner.default();
+      var owner = this.owner = _containerTestsTestHelpersBuildOwner.default();
+      owner.registerOptionsForType('helper', { instantiate: false });
     }
 
     RenderingTest.prototype.teardown = function teardown() {
       if (this.component) {
         _emberRuntimeTestsUtils.runDestroy(this.component);
+        _emberRuntimeTestsUtils.runDestroy(this.owner);
       }
     };
 
@@ -29691,6 +29814,10 @@ enifed('ember-htmlbars/tests/utils/test-case', ['exports', 'ember-htmlbars/tests
         callback();
         _this.component.rerender();
       });
+    };
+
+    RenderingTest.prototype.registerHelper = function registerHelper(name, func) {
+      this.owner.register('helper:' + name, _emberHtmlbarsTestsUtilsHelpers.helper(func));
     };
 
     RenderingTest.prototype.assertText = function assertText(text) {
@@ -54957,7 +55084,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+651bea46', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+c0c0d83f', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
