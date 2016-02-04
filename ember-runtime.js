@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+1fda8f38
+ * @version   2.5.0-canary+d5b6c8a8
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -4886,7 +4886,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+1fda8f38
+    @version 2.5.0-canary+d5b6c8a8
     @public
   */
 
@@ -4928,11 +4928,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+1fda8f38'
+    @default '2.5.0-canary+d5b6c8a8'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+1fda8f38';
+  Ember.VERSION = '2.5.0-canary+d5b6c8a8';
 
   /**
     The hash of environment variables used to control various configuration
@@ -7831,6 +7831,7 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
   exports.aliasMethod = aliasMethod;
   exports.observer = observer;
   exports._immediateObserver = _immediateObserver;
+  exports._beforeObserver = _beforeObserver;
 
   function ROOT() {}
   ROOT.__hasSuper = false;
@@ -8154,11 +8155,13 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     var prev = obj[key];
 
     if ('function' === typeof prev) {
+      updateObserversAndListeners(obj, key, prev, '__ember_observesBefore__', _emberMetalObserver._removeBeforeObserver);
       updateObserversAndListeners(obj, key, prev, '__ember_observes__', _emberMetalObserver.removeObserver);
       updateObserversAndListeners(obj, key, prev, '__ember_listens__', _emberMetalEvents.removeListener);
     }
 
     if ('function' === typeof observerOrListener) {
+      updateObserversAndListeners(obj, key, observerOrListener, '__ember_observesBefore__', _emberMetalObserver._addBeforeObserver);
       updateObserversAndListeners(obj, key, observerOrListener, '__ember_observes__', _emberMetalObserver.addObserver);
       updateObserversAndListeners(obj, key, observerOrListener, '__ember_listens__', _emberMetalEvents.addListener);
     }
@@ -8658,6 +8661,82 @@ enifed('ember-metal/mixin', ['exports', 'ember-metal/core', 'ember-metal/error',
     }
 
     return observer.apply(this, arguments);
+  }
+
+  /**
+    When observers fire, they are called with the arguments `obj`, `keyName`.
+  
+    Note, `@each.property` observer is called per each add or replace of an element
+    and it's not called with a specific enumeration item.
+  
+    A `_beforeObserver` fires before a property changes.
+  
+    A `_beforeObserver` is an alternative form of `.observesBefore()`.
+  
+    ```javascript
+    App.PersonView = Ember.View.extend({
+      friends: [{ name: 'Tom' }, { name: 'Stefan' }, { name: 'Kris' }],
+  
+      valueDidChange: Ember.observer('content.value', function(obj, keyName) {
+          // only run if updating a value already in the DOM
+          if (this.get('state') === 'inDOM') {
+            var color = obj.get(keyName) > this.changingFrom ? 'green' : 'red';
+            // logic
+          }
+      }),
+  
+      friendsDidChange: Ember.observer('friends.@each.name', function(obj, keyName) {
+        // some logic
+        // obj.get(keyName) returns friends array
+      })
+    });
+    ```
+  
+    Also available as `Function.prototype.observesBefore` if prototype extensions are
+    enabled.
+  
+    @method beforeObserver
+    @for Ember
+    @param {String} propertyNames*
+    @param {Function} func
+    @return func
+    @deprecated
+    @private
+  */
+
+  function _beforeObserver() {
+    for (var _len5 = arguments.length, args = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+
+    var func = args.slice(-1)[0];
+    var paths;
+
+    var addWatchedProperty = function (path) {
+      paths.push(path);
+    };
+
+    var _paths = args.slice(0, -1);
+
+    if (typeof func !== 'function') {
+      // revert to old, soft-deprecated argument ordering
+
+      func = args[0];
+      _paths = args.slice(1);
+    }
+
+    paths = [];
+
+    for (var i = 0; i < _paths.length; ++i) {
+      _emberMetalExpand_properties.default(_paths[i], addWatchedProperty);
+    }
+
+    if (typeof func !== 'function') {
+      throw new _emberMetalCore.default.Error('Ember.beforeObserver called without a function');
+    }
+
+    func.__ember_observesBefore__ = paths;
+    return func;
   }
 
   exports.IS_BINDING = IS_BINDING;
@@ -11867,6 +11946,7 @@ enifed('ember-metal/utils', ['exports'], function (exports) {
 
     superWrapper.wrappedFunction = func;
     superWrapper.__ember_observes__ = func.__ember_observes__;
+    superWrapper.__ember_observesBefore__ = func.__ember_observesBefore__;
     superWrapper.__ember_listens__ = func.__ember_listens__;
 
     return superWrapper;
@@ -12272,6 +12352,7 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
   'use strict';
 
   exports.isWatching = isWatching;
+  exports.watcherCount = watcherCount;
   exports.unwatch = unwatch;
   exports.destroy = destroy;
 
@@ -12306,6 +12387,11 @@ enifed('ember-metal/watching', ['exports', 'ember-metal/chains', 'ember-metal/wa
   function isWatching(obj, key) {
     var meta = _emberMetalMeta.peekMeta(obj);
     return (meta && meta.peekWatching(key)) > 0;
+  }
+
+  function watcherCount(obj, key) {
+    var meta = _emberMetalMeta.peekMeta(obj);
+    return meta && meta.peekWatching(key) || 0;
   }
 
   watch.flushPending = _emberMetalChains.flushPendingChains;
@@ -17914,21 +18000,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       @type Ember.Array
       @private
     */
-    content: _emberMetalComputed.computed({
-      get: function () {
-        return this._content;
-      },
-      set: function (k, v) {
-        if (this._didInitArrayProxy) {
-          var oldContent = this._content;
-          var len = oldContent ? _emberMetalProperty_get.get(oldContent, 'length') : 0;
-          this.arrangedContentArrayWillChange(this, 0, len, undefined);
-          this.arrangedContentWillChange(this);
-        }
-        this._content = v;
-        return v;
-      }
-    }),
+    content: null,
 
     /**
      The array that the proxy pretends to be. In the default `ArrayProxy`
@@ -17936,7 +18008,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
      can override this property to provide things like sorting and filtering.
       @property arrangedContent
      @private
-     */
+    */
     arrangedContent: _emberMetalAlias.default('content'),
 
     /**
@@ -17970,7 +18042,19 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       _emberMetalProperty_get.get(this, 'content').replace(idx, amt, objects);
     },
 
-    _teardownContent: function (content) {
+    /**
+      Invoked when the content property is about to change. Notifies observers that the
+      entire array content will change.
+       @private
+      @method _contentWillChange
+    */
+    _contentWillChange: _emberMetalMixin._beforeObserver('content', function () {
+      this._teardownContent();
+    }),
+
+    _teardownContent: function () {
+      var content = _emberMetalProperty_get.get(this, 'content');
+
       if (content) {
         content.removeArrayObserver(this, {
           willChange: 'contentArrayWillChange',
@@ -18008,7 +18092,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
     */
     _contentDidChange: _emberMetalMixin.observer('content', function () {
       var content = _emberMetalProperty_get.get(this, 'content');
-      this._teardownContent(this._prevContent);
 
       _emberMetalDebug.assert('Can\'t set ArrayProxy\'s content to itself', content !== this);
 
@@ -18017,7 +18100,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
 
     _setupContent: function () {
       var content = _emberMetalProperty_get.get(this, 'content');
-      this._prevContent = content;
 
       if (content) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof content, _emberRuntimeUtils.isArray(content) || content.isDestroyed);
@@ -18029,8 +18111,17 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
       }
     },
 
+    _arrangedContentWillChange: _emberMetalMixin._beforeObserver('arrangedContent', function () {
+      var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
+      var len = arrangedContent ? _emberMetalProperty_get.get(arrangedContent, 'length') : 0;
+
+      this.arrangedContentArrayWillChange(this, 0, len, undefined);
+      this.arrangedContentWillChange(this);
+
+      this._teardownArrangedContent(arrangedContent);
+    }),
+
     _arrangedContentDidChange: _emberMetalMixin.observer('arrangedContent', function () {
-      this._teardownArrangedContent(this._prevArrangedContent);
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
       var len = arrangedContent ? _emberMetalProperty_get.get(arrangedContent, 'length') : 0;
 
@@ -18044,7 +18135,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
 
     _setupArrangedContent: function () {
       var arrangedContent = _emberMetalProperty_get.get(this, 'arrangedContent');
-      this._prevArrangedContent = arrangedContent;
 
       if (arrangedContent) {
         _emberMetalDebug.assert('ArrayProxy expects an Array or Ember.ArrayProxy, but you passed ' + typeof arrangedContent, _emberRuntimeUtils.isArray(arrangedContent) || arrangedContent.isDestroyed);
@@ -18198,7 +18288,6 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
     },
 
     init: function () {
-      this._didInitArrayProxy = true;
       this._super.apply(this, arguments);
       this._setupContent();
       this._setupArrangedContent();
@@ -18206,7 +18295,7 @@ enifed('ember-runtime/system/array_proxy', ['exports', 'ember-metal/debug', 'emb
 
     willDestroy: function () {
       this._teardownArrangedContent();
-      this._teardownContent(this.get('content'));
+      this._teardownContent();
     }
   });
 
