@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+5c2e7191
+ * @version   2.5.0-canary+1fda8f38
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -11379,7 +11379,7 @@ enifed('ember-application/tests/system/application_instance_test', ['exports', '
     var postController2 = appInstance.lookup('controller:post');
     assert.ok(postController2, 'lookup creates instance');
 
-    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because previous one was reset');
+    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because the previous one was reset');
   });
 });
 enifed('ember-application/tests/system/application_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/application', 'ember-application/system/resolver', 'ember-routing/system/router', 'ember-views/views/view', 'ember-runtime/controllers/controller', 'ember-routing/location/none_location', 'ember-runtime/system/object', 'ember-routing/system/route', 'ember-views/system/jquery', 'ember-template-compiler/system/compile', 'ember-runtime/system/lazy_load', 'ember-metal/debug'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemApplication, _emberApplicationSystemResolver, _emberRoutingSystemRouter, _emberViewsViewsView, _emberRuntimeControllersController, _emberRoutingLocationNone_location, _emberRuntimeSystemObject, _emberRoutingSystemRoute, _emberViewsSystemJquery, _emberTemplateCompilerSystemCompile, _emberRuntimeSystemLazy_load, _emberMetalDebug) {
@@ -11435,7 +11435,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     });
   });
 
-  QUnit.test('you cannot make a new application that is a descendent of an existing application', function () {
+  QUnit.test('you cannot make a new application that is a descendant of an existing application', function () {
     expectAssertion(function () {
       _emberMetalRun_loop.default(function () {
         _emberApplicationSystemApplication.default.create({ rootElement: '#one-child' });
@@ -11494,7 +11494,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
     }
   });
 
-  QUnit.test('initialized application go to initial route', function () {
+  QUnit.test('initialized application goes to initial route', function () {
     _emberMetalRun_loop.default(function () {
       app = _emberApplicationSystemApplication.default.create({
         rootElement: '#qunit-fixture'
@@ -11527,7 +11527,7 @@ enifed('ember-application/tests/system/application_test', ['exports', 'ember-met
       var MyApplication = _emberApplicationSystemApplication.default.extend({
         ready: function () {
           registerRoute(this, 'index', function () {
-            ok(true, 'last-minite route is activated');
+            ok(true, 'last-minute route is activated');
           });
         }
       });
@@ -11816,7 +11816,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
   });
 
   QUnit.test('the default resolver looks up basic name as no prefix', function () {
-    ok(_emberRuntimeControllersController.default.detect(locator.lookup('controller:basic')), 'locator looksup correct controller');
+    ok(_emberRuntimeControllersController.default.detect(locator.lookup('controller:basic')), 'locator looks up correct controller');
   });
 
   function detectEqual(first, second, message) {
@@ -11879,7 +11879,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
 
     expectDeprecation(function () {
       LegacyHTMLBarsBoundHelper = _emberHtmlbarsSystemMake_bound_helper.default(function () {});
-    }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to using `Ember.Helper` or `Ember.Helper.helper`.');
+    }, 'Using `Ember.HTMLBars.makeBoundHelper` is deprecated. Please refactor to use `Ember.Helper` or `Ember.Helper.helper`.');
 
     application.ShorthandHelper = ShorthandHelper;
     application.CompleteHelper = CompleteHelper;
@@ -11894,7 +11894,7 @@ enifed('ember-application/tests/system/dependency_injection/default_resolver_tes
     equal(resolvedLegacyHTMLBars, LegacyHTMLBarsBoundHelper, 'resolves legacy HTMLBars bound helper');
   });
 
-  QUnit.test('the default resolver resolves to the same instance no matter the notation ', function () {
+  QUnit.test('the default resolver resolves to the same instance, no matter the notation ', function () {
     application.NestedPostController = _emberRuntimeControllersController.default.extend({});
 
     equal(locator.lookup('controller:nested-post'), locator.lookup('controller:nested_post'), 'looks up NestedPost controller on application');
@@ -12315,7 +12315,7 @@ enifed('ember-application/tests/system/engine_instance_test', ['exports', 'ember
     var postController2 = engineInstance.lookup('controller:post');
     assert.ok(postController2, 'lookup creates instance');
 
-    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance, because previous one was reset');
+    assert.notStrictEqual(postController1, postController2, 'lookup creates a brand new instance because previous one was reset');
   });
 });
 enifed('ember-application/tests/system/engine_test', ['exports', 'ember-metal/core', 'ember-metal/run_loop', 'ember-application/system/engine', 'ember-runtime/system/object'], function (exports, _emberMetalCore, _emberMetalRun_loop, _emberApplicationSystemEngine, _emberRuntimeSystemObject) {
@@ -12381,7 +12381,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
-  QUnit.test('initializers that thorws causes the boot promise to reject with the error', function () {
+  QUnit.test('initializers that throw errors cause the boot promise to reject with the error', function () {
     QUnit.expect(2);
     QUnit.stop();
 
@@ -12611,7 +12611,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     ok(order.indexOf(c.name) < order.indexOf(afterC.name), 'c < afterC');
   });
 
-  QUnit.test('initializers set on Application subclasses should not be shared between apps', function () {
+  QUnit.test('initializers set on Application subclasses are not shared between apps', function () {
     var firstInitializerRunCount = 0;
     var secondInitializerRunCount = 0;
     var FirstApp = _emberApplicationSystemApplication.default.extend();
@@ -12711,7 +12711,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
-  QUnit.test('initializers should be executed in their own context', function () {
+  QUnit.test('initializers are executed in their own context', function () {
     expect(1);
     var MyApplication = _emberApplicationSystemApplication.default.extend();
 
@@ -12731,7 +12731,7 @@ enifed('ember-application/tests/system/initializers_test', ['exports', 'ember-me
     });
   });
 
-  QUnit.test('initializers should throw a deprecation warning when receiving a second argument', function () {
+  QUnit.test('initializers throw a deprecation warning when receiving a second argument', function () {
     expect(1);
 
     var MyApplication = _emberApplicationSystemApplication.default.extend();
@@ -13110,7 +13110,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     });
   });
 
-  QUnit.test('initializers should be executed in their own context', function () {
+  QUnit.test('initializers are executed in their own context', function () {
     expect(1);
 
     var MyApplication = _emberApplicationSystemApplication.default.extend();
@@ -13131,7 +13131,7 @@ enifed('ember-application/tests/system/instance_initializers_test', ['exports', 
     });
   });
 
-  QUnit.test('Initializers get an instance on app reset', function () {
+  QUnit.test('initializers get an instance on app reset', function () {
     expect(2);
 
     var MyApplication = _emberApplicationSystemApplication.default.extend();
@@ -13549,7 +13549,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     application.reset();
   });
 
-  QUnit.test('does not bring its own run loop if one is already provided', function () {
+  QUnit.test('Does not bring its own run loop if one is already provided', function () {
     expect(3);
 
     var didBecomeReady = false;
@@ -13787,7 +13787,7 @@ enifed('ember-application/tests/system/reset_test', ['exports', 'ember-metal/run
     });
 
     listeners = _emberViewsSystemJquery.default._data(_emberViewsSystemJquery.default(window)[0], 'events');
-    equal(listeners['hashchange'].length, 1, 'hashchange event listener was setup');
+    equal(listeners['hashchange'].length, 1, 'hashchange event listener was set up');
 
     application.reset();
 
@@ -13904,7 +13904,7 @@ enifed('ember-application/tests/system/visit_test', ['exports', 'ember-metal/cor
     });
   });
 
-  QUnit.test('calling visit() on app without first calling boot() should boot the app', function (assert) {
+  QUnit.test('calling visit() on an app without first calling boot() should boot the app', function (assert) {
     var appBooted = 0;
     var instanceBooted = 0;
 
@@ -14480,7 +14480,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
     }
   });
 
-  QUnit.test('Ember.deprecate re-sets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
+  QUnit.test('Ember.deprecate resets deprecation level to RAISE if ENV.RAISE_ON_DEPRECATION is set', function (assert) {
     assert.expect(2);
 
     _emberMetalCore.default.ENV.RAISE_ON_DEPRECATION = false;
@@ -14589,7 +14589,7 @@ enifed('ember-debug/tests/main_test', ['exports', 'ember-metal/core', 'ember-run
   QUnit.test('Ember.assert does not throw if second argument is a function and it returns true', function (assert) {
     assert.expect(1);
 
-    // shouldn't trigger an assertion, but deprecation from using function as test is expected
+    // Shouldn't trigger an assertion, but deprecation from using function as test is expected.
     expectDeprecation(function () {
       return _emberMetalCore.default.assert('Assertion is thrown', function () {
         return true;
@@ -15524,7 +15524,7 @@ enifed('ember-extension-support/tests/container_debug_adapter_test', ['exports',
   QUnit.module('Container Debug Adapter', {
     setup: function () {
       _emberMetalRun_loop.default(function () {
-        App = _emberApplicationSystemApplication.default.create(); // ES6TODO: this comes from the ember-application package NOT ember-runtime
+        App = _emberApplicationSystemApplication.default.create(); // ES6TODO: this comes from the ember-application package NOT ember-runtime.
         App.toString = function () {
           return 'App';
         };
@@ -15565,7 +15565,7 @@ enifed('ember-extension-support/tests/container_debug_adapter_test', ['exports',
     equal(controllerClasses[0], 'post', 'found the right class');
   });
 });
-// Must be required to export Ember.ContainerDebugAdapter
+// Must be required to export Ember.ContainerDebugAdapter.
 enifed('ember-extension-support/tests/data_adapter_test', ['exports', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/run_loop', 'ember-metal/observer', 'ember-runtime/system/object', 'ember-runtime/system/native_array', 'ember-extension-support/data_adapter', 'ember-application/system/application', 'ember-application/system/resolver'], function (exports, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalRun_loop, _emberMetalObserver, _emberRuntimeSystemObject, _emberRuntimeSystemNative_array, _emberExtensionSupportData_adapter, _emberApplicationSystemApplication, _emberApplicationSystemResolver) {
   'use strict';
 
@@ -55516,7 +55516,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+5c2e7191', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+1fda8f38', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {

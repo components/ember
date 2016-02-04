@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+5c2e7191
+ * @version   2.5.0-canary+1fda8f38
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -121,7 +121,7 @@ enifed("glimmer/index", ["exports"], function (exports) {
  * @copyright Copyright 2011-2015 Tilde Inc. and contributors
  * @license   Licensed under MIT license
  *            See https://raw.githubusercontent.com/tildeio/glimmer/master/LICENSE
- * @version   2.5.0-canary+5c2e7191
+ * @version   2.5.0-canary+1fda8f38
  */
 
 enifed('glimmer-object/index', ['exports', 'glimmer-object/lib/object', 'glimmer-object/lib/computed', 'glimmer-object/lib/mixin', 'glimmer-object/lib/descriptors'], function (exports, _glimmerObjectLibObject, _glimmerObjectLibComputed, _glimmerObjectLibMixin, _glimmerObjectLibDescriptors) {
@@ -22055,7 +22055,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
      twitter2 instanceof Twitter; // => true
       twitter === twitter2; //=> true
      ```
-      If singletons are not wanted an optional flag can be provided at lookup.
+      If singletons are not wanted, an optional flag can be provided at lookup.
       ```javascript
      var registry = new Registry();
      var container = registry.container();
@@ -22076,7 +22076,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     },
 
     /**
-     Given a fullName return the corresponding factory.
+     Given a fullName, return the corresponding factory.
       @private
      @method lookupFactory
      @param {String} fullName
@@ -22408,14 +22408,14 @@ enifed('container/index', ['exports', 'ember-metal/core', 'container/registry', 
   'use strict';
 
   /*
-  Public api for the container is still in flux.
-  The public api, specified on the application namespace should be considered the stable api.
+  Public API for the container is still in flux.
+  The public API, specified on the application namespace should be considered the stable API.
   // @module container
     @private
   */
 
   /*
-   Flag to enable/disable model factory injections (disabled by default)
+   Flag to enable/disable model factory injections (disabled by default).
    If model factory injections are enabled, models should not be
    accessed globally (only through `container.lookupFactory('model:modelName'))`);
   */
@@ -22477,8 +22477,8 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     ```
   
     @method getOwner
-    @param {Object} object A object with an owner.
-    @return {Object} an owner object.
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
     @for Ember
     @public
   */
@@ -22492,8 +22492,8 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     useful in some testing cases.
   
     @method setOwner
-    @param {Object} object A object with an owner.
-    @return {Object} an owner object.
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
     @for Ember
     @public
   */
@@ -26967,7 +26967,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     * `catalogEntriesByType`
   
     The adapter will need to be registered
-    in the application's container as `container-debug-adapter:main`
+    in the application's container as `container-debug-adapter:main`.
   
     Example:
   
@@ -27002,7 +27002,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
       Returns true if it is possible to catalog a list of available
       classes in the resolver for a given type.
        @method canCatalogEntriesByType
-      @param {String} type The type. e.g. "model", "controller", "route"
+      @param {String} type The type. e.g. "model", "controller", "route".
       @return {boolean} whether a list is available for this type.
       @public
     */
@@ -27017,7 +27017,7 @@ enifed('ember-extension-support/container_debug_adapter', ['exports', 'ember-met
     /**
       Returns the available classes a given type.
        @method catalogEntriesByType
-      @param {String} type The type. e.g. "model", "controller", "route"
+      @param {String} type The type. e.g. "model", "controller", "route".
       @return {Array} An array of strings.
       @public
     */
@@ -27076,7 +27076,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     * `observeRecord`
   
     The adapter will need to be registered
-    in the application's container as `dataAdapter:main`
+    in the application's container as `dataAdapter:main`.
   
     Example:
   
@@ -27112,7 +27112,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     containerDebugAdapter: undefined,
 
     /**
-      Number of attributes to send
+      The number of attributes to send
       as columns. (Enough to make the record
       identifiable).
        @private
@@ -27203,19 +27203,19 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Fetch the records of a given type and observe them for changes.
        @public
       @method watchRecords
-       @param {String} modelName The model name
+       @param {String} modelName The model name.
        @param {Function} recordsAdded Callback to call to add records.
       Takes an array of objects containing wrapped records.
       The object should have the following properties:
-        columnValues: {Object} key and value of a table cell
-        object: {Object} the actual record object
+        columnValues: {Object} The key and value of a table cell.
+        object: {Object} The actual record object.
        @param {Function} recordsUpdated Callback to call when a record has changed.
       Takes an array of objects containing wrapped records.
        @param {Function} recordsRemoved Callback to call when a record has removed.
       Takes the following parameters:
-        index: the array index where the records were removed
-        count: the number of records removed
-       @return {Function} Method to call to remove all observers
+        index: The array index where the records were removed.
+        count: The number of records removed.
+       @return {Function} Method to call to remove all observers.
     */
     watchRecords: function (modelName, recordsAdded, recordsUpdated, recordsRemoved) {
       var _this2 = this;
@@ -27281,11 +27281,11 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
     /**
       Detect whether a class is a model.
        Test that against the model class
-      of your persistence library
+      of your persistence library.
        @private
       @method detect
-      @param {Class} klass The class to test
-      @return boolean Whether the class is a model class or not
+      @param {Class} klass The class to test.
+      @return boolean Whether the class is a model class or not.
     */
     detect: function (klass) {
       return false;
@@ -27295,10 +27295,10 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Get the columns for a given model type.
        @private
       @method columnsForType
-      @param {Class} type The model type
+      @param {Class} type The model type.
       @return {Array} An array of columns of the following format:
-       name: {String} name of the column
-       desc: {String} Humanized description (what would show in a table column name)
+       name: {String} The name of the column.
+       desc: {String} Humanized description (what would show in a table column name).
     */
     columnsForType: function (type) {
       return _emberRuntimeSystemNative_array.A();
@@ -27308,9 +27308,9 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Adds observers to a model type class.
        @private
       @method observeModelType
-      @param {String} modelName The model type name
+      @param {String} modelName The model type name.
       @param {Function} typesUpdated Called when a type is modified.
-      @return {Function} The function to call to remove observers
+      @return {Function} The function to call to remove observers.
     */
 
     observeModelType: function (modelName, typesUpdated) {
@@ -27344,17 +27344,17 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Wraps a given model type and observes changes to it.
        @private
       @method wrapModelType
-      @param {Class} klass A model class
-      @param {String} modelName Name of the class
-      @return {Object} contains the wrapped type and the function to remove observers
+      @param {Class} klass A model class.
+      @param {String} modelName Name of the class.
+      @return {Object} Contains the wrapped type and the function to remove observers
       Format:
-        type: {Object} the wrapped type
+        type: {Object} The wrapped type.
           The wrapped type has the following format:
-            name: {String} name of the type
-            count: {Integer} number of records available
-            columns: {Columns} array of columns to describe the record
-            object: {Class} the actual Model type class
-        release: {Function} The function to remove observers
+            name: {String} The name of the type.
+            count: {Integer} The number of records available.
+            columns: {Columns} An array of columns to describe the record.
+            object: {Class} The actual Model type class.
+        release: {Function} The function to remove observers.
     */
     wrapModelType: function (klass, name) {
       var records = this.getRecords(klass, name);
@@ -27374,7 +27374,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Fetches all models defined in the application.
        @private
       @method getModelTypes
-      @return {Array} Array of model types
+      @return {Array} Array of model types.
     */
     getModelTypes: function () {
       var _this4 = this;
@@ -27388,7 +27388,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
         types = this._getObjectsOnNamespaces();
       }
 
-      // New adapters return strings instead of classes
+      // New adapters return strings instead of classes.
       types = _emberRuntimeSystemNative_array.A(types).map(function (name) {
         return {
           klass: _this4._nameToClass(name),
@@ -27404,10 +27404,10 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
 
     /**
       Loops over all namespaces and all objects
-      attached to them
+      attached to them.
        @private
       @method _getObjectsOnNamespaces
-      @return {Array} Array of model type strings
+      @return {Array} Array of model type strings.
     */
     _getObjectsOnNamespaces: function () {
       var _this5 = this;
@@ -27493,8 +27493,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       Returns the values of filters defined by `getFilters`.
        @private
       @method getRecordFilterValues
-      @param {Object} record The record instance
-      @return {Object} The filter values
+      @param {Object} record The record instance.
+      @return {Object} The filter values.
     */
     getRecordFilterValues: function (record) {
       return {};
@@ -27505,8 +27505,8 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
        @private
       @method getRecordColor
       @param {Object} record The record instance
-      @return {String} The record's color
-        Possible options: black, red, blue, green
+      @return {String} The records color.
+        Possible options: black, red, blue, green.
     */
     getRecordColor: function (record) {
       return null;
@@ -27517,7 +27517,7 @@ enifed('ember-extension-support/data_adapter', ['exports', 'ember-metal/property
       when a change occurs.
        @private
       @method observerRecord
-      @param {Object} record The record instance
+      @param {Object} record The record instance.
       @param {Function} recordUpdated The callback to call when a record is updated.
       @return {Function} The function to call to remove all observers.
     */
@@ -27991,7 +27991,7 @@ enifed('ember-htmlbars/helper', ['exports', 'ember-runtime/system/object'], func
     <div>{{format-currency cents currency="$"}}</div>
     ```
   
-    Additionally a helper can be called as a nested helper (sometimes called a
+    Additionally, a helper can be called as a nested helper (sometimes called a
     subexpression). In this example, the computed value of a helper is passed
     to a component named `show-money`:
   
@@ -28115,7 +28115,7 @@ enifed('ember-htmlbars/helpers/-html-safe', ['exports', 'htmlbars-util/safe-stri
 });
 enifed('ember-htmlbars/helpers/-join-classes', ['exports'], function (exports) {
   /*
-    this private helper is used to join and compact a list of class names
+    This private helper is used to join and compact a list of class names.
   
     @private
   */
@@ -28147,7 +28147,7 @@ enifed('ember-htmlbars/helpers/-legacy-each-with-controller', ['exports', 'ember
     var list = params[0];
     var keyPath = hash.key;
 
-    // TODO: Correct falsy semantics
+    // TODO: Correct falsy semantics.
     if (!list || _emberMetalProperty_get.get(list, 'length') === 0) {
       if (blocks.inverse.yield) {
         blocks.inverse.yield();
@@ -28237,7 +28237,7 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
     var inactiveClass = hash.inactiveClass;
 
     // When using the colon syntax, evaluate the truthiness or falsiness
-    // of the value to determine which className to return
+    // of the value to determine which className to return.
     if (activeClass || inactiveClass) {
       if (!!value) {
         return activeClass;
@@ -28248,7 +28248,7 @@ enifed('ember-htmlbars/helpers/-normalize-class', ['exports', 'ember-runtime/sys
       // If value is a Boolean and true, return the dasherized property
       // name.
     } else if (value === true) {
-        // Only apply to last segment in the path
+        // Only apply to last segment in the path.
         if (propName && _emberMetalPath_cache.isPath(propName)) {
           var segments = propName.split('.');
           propName = segments[segments.length - 1];
@@ -28642,7 +28642,7 @@ enifed('ember-htmlbars/helpers/loc', ['exports', 'ember-runtime/system/string'],
   
     @method loc
     @for Ember.Templates.helpers
-    @param {String} str The string to format
+    @param {String} str The string to format.
     @see {Ember.String#loc}
     @public
   */
@@ -28756,7 +28756,7 @@ enifed('ember-htmlbars/helpers', ['exports', 'ember-metal/empty_object'], functi
     @method _registerHelper
     @for Ember.HTMLBars
     @param {String} name
-    @param {Object|Function} helperFunc the helper function to add
+    @param {Object|Function} helperFunc The helper function to add.
   */
 
   function registerHelper(name, helperFunc) {
@@ -28988,7 +28988,7 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
       }
     }
 
-    // Determine if this is an initial render or a re-render
+    // Determine if this is an initial render or a re-render.
     if (state.manager) {
       state.manager.rerender(env, attrs, visitor);
       return;
@@ -29027,13 +29027,13 @@ enifed('ember-htmlbars/hooks/component', ['exports', 'ember-metal/features', 'em
     var isInvokedWithAngles = currentComponent && currentComponent._isAngleBracket;
     var isInvokedWithCurlies = currentComponent && !currentComponent._isAngleBracket;
 
-    // <div> at the top level of a <foo-bar> invocation
+    // <div> at the top level of a <foo-bar> invocation.
     var isComponentHTMLElement = isAngleBracket && !isDasherized && isInvokedWithAngles;
 
-    // <foo-bar> at the top level of a <foo-bar> invocation
+    // <foo-bar> at the top level of a <foo-bar> invocation.
     var isComponentIdentityElement = isAngleBracket && isTopLevel && tagName === env.view.tagName;
 
-    // <div> at the top level of a {{foo-bar}} invocation
+    // <div> at the top level of a {{foo-bar}} invocation.
     var isNormalHTMLElement = isAngleBracket && !isDasherized && isInvokedWithCurlies;
 
     var component = undefined,
@@ -29430,11 +29430,11 @@ enifed('ember-htmlbars/hooks/get-cell-or-value', ['exports', 'ember-metal/stream
 
   function getCellOrValue(ref) {
     if (ref && ref[_emberHtmlbarsKeywordsMut.MUTABLE_REFERENCE]) {
-      // reify the mutable reference into a mutable cell
+      // Reify the mutable reference into a mutable cell.
       return ref.cell();
     }
 
-    // get the value out of the reference
+    // Get the value out of the reference.
     return _emberMetalStreamsUtils.read(ref);
   }
 });
@@ -29453,7 +29453,7 @@ enifed('ember-htmlbars/hooks/get-child', ['exports', 'ember-metal/streams/utils'
       return parent.getKey(key);
     }
 
-    // This should only happen when we are looking at an `attrs` hash
+    // This should only happen when we are looking at an `attrs` hash.
     // That might change if it is possible to pass object literals
     // through the templating system.
     return parent[key];
@@ -29565,10 +29565,10 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-htmlbars/system/
   function invokeHelper(morph, env, scope, visitor, params, hash, helper, templates, context) {
     var helperStream = _emberHtmlbarsSystemInvokeHelper.buildHelperStream(helper, params, hash, templates, env, scope);
 
-    // Ember.Helper helpers are pure values, thus linkable
+    // Ember.Helper helpers are pure values, thus linkable.
     if (helperStream.linkable) {
       if (morph) {
-        // When processing an inline expression the params and hash have already
+        // When processing an inline expression, the params and hash have already
         // been linked. Thus, HTMLBars will not link the returned helperStream.
         // We subscribe the morph to the helperStream here, and also subscribe
         // the helperStream to any params.
@@ -29589,7 +29589,7 @@ enifed('ember-htmlbars/hooks/invoke-helper', ['exports', 'ember-htmlbars/system/
       return { link: true, value: helperStream };
     }
 
-    // Built-in helpers are not linkable, they must run every rerender
+    // Built-in helpers are not linkable. They must run on every rerender.
     return { value: helperStream.value() };
   }
 });
@@ -29623,7 +29623,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       }
     }
 
-    // If has a dot in the path, we need to subscribe to the arguments in the
+    // If there is a dot in the path, we need to subscribe to the arguments in the
     // closure component as well.
 
     if (_emberHtmlbarsSystemLookupHelper.CONTAINS_DOT_CACHE.get(path)) {
@@ -29651,7 +29651,7 @@ enifed('ember-htmlbars/hooks/link-render-node', ['exports', 'ember-htmlbars/util
       }
     }
 
-    // The params and hash can be reused; they don't need to be
+    // The params and hash can be reused. They don't need to be
     // recomputed on subsequent re-renders because they are
     // streams.
     return true;
@@ -29817,7 +29817,7 @@ enifed("ember-htmlbars/hooks/will-cleanup-tree", ["exports"], function (exports)
 
     // When we go to clean up the render node and all of its children, we may
     // encounter views/components associated with those nodes along the way. In
-    // those cases, we need to make sure we need to sever the link between the
+    // those cases, we need to sever the link between the
     // existing view hierarchy and those views.
     //
     // However, we do *not* need to remove the child views of child views, since
@@ -29992,11 +29992,11 @@ enifed('ember-htmlbars/index', ['exports', 'ember-metal/core', 'ember-metal/feat
   });
 });
 
-// importing adds template bootstrapping
-// initializer to enable embedded templates
+// Importing adds template bootstrapping
+// initializer to enable embedded templates.
 
-// importing ember-htmlbars/compat updates the
-// Ember.Handlebars global if htmlbars is enabled
+// Importing ember-htmlbars/compat updates the
+// Ember.Handlebars global if htmlbars is enabled.
 enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/debug', 'ember-metal/is_none', 'ember-metal/symbol', 'ember-metal/streams/stream', 'ember-metal/empty_object', 'ember-metal/streams/utils', 'ember-htmlbars/hooks/subexpr', 'ember-metal/assign', 'ember-htmlbars/utils/extract-positional-params', 'ember-htmlbars/utils/lookup-component'], function (exports, _emberMetalDebug, _emberMetalIs_none, _emberMetalSymbol, _emberMetalStreamsStream, _emberMetalEmpty_object, _emberMetalStreamsUtils, _emberHtmlbarsHooksSubexpr, _emberMetalAssign, _emberHtmlbarsUtilsExtractPositionalParams, _emberHtmlbarsUtilsLookupComponent) {
   /**
   @module ember
@@ -30044,9 +30044,9 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
     s.addDependency(path);
 
     // FIXME: If the stream invalidates on every params or hash change, then
-    // the {{component helper will be forces to rerender the whole component
+    // the {{component helper will be forced to re-render the whole component
     // each time. Instead, these dependencies should not be required and the
-    // element component keyword should add the params and hash as dependencies
+    // element component keyword should add the params and hash as dependencies.
     params.forEach(function (item) {
       return s.addDependency(item);
     });
@@ -30082,7 +30082,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
   function createNestedClosureComponentCell(componentCell, params, hash) {
     var _ref;
 
-    // This needs to be done in each nesting level to avoid raising assertions
+    // This needs to be done in each nesting level to avoid raising assertions.
     processPositionalParamsFromCell(componentCell, params, hash);
 
     return _ref = {}, _ref[COMPONENT_PATH] = componentCell[COMPONENT_PATH], _ref[COMPONENT_HASH] = mergeInNewHash(componentCell[COMPONENT_HASH], hash), _ref[COMPONENT_POSITIONAL_PARAMS] = componentCell[COMPONENT_POSITIONAL_PARAMS], _ref[COMPONENT_CELL] = true, _ref;
@@ -30099,7 +30099,7 @@ enifed('ember-htmlbars/keywords/closure-component', ['exports', 'ember-metal/deb
 
     var positionalParams = getPositionalParams(env.owner, componentPath);
 
-    // This needs to be done in each nesting level to avoid raising assertions
+    // This needs to be done in each nesting level to avoid raising assertions.
     _emberHtmlbarsUtilsExtractPositionalParams.processPositionalParams(null, positionalParams, params, hash);
 
     return _ref2 = {}, _ref2[COMPONENT_PATH] = componentPath, _ref2[COMPONENT_HASH] = hash, _ref2[COMPONENT_POSITIONAL_PARAMS] = positionalParams, _ref2[COMPONENT_CELL] = true, _ref2;
@@ -30162,7 +30162,7 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
     ```javascript
     App = Ember.Application.create();
     App.ApplicationRoute = Ember.Route.extend({
-      model: function() {
+      model() {
         return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
       }
     });
@@ -30180,8 +30180,8 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
   
     ### Non-block version of collection
   
-    If you provide an `itemViewClass` option that has its own `template` you may
-    omit the block.
+    If you provide an `itemViewClass` option that has its own `template`,
+    then you may omit the block.
   
     The following template:
   
@@ -30195,7 +30195,7 @@ enifed('ember-htmlbars/keywords/collection', ['exports', 'ember-views/streams/ut
     ```javascript
     App = Ember.Application.create();
     App.ApplicationRoute = Ember.Route.extend({
-      model: function() {
+      model() {
         return [{name: 'Yehuda'},{name: 'Tom'},{name: 'Peter'}];
       }
     });
@@ -30604,7 +30604,7 @@ enifed('ember-htmlbars/keywords/get', ['exports', 'ember-metal/debug', 'ember-me
 
   var DynamicKeyStream = _emberMetalStreamsStream.default.extend({
     init: function (source, keySource) {
-      // used to get the original path for debugging purposes
+      // Used to get the original path for debugging purposes.
       var label = labelFor(source, keySource);
 
       this.label = label;
@@ -30934,7 +30934,7 @@ enifed('ember-htmlbars/keywords/legacy-yield', ['exports', 'ember-metal/streams/
     var block = scope.getBlock('default');
 
     if (block.arity === 0) {
-      // Typically, the `controller` local is persists through lexical scope.
+      // Typically, the `controller` local persists through lexical scope.
       // However, in this case, the `{{legacy-yield}}` in the legacy each view
       // needs to override the controller local for the template it is yielding.
       // This megahaxx allows us to override the controller, and most importantly,
@@ -31015,7 +31015,7 @@ enifed('ember-htmlbars/keywords/mut', ['exports', 'ember-metal/debug', 'ember-me
     ```javascript
     // my-child.js
     export default Component.extend({
-      click: function() {
+      click() {
         this.attrs.childClickCount.update(this.attrs.childClickCount.value + 1);
       }
     });
@@ -31090,10 +31090,10 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+1fda8f38';
 
   /**
-    The `{{outlet}}` helper lets you specify where a child routes will render in
+    The `{{outlet}}` helper lets you specify where a child route will render in
     your template. An important use of the `{{outlet}}` helper is in your
     application's `application.hbs` file:
   
@@ -31255,7 +31255,7 @@ enifed('ember-htmlbars/keywords/outlet', ['exports', 'ember-metal/debug', 'ember
     b = b.render;
     for (var key in a) {
       if (a.hasOwnProperty(key)) {
-        // name is only here for logging & debugging. If two different
+        // Name is only here for logging & debugging. If two different
         // names result in otherwise identical states, they're still
         // identical.
         if (a[key] !== b[key] && key !== 'name') {
@@ -31311,7 +31311,7 @@ enifed('ember-htmlbars/keywords/partial', ['exports', 'ember-views/system/lookup
   
     @method partial
     @for Ember.Templates.helpers
-    @param {String} partialName the name of the template to render minus the leading underscore
+    @param {String} partialName The name of the template to render minus the leading underscore.
     @public
   */
 
@@ -31987,7 +31987,7 @@ enifed('ember-htmlbars/keywords', ['exports', 'htmlbars-runtime'], function (exp
     @method _registerHelper
     @for Ember.HTMLBars
     @param {String} name
-    @param {Object|Function} keyword the keyword to add
+    @param {Object|Function} keyword The keyword to add.
   */
 
   function registerKeyword(name, keyword) {
@@ -32734,7 +32734,6 @@ enifed('ember-htmlbars/system/append-templated-view', ['exports', 'ember-metal/d
 
     // We only want to override the `_context` computed property if there is
     // no specified controller. See View#_context for more information.
-
     var noControllerInProto = !viewProto.controller;
     if (viewProto.controller && viewProto.controller.isDescriptor) {
       noControllerInProto = true;
@@ -32783,7 +32782,7 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-views/component_loo
     var selectors = 'script[type="text/x-handlebars"], script[type="text/x-raw-handlebars"]';
 
     _emberViewsSystemJquery.default(selectors, ctx).each(function () {
-      // Get a reference to the script tag
+      // Get a reference to the script tag.
       var script = _emberViewsSystemJquery.default(this);
 
       // Get the name of the script, used by Ember.View's templateName property.
@@ -32801,15 +32800,15 @@ enifed('ember-htmlbars/system/bootstrap', ['exports', 'ember-views/component_loo
         });
       }
 
-      // Check if template of same name already exists
+      // Check if template of same name already exists.
       if (_emberHtmlbarsTemplate_registry.has(templateName)) {
         throw new _emberMetalError.default('Template named "' + templateName + '" already exists.');
       }
 
-      // For templates which have a name, we save them and then remove them from the DOM
+      // For templates which have a name, we save them and then remove them from the DOM.
       _emberHtmlbarsTemplate_registry.set(templateName, template);
 
-      // Remove script tag from DOM
+      // Remove script tag from DOM.
       script.remove();
     });
   }
@@ -32871,10 +32870,10 @@ enifed('ember-htmlbars/system/instrumentation-support', ['exports', 'ember-metal
     Wrap your node manager's render and re-render methods
     with this function.
   
-    @param {Object} component Component or View instance (optional)
-    @param {Function} callback The function to instrument
-    @param {Object} context The context to call the function with
-    @return {Object} Return value from the invoked callback
+    @param {Object} component Component or View instance (optional).
+    @param {Function} callback The function to instrument.
+    @param {Object} context The context to call the function with.
+    @return {Object} Return value from the invoked callback.
     @private
   */
 
@@ -32953,13 +32952,13 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
   
     * Look for a registered helper
     * If a dash exists in the name:
-      * Look for a helper registed in the container
+      * Look for a helper registed in the container.
       * Use Ember.ComponentLookup to find an Ember.Component that resolves
-        to the given name
+        to the given name.
   
     @private
     @method resolveHelper
-    @param {String} name the name of the helper to lookup
+    @param {String} name The name of the helper to lookup.
     @return {Helper}
   */
   function _findHelper(name, view, env, options) {
@@ -32987,12 +32986,12 @@ enifed('ember-htmlbars/system/lookup-helper', ['exports', 'ember-metal/debug', '
 
     var localHelper = _findHelper(name, view, env, options);
 
-    // local match found, use it
+    // Local match found, use it.
     if (localHelper) {
       return localHelper;
     }
 
-    // fallback to global
+    // Fall back to global.
     return _findHelper(name, view, env);
   }
 
@@ -33013,7 +33012,7 @@ enifed('ember-htmlbars/system/make_bound_helper', ['exports', 'ember-metal/debug
 
   /**
     Create a bound helper. Accepts a function that receives the ordered and hash parameters
-    from the template. If a bound property was provided in the template it will be resolved to its
+    from the template. If a bound property was provided in the template, it will be resolved to its
     value and any changes to the bound property cause the helper function to be re-run with the updated
     values.
   
@@ -33166,7 +33165,7 @@ enifed('ember-htmlbars/system/render-view', ['exports', 'ember-htmlbars/node-man
 enifed("ember-htmlbars/template_registry", ["exports"], function (exports) {
   // STATE within a module is frowned apon, this exists
   // to support Ember.TEMPLATES but shield ember internals from this legacy
-  // global API
+  // global API.
   "use strict";
 
   exports.setTemplates = setTemplates;
@@ -34152,7 +34151,7 @@ enifed('ember-htmlbars/utils/is-component', ['exports', 'ember-metal/features', 
             var moduleName = env.meta && env.meta.moduleName;
 
             if (!moduleName) {
-              // without a source moduleName we can not perform local lookups
+              // Without a source moduleName, we can not perform local lookups.
               return false;
             }
 
@@ -34242,7 +34241,7 @@ enifed('ember-htmlbars/utils/string', ['exports', 'ember-metal/core', 'ember-run
     @method htmlSafe
     @for Ember.String
     @static
-    @return {Handlebars.SafeString} a string that will not be html escaped by Handlebars
+    @return {Handlebars.SafeString} A string that will not be HTML escaped by Handlebars.
     @public
   */
   function htmlSafe(str) {
@@ -34383,7 +34382,7 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/proper
     return _emberMetalProperty_set.set(obj, keyName, value);
   }
 
-  // Backwards compatibility with Ember Data
+  // Backwards compatibility with Ember Data.
   AliasedProperty.prototype._meta = undefined;
   AliasedProperty.prototype.meta = _emberMetalComputed.ComputedProperty.prototype.meta;
 });
@@ -34519,7 +34518,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       you pass when you `connect()` the binding. It follows the same rules as
       `get()` - see that method for more information.
        @method from
-      @param {String} path the property path to connect to
+      @param {String} path The property path to connect to.
       @return {Ember.Binding} `this`
       @public
     */
@@ -34536,7 +34535,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       you pass when you `connect()` the binding. It follows the same rules as
       `get()` - see that method for more information.
        @method to
-      @param {String|Tuple} path A property path or tuple
+      @param {String|Tuple} path A property path or tuple.
       @return {Ember.Binding} `this`
       @public
     */
@@ -34588,10 +34587,10 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       var toPath = this._to;
       _emberMetalProperty_set.trySet(obj, toPath, getWithGlobals(obj, fromPath));
 
-      // add an observer on the object to be notified when the binding should be updated
+      // Add an observer on the object to be notified when the binding should be updated.
       _emberMetalObserver.addObserver(obj, fromPath, this, this.fromDidChange);
 
-      // if the binding is a two-way binding, also set up an observer on the target
+      // If the binding is a two-way binding, also set up an observer on the target.
       if (!this._oneWay) {
         _emberMetalObserver.addObserver(obj, toPath, this, this.toDidChange);
       }
@@ -34613,16 +34612,16 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
 
       var twoWay = !this._oneWay;
 
-      // remove an observer on the object so we're no longer notified of
+      // Remove an observer on the object so we're no longer notified of
       // changes that should update bindings.
       _emberMetalObserver.removeObserver(obj, this._from, this, this.fromDidChange);
 
-      // if the binding is two-way, remove the observer from the target as well
+      // If the binding is two-way, remove the observer from the target as well.
       if (twoWay) {
         _emberMetalObserver.removeObserver(obj, this._to, this, this.toDidChange);
       }
 
-      this._readyToSync = false; // disable scheduled syncs...
+      this._readyToSync = false; // Disable scheduled syncs...
       return this;
     },
 
@@ -34630,12 +34629,12 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     // PRIVATE
     //
 
-    /* called when the from side changes */
+    /* Called when the from side changes. */
     fromDidChange: function (target) {
       this._scheduleSync(target, 'fwd');
     },
 
-    /* called when the to side changes */
+    /* Called when the to side changes. */
     toDidChange: function (target) {
       this._scheduleSync(target, 'back');
     },
@@ -34643,7 +34642,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     _scheduleSync: function (obj, dir) {
       var existingDir = this._direction;
 
-      // if we haven't scheduled the binding yet, schedule it
+      // If we haven't scheduled the binding yet, schedule it.
       if (existingDir === undefined) {
         _emberMetalRun_loop.default.schedule('sync', this, this._sync, obj);
         this._direction = dir;
@@ -34659,13 +34658,13 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     _sync: function (obj) {
       var log = _emberMetalCore.default.LOG_BINDINGS;
 
-      // don't synchronize destroyed objects or disconnected bindings
+      // Don't synchronize destroyed objects or disconnected bindings.
       if (obj.isDestroyed || !this._readyToSync) {
         return;
       }
 
-      // get the direction of the binding for the object we are
-      // synchronizing from
+      // Get the direction of the binding for the object we are
+      // synchronizing from.
       var direction = this._direction;
 
       var fromPath = this._from;
@@ -34673,7 +34672,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
 
       this._direction = undefined;
 
-      // if we're synchronizing from the remote object...
+      // If we're synchronizing from the remote object...
       if (direction === 'fwd') {
         var fromValue = getWithGlobals(obj, this._from);
         if (log) {
@@ -34686,7 +34685,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
             _emberMetalProperty_set.trySet(obj, toPath, fromValue);
           });
         }
-        // if we're synchronizing *to* the remote object
+        // If we're synchronizing *to* the remote object.
       } else if (direction === 'back') {
           var toValue = _emberMetalProperty_get.get(obj, this._to);
           if (log) {
@@ -34734,7 +34733,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     An `Ember.Binding` connects the properties of two objects so that whenever
     the value of one property changes, the other property will be changed also.
   
-    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties
+    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties.
   
     You do not usually create Binding objects directly but instead describe
     bindings in your class or object definition using automatic binding
@@ -34783,7 +34782,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     All of the examples above show you how to configure a custom binding, but the
     result of these customizations will be a binding template, not a fully active
     Binding instance. The binding will actually become active only when you
-    instantiate the object the binding belongs to. It is useful however, to
+    instantiate the object the binding belongs to. It is useful, however, to
     understand what actually happens when the binding is activated.
   
     For a binding to function it must have at least a `from` property and a `to`
@@ -36693,7 +36692,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+5c2e7191
+    @version 2.5.0-canary+1fda8f38
     @public
   */
 
@@ -36735,11 +36734,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+5c2e7191'
+    @default '2.5.0-canary+1fda8f38'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+5c2e7191';
+  Ember.VERSION = '2.5.0-canary+1fda8f38';
 
   /**
     The hash of environment variables used to control various configuration
@@ -42853,13 +42852,13 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   exports.setValue = setValue;
 
   /*
-   Check whether an object is a stream or not
+   Check whether an object is a stream or not.
   
    @private
    @for Ember.stream
    @function isStream
-   @param {Object|Stream} object object to check whether it is a stream
-   @return {Boolean} `true` if the object is a stream, `false` otherwise
+   @param {Object|Stream} object Object to check whether it is a stream.
+   @return {Boolean} `true` if the object is a stream, `false` otherwise.
   */
 
   function isStream(object) {
@@ -42873,10 +42872,10 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @public
    @for Ember.stream
    @function subscribe
-   @param {Object|Stream} object object or stream to potentially subscribe to
-   @param {Function} callback function to run when stream value changes
+   @param {Object|Stream} object Object or stream to potentially subscribe to.
+   @param {Function} callback Function to run when stream value changes.
    @param {Object} [context] the callback will be executed with this context if it
-                             is provided
+                             is provided.
    */
 
   function subscribe(object, callback, context) {
@@ -42892,9 +42891,9 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function unsubscribe
-   @param {Object|Stream} object object or stream to potentially unsubscribe from
-   @param {Function} callback function originally passed to `subscribe()`
-   @param {Object} [context] object originally passed to `subscribe()`
+   @param {Object|Stream} object Object or stream to potentially unsubscribe from.
+   @param {Function} callback Function originally passed to `subscribe()`.
+   @param {Object} [context] Object originally passed to `subscribe()`.
    */
 
   function unsubscribe(object, callback, context) {
@@ -42904,14 +42903,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Retrieve the value of a stream, or in the case a non-stream object is passed,
+   Retrieve the value of a stream, or in the case where a non-stream object is passed,
    return the object itself.
   
    @private
    @for Ember.stream
    @function read
-   @param {Object|Stream} object object to return the value of
-   @return the stream's current value, or the non-stream object itself
+   @param {Object|Stream} object Object to return the value of.
+   @return The stream's current value, or the non-stream object itself.
    */
 
   function read(object) {
@@ -42929,7 +42928,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @for Ember.stream
    @function readArray
    @param {Array} array The array to read values from
-   @return {Array} a new array of the same length with the values of non-stream
+   @return {Array} A new array of the same length with the values of non-stream
                    objects mapped from their original positions untouched, and
                    the values of stream objects retaining their original position
                    and replaced with the stream's current value.
@@ -42951,8 +42950,8 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function readHash
-   @param {Object} object The hash to read keys and values from
-   @return {Object} a new object with the same keys as the passed object. The
+   @param {Object} object The hash to read keys and values from.
+   @return {Object} A new object with the same keys as the passed object. The
                     property values in the new object are the original values in
                     the case of non-stream objects, and the streams' current
                     values in the case of stream objects.
@@ -42967,14 +42966,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Check whether an array contains any stream values
+   Check whether an array contains any stream values.
   
    @private
    @for Ember.stream
    @function scanArray
-   @param {Array} array array given to a handlebars helper
+   @param {Array} array Array given to a handlebars helper.
    @return {Boolean} `true` if the array contains a stream/bound value, `false`
-                     otherwise
+                     otherwise.
   */
 
   function scanArray(array) {
@@ -42992,14 +42991,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Check whether a hash has any stream property values
+   Check whether a hash has any stream property values.
   
    @private
    @for Ember.stream
    @function scanHash
-   @param {Object} hash "hash" argument given to a handlebars helper
+   @param {Object} hash "hash" argument given to a handlebars helper.
    @return {Boolean} `true` if the object contains a stream/bound value, `false`
-                     otherwise
+                     otherwise.
    */
 
   function scanHash(hash) {
@@ -43020,8 +43019,8 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
       this.array = array;
       this.separator = separator;
 
-      // used by angle bracket components to detect an attribute was provided
-      // as a string literal
+      // Used by angle bracket components to detect an attribute was provided
+      // as a string literal.
       this.isConcat = true;
     },
 
@@ -43036,17 +43035,17 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   });
 
   /*
-   Join an array, with any streams replaced by their current values
+   Join an array, with any streams replaced by their current values.
   
    @private
    @for Ember.stream
    @function concat
    @param {Array} array An array containing zero or more stream objects and
-                        zero or more non-stream objects
-   @param {String} separator string to be used to join array elements
+                        zero or more non-stream objects.
+   @param {String} separator String to be used to join array elements.
    @return {String} String with array elements concatenated and joined by the
                     provided separator, and any stream array members having been
-                    replaced by the current value of the stream
+                    replaced by the current value of the stream.
    */
 
   function concat(array, separator) {
@@ -43183,9 +43182,9 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function chain
-   @param {Object|Stream} value A stream or non-stream object
-   @param {Function} fn function to be run when the stream value changes, or to
-                        be run once in the case of a non-stream object
+   @param {Object|Stream} value A stream or non-stream object.
+   @param {Function} fn Function to be run when the stream value changes, or to
+                        be run once in the case of a non-stream object.
    @return {Object|Stream} In the case of a stream `value` parameter, a new
                            stream that will be updated with the return value of
                            the provided function `fn`. In the case of a
@@ -44071,7 +44070,7 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
   };
 
   Renderer.prototype.renderTopLevelView = function Renderer_renderTopLevelView(view, renderNode) {
-    // Check to see if insertion has been canceled
+    // Check to see if insertion has been canceled.
     if (view._willInsert) {
       view._willInsert = false;
       this.prerenderTopLevelView(view, renderNode);
@@ -44150,7 +44149,7 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
     env.renderedViews.length = 0;
   };
 
-  // This entry point is called from top-level `view.appendTo`
+  // This entry point is called from top-level `view.appendTo`.
   Renderer.prototype.appendTo = function Renderer_appendTo(view, target) {
     var morph = this._dom.appendMorph(target);
     morph.ownerNode = morph;
@@ -44185,16 +44184,16 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
     if (view.trigger) {
       view.trigger('willInsertElement');
     }
-  }; // will place into DOM
+  }; // Will place into DOM.
 
   Renderer.prototype.setAttrs = function (view, attrs) {
     _emberMetalProperty_set.set(view, 'attrs', attrs);
-  }; // set attrs the first time
+  }; // Set attrs the first time.
 
   Renderer.prototype.componentInitAttrs = function (component, attrs) {
     component.trigger('didInitAttrs', { attrs: attrs });
     component.trigger('didReceiveAttrs', { newAttrs: attrs });
-  }; // set attrs the first time
+  }; // Set attrs the first time.
 
   Renderer.prototype.didInsertElement = function (view) {
     if (view._transitionTo) {
@@ -44204,7 +44203,7 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
     if (view.trigger) {
       view.trigger('didInsertElement');
     }
-  }; // inDOM // placed into DOM
+  }; // inDOM // Placed into DOM.
 
   Renderer.prototype.didUpdate = function (view) {
     if (view.trigger) {
@@ -44220,7 +44219,7 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
 
   Renderer.prototype.updateAttrs = function (view, attrs) {
     this.setAttrs(view, attrs);
-  }; // setting new attrs
+  }; // Setting new attrs.
 
   Renderer.prototype.componentUpdateAttrs = function (component, newAttrs) {
     var oldAttrs = null;
@@ -44321,7 +44320,9 @@ enifed('ember-metal-views/htmlbars-renderer', ['exports', 'ember-metal/run_loop'
     if (view.trigger) {
       view.trigger('didDestroyElement');
     }
-  }; // element destroyed so view.destroy shouldn't try to remove it removedFromDOM
+  }; // Element destroyed so view.destroy shouldn't try to remove it removedFromDOM
+
+  exports.default = Renderer;
 });
 enifed('ember-metal-views/index', ['exports', 'ember-metal-views/htmlbars-renderer'], function (exports, _emberMetalViewsHtmlbarsRenderer) {
   'use strict';
@@ -50486,7 +50487,7 @@ enifed('ember-routing-views/components/link-to', ['exports', 'ember-metal/logger
 
   'use strict';
 
-  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
+  _emberHtmlbarsTemplatesLinkTo.default.meta.revision = 'Ember@2.5.0-canary+1fda8f38';
 
   /**
     `Ember.LinkComponent` renders an element whose `click` event triggers a
@@ -50986,7 +50987,7 @@ enifed('ember-routing-views/views/outlet', ['exports', 'ember-views/views/view',
 
   'use strict';
 
-  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
+  _emberHtmlbarsTemplatesTopLevelView.default.meta.revision = 'Ember@2.5.0-canary+1fda8f38';
 
   var CoreOutletView = _emberViewsViewsView.default.extend({
     defaultTemplate: _emberHtmlbarsTemplatesTopLevelView.default,
@@ -59860,7 +59861,7 @@ enifed('ember-template-compiler/system/compile_options', ['exports', 'ember-meta
     options.buildMeta = function buildMeta(program) {
       return {
         fragmentReason: fragmentReason(program),
-        revision: 'Ember@2.5.0-canary+5c2e7191',
+        revision: 'Ember@2.5.0-canary+1fda8f38',
         loc: program.loc,
         moduleName: options.moduleName
       };
@@ -63927,7 +63928,7 @@ enifed('ember-views/views/collection_view', ['exports', 'ember-metal/core', 'emb
 enifed('ember-views/views/container_view', ['exports', 'ember-metal/core', 'ember-metal/debug', 'ember-runtime/mixins/mutable_array', 'ember-runtime/system/native_array', 'ember-views/views/view', 'ember-metal/property_get', 'ember-metal/property_set', 'ember-metal/mixin', 'ember-metal/events', 'ember-htmlbars/templates/container-view'], function (exports, _emberMetalCore, _emberMetalDebug, _emberRuntimeMixinsMutable_array, _emberRuntimeSystemNative_array, _emberViewsViewsView, _emberMetalProperty_get, _emberMetalProperty_set, _emberMetalMixin, _emberMetalEvents, _emberHtmlbarsTemplatesContainerView) {
   'use strict';
 
-  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+5c2e7191';
+  _emberHtmlbarsTemplatesContainerView.default.meta.revision = 'Ember@2.5.0-canary+1fda8f38';
 
   /**
   @module ember

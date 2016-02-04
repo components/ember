@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+5c2e7191
+ * @version   2.5.0-canary+1fda8f38
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -1247,7 +1247,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
      twitter2 instanceof Twitter; // => true
       twitter === twitter2; //=> true
      ```
-      If singletons are not wanted an optional flag can be provided at lookup.
+      If singletons are not wanted, an optional flag can be provided at lookup.
       ```javascript
      var registry = new Registry();
      var container = registry.container();
@@ -1269,7 +1269,7 @@ enifed('container/container', ['exports', 'ember-metal/core', 'ember-metal/debug
     },
 
     /**
-     Given a fullName return the corresponding factory.
+     Given a fullName, return the corresponding factory.
       @private
      @method lookupFactory
      @param {String} fullName
@@ -1611,14 +1611,14 @@ enifed('container/index', ['exports', 'ember-metal/core', 'container/registry', 
   'use strict';
 
   /*
-  Public api for the container is still in flux.
-  The public api, specified on the application namespace should be considered the stable api.
+  Public API for the container is still in flux.
+  The public API, specified on the application namespace should be considered the stable API.
   // @module container
     @private
   */
 
   /*
-   Flag to enable/disable model factory injections (disabled by default)
+   Flag to enable/disable model factory injections (disabled by default).
    If model factory injections are enabled, models should not be
    accessed globally (only through `container.lookupFactory('model:modelName'))`);
   */
@@ -1680,8 +1680,8 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     ```
   
     @method getOwner
-    @param {Object} object A object with an owner.
-    @return {Object} an owner object.
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
     @for Ember
     @public
   */
@@ -1695,8 +1695,8 @@ enifed('container/owner', ['exports', 'ember-metal/symbol'], function (exports, 
     useful in some testing cases.
   
     @method setOwner
-    @param {Object} object A object with an owner.
-    @return {Object} an owner object.
+    @param {Object} object An object with an owner.
+    @return {Object} An owner object.
     @for Ember
     @public
   */
@@ -2559,7 +2559,7 @@ enifed('ember-metal/alias', ['exports', 'ember-metal/debug', 'ember-metal/proper
     return _emberMetalProperty_set.set(obj, keyName, value);
   }
 
-  // Backwards compatibility with Ember Data
+  // Backwards compatibility with Ember Data.
   AliasedProperty.prototype._meta = undefined;
   AliasedProperty.prototype.meta = _emberMetalComputed.ComputedProperty.prototype.meta;
 });
@@ -2695,7 +2695,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       you pass when you `connect()` the binding. It follows the same rules as
       `get()` - see that method for more information.
        @method from
-      @param {String} path the property path to connect to
+      @param {String} path The property path to connect to.
       @return {Ember.Binding} `this`
       @public
     */
@@ -2712,7 +2712,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       you pass when you `connect()` the binding. It follows the same rules as
       `get()` - see that method for more information.
        @method to
-      @param {String|Tuple} path A property path or tuple
+      @param {String|Tuple} path A property path or tuple.
       @return {Ember.Binding} `this`
       @public
     */
@@ -2765,10 +2765,10 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
       var toPath = this._to;
       _emberMetalProperty_set.trySet(obj, toPath, getWithGlobals(obj, fromPath));
 
-      // add an observer on the object to be notified when the binding should be updated
+      // Add an observer on the object to be notified when the binding should be updated.
       _emberMetalObserver.addObserver(obj, fromPath, this, this.fromDidChange);
 
-      // if the binding is a two-way binding, also set up an observer on the target
+      // If the binding is a two-way binding, also set up an observer on the target.
       if (!this._oneWay) {
         _emberMetalObserver.addObserver(obj, toPath, this, this.toDidChange);
       }
@@ -2791,16 +2791,16 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
 
       var twoWay = !this._oneWay;
 
-      // remove an observer on the object so we're no longer notified of
+      // Remove an observer on the object so we're no longer notified of
       // changes that should update bindings.
       _emberMetalObserver.removeObserver(obj, this._from, this, this.fromDidChange);
 
-      // if the binding is two-way, remove the observer from the target as well
+      // If the binding is two-way, remove the observer from the target as well.
       if (twoWay) {
         _emberMetalObserver.removeObserver(obj, this._to, this, this.toDidChange);
       }
 
-      this._readyToSync = false; // disable scheduled syncs...
+      this._readyToSync = false; // Disable scheduled syncs...
       return this;
     },
 
@@ -2808,12 +2808,12 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     // PRIVATE
     //
 
-    /* called when the from side changes */
+    /* Called when the from side changes. */
     fromDidChange: function (target) {
       this._scheduleSync(target, 'fwd');
     },
 
-    /* called when the to side changes */
+    /* Called when the to side changes. */
     toDidChange: function (target) {
       this._scheduleSync(target, 'back');
     },
@@ -2821,7 +2821,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     _scheduleSync: function (obj, dir) {
       var existingDir = this._direction;
 
-      // if we haven't scheduled the binding yet, schedule it
+      // If we haven't scheduled the binding yet, schedule it.
       if (existingDir === undefined) {
         _emberMetalRun_loop.default.schedule('sync', this, this._sync, obj);
         this._direction = dir;
@@ -2837,13 +2837,13 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     _sync: function (obj) {
       var log = _emberMetalCore.default.LOG_BINDINGS;
 
-      // don't synchronize destroyed objects or disconnected bindings
+      // Don't synchronize destroyed objects or disconnected bindings.
       if (obj.isDestroyed || !this._readyToSync) {
         return;
       }
 
-      // get the direction of the binding for the object we are
-      // synchronizing from
+      // Get the direction of the binding for the object we are
+      // synchronizing from.
       var direction = this._direction;
 
       var fromPath = this._from;
@@ -2851,7 +2851,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
 
       this._direction = undefined;
 
-      // if we're synchronizing from the remote object...
+      // If we're synchronizing from the remote object...
       if (direction === 'fwd') {
         var fromValue = getWithGlobals(obj, this._from);
         if (log) {
@@ -2864,7 +2864,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
             _emberMetalProperty_set.trySet(obj, toPath, fromValue);
           });
         }
-        // if we're synchronizing *to* the remote object
+        // If we're synchronizing *to* the remote object.
       } else if (direction === 'back') {
           var toValue = _emberMetalProperty_get.get(obj, this._to);
           if (log) {
@@ -2912,7 +2912,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     An `Ember.Binding` connects the properties of two objects so that whenever
     the value of one property changes, the other property will be changed also.
   
-    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties
+    ## Automatic Creation of Bindings with `/^*Binding/`-named Properties.
   
     You do not usually create Binding objects directly but instead describe
     bindings in your class or object definition using automatic binding
@@ -2961,7 +2961,7 @@ enifed('ember-metal/binding', ['exports', 'ember-metal/core', 'ember-metal/logge
     All of the examples above show you how to configure a custom binding, but the
     result of these customizations will be a binding template, not a fully active
     Binding instance. The binding will actually become active only when you
-    instantiate the object the binding belongs to. It is useful however, to
+    instantiate the object the binding belongs to. It is useful, however, to
     understand what actually happens when the binding is activated.
   
     For a binding to function it must have at least a `from` property and a `to`
@@ -4886,7 +4886,7 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @class Ember
     @static
-    @version 2.5.0-canary+5c2e7191
+    @version 2.5.0-canary+1fda8f38
     @public
   */
 
@@ -4928,11 +4928,11 @@ enifed('ember-metal/core', ['exports', 'require'], function (exports, _require) 
   
     @property VERSION
     @type String
-    @default '2.5.0-canary+5c2e7191'
+    @default '2.5.0-canary+1fda8f38'
     @static
     @public
   */
-  Ember.VERSION = '2.5.0-canary+5c2e7191';
+  Ember.VERSION = '2.5.0-canary+1fda8f38';
 
   /**
     The hash of environment variables used to control various configuration
@@ -11140,13 +11140,13 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   exports.setValue = setValue;
 
   /*
-   Check whether an object is a stream or not
+   Check whether an object is a stream or not.
   
    @private
    @for Ember.stream
    @function isStream
-   @param {Object|Stream} object object to check whether it is a stream
-   @return {Boolean} `true` if the object is a stream, `false` otherwise
+   @param {Object|Stream} object Object to check whether it is a stream.
+   @return {Boolean} `true` if the object is a stream, `false` otherwise.
   */
 
   function isStream(object) {
@@ -11160,10 +11160,10 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @public
    @for Ember.stream
    @function subscribe
-   @param {Object|Stream} object object or stream to potentially subscribe to
-   @param {Function} callback function to run when stream value changes
+   @param {Object|Stream} object Object or stream to potentially subscribe to.
+   @param {Function} callback Function to run when stream value changes.
    @param {Object} [context] the callback will be executed with this context if it
-                             is provided
+                             is provided.
    */
 
   function subscribe(object, callback, context) {
@@ -11179,9 +11179,9 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function unsubscribe
-   @param {Object|Stream} object object or stream to potentially unsubscribe from
-   @param {Function} callback function originally passed to `subscribe()`
-   @param {Object} [context] object originally passed to `subscribe()`
+   @param {Object|Stream} object Object or stream to potentially unsubscribe from.
+   @param {Function} callback Function originally passed to `subscribe()`.
+   @param {Object} [context] Object originally passed to `subscribe()`.
    */
 
   function unsubscribe(object, callback, context) {
@@ -11191,14 +11191,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Retrieve the value of a stream, or in the case a non-stream object is passed,
+   Retrieve the value of a stream, or in the case where a non-stream object is passed,
    return the object itself.
   
    @private
    @for Ember.stream
    @function read
-   @param {Object|Stream} object object to return the value of
-   @return the stream's current value, or the non-stream object itself
+   @param {Object|Stream} object Object to return the value of.
+   @return The stream's current value, or the non-stream object itself.
    */
 
   function read(object) {
@@ -11216,7 +11216,7 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @for Ember.stream
    @function readArray
    @param {Array} array The array to read values from
-   @return {Array} a new array of the same length with the values of non-stream
+   @return {Array} A new array of the same length with the values of non-stream
                    objects mapped from their original positions untouched, and
                    the values of stream objects retaining their original position
                    and replaced with the stream's current value.
@@ -11238,8 +11238,8 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function readHash
-   @param {Object} object The hash to read keys and values from
-   @return {Object} a new object with the same keys as the passed object. The
+   @param {Object} object The hash to read keys and values from.
+   @return {Object} A new object with the same keys as the passed object. The
                     property values in the new object are the original values in
                     the case of non-stream objects, and the streams' current
                     values in the case of stream objects.
@@ -11254,14 +11254,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Check whether an array contains any stream values
+   Check whether an array contains any stream values.
   
    @private
    @for Ember.stream
    @function scanArray
-   @param {Array} array array given to a handlebars helper
+   @param {Array} array Array given to a handlebars helper.
    @return {Boolean} `true` if the array contains a stream/bound value, `false`
-                     otherwise
+                     otherwise.
   */
 
   function scanArray(array) {
@@ -11279,14 +11279,14 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   }
 
   /*
-   Check whether a hash has any stream property values
+   Check whether a hash has any stream property values.
   
    @private
    @for Ember.stream
    @function scanHash
-   @param {Object} hash "hash" argument given to a handlebars helper
+   @param {Object} hash "hash" argument given to a handlebars helper.
    @return {Boolean} `true` if the object contains a stream/bound value, `false`
-                     otherwise
+                     otherwise.
    */
 
   function scanHash(hash) {
@@ -11307,8 +11307,8 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
       this.array = array;
       this.separator = separator;
 
-      // used by angle bracket components to detect an attribute was provided
-      // as a string literal
+      // Used by angle bracket components to detect an attribute was provided
+      // as a string literal.
       this.isConcat = true;
     },
 
@@ -11323,17 +11323,17 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
   });
 
   /*
-   Join an array, with any streams replaced by their current values
+   Join an array, with any streams replaced by their current values.
   
    @private
    @for Ember.stream
    @function concat
    @param {Array} array An array containing zero or more stream objects and
-                        zero or more non-stream objects
-   @param {String} separator string to be used to join array elements
+                        zero or more non-stream objects.
+   @param {String} separator String to be used to join array elements.
    @return {String} String with array elements concatenated and joined by the
                     provided separator, and any stream array members having been
-                    replaced by the current value of the stream
+                    replaced by the current value of the stream.
    */
 
   function concat(array, separator) {
@@ -11473,9 +11473,9 @@ enifed('ember-metal/streams/utils', ['exports', 'ember-metal/debug', 'ember-meta
    @private
    @for Ember.stream
    @function chain
-   @param {Object|Stream} value A stream or non-stream object
-   @param {Function} fn function to be run when the stream value changes, or to
-                        be run once in the case of a non-stream object
+   @param {Object|Stream} value A stream or non-stream object.
+   @param {Function} fn Function to be run when the stream value changes, or to
+                        be run once in the case of a non-stream object.
    @return {Object|Stream} In the case of a stream `value` parameter, a new
                            stream that will be updated with the return value of
                            the provided function `fn`. In the case of a

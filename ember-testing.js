@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+5c2e7191
+ * @version   2.5.0-canary+1fda8f38
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -259,7 +259,7 @@ enifed('ember-debug/handlers', ['exports', 'ember-debug/is-plain-function', 'emb
   exports.HANDLERS = HANDLERS;
 
   function generateTestAsFunctionDeprecation(source) {
-    return 'Calling `' + source + '` with a function argument is deprecated. Please ' + 'use `!!Constructor` for constructors, or an `IIFE` to compute the test for deprecation. ' + 'In a future version functions will be treated as truthy values instead of being executed.';
+    return 'Calling `' + source + '` with a function argument is deprecated. Please ' + 'use `!!Constructor` for constructors, or an `IIFE` to compute the test for deprecation. ' + 'In a future version, functions will be treated as truthy values instead of being executed.';
   }
 
   function normalizeTest(test, source) {
@@ -390,7 +390,7 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     @param {String} message A description of the deprecation.
     @param {Object} [options] The options object for Ember.deprecate.
     @param {Function} func The new function called to replace its deprecated counterpart.
-    @return {Function} a new function that wrapped the original function with a deprecation warning
+    @return {Function} A new function that wraps the original function with a deprecation warning
     @private
   */
   _emberMetalDebug.setDebugFunction('deprecateFunc', function deprecateFunc() {
@@ -539,18 +539,18 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
     ```
      The handler function takes the following arguments:
      <ul>
-      <li> <code>message</code> - The message received from the deprecation call. </li>
+      <li> <code>message</code> - The message received from the deprecation call.</li>
       <li> <code>options</code> - An object passed in with the deprecation call containing additional information including:</li>
         <ul>
-          <li> <code>id</code> - an id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
-          <li> <code>until</code> - is the version number Ember the feature and deprecation will be removed in.</li>
+          <li> <code>id</code> - An id of the deprecation in the form of <code>package-name.specific-deprecation</code>.</li>
+          <li> <code>until</code> - The Ember version number the feature and deprecation will be removed in.</li>
         </ul>
-      <li> <code>next</code> - a function that calls into the previously registered handler.</li>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
      @public
     @static
     @method registerDeprecationHandler
-    @param handler {Function} a function to handle deprecation calls
+    @param handler {Function} A function to handle deprecation calls.
     @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerDeprecationHandler = _emberDebugDeprecate.registerHandler;
@@ -568,14 +568,14 @@ enifed('ember-debug/index', ['exports', 'ember-metal/core', 'ember-metal/debug',
       <li> <code>message</code> - The message received from the warn call. </li>
       <li> <code>options</code> - An object passed in with the warn call containing additional information including:</li>
         <ul>
-          <li> <code>id</code> - an id of the warning in the form of <code>package-name.specific-warning</code>.</li>
+          <li> <code>id</code> - An id of the warning in the form of <code>package-name.specific-warning</code>.</li>
         </ul>
-      <li> <code>next</code> - a function that calls into the previously registered handler.</li>
+      <li> <code>next</code> - A function that calls into the previously registered handler.</li>
     </ul>
      @public
     @static
     @method registerWarnHandler
-    @param handler {Function} a function to handle warnings
+    @param handler {Function} A function to handle warnings.
     @since 2.1.0
   */
   _emberMetalCore.default.Debug.registerWarnHandler = _emberDebugWarn.registerHandler;
@@ -639,7 +639,7 @@ enifed('ember-debug/warn', ['exports', 'ember-metal/logger', 'ember-metal/debug'
     @param {String} message A warning to display.
     @param {Boolean} test An optional boolean. If falsy, the warning
       will be displayed.
-    @param {Object} options An ojbect that can be used to pass a unique
+    @param {Object} options An object that can be used to pass a unique
       `id` for this warning.  The `id` can be used by Ember debugging tools
       to change the behavior (raise, log, or silence) for that specific warning.
       The `id` should be namespaced by dots, e.g. "ember-debug.feature-flag-with-features-stripped"
