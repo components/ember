@@ -6,7 +6,7 @@
  *            Portions Copyright 2008-2011 Apple Inc. All rights reserved.
  * @license   Licensed under MIT license
  *            See https://raw.github.com/emberjs/ember.js/master/LICENSE
- * @version   2.5.0-canary+d5b6c8a8
+ * @version   2.5.0-canary+98750484
  */
 
 var enifed, requireModule, require, requirejs, Ember;
@@ -55695,7 +55695,7 @@ enifed('ember-template-compiler/tests/system/compile_test', ['exports', 'ember-t
 
     var actual = _emberTemplateCompilerSystemCompile.default(templateString);
 
-    equal(actual.meta.revision, 'Ember@2.5.0-canary+d5b6c8a8', 'revision is included in generated template');
+    equal(actual.meta.revision, 'Ember@2.5.0-canary+98750484', 'revision is included in generated template');
   });
 
   QUnit.test('the template revision is different than the HTMLBars default revision', function () {
@@ -56721,8 +56721,6 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     }).then(function () {
       deepEqual(events, ['mousedown', 'focusin', 'mouseup', 'click'], 'fires focus events on contenteditable');
     }).then(function () {
-      // In IE (< 8), the change event only fires when the value changes before element focused.
-      _emberViewsSystemJquery.default('.index-view input[type=checkbox]').focus();
       events = [];
       return click('.index-view input[type=checkbox]');
     }).then(function () {
@@ -56730,6 +56728,45 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       // Firefox differs so we can't assert the exact ordering here.
       // See https://bugzilla.mozilla.org/show_bug.cgi?id=843554.
       equal(events.length, 5, 'fires click and change on checkboxes');
+    });
+  });
+
+  QUnit.test('`click` triggers native events with simulated X/Y coordinates', function () {
+    expect(15);
+
+    var click, wait, events;
+
+    App.IndexView = _emberViewsViewsView.default.extend({
+      classNames: 'index-view',
+
+      didInsertElement: function () {
+        var pushEvent = function (e) {
+          return events.push(e);
+        };
+        this.element.addEventListener('mousedown', pushEvent);
+        this.element.addEventListener('mouseup', pushEvent);
+        this.element.addEventListener('click', pushEvent);
+      }
+    });
+
+    _emberMetalCore.default.TEMPLATES.index = _emberTemplateCompilerSystemCompile.default('some text');
+
+    _emberMetalRun_loop.default(App, App.advanceReadiness);
+
+    click = App.testHelpers.click;
+    wait = App.testHelpers.wait;
+
+    return wait().then(function () {
+      events = [];
+      return click('.index-view');
+    }).then(function () {
+      events.forEach(function (e) {
+        ok(e instanceof window.Event, 'The event is an instance of MouseEvent');
+        ok(typeof e.screenX === 'number' && e.screenX > 0, 'screenX is correct');
+        ok(typeof e.screenY === 'number' && e.screenY > 0, 'screenY is correct');
+        ok(typeof e.clientX === 'number' && e.clientX > 0, 'clientX is correct');
+        ok(typeof e.clientY === 'number' && e.clientY > 0, 'clientY is correct');
+      });
     });
   });
 
@@ -56795,7 +56832,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       template: _emberTemplateCompilerSystemCompile.default('{{input type="text" id="scope" class="input"}}'),
 
       didInsertElement: function () {
-        this.$('.input').on('blur change', function (e) {
+        this.$('.input').on('keydown change', function (e) {
           event = e;
         });
       }
@@ -56807,10 +56844,10 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     wait = App.testHelpers.wait;
 
     return wait().then(function () {
-      return triggerEvent('.input', 'blur', { keyCode: 13 });
+      return triggerEvent('.input', 'keydown', { keyCode: 13 });
     }).then(function () {
       equal(event.keyCode, 13, 'options were passed');
-      equal(event.type, 'blur', 'correct event was triggered');
+      equal(event.type, 'keydown', 'correct event was triggered');
       equal(event.target.getAttribute('id'), 'scope', 'triggered on the correct element');
     });
   });
@@ -56975,7 +57012,7 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
       template: _emberTemplateCompilerSystemCompile.default('{{input type="text" id="outside-scope" class="input"}}<div id="limited">{{input type="text" id="inside-scope" class="input"}}</div>'),
 
       didInsertElement: function () {
-        this.$('.input').on('blur change', function (e) {
+        this.$('.input').on('keydown change', function (e) {
           event = e;
         });
       }
@@ -56987,10 +57024,10 @@ enifed('ember-testing/tests/helpers_test', ['exports', 'ember-metal/core', 'embe
     wait = App.testHelpers.wait;
 
     return wait().then(function () {
-      return triggerEvent('.input', '#limited', 'blur', { keyCode: 13 });
+      return triggerEvent('.input', '#limited', 'keydown', { keyCode: 13 });
     }).then(function () {
       equal(event.keyCode, 13, 'options were passed');
-      equal(event.type, 'blur', 'correct event was triggered');
+      equal(event.type, 'keydown', 'correct event was triggered');
       equal(event.target.getAttribute('id'), 'inside-scope', 'triggered on the correct element');
     });
   });
